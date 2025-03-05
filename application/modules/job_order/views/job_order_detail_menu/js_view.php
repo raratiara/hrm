@@ -116,6 +116,7 @@ function load_data()
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					$('[name="degree"]').val(data.degree);
+					$('[name="degree_2"]').val(data.degree_2);
 					$('[name="datetime_start"]').val(data.datetime_start);
 					$('[name="datetime_end"]').val(data.datetime_end);
 					$('select#job_order').val(data.job_order_id).trigger('change.select2');
@@ -129,6 +130,7 @@ function load_data()
 					$('span.job_order').html(data.order_name);
 					$('span.activity').html(data.activity_name);
 					$('span.degree').html(data.degree);
+					$('span.degree_2').html(data.degree_2);
 					$('span.datetime_start').html(data.datetime_start);
 					$('span.datetime_end').html(data.datetime_end);
 					

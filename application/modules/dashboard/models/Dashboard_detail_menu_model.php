@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Job_order_detail_menu_model extends MY_Model
+class Dashboard_detail_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "job_order/job_order_detail_menu";
- 	protected $table_name 				= _PREFIX_TABLE."job_order_detail";
+ 	protected $folder_name				= "dashboard/dashboard_detail_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."cctv";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -14,22 +14,36 @@ class Job_order_detail_menu_model extends MY_Model
 	}
 
 	// fix
-	public function get_list_data()
+	public function get_list_data($id)
 	{ 
+
 		$aColumns = [
-			NULL,
-			NULL,
-			'dt.id',
+			'dt.date',
+			'dt.order_no',
 			'dt.order_name',
-			'dt.activity_name'
+			'dt.floating_crane_name',
+			'dt.mother_vessel_name',
+			'dt.activity_name',
+			'dt.datetime_start',
+			'dt.datetime_end',
+			'dt.total_time',
+			'dt.degree',
+			'dt.degree_2',
+			'dt.pic',
+			'dt.status_name'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.order_name, c.activity_name from job_order_detail a
-					left join job_order b on b.id = a.job_order_id
-					left join activity c on c.id = a.activity_id)dt';
+		$sTable = '(select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, 				b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '.$id.' and b.is_active = 1)dt';
 		
 
 		/* Paging */
@@ -167,31 +181,21 @@ class Job_order_detail_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-			$detail = "";
-			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
-			}
-			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
-			}
-			$delete_bulk = "";
-			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
-				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
-				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
-			}
 
 			array_push($output["aaData"],array(
-				$delete_bulk,
-				'<div class="action-buttons">
-					'.$detail.'
-					'.$edit.'
-					'.$delete.'
-				</div>',
-				$row->id,
+				$row->date,
+				$row->order_no,
 				$row->order_name,
-				$row->activity_name
+				$row->floating_crane_name,
+				$row->mother_vessel_name,
+				$row->activity_name,
+				$row->datetime_start,
+				$row->datetime_end,
+				$row->total_time,
+				$row->degree,
+				$row->degree_2,
+				$row->pic,
+				$row->status_name
 
 			));
 		}
@@ -243,63 +247,42 @@ class Job_order_detail_menu_model extends MY_Model
 		} else return null;
 	}  
 
-	
-
-	public function add_data($post) { 
-		
-		$datetime_start = date_create($post['date_time_start']); 
-		$datetime_end = date_create($post['date_time_end']); 
-
-		$f_datetime_start = date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end = date_format($datetime_end,"Y-m-d H:i:s");
-
-
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
-
-  		$diff = abs($timestamp2 - $timestamp1)/(60); //menit
-		
-
-
+	public function add_data($post) {
 		$data = [
-			'job_order_id' 		=> trim($post['job_order']),
-			'activity_id' 		=> trim($post['activity']),
-			'datetime_start' 	=> $f_datetime_start,
-			'datetime_end' 		=> $f_datetime_end,
-			'total_time' 		=> $diff,
-			'degree' 			=> trim($post['degree']),
-			'degree_2' 			=> trim($post['degree_2'])
+			'floating_crane_id'	=> trim($post['floating_crane']),
+			'code' 				=> trim($post['code']),
+			'name' 				=> trim($post['name']),
+			'position' 			=> trim($post['posisi']),
+			'ip_cctv' 			=> trim($post['ip_cctv']),
+			'ip_server' 		=> trim($post['ip_server']),
+			'rtsp' 				=> trim($post['rtsp']),
+			'embed' 			=> trim($post['embed']),
+			'type_streaming' 	=> trim($post['type_streaming']),
+			'thumnail' 			=> trim($post['thumbnail']),
+			'is_active' 		=> trim($post['is_active']),
+			'latitude' 			=> trim($post['latitude']),
+			'longitude' 		=> trim($post['longitude'])
 		];
 
 		return $rs = $this->db->insert($this->table_name, $data);
 	}  
 
 	public function edit_data($post) { 
-
-		$datetime_start = date_create($post['date_time_start']); 
-		$datetime_end = date_create($post['date_time_end']); 
-
-		$f_datetime_start = date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end = date_format($datetime_end,"Y-m-d H:i:s");
-
-
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
-
-  		$diff = abs($timestamp2 - $timestamp1)/(60); //menit
-			
-
-
 		if(!empty($post['id'])){
-
 			$data = [
-				'job_order_id' 		=> trim($post['job_order']),
-				'activity_id' 		=> trim($post['activity']),
-				'datetime_start' 	=> $f_datetime_start,
-				'datetime_end' 		=> $f_datetime_end,
-				'total_time' 		=> $diff,
-				'degree' 			=> trim($post['degree']),
-				'degree_2' 			=> trim($post['degree_2'])
+				'floating_crane_id'	=> trim($post['floating_crane']),
+				'code' 				=> trim($post['code']),
+				'name' 				=> trim($post['name']),
+				'position' 			=> trim($post['posisi']),
+				'ip_cctv' 			=> trim($post['ip_cctv']),
+				'ip_server' 		=> trim($post['ip_server']),
+				'rtsp' 				=> trim($post['rtsp']),
+				'embed' 			=> trim($post['embed']),
+				'type_streaming' 	=> trim($post['type_streaming']),
+				'thumnail' 			=> trim($post['thumbnail']),
+				'is_active' 		=> trim($post['is_active']),
+				'latitude' 			=> trim($post['latitude']),
+				'longitude' 		=> trim($post['longitude'])
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -307,10 +290,7 @@ class Job_order_detail_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.order_name, c.activity_name from job_order_detail a
-					left join job_order b on b.id = a.job_order_id
-					left join activity c on c.id = a.activity_id
-			)dt';
+		$mTable = '(select a.*, b.name as floating_crane_name, if(a.is_active=1,"Yes","No") as is_active_desc from cctv a left join floating_crane b on b.id = a.floating_crane_id)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
@@ -332,13 +312,19 @@ class Job_order_detail_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'job_order_id'		=> $v["B"],
-				'activity_id' 		=> $v["C"],
-				'datetime_start' 	=> $v["D"],
-				'datetime_end' 		=> $v["E"],
-				'total_time' 		=> $v["F"],
-				'degree' 			=> $v["G"],
-				'degree_2' 			=> $v["H"]
+				'floating_crane_id'	=> $v["B"],
+				'code' 				=> $v["C"],
+				'name' 				=> $v["D"],
+				'position' 			=> $v["E"],
+				'ip_cctv' 			=> $v["F"],
+				'ip_server' 		=> $v["G"],
+				'rtsp' 				=> $v["H"],
+				'embed' 			=> $v["I"],
+				'type_streaming' 	=> $v["J"],
+				'thumnail' 			=> $v["K"],
+				'is_active' 		=> $v["L"],
+				'latitude' 			=> $v["M"],
+				'longitude' 		=> $v["N"]
 				
 			];
 
@@ -351,15 +337,70 @@ class Job_order_detail_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.order_name, c.activity_name from job_order_detail a
-				left join job_order b on b.id = a.job_order_id
-				left join activity c on c.id = a.activity_id
-				order by a.id asc
+		$sql = "select a.*, b.name as floating_crane_name from cctv a
+				left join floating_crane b on b.id = a.floating_crane_id
+	   		ORDER BY a.id ASC
 		";
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
 	}
+
+	public function getTblCctv($cctv) { 
+		
+		$rs = $this->db->query("select a.*, b.name as floating_crane_name from cctv a left join floating_crane b on b.id = a.floating_crane_id where a.floating_crane_id = '".$cctv."' ")->result(); 
+		$rd = $rs;
+
+
+		if(!empty($rd)){ 
+
+			
+		
+			foreach ($rd as $row){
+
+
+				$thead .= '<th scope="col">'.$row->name.'</th>';
+				$tbody .= '<td><iframe width="420" height="345" src="'.$row->embed.'">
+					</iframe></td> ';
+
+			}
+
+			$dt .= '<div class="row ca">
+                        <div class="col-md-12">
+							<div class="portlet box green">
+								<div class="portlet-title">
+									<div class="caption"><i class="fa fa-cubes"></i>'.$row->floating_crane_name.' </div>
+									<div class="tools">
+								
+									</div>
+								</div>
+								<div class="portlet-body">
+									<div class="table-scrollable tablesaw-cont">
+									<table class="table table-striped table-bordered table-hover reim-list tablesaw tablesaw-stack" id="tblJadwal" data-tablesaw-mode="stack">
+										<thead>
+											<tr>
+											'.$thead.'
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+											'.$tbody.'
+											</tr>
+										</tbody>
+										<tfoot>
+										</tfoot>
+									</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>';
+		}
+
+
+		return $dt;
+	} 
+
 
 }

@@ -33,7 +33,8 @@ class Master_cctv_menu extends MY_Controller
 		$field['txtlinkrtsp'] 		= $this->self_model->return_build_txt('','rtsp','rtsp');
 		$field['txtthumbnail'] 		= $this->self_model->return_build_txt('','thumbnail','thumbnail');
 		$field['txtlinkembed'] 		= $this->self_model->return_build_txt('','embed','embed');
-
+		$field['txtlatitude'] 		= $this->self_model->return_build_txt('','latitude','latitude');
+		$field['txtlongitude'] 		= $this->self_model->return_build_txt('','longitude','longitude');
 
 		$field['rdoisactive'] 	= $this->self_model->return_build_radio('', [['1','Yes'],['0','No']], 'is_active', '', 'inline');
 		$msfloating 			= $this->db->query("select * from floating_crane")->result(); 

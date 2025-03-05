@@ -1,4 +1,47 @@
+<style type="text/css">
+	#map {
+	  width: 1400px;
+	  height: 400px;
+	}
+
+	
+</style>
+
+
+<!-- Modal Form Data -->
+<div id="modal-detail" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:1000px; height:500px; margin-left:-160px">
+			<form class="form-horizontal" id="frmInputData" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					<span id="mfdata"></span> Activity Monitor
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<input type="hidden" name="id" value="">
+				<?php $this->load->view("_detail"); ?>
+			</div>
+			</form>
+
+			<div class="modal-footer no-margin-top">
+				
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
 <script type="text/javascript">
+
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
 var validator;
@@ -94,7 +137,7 @@ jQuery(function($) {
 <?php } ?>
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
-function load_data()
+/*function load_data()
 {
     $.ajax({
 		type: "POST",
@@ -170,6 +213,176 @@ function load_data()
 			});
         }
     });
+}*/
+
+
+$('#floating_crane').on('change', function () {
+ 	var selectVal = $("#floating_crane option:selected").val();
+
+ 	
+ 	getMaps(selectVal);
+
+
+ 	
+});
+
+
+function getMaps(id){
+	
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_maps',
+		data: { id: id},
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ 
+				var locations = data;
+				console.log(locations); 
+				//$('div#clMaps').html(data);
+
+				/*var locations = [
+				  ["LOCATION_1", 11.8166, 122.0942],
+				  ["LOCATION_2", 11.9804, 121.9189],
+				  ["LOCATION_3", 10.7202, 122.5621],
+				  ["LOCATION_4", 11.3889, 122.6277],
+				  ["LOCATION_5", 10.5929, 122.6325]
+				];*/
+
+				L.map('map').remove();
+				
+				var map = L.map('map').setView([11.206051, 122.447886], 8);
+
+
+				mapLink =
+				  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+				L.tileLayer(
+				  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				    attribution: '&copy; ' + mapLink + ' Contributors',
+				    maxZoom: 18,
+			  	}).addTo(map);
+
+
+
+				for (var i = 0; i < locations.length; i++) {
+				  /*marker = new L.marker([locations[i][1], locations[i][2]])
+				    //.bindPopup(locations[i][0])
+				  	.bindPopup(locations[i][0]).openPopup()
+				    .addTo(map);*/
+					var latlng = L.latLng(locations[i]['latitude'], locations[i]['longitude']);
+				    /*marker = new L.popup(latlng, {content: '<p>Hello world!<br />This is a nice popup.</p>'})
+				    .addTo(map);*/
+				   
+
+				    marker = new L.popup()
+				    .setLatLng(latlng)
+				    .setContent('<div class="mydivclass" onclick="tes('+"'"+locations[i]['floating_crane_id']+"'"+')"> <p>'+locations[i]['name']+'</p> </div>')
+				    .addTo(map);
+
+				    /*marker.on('click', function() { alert("hahaha");
+					    alert(ev.latlng); // ev is an event object (MouseEvent in this case)
+					});*/
+				    //var google = window.google.maps;
+
+				}
+
+				
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
 }
+
+
+function getViewMaps(){
+	var locations = [
+	  ["LOCATION_1", 11.8166, 122.0942],
+	  ["LOCATION_2", 11.9804, 121.9189],
+	  ["LOCATION_3", 10.7202, 122.5621],
+	  ["LOCATION_4", 11.3889, 122.6277],
+	  ["LOCATION_5", 10.5929, 122.6325]
+	];
+
+	var map = L.map('map').setView([11.206051, 122.447886], 8);
+	mapLink =
+	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+	L.tileLayer(
+	  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    attribution: '&copy; ' + mapLink + ' Contributors',
+	    maxZoom: 18,
+  	}).addTo(map);
+
+
+
+	for (var i = 0; i < locations.length; i++) {
+	  /*marker = new L.marker([locations[i][1], locations[i][2]])
+	    //.bindPopup(locations[i][0])
+	  	.bindPopup(locations[i][0]).openPopup()
+	    .addTo(map);*/
+		var latlng = L.latLng(locations[i][1], locations[i][2]);
+	    /*marker = new L.popup(latlng, {content: '<p>Hello world!<br />This is a nice popup.</p>'})
+	    .addTo(map);*/
+	   
+
+	    marker = new L.popup()
+	    .setLatLng(latlng)
+	    .setContent('<div class="mydivclass" onclick="tes('+"'"+locations[i][0]+"'"+')"> <p>'+locations[i][0]+'</p> </div>')
+	    .addTo(map);
+
+	    /*marker.on('click', function() { alert("hahaha");
+		    alert(ev.latlng); // ev is an event object (MouseEvent in this case)
+		});*/
+	    //var google = window.google.maps;
+		
+
+	}
+}
+
+
+function tes(idfc){
+
+	var getUrl = window.location;
+	var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+
+
+
+	//alert(getUrl);
+	/*$('span.title_maps').html(loc);
+	$('#modal-detail').modal('show');*/
+
+	var link = document.createElement("a")
+  	link.href = ''+baseUrl+'/dashboard/dashboard_detail_menu?id='+idfc+''
+  	link.target = "_blank"
+  	link.click()
+
+}
+
+
 <?php } ?>
 </script>

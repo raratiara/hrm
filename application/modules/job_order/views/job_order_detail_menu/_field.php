@@ -30,5 +30,11 @@
 											<?=$txtdegree;?>
 										</div>
 									</div>
+									<div class="form-group">
+										<label class="col-md-3 control-label no-padding-right">Degree 2 <span class="required">*</span></label>
+										<div class="col-md-9">
+											<?=$txtdegree_2;?>
+										</div>
+									</div>
 									
 									

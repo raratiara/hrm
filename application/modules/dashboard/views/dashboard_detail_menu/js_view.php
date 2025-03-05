@@ -1,13 +1,59 @@
+<style type="text/css">
+	#map {
+	  width: 1400px;
+	  height: 400px;
+	}
+
+	
+</style>
+
+
+<!-- Modal Form Data -->
+<div id="modal-detail" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:1000px; height:500px; margin-left:-160px">
+			<form class="form-horizontal" id="frmInputData" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					<span id="mfdata"></span> Activity Monitor
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<input type="hidden" name="id" value="">
+				<?php $this->load->view("_detail"); ?>
+			</div>
+			</form>
+
+			<div class="modal-footer no-margin-top">
+				
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
 <script type="text/javascript">
+
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
 var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var url = new URL(window.location.href);
+arrayOfStrings = url.toString().split('=');
+var idfc = arrayOfStrings[1];
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
-jQuery(function($) {
+jQuery(function($) { 
 	/* load table list */
 	myTable =
 	$('#dynamic-table')
@@ -24,7 +70,7 @@ jQuery(function($) {
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
-		"sAjaxSource": module_path+"/get_data",
+		"sAjaxSource": module_path+"/get_data_activity?idx="+idfc+"",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
@@ -82,12 +128,11 @@ jQuery(function($) {
 	});
 	<?php } ?>
 
-	<?php if  (_USER_ACCESS_LEVEL_DELETE == "1") { ?>
-    //check all
-    $("#check-all").click(function () {
-        $(".data-check").prop('checked', $(this).prop('checked'));
-    });
-	<?php } ?>
+	
+	getCctv(idfc);
+
+
+
 })
 
 <?php $this->load->view(_TEMPLATE_PATH . "common_module_js"); ?>
@@ -105,43 +150,7 @@ function load_data()
         success: function(data)
         {
 			if(data != false){
-				if(save_method == 'update'){ 
-					$('[name="id"]').val(data.id);
-					$('[name="code"]').val(data.code);
-					$('[name="name"]').val(data.name);
-					$('[name="posisi"]').val(data.position);
-					$('[name="latitude"]').val(data.latitude);
-					$('[name="longitude"]').val(data.longitude);
-					$('[name="ip_cctv"]').val(data.ip_cctv);
-					$('[name="ip_server"]').val(data.ip_server);
-					$('[name="rtsp"]').val(data.rtsp);
-					$('[name="embed"]').val(data.embed);
-					$('[name="thumbnail"]').val(data.thumnail);
-					$('[name="is_active"][value="'+data.is_active+'"]').prop('checked', true);
-					$('select#floating_crane').val(data.floating_crane_id).trigger('change.select2');
-					$('select#type_streaming').val(data.type_streaming).trigger('change.select2');
-					
-					$.uniform.update();
-					$('#mfdata').text('Update');
-					$('#modal-form-data').modal('show');
-				}
-				if(save_method == 'detail'){ 
-					$('span.code').html(data.code);
-					$('span.name').html(data.name);
-					$('span.floating_crane').html(data.floating_crane_name);
-					$('span.posisi').html(data.position);
-					$('span.latitude').html(data.latitude);
-					$('span.longitude').html(data.longitude);
-					$('span.ip_cctv').html(data.ip_cctv);
-					$('span.ip_server').html(data.ip_server);
-					$('span.rtsp').html(data.rtsp);
-					$('span.embed').html(data.embed);
-					$('span.type_streaming').html(data.type_streaming);
-					$('span.thumbnail').html(data.thumnail);
-					$('span.is_active').html(data.is_active_desc);
-					
-					$('#modal-view-data').modal('show');
-				}
+				
 			} else {
 				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
 				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
@@ -171,5 +180,58 @@ function load_data()
         }
     });
 }
+
+
 <?php } ?>
+
+
+
+function getCctv(idfc){
+	
+
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_cctv',
+		data: { cctv: idfc},
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ 
+				
+
+				$('span.tblCctv').html(data);
+				
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+}
+
+
 </script>

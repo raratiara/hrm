@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Job_order_detail_menu_model extends MY_Model
+class Dashboard_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "job_order/job_order_detail_menu";
- 	protected $table_name 				= _PREFIX_TABLE."job_order_detail";
+ 	protected $folder_name				= "dashboard/dashboard_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."cctv";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -15,21 +15,21 @@ class Job_order_detail_menu_model extends MY_Model
 
 	// fix
 	public function get_list_data()
-	{ 
+	{
 		$aColumns = [
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.order_name',
-			'dt.activity_name'
+			'dt.floating_crane_name',
+			'dt.code',
+			'dt.name'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.order_name, c.activity_name from job_order_detail a
-					left join job_order b on b.id = a.job_order_id
-					left join activity c on c.id = a.activity_id)dt';
+		$sTable = '(select a.*, b.name as floating_crane_name from cctv a
+					left join floating_crane b on b.id = a.floating_crane_id)dt';
 		
 
 		/* Paging */
@@ -190,8 +190,9 @@ class Job_order_detail_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->order_name,
-				$row->activity_name
+				$row->floating_crane_name,
+				$row->code,
+				$row->name
 
 			));
 		}
@@ -243,63 +244,42 @@ class Job_order_detail_menu_model extends MY_Model
 		} else return null;
 	}  
 
-	
-
-	public function add_data($post) { 
-		
-		$datetime_start = date_create($post['date_time_start']); 
-		$datetime_end = date_create($post['date_time_end']); 
-
-		$f_datetime_start = date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end = date_format($datetime_end,"Y-m-d H:i:s");
-
-
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
-
-  		$diff = abs($timestamp2 - $timestamp1)/(60); //menit
-		
-
-
+	public function add_data($post) {
 		$data = [
-			'job_order_id' 		=> trim($post['job_order']),
-			'activity_id' 		=> trim($post['activity']),
-			'datetime_start' 	=> $f_datetime_start,
-			'datetime_end' 		=> $f_datetime_end,
-			'total_time' 		=> $diff,
-			'degree' 			=> trim($post['degree']),
-			'degree_2' 			=> trim($post['degree_2'])
+			'floating_crane_id'	=> trim($post['floating_crane']),
+			'code' 				=> trim($post['code']),
+			'name' 				=> trim($post['name']),
+			'position' 			=> trim($post['posisi']),
+			'ip_cctv' 			=> trim($post['ip_cctv']),
+			'ip_server' 		=> trim($post['ip_server']),
+			'rtsp' 				=> trim($post['rtsp']),
+			'embed' 			=> trim($post['embed']),
+			'type_streaming' 	=> trim($post['type_streaming']),
+			'thumnail' 			=> trim($post['thumbnail']),
+			'is_active' 		=> trim($post['is_active']),
+			'latitude' 			=> trim($post['latitude']),
+			'longitude' 		=> trim($post['longitude'])
 		];
 
 		return $rs = $this->db->insert($this->table_name, $data);
 	}  
 
 	public function edit_data($post) { 
-
-		$datetime_start = date_create($post['date_time_start']); 
-		$datetime_end = date_create($post['date_time_end']); 
-
-		$f_datetime_start = date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end = date_format($datetime_end,"Y-m-d H:i:s");
-
-
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
-
-  		$diff = abs($timestamp2 - $timestamp1)/(60); //menit
-			
-
-
 		if(!empty($post['id'])){
-
 			$data = [
-				'job_order_id' 		=> trim($post['job_order']),
-				'activity_id' 		=> trim($post['activity']),
-				'datetime_start' 	=> $f_datetime_start,
-				'datetime_end' 		=> $f_datetime_end,
-				'total_time' 		=> $diff,
-				'degree' 			=> trim($post['degree']),
-				'degree_2' 			=> trim($post['degree_2'])
+				'floating_crane_id'	=> trim($post['floating_crane']),
+				'code' 				=> trim($post['code']),
+				'name' 				=> trim($post['name']),
+				'position' 			=> trim($post['posisi']),
+				'ip_cctv' 			=> trim($post['ip_cctv']),
+				'ip_server' 		=> trim($post['ip_server']),
+				'rtsp' 				=> trim($post['rtsp']),
+				'embed' 			=> trim($post['embed']),
+				'type_streaming' 	=> trim($post['type_streaming']),
+				'thumnail' 			=> trim($post['thumbnail']),
+				'is_active' 		=> trim($post['is_active']),
+				'latitude' 			=> trim($post['latitude']),
+				'longitude' 		=> trim($post['longitude'])
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -307,10 +287,7 @@ class Job_order_detail_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.order_name, c.activity_name from job_order_detail a
-					left join job_order b on b.id = a.job_order_id
-					left join activity c on c.id = a.activity_id
-			)dt';
+		$mTable = '(select a.*, b.name as floating_crane_name, if(a.is_active=1,"Yes","No") as is_active_desc from cctv a left join floating_crane b on b.id = a.floating_crane_id)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
@@ -332,13 +309,19 @@ class Job_order_detail_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'job_order_id'		=> $v["B"],
-				'activity_id' 		=> $v["C"],
-				'datetime_start' 	=> $v["D"],
-				'datetime_end' 		=> $v["E"],
-				'total_time' 		=> $v["F"],
-				'degree' 			=> $v["G"],
-				'degree_2' 			=> $v["H"]
+				'floating_crane_id'	=> $v["B"],
+				'code' 				=> $v["C"],
+				'name' 				=> $v["D"],
+				'position' 			=> $v["E"],
+				'ip_cctv' 			=> $v["F"],
+				'ip_server' 		=> $v["G"],
+				'rtsp' 				=> $v["H"],
+				'embed' 			=> $v["I"],
+				'type_streaming' 	=> $v["J"],
+				'thumnail' 			=> $v["K"],
+				'is_active' 		=> $v["L"],
+				'latitude' 			=> $v["M"],
+				'longitude' 		=> $v["N"]
 				
 			];
 
@@ -351,15 +334,32 @@ class Job_order_detail_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.order_name, c.activity_name from job_order_detail a
-				left join job_order b on b.id = a.job_order_id
-				left join activity c on c.id = a.activity_id
-				order by a.id asc
+		$sql = "select a.*, b.name as floating_crane_name from cctv a
+				left join floating_crane b on b.id = a.floating_crane_id
+	   		ORDER BY a.id ASC
 		";
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
 	}
+
+	public function getviewMaps($id) { 
+		
+
+		$rs = $this->db->query("select id, floating_crane_id, name, latitude, longitude from cctv where floating_crane_id = '".$id."' ")->result(); 
+		/*$rd = $rs;
+
+
+		if(!empty($rd)){ */
+			/*$latitude = $rd[0]->latitude;
+			$longitude = $rd[0]->longitude;
+
+			$dt = '<iframe width="100%" height="500" src="https://maps.google.com/maps?q='.$latitude.','.$longitude.'&output=embed"></iframe>';*/
+		//}
+
+
+		return $rs;
+	} 
 
 }

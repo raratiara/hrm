@@ -256,7 +256,9 @@ class Master_cctv_menu_model extends MY_Model
 			'embed' 			=> trim($post['embed']),
 			'type_streaming' 	=> trim($post['type_streaming']),
 			'thumnail' 			=> trim($post['thumbnail']),
-			'is_active' 		=> trim($post['is_active'])
+			'is_active' 		=> trim($post['is_active']),
+			'latitude' 			=> trim($post['latitude']),
+			'longitude' 		=> trim($post['longitude'])
 		];
 
 		return $rs = $this->db->insert($this->table_name, $data);
@@ -275,7 +277,9 @@ class Master_cctv_menu_model extends MY_Model
 				'embed' 			=> trim($post['embed']),
 				'type_streaming' 	=> trim($post['type_streaming']),
 				'thumnail' 			=> trim($post['thumbnail']),
-				'is_active' 		=> trim($post['is_active'])
+				'is_active' 		=> trim($post['is_active']),
+				'latitude' 			=> trim($post['latitude']),
+				'longitude' 		=> trim($post['longitude'])
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -315,7 +319,9 @@ class Master_cctv_menu_model extends MY_Model
 				'embed' 			=> $v["I"],
 				'type_streaming' 	=> $v["J"],
 				'thumnail' 			=> $v["K"],
-				'is_active' 		=> $v["L"]
+				'is_active' 		=> $v["L"],
+				'latitude' 			=> $v["M"],
+				'longitude' 		=> $v["N"]
 				
 			];
 

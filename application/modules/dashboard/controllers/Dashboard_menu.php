@@ -1,42 +1,35 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Job_order_detail_menu extends MY_Controller
+class Dashboard_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "job_order_detail_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Job Order Detail";
- 	const  LABELFOLDER				= "job_order"; // module folder
- 	const  LABELPATH				= "job_order_detail_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "job_order"; // adjusted 1st sub parent segment
- 	const  LABELSUBPARENTSEG1		= "Job Order Detail"; // 
+ 	const  LABELMODULE				= "dashboard_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Dashboard";
+ 	const  LABELFOLDER				= "dashboard"; // module folder
+ 	const  LABELPATH				= "dashboard_menu"; // controller file (lowercase)
+ 	const  LABELNAVSEG1				= "dashboard"; // adjusted 1st sub parent segment
+ 	const  LABELSUBPARENTSEG1		= "Dashboard"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Job Order","Activity"];
+	public $tabel_header 			= ["ID","Floating Crane","CCTV Code","CCTV Name"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Job Order","Activity"];
-	public $colfields 				= ["id","id","id"];
+	public $colnames 				= ["ID","Floating Crane","CCTV Code","CCTV Name"];
+	public $colfields 				= ["id","id","id","id"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
-		$field = []; 
+		$field = [];
 		
-		$field['txtdatetimestart'] 	= $this->self_model->return_build_txtdate('','date_time_start','date_time_start');
-		$field['txtdatetimeend'] 	= $this->self_model->return_build_txtdate('','date_time_end','date_time_end'); 
-		$field['txtdegree'] 		= $this->self_model->return_build_txt('','degree','degree','','','');
-		$field['txtdegree_2'] 		= $this->self_model->return_build_txt('','degree_2','degree_2','','','');
-
-		$msjob	= $this->db->query("select * from job_order where order_status = 2")->result(); 
-		$field['seljoborder'] 	= $this->self_model->return_build_select2me($msjob,'','','','job_order','job_order','','','id','order_name',' ','','','',3,'-');
-		$msactivity				= $this->db->query("select * from activity")->result(); 
-		$field['selactivity'] 	= $this->self_model->return_build_select2me($msactivity,'','','','activity','activity','','','id','activity_name',' ','','','',3,'-');
+		/*$msfloating 			= $this->db->query("select a.*, concat(b.name, ' - ',a.name,' - ', a.position) as floating_crane_name from cctv a left join floating_crane b on b.id = a.floating_crane_id ")->result(); */
+		$msfloating 			= $this->db->query("select * from floating_crane ")->result(); 
+		$field['selfloatcrane'] = $this->self_model->return_build_select2me($msfloating,'','','','floating_crane','floating_crane','','','id','name',' ','','','',3,'-');
 		
-
 		
 		return $field;
 	}
@@ -88,4 +81,30 @@ class Job_order_detail_menu extends MY_Controller
  	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
 	//============================== Additional Method ==============================//
+
+
+	public function get_maps()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			$id = $post['id'];
+
+
+			if(isset($id))
+			{
+				$rs =  $this->self_model->getviewMaps($id);
+
+				echo json_encode($rs);
+
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+
+
 }

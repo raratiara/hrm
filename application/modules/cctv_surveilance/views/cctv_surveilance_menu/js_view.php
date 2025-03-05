@@ -94,7 +94,7 @@ jQuery(function($) {
 <?php } ?>
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
-function load_data()
+/*function load_data()
 {
     $.ajax({
 		type: "POST",
@@ -170,6 +170,65 @@ function load_data()
 			});
         }
     });
+}*/
+
+function cari(){
+
+	var cctv = document.getElementById("txtcctv").value;
+	var jmlcctv = document.getElementById("txtjmlcctv").value;
+
+	
+	
+	getCctv(cctv, jmlcctv);
 }
+
+function getCctv(cctv, jmlcctv){
+	
+
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_cctv',
+		data: { cctv: cctv, jmlcctv: jmlcctv },
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ 
+				
+
+				$('span.tblCctv').html(data);
+				
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+}
+
+
 <?php } ?>
 </script>
