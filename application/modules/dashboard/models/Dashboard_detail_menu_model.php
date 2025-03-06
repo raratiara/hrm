@@ -402,5 +402,27 @@ class Dashboard_detail_menu_model extends MY_Model
 		return $dt;
 	} 
 
+	public function getJob($idfc){ 
+		/*$rs = $this->db->query("select a.date, b.name as floating_crane_name, a.order_name, a.date_time_total
+								FROM job_order a INNER JOIN floating_crane b ON a.floating_crane_id = b.id 
+								where b.id = '".$idfc."'
+								and date >= '2025-02-26' and date <= '2025-02-28' ")->result(); */
+
+
+		//return $rs;
+
+
+								$sql = "select a.date, b.name as floating_crane_name, a.order_name, a.date_time_total
+								FROM job_order a INNER JOIN floating_crane b ON a.floating_crane_id = b.id 
+								where b.id = '".$idfc."' 
+								and date >= '2025-02-26' and date <= '2025-02-28'
+		";
+
+		$res = $this->db->query($sql);
+		$rs = $res->result_array();
+		return $rs;
+
+	}
+
 
 }

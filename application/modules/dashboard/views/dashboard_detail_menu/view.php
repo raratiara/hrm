@@ -73,7 +73,7 @@
 
 
 
-<div class="row ca">
+<!-- <div class="row ca">
     <div class="col-md-12">
 		<div class="portlet box green col-md-6" style="width:800px">
 			<div class="portlet-title">
@@ -90,7 +90,7 @@
 				</div>
 			</div>
 		</div>
-<div class="col-md-2"></div>
+		<div class="col-md-2"></div>
 		<div class="portlet box green col-md-6" style="width:800px">
 			<div class="portlet-title">
 				<div class="caption">Activity Bar</div>
@@ -107,7 +107,19 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
+
+
+<div style="width:30%;hieght:20%;text-align:center">
+    <h2 class="page-header" >Analytics Reports </h2>
+    <div>Job Order </div>
+    <canvas  id="chartjs_bar" style="height: 250px; width: 500px;"></canvas>
+</div>  
+
+
+<!-- <div id="chartContainer" style="height: 370px; width: 100%;">
+	
+</div> -->
 
 	
 

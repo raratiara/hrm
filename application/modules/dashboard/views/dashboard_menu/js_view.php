@@ -9,7 +9,7 @@
 
 
 <!-- Modal Form Data -->
-<div id="modal-detail" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-data" aria-hidden="true">
+<!-- <div id="modal-detail" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-data" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
 		<div class="modal-content" style="width:1000px; height:500px; margin-left:-160px">
@@ -37,7 +37,7 @@
 		</div>
 	</div>
 	</div>
-</div>
+</div> -->
 
 
 <script type="text/javascript">
@@ -125,12 +125,7 @@ jQuery(function($) {
 	});
 	<?php } ?>
 
-	<?php if  (_USER_ACCESS_LEVEL_DELETE == "1") { ?>
-    //check all
-    $("#check-all").click(function () {
-        $(".data-check").prop('checked', $(this).prop('checked'));
-    });
-	<?php } ?>
+	
 })
 
 <?php $this->load->view(_TEMPLATE_PATH . "common_module_js"); ?>
@@ -222,8 +217,6 @@ $('#floating_crane').on('change', function () {
  	
  	getMaps(selectVal);
 
-
- 	
 });
 
 
@@ -277,7 +270,7 @@ function getMaps(id){
 
 				    marker = new L.popup()
 				    .setLatLng(latlng)
-				    .setContent('<div class="mydivclass" onclick="tes('+"'"+locations[i]['floating_crane_id']+"'"+')"> <p>'+locations[i]['name']+'</p> </div>')
+				    .setContent('<div class="mydivclass" onclick="getDetail('+"'"+locations[i]['floating_crane_id']+"'"+')"> <p>'+locations[i]['name']+'</p> </div>')
 				    .addTo(map);
 
 				    /*marker.on('click', function() { alert("hahaha");
@@ -306,7 +299,7 @@ function getMaps(id){
         error: function (jqXHR, textStatus, errorThrown)
         {
 			var dialog = bootbox.dialog({
-				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 				message: jqXHR.responseText,
 				buttons: {
 					confirm: {
@@ -320,57 +313,10 @@ function getMaps(id){
 }
 
 
-function getViewMaps(){
-	var locations = [
-	  ["LOCATION_1", 11.8166, 122.0942],
-	  ["LOCATION_2", 11.9804, 121.9189],
-	  ["LOCATION_3", 10.7202, 122.5621],
-	  ["LOCATION_4", 11.3889, 122.6277],
-	  ["LOCATION_5", 10.5929, 122.6325]
-	];
-
-	var map = L.map('map').setView([11.206051, 122.447886], 8);
-	mapLink =
-	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
-	L.tileLayer(
-	  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	    attribution: '&copy; ' + mapLink + ' Contributors',
-	    maxZoom: 18,
-  	}).addTo(map);
-
-
-
-	for (var i = 0; i < locations.length; i++) {
-	  /*marker = new L.marker([locations[i][1], locations[i][2]])
-	    //.bindPopup(locations[i][0])
-	  	.bindPopup(locations[i][0]).openPopup()
-	    .addTo(map);*/
-		var latlng = L.latLng(locations[i][1], locations[i][2]);
-	    /*marker = new L.popup(latlng, {content: '<p>Hello world!<br />This is a nice popup.</p>'})
-	    .addTo(map);*/
-	   
-
-	    marker = new L.popup()
-	    .setLatLng(latlng)
-	    .setContent('<div class="mydivclass" onclick="tes('+"'"+locations[i][0]+"'"+')"> <p>'+locations[i][0]+'</p> </div>')
-	    .addTo(map);
-
-	    /*marker.on('click', function() { alert("hahaha");
-		    alert(ev.latlng); // ev is an event object (MouseEvent in this case)
-		});*/
-	    //var google = window.google.maps;
-		
-
-	}
-}
-
-
-function tes(idfc){
+function getDetail(idfc){
 
 	var getUrl = window.location;
 	var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-
-
 
 	//alert(getUrl);
 	/*$('span.title_maps').html(loc);

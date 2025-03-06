@@ -115,5 +115,16 @@ class Dashboard_detail_menu extends MY_Controller
 	}
 
 
+	public function get_detailJobGraph(){
+		$post = $this->input->post(null, true);
+		$cctv = $post['cctv'];
+
+		$rs =  $this->self_model->getJob($cctv);
+
+		
+		echo json_encode($rs);
+	}
+
+
 
 }
