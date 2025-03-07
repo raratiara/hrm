@@ -25,6 +25,10 @@ class Dashboard_detail_menu extends MY_Controller
 	public function form_field_asset()
 	{
 		$field = [];
+
+
+		$field['txtstartdate'] 	= $this->self_model->return_build_txtdate('','start_date','start_date');
+		$field['txtenddate'] 	= $this->self_model->return_build_txtdate('','end_date','end_date');
 		
 		
 		return $field;
@@ -34,6 +38,8 @@ class Dashboard_detail_menu extends MY_Controller
  	/* Construct */
 	public function __construct() {
         parent::__construct(); 
+        
+        
 		# akses level
 		$akses = $this->self_model->user_akses($this->module_name);
 		define('_USER_ACCESS_LEVEL_VIEW',$akses["view"]);
@@ -116,14 +122,39 @@ class Dashboard_detail_menu extends MY_Controller
 
 
 	public function get_detailJobGraph(){
+		
 		$post = $this->input->post(null, true);
 		$cctv = $post['cctv'];
+		$start_date = $post['start_date'];
+		$end_date = $post['end_date'];
 
-		$rs =  $this->self_model->getJob($cctv);
+		if($start_date != ''){ 
+			$start_date = date("Y-m-d", strtotime($start_date));
+		}
+		if($end_date != ''){
+			$end_date = date("Y-m-d", strtotime($end_date));
+		}
+
+
+		$rs =  $this->self_model->getJob($cctv, $start_date, $end_date);
 
 		
 		echo json_encode($rs);
 	}
+
+	public function get_detailActivityGraph(){
+		$post = $this->input->post(null, true);
+		$jobId = $post['jobId'];
+
+		$rs =  $this->self_model->getActivity($jobId);
+
+		
+		echo json_encode($rs);
+	}
+
+
+
+	
 
 
 

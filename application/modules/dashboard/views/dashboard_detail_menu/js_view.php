@@ -3,45 +3,10 @@
 	  width: 1400px;
 	  height: 400px;
 	}
-
-	
 </style>
 
 
-
-
-<!-- Modal Form Data -->
-<!-- <div id="modal-detail" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-data" aria-hidden="true">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:1000px; height:500px; margin-left:-160px">
-			<form class="form-horizontal" id="frmInputData" enctype="multipart/form-data">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					<span id="mfdata"></span> Activity Monitor
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<input type="hidden" name="id" value="">
-				<?php $this->load->view("_detail"); ?>
-			</div>
-			</form>
-
-			<div class="modal-footer no-margin-top">
-				
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Close
-				</button>
-			</div>
-		</div>
-	</div>
-	</div>
-</div> -->
-<!-- 
-<script src="//code.jquery.com/jquery-1.9.1.js"></script> -->
+<!-- <script src="//code.jquery.com/jquery-1.9.1.js"></script> -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 
 
@@ -50,6 +15,13 @@
 
 
 <script type="text/javascript">
+
+$(document).ready(function() {
+   	$(function() {
+        $( "#start_date" ).datepicker();
+        $( "#end_date" ).datepicker();
+   	});
+});
 
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -141,6 +113,7 @@ jQuery(function($) {
 	getCctv(idfc);
 	jobGraph(idfc);
 
+	$('[name="id_fc"]').val(idfc);
 
 })
 
@@ -244,106 +217,74 @@ function getCctv(idfc){
 
 
 function jobGraph(idfc){ 
+	var start_date = document.getElementById("start_date").value;
+  	var end_date = document.getElementById("end_date").value;
+
+  	
 
 	$.ajax({
 		type: "POST",
         url : module_path+'/get_detailJobGraph',
-		data: { cctv: idfc},
+		data: { cctv: idfc, start_date: start_date, end_date: end_date},
 		cache: false,		
         dataType: "JSON",
         success: function(data)
         { 
 			if(data != false){ 
-				
+				$('span#title_job').html(data[0].floating_crane_name);
 				//// get Job Graph
 				var arrDate = []; 
 				var total_time_1 = [];
 				var total_time_2 = [];
-				var dateP = '';
+				var date_1 = [];
+				var date_2 = [];
+
 				for(var i=0; i<data.length; i++){
 					var exists = arrDate.includes(data[i].date);
-					if (!exists) {
+					if (!exists) { 
 					    arrDate.push(data[i].date);
-					    var dateP = data[i].date;
 					}
-
 					
-						/*if(dateP == data[i].date && data[i].order_name == 'Perpindahan 2'){
-							//alert("ada");
-							var val = data[i].date_time_total;
-						}else{ //alert("kosong");
-							var val = '0';
-						}
-						total_time_2.push(val);*/
-					
-
 					if(data[i].order_name == 'Perpindahan Batubara'){
 						total_time_1.push(data[i].date_time_total);
+						date_1.push(data[i].date);
 					}
 
 					if(data[i].order_name == 'Perpindahan 2'){
 						total_time_2.push(data[i].date_time_total);
+						date_2.push(data[i].date);
 					}
+				}
 
+				
+				var arrTotaltime_1 = [];
+				var arrTotaltime_2 = [];
+				for(var m=0; m<arrDate.length; m++){ 
 
-					/*if(data[i].date == dateP && data[i].order_name == 'Perpindahan 2'){
-						var val = data[i].date_time_total;
+					var exists_1 = date_1.includes(arrDate[m]);
+					if (!exists_1) { 
+					    arrTotaltime_1.push('0');
 					}else{
-						var val = '0';
+						var arrayIdx_1 = (date_1.indexOf(arrDate[m]));
+						arrTotaltime_1.push(total_time_1[arrayIdx_1]);
 					}
 
 
-					total_time_2.push(val);*/
-
-					/*if(data[i].order_name == 'Perpindahan 2'){
-						
-						
-						var val = '';
-						if(data[i].date != '' && data[i].order_name != '' && data[i].date_time_total != '' ){
-							var val = data[i].date_time_total;
-						}
-						
-					}*/
 					
-				}
-
-
-				/*for(var j=0; j<data.length; j++){
-
-					for(var k=0; k<arrDate.length; k++){
-						if(data[j].date == arrDate[k] && data[j].order_name == 'Perpindahan 2'){
-							var val = data[j].date_time_total;
-						}else{
-							var val = '0';
-						}
-						alert(val);
-					}
-					
-					total_time_2.push(val);
-				}*/
-
-				/*var xx = []; var yy = [];
-				var ttl = 3;*/
-				/*for(var k=0; k<ttl; k++){ 
-					for(var j=0; j<data.length; j++){
-						
-						if(arrDate[k] == data[j].date){ 
-							if(data[j].order_name == 'Perpindahan 2'){ 
-								total_time_2.push(data[j].date_time_total);
-							}
-							else{
-								total_time_2.push('0');
-							}
-							
-						}
+					var exists_2 = date_2.includes(arrDate[m]);
+					if (!exists_2) { 
+					    arrTotaltime_2.push('0');
+					}else{
+						var arrayIdx_2 = (date_2.indexOf(arrDate[m]));
+						arrTotaltime_2.push(total_time_2[arrayIdx_2]);
 					}
 				}
-
-				console.log(xx); console.log(yy);*/
-					
 				
 				
-				var ctx = document.getElementById("chartjs_bar").getContext('2d');
+				const canvas = document.getElementById('chartjs_bar');
+				const ctx = canvas.getContext('2d');
+				
+				//var ctx = document.getElementById("chartjs_bar").getContext('2d');
 			    var myChart = new Chart(ctx, {
 			        type: 'bar',
 			        data: {
@@ -351,20 +292,20 @@ function jobGraph(idfc){
 			            datasets: [
 				            {
 						      label: 'Perpindahan Batubara',
-						      data: total_time_1,
+						      data: arrTotaltime_1,
 						      //borderColor: '#36A2EB',
 						      backgroundColor: '#5969ff',
 						    },
 						    {
 						      label: 'Perpindahan 2',
-						      data: total_time_2,
+						      data: arrTotaltime_2,
 						      //borderColor: '#36A2EB',
 						      backgroundColor: '#ffef59',
 						    }
 			        	]
 			        },
 			        options: {
-			               legend: {
+			               		legend: {
 						            display: true,
 						            position: 'bottom',
 
@@ -374,9 +315,29 @@ function jobGraph(idfc){
 						                fontSize: 14,
 						            }
 						        },
-						       
 						    }
 			    });
+
+
+			    canvas.onclick = (evt) => {
+				  const res = myChart.getElementsAtEventForMode(
+				    evt,
+				    'nearest',
+				    { intersect: true },
+				    true
+				  );
+				  // If didn't click on a bar, `res` will be an empty array
+				  if (res.length === 0) {
+				    return;
+				  }
+				  
+				  
+				  var valClick = res[0]._view.datasetLabel;
+
+				  activityGraph(valClick);
+				  //alert('You clicked on ' +valClick);
+				  //alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
+				};
 
 				
 				//// END get Job Graph
@@ -411,6 +372,108 @@ function jobGraph(idfc){
     });
 
 
+}
+
+
+function activityGraph(jobId){
+	
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_detailActivityGraph',
+		data: { jobId: jobId},
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ 
+				$('span#title_activity').html(data[0].order_name);
+
+				//// get Activity Graph
+				var arrAct = [];
+				var arrTotalTime = [];
+				for(var i=0; i<data.length; i++){ 
+					arrAct.push(data[i].activity_name);
+					arrTotalTime.push(data[i].total_date_time);
+				}
+				//console.log(arrAct);
+				
+				var ctx = document.getElementById("chartjs_bar_activity").getContext('2d');
+			    var myChart = new Chart(ctx, {
+			        type: 'bar',
+			        data: {
+			            labels: arrAct, 
+			            datasets: [{
+                            backgroundColor: [
+                               "#5969ff",
+                                "#ff407b",
+                                "#25d5f2",
+                                "#ffc750",
+                                "#2ec551",
+                                "#7040fa",
+                                "#ff004e"
+                            ],
+                            data: arrTotalTime, //<?php echo json_encode($arrTotalTime); ?>,
+                        }]
+			        },
+			        options: {
+			               legend: {
+						            display: false,
+						            position: 'bottom',
+
+						            labels: {
+						                fontColor: '#71748d',
+						                fontFamily: 'Circular Std Book',
+						                fontSize: 14,
+						            }
+						        },
+						       
+						    }
+			    });
+
+				
+				//// END get Activity Graph
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+
+
+}
+
+function getDateRange(){
+	var id_fc = document.getElementById("id_fc").value;
+	var start_date = document.getElementById("start_date").value;
+  	var end_date = document.getElementById("end_date").value;
+
+
+  	jobGraph(id_fc);
+  	
+	
 }
 
 

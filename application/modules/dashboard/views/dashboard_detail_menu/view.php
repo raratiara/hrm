@@ -1,5 +1,5 @@
 
-
+<input type="hidden" id="id_fc" name="id_fc">
 
 <div class="row ca">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -110,18 +110,48 @@
 </div> -->
 
 
-<div style="width:30%;hieght:20%;text-align:center">
-    <h2 class="page-header" >Analytics Reports </h2>
-    <div>Job Order </div>
-    <canvas  id="chartjs_bar" style="height: 250px; width: 500px;"></canvas>
-</div>  
 
 
-<!-- <div id="chartContainer" style="height: 370px; width: 100%;">
-	
-</div> -->
+<div class="row">
+	<div class="col-md-4 col-sm-12">
+		<div class="form-group">
+			<label class="col-md-3 control-label no-padding-right">Start Date</label>
+			<div class="col-md-6">
+				<?=$txtstartdate;?>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4 col-sm-12">
+		<div class="form-group">
+			<label class="col-md-3 control-label no-padding-right">End Date </label>
+			<div class="col-md-6">
+				<?=$txtenddate;?>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4 col-sm-12">
+		<div class="form-group">
+			<button type="button" class="btn btn-primary btnApply" onclick="getDateRange()">Apply Date Range</button>
+		</div>
+	</div>
 
-	
+	<div class="col-md-6 col-sm-6">
+		<div style="width:100%;height:100%;text-align:center">
+		    <h2 class="page-header" >Job Order Reports </h2>
+		    <div><span id="title_job"></span> </div>
+		    <canvas  id="chartjs_bar" style="height: 250px; width: 500px;"></canvas>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-6">
+		<div style="width:100%;height:100%;text-align:center">
+		    <h2 class="page-header" >Activity Reports</h2>
+		    <div><span id="title_activity"></span> </div>
+		    <canvas  id="chartjs_bar_activity" style="height: 250px; width: 500px;"></canvas>
+		</div>
+	</div>
+</div>
+
+
 
 	
 

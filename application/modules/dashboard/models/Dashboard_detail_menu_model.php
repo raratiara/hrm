@@ -402,20 +402,23 @@ class Dashboard_detail_menu_model extends MY_Model
 		return $dt;
 	} 
 
-	public function getJob($idfc){ 
-		/*$rs = $this->db->query("select a.date, b.name as floating_crane_name, a.order_name, a.date_time_total
-								FROM job_order a INNER JOIN floating_crane b ON a.floating_crane_id = b.id 
-								where b.id = '".$idfc."'
-								and date >= '2025-02-26' and date <= '2025-02-28' ")->result(); */
+	public function getJob($idfc, $start_date, $end_date){ 
 
+		if($start_date != '' && $end_date != ''){
+			$whr_date = " and date >= '".$start_date."' and date <= '".$end_date."' ";
+		}else{ //default sebulan terakhir
+			$today = date("Y-m-d");
+			$start = date('Y-m-d',strtotime($today. ' - 1 months'));
+			$end = date("Y-m-d");
+			
+			$whr_date = " and date >= '".$start."' and date <= '".$end."' ";
+		}
 
-		//return $rs;
-
-
-								$sql = "select a.date, b.name as floating_crane_name, a.order_name, a.date_time_total
-								FROM job_order a INNER JOIN floating_crane b ON a.floating_crane_id = b.id 
-								where b.id = '".$idfc."' 
-								and date >= '2025-02-26' and date <= '2025-02-28'
+		
+		$sql = "select a.date, b.name as floating_crane_name, a.order_name, a.date_time_total
+				FROM job_order a INNER JOIN floating_crane b ON a.floating_crane_id = b.id 
+				where b.id = '".$idfc."' 
+				".$whr_date."
 		";
 
 		$res = $this->db->query($sql);
@@ -423,6 +426,20 @@ class Dashboard_detail_menu_model extends MY_Model
 		return $rs;
 
 	}
+
+	public function getActivity($jobId){ 
+
+		$rs = $this->db->query("select a.*, b.activity_name, c.order_name
+				from job_order_summary a left join activity b on b.id = a.activity_id
+				left join job_order c on c.id = a.job_order_id
+				where c.order_name = '".$jobId."' ")->result(); 
+
+
+		return $rs;
+
+	}
+
+	
 
 
 }
