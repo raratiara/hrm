@@ -2,7 +2,12 @@
 <input type="hidden" id="id_fc" name="id_fc">
 
 <div class="row ca">
-    <div class="col-md-12 col-sm-12 col-xs-12">
+	<div class="col-md-6 col-sm-6 col-xs-6">
+		<span class="tblCctv"></span>
+	</div>
+
+
+    <div class="col-md-6 col-sm-6 col-xs-6">
 		<div class="portlet box green">
 			<div class="portlet-title">
 				<div class="caption"><span class="title_maps">Activity Monitor</span></div>
@@ -43,71 +48,13 @@
 </div>
 
 
-
-<span class="tblCctv">
+<!-- <div>
+	<span class="tblCctv">
 		
 </span>
-
-
-
-<!-- &nbsp; &nbsp;
-<div class="row">
-	<div class="col-md-6 col-sm-6">
-		<div class="form-group">
-			<label class="col-md-2 control-label no-padding-right">Start Date</label>
-		</div>
-		<div class="col-md-4">
-			<input type="text" name="">
-		</div>
-	</div>
-	<div class="col-md-6 col-sm-6">
-		<div class="form-group">
-			<label class="col-md-2 control-label no-padding-right">End Date</label>
-		</div>
-		<div class="col-md-4">
-			<input type="text" name="">
-		</div>
-	</div>
-</div> &nbsp; &nbsp;
-<div></div>  -->
-
-
-
-<!-- <div class="row ca">
-    <div class="col-md-12">
-		<div class="portlet box green col-md-6" style="width:800px">
-			<div class="portlet-title">
-				<div class="caption">Job Bar</div>
-				<div class="tools">
-			
-				</div>
-			</div>
-			<div class="portlet-body">
-				<div class="table-scrollable tablesaw-cont">
-				
-
-
-				</div>
-			</div>
-		</div>
-		<div class="col-md-2"></div>
-		<div class="portlet box green col-md-6" style="width:800px">
-			<div class="portlet-title">
-				<div class="caption">Activity Bar</div>
-				<div class="tools">
-			
-				</div>
-			</div>
-			<div class="portlet-body">
-				<div class="table-scrollable tablesaw-cont">
-				
-
-
-				</div>
-			</div>
-		</div>
-	</div>
 </div> -->
+
+
 
 
 
@@ -143,10 +90,65 @@
 		</div>
 	</div>
 	<div class="col-md-6 col-sm-6">
-		<div style="width:100%;height:100%;text-align:center">
+		<div style="width:100%;height:100%;text-align:center; display:none" id="tblActRpt">
 		    <h2 class="page-header" >Activity Reports</h2>
 		    <div><span id="title_activity"></span> </div>
 		    <canvas  id="chartjs_bar_activity" style="height: 250px; width: 500px;"></canvas>
+		</div>
+	</div>
+</div>
+
+
+
+
+<div class="row" id="tblDtlWaktu" style="display:none">
+	<div class="col-md-6 col-sm-6">
+		<div style="width:100%;height:100%;text-align:center">
+	        <h2 class="page-header" >Detail Waktu Activity </h2>
+	        <div>Cycle Time </div>
+	        <canvas  id="chartjs_line"></canvas>
+	    </div>   
+	</div>
+	<div class="col-md-6 col-sm-6" style="width:50%;height:100%;text-align:center; margin-top: 40px">
+		<div class="portlet box green">
+			<div class="portlet-title">
+				<div class="caption"><span class="title_maps">Detail Waktu Activity Report</span></div>
+				<div class="tools">
+				</div>
+			</div>
+			<div class="portlet-body">
+				<!-- <div class="table-scrollable"> -->
+				<table class="table table-striped table-bordered table-hover" id="tbldetailWaktuAct">
+					<thead>
+						<tr>
+							<th scope="col">Datetime Start</th>
+							<th scope="col">Datetime End</th>
+							<th scope="col">Cycle Time</th>
+							<th scope="col">Degree</th>
+							<th scope="col">Degree 2</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th scope="col">aa</th>
+							<th scope="col">cc</th>
+							<th scope="col">xx</th>
+							<th scope="col">aa</th>
+							<th scope="col">nn</th>
+						</tr>
+						<tr>
+							<th scope="col">bb</th>
+							<th scope="col">rr</th>
+							<th scope="col">jj</th>
+							<th scope="col">dd</th>
+							<th scope="col">qq</th>
+						</tr>
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+				<!-- </div> -->
+			</div>
 		</div>
 	</div>
 </div>

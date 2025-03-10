@@ -7,10 +7,14 @@
 
 
 <!-- <script src="//code.jquery.com/jquery-1.9.1.js"></script> -->
+<!-- js for bar graph -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 
 
 <!-- <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script> -->
+
+<!-- js for line chart -->
+<script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
 
 
@@ -231,6 +235,9 @@ function jobGraph(idfc){
         success: function(data)
         { 
 			if(data != false){ 
+				
+				
+
 				$('span#title_job').html(data[0].floating_crane_name);
 				//// get Job Graph
 				var arrDate = []; 
@@ -386,6 +393,7 @@ function activityGraph(jobId){
         success: function(data)
         { 
 			if(data != false){ 
+				document.getElementById("tblActRpt").style.display = "";
 				$('span#title_activity').html(data[0].order_name);
 
 				//// get Activity Graph
@@ -397,7 +405,10 @@ function activityGraph(jobId){
 				}
 				//console.log(arrAct);
 				
-				var ctx = document.getElementById("chartjs_bar_activity").getContext('2d');
+				//var ctx = document.getElementById("chartjs_bar_activity").getContext('2d');
+				const canvas = document.getElementById('chartjs_bar_activity');
+				const ctx = canvas.getContext('2d');
+
 			    var myChart = new Chart(ctx, {
 			        type: 'bar',
 			        data: {
@@ -429,6 +440,28 @@ function activityGraph(jobId){
 						       
 						    }
 			    });
+
+
+			    canvas.onclick = (evt) => {
+				  const res = myChart.getElementsAtEventForMode(
+				    evt,
+				    'nearest',
+				    { intersect: true },
+				    true
+				  );
+				  // If didn't click on a bar, `res` will be an empty array
+				  if (res.length === 0) {
+				    return;
+				  }
+				  
+				  
+				  var valClick = res[0]._view.label;
+
+				  getLineChart(valClick, jobId);
+				  getTblWaktu(valClick, jobId);
+				  //alert('You clicked on ' +valClick);
+				  //alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
+				};
 
 				
 				//// END get Activity Graph
@@ -472,9 +505,125 @@ function getDateRange(){
 
 
   	jobGraph(id_fc);
-  	
 	
 }
+
+
+function getLineChart(activity, jobId){ 
+	
+
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_detailwaktuAct',
+		data: { activity: activity, jobId: jobId},
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ console.log(data);
+
+				document.getElementById("tblDtlWaktu").style.display = "";
+				//$('span#title_activity').html(data[0].order_name);
+
+				//// get Activity Graph
+				var arrAct = [];
+				var arrTotalTime = [];
+				for(var i=0; i<data.length; i++){ 
+					arrAct.push(data[i].activity_name);
+					arrTotalTime.push(data[i].total_time);
+				}
+				//console.log(arrAct);
+				
+				const canvas = document.getElementById('chartjs_line');
+				const ctx = canvas.getContext('2d');
+
+			    var myChart = new Chart(ctx, {
+			        type: 'line',
+			        data: {
+			            labels: arrAct, 
+			            datasets: [{
+                            backgroundColor: [
+                                "#25d5f2"
+                            ],
+                            data: arrTotalTime, //<?php echo json_encode($arrTotalTime); ?>,
+                        }]
+			        },
+			        options: {
+			               legend: {
+						            display: false,
+						            position: 'bottom',
+
+						            labels: {
+						                fontColor: '#71748d',
+						                fontFamily: 'Circular Std Book',
+						                fontSize: 14,
+						            }
+						        },
+						       
+						    }
+			    });
+
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+
+
+
+}
+
+function getTblWaktu(activity, job){
+
+	myTable =
+	$('#tbldetailWaktuAct')
+	.DataTable( {
+		fixedHeader: {
+			headerOffset: $('.page-header').outerHeight()
+		},
+		responsive: true,
+		bAutoWidth: false,
+		"aoColumnDefs": [
+		  { "bSortable": false, "aTargets": [ 0,1 ] },
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
+		],
+		"aaSorting": [
+		  	[2,'asc'] 
+		],
+		"sAjaxSource": module_path+"/get_data_waktu_activity?job="+job+"&activity="+activity+"",
+		"bProcessing": true,
+        "bServerSide": true,
+		"pagingType": "bootstrap_full_number",
+		"colReorder": true
+    } );
+
+}
+
+
 
 
 </script>

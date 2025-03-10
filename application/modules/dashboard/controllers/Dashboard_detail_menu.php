@@ -152,9 +152,30 @@ class Dashboard_detail_menu extends MY_Controller
 		echo json_encode($rs);
 	}
 
+	public function get_detailwaktuAct(){
+		$post = $this->input->post(null, true);
+		$activity = $post['activity'];
+		$job = $post['jobId'];
 
+		$rs =  $this->self_model->getdetailwaktuAct($activity, $job);
+
+		
+		echo json_encode($rs);
+	}
 
 	
+	public function get_data_waktu_activity()
+	{ 
+		
+		$job = $_GET['job'];
+		$activity = $_GET['activity'];
+
+		if(_USER_ACCESS_LEVEL_VIEW == "1") {
+			$this->self_model->get_list_data_waktu($job, $activity);
+		} else {
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
 
 
 

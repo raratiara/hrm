@@ -439,7 +439,186 @@ class Dashboard_detail_menu_model extends MY_Model
 
 	}
 
-	
+	public function getdetailwaktuAct($activity, $job){ 
+
+		$rs = $this->db->query("select a.*, b.activity_name, c.order_name 
+				from job_order_detail a left join activity b on b.id = a.activity_id 
+				left join job_order c on c.id = a.job_order_id
+				where c.order_name = '".$job."' and b.activity_name = '".$activity."'")->result(); 
+
+
+		return $rs;
+
+	}
+
+
+	public function get_list_data_waktu($job, $activity)
+	{ 
+
+		$aColumns = [
+			'dt.datetime_start',
+			'dt.datetime_end',
+			'dt.total_time',
+			'dt.degree',
+			'dt.degree_2'
+		];
+		
+
+		$sIndexColumn = $this->primary_key;
+		$sTable = '(select a.*, b.activity_name, c.order_name 
+					from job_order_detail a left join activity b on b.id = a.activity_id 
+					left join job_order c on c.id = a.job_order_id
+					where c.order_name = "'.$job.'" and b.activity_name = "'.$activity.'")dt';
+		
+
+		/* Paging */
+		$sLimit = "";
+		if(isset($_GET['iDisplayStart']) && $_GET['iDisplayLength'] != '-1'){
+			$sLimit = "LIMIT ".($_GET['iDisplayStart']).", ".
+			($_GET['iDisplayLength']);
+		}
+
+		/* Ordering */
+		$sOrder = "";
+		if(isset($_GET['iSortCol_0'])) {
+			$sOrder = "ORDER BY  ";
+			for ($i=0 ; $i<intval($_GET['iSortingCols']) ; $i++){
+				if($_GET['bSortable_'.intval($_GET['iSortCol_'.$i])] == "true"){
+					$srcCol = $aColumns[ intval($_GET['iSortCol_'.$i])];
+					$findme   = ' as ';
+					$pos = strpos($srcCol, $findme);
+					if ($pos !== false) {
+						$pieces = explode($findme, trim($srcCol));
+						$sOrder .= trim($pieces[0])."
+						".($_GET['sSortDir_'.$i]) .", ";
+					} else {
+						$sOrder .= $aColumns[ intval($_GET['iSortCol_'.$i])]."
+						".($_GET['sSortDir_'.$i]) .", ";
+					}
+				}
+			}
+
+			$sOrder = substr_replace($sOrder, "", -2);
+			if($sOrder == "ORDER BY"){
+				$sOrder = "";
+			}
+		}
+
+		/* Filtering */
+		$sWhere = " WHERE 1 = 1 ";
+		if(isset($_GET['sSearch']) && $_GET['sSearch'] != ""){
+			$sWhere .= "AND (";
+			foreach ($aColumns as $c) {
+				if($c !== NULL){
+					$srcCol = $c;
+					$findme   = ' as ';
+					$pos = strpos($srcCol, $findme);
+					if ($pos !== false) {
+						$pieces = explode($findme, trim($srcCol));
+						$sWhere .= trim($pieces[0])." LIKE '%".($_GET['sSearch'])."%' OR ";
+					} else {
+						$sWhere .= $c." LIKE '%".($_GET['sSearch'])."%' OR ";
+					}
+				}
+			}
+
+			$sWhere = substr_replace( $sWhere, "", -3);
+			$sWhere .= ')';
+		}
+
+		/* Individual column filtering */
+		for($i=0 ; $i<count($aColumns) ; $i++) {
+			if(isset($_GET['bSearchable_'.$i]) && $_GET['bSearchable_'.$i] == "true" && isset($_GET['sSearch_'.$i]) && $_GET['sSearch_'.$i] != ''){
+				if($sWhere == ""){
+					$sWhere = "WHERE ";
+				} else {
+					$sWhere .= " AND ";
+				}
+				$srcString = $_GET['sSearch_'.$i];
+				$findme   = '|';
+				$pos = strpos($srcString, $findme);
+				if ($pos !== false) {
+					$srcKey = "";
+					$pieces = explode($findme, trim($srcString));
+					foreach ($pieces as $value) {
+						if(!empty($srcKey)){
+							$srcKey .= ",";
+						}
+						$srcKey .= "'".$value."'";
+					}
+					
+					$srcCol = $aColumns[$i];
+					$findme   = ' as ';
+					$pos = strpos($srcCol, $findme);
+					if ($pos !== false) {
+						$pieces = explode($findme, trim($srcCol));
+						$sWhere .= trim($pieces[0])." IN (".$srcKey.") ";
+					} else {
+						$sWhere .= $aColumns[$i]." IN (".$srcKey.") ";
+					}
+				} else {
+					$srcCol = $aColumns[$i];
+					$findme   = ' as ';
+					$pos = strpos($srcCol, $findme);
+					if ($pos !== false) {
+						$pieces = explode($findme, trim($srcCol));
+						$sWhere .= trim($pieces[0])." LIKE '%".($srcString)."%' ";
+					} else {
+						$sWhere .= $aColumns[$i]." LIKE '%".($srcString)."%' ";
+					}
+				}
+			}
+		}
+
+		/* Get data to display */
+		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
+		$sQuery = "
+		SELECT  SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $filtered_cols))."
+		FROM $sTable
+		$sWhere
+		$sOrder
+		$sLimit
+		";
+		# echo $sQuery;exit;
+		$rResult = $this->db->query($sQuery)->result();
+
+		/* Data set length after filtering */
+		$sQuery = "
+			SELECT FOUND_ROWS() AS filter_total
+		";
+		$aResultFilterTotal = $this->db->query($sQuery)->row();
+		$iFilteredTotal = $aResultFilterTotal->filter_total;
+
+		/* Total data set length */
+		$sQuery = "
+			SELECT COUNT(".$sIndexColumn.") AS total
+			FROM $sTable
+		";
+		$aResultTotal = $this->db->query($sQuery)->row();
+		$iTotal = $aResultTotal->total;
+
+		$output = array(
+			"sEcho" => intval($_GET['sEcho']),
+			"iTotalRecords" => $iTotal,
+			"iTotalDisplayRecords" => $iFilteredTotal,
+			"aaData" => array()
+		);
+
+		foreach($rResult as $row)
+		{
+
+			array_push($output["aaData"],array(
+				$row->datetime_start,
+				$row->datetime_end,
+				$row->total_time,
+				$row->degree,
+				$row->degree_2
+
+			));
+		}
+
+		echo json_encode($output);
+	}
 
 
 }
