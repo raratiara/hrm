@@ -18,8 +18,11 @@ class Dashboard_detail_menu extends MY_Controller
 	public $tabel_header 			= ["ID","Floating Crane","CCTV Code","CCTV Name"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Floating Crane","CCTV Code","CCTV Name"];
-	public $colfields 				= ["id","id","id","id"];
+	public $colnames 				= ["Date","Order No","Order Name","Floating Crane","Mother Vessel","Activity","Datetime Start","Datetime End","Total Time","Degree","Degree 2","PIC","Status"];
+	public $colfields 				= ["date","order_no","order_name","floating_crane_name","mother_vessel_name","activity_name","datetime_start","datetime_end","total_time","degree","degree_2","pic","status_name"];
+
+
+
 
 	/* Form Field Asset */
 	public function form_field_asset()

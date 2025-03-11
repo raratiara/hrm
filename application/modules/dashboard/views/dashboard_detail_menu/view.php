@@ -1,3 +1,10 @@
+<?php 
+if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") { 
+	$this->load->view(_TEMPLATE_PATH . "modal/eksport"); // standard
+}
+?>
+
+
 
 <input type="hidden" id="id_fc" name="id_fc">
 
@@ -11,6 +18,12 @@
 		<div class="portlet box green">
 			<div class="portlet-title">
 				<div class="caption"><span class="title_maps">Activity Monitor</span></div>
+				<div class="actions">
+					<a class="btn btn-default btn-sm btn-circle" id="btnEksportData">
+						<i class="fa fa-download"></i>
+						Eksport
+					</a>
+				</div>
 				<div class="tools">
 				</div>
 			</div>
@@ -129,20 +142,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<th scope="col">aa</th>
-							<th scope="col">cc</th>
-							<th scope="col">xx</th>
-							<th scope="col">aa</th>
-							<th scope="col">nn</th>
-						</tr>
-						<tr>
-							<th scope="col">bb</th>
-							<th scope="col">rr</th>
-							<th scope="col">jj</th>
-							<th scope="col">dd</th>
-							<th scope="col">qq</th>
-						</tr>
+						
 					</tbody>
 					<tfoot>
 					</tfoot>

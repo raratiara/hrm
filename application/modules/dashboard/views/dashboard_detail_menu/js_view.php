@@ -235,22 +235,57 @@ function jobGraph(idfc){
         success: function(data)
         { 
 			if(data != false){ 
-				
-				
 
 				$('span#title_job').html(data[0].floating_crane_name);
 				//// get Job Graph
 				var arrDate = []; 
-				var total_time_1 = [];
+				var total_time_1 = []; 
 				var total_time_2 = [];
-				var date_1 = [];
+				var date_1 = []; 
 				var date_2 = [];
+				var arrJob = [];
+				var arrColor = ["#5969ff",
+                                "#ff407b",
+                                "#25d5f2",
+                                "#ffc750",
+                                "#2ec551",
+                                "#7040fa",
+                                "#ff004e"];
+
+				
 
 				for(var i=0; i<data.length; i++){
 					var exists = arrDate.includes(data[i].date);
 					if (!exists) { 
 					    arrDate.push(data[i].date);
 					}
+
+					var exists_job = arrJob.includes(data[i].order_name);
+					if (!exists_job) { 
+						arrJob.push(data[i].order_name);
+						
+					}
+
+
+					
+					
+					/*for(var a=0; a<arrJob.length; a++){
+						var no = a+1; 
+    					document.cookie = "num = " + no;
+
+						<?php
+						    $ke= $_COOKIE['num'];
+						    
+						?>
+						console.log(<?=$ke?>);
+						if(data[i].order_name == arrJob[a]){
+							total_time_<?=$ke?>.push(data[i].date_time_total);
+							date_<?=$ke?>.push(data[i].date);
+							
+						}
+						
+					} */
+					
 					
 					if(data[i].order_name == 'Perpindahan Batubara'){
 						total_time_1.push(data[i].date_time_total);
@@ -261,9 +296,10 @@ function jobGraph(idfc){
 						total_time_2.push(data[i].date_time_total);
 						date_2.push(data[i].date);
 					}
-				}
+				} 
 
-				
+
+
 				var arrTotaltime_1 = [];
 				var arrTotaltime_2 = [];
 				for(var m=0; m<arrDate.length; m++){ 
@@ -286,6 +322,8 @@ function jobGraph(idfc){
 						arrTotaltime_2.push(total_time_2[arrayIdx_2]);
 					}
 				}
+
+
 				
 				
 				const canvas = document.getElementById('chartjs_bar');
@@ -297,18 +335,19 @@ function jobGraph(idfc){
 			        data: {
 			            labels: arrDate, 
 			            datasets: [
-				            {
-						      label: 'Perpindahan Batubara',
-						      data: arrTotaltime_1,
-						      //borderColor: '#36A2EB',
-						      backgroundColor: '#5969ff',
-						    },
-						    {
-						      label: 'Perpindahan 2',
-						      data: arrTotaltime_2,
-						      //borderColor: '#36A2EB',
-						      backgroundColor: '#ffef59',
-						    }
+			            	<?php 
+			            	for($aa=0; $aa<2; $aa++){ 
+			            		$i=$aa+1;
+			            		?>
+				            		{
+								      label: arrJob[<?=$aa?>],
+								      data: arrTotaltime_<?=$i?>,
+								      //borderColor: '#36A2EB',
+								      backgroundColor: arrColor[<?=$aa?>],//'#5969ff',
+								    },
+			            		<?php
+			            	}
+			            	?>
 			        	]
 			        },
 			        options: {

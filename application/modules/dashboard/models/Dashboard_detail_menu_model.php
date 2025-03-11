@@ -337,9 +337,30 @@ class Dashboard_detail_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.name as floating_crane_name from cctv a
-				left join floating_crane b on b.id = a.floating_crane_id
-	   		ORDER BY a.id ASC
+		$id=1;
+
+
+
+		$sql = "select dt.date,
+			dt.order_no,
+			dt.order_name,
+			dt.floating_crane_name,
+			dt.mother_vessel_name,
+			dt.activity_name,
+			dt.datetime_start,
+			dt.datetime_end,
+			dt.total_time,
+			dt.degree,
+			dt.degree_2,
+			dt.pic,
+			dt.status_name from (select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, 				b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '".$id."' and b.is_active = 1)dt
 		";
 
 		$res = $this->db->query($sql);
