@@ -335,11 +335,71 @@ class Dashboard_detail_menu_model extends MY_Model
 		return $error;
 	}
 
+	public function _trim_export_string($value)
+	{
+		$value = str_replace(array("&nbsp;","&amp;","&gt;","&lt;"),array(" ","&",">","<"),$value);
+		return  strip_tags(str_replace(array("\t","\n","\r"),"",$value));
+	}
+
+	public function export_to_csv($colnames, $colfields, $data, $header="",$file="export", $footer ="")
+	{ 
+		$array = [];
+		$array[] = $colnames;
+		foreach ($data AS $key => $value)
+		{  
+			$o = [];
+			foreach ($colfields AS $k=>$v) {
+				$o[] = $this->_trim_export_string($value[$v]); 
+			}
+			$array[] = $o;
+		} 
+
+		$filename = $file."_".date("Y-m-d_H:i:s").".csv"; 
+		header('Content-Disposition: attachment; filename='.$filename);
+		header("Pragma: no-cache");
+		header("Expires: 0");
+		$out = fopen("php://output", 'w'); 
+		foreach ($array as $data)
+		{
+			fputcsv($out, $data,"\t");
+		} 
+		fclose($out); 
+		die(); 
+	}
+
 	public function eksport_data()
 	{
-		$id=1;
 
+		$sql = "select dt.date,
+			dt.order_no,
+			dt.order_name,
+			dt.floating_crane_name,
+			dt.mother_vessel_name,
+			dt.activity_name,
+			dt.datetime_start,
+			dt.datetime_end,
+			dt.total_time,
+			dt.degree,
+			dt.degree_2,
+			dt.pic,
+			dt.status_name from (select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, 				b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.is_active = 1)dt
+		";
 
+		$res = $this->db->query($sql);
+		$rs = $res->result_array();
+		return $rs;
+	}
+
+	public function eksport_data_activity_monitor($id)
+	{
+		
 
 		$sql = "select dt.date,
 			dt.order_no,

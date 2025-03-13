@@ -181,5 +181,21 @@ class Dashboard_detail_menu extends MY_Controller
 	}
 
 
+	// Export Data Activity Monitor
+	public function eksport_activity_monitor()
+	{ 
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+
+		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") { 
+			$header	= "Report Activity Monitor";
+			$data 	= $this->self_model->eksport_data_activity_monitor($id);
+			$this->self_model->export_to_csv($this->colnames,$this->colfields, $data, $header ,"report_dashboard_activity_monitor");
+		} else {
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+
 
 }

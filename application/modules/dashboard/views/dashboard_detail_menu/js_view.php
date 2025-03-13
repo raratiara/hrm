@@ -20,6 +20,7 @@
 
 <script type="text/javascript">
 
+
 $(document).ready(function() {
    	$(function() {
         $( "#start_date" ).datepicker();
@@ -39,6 +40,7 @@ var idfc = arrayOfStrings[1];
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
 jQuery(function($) { 
+	
 	/* load table list */
 	myTable =
 	$('#dynamic-table')
@@ -220,6 +222,8 @@ function getCctv(idfc){
 }
 
 
+
+
 function jobGraph(idfc){ 
 	var start_date = document.getElementById("start_date").value;
   	var end_date = document.getElementById("end_date").value;
@@ -238,22 +242,21 @@ function jobGraph(idfc){
 
 				$('span#title_job').html(data[0].floating_crane_name);
 				//// get Job Graph
-				var arrDate = []; 
-				var total_time_1 = []; 
-				var total_time_2 = [];
-				var date_1 = []; 
-				var date_2 = [];
-				var arrJob = [];
-				var arrColor = ["#5969ff",
-                                "#ff407b",
-                                "#25d5f2",
-                                "#ffc750",
-                                "#2ec551",
-                                "#7040fa",
-                                "#ff004e"];
+				var arrDate		= []; 
+				var arrJob 		= [];
+				var arrDataJob	= [];	
 
-				
+				var arrColor 	= ["#5969ff",
+	                                "#ff407b",
+	                                "#25d5f2",
+	                                "#ffc750",
+	                                "#2ec551",
+	                                "#7040fa",
+	                                "#ff004e"];
 
+	
+	
+				let total = {}; 
 				for(var i=0; i<data.length; i++){
 					var exists = arrDate.includes(data[i].date);
 					if (!exists) { 
@@ -266,64 +269,83 @@ function jobGraph(idfc){
 						
 					}
 
+					for(let a=0; a<arrJob.length; a++){
+						let no = a+1; 
+						<?php $ke = 'no'; ?>
 
-					
-					
-					/*for(var a=0; a<arrJob.length; a++){
-						var no = a+1; 
-    					document.cookie = "num = " + no;
-
-						<?php
-						    $ke= $_COOKIE['num'];
-						    
-						?>
-						console.log(<?=$ke?>);
-						if(data[i].order_name == arrJob[a]){
-							total_time_<?=$ke?>.push(data[i].date_time_total);
-							date_<?=$ke?>.push(data[i].date);
-							
+						if(data[i].order_name == arrJob[a]){ 
+							var obj={};
+							obj['name'] = <?=$ke?>;
+							obj['time'] = data[i].date_time_total;
+							obj['date'] = data[i].date;
+							arrDataJob.push(obj);
 						}
-						
-					} */
-					
-					
-					if(data[i].order_name == 'Perpindahan Batubara'){
-						total_time_1.push(data[i].date_time_total);
-						date_1.push(data[i].date);
 					}
-
-					if(data[i].order_name == 'Perpindahan 2'){
-						total_time_2.push(data[i].date_time_total);
-						date_2.push(data[i].date);
-					}
+					
 				} 
 
+				document.cookie = "totalJob = " + arrJob.length;
+				<?php
+				    $ttlJob= $_COOKIE['totalJob'];
+				?>
 
 
-				var arrTotaltime_1 = [];
-				var arrTotaltime_2 = [];
-				for(var m=0; m<arrDate.length; m++){ 
-
-					var exists_1 = date_1.includes(arrDate[m]);
-					if (!exists_1) { 
-					    arrTotaltime_1.push('0');
-					}else{
-						var arrayIdx_1 = (date_1.indexOf(arrDate[m]));
-						arrTotaltime_1.push(total_time_1[arrayIdx_1]);
-					}
+				var groupedJob = arrDataJob
+				  .reduce((acc, curr) => {
+				    var key = curr.name;
+				    (acc[key] = acc[key] || [])
+				      .push(curr.time);
+				    return acc;
+				  }, {});
 
 
+				var groupedJobDate = arrDataJob
+				  .reduce((acc, curr) => {
+				    var key = curr.name;
+				    (acc[key] = acc[key] || [])
+				      .push(curr.date);
+				    return acc;
+				  }, {});
+
+
+				for(let s=1; s<=arrJob.length; s++){
+				  	for(let t=0; t<groupedJob[s].length; t++){
+				  		total[`total_time_${s}`] = groupedJob[s];
+				  		total[`date_${s}`] = groupedJobDate[s];
+				  	}
+				}
+				var arrtotal=[];
+
+				for(let u=1; u<=arrJob.length; u++){
+					var uNo=u-1;
 					
-					var exists_2 = date_2.includes(arrDate[m]);
-					if (!exists_2) { 
-					    arrTotaltime_2.push('0');
-					}else{
-						var arrayIdx_2 = (date_2.indexOf(arrDate[m]));
-						arrTotaltime_2.push(total_time_2[arrayIdx_2]);
+					for(var m=0; m<arrDate.length; m++){ 
+						var arrobj={};
+						arrobj['valName'] = 'xData_'+uNo;
+						arrobj['valDate'] = arrDate[m];
+
+						var exists_x = groupedJobDate[u].includes(arrDate[m]);
+						if (!exists_x) { 
+							arrobj['valTime'] = 0;
+						}else{
+							var arrayIdx = (groupedJobDate[u].indexOf(arrDate[m]));
+							arrobj['valTime'] = total[`total_time_${u}`][arrayIdx];
+						}
+						arrtotal.push(arrobj);
+						
+
 					}
 				}
 
+				var groupedArrTotal = arrtotal
+				  .reduce((acc, curr) => {
+				    var key = curr.valName;
+				    (acc[key] = acc[key] || [])
+				      .push(curr.valTime);
+				    return acc;
+				  }, {});
 
+  
 				
 				
 				const canvas = document.getElementById('chartjs_bar');
@@ -336,14 +358,14 @@ function jobGraph(idfc){
 			            labels: arrDate, 
 			            datasets: [
 			            	<?php 
-			            	for($aa=0; $aa<2; $aa++){ 
-			            		$i=$aa+1;
+			            	for($aa=0; $aa<$ttlJob; $aa++){ 
+			            		//$i=$aa+1;
 			            		?>
 				            		{
 								      label: arrJob[<?=$aa?>],
-								      data: arrTotaltime_<?=$i?>,
+								      data: groupedArrTotal.xData_<?=$aa?>,
 								      //borderColor: '#36A2EB',
-								      backgroundColor: arrColor[<?=$aa?>],//'#5969ff',
+								      backgroundColor: arrColor[<?=$aa?>],
 								    },
 			            		<?php
 			            	}
@@ -659,6 +681,50 @@ function getTblWaktu(activity, job){
 		"pagingType": "bootstrap_full_number",
 		"colReorder": true
     } );
+
+}
+
+function getEksportActivityMonitor(){
+	var id_fc = document.getElementById("id_fc").value;
+	
+	$.ajax({
+		type: "POST",
+        url : module_path+'/eksport_activity_monitor',
+		data: { id: id_fc },
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        {
+			if(data != false){
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
 
 }
 
