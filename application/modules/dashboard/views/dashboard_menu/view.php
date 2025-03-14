@@ -3,7 +3,7 @@
 	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
 
 
-	&nbsp; &nbsp;
+	<!-- &nbsp; &nbsp;
 	<div class="row">
 		<div class="col-md-12 col-sm-12">
 			<div class="form-group">
@@ -18,10 +18,23 @@
 			</div>
 		</div>
 	</div> &nbsp; &nbsp;
-	<div></div> 
+	<div></div>  -->
+
+	<!-- <div>
+		<button class="btn btn-white btn-block mb-2" data-toggle="modal" data-target="#myModal" data-toggle-class="modal-open-aside">Click</button>
+	</div> -->
+
+	<div id='map' style="width: 100%; height: 600px;">
+		
+	</div> 
+
+	<div>
+		<button onclick="getFC()" id="refreshButton"><i class="fa fa-bars" aria-hidden="true"></i></button>
+	</div>
+	
 
 
-	<div id='map'></div> 
+
 
 	
 

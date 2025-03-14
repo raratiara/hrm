@@ -43,7 +43,7 @@ class Dashboard_detail_menu_model extends MY_Model
 					left join floating_crane d on d.id = b.floating_crane_id
 					left join mother_vessel e on e.id = b.mother_vessel_id
 					left join status f on f.id = b.order_status
-					where b.floating_crane_id = '.$id.' and b.is_active = 1)dt';
+					where b.floating_crane_id = '.$id.' and b.is_active = 1 order by a.id asc)dt';
 		
 
 		/* Paging */
@@ -431,6 +431,68 @@ class Dashboard_detail_menu_model extends MY_Model
 	public function getTblCctv($cctv) { 
 		
 		$rs = $this->db->query("select a.*, b.name as floating_crane_name from cctv a left join floating_crane b on b.id = a.floating_crane_id where a.floating_crane_id = '".$cctv."' ")->result(); 
+		/*$rs = $this->db->query("select a.*, b.name as floating_crane_name from cctv a left join floating_crane b on b.id = a.floating_crane_id  ")->result(); */
+		$rd = $rs;
+
+		$maxtd = 4;
+		if(!empty($rd)){ 
+			$counter=0;
+			foreach ($rd as $row){
+				if($counter%$maxtd==0){
+			        if($counter){
+			            $tableRow .= "</tr>";
+			        }
+			        $tableRow .= "<tr>";  // start new row
+			    }
+
+			    $tableRow .= "<td><iframe width='110' height='85' src='".$row->embed."'>
+					</iframe></td>";
+			   
+			    ++$counter;
+			}
+
+			if($mod=$counter%$maxtd){
+			    $colspan=$maxtd-$mod;
+			    $cols='';
+			    if($colspan>1){
+			    	$cols = "colspan='".$colspan."' ";
+			    }
+			    $tableRow .= "<td ".$cols."></td>"; // complete the row with appropriately sized cell
+			}
+			$tableRow .= "</tr>";
+
+			//echo $tableRow; die();
+
+			
+			$dt = '<div class="row ca">
+                        <div class="col-md-12">
+							<div class="portlet box green">
+								<div class="portlet-title">
+									<div class="caption"><i class="fa fa-cubes"></i>'.$row->floating_crane_name.'</div>
+									<div class="tools">
+								
+									</div>
+								</div>
+								<div class="portlet-body">
+									<div class="table-scrollable tablesaw-cont">
+										<table>
+											'.$tableRow.'
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>';
+		}
+
+
+		return $dt;
+	} 
+
+
+	public function getTblCctv_old($cctv) { 
+		
+		$rs = $this->db->query("select a.*, b.name as floating_crane_name from cctv a left join floating_crane b on b.id = a.floating_crane_id where a.floating_crane_id = '".$cctv."' ")->result(); 
 		$rd = $rs;
 
 
@@ -508,7 +570,21 @@ class Dashboard_detail_menu_model extends MY_Model
 
 	}
 
-	public function getActivity($jobId){ 
+	public function getActivity($jobId, $fcId){ 
+
+		if($jobId == 'def'){
+			$dtFC = $this->db->query("select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '".$fcId."' and b.is_active = 1
+                    order by a.id desc limit 1 ")->result(); 
+			$jobId = $dtFC[0]->order_name;
+		}
+
 
 		$rs = $this->db->query("select a.*, b.activity_name, c.order_name
 				from job_order_summary a left join activity b on b.id = a.activity_id
@@ -520,7 +596,21 @@ class Dashboard_detail_menu_model extends MY_Model
 
 	}
 
-	public function getdetailwaktuAct($activity, $job){ 
+	public function getdetailwaktuAct($activity, $job, $fcId){ 
+
+		if($activity == 'def' && $job == 'def'){
+			$dtFC = $this->db->query("select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '".$fcId."' and b.is_active = 1
+                    order by a.id desc limit 1 ")->result(); 
+			$job = $dtFC[0]->order_name;
+			$activity = $dtFC[0]->activity_name;
+		}
 
 		$rs = $this->db->query("select a.*, b.activity_name, c.order_name 
 				from job_order_detail a left join activity b on b.id = a.activity_id 
@@ -533,7 +623,7 @@ class Dashboard_detail_menu_model extends MY_Model
 	}
 
 
-	public function get_list_data_waktu($job, $activity)
+	public function get_list_data_waktu($job, $activity, $fcId)
 	{ 
 
 		$aColumns = [
@@ -546,6 +636,22 @@ class Dashboard_detail_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
+
+
+		if($job == 'def' && $activity == 'def'){
+			$dtFC = $this->db->query("select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '".$fcId."' and b.is_active = 1
+                    order by a.id desc limit 1 ")->result(); 
+			$job = $dtFC[0]->order_name;
+			$activity = $dtFC[0]->activity_name;
+		}
+
 		$sTable = '(select a.*, b.activity_name, c.order_name 
 					from job_order_detail a left join activity b on b.id = a.activity_id 
 					left join job_order c on c.id = a.job_order_id

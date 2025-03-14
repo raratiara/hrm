@@ -17,9 +17,7 @@
 <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
 
-
 <script type="text/javascript">
-
 
 $(document).ready(function() {
    	$(function() {
@@ -54,9 +52,9 @@ jQuery(function($) {
 		  { "bSortable": false, "aTargets": [ 0,1 ] },
 		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
 		],
-		"aaSorting": [
+		/*"aaSorting": [
 		  	[2,'asc'] 
-		],
+		],*/
 		"sAjaxSource": module_path+"/get_data_activity?idx="+idfc+"",
 		"bProcessing": true,
         "bServerSide": true,
@@ -118,6 +116,9 @@ jQuery(function($) {
 	
 	getCctv(idfc);
 	jobGraph(idfc);
+	activityGraph('def', idfc);
+	getLineChart('def', 'def', idfc);
+	getTblWaktu('def', 'def', idfc);
 
 	$('[name="id_fc"]').val(idfc);
 
@@ -187,9 +188,7 @@ function getCctv(idfc){
         { 
 			if(data != false){ 
 				
-
 				$('span.tblCctv').html(data);
-				
 				
 			} else {
 				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
@@ -402,7 +401,7 @@ function jobGraph(idfc){
 				  
 				  var valClick = res[0]._view.datasetLabel;
 
-				  activityGraph(valClick);
+				  activityGraph(valClick, idfc);
 				  //alert('You clicked on ' +valClick);
 				  //alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
 				};
@@ -443,18 +442,18 @@ function jobGraph(idfc){
 }
 
 
-function activityGraph(jobId){
+function activityGraph(jobId, fcId){
 	
 	$.ajax({
 		type: "POST",
         url : module_path+'/get_detailActivityGraph',
-		data: { jobId: jobId},
+		data: { jobId: jobId, fcId: fcId},
 		cache: false,		
         dataType: "JSON",
         success: function(data)
         { 
 			if(data != false){ 
-				document.getElementById("tblActRpt").style.display = "";
+				//document.getElementById("tblActRpt").style.display = "";
 				$('span#title_activity').html(data[0].order_name);
 
 				//// get Activity Graph
@@ -518,8 +517,8 @@ function activityGraph(jobId){
 				  
 				  var valClick = res[0]._view.label;
 
-				  getLineChart(valClick, jobId);
-				  getTblWaktu(valClick, jobId);
+				  getLineChart(valClick, jobId, fcId);
+				  getTblWaktu(valClick, jobId, $fcId);
 				  //alert('You clicked on ' +valClick);
 				  //alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
 				};
@@ -570,20 +569,20 @@ function getDateRange(){
 }
 
 
-function getLineChart(activity, jobId){ 
+function getLineChart(activity, jobId, fcId){ 
 	
 
 	$.ajax({
 		type: "POST",
         url : module_path+'/get_detailwaktuAct',
-		data: { activity: activity, jobId: jobId},
+		data: { activity: activity, jobId: jobId, fcId: fcId},
 		cache: false,		
         dataType: "JSON",
         success: function(data)
         { 
 			if(data != false){ console.log(data);
 
-				document.getElementById("tblDtlWaktu").style.display = "";
+				//document.getElementById("tblDtlWaktu").style.display = "";
 				//$('span#title_activity').html(data[0].order_name);
 
 				//// get Activity Graph
@@ -658,7 +657,7 @@ function getLineChart(activity, jobId){
 
 }
 
-function getTblWaktu(activity, job){
+function getTblWaktu(activity, job, fcId){
 
 	myTable =
 	$('#tbldetailWaktuAct')
@@ -675,7 +674,7 @@ function getTblWaktu(activity, job){
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
-		"sAjaxSource": module_path+"/get_data_waktu_activity?job="+job+"&activity="+activity+"",
+		"sAjaxSource": module_path+"/get_data_waktu_activity?job="+job+"&activity="+activity+"&fcId="+fcId+"",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",

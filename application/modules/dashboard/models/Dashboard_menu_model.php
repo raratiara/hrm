@@ -345,9 +345,15 @@ class Dashboard_menu_model extends MY_Model
 	}
 
 	public function getviewMaps($id) { 
-		
+		$whereC="";
+		if($id != 'all'){
+			$whereC = "where floating_crane_id = '".$id."' ";
+		}
 
-		$rs = $this->db->query("select id, floating_crane_id, name, latitude, longitude from cctv where floating_crane_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select id, floating_crane_id, name, latitude, longitude from cctv ".$whereC." ")->result(); 
+
+
+		
 		/*$rd = $rs;
 
 

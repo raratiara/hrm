@@ -148,8 +148,9 @@ class Dashboard_detail_menu extends MY_Controller
 	public function get_detailActivityGraph(){
 		$post = $this->input->post(null, true);
 		$jobId = $post['jobId'];
+		$fcId = $post['fcId'];
 
-		$rs =  $this->self_model->getActivity($jobId);
+		$rs =  $this->self_model->getActivity($jobId, $fcId);
 
 		
 		echo json_encode($rs);
@@ -159,8 +160,9 @@ class Dashboard_detail_menu extends MY_Controller
 		$post = $this->input->post(null, true);
 		$activity = $post['activity'];
 		$job = $post['jobId'];
+		$fcId = $post['fcId'];
 
-		$rs =  $this->self_model->getdetailwaktuAct($activity, $job);
+		$rs =  $this->self_model->getdetailwaktuAct($activity, $job, $fcId);
 
 		
 		echo json_encode($rs);
@@ -172,9 +174,10 @@ class Dashboard_detail_menu extends MY_Controller
 		
 		$job = $_GET['job'];
 		$activity = $_GET['activity'];
+		$fcId = $_GET['fcId'];
 
 		if(_USER_ACCESS_LEVEL_VIEW == "1") {
-			$this->self_model->get_list_data_waktu($job, $activity);
+			$this->self_model->get_list_data_waktu($job, $activity, $fcId);
 		} else {
 			$this->load->view('errors/html/error_hacks_401');
 		}

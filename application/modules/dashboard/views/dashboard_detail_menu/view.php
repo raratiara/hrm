@@ -32,7 +32,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 				<table class="table table-striped table-bordered table-hover tblActMonitor" id="dynamic-table">
 					<thead>
 						<tr>
-							<th scope="col">Date</th>
+							<th scope="col">JobDate</th>
 							<th scope="col">Order No</th>
 							<th scope="col">Order Name</th>
 							<th scope="col">Floating Crane</th>
@@ -103,7 +103,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 		</div>
 	</div>
 	<div class="col-md-6 col-sm-6">
-		<div style="width:100%;height:100%;text-align:center; display:none" id="tblActRpt">
+		<div style="width:100%;height:100%;text-align:center;" id="tblActRpt">
 		    <h2 class="page-header" >Activity Reports</h2>
 		    <div><span id="title_activity"></span> </div>
 		    <canvas  id="chartjs_bar_activity" style="height: 250px; width: 500px;"></canvas>
@@ -114,7 +114,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 
 
 
-<div class="row" id="tblDtlWaktu" style="display:none">
+<div class="row" id="tblDtlWaktu" >
 	<div class="col-md-6 col-sm-6">
 		<div style="width:100%;height:100%;text-align:center">
 	        <h2 class="page-header" >Detail Waktu Activity </h2>

@@ -10,4 +10,12 @@
 [class*="col-"] .chosen-container .chosen-drop {
     width: 100%!important;
 }
+
+#refreshButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  z-index: 400;
+}
 </style>
