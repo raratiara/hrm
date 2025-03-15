@@ -368,7 +368,7 @@ class Dashboard_detail_menu_model extends MY_Model
 	}
 
 	public function eksport_data()
-	{
+	{ 
 
 		$sql = "select dt.date,
 			dt.order_no,

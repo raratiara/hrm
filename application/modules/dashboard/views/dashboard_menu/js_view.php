@@ -7,71 +7,6 @@
 	
 </style>
 
-<div id="myModal" class="modal">
-
- 
-  <div class="modal-content" style="width: 20%;">
-    <div class="modal-header">
-      <span class="close">&times;</span>
-      <h2>Modal Header</h2>
-    </div>
-    <div class="modal-body">
-      <p>Some text in the Modal Body</p>
-      <p>Some other text...</p>
-    </div>
-    <div class="modal-footer">
-      <h3>Modal Footer</h3>
-    </div>
-  </div>
-
-</div>
-
-<!-- <button class="btn btn-white btn-block mb-2" data-toggle="modal" data-target="#myModal" data-toggle-class="modal-open-aside">Click</button> -->
-<!-- <div id="myModal" class="modal">
-	<div class="modal-dialog modal-right w-xl">
-	   <div class="modal-content h-100 no-radius">
-	    <div class="modal-header">
-	      <span class="close">&times;</span>
-	      <h2>Modal Header</h2>
-	    </div>
-	    <div class="modal-body">
-	      <p>Some text in the Modal Body</p>
-	      <p>Some other text...</p>
-	    </div>
-	    <div class="modal-footer">
-	      <h3>Modal Footer</h3>
-	    </div>
-	  </div>
-	</div>
-</div> -->
-
-<!-- 
-<div class="page-content page-container" id="myModal">
-    <div class="padding">
-        <div class="row container d-flex justify-content-center">
-            <div class="col-sm-6">
-     		<button class="btn btn-white btn-block mb-2" data-toggle="modal" data-target="#modal-right" data-toggle-class="modal-open-aside">Right</button>
-		<div id="modal-right" class="modal fade" data-backdrop="true">
-	                <div class="modal-dialog modal-right w-xl">
-	                   <div class="modal-content h-100 no-radius">
-	                      <div class="modal-header">
-	                         <div class="modal-title text-md">This will be modal title</div>
-	                         <button class="close" data-dismiss="modal">&times;</button>
-	                      </div>
-	                      <div class="modal-body">
-	                         <div class="p-4 text-center">
-	                            <p>For what reason would it be advisable for me to think about business content?</p>
-	                         </div>
-	                      </div>
-	                      <div class="modal-footer"><button type="button" class="btn btn-light" data-dismiss="modal">Close</button> <button type="button" class="btn btn-primary" data-dismiss="modal">Save Details</button></div>
-	                   </div>
-	                </div>
-             	</div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
 
 <script type="text/javascript">
 
@@ -174,19 +109,19 @@ $(document).ready(function() {
    	});
 });
 
-/*$('#floating_crane').on('change', function () {
+$('#floating_crane').on('change', function () { 
  	var selectVal = $("#floating_crane option:selected").val();
-
  	
- 	getMaps(selectVal);
+ 	if(selectVal == ''){
+ 		selectVal = 'all';
+ 	}
 
-});*/
+ 	getMaps(selectVal);
+});
 
 
 function getMaps(id){
 
-	// /$('#myModal').modal('show');
-	
 	$.ajax({
 		type: "POST",
         url : module_path+'/get_maps',
@@ -297,10 +232,6 @@ function getDetail(idfc){
   	link.target = "_blank"
   	link.click()
 
-}
-
-function getFC(){
-	$('#myModal').modal('show');
 }
 
 
