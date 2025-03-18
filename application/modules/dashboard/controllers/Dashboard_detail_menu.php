@@ -30,9 +30,16 @@ class Dashboard_detail_menu extends MY_Controller
 		$field = [];
 
 
-		$field['txtstartdate'] 	= $this->self_model->return_build_txtdate('','start_date','start_date');
-		$field['txtenddate'] 	= $this->self_model->return_build_txtdate('','end_date','end_date');
-		
+		$field['txtstartdate'] 		= $this->self_model->return_build_txtdate('','start_date','start_date');
+		$field['txtenddate'] 		= $this->self_model->return_build_txtdate('','end_date','end_date');
+		$msfloating 				= $this->db->query("select * from floating_crane")->result(); 
+		$field['selfloatcrane'] 	= $this->self_model->return_build_select2me($msfloating,'','','','floating_crane','floating_crane','','','id','name',' ','','','',3,'-');
+		$field['txtdatetimestart']	= $this->self_model->return_build_txt('','txtdatetimestart','txtdatetimestart','','','readonly');
+		$field['txtordername'] 		= $this->self_model->return_build_txt('','txtordername','txtordername','','','readonly');
+		$field['txtcurrdatetime'] 	= $this->self_model->return_build_txt('','txtcurrdatetime','txtcurrdatetime','','','readonly');
+		$field['txtmothervessel'] 	= $this->self_model->return_build_txt('','txtmothervessel','txtmothervessel','','','readonly');
+		$field['txtprocesstime'] 	= $this->self_model->return_build_txt('','txtprocesstime','txtprocesstime','','','readonly');
+
 		
 		return $field;
 	}
@@ -197,6 +204,26 @@ class Dashboard_detail_menu extends MY_Controller
 		} else {
 			$this->load->view('errors/html/error_hacks_401');
 		}
+	}
+
+	public function get_Data_FC(){
+		$post = $this->input->post(null, true);
+		$id_fc = $post['id_fc'];
+
+		$rs =  $this->self_model->getDataFC($id_fc);
+
+		
+		echo json_encode($rs);
+	}
+
+	public function get_sla_cycle_percentage(){
+		$post = $this->input->post(null, true);
+		$fcId = $post['fcId'];
+
+		$rs =  $this->self_model->getslaCyclePercentage($fcId);
+
+		
+		echo json_encode($rs);
 	}
 
 

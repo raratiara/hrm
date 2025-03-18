@@ -18,19 +18,13 @@ class Dashboard_detail_menu_model extends MY_Model
 	{ 
 
 		$aColumns = [
-			'dt.date',
-			'dt.order_no',
-			'dt.order_name',
-			'dt.floating_crane_name',
-			'dt.mother_vessel_name',
 			'dt.activity_name',
 			'dt.datetime_start',
 			'dt.datetime_end',
 			'dt.total_time',
 			'dt.degree',
 			'dt.degree_2',
-			'dt.pic',
-			'dt.status_name'
+			'dt.achieve_sla'
 		];
 		
 		
@@ -43,7 +37,7 @@ class Dashboard_detail_menu_model extends MY_Model
 					left join floating_crane d on d.id = b.floating_crane_id
 					left join mother_vessel e on e.id = b.mother_vessel_id
 					left join status f on f.id = b.order_status
-					where b.floating_crane_id = '.$id.' and b.is_active = 1 order by a.id asc)dt';
+					where b.floating_crane_id = '.$id.' and b.is_active = 1 order by a.id desc limit 30)dt';
 		
 
 		/* Paging */
@@ -181,22 +175,15 @@ class Dashboard_detail_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-
+			
 			array_push($output["aaData"],array(
-				$row->date,
-				$row->order_no,
-				$row->order_name,
-				$row->floating_crane_name,
-				$row->mother_vessel_name,
 				$row->activity_name,
 				$row->datetime_start,
 				$row->datetime_end,
 				$row->total_time,
 				$row->degree,
 				$row->degree_2,
-				$row->pic,
-				$row->status_name
-
+				$row->achieve_sla
 			));
 		}
 
@@ -445,7 +432,7 @@ class Dashboard_detail_menu_model extends MY_Model
 			        $tableRow .= "<tr>";  // start new row
 			    }
 
-			    $tableRow .= "<td><iframe width='110' height='85' src='".$row->embed."'>
+			    $tableRow .= "<td><iframe width='230' height='170' src='".$row->embed."'>
 					</iframe></td>";
 			   
 			    ++$counter;
@@ -805,6 +792,54 @@ class Dashboard_detail_menu_model extends MY_Model
 		}
 
 		echo json_encode($output);
+	}
+
+
+	public function getDataFC($fcId){ 
+
+		$rs = $this->db->query("select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '".$fcId."' and b.is_active = 1
+                    order by a.id desc limit 1 ")->result(); 
+
+
+		return $rs;
+
+	}
+
+
+	public function getslaCyclePercentage($fcId){
+
+		$rs = $this->db->query("select dt.achieve_sla, count(dt.id) as ttlx from (select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name , e.name as mother_vessel_name, f.name as status_name 
+			from job_order_detail a left join job_order b on b.id = a.job_order_id 
+			left join activity c on c.id = a.activity_id left join floating_crane d on d.id = b.floating_crane_id 
+			left join mother_vessel e on e.id = b.mother_vessel_id left join status f on f.id = b.order_status 
+			where b.floating_crane_id = '".$fcId."' and b.is_active = 1 order by a.id desc limit 30) dt group by dt.achieve_sla
+			")->result(); 
+
+		foreach($rs as $row){
+			if($row->achieve_sla == 0){
+				$sla_over = $row->ttlx;
+			}
+			if($row->achieve_sla == 1){
+				$sla_ideal = $row->ttlx;
+			}
+		}
+
+
+		$arrData = [
+				"sla_ideal" => $sla_ideal,
+				"sla_over" => $sla_over
+		];
+
+
+		return $arrData;
+
 	}
 
 

@@ -24,6 +24,8 @@ $(document).ready(function() {
         $( "#start_date" ).datepicker();
         $( "#end_date" ).datepicker();
    	});
+
+   	
 });
 
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
@@ -59,7 +61,15 @@ jQuery(function($) {
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
-		"colReorder": true
+		"colReorder": true,
+		"rowCallback": function(row, data, index){ console.log(data);
+		    if(data[6]==1){
+		        $(row).find('td:eq(3)').css('background-color', '#0fff0d');
+		    }
+		    if(data[6]==0){
+		        $(row).find('td:eq(3)').css('background-color', '#ff0d37');
+		    }
+		  }
     } );
 
 	<?php if  (_USER_ACCESS_LEVEL_ADD == "1" || _USER_ACCESS_LEVEL_UPDATE == "1") { ?>
@@ -113,9 +123,12 @@ jQuery(function($) {
 	});
 	<?php } ?>
 
-	
+
+	getDataFC(idfc);
 	getCctv(idfc);
 	jobGraph(idfc);
+	SLACycle_percentage(idfc);
+	SLACycle_jml(idfc);
 	activityGraph('def', idfc);
 	getLineChart('def', 'def', idfc);
 	getTblWaktu('def', 'def', idfc);
@@ -453,7 +466,7 @@ function activityGraph(jobId, fcId){
         success: function(data)
         { 
 			if(data != false){ 
-				//document.getElementById("tblActRpt").style.display = "";
+				
 				$('span#title_activity').html(data[0].order_name);
 
 				//// get Activity Graph
@@ -724,6 +737,270 @@ function getEksportActivityMonitor(){
 			});
         }
     });
+
+}
+
+function getDateTime() {
+        var now     = new Date(); 
+        var year    = now.getFullYear();
+        var month   = now.getMonth()+1; 
+        var day     = now.getDate();
+        var hour    = now.getHours();
+        var minute  = now.getMinutes();
+        var second  = now.getSeconds(); 
+        if(month.toString().length == 1) {
+             month = '0'+month;
+        }
+        if(day.toString().length == 1) {
+             day = '0'+day;
+        }   
+        if(hour.toString().length == 1) {
+             hour = '0'+hour;
+        }
+        if(minute.toString().length == 1) {
+             minute = '0'+minute;
+        }
+        if(second.toString().length == 1) {
+             second = '0'+second;
+        }   
+        var dateTime = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;   
+         return dateTime;
+    }
+
+
+setInterval(function(){
+	$('#dynamic-table').DataTable().ajax.reload();
+
+	var txtdatetimestart = document.getElementById("txtdatetimestart").value;
+
+    currentTime = getDateTime();
+
+    $('#txtcurrdatetime').val(currentTime);
+
+    //count process time 
+    var date1 = new Date(txtdatetimestart);
+	var date2 = new Date(currentTime);
+
+	var date1_ms = date1.getTime();
+	var date2_ms = date2.getTime();
+
+	/*var difference_ms = date2_ms - date1_ms;
+
+	var milliseconds = difference_ms % 1000; // milliseconds that are less than one second
+	difference_ms = (difference_ms - milliseconds) / 1000; // convert to seconds
+
+	var seconds = difference_ms % 60; // seconds that are less than one minute
+	difference_ms = (difference_ms - seconds) / 60; // convert to minutes
+
+	var minutes = difference_ms % 60; // minutes that are less than one hour
+	difference_ms = (difference_ms - minutes) / 60; // convert to hours
+
+	var hours = difference_ms % 24;
+
+	var processtime = hours + "h " + minutes + "m " + seconds + "s";*/
+
+	var diff = date2_ms - date1_ms;
+	var hours   = Math.floor(diff / 3.6e6);
+	var minutes = Math.floor((diff % 3.6e6) / 6e4);
+	var seconds = Math.floor((diff % 6e4) / 1000);
+	var duration = hours+":"+minutes+":"+seconds;
+	$('#txtprocesstime').val(duration);
+
+    //end count process time
+
+}, 1000);
+
+
+function getDataFC(id_fc){
+	
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_Data_FC',
+		data: { id_fc: id_fc },
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        {
+			if(data != false){
+				$('#txtordername').val(data[0].order_name);
+				$('#txtmothervessel').val(data[0].mother_vessel_name);
+				$('select#floating_crane').val(data[0].floating_crane_id).trigger('change.select2');
+				$('#txtdatetimestart').val(data[0].datetime_start);
+			} else {
+				//
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+}
+
+
+function SLACycle_percentage(fcId){
+	
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_sla_cycle_percentage',
+		data: {fcId: fcId},
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ 
+				
+				const dataX = {
+				  labels: [
+				    'Ideal',
+				    'Over'
+				  ],
+				  datasets: [{
+				    label: 'My First Dataset',
+				    data: [data.sla_ideal, data.sla_over],
+				    backgroundColor: [
+				      '#FE6B32',
+				      '#0F5763'
+				    ]
+				  }]
+				};
+
+
+
+				const canvas = document.getElementById('chartjs_pie');
+				const ctx = canvas.getContext('2d');
+
+			    var myChart = new Chart(ctx, {
+			        type: 'pie',
+			        data: dataX,
+				  	options: {}
+			       
+			    });
+
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+
+
+}
+
+
+function SLACycle_jml(fcId){
+	
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_sla_cycle_percentage',
+		data: {fcId: fcId},
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ 
+				
+				const dataX = {
+				  labels: [
+				    'Ideal',
+				    'Over'
+				  ],
+				  datasets: [{
+				    label: '',
+				    data: [data.sla_ideal, data.sla_over],
+				    backgroundColor: [
+				      '#FE6B32',
+				      '#0F5763'
+				    ]
+				  }]
+				};
+
+
+
+				const canvas = document.getElementById('chartjs_cycle_bar');
+				const ctx = canvas.getContext('2d');
+
+			    var myChart = new Chart(ctx, {
+			        type: 'bar',
+			        data: dataX,
+				  	options: {
+			               legend: {
+						            display: false,
+						            position: 'bottom',
+
+						            labels: {
+						                fontColor: '#71748d',
+						                fontFamily: 'Circular Std Book',
+						                fontSize: 14,
+						            }
+						        },
+						       
+						    }
+			       
+			    });
+
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+
 
 }
 
