@@ -17,6 +17,7 @@
 <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
 
+
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -40,6 +41,7 @@ var idfc = arrayOfStrings[1];
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
 jQuery(function($) { 
+
 	
 	/* load table list */
 	myTable =
@@ -62,7 +64,7 @@ jQuery(function($) {
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
 		"colReorder": true,
-		"rowCallback": function(row, data, index){ console.log(data);
+		"rowCallback": function(row, data, index){ 
 		    if(data[6]==1){
 		        $(row).find('td:eq(3)').css('background-color', '#0fff0d');
 		    }
@@ -419,10 +421,28 @@ function jobGraph(idfc){
 				  //alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
 				};
 
+
+				document.getElementById("downloadCSV_pekerjaan").addEventListener("click", function() { 
+				  downloadCSV({ 
+				    filename: "summary_pekerjaan.csv",
+				    chart: myChart
+				  })
+				});
+
+				document.getElementById('downloadImage_pekerjaan').addEventListener('click', () => {
+	                const image = myChart
+	                    .toBase64Image();
+	                const link = document
+	                    .createElement('a');
+	                link.href = image;
+	                link.download = 'summary_pekerjaan_img.png';
+	                link.click();
+	            });
+
 				
 				//// END get Job Graph
 				
-			} else {
+			} else { 
 				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
 				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
 				msg = '<p>Gagal peroleh data.</p>';
@@ -536,6 +556,24 @@ function activityGraph(jobId, fcId){
 				  //alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
 				};
 
+
+				document.getElementById("downloadCSV_activity").addEventListener("click", function() { 
+				  downloadCSV({ 
+				    filename: "summary_activity.csv",
+				    chart: myChart
+				  })
+				});
+
+				document.getElementById('downloadImage_activity').addEventListener('click', () => {
+	                const image = myChart
+	                    .toBase64Image();
+	                const link = document
+	                    .createElement('a');
+	                link.href = image;
+	                link.download = 'summary_activity_img.png';
+	                link.click();
+	            });
+
 				
 				//// END get Activity Graph
 				
@@ -581,7 +619,6 @@ function getDateRange(){
 	
 }
 
-
 function getLineChart(activity, jobId, fcId){ 
 	
 
@@ -593,7 +630,7 @@ function getLineChart(activity, jobId, fcId){
         dataType: "JSON",
         success: function(data)
         { 
-			if(data != false){ console.log(data);
+			if(data != false){ 
 
 				//document.getElementById("tblDtlWaktu").style.display = "";
 				//$('span#title_activity').html(data[0].order_name);
@@ -609,6 +646,7 @@ function getLineChart(activity, jobId, fcId){
 				
 				const canvas = document.getElementById('chartjs_line');
 				const ctx = canvas.getContext('2d');
+
 
 			    var myChart = new Chart(ctx, {
 			        type: 'line',
@@ -631,10 +669,30 @@ function getLineChart(activity, jobId, fcId){
 						                fontFamily: 'Circular Std Book',
 						                fontSize: 14,
 						            }
-						        },
-						       
-						    }
+						        }
+						    
+					}
+
 			    });
+
+			    //var chart = new Chart(document.getElementById('chartjs_line'), myChart);
+
+				document.getElementById("downloadCSV").addEventListener("click", function() { 
+				  downloadCSV({ 
+				    filename: "chart-data.csv",
+				    chart: myChart
+				  })
+				});
+
+				document.getElementById('downloadImage').addEventListener('click', () => {
+	                const image = myChart
+	                    .toBase64Image();
+	                const link = document
+	                    .createElement('a');
+	                link.href = image;
+	                link.download = 'detail_activity_chart.png';
+	                link.click();
+	            });
 
 				
 			} else {
@@ -769,7 +827,12 @@ function getDateTime() {
 
 
 setInterval(function(){
+	var idfc = $("#floating_crane option:selected").val();
+	
 	$('#dynamic-table').DataTable().ajax.reload();
+
+	/*SLACycle_percentage(idfc);
+	SLACycle_jml(idfc);*/
 
 	var txtdatetimestart = document.getElementById("txtdatetimestart").value;
 
@@ -784,29 +847,16 @@ setInterval(function(){
 	var date1_ms = date1.getTime();
 	var date2_ms = date2.getTime();
 
-	/*var difference_ms = date2_ms - date1_ms;
-
-	var milliseconds = difference_ms % 1000; // milliseconds that are less than one second
-	difference_ms = (difference_ms - milliseconds) / 1000; // convert to seconds
-
-	var seconds = difference_ms % 60; // seconds that are less than one minute
-	difference_ms = (difference_ms - seconds) / 60; // convert to minutes
-
-	var minutes = difference_ms % 60; // minutes that are less than one hour
-	difference_ms = (difference_ms - minutes) / 60; // convert to hours
-
-	var hours = difference_ms % 24;
-
-	var processtime = hours + "h " + minutes + "m " + seconds + "s";*/
 
 	var diff = date2_ms - date1_ms;
 	var hours   = Math.floor(diff / 3.6e6);
 	var minutes = Math.floor((diff % 3.6e6) / 6e4);
 	var seconds = Math.floor((diff % 6e4) / 1000);
 	var duration = hours+":"+minutes+":"+seconds;
+	//end count process time
+
 	$('#txtprocesstime').val(duration);
 
-    //end count process time
 
 }, 1000);
 
@@ -821,13 +871,22 @@ function getDataFC(id_fc){
         dataType: "JSON",
         success: function(data)
         {
-			if(data != false){
+			if(data != false){ console.log(data);
 				$('#txtordername').val(data[0].order_name);
 				$('#txtmothervessel').val(data[0].mother_vessel_name);
 				$('select#floating_crane').val(data[0].floating_crane_id).trigger('change.select2');
 				$('#txtdatetimestart').val(data[0].datetime_start);
+
+
+
+				activityGraph(data[0].order_name, idfc);
+				getLineChart(data[0].activity_name, data[0].order_name, idfc);
+				getTblWaktu(data[0].activity_name, data[0].order_name, idfc);
+
 			} else {
-				//
+				$('#txtordername').val('');
+				$('#txtmothervessel').val('');
+				$('#txtdatetimestart').val('');
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -1004,6 +1063,121 @@ function SLACycle_jml(fcId){
 
 }
 
+
+function convertChartDataToCSV(args) {
+  let result, columnDelimiter, lineDelimiter, labels, data;
+
+  data = args.data.data || null;
+  if (data == null || !data.length) {
+    return null;
+  }
+
+  labels = args.labels || null;
+  if (labels == null || !labels.length) {
+    return null;
+  }
+
+  columnDelimiter = args.columnDelimiter || ',';
+  lineDelimiter = args.lineDelimiter || '\n';
+
+  result = '' + columnDelimiter;
+  result += labels.join(columnDelimiter);
+  result += lineDelimiter;
+
+  result += args.data.label; //args.data.label.toString();
+
+  for (let i = 0; i < data.length; i++) {
+    result += columnDelimiter;
+    result += data[i];
+  }
+  result += lineDelimiter;
+
+  return result;
+}
+
+function downloadCSV(args) { 
+  var data, filename, link;
+  var csv = "";
+  for (var i = 0; i < args.chart.data.datasets.length; i++) {
+    csv += convertChartDataToCSV({
+      data: args.chart.data.datasets[i],
+      labels: args.chart.data.labels //dataLabels
+    });
+  }
+  if (csv == null) return;
+  console.log(csv);
+
+  filename = args.filename || 'chart-data.csv';
+  if (!csv.match(/^data:text\/csv/i)) {
+    csv = 'data:text/csv;charset=utf-8,' + csv;
+  }
+
+  // not sure if anything below this comment works
+  data = encodeURI(csv);
+  link = document.createElement('a');
+  link.setAttribute('href', data);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link); // Required for FF
+  link.click();
+  document.body.removeChild(link);
+}
+
+
+$('#floating_crane').on('change', function () { 
+ 	var idfc = $("#floating_crane option:selected").val();
+ 	
+ 	if(idfc == ''){
+ 		idfc = 'all';
+ 	}
+
+ 	$('[name="id_fc"]').val(idfc);
+
+ 	getDataFC(idfc);
+ 	reloadDatatable(idfc);
+	getCctv(idfc);
+	jobGraph(idfc);
+	SLACycle_percentage(idfc);
+	SLACycle_jml(idfc);
+
+
+
+});
+
+
+function reloadDatatable(idfc){
+	$("#dynamic-table").dataTable().fnDestroy();
+	/* load table list */
+	myTable =
+	$('#dynamic-table')
+	.DataTable( {
+		fixedHeader: {
+			headerOffset: $('.page-header').outerHeight()
+		},
+		responsive: true,
+		bAutoWidth: false,
+		"aoColumnDefs": [
+		  { "bSortable": false, "aTargets": [ 0,1 ] },
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
+		],
+		/*"aaSorting": [
+		  	[2,'asc'] 
+		],*/
+		"sAjaxSource": module_path+"/get_data_activity?idx="+idfc+"",
+		"bProcessing": true,
+        "bServerSide": true,
+		"pagingType": "bootstrap_full_number",
+		"colReorder": true,
+		"rowCallback": function(row, data, index){ 
+		    if(data[6]==1){
+		        $(row).find('td:eq(3)').css('background-color', '#0fff0d');
+		    }
+		    if(data[6]==0){
+		        $(row).find('td:eq(3)').css('background-color', '#ff0d37');
+		    }
+		  }
+    } );
+
+}
 
 
 

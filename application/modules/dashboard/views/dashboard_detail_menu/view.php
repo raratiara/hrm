@@ -192,6 +192,16 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 					</div>
 					<div class="portlet-body">
 						<div style="width:100%;height:100%;text-align:center">
+							<div style="text-align:right;">
+								<a class="btn btn-default btn-sm btn-circle" id="downloadCSV_pekerjaan">
+									<i class="fa fa-download"></i>
+									CSV
+								</a>
+								<a class="btn btn-default btn-sm btn-circle" id="downloadImage_pekerjaan">
+									<i class="fa fa-download"></i>
+									Image
+								</a>
+							</div>
 							<div><span id="title_job"></span> </div>
 							<canvas  id="chartjs_bar" style="height: 250px; width: 500px;"></canvas>
 						</div>
@@ -212,6 +222,16 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 					</div>
 					<div class="portlet-body">
 						<div style="width:100%;height:100%;text-align:center">
+							<div style="text-align:right;">
+								<a class="btn btn-default btn-sm btn-circle" id="downloadCSV_activity">
+									<i class="fa fa-download"></i>
+									CSV
+								</a>
+								<a class="btn btn-default btn-sm btn-circle" id="downloadImage_activity">
+									<i class="fa fa-download"></i>
+									Image
+								</a>
+							</div>
 							<div><span id="title_activity"></span> </div> 
 							<canvas  id="chartjs_bar_activity" style="height: 250px; width: 500px;"></canvas>
 						</div>
@@ -221,6 +241,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 		</div>
 	</div>
 </div>
+
 
 
 
@@ -238,7 +259,17 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 					</div>
 					<div class="portlet-body">
 						<div style="width:100%;height:100%;text-align:center">
-					        <div>Cycle Time </div>
+							<div style="text-align:right;">
+								<a class="btn btn-default btn-sm btn-circle" id="downloadCSV">
+									<i class="fa fa-download"></i>
+									CSV
+								</a>
+								<a class="btn btn-default btn-sm btn-circle" id="downloadImage">
+									<i class="fa fa-download"></i>
+									Image
+								</a>
+							</div>
+					        <div>Cycle Time</div>
 					        <canvas  id="chartjs_line"></canvas>
 					    </div>  
 					</div>
