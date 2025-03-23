@@ -110,16 +110,16 @@ function load_data()
 					$('[name="code"]').val(data.code);
 					$('[name="name"]').val(data.name);
 					$('[name="posisi"]').val(data.position);
-					$('[name="latitude"]').val(data.latitude);
+					/*$('[name="latitude"]').val(data.latitude);
 					$('[name="longitude"]').val(data.longitude);
 					$('[name="ip_cctv"]').val(data.ip_cctv);
-					$('[name="ip_server"]').val(data.ip_server);
+					$('[name="ip_server"]').val(data.ip_server);*/
 					$('[name="rtsp"]').val(data.rtsp);
 					$('[name="embed"]').val(data.embed);
-					$('[name="thumbnail"]').val(data.thumnail);
+					/*$('[name="thumbnail"]').val(data.thumnail);*/
 					$('[name="is_active"][value="'+data.is_active+'"]').prop('checked', true);
 					$('select#floating_crane').val(data.floating_crane_id).trigger('change.select2');
-					$('select#type_streaming').val(data.type_streaming).trigger('change.select2');
+					/*$('select#type_streaming').val(data.type_streaming).trigger('change.select2');*/
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -130,14 +130,14 @@ function load_data()
 					$('span.name').html(data.name);
 					$('span.floating_crane').html(data.floating_crane_name);
 					$('span.posisi').html(data.position);
-					$('span.latitude').html(data.latitude);
+					/*$('span.latitude').html(data.latitude);
 					$('span.longitude').html(data.longitude);
 					$('span.ip_cctv').html(data.ip_cctv);
-					$('span.ip_server').html(data.ip_server);
+					$('span.ip_server').html(data.ip_server);*/
 					$('span.rtsp').html(data.rtsp);
 					$('span.embed').html(data.embed);
-					$('span.type_streaming').html(data.type_streaming);
-					$('span.thumbnail').html(data.thumnail);
+					/*$('span.type_streaming').html(data.type_streaming);
+					$('span.thumbnail').html(data.thumnail);*/
 					$('span.is_active').html(data.is_active_desc);
 					
 					$('#modal-view-data').modal('show');

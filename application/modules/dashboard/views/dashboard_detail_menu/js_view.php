@@ -8,15 +8,15 @@
 
 <!-- <script src="//code.jquery.com/jquery-1.9.1.js"></script> -->
 <!-- js for bar graph -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>   -->
 
 
 <!-- <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script> -->
 
 <!-- js for line chart -->
 <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
-
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
 <script type="text/javascript">
 
@@ -36,15 +36,18 @@ var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
 var url = new URL(window.location.href);
-arrayOfStrings = url.toString().split('=');
-var idfc = arrayOfStrings[1];
+arrayOfStrings = url.toString().split('='); 
+var getidfc = arrayOfStrings[1];
+var spl_idfc = getidfc.toString().split('&'); 
+var idfc = spl_idfc[0];
+var orderid = arrayOfStrings[2];
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
 jQuery(function($) { 
 
 	
 	/* load table list */
-	myTable =
+	/*myTable =
 	$('#dynamic-table')
 	.DataTable( {
 		fixedHeader: {
@@ -56,10 +59,8 @@ jQuery(function($) {
 		  { "bSortable": false, "aTargets": [ 0,1 ] },
 		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
 		],
-		/*"aaSorting": [
-		  	[2,'asc'] 
-		],*/
-		"sAjaxSource": module_path+"/get_data_activity?idx="+idfc+"",
+		
+		"sAjaxSource": module_path+"/get_data_activity?idx="+idfc+"&orderid=0",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
@@ -72,7 +73,7 @@ jQuery(function($) {
 		        $(row).find('td:eq(3)').css('background-color', '#ff0d37');
 		    }
 		  }
-    } );
+    } );*/
 
 	<?php if  (_USER_ACCESS_LEVEL_ADD == "1" || _USER_ACCESS_LEVEL_UPDATE == "1") { ?>
 	validator = $("#frmInputData").validate({
@@ -128,12 +129,11 @@ jQuery(function($) {
 
 	getDataFC(idfc);
 	getCctv(idfc);
+	getDataRealtime(idfc,orderid);
 	jobGraph(idfc);
-	SLACycle_percentage(idfc);
-	SLACycle_jml(idfc);
-	activityGraph('def', idfc);
+	/*activityGraph('def', idfc);
 	getLineChart('def', 'def', idfc);
-	getTblWaktu('def', 'def', idfc);
+	getTblWaktu('def', 'def', idfc);*/
 
 	$('[name="id_fc"]').val(idfc);
 
@@ -204,6 +204,52 @@ function getCctv(idfc){
 			if(data != false){ 
 				
 				$('span.tblCctv').html(data);
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: '',//'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+}
+
+
+function getDataRealtime(idfc, orderid){
+	
+
+	$.ajax({
+		type: "POST",
+        url : module_path+'/get_data_realtime',
+		data: { idfc: idfc, orderid: orderid},
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        {  
+			if(data != false){ 
+				
+				$('span.tblDataRealtime').html(data);
 				
 			} else {
 				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
@@ -517,6 +563,7 @@ function activityGraph(jobId, fcId){
                                 "#ff004e"
                             ],
                             data: arrTotalTime, //<?php echo json_encode($arrTotalTime); ?>,
+                            label: ''
                         }]
 			        },
 			        options: {
@@ -632,7 +679,6 @@ function getLineChart(activity, jobId, fcId){
         { 
 			if(data != false){ 
 
-				//document.getElementById("tblDtlWaktu").style.display = "";
 				//$('span#title_activity').html(data[0].order_name);
 
 				//// get Activity Graph
@@ -654,9 +700,13 @@ function getLineChart(activity, jobId, fcId){
 			            labels: arrAct, 
 			            datasets: [{
                             backgroundColor: [
-                                "#25d5f2"
+                                "#072f77" //"#98baf9" 
+                            ],
+                            borderColor: [
+                                "#072f77"
                             ],
                             data: arrTotalTime, //<?php echo json_encode($arrTotalTime); ?>,
+                            label: ''
                         }]
 			        },
 			        options: {
@@ -828,8 +878,10 @@ function getDateTime() {
 
 setInterval(function(){
 	var idfc = $("#floating_crane option:selected").val();
+	var orderid = $("#order_name option:selected").val();
 	
-	$('#dynamic-table').DataTable().ajax.reload();
+	//$('#dynamic-table').DataTable().ajax.reload();
+	getDataRealtime(idfc, orderid);
 
 	/*SLACycle_percentage(idfc);
 	SLACycle_jml(idfc);*/
@@ -870,24 +922,54 @@ function getDataFC(id_fc){
 		cache: false,		
         dataType: "JSON",
         success: function(data)
-        {
-			if(data != false){ console.log(data);
-				$('#txtordername').val(data[0].order_name);
-				$('#txtmothervessel').val(data[0].mother_vessel_name);
-				$('select#floating_crane').val(data[0].floating_crane_id).trigger('change.select2');
-				$('#txtdatetimestart').val(data[0].datetime_start);
+        { 
+			/*if(data != false){ 	*/
+        	if(data.datafc.length != 0){ 	
+        		var joborderid = data.datafc[0].job_order_id;
+				var jobordername = data.datafc[0].order_name;
+				var activityname = data.datafc[0].activity_name;
 
 
+				$('#txtmothervessel').val(data.datafc[0].mother_vessel_name);
+				$('select#floating_crane').val(data.datafc[0].floating_crane_id).trigger('change.select2');
+				$('#txtdatetimestart').val(data.datafc[0].datetime_start);
 
-				activityGraph(data[0].order_name, idfc);
-				getLineChart(data[0].activity_name, data[0].order_name, idfc);
-				getTblWaktu(data[0].activity_name, data[0].order_name, idfc);
 
-			} else {
+				var $el = $("#order_name");
+				$el.empty(); // remove old options
+				$.each(data.msorder, function(key,value) {
+				  	$el.append($("<option></option>")
+				     .attr("value", value.job_order_id).text(value.order_name));
+				});
+				$('select#order_name').val(joborderid).trigger('change.select2');
+
+
+			} else { 
+				var joborderid = '';
+				var jobordername = '';
+				var activityname = '';
+
+
 				$('#txtordername').val('');
 				$('#txtmothervessel').val('');
 				$('#txtdatetimestart').val('');
+
+				var $el = $("#order_name");
+				$el.empty(); // remove old options
+				$.each(data.msorder, function(key,value) {
+				  	$el.append($("<option></option>")
+				     .attr("value", value.id).text(value.order_name));
+				});
+				$('select#order_name').val('').trigger('change.select2');
 			}
+
+			reloadDatatable(id_fc, joborderid);
+			SLACycle_percentage(id_fc, joborderid);
+			SLACycle_jml(id_fc, joborderid);
+			activityGraph(jobordername, id_fc);
+			getLineChart(activityname, jobordername, id_fc);
+			getTblWaktu(activityname, jobordername, id_fc);
+
         },
         error: function (jqXHR, textStatus, errorThrown)
         {
@@ -906,12 +988,12 @@ function getDataFC(id_fc){
 }
 
 
-function SLACycle_percentage(fcId){
+function SLACycle_percentage(fcId, orderid){
 	
 	$.ajax({
 		type: "POST",
         url : module_path+'/get_sla_cycle_percentage',
-		data: {fcId: fcId},
+		data: {fcId: fcId, orderid: orderid},
 		cache: false,		
         dataType: "JSON",
         success: function(data)
@@ -926,10 +1008,8 @@ function SLACycle_percentage(fcId){
 				  datasets: [{
 				    label: 'My First Dataset',
 				    data: [data.sla_ideal, data.sla_over],
-				    backgroundColor: [
-				      '#FE6B32',
-				      '#0F5763'
-				    ]
+				    backgroundColor: ['#FE6B32','#0F5763'],
+				    hoverOffset: 4
 				  }]
 				};
 
@@ -937,13 +1017,44 @@ function SLACycle_percentage(fcId){
 
 				const canvas = document.getElementById('chartjs_pie');
 				const ctx = canvas.getContext('2d');
+				
+				
+
+			    /*var myChart = new Chart(ctx, {
+			        type: 'pie',
+			        data: dataX,
+				  	options: {},
+			       
+			    });*/
+
 
 			    var myChart = new Chart(ctx, {
 			        type: 'pie',
 			        data: dataX,
-				  	options: {}
+				  	options: {
+		                responsive: true,
+		                plugins: {
+		                    datalabels: {
+		                        formatter: (value, context) => {
+		                            let percentage = (value / context.chart._metasets
+		                            [context.datasetIndex].total * 100)
+		                                .toFixed(2) + '%';
+		                            //return percentage + '\n' + value;
+		                                return percentage;
+		                        },
+		                        color: '#fff',
+		                        font: {
+		                            size: 14,
+		                        }
+		                    }
+		                }
+		            },
+		            plugins: [ChartDataLabels]
 			       
 			    });
+
+			    
+			   
 
 				
 			} else {
@@ -979,12 +1090,12 @@ function SLACycle_percentage(fcId){
 }
 
 
-function SLACycle_jml(fcId){
+function SLACycle_jml(fcId, orderid){
 	
 	$.ajax({
 		type: "POST",
         url : module_path+'/get_sla_cycle_percentage',
-		data: {fcId: fcId},
+		data: {fcId: fcId, orderid: orderid},
 		cache: false,		
         dataType: "JSON",
         success: function(data)
@@ -999,10 +1110,7 @@ function SLACycle_jml(fcId){
 				  datasets: [{
 				    label: '',
 				    data: [data.sla_ideal, data.sla_over],
-				    backgroundColor: [
-				      '#FE6B32',
-				      '#0F5763'
-				    ]
+				    backgroundColor: ['#FE6B32','#0F5763']
 				  }]
 				};
 
@@ -1011,7 +1119,7 @@ function SLACycle_jml(fcId){
 				const canvas = document.getElementById('chartjs_cycle_bar');
 				const ctx = canvas.getContext('2d');
 
-			    var myChart = new Chart(ctx, {
+			    /*var myChart = new Chart(ctx, {
 			        type: 'bar',
 			        data: dataX,
 				  	options: {
@@ -1027,6 +1135,35 @@ function SLACycle_jml(fcId){
 						        },
 						       
 						    }
+			       
+			    });*/
+
+
+			    var myChart = new Chart(ctx, {
+			        type: 'bar',
+			        data: dataX,
+				  	options: {
+	               		legend: {
+				            display: false
+				        },
+				       	responsive: true,
+		                plugins: {
+		                    datalabels: {
+		                        formatter: (value, context) => {
+		                            let percentage = (value / context.chart._metasets
+		                            [context.datasetIndex].total * 100)
+		                                .toFixed(2) + '%';
+		                            /*return percentage + '\n' + value;*/
+		                            return value;
+		                        },
+		                        color: '#fff',
+		                        font: {
+		                            size: 14,
+		                        }
+		                    }
+		                }
+				    },
+				    plugins: [ChartDataLabels]
 			       
 			    });
 
@@ -1105,7 +1242,7 @@ function downloadCSV(args) {
     });
   }
   if (csv == null) return;
-  console.log(csv);
+  
 
   filename = args.filename || 'chart-data.csv';
   if (!csv.match(/^data:text\/csv/i)) {
@@ -1125,6 +1262,7 @@ function downloadCSV(args) {
 
 $('#floating_crane').on('change', function () { 
  	var idfc = $("#floating_crane option:selected").val();
+ 	var order_id = $("#order_name option:selected").val();
  	
  	if(idfc == ''){
  		idfc = 'all';
@@ -1133,18 +1271,14 @@ $('#floating_crane').on('change', function () {
  	$('[name="id_fc"]').val(idfc);
 
  	getDataFC(idfc);
- 	reloadDatatable(idfc);
 	getCctv(idfc);
 	jobGraph(idfc);
-	SLACycle_percentage(idfc);
-	SLACycle_jml(idfc);
-
 
 
 });
 
 
-function reloadDatatable(idfc){
+function reloadDatatable(idfc, order_id){
 	$("#dynamic-table").dataTable().fnDestroy();
 	/* load table list */
 	myTable =
@@ -1162,7 +1296,7 @@ function reloadDatatable(idfc){
 		/*"aaSorting": [
 		  	[2,'asc'] 
 		],*/
-		"sAjaxSource": module_path+"/get_data_activity?idx="+idfc+"",
+		"sAjaxSource": module_path+"/get_data_activity?idx="+idfc+"&orderid="+order_id+"",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
@@ -1178,6 +1312,57 @@ function reloadDatatable(idfc){
     } );
 
 }
+
+$('#order_name').on('change', function () { 
+	var id_fc 	= $("#floating_crane option:selected").val();
+ 	var orderid = $("#order_name option:selected").val();
+ 	
+ 	if(orderid != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/get_Data_By_Order',
+			data: { orderid: orderid, id_fc: id_fc },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+				if(data != false){ 	
+					$('#txtmothervessel').val(data[0].mother_vessel_name);
+					$('#txtdatetimestart').val(data[0].datetime_start);
+
+				} else { 
+					$('#txtmothervessel').val('');
+					$('#txtdatetimestart').val('');
+
+				}
+
+				reloadDatatable(id_fc, orderid);
+				SLACycle_percentage(id_fc, orderid);
+				SLACycle_jml(id_fc, orderid);
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}else{
+ 		alert("Please choose Order Name");
+ 	}
+
+});
 
 
 

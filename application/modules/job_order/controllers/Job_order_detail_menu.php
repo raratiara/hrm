@@ -15,8 +15,9 @@ class Job_order_detail_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Job Order","Activity"];
+	public $tabel_header 			= ["ID","Floating Crane","Mother Vessel", "Job Order","Activity", "Datetime Start", "Datetime End", "Degree", "Degree 2"];
 	
+
 	/* Export */
 	public $colnames 				= ["ID","Job Order","Activity"];
 	public $colfields 				= ["id","id","id"];
@@ -30,7 +31,7 @@ class Job_order_detail_menu extends MY_Controller
 		$field['txtdatetimeend'] 	= $this->self_model->return_build_txtdate('','date_time_end','date_time_end'); 
 		$field['txtdegree'] 		= $this->self_model->return_build_txt('','degree','degree','','','');
 		$field['txtdegree_2'] 		= $this->self_model->return_build_txt('','degree_2','degree_2','','','');
-
+		$field['txtsla'] 		= $this->self_model->return_build_txt('','sla','sla','','','readonly');
 		$msjob	= $this->db->query("select * from job_order where order_status = 2")->result(); 
 		$field['seljoborder'] 	= $this->self_model->return_build_select2me($msjob,'','','','job_order','job_order','','','id','order_name',' ','','','',3,'-');
 		$msactivity				= $this->db->query("select * from activity")->result(); 
@@ -88,4 +89,18 @@ class Job_order_detail_menu extends MY_Controller
  	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
 	//============================== Additional Method ==============================//
+
+ 	public function get_data_sla(){
+		$post = $this->input->post(null, true);
+		$activity = $post['activity'];
+
+		
+		$data = $this->db->query("select * from sla where activity_id = '".$activity."'")->result();
+		
+		
+		echo json_encode($data);
+	}
+
+
+
 }

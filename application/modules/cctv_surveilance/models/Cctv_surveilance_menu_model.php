@@ -344,12 +344,24 @@ class Cctv_surveilance_menu_model extends MY_Model
 		return $rs;
 	}
 
-	public function getTblCctv($cctv,$jmlcctv) { 
+	public function getTblCctv($floating_crane,$jmlcctv) { 
+
+		if($floating_crane == 'all' || $floating_crane == ''){
+			$whr = "";
+		}else{
+			$whr = "where a.floating_crane_id = '".$floating_crane."'";
+		}
+
 		$jml = '';
 		if($jmlcctv != '' && $jmlcctv != 0){
 			$jml = ' limit '.$jmlcctv.' ';
 		}
-		$rs = $this->db->query("select a.*, b.name as floating_crane_name from cctv a left join floating_crane b on b.id = a.floating_crane_id where b.name like '%".$cctv."%' ".$jml." ")->result(); 
+
+		
+		$rs = $this->db->query("select a.*, b.name as floating_crane_name from cctv a left join floating_crane b on b.id = a.floating_crane_id  ".$whr.$jml." ")->result();
+		
+
+		 
 		$rd = $rs;
 
 
@@ -357,16 +369,52 @@ class Cctv_surveilance_menu_model extends MY_Model
 
 			
 		
-			foreach ($rd as $row){
+			/*foreach ($rd as $row){
 
 
 				$thead .= '<th scope="col">'.$row->name.'</th>';
 				$tbody .= '<td><iframe width="420" height="345" src="'.$row->embed.'">
 					</iframe></td> ';
 
+			}*/
+
+
+			$maxtd = 4;
+			$counter=0;
+			foreach ($rd as $row){
+				if($counter%$maxtd==0){
+			        if($counter){
+			            $thead .= "</tr>";
+			            $tbody .= "</tr>";
+			        }
+			        $thead .= "<tr>";  // start new row
+			        $tbody .= "<tr>";
+			    }
+
+			    /*$tableRow .= "<td><iframe width='230' height='170' src='".$row->embed."'>
+					</iframe></td>";*/
+
+				$thead .= "<th scope='col'>".$row->name."</th>";
+				$tbody .= "<td><iframe allowfullscreen='true' width='200' height='130' src='".$row->embed."'>
+					</iframe></td> ";
+			   
+			    ++$counter;
 			}
 
-			$dt .= '<div class="row ca">
+			if($mod=$counter%$maxtd){
+			    $colspan=$maxtd-$mod;
+			    $cols='';
+			    if($colspan>1){
+			    	$cols = "colspan='".$colspan."' ";
+			    }
+			    $thead .= "<td ".$cols."></td>"; // complete the row with appropriately sized cell
+			    $tbody .= "<td ".$cols."></td>";
+			}
+			$thead .= "</tr>";
+			$tbody .= "</tr>";
+
+
+			$dt = '<div class="row ca">
                         <div class="col-md-12">
 							<div class="portlet box green">
 								<div class="portlet-title">
@@ -379,14 +427,10 @@ class Cctv_surveilance_menu_model extends MY_Model
 									<div class="table-scrollable tablesaw-cont">
 									<table class="table table-striped table-bordered table-hover reim-list tablesaw tablesaw-stack" id="tblJadwal" data-tablesaw-mode="stack">
 										<thead>
-											<tr>
-											'.$thead.'
-											</tr>
+											
 										</thead>
 										<tbody>
-											<tr>
 											'.$tbody.'
-											</tr>
 										</tbody>
 										<tfoot>
 										</tfoot>

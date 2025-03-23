@@ -1,19 +1,15 @@
 <script type="text/javascript">
-
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
 var validator;
 var save_method; //for save method string
-var pout = false; //for printing
 var idx; //for save index string
 var ldx; //for save list index string
-var modloc = '/_aim/master/master_floating_crane_menu/';
-var opsForm = 'form#frmInputData';
-var locate = 'table.ca-list';
-var dlocate = 'table.dca-list';
-var wcount = 0; //for ca list row identify
 
 
+$(document).ready(function() {
+   
+});
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
 jQuery(function($) {
@@ -113,52 +109,24 @@ function load_data()
         dataType: "JSON",
         success: function(data)
         {
-			if(data != false){
+			if(data != false){ console.log(data);
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
-					$('[name="code"]').val(data.code);
-					$('[name="name"]').val(data.name);
-					$('[name="latitude"]').val(data.latitude);
-					$('[name="longitude"]').val(data.longitude);
-
-
-
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id },success: function (response) {
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
-
+					$('[name="total_datetime"]').val(data.total_date_time);
+					
+					$('select#job_order').val(data.job_order_id).trigger('change.select2');
+					$('select#activity').val(data.activity_id).trigger('change.select2');
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.code').html(data.code);
-					$('span.name').html(data.name);
-					$('span.latitude').html(data.latitude);
-					$('span.longitude').html(data.longitude);
-
-
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id, view:true },success: function (response) {
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
-
+					$('span.job_order').html(data.order_name);
+					$('span.activity').html(data.activity_name);
+					$('span.total_datetime').html(data.total_date_time);
+					
+					
 					$('#modal-view-data').modal('show');
 				}
 			} else {
@@ -191,44 +159,4 @@ function load_data()
     });
 }
 <?php } ?>
-
-$("#addcarow").on("click", function () { 
-	expire();
-	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount },success: function (response) {
-			newRow.append(response);
-			$(locate).append(newRow);
-			wcount++;
-			/*$(locate+' [name="qty['+wcount+']"]').number(true,0,',','.');
-			$(locate+' [name="price['+wcount+']"]').number(true,0,',','.');
-			$(locate+' [name="jumlah['+wcount+']"]').number(true,0,',','.');*/
-		}
-	}).done(function() {
-		tSawBclear('table.order-list');
-	});
-});
-
-
-function del(idx,hdnid){
-	
-	if(hdnid != ''){ //delete dr table
-
-		$.ajax({type: 'post',url: module_path+'/delrowCctv',data: { id:hdnid },success: function (response) {
-				
-			}
-		}).done(function() {
-			tSawBclear('table.order-list');
-		});
-
-	}
-
-	//delete tampilan row
-
-	var table = document.getElementById("tblCctv");
-	table.deleteRow(idx);
-	
-
-}
-
-
 </script>

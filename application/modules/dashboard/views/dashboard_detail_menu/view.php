@@ -13,7 +13,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 	<div class="col-md-12 col-sm-12">
 		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Floating Crane</label>
+				<label class="col-md-4 control-label no-padding-right">Floating Crane</label>
 				<div class="col-md-6">
 					<?=$selfloatcrane;?>
 				</div>
@@ -21,7 +21,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 		</div>
 		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Datetime Start </label>
+				<label class="col-md-4 control-label no-padding-right">Datetime Start </label>
 				<div class="col-md-6">
 					<?=$txtdatetimestart;?>
 				</div>
@@ -31,15 +31,15 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 	<div class="col-md-12 col-sm-12">
 		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Order Name</label>
+				<label class="col-md-4 control-label no-padding-right">Order Name</label>
 				<div class="col-md-6">
-					<?=$txtordername;?>
+					<?=$selordername;?>
 				</div>
 			</div>
 		</div>
 		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Current Datetime </label>
+				<label class="col-md-4 control-label no-padding-right">Current Datetime </label>
 				<div class="col-md-6">
 					<?=$txtcurrdatetime;?>
 				</div>
@@ -49,7 +49,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 	<div class="col-md-12 col-sm-12">
 		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Mother Vessel</label>
+				<label class="col-md-4 control-label no-padding-right">Mother Vessel</label>
 				<div class="col-md-6">
 					<?=$txtmothervessel;?>
 				</div>
@@ -57,7 +57,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 		</div>
 		<div class="col-md-6 col-sm-12">
 			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Process Time </label>
+				<label class="col-md-4 control-label no-padding-right">Process Time </label>
 				<div class="col-md-6">
 					<?=$txtprocesstime;?>
 				</div>
@@ -77,7 +77,7 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 
 <div class="row">
 	<div class="col-md-8 col-sm-6 col-xs-6">
-		<div class="portlet box green">
+		<!-- <div class="portlet box green">
 			<div class="portlet-title">
 				<div class="caption"><span class="title_maps">Realtime Analytics Detection</span></div>
 				<div class="actions">
@@ -108,7 +108,9 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
 					</tfoot>
 				</table>
 			</div>
-		</div>
+		</div> -->
+
+		<span class="tblDataRealtime"></span>
 	</div> 
 	<div class="col-md-4 col-sm-6">
 		<div class="row ca">

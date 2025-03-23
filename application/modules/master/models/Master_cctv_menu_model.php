@@ -250,15 +250,15 @@ class Master_cctv_menu_model extends MY_Model
 			'code' 				=> trim($post['code']),
 			'name' 				=> trim($post['name']),
 			'position' 			=> trim($post['posisi']),
-			'ip_cctv' 			=> trim($post['ip_cctv']),
-			'ip_server' 		=> trim($post['ip_server']),
+			/*'ip_cctv' 			=> trim($post['ip_cctv']),
+			'ip_server' 		=> trim($post['ip_server']),*/
 			'rtsp' 				=> trim($post['rtsp']),
 			'embed' 			=> trim($post['embed']),
-			'type_streaming' 	=> trim($post['type_streaming']),
-			'thumnail' 			=> trim($post['thumbnail']),
-			'is_active' 		=> trim($post['is_active']),
-			'latitude' 			=> trim($post['latitude']),
-			'longitude' 		=> trim($post['longitude'])
+			/*'type_streaming' 	=> trim($post['type_streaming']),
+			'thumnail' 			=> trim($post['thumbnail']),*/
+			'is_active' 		=> trim($post['is_active'])
+			/*'latitude' 			=> trim($post['latitude']),
+			'longitude' 		=> trim($post['longitude'])*/
 		];
 
 		return $rs = $this->db->insert($this->table_name, $data);
@@ -271,15 +271,15 @@ class Master_cctv_menu_model extends MY_Model
 				'code' 				=> trim($post['code']),
 				'name' 				=> trim($post['name']),
 				'position' 			=> trim($post['posisi']),
-				'ip_cctv' 			=> trim($post['ip_cctv']),
-				'ip_server' 		=> trim($post['ip_server']),
+				/*'ip_cctv' 			=> trim($post['ip_cctv']),
+				'ip_server' 		=> trim($post['ip_server']),*/
 				'rtsp' 				=> trim($post['rtsp']),
 				'embed' 			=> trim($post['embed']),
-				'type_streaming' 	=> trim($post['type_streaming']),
-				'thumnail' 			=> trim($post['thumbnail']),
+				/*'type_streaming' 	=> trim($post['type_streaming']),
+				'thumnail' 			=> trim($post['thumbnail']),*/
 				'is_active' 		=> trim($post['is_active']),
-				'latitude' 			=> trim($post['latitude']),
-				'longitude' 		=> trim($post['longitude'])
+				/*'latitude' 			=> trim($post['latitude']),
+				'longitude' 		=> trim($post['longitude'])*/
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -313,15 +313,9 @@ class Master_cctv_menu_model extends MY_Model
 				'code' 				=> $v["C"],
 				'name' 				=> $v["D"],
 				'position' 			=> $v["E"],
-				'ip_cctv' 			=> $v["F"],
-				'ip_server' 		=> $v["G"],
-				'rtsp' 				=> $v["H"],
-				'embed' 			=> $v["I"],
-				'type_streaming' 	=> $v["J"],
-				'thumnail' 			=> $v["K"],
-				'is_active' 		=> $v["L"],
-				'latitude' 			=> $v["M"],
-				'longitude' 		=> $v["N"]
+				'rtsp' 				=> $v["F"],
+				'embed' 			=> $v["G"],
+				'is_active' 		=> $v["H"]
 				
 			];
 

@@ -1,35 +1,41 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Master_floating_crane_menu extends MY_Controller
+class Job_order_summary_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "master_floating_crane_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Setup Master Floating Crane";
- 	const  LABELFOLDER				= "master"; // module folder
- 	const  LABELPATH				= "master_floating_crane_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "master"; // adjusted 1st sub parent segment
- 	const  LABELSUBPARENTSEG1		= "Master"; // 
+ 	const  LABELMODULE				= "job_order_summary_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Job Order Summary";
+ 	const  LABELFOLDER				= "job_order"; // module folder
+ 	const  LABELPATH				= "job_order_summary_menu"; // controller file (lowercase)
+ 	const  LABELNAVSEG1				= "job_order"; // adjusted 1st sub parent segment
+ 	const  LABELSUBPARENTSEG1		= "Job Order Summary"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Code","Name", "Latitude", "Longitude"];
+	public $tabel_header 			= ["ID","Floating Crane","Mother Vessel", "Job Order","Activity", "Total DateTime"];
 	
+
 	/* Export */
-	public $colnames 				= ["ID","Code","Name", "Latitude", "Longitude"];
-	public $colfields 				= ["id","code","name", "latitude", "longitude"];
+	public $colnames 				= ["ID","Floating Crane","Mother Vessel", "Job Order","Activity", "Total DateTime"];
+	public $colfields 				= ["id","floating_crane_name","mother_vessel_name", "order_name", "activity_name", "total_date_time"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
-		$field = [];
-		$field['txtcode'] 		= $this->self_model->return_build_txt('','code','code');
-		$field['txtname'] 		= $this->self_model->return_build_txt('','name','name');
-		$field['txtlatitude'] 	= $this->self_model->return_build_txt('','latitude','latitude');
-		$field['txtlongitude'] 	= $this->self_model->return_build_txt('','longitude','longitude');
+		$field = []; 
 		
+		
+		$field['txttotaldatetime'] 	= $this->self_model->return_build_txt('','total_datetime','total_datetime','','','');
+		
+		$msjob	= $this->db->query("select * from job_order")->result(); 
+		$field['seljoborder'] 	= $this->self_model->return_build_select2me($msjob,'','','','job_order','job_order','','','id','order_name',' ','','','',3,'-');
+		$msactivity				= $this->db->query("select * from activity")->result(); 
+		$field['selactivity'] 	= $this->self_model->return_build_select2me($msactivity,'','','','activity','activity','','','id','activity_name',' ','','','',3,'-');
+		
+
 		
 		return $field;
 	}
@@ -81,40 +87,4 @@ class Master_floating_crane_menu extends MY_Controller
  	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
 	//============================== Additional Method ==============================//
-
- 	public function genexpensesrow()
-	{ 
-		if(_USER_ACCESS_LEVEL_VIEW == "1")
-		{ 
-			$post = $this->input->post(null, true);
-			if(isset($post['count']))
-			{  
-				$row = trim($post['count']); 
-				echo $this->self_model->getNewExpensesRow($row);
-			} else if(isset($post['id'])) { 
-				$row = 0;
-				$id = trim($post['id']);
-				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewExpensesRow($row,$id,$view));
-			}
-		}
-		else
-		{ 
-			$this->load->view('errors/html/error_hacks_401');
-		}
-	}
-
-
-	public function delrowCctv(){ 
-		$post = $this->input->post(); 
-		$id = trim($post['id']); 
-		
-		if($id != ''){
-			$rs = $this->db->delete('cctv',"id = '".$id."'");
-		}
-		
-	}
-
-
-
 }

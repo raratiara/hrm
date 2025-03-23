@@ -14,7 +14,7 @@ class Dashboard_detail_menu_model extends MY_Model
 	}
 
 	// fix
-	public function get_list_data($id)
+	public function get_list_data($id, $orderid='')
 	{ 
 
 		$aColumns = [
@@ -30,6 +30,13 @@ class Dashboard_detail_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
+
+		if($orderid == '0'){
+			$getLastOrder = $this->db->query("select a.job_order_id from job_order_detail a left join job_order b on b.id = a.job_order_id where b.floating_crane_id = '".$id."' and b.is_active = 1 order by a.id desc limit 1 ")->result(); 
+			$orderid = $getLastOrder[0]->job_order_id;
+		}
+		
+
 		$sTable = '(select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, 				b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
 					, e.name as mother_vessel_name, f.name as status_name
 					from job_order_detail a left join job_order b on b.id = a.job_order_id
@@ -37,7 +44,7 @@ class Dashboard_detail_menu_model extends MY_Model
 					left join floating_crane d on d.id = b.floating_crane_id
 					left join mother_vessel e on e.id = b.mother_vessel_id
 					left join status f on f.id = b.order_status
-					where b.floating_crane_id = '.$id.' and b.is_active = 1 order by a.id desc limit 30)dt';
+					where b.floating_crane_id = '.$id.' and a.job_order_id = "'.$orderid.'" and b.is_active = 1 order by a.id desc limit 30)dt';
 		
 
 		/* Paging */
@@ -432,7 +439,7 @@ class Dashboard_detail_menu_model extends MY_Model
 			        $tableRow .= "<tr>";  // start new row
 			    }
 
-			    $tableRow .= "<td><iframe width='230' height='170' src='".$row->embed."'>
+			    $tableRow .= "<td><iframe allowfullscreen='true' width='230' height='170' src='".$row->embed."'>
 					</iframe></td>";
 			   
 			    ++$counter;
@@ -464,6 +471,134 @@ class Dashboard_detail_menu_model extends MY_Model
 									<div class="table-scrollable tablesaw-cont">
 										<table>
 											'.$tableRow.'
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>';
+		}
+
+
+		return $dt;
+	} 
+
+
+	public function getTblRealtime($idfc, $orderid) { 
+
+
+		if($orderid == '0'){
+			$getLastOrder = $this->db->query("select a.job_order_id from job_order_detail a left join job_order b on b.id = a.job_order_id where b.floating_crane_id = '".$idfc."' and b.is_active = 1 order by a.id desc limit 1 ")->result(); 
+			$orderid = $getLastOrder[0]->job_order_id;
+		}
+		
+		
+		$rs = $this->db->query("select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '".$idfc."' and a.job_order_id = '".$orderid."' and b.is_active = 1 order by a.id desc limit 30 ")->result(); 
+
+
+	
+		if(!empty($rs)){ 
+			
+			/*foreach ($rs as $row){
+				$tableRow .= "<tr>
+								<td>".$row->activity_name."</td>
+								<td>".$row->datetime_start."</td>
+								<td>".$row->datetime_end."</td>
+								<td>".$row->total_time."</td>
+								<td>".$row->degree."</td>
+								<td>".$row->degree_2."</td>
+							</tr>";
+
+
+			}*/
+
+			for($i=0; $i<30; $i++){
+
+				$activity_name	= ''; 
+				$datetime_start = '';
+				$datetime_end 	= '';
+				$total_time 	= '';
+				$degree 		= '';
+				$degree_2 		= '';
+
+				if($rs[$i]->activity_name != ''){
+					$activity_name 	= $rs[$i]->activity_name;
+				}
+				if($rs[$i]->datetime_start != ''){
+					$datetime_start = $rs[$i]->datetime_start;
+				}
+				if($rs[$i]->datetime_end != ''){
+					$datetime_end 	= $rs[$i]->datetime_end;
+				}
+				if($rs[$i]->total_time != ''){
+					$total_time 	= $rs[$i]->total_time;
+				}
+				if($rs[$i]->degree != ''){
+					$degree 		= $rs[$i]->degree;
+				}
+				if($rs[$i]->degree_2 != ''){
+					$degree_2 		= $rs[$i]->degree_2;
+				}
+				
+				$style='';
+				if($rs[$i]->achieve_sla != ''){
+					if($rs[$i]->achieve_sla == 1){
+						$style = "style='background-color:green'";
+					}else{
+						$style = "style='background-color:red'";
+					}
+				}
+
+				$tableRow .= "<tr>
+								<td>".$activity_name."</td>
+								<td>".$datetime_start."</td>
+								<td>".$datetime_end."</td>
+								<td ".$style.">".$total_time."</td>
+								<td>".$degree."</td>
+								<td>".$degree_2."</td>
+							</tr>";
+
+
+			}
+			
+			
+
+			//echo $tableRow; die();
+
+			
+			$dt = '<div class="row ca">
+                        <div class="col-md-12">
+							<div class="portlet box green">
+								<div class="portlet-title">
+									<div class="caption">Realtime Analytics Detection</div>
+									<div class="tools">
+								
+									</div>
+								</div>
+								<div class="portlet-body">
+									<div class="table-scrollable tablesaw-cont">
+										<table class="table table-striped table-bordered table-hover">
+											<thead>
+												<tr>
+													<th scope="col">Activity</th>
+													<th scope="col">Start Time</th>
+													<th scope="col">End Time</th>
+													<th scope="col">Total Time</th>
+													<th scope="col">Degree</th>
+													<th scope="col">Degree 2</th>
+												</tr>
+											</thead>
+											<tbody>
+												'.$tableRow.'
+											</tbody>
+											<tfoot>
+											</tfoot>
 										</table>
 									</div>
 								</div>
@@ -812,14 +947,36 @@ class Dashboard_detail_menu_model extends MY_Model
 
 	}
 
+	public function getDataByOrder($orderid, $fcId){ 
 
-	public function getslaCyclePercentage($fcId){
+		$rs = $this->db->query("select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name
+					, e.name as mother_vessel_name, f.name as status_name
+					from job_order_detail a left join job_order b on b.id = a.job_order_id
+					left join activity c on c.id = a.activity_id
+					left join floating_crane d on d.id = b.floating_crane_id
+					left join mother_vessel e on e.id = b.mother_vessel_id
+					left join status f on f.id = b.order_status
+					where b.floating_crane_id = '".$fcId."' and a.job_order_id = '".$orderid."' and b.is_active = 1
+                    order by a.id desc limit 1 ")->result(); 
+
+
+		return $rs;
+
+	}
+
+
+	public function getslaCyclePercentage($fcId, $orderid){
+
+		if($orderid == ''){
+			$getLastOrder = $this->db->query("select a.job_order_id from job_order_detail a left join job_order b on b.id = a.job_order_id where b.floating_crane_id = '".$fcId."' and b.is_active = 1 order by a.id desc limit 1 ")->result(); 
+			$orderid = $getLastOrder[0]->job_order_id;
+		}
 
 		$rs = $this->db->query("select dt.achieve_sla, count(dt.id) as ttlx from (select a.*, b.date, b.order_no, b.order_name, b.floating_crane_id, b.mother_vessel_id, b.pic, b.order_status, c.activity_name, d.name as floating_crane_name , e.name as mother_vessel_name, f.name as status_name 
 			from job_order_detail a left join job_order b on b.id = a.job_order_id 
 			left join activity c on c.id = a.activity_id left join floating_crane d on d.id = b.floating_crane_id 
 			left join mother_vessel e on e.id = b.mother_vessel_id left join status f on f.id = b.order_status 
-			where b.floating_crane_id = '".$fcId."' and b.is_active = 1 order by a.id desc limit 30) dt group by dt.achieve_sla
+			where b.floating_crane_id = '".$fcId."' and a.job_order_id = '".$orderid."' and b.is_active = 1 order by a.id desc limit 30) dt group by dt.achieve_sla
 			")->result(); 
 
 		foreach($rs as $row){

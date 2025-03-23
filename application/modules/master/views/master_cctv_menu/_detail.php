@@ -22,7 +22,7 @@
 											: <span class="posisi"></span>
 										</div>
 									</div>
-									<div class="row">
+									<!-- <div class="row">
 										<label class="col-md-3 control-label no-padding-right">Latitude</label>
 										<div class="col-md-9">
 											: <span class="latitude"></span>
@@ -45,7 +45,7 @@
 										<div class="col-md-9">
 											: <span class="ip_server"></span>
 										</div>
-									</div>
+									</div> -->
 									<div class="row">
 										<label class="col-md-3 control-label no-padding-right">Link RTSP</label>
 										<div class="col-md-9">
@@ -58,7 +58,7 @@
 											: <span class="embed"></span>
 										</div>
 									</div>
-									<div class="row">
+									<!-- <div class="row">
 										<label class="col-md-3 control-label no-padding-right">Type Streaming</label>
 										<div class="col-md-9">
 											: <span class="type_streaming"></span>
@@ -69,7 +69,7 @@
 										<div class="col-md-9">
 											: <span class="thumbnail"></span>
 										</div>
-									</div>
+									</div> -->
 									<div class="row">
 										<label class="col-md-3 control-label no-padding-right">Is Active</label>
 										<div class="col-md-9">

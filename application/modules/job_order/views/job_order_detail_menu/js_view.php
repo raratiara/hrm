@@ -121,6 +121,7 @@ function load_data()
 					$('[name="datetime_end"]').val(data.datetime_end);
 					$('select#job_order').val(data.job_order_id).trigger('change.select2');
 					$('select#activity').val(data.activity_id).trigger('change.select2');
+					$('[name="sla"]').val(data.sla);
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -133,6 +134,7 @@ function load_data()
 					$('span.degree_2').html(data.degree_2);
 					$('span.datetime_start').html(data.datetime_start);
 					$('span.datetime_end').html(data.datetime_end);
+					$('span.sla').html(data.sla);
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -166,4 +168,44 @@ function load_data()
     });
 }
 <?php } ?>
+
+
+$('#activity').on('change', function () { 
+ 	var activity = $("#activity option:selected").val();
+ 	
+
+ 	$.ajax({
+		type: "POST",
+        url : module_path+'/get_data_sla',
+		data: { activity: activity },
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        { 
+			if(data != false){ 	
+				$('#sla').val(data[0].sla);
+			} else{
+				$('#sla').val('');
+			}
+
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+
+
+});
+
+
 </script>

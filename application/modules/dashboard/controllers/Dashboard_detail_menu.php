@@ -28,14 +28,20 @@ class Dashboard_detail_menu extends MY_Controller
 	public function form_field_asset()
 	{
 		$field = [];
+		$id_fc = $_GET['id'];
 
+		/*$post = $this->input->post(null, true);
+		$id_fc = $post['id_fc']; 
+		//$id_fc = $_GET['id'];
+		echo $id_fc; die();*/
 
 		$field['txtstartdate'] 		= $this->self_model->return_build_txtdate('','start_date','start_date');
 		$field['txtenddate'] 		= $this->self_model->return_build_txtdate('','end_date','end_date');
 		$msfloating 				= $this->db->query("select * from floating_crane")->result(); 
 		$field['selfloatcrane'] 	= $this->self_model->return_build_select2me($msfloating,'','','','floating_crane','floating_crane','','','id','name',' ','','','',3,'-');
 		$field['txtdatetimestart']	= $this->self_model->return_build_txt('','txtdatetimestart','txtdatetimestart','','','readonly');
-		$field['txtordername'] 		= $this->self_model->return_build_txt('','txtordername','txtordername','','','readonly');
+		$msorder 					= $this->db->query("select * from job_order where floating_crane_id = '".$id_fc."'")->result(); 
+		$field['selordername'] 	= $this->self_model->return_build_select2me($msorder,'','','','order_name','order_name','','','id','order_name',' ','','','',3,'-');
 		$field['txtcurrdatetime'] 	= $this->self_model->return_build_txt('','txtcurrdatetime','txtcurrdatetime','','','readonly');
 		$field['txtmothervessel'] 	= $this->self_model->return_build_txt('','txtmothervessel','txtmothervessel','','','readonly');
 		$field['txtprocesstime'] 	= $this->self_model->return_build_txt('','txtprocesstime','txtprocesstime','','','readonly');
@@ -100,9 +106,10 @@ class Dashboard_detail_menu extends MY_Controller
 	{ 
 		
 		$id = $_GET['idx'];
-
+		$orderid = $_GET['orderid'];
+//echo $orderid; die();
 		if(_USER_ACCESS_LEVEL_VIEW == "1") {
-			$this->self_model->get_list_data($id);
+			$this->self_model->get_list_data($id, $orderid);
 		} else {
 			$this->load->view('errors/html/error_hacks_401');
 		}
@@ -119,6 +126,28 @@ class Dashboard_detail_menu extends MY_Controller
 			if(isset($cctv))
 			{
 				$rs =  $this->self_model->getTblCctv($cctv);
+
+				echo json_encode($rs);
+
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+	public function get_data_realtime()
+	{
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			$idfc = $post['idfc'];
+			$orderid = $post['orderid'];
+
+			if(isset($idfc))
+			{
+				$rs =  $this->self_model->getTblRealtime($idfc, $orderid);
 
 				echo json_encode($rs);
 
@@ -210,19 +239,38 @@ class Dashboard_detail_menu extends MY_Controller
 		$post = $this->input->post(null, true);
 		$id_fc = $post['id_fc'];
 
-		$rs =  $this->self_model->getDataFC($id_fc);
+		$data['datafc'] =  $this->self_model->getDataFC($id_fc);
 
+		$data['msorder'] = $this->db->query("select dt.* from(
+							select a.id, a.job_order_id, b.order_name,
+							Row_number() over (partition by a.job_order_id order by id desc) as 'RowN'
+							from job_order_detail a
+							LEFT JOIN job_order b ON b.id = a.job_order_id
+							WHERE b.floating_crane_id = '".$id_fc."')dt where dt.RowN = 1")->result();
 		
-		echo json_encode($rs);
+		
+		echo json_encode($data);
 	}
 
 	public function get_sla_cycle_percentage(){
 		$post = $this->input->post(null, true);
 		$fcId = $post['fcId'];
+		$orderid = $post['orderid'];
 
-		$rs =  $this->self_model->getslaCyclePercentage($fcId);
+		$rs =  $this->self_model->getslaCyclePercentage($fcId, $orderid);
 
 		
+		echo json_encode($rs);
+	}
+
+	public function get_Data_By_Order(){
+		$post = $this->input->post(null, true);
+		$orderid = $post['orderid'];
+		$id_fc = $post['id_fc'];
+
+		$rs =  $this->self_model->getDataByOrder($orderid, $id_fc);
+		
+
 		echo json_encode($rs);
 	}
 

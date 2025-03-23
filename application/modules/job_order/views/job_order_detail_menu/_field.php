@@ -13,6 +13,12 @@
 										</div>
 									</div>
 									<div class="form-group">
+										<label class="col-md-3 control-label no-padding-right">SLA </label>
+										<div class="col-md-9">
+											<?=$txtsla;?>
+										</div>
+									</div>
+									<div class="form-group">
 										<label class="col-md-3 control-label no-padding-right">Date Time Start <span class="required">*</span></label>
 										<div class="col-md-9">
 											<?=$txtdatetimestart;?>

@@ -21,7 +21,9 @@ class Master_floating_crane_menu_model extends MY_Model
 			NULL,
 			'id',
 			'code',
-			'name'
+			'name',
+			'latitude',
+			'longitude'
 		];
 		
 		
@@ -189,7 +191,9 @@ class Master_floating_crane_menu_model extends MY_Model
 				</div>',
 				$row->id,
 				$row->code,
-				$row->name
+				$row->name,
+				$row->latitude,
+				$row->longitude
 
 			));
 		}
@@ -244,18 +248,101 @@ class Master_floating_crane_menu_model extends MY_Model
 	public function add_data($post) {
 		$data = [
 			'code' 	=> trim($post['code']),
-			'name' 	=> trim($post['name'])
+			'name' 	=> trim($post['name']),
+			'latitude' 	=> trim($post['latitude']),
+			'longitude' => trim($post['longitude'])
 		];
 
-		return $rs = $this->db->insert($this->table_name, $data);
+		
+		$rs = $this->db->insert($this->table_name, $data);
+		$lastId = $this->db->insert_id();
+
+
+		if(isset($post['kode'])){
+			$item_num = count($post['kode']); // cek sum
+			$item_len_min = min(array_keys($post['kode'])); // cek min key index
+			$item_len = max(array_keys($post['kode'])); // cek max key index
+		} else {
+			$item_num = 0;
+		}
+
+		if($item_num>0){
+			for($i=$item_len_min;$i<=$item_len;$i++) 
+			{
+				if(isset($post['kode'][$i])){
+					$itemData = [
+						'floating_crane_id' => $lastId,
+						'code' 		=> trim($post['kode'][$i]),
+						'name' 		=> trim($post['nama'][$i]),
+						'position' 	=> trim($post['posisi'][$i]),
+						'rtsp' 		=> trim($post['rtsp'][$i]),
+						'embed' 	=> trim($post['embed'][$i])
+					];
+
+					$this->db->insert('cctv', $itemData);
+				}
+			}
+		}
+
+
+
+		return $rs;
 	}  
 
 	public function edit_data($post) { 
 		if(!empty($post['id'])){
 			$data = [
 				'code' 	=> trim($post['code']),
-				'name' 	=> trim($post['name'])
+				'name' 	=> trim($post['name']),
+				'latitude' 	=> trim($post['latitude']),
+				'longitude' => trim($post['longitude'])
 			];
+
+
+			if(isset($post['kode'])){
+				$item_num = count($post['kode']); // cek sum
+				$item_len_min = min(array_keys($post['kode'])); // cek min key index
+				$item_len = max(array_keys($post['kode'])); // cek max key index
+			} else {
+				$item_num = 0;
+			}
+			if($item_num>0){
+				for($i=$item_len_min;$i<=$item_len;$i++) 
+				{
+					if(isset($post['kode'][$i])){
+						
+						if($post['hdnid'][$i] != ''){
+							$uid = $post['hdnid'][$i];
+							$itemData = [
+								'code' 		=> trim($post['kode'][$i]),
+								'name' 		=> trim($post['nama'][$i]),
+								'position' 	=> trim($post['posisi'][$i]),
+								'rtsp'		=> trim($post['rtsp'][$i]),
+								'embed'		=> trim($post['embed'][$i])
+							];
+
+							$this->db->update('cctv', $itemData, [$this->primary_key => $uid]);
+						}else{ 
+							$itemData = [
+								'floating_crane_id' => $post['id'],
+								'code' 		=> trim($post['kode'][$i]),
+								'name' 		=> trim($post['nama'][$i]),
+								'position' 	=> trim($post['posisi'][$i]),
+								'rtsp'		=> trim($post['rtsp'][$i]),
+								'embed'		=> trim($post['embed'][$i])
+							];
+
+							$this->db->insert('cctv', $itemData);
+
+						}
+						
+						
+					}
+				}
+			}
+
+
+
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 		} else return null;
@@ -284,7 +371,9 @@ class Master_floating_crane_menu_model extends MY_Model
 
 			$data = [
 				'code' 	=> $v["B"],
-				'name' 	=> $v["C"]
+				'name' 	=> $v["C"],
+				'latitude' 	=> $v["D"],
+				'longitude' => $v["E"]
 				
 			];
 
@@ -297,13 +386,93 @@ class Master_floating_crane_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select id, code, name from floating_crane
+		$sql = "select id, code, name, latitude, longitude from floating_crane
 	   		ORDER BY id ASC
 		";
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
+	}
+
+	public function getNewExpensesRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getExpensesRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$this->return_build_txt('','kode['.$row.']','','kode','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','nama['.$row.']','','nama','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','posisi['.$row.']','','posisi','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','rtsp['.$row.']','','rtsp','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','embed['.$row.']','','embed','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+	
+	// Generate expenses item rows for edit & view
+	public function getExpensesRows($id,$view,$print=FALSE){ 
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from cctv where floating_crane_id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			/*if($view){
+				$arrSat = json_decode(json_encode($msObat), true);
+				$arrS = [];
+				foreach($arrSat as $ai){
+					$arrS[$ai['id']] = $ai;
+				}
+			}*/
+			foreach ($rd as $f){
+				$no = $row+1;
+				if(!$view){
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($f->code,'kode['.$row.']','','kode','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->name,'nama['.$row.']','','nama','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->position,'posisi['.$row.']','','posisi','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->rtsp,'rtsp['.$row.']','','rtsp','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->embed,'embed['.$row.']','','embed','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '</tr>';
+				} else {
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					}
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->code.'</td>';
+					$dt .= '<td>'.$f->name.'</td>';
+					$dt .= '<td>'.$f->position.'</td>';
+					$dt .= '<td>'.$f->rtsp.'</td>';
+					$dt .= '<td>'.$f->embed.'</td>';
+					$dt .= '</tr>';
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
 	}
 
 }

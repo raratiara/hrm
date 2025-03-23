@@ -22,7 +22,7 @@
 											<?=$txtposisi;?>
 										</div>
 									</div>
-									<div class="form-group">
+									<!-- <div class="form-group">
 										<label class="col-md-3 control-label no-padding-right">Latitude <span class="required">*</span></label>
 										<div class="col-md-9">
 											<?=$txtlatitude;?>
@@ -45,7 +45,7 @@
 										<div class="col-md-9">
 											<?=$txtipserver;?>
 										</div>
-									</div>
+									</div> -->
 									<div class="form-group">
 										<label class="col-md-3 control-label no-padding-right">Link RTSP <span class="required">*</span></label>
 										<div class="col-md-9">
@@ -58,7 +58,7 @@
 											<?=$txtlinkembed;?>
 										</div>
 									</div>
-									<div class="form-group">
+									<!-- <div class="form-group">
 										<label class="col-md-3 control-label no-padding-right">Type Streaming <span class="required">*</span></label>
 										<div class="col-md-9">
 											<?=$seltypestreaming;?>
@@ -69,7 +69,7 @@
 										<div class="col-md-9">
 											<?=$txtthumbnail;?>
 										</div>
-									</div>
+									</div> -->
 									<div class="form-group">
 										<label class="col-md-3 control-label no-padding-right">Is Active <span class="required">*</span></label>
 										<div class="col-md-9">

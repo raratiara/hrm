@@ -25,22 +25,10 @@ class Cctv_surveilance_menu extends MY_Controller
 	public function form_field_asset()
 	{
 		$field = [];
-		$field['txtcode'] 		= $this->self_model->return_build_txt('','code','code');
-		$field['txtname'] 		= $this->self_model->return_build_txt('','name','name');
-		$field['txtposisi'] 		= $this->self_model->return_build_txt('','posisi','posisi');
-		$field['txtipcctv'] 		= $this->self_model->return_build_txt('','ip_cctv','ip_cctv');
-		$field['txtipserver'] 		= $this->self_model->return_build_txt('','ip_server','ip_server');
-		$field['txtlinkrtsp'] 		= $this->self_model->return_build_txt('','rtsp','rtsp');
-		$field['txtthumbnail'] 		= $this->self_model->return_build_txt('','thumbnail','thumbnail');
-		$field['txtlinkembed'] 		= $this->self_model->return_build_txt('','embed','embed');
-		$field['txtlatitude'] 		= $this->self_model->return_build_txt('','latitude','latitude');
-		$field['txtlongitude'] 		= $this->self_model->return_build_txt('','longitude','longitude');
-
-		$field['rdoisactive'] 	= $this->self_model->return_build_radio('', [['1','Yes'],['0','No']], 'is_active', '', 'inline');
+		
 		$msfloating 			= $this->db->query("select * from floating_crane")->result(); 
 		$field['selfloatcrane'] = $this->self_model->return_build_select2me($msfloating,'','','','floating_crane','floating_crane','','','id','name',' ','','','',3,'-');
-		$mstypestreaming 			= $this->db->query("select * from mother_vessel")->result(); 
-		$field['seltypestreaming'] = $this->self_model->return_build_select2me($mstypestreaming,'','','','type_streaming','type_streaming','','','id','name',' ','','','',3,'-');
+		$field['jmlcctv'] 		= $this->self_model->return_build_txt('','txtjmlcctv','txtjmlcctv','','','');
 		
 		
 		return $field;
@@ -100,13 +88,13 @@ class Cctv_surveilance_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
-			$cctv = $post['cctv'];
+			$floating_crane = $post['floating_crane'];
 			$jmlcctv = $post['jmlcctv'];
 
 
-			if(isset($cctv))
+			if(isset($floating_crane))
 			{
-				$rs =  $this->self_model->getTblCctv($cctv,$jmlcctv);
+				$rs =  $this->self_model->getTblCctv($floating_crane,$jmlcctv);
 
 				echo json_encode($rs);
 

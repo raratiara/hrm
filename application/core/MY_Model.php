@@ -717,6 +717,14 @@ class MY_Model extends CI_Model {
 
 	public function return_build_txtdate($val='', $var_name, $id_name='', $addclass='', $addstyle='')
 	{ 
+		if($var_name == 'date_pekerjaan'){
+			if($val == ''){
+				$dt = date('m/d/Y');
+				$val = $dt;
+			}
+		}
+		
+		
 		$data = "";
 		$idname = "";
 		if(!empty($id_name)){

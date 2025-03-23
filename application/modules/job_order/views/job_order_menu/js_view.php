@@ -1,3 +1,5 @@
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -9,9 +11,11 @@ var ldx; //for save list index string
 
 $(document).ready(function() {
    	$(function() {
+   		
         $( "#date_pekerjaan" ).datepicker();
         $( "#date_time_start" ).datetimepicker();
         $( "#date_time_end" ).datetimepicker();
+		
    	});
 });
 
@@ -113,7 +117,7 @@ function load_data()
         dataType: "JSON",
         success: function(data)
         {
-			if(data != false){
+			if(data != false){ 
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					$('[name="date_pekerjaan"]').val(data.date);
@@ -128,6 +132,7 @@ function load_data()
 					$('select#floating_crane').val(data.floating_crane_id).trigger('change.select2');
 					$('select#mother_vessel').val(data.mother_vessel_id).trigger('change.select2');
 					$('select#status').val(data.order_status).trigger('change.select2');
+					
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -178,4 +183,32 @@ function load_data()
     });
 }
 <?php } ?>
+
+
+/*$('#date_time_end').datetimepicker().on('change', function (ev) { 
+  	var date_time_end 	= $(this).val();
+  	var date_time_start = $('#date_time_start').val();
+  
+
+  	//count process time 
+    var date1 = new Date(date_time_start);
+	var date2 = new Date(date_time_end);
+
+	var date1_ms = date1.getTime();
+	var date2_ms = date2.getTime();
+
+
+	var diff = date2_ms - date1_ms;
+	var hours   = Math.floor(diff / 3.6e6);
+	var minutes = Math.floor((diff % 3.6e6) / 6e4);
+	var seconds = Math.floor((diff % 6e4) / 1000);
+	var duration = hours+":"+minutes+":"+seconds;
+	//end count process time
+
+	$('#total_time').val(duration);
+
+
+});*/
+
+
 </script>

@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Job_order_detail_menu_model extends MY_Model
+class Job_order_summary_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "job_order/job_order_detail_menu";
- 	protected $table_name 				= _PREFIX_TABLE."job_order_detail";
+ 	protected $folder_name				= "job_order/job_order_summary_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."job_order_summary";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -24,21 +24,17 @@ class Job_order_detail_menu_model extends MY_Model
 			'dt.mother_vessel_name',
 			'dt.order_name',
 			'dt.activity_name',
-			'dt.datetime_start',
-			'dt.datetime_end',
-			'dt.degree',
-			'dt.degree_2'
+			'dt.total_date_time'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.order_name, c.activity_name, d.name as floating_crane_name, e.name as mother_vessel_name
-					from job_order_detail a
-					left join job_order b on b.id = a.job_order_id
-					left join activity c on c.id = a.activity_id
-					left join floating_crane d on d.id = b.floating_crane_id
-					left join mother_vessel e on e.id = b.mother_vessel_id )dt';
+		$sTable = '(select a.*, c.name as floating_crane_name, d.name as mother_vessel_name, b.order_name, e.activity_name  
+			from job_order_summary a left join job_order b on b.id = a.job_order_id
+			left join floating_crane c on c.id = b.floating_crane_id
+			left join mother_vessel d on d.id = b.mother_vessel_id
+			left join activity e on e.id = a.activity_id )dt';
 		
 
 		/* Paging */
@@ -203,10 +199,7 @@ class Job_order_detail_menu_model extends MY_Model
 				$row->mother_vessel_name,
 				$row->order_name,
 				$row->activity_name,
-				$row->datetime_start,
-				$row->datetime_end,
-				$row->degree,
-				$row->degree_2
+				$row->total_date_time
 
 			));
 		}
@@ -262,34 +255,11 @@ class Job_order_detail_menu_model extends MY_Model
 
 	public function add_data($post) { 
 		
-		$datetime_start = date_create($post['date_time_start']); 
-		$datetime_end = date_create($post['date_time_end']); 
-
-		$f_datetime_start = date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end = date_format($datetime_end,"Y-m-d H:i:s");
-
-
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
-
-  		$diff = abs($timestamp2 - $timestamp1)/(60); //menit
 		
-  		$sla = trim($post['sla']);
-  		if($diff > $sla){
-  			$achieve_sla = 0;
-  		}else{
-  			$achieve_sla = 1;
-  		}
-
 		$data = [
 			'job_order_id' 		=> trim($post['job_order']),
 			'activity_id' 		=> trim($post['activity']),
-			'datetime_start' 	=> $f_datetime_start,
-			'datetime_end' 		=> $f_datetime_end,
-			'total_time' 		=> $diff,
-			'degree' 			=> trim($post['degree']),
-			'degree_2' 			=> trim($post['degree_2']),
-			'achieve_sla' 		=> $achieve_sla
+			'total_date_time' 	=> trim($post['total_datetime'])
 		];
 
 		return $rs = $this->db->insert($this->table_name, $data);
@@ -297,38 +267,13 @@ class Job_order_detail_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
-		$datetime_start = date_create($post['date_time_start']); 
-		$datetime_end = date_create($post['date_time_end']); 
-
-		$f_datetime_start = date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end = date_format($datetime_end,"Y-m-d H:i:s");
-
-
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
-
-  		$diff = abs($timestamp2 - $timestamp1)/(60); //menit
-			
-
-  		$sla = trim($post['sla']);
-  		if($diff > $sla){
-  			$achieve_sla = 0;
-  		}else{
-  			$achieve_sla = 1;
-  		}
-
 
 		if(!empty($post['id'])){
 
 			$data = [
 				'job_order_id' 		=> trim($post['job_order']),
 				'activity_id' 		=> trim($post['activity']),
-				'datetime_start' 	=> $f_datetime_start,
-				'datetime_end' 		=> $f_datetime_end,
-				'total_time' 		=> $diff,
-				'degree' 			=> trim($post['degree']),
-				'degree_2' 			=> trim($post['degree_2']),
-				'achieve_sla' 		=> $achieve_sla
+				'total_date_time' 	=> trim($post['total_datetime'])
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -336,10 +281,11 @@ class Job_order_detail_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.order_name, c.activity_name, d.sla from job_order_detail a
-					left join job_order b on b.id = a.job_order_id
-					left join activity c on c.id = a.activity_id
-                    left join sla d on d.activity_id = a.activity_id  
+		$mTable = '(select a.*, c.name as floating_crane_name, d.name as mother_vessel_name, b.order_name, e.activity_name  
+			from job_order_summary a left join job_order b on b.id = a.job_order_id
+			left join floating_crane c on c.id = b.floating_crane_id
+			left join mother_vessel d on d.id = b.mother_vessel_id
+			left join activity e on e.id = a.activity_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -364,11 +310,7 @@ class Job_order_detail_menu_model extends MY_Model
 			$data = [
 				'job_order_id'		=> $v["B"],
 				'activity_id' 		=> $v["C"],
-				'datetime_start' 	=> $v["D"],
-				'datetime_end' 		=> $v["E"],
-				'total_time' 		=> $v["F"],
-				'degree' 			=> $v["G"],
-				'degree_2' 			=> $v["H"]
+				'date_time_total' 	=> $v["D"]
 				
 			];
 
@@ -381,10 +323,11 @@ class Job_order_detail_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.order_name, c.activity_name from job_order_detail a
-				left join job_order b on b.id = a.job_order_id
-				left join activity c on c.id = a.activity_id
-				order by a.id asc
+		$sql = "select a.*, c.name as floating_crane_name, d.name as mother_vessel_name, b.order_name, e.activity_name  
+			from job_order_summary a left join job_order b on b.id = a.job_order_id
+			left join floating_crane c on c.id = b.floating_crane_id
+			left join mother_vessel d on d.id = b.mother_vessel_id
+			left join activity e on e.id = a.activity_id
 		";
 
 		$res = $this->db->query($sql);
