@@ -8,15 +8,19 @@
 
 <!-- <script src="//code.jquery.com/jquery-1.9.1.js"></script> -->
 <!-- js for bar graph -->
-<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>   -->
+  
 
 
 <!-- <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script> -->
 
 <!-- js for line chart -->
 <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script> -->
+<!--<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script> -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <script type="text/javascript">
 
@@ -162,11 +166,11 @@ function load_data()
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -212,11 +216,11 @@ function getCctv(idfc){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -258,11 +262,11 @@ function getDataRealtime(idfc, orderid){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -447,20 +451,24 @@ function jobGraph(idfc){
 			    });
 
 
-			    canvas.onclick = (evt) => {
+			    canvas.onclick = (evt) => { 
 				  const res = myChart.getElementsAtEventForMode(
 				    evt,
 				    'nearest',
 				    { intersect: true },
 				    true
-				  );
+				  ); 
 				  // If didn't click on a bar, `res` will be an empty array
 				  if (res.length === 0) {
 				    return;
 				  }
+
+				  var indexClick = res[0].datasetIndex;
+				  //console.log(myChart.data.datasets[indexClick].label);
 				  
 				  
-				  var valClick = res[0]._view.datasetLabel;
+				  //var valClick = res[0]._view.datasetLabel;
+				  var valClick = myChart.data.datasets[indexClick].label;
 
 				  activityGraph(valClick, idfc);
 				  //alert('You clicked on ' +valClick);
@@ -495,11 +503,11 @@ function jobGraph(idfc){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -548,14 +556,20 @@ function activityGraph(jobId, fcId){
 				const canvas = document.getElementById('chartjs_bar_activity');
 				const ctx = canvas.getContext('2d');
 
+				var chartExist = Chart.getChart("chartjs_bar_activity"); // <canvas> id
+			    if (chartExist != undefined)  
+			      chartExist.destroy(); 
+
+
+
 			    var myChart = new Chart(ctx, {
 			        type: 'bar',
 			        data: {
 			            labels: arrAct, 
 			            datasets: [{
                             backgroundColor: [
-                               "#5969ff",
-                                "#ff407b",
+                               "#3caab7",
+                                "#29747d",
                                 "#25d5f2",
                                 "#ffc750",
                                 "#2ec551",
@@ -567,7 +581,8 @@ function activityGraph(jobId, fcId){
                         }]
 			        },
 			        options: {
-			               legend: {
+			        	plugins: {
+			        		legend: {
 						            display: false,
 						            position: 'bottom',
 
@@ -576,31 +591,33 @@ function activityGraph(jobId, fcId){
 						                fontFamily: 'Circular Std Book',
 						                fontSize: 14,
 						            }
-						        },
-						       
 						    }
+			        	}   
+					}
 			    });
 
 
 			    canvas.onclick = (evt) => {
-				  const res = myChart.getElementsAtEventForMode(
-				    evt,
-				    'nearest',
-				    { intersect: true },
-				    true
-				  );
-				  // If didn't click on a bar, `res` will be an empty array
-				  if (res.length === 0) {
-				    return;
-				  }
-				  
-				  
-				  var valClick = res[0]._view.label;
+				  	const res = myChart.getElementsAtEventForMode(
+					    evt,
+					    'nearest',
+					    { intersect: true },
+					    true
+				  	);
+				  	// If didn't click on a bar, `res` will be an empty array
+				  	if (res.length === 0) {
+					    return;
+				  	}
+				
+					var indexClick = res[0].index;
 
-				  getLineChart(valClick, jobId, fcId);
-				  getTblWaktu(valClick, jobId, $fcId);
-				  //alert('You clicked on ' +valClick);
-				  //alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
+				  	/*var valClick = res[0]._view.label;*/
+				  	var valClick = myChart.data.labels[indexClick];
+
+			  		getLineChart(valClick, jobId, fcId);
+				  	getTblWaktu(valClick, jobId, fcId);
+				  	//alert('You clicked on ' +valClick);
+				  	//alert('You clicked on ' + myChart.data.labels[res[0]._view.datasetLabel]);
 				};
 
 
@@ -631,11 +648,11 @@ function activityGraph(jobId, fcId){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -689,6 +706,12 @@ function getLineChart(activity, jobId, fcId){
 					arrTotalTime.push(data[i].total_time);
 				}
 				//console.log(arrAct);
+
+
+				var chartExist = Chart.getChart("chartjs_line"); // <canvas> id
+			    if (chartExist != undefined)  
+			      chartExist.destroy(); 
+
 				
 				const canvas = document.getElementById('chartjs_line');
 				const ctx = canvas.getContext('2d');
@@ -710,7 +733,8 @@ function getLineChart(activity, jobId, fcId){
                         }]
 			        },
 			        options: {
-			               legend: {
+			        	plugins: {
+			        		legend: {
 						            display: false,
 						            position: 'bottom',
 
@@ -719,8 +743,8 @@ function getLineChart(activity, jobId, fcId){
 						                fontFamily: 'Circular Std Book',
 						                fontSize: 14,
 						            }
-						        }
-						    
+						    }
+			        	}
 					}
 
 			    });
@@ -752,11 +776,11 @@ function getLineChart(activity, jobId, fcId){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -824,11 +848,11 @@ function getEksportActivityMonitor(){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -1009,7 +1033,7 @@ function SLACycle_percentage(fcId, orderid){
 				    label: 'My First Dataset',
 				    data: [data.sla_ideal, data.sla_over],
 				    backgroundColor: ['#FE6B32','#0F5763'],
-				    hoverOffset: 4
+				    //hoverOffset: 4
 				  }]
 				};
 
@@ -1053,6 +1077,8 @@ function SLACycle_percentage(fcId, orderid){
 			       
 			    });
 
+
+
 			    
 			   
 
@@ -1064,11 +1090,11 @@ function SLACycle_percentage(fcId, orderid){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -1108,7 +1134,7 @@ function SLACycle_jml(fcId, orderid){
 				    'Over'
 				  ],
 				  datasets: [{
-				    label: '',
+				    label: ['',''],
 				    data: [data.sla_ideal, data.sla_over],
 				    backgroundColor: ['#FE6B32','#0F5763']
 				  }]
@@ -1143,9 +1169,6 @@ function SLACycle_jml(fcId, orderid){
 			        type: 'bar',
 			        data: dataX,
 				  	options: {
-	               		legend: {
-				            display: false
-				        },
 				       	responsive: true,
 		                plugins: {
 		                    datalabels: {
@@ -1160,7 +1183,10 @@ function SLACycle_jml(fcId, orderid){
 		                        font: {
 		                            size: 14,
 		                        }
-		                    }
+		                    },
+		                    legend: {
+						      display: false
+						    }
 		                }
 				    },
 				    plugins: [ChartDataLabels]
@@ -1175,11 +1201,11 @@ function SLACycle_jml(fcId, orderid){
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				//if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				//}
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)

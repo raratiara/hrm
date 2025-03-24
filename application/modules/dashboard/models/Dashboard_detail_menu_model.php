@@ -549,9 +549,9 @@ class Dashboard_detail_menu_model extends MY_Model
 				$style='';
 				if($rs[$i]->achieve_sla != ''){
 					if($rs[$i]->achieve_sla == 1){
-						$style = "style='background-color:green'";
+						$style = "style='background-color:#25f242'";
 					}else{
-						$style = "style='background-color:red'";
+						$style = "style='background-color:#f24125'";
 					}
 				}
 
