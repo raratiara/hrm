@@ -79,46 +79,43 @@ class Api extends API_Controller
 
 		$valid_elem = ['username', 'password'];
 		$params = elements($valid_elem, $this->mParams);
+
 		if(!values_satisfied($params)){
 			$username 	= $params['username'];
 			$password   = $params['password'];
 			
 			
-			/*$cek_login = $this->api->cek_login($email);	 */
-			$cek_login = $this->db->query("select * from users where name = '".$username."' ")->result();
-
-
-			if(password_verify($password, isset($cek_login[0]->password)?$cek_login[0]->password:''))
+			$cek_login = $this->api->cek_login($username);	 
+			
+			if(password_verify($password, isset($cek_login['password'])?$cek_login['password']:''))
 			{
 				$data = array(
-						"id" => $cek_login[0]->id,
-						"name" => $cek_login[0]->name,
-						"email" => $cek_login[0]->email
-						);
+					"id" 	=> $cek_login['id'],
+					"name" 	=> $cek_login['name'],
+					"email" => $cek_login['email']
+				);
 	 
 				$token = $this->genJWTdata($data);	 
 				$response = [
-					'status' => 200,
-					'message' => 'Success',
-					"token" => $token[0],
-					"expire" => $token[1],
-					"email" => $cek_login[0]->email
+					'status' 	=> 200,
+					'message' 	=> 'Success',
+					"token" 	=> $token[0],
+					"expire" 	=> $token[1],
+					"email" 	=> $cek_login['email'] 
 				];
 			} else {
 				$response = [
-					'status' => 401,
-					'message' => 'Failed',
-					'error' => 'Access credentials not match.'
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Access credentials not match'
 				];
 			}
 
-
-			
 		} else {
 			$response = [
-				'status' => 400, // Bad Request
-				'message' =>'Failed',
-				'error' => 'Require not satisfied'
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
 			];
 		}
 		
@@ -132,6 +129,10 @@ class Api extends API_Controller
 
     public function sync()
     {
+    	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+		$base_url = $protocol . $_SERVER['HTTP_HOST'] . '/';
+
+
     	$this->verify_token();
 
 
@@ -140,38 +141,34 @@ class Api extends API_Controller
 		if(!values_satisfied($params)){
 			$url 	= $params['url'];
 			
-			
-			$cek_data = $this->db->query("select * from companies where website = '".$url."' ")->result();
+			$cek_data = $this->api->cek_company($url);	 
 
-
-			if($cek_data[0]->id != '')
+			if($cek_data['id'] != '')
 			{
+				$urllogo = $base_url.'_hrm/uploads/logo/'.$cek_data['logo'];
 				$data = array(
-						"id" => $cek_data[0]->id,
-						"name" => $cek_data[0]->name,
-						"logo" => ''
-						);
+					"nama_perusahaan" => $cek_data['name'],
+					"logo_perusahaan" => $urllogo  
+				);
 	 
 				$response = [
-					'status' => 200,
-					'message' => 'Success',
-					"data" => $data
+					'status' 	=> 200,
+					'message' 	=> 'Success',
+					"data" 		=> $data
 				];
 			} else {
 				$response = [
-					'status' => 401,
-					'message' => 'Failed',
-					'error' => 'Access credentials not match.'
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Company not found'
 				];
 			}
-
-
 			
 		} else {
 			$response = [
-				'status' => 400, // Bad Request
-				'message' =>'Failed',
-				'error' => 'Require not satisfied'
+				'status' 	=> 400, // Bad Request
+				'message'	=>'Failed',
+				'error'	 	=> 'Require not satisfied'
 			];
 		}
 		
@@ -196,21 +193,19 @@ class Api extends API_Controller
 			$tipe 		= $params['tipe'];
 			$datetime 	= $params['datetime_attendance'];
 
-			/*$date 			= date_format($datetime,"Y-m-d");
-			$time 				= date_format($datetime,"H:i:s");*/
+			/*$date 	= date_format($datetime,"Y-m-d");
+			$time 		= date_format($datetime,"H:i:s");*/
 
 			$exp 			= explode(" ",$datetime);
 			$date 			= $exp[0];
 			$time 			= $exp[1];
 			$timestamp_time = strtotime($time); 
 
-			
-			$cek_emp = $this->db->query("select * from employees where id = '".$employee."' ")->result();
+			$cek_emp = $this->api->cek_employee($employee);	
 
-
-			if($cek_emp[0]->shift_type != '')
+			if($cek_emp['shift_type'] != '')
 			{
-				if($cek_emp[0]->shift_type == 'Reguler'){
+				if($cek_emp['shift_type'] == 'Reguler'){
 					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 					$attendance_type 	= $dt[0]->name;
 					$time_in 			= $dt[0]->time_in;
@@ -226,8 +221,6 @@ class Api extends API_Controller
 				if($timestamp_time < $post_timeout){
 					$is_leaving_office_early = 'Y';
 				}
-
-		  		
 
 				$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
 
@@ -245,14 +238,14 @@ class Api extends API_Controller
 
 						if($rs){
 							$response = [
-								'status' => 200,
-								'message' => 'Success a'
+								'status' 	=> 200,
+								'message' 	=> 'Success'
 							];
 						}else{
 							$response = [
-								'status' => 401,
-								'message' => 'Failed',
-								'error' => 'Error update checkin'
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Error update checkin'
 							];
 						}
 
@@ -276,14 +269,14 @@ class Api extends API_Controller
 
 						if($rs){
 							$response = [
-								'status' => 200,
-								'message' => 'Success b'
+								'status' 	=> 200,
+								'message' 	=> 'Success b'
 							];
 						}else{
 							$response = [
-								'status' => 401,
-								'message' => 'Failed',
-								'error' => 'Error update checkout'
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Error update checkout'
 							];
 						}
 					}
@@ -305,43 +298,39 @@ class Api extends API_Controller
 
 						if($rs){
 							$response = [
-								'status' => 200,
-								'message' => 'Success c'
+								'status' 	=> 200,
+								'message' 	=> 'Success'
 							];
 						}else{
 							$response = [
-								'status' => 401,
-								'message' => 'Failed',
-								'error' => 'Error submit checkin'
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Error submit checkin'
 							];
 						}
 
 					}else{ //checkout
 						$response = [
-							'status' => 401,
-							'message' => 'Failed',
-							'error' => 'Please CheckIn first'
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Please CheckIn first'
 						];
 					}
 				}
 
-				
-
 			} else {
 				$response = [
-					'status' => 401,
-					'message' => 'Failed',
-					'error' => 'Employee not found'
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
 				];
 			}
-
-
 			
 		} else {
 			$response = [
-				'status' => 400, // Bad Request
-				'message' =>'Failed',
-				'error' => 'Require not satisfied'
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
 			];
 		}
 		
@@ -358,9 +347,9 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-    	
 		$valid_elem = ['employee','leave_type','date_start', 'date_end', 'reason'];
 		$params = elements($valid_elem, $this->mParams);
+
 		if(!values_satisfied($params)){
 			$employee 	= $params['employee'];
 			$leave_type = $params['leave_type'];
@@ -369,56 +358,51 @@ class Api extends API_Controller
 			$reason 	= $params['reason'];
 			
 			
-			$cek_emp = $this->db->query("select * from employees where id = '".$employee."' ")->result();
+			$cek_emp = $this->api->cek_employee($employee);	
 
-
-			if($cek_emp[0]->id != '')
+			if($cek_emp['id'] != '')
 			{
 				//soon akan cek sisa cuti
 
-
-				$cek_leave = $this->db->query("select * from leave_absences where id = '".$employee."' ")->result();
+				//$cek_leave = $this->db->query("select * from leave_absences where id = '".$employee."' ")->result();
 
 				$data = [
-						'employee_id' 				=> $employee,
-						'date_leave_start' 			=> $date_start,
-						'date_leave_end' 			=> $date_end,
-						'masterleave_id' 			=> $leave_type,
-						'reason' 					=> $reason,
-						'created_at'				=> date("Y-m-d H:i:s")
-					];
+					'employee_id' 				=> $employee,
+					'date_leave_start' 			=> $date_start,
+					'date_leave_end' 			=> $date_end,
+					'masterleave_id' 			=> $leave_type,
+					'reason' 					=> $reason,
+					'created_at'				=> date("Y-m-d H:i:s")
+				];
 
 				$rs = $this->db->insert("leave_absences", $data);
 
 				if($rs){
 					$response = [
-						'status' => 200,
-						'message' => 'Success'
+						'status' 	=> 200,
+						'message' 	=> 'Success'
 					];
 				}else{
 					$response = [
-						'status' => 401,
-						'message' => 'Failed',
-						'error' => 'Error submit leave.'
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Error submit leave'
 					];
 				}
-	 
-				
+	
 			} else {
 				$response = [
-					'status' => 401,
-					'message' => 'Failed',
-					'error' => 'Employee not found'
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
 				];
 			}
-
-
 			
 		} else {
 			$response = [
-				'status' => 400, // Bad Request
-				'message' =>'Failed',
-				'error' => 'Require not satisfied'
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
 			];
 		}
 		
@@ -430,53 +414,4 @@ class Api extends API_Controller
     }
 
 
- 
-	// login basic example
-    public function login_old()
-    {
-		$valid_elem = ['email', 'password'];
-		$params = elements($valid_elem, $this->mParams);
-		if(!values_satisfied($params)){
-			$email      = $params['email'];
-			$password   = $params['password'];
-
-			$cek_login = $this->api->cek_login($email);	 
-			if(password_verify($password, isset($cek_login['password'])?$cek_login['password']:''))
-			{
-				$data = array(
-						"id" => $cek_login['id'],
-						"firstname" => $cek_login['first_name'],
-						"lastname" => $cek_login['last_name'],
-						"email" => $cek_login['email']
-						);
-	 
-				$token = $this->genJWTdata($data);	 
-				$response = [
-					'status' => 200,
-					'message' => 'Success',
-					"token" => $token[0],
-					"expire" => $token[1],
-					"email" => $email
-				];
-			} else {
-				$response = [
-					'status' => 401,
-					'message' => 'Failed',
-					'error' => 'Access credentials not match.'
-				];
-			}
-		} else {
-			$response = [
-				'status' => 400, // Bad Request
-				'message' => 'Failed',
-				'error' => 'Require not satisfied'
-			];
-		}
-		
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-    }
 }
