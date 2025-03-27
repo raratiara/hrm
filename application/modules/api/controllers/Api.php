@@ -76,6 +76,7 @@ class Api extends API_Controller
 
     public function login()
     {
+
 		$valid_elem = ['username', 'password'];
 		$params = elements($valid_elem, $this->mParams);
 		if(!values_satisfied($params)){
@@ -131,6 +132,9 @@ class Api extends API_Controller
 
     public function sync()
     {
+    	$this->verify_token();
+
+
 		$valid_elem = ['url'];
 		$params = elements($valid_elem, $this->mParams);
 		if(!values_satisfied($params)){
@@ -181,6 +185,9 @@ class Api extends API_Controller
 
     public function absen()
     {
+    	$this->verify_token();
+
+
 		$valid_elem = ['employee','tipe','datetime_attendance'];
 		$params = elements($valid_elem, $this->mParams);
 
@@ -348,6 +355,10 @@ class Api extends API_Controller
 
     public function ijin()
     {
+    	$this->verify_token();
+
+
+    	
 		$valid_elem = ['employee','leave_type','date_start', 'date_end', 'reason'];
 		$params = elements($valid_elem, $this->mParams);
 		if(!values_satisfied($params)){
