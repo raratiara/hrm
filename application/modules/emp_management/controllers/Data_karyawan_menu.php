@@ -118,6 +118,8 @@ class Data_karyawan_menu extends MY_Controller
 		$mssection 						= $this->db->query("select * from sections")->result(); 
 		$field['selsection'] 			= $this->self_model->return_build_select2me($mssection,'','','','section','section','','','id','name',' ','','','',3,'-');	
 
+		$field['txtgender'] 			= $this->self_model->return_build_radio('', [['L','Laki-Laki'],['P','Perempuan']], 'gender', '', 'inline');
+		
 
 
 
