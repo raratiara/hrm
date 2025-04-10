@@ -112,6 +112,11 @@ jQuery(function($) {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 function load_data()
 {
+	
+	var getUrl = window.location;
+	var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	
+
     $.ajax({
 		type: "POST",
         url : module_path+'/get_detail_data',
@@ -125,7 +130,7 @@ function load_data()
 					$('[name="id"]').val(data.id);
 					$('[name="emp_code"]').val(data.emp_code);
 					$('[name="full_name"]').val(data.full_name);
-					$('[name="email"]').val(data.email);
+					$('[name="email"]').val(data.personal_email);
 					$('[name="nationality"]').val(data.nationality);
 					$('[name="tanggungan"]').val(data.tanggungan);
 					$('[name="sim_a"]').val(data.sim_a);
@@ -133,33 +138,48 @@ function load_data()
 					$('[name="place_of_birth"]').val(data.place_of_birth);
 					$('[name="address1"]').val(data.address_1);
 					$('[name="postal_code"]').val(data.postal_code);
-					$('[name="date_end_prob"]').val(data.date_end_probation);
 					$('[name="work_loc"]').val(data.work_location);
 					$('[name="emergency_phone"]').val(data.emergency_contact_phone);
 					$('[name="bank_address"]').val(data.bank_address);
 					$('[name="bank_acc_no"]').val(data.bank_acc_no);
-					$('[name="date_resign_letter"]').val(data.date_resign_letter);
-					$('[name="date_resign_active"]').val(data.date_resign_active);
 					$('[name="resign_category"]').val(data.resign_category);
-					$('[name="emp_signature"]').val(data.emp_signature);
 					$('[name="nick_name"]').val(data.nick_name);
 					$('[name="phone"]').val(data.personal_phone);
 					$('[name="ethnic"]').val(data.ethnic);
 					$('[name="no_ktp"]').val(data.no_ktp);
 					$('[name="sim_c"]').val(data.sim_c);
 					$('[name="no_bpjs"]').val(data.no_bpjs);
-					$('[name="date_of_birth"]').val(data.date_of_birth);
 					$('[name="address2"]').val(data.address_2);
-					$('[name="date_of_hire"]').val(data.date_of_hire);
-					$('[name="date_permanent"]').val(data.date_permanent);
 					$('[name="shift_type"]').val(data.shift_type);
 					$('[name="emergency_name"]').val(data.emergency_contact_name);
 					$('[name="emergency_email"]').val(data.emergency_contact_email);
+					$('[name="emergency_relation"]').val(data.emergency_contact_relation);
 					$('[name="bank_name"]').val(data.bank_name);
 					$('[name="bank_acc_name"]').val(data.bank_acc_name);
 					$('[name="resign_reason"]').val(data.resign_reason);
 					$('[name="resign_exit_feedback"]').val(data.resign_exit_interview_feedback);
-					$('[name="emp_photo"]').val(data.emp_photo);
+					$('[name="gender"][value="'+data.gender+'"]').prop('checked', true);
+					
+					$('[name="hdnempphoto"]').val(data.emp_photo);
+					if(data.emp_photo != '' && data.emp_photo != null){
+						$('span.file_emp_photo').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_photo+'" width="150" height="150" >');
+					}else{
+						$('span.file_emp_photo').html('');
+					}
+
+					$('[name="hdnempsign"]').val(data.emp_signature);
+					if(data.emp_signature != '' && data.emp_signature != null){
+						$('span.file_emp_sign').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_signature+'" width="150" height="150" >');
+					}else{
+						$('span.file_emp_sign').html('');
+					}
+					
+					$('[name="date_of_hire"]').val(data.date_of_hire);
+					$('[name="date_permanent"]').val(data.date_permanent);
+					$('[name="date_of_birth"]').val(data.date_of_birth);
+					$('[name="date_resign_letter"]').val(data.date_resign_letter);
+					$('[name="date_resign_active"]').val(data.date_resign_active);
+					$('[name="date_end_prob"]').val(data.date_end_probation);
 
 					$('select#indirect').val(data.indirect_id).trigger('change.select2');
 					$('select#marital_status').val(data.marital_status_id).trigger('change.select2');
@@ -220,9 +240,6 @@ function load_data()
 					$('span.bank_acc_name').html(data.bank_acc_name);
 					$('span.resign_reason').html(data.resign_reason);
 					$('span.resign_exit_feedback').html(data.resign_exit_interview_feedback);
-
-					//$('span.emp_signature').html(data.emp_signature);
-					//$('span.emp_photo').html(data.emp_photo);
 					$('span.company').html(data.company_name);
 					$('span.division').html(data.division_name);
 					$('span.section').html(data.section_name);
@@ -238,6 +255,20 @@ function load_data()
 					$('span.district').html(data.district_name);
 					$('span.job_title').html(data.job_title_name);
 					$('span.direct').html(data.direct_name);
+					$('[name="gender"][value="'+data.gender+'"]').prop('checked', true);
+
+
+					if(data.emp_photo != '' && data.emp_photo != null){
+						$('span.emp_photo').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_photo+'" width="150" height="150" >');
+					}else{
+						$('span.emp_photo').html('');
+					}
+
+					if(data.emp_signature != '' && data.emp_signature != null){
+						$('span.emp_signature').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_signature+'" width="150" height="150" >');
+					}else{
+						$('span.emp_signature').html('');
+					}
 					
 					$('#modal-view-data').modal('show');
 				}

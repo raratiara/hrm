@@ -105,7 +105,7 @@ class API_Controller extends MX_Controller
             } catch (Throwable $t){
                 $response = [
                     'message' => 'Access denied',
-                    "error" => $t->getMessage()
+                    "error" => $authHeader//$t->getMessage()
                 ];
 
 				$this->render_json($response, 401);
