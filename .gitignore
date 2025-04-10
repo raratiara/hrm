@@ -30,6 +30,3 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /tests/tests/
 /tests/results/
 
-application/config/config.php merge=ours
-application/config/constants.php merge=ours
-application/config/database.php merge=ours
