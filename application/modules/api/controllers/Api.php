@@ -76,14 +76,15 @@ class Api extends API_Controller
 
     public function login()
     {
+    	$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
 
-		$valid_elem = ['username', 'password'];
-		$params = elements($valid_elem, $this->mParams);
+    	$username	= $_REQUEST['username'];
+    	$password 	= $_REQUEST['password'];
 
-		if(!values_satisfied($params)){
-			$username 	= $params['username'];
-			$password   = $params['password'];
-			
+
+		if($username != '' && $password != ''){
 			
 			$cek_login = $this->api->cek_login($username);	 
 			
@@ -136,10 +137,14 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$valid_elem = ['url'];
-		$params = elements($valid_elem, $this->mParams);
-		if(!values_satisfied($params)){
-			$url 	= $params['url'];
+    	$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$url	= $_REQUEST['url'];
+
+		
+		if($url != ''){
 			
 			$cek_data = $this->api->cek_company($url);	 
 
@@ -185,14 +190,15 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$valid_elem = ['employee','tipe','datetime_attendance'];
-		$params = elements($valid_elem, $this->mParams);
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
 
-		if(!values_satisfied($params)){
-			$employee 	= $params['employee'];
-			$tipe 		= $params['tipe'];
-			$datetime 	= $params['datetime_attendance'];
+    	$employee	= $_REQUEST['employee'];
+    	$tipe = $_REQUEST['tipe'];
+    	$datetime	= $_REQUEST['datetime_attendance'];
 
+		if($employee != '' && $tipe != '' && $datetime != ''){
 			/*$date 	= date_format($datetime,"Y-m-d");
 			$time 		= date_format($datetime,"H:i:s");*/
 
@@ -347,16 +353,18 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$valid_elem = ['employee','leave_type','date_start', 'date_end', 'reason'];
-		$params = elements($valid_elem, $this->mParams);
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
 
-		if(!values_satisfied($params)){
-			$employee 	= $params['employee'];
-			$leave_type = $params['leave_type'];
-			$date_start = $params['date_start'];
-			$date_end 	= $params['date_end'];
-			$reason 	= $params['reason'];
-			
+    	$employee	= $_REQUEST['employee'];
+    	$leave_type = $_REQUEST['leave_type'];
+    	$date_start	= $_REQUEST['date_start'];
+    	$date_end 	= $_REQUEST['date_end'];
+    	$reason		= $_REQUEST['reason'];
+
+
+		if($employee != '' && $leave_type != '' && $date_start != '' && $date_end != '' ){
 			
 			$cek_emp = $this->api->cek_employee($employee);	
 
