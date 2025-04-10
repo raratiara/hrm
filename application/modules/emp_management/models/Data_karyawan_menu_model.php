@@ -8,6 +8,12 @@ class Data_karyawan_menu_model extends MY_Model
  	protected $table_name 				= _PREFIX_TABLE."employees";
  	protected $primary_key 				= "id";
 
+ 	/* upload */
+ 	protected $attachment_folder	= "./uploads/employee";
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
+
+
 	function __construct()
 	{
 		parent::__construct();
@@ -276,11 +282,88 @@ class Data_karyawan_menu_model extends MY_Model
 		
 	} 
 
+
+	// Upload file
+	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+		$data = array();
+		$data['status'] = FALSE; 
+		if(!empty($id) && !empty($fieldname)){ 
+			// handling multiple upload (as array field)
+
+			if($array){ 
+				// Define new $_FILES array - $_FILES['file']
+				$_FILES['file']['name'] = $_FILES[$fieldname]['name'];
+				$_FILES['file']['type'] = $_FILES[$fieldname]['type'];
+				$_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
+				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
+				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
+				// override field
+
+			}
+			// handling regular upload (as one field)
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			{ 
+				/*$dir = $this->attachment_folder.'/'.$id;
+				if(!is_dir($dir)) {
+					mkdir($dir);
+				}
+				if($replace){
+					$this->remove_file($id, $oldfilename);
+				}*/
+				$config['upload_path']   = $this->attachment_folder;
+				$config['allowed_types'] = $this->allow_type;
+				$config['max_size'] 	 = $this->allow_size;
+				
+				$this->load->library('upload', $config); 
+				
+				if(!$this->upload->do_upload($fieldname)){  
+					$err_msg = $this->upload->display_errors(); 
+					$data['error_warning'] = strip_tags($err_msg);				
+					$data['status'] = FALSE;
+				} else {
+					$fileData = $this->upload->data();
+					$data['upload_file'] = $fileData['file_name'];
+					$data['status'] = TRUE;
+				}
+			}
+		}
+
+		
+		
+		return $data;
+	}
+
+
 	public function add_data($post) { 
 
 		$lettercode 	= ('GDI'); 
 		$runningnumber 	= $this->getNextNumber(); // next count number
 		$genEmpCode 	= $lettercode.$runningnumber;
+
+		$date_of_birth 		= trim($post['date_of_birth']);
+		$date_of_hire 		= trim($post['date_of_hire']);
+		$date_end_prob 		= trim($post['date_end_prob']);
+		$date_permanent 	= trim($post['date_permanent']);
+		$date_resign_letter = trim($post['date_resign_letter']);
+		$date_resign_active = trim($post['date_resign_active']);
+
+
+
+		$upload_emp_photo = $this->upload_file('1', 'emp_photo', FALSE, '', TRUE, '');
+		$emp_photo = '';
+		if($upload_emp_photo['status']){
+			$emp_photo = $upload_emp_photo['upload_file'];
+		} else if(isset($upload_emp_photo['error_warning'])){
+			echo $upload_emp_photo['error_warning']; exit;
+		}
+
+		$upload_emp_sign = $this->upload_file('1', 'emp_signature', FALSE, '', TRUE, '');
+		$emp_signature = '';
+		if($upload_emp_sign['status']){
+			$emp_signature = $upload_emp_sign['upload_file'];
+		} else if(isset($upload_emp_sign['error_warning'])){
+			echo $upload_emp_sign['error_warning']; exit;
+		}
 
 
 
@@ -302,7 +385,7 @@ class Data_karyawan_menu_model extends MY_Model
 			'no_npwp' 						=> trim($post['no_npwp']),
 			'no_bpjs' 						=> trim($post['no_bpjs']),
 			'place_of_birth' 				=> trim($post['place_of_birth']),
-			'date_of_birth' 				=> trim($post['date_of_birth']),
+			'date_of_birth' 				=> date("Y-m-d", strtotime($date_of_birth)),
 			'address_1' 					=> trim($post['address1']),
 			'address_2' 					=> trim($post['address2']),
 			'postal_code' 					=> trim($post['postal_code']),
@@ -312,9 +395,9 @@ class Data_karyawan_menu_model extends MY_Model
 			'village_id' 					=> trim($post['village']),
 			'job_title_id' 					=> trim($post['job_title']),
 			'department_id' 				=> trim($post['department']),
-			'date_of_hire' 					=> trim($post['date_of_hire']),
-			'date_end_probation' 			=> trim($post['date_end_prob']),
-			'date_permanent' 				=> trim($post['date_permanent']),
+			'date_of_hire' 					=> date("Y-m-d", strtotime($date_of_hire)),
+			'date_end_probation' 			=> date("Y-m-d", strtotime($date_end_prob)),
+			'date_permanent' 				=> date("Y-m-d", strtotime($date_permanent)),
 			'employment_status_id' 			=> trim($post['emp_status']),
 			'shift_type' 					=> trim($post['shift_type']),
 			'work_location' 				=> trim($post['work_loc']),
@@ -328,18 +411,19 @@ class Data_karyawan_menu_model extends MY_Model
 			'bank_address' 					=> trim($post['bank_address']),
 			'bank_acc_name' 				=> trim($post['bank_acc_name']),
 			'bank_acc_no' 					=> trim($post['bank_acc_no']),
-			'date_resign_letter' 			=> trim($post['date_resign_letter']),
-			'date_resign_active' 			=> trim($post['date_resign_active']),
+			'date_resign_letter' 			=> date("Y-m-d", strtotime($date_resign_letter)),
+			'date_resign_active' 			=> date("Y-m-d", strtotime($date_resign_active)),
 			'resign_category' 				=> trim($post['resign_category']),
 			'resign_reason' 				=> trim($post['resign_reason']),
 			'resign_exit_interview_feedback' 	=> trim($post['resign_exit_feedback']),
-			/*'emp_photo' 					=> trim($post['emp_photo']),
-			'emp_signature' 				=> trim($post['emp_signature']),*/
+			'emp_photo' 					=> $emp_photo,
+			'emp_signature' 				=> $emp_signature,
 			'created_at' 					=> date("Y-m-d H:i:s"),
 			'company_id' 					=> trim($post['company']),
 			'division_id' 					=> trim($post['division']),
 			'branch_id' 					=> trim($post['branch']),
-			'section_id' 					=> trim($post['section'])
+			'section_id' 					=> trim($post['section']),
+			'gender' 						=> trim($post['gender'])
 		];
 
 		return $rs = $this->db->insert($this->table_name, $data);
@@ -347,7 +431,42 @@ class Data_karyawan_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
-		if(!empty($post['id'])){
+		if(!empty($post['id'])){ 
+			$date_of_birth 		= trim($post['date_of_birth']);
+			$date_of_hire 		= trim($post['date_of_hire']);
+			$date_end_prob 		= trim($post['date_end_prob']);
+			$date_permanent 	= trim($post['date_permanent']);
+			$date_resign_letter = trim($post['date_resign_letter']);
+			$date_resign_active = trim($post['date_resign_active']);
+			$hdnempsign 		= trim($post['hdnempsign']);
+			$hdnempphoto 		= trim($post['hdnempphoto']);
+			
+
+			$upload_emp_photo = $this->upload_file('1', 'emp_photo', FALSE, '', TRUE, '');
+			$emp_photo = '';
+			if($upload_emp_photo['status']){
+				$emp_photo = $upload_emp_photo['upload_file'];
+			} else if(isset($upload_emp_photo['error_warning'])){
+				echo $upload_emp_photo['error_warning']; exit;
+			}
+
+			$upload_emp_sign = $this->upload_file('1', 'emp_signature', FALSE, '', TRUE, '');
+			$emp_signature = '';
+			if($upload_emp_sign['status']){
+				$emp_signature = $upload_emp_sign['upload_file'];
+			} else if(isset($upload_emp_sign['error_warning'])){
+				echo $upload_emp_sign['error_warning']; exit;
+			}
+
+			if($emp_photo == '' && $hdnempphoto != ''){
+				$emp_photo = $hdnempphoto;
+			}
+			if($emp_signature == '' && $hdnempsign != ''){
+				$emp_signature = $hdnempsign;
+			}
+
+
+			
 
 			$data = [
 				'full_name' 					=> trim($post['full_name']),
@@ -366,7 +485,7 @@ class Data_karyawan_menu_model extends MY_Model
 				'no_npwp' 						=> trim($post['no_npwp']),
 				'no_bpjs' 						=> trim($post['no_bpjs']),
 				'place_of_birth' 				=> trim($post['place_of_birth']),
-				'date_of_birth' 				=> trim($post['date_of_birth']),
+				'date_of_birth' 				=> date("Y-m-d", strtotime($date_of_birth)),
 				'address_1' 					=> trim($post['address1']),
 				'address_2' 					=> trim($post['address2']),
 				'postal_code' 					=> trim($post['postal_code']),
@@ -376,9 +495,9 @@ class Data_karyawan_menu_model extends MY_Model
 				'village_id' 					=> trim($post['village']),
 				'job_title_id' 					=> trim($post['job_title']),
 				'department_id' 				=> trim($post['department']),
-				'date_of_hire' 					=> trim($post['date_of_hire']),
-				'date_end_probation' 			=> trim($post['date_end_prob']),
-				'date_permanent' 				=> trim($post['date_permanent']),
+				'date_of_hire' 					=> date("Y-m-d", strtotime($date_of_hire)),
+				'date_end_probation' 			=> date("Y-m-d", strtotime($date_end_prob)),
+				'date_permanent' 				=> date("Y-m-d", strtotime($date_permanent)),
 				'employment_status_id' 			=> trim($post['emp_status']),
 				'shift_type' 					=> trim($post['shift_type']),
 				'work_location' 				=> trim($post['work_loc']),
@@ -392,18 +511,19 @@ class Data_karyawan_menu_model extends MY_Model
 				'bank_address' 					=> trim($post['bank_address']),
 				'bank_acc_name' 				=> trim($post['bank_acc_name']),
 				'bank_acc_no' 					=> trim($post['bank_acc_no']),
-				'date_resign_letter' 			=> trim($post['date_resign_letter']),
-				'date_resign_active' 			=> trim($post['date_resign_active']),
+				'date_resign_letter' 			=> date("Y-m-d", strtotime($date_resign_letter)),
+				'date_resign_active' 			=> date("Y-m-d", strtotime($date_resign_active)),
 				'resign_category' 				=> trim($post['resign_category']),
 				'resign_reason' 				=> trim($post['resign_reason']),
 				'resign_exit_interview_feedback' 	=> trim($post['resign_exit_feedback']),
-				/*'emp_photo' 					=> trim($post['emp_photo']),
-				'emp_signature' 				=> trim($post['emp_signature']),*/
+				'emp_photo' 					=> $emp_photo,
+				'emp_signature' 				=> $emp_signature,
 				'updated_at' 					=> date("Y-m-d H:i:s"),
 				'company_id' 					=> trim($post['company']),
 				'division_id' 					=> trim($post['division']),
 				'branch_id' 					=> trim($post['branch']),
-				'section_id' 					=> trim($post['section'])
+				'section_id' 					=> trim($post['section']),
+				'gender' 						=> trim($post['gender'])
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);

@@ -1,9 +1,17 @@
 <div class="row">
-	<div class="col-md-12 col-sm-12">
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-2 control-label no-padding-right">Employee Code </label>
-			<div class="col-md-4">
+			<label class="col-md-4 control-label no-padding-right">Employee Code </label>
+			<div class="col-md-8">
 				<?=$txtempcode;?>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12">
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Gender </label>
+			<div class="col-md-8">
+				<?=$txtgender;?>
 			</div>
 		</div>
 	</div>
@@ -154,8 +162,12 @@
 		</div>
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Emp Signature </label>
-			<div class="col-md-8">
+			<div class="col-md-4">
 				<?=$txtempsignature;?>
+				<input type="hidden" id="hdnempsign" name="hdnempsign"/>
+			</div>
+			<div class="col-md-4">
+				<span class="file_emp_sign"></span>
 			</div>
 		</div>
 		<div class="form-group">
@@ -300,8 +312,12 @@
 		</div>
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Emp Photo</label>
-			<div class="col-md-8">
+			<div class="col-md-4">
 				<?=$txtempphoto;?>
+				<input type="hidden" id="hdnempphoto" name="hdnempphoto"/>
+			</div>
+			<div class="col-md-4">
+				<span class="file_emp_photo"></span>
 			</div>
 		</div>
 		<div class="form-group">
