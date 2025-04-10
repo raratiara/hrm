@@ -130,11 +130,25 @@ class Api extends API_Controller
 
     public function sync()
     {
+    	$bearer_token = 'jk43242kdnsd';
+
+    	$headers = getallheaders();
+    	if (substr($headers['Authorization'], 0, 7) !== 'Bearer ') {
+		    echo json_encode(["error" => "Bearer keyword is missing"]);
+		    exit;
+		}else{
+			$token = trim(substr($headers['Authorization'], 7));
+
+			if($token != $bearer_token){
+				echo json_encode(["error" => "Token not valid"]);
+		    	exit;
+			}
+
+		}
+
+
     	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
 		$base_url = $protocol . $_SERVER['HTTP_HOST'] . '/';
-
-
-    	$this->verify_token();
 
 
     	$jsonData = file_get_contents('php://input');
