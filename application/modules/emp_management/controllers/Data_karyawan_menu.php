@@ -15,7 +15,7 @@ class Data_karyawan_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Emp Codeee","FullNameee","NickName","Email","Phone","Gender","Date of Birth","Job Title"];
+	public $tabel_header 			= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title"];
 
 	
 	/* Export */
