@@ -1,0 +1,3 @@
+application/config/config.php merge=ours
+application/config/database.php merge=ours
+application/config/constants.php merge=ours
