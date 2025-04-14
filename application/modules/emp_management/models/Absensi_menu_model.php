@@ -279,7 +279,7 @@ class Absensi_menu_model extends MY_Model
 		$post_timein 		= strtotime($post['time_in']);
 		$post_timeout 		= strtotime($post['time_out']);
 
-echo $datetime_in; die();
+
 		$is_late=''; $is_leaving_office_early = '';
 		if($timestamp_timein > $post_timein){
 			$is_late='Y';
@@ -350,10 +350,7 @@ echo $datetime_in; die();
 
 
 		if(!empty($post['id'])){
-			if(){
-
-			}
-
+		
 			$data = [
 				/*'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
 				'employee_id' 				=> trim($post['employee']),
