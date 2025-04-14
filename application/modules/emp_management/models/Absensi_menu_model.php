@@ -19,7 +19,7 @@ class Absensi_menu_model extends MY_Model
 		$aColumns = [
 			NULL,
 			NULL,
-			'id',
+			'dt.id',
 			'dt.date_attendance',
 			'dt.full_name',
 			'dt.attendance_type',
@@ -288,29 +288,33 @@ class Absensi_menu_model extends MY_Model
 			$is_leaving_office_early = 'Y';
 		}
 
-  		$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60); //menit
+  		$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+
+  		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".date_format($date_attendance,"Y-m-d")."' and employee_id = '".$post['employee']."'")->result(); 
+
+  		if(empty($data_attendances)){ 
+  			$data = [
+				'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
+				'employee_id' 				=> trim($post['employee']),
+				'attendance_type' 			=> trim($post['emp_type']),
+				'time_in' 					=> trim($post['time_in']),
+				'time_out' 					=> trim($post['time_out']),
+				'date_attendance_in' 		=> $f_datetime_in,
+				'date_attendance_out'		=> $f_datetime_out,
+				'is_late'					=> $is_late,
+				'is_leaving_office_early'	=> $is_leaving_office_early,
+				'num_of_working_hours'		=> $num_of_working_hours,
+				'created_at'				=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert($this->table_name, $data);
+  		}else{ 
+  			$rs=false;
+  		}
 
 
 		
-		
 
-		$data = [
-			
-			'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
-			'employee_id' 				=> trim($post['employee']),
-			'attendance_type' 			=> trim($post['emp_type']),
-			'time_in' 					=> trim($post['time_in']),
-			'time_out' 					=> trim($post['time_out']),
-			'date_attendance_in' 		=> $f_datetime_in,
-			'date_attendance_out'		=> $f_datetime_out,
-			'is_late'					=> $is_late,
-			'is_leaving_office_early'	=> $is_leaving_office_early,
-			'num_of_working_hours'		=> $num_of_working_hours,
-			'created_at'				=> date("Y-m-d H:i:s")
-			
-		];
-
-		return $rs = $this->db->insert($this->table_name, $data);
+		return $rs;
 	}  
 
 	public function edit_data($post) { 
@@ -379,56 +383,7 @@ class Absensi_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(SELECT 
-					    a.*,
-					    b.name AS company_name,
-					    c.name AS division_name,
-					    d.name AS section_name,
-					    e.name AS last_education_name,
-					    f.name AS regency_name,
-					    g.name AS village_name,
-					    h.name AS department_name,
-					    i.name AS emp_status_name,
-					    j.full_name AS indirect_name,
-					    k.name AS branch_name,
-					    l.name AS marital_status_name,
-					    m.name AS province_name,
-					    n.name AS district_name,
-					    o.name AS job_title_name,
-					    p.full_name AS direct_name
-					FROM
-					    employees a
-					        LEFT JOIN
-					    companies b ON b.id = a.company_id
-					        LEFT JOIN
-					    divisions c ON c.id = a.division_id
-					        LEFT JOIN
-					    sections d ON d.id = a.section_id
-					        LEFT JOIN
-					    master_education e ON e.id = a.last_education_id
-					        LEFT JOIN
-					    regencies f ON f.id = a.regency_id
-					        LEFT JOIN
-					    villages g ON g.id = a.village_id
-					        LEFT JOIN
-					    departments h ON h.id = a.department_id
-					        LEFT JOIN
-					    master_emp_status i ON i.id = a.employment_status_id
-					        LEFT JOIN
-					    employees j ON j.id = a.indirect_id
-					        LEFT JOIN
-					    branches k ON k.id = a.branch_id
-					        LEFT JOIN
-					    master_marital_status l ON l.id = a.marital_status_id
-					        LEFT JOIN
-					    provinces m ON m.id = a.province_id
-					        LEFT JOIN
-					    districts n ON n.id = a.district_id
-					        LEFT JOIN
-					    master_job_title o ON o.id = a.job_title_id
-					        LEFT JOIN
-					    employees p ON p.id = a.direct_id
-
+		$mTable = '(SELECT a.*, b.full_name as employee_name FROM time_attendances a left join employees b on b.id = a.employee_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();

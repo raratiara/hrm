@@ -274,7 +274,7 @@ class Api extends API_Controller
 						$f_datetime_out 		= $datetime;
 						$timestamp1 			= strtotime($f_datetime_in); 
 						$timestamp2 			= strtotime($f_datetime_out);
-						$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60); //menit
+						$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
 
 						$data = [
 							'attendance_type' 			=> $attendance_type,
