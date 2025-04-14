@@ -121,25 +121,27 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
-					$('[name="emp_code"]').val(data.emp_code);
-					$('[name="full_name"]').val(data.full_name);
-					$('[name="email"]').val(data.email);
+					$('[name="date_attendance"]').val(data.date_attendance);
+					$('select#employee').val(data.employee_id).trigger('change.select2');
+					$('[name="emp_type"]').val(data.attendance_type);
+					$('[name="time_in"]').val(data.time_in);
+					$('[name="time_out"]').val(data.time_out);
+					$('[name="attendance_in"]').val(data.date_attendance_in);
+					$('[name="attendance_out"]').val(data.date_attendance_out);
 				
-					$('select#company').val(data.company_id).trigger('change.select2');
-					$('select#division').val(data.division_id).trigger('change.select2');
-					$('select#section').val(data.section_id).trigger('change.select2');
-					
-					
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.emp_code').html(data.emp_code);
-					$('span.full_name').html(data.full_name);
-					$('span.email').html(data.email);
-					$('span.name').html(data.name);
+					$('span.date_attendance').html(data.date_attendance);
+					$('span.employee').html(data.employee_name);
+					$('span.emp_type').html(data.attendance_type);
+					$('span.time_in').html(data.time_in);
+					$('span.time_out').html(data.time_out);
+					$('span.attendance_in').html(data.date_attendance_in);
+					$('span.attendance_out').html(data.date_attendance_out);
 				
 					
 					$('#modal-view-data').modal('show');
