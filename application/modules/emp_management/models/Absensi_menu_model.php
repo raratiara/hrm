@@ -279,7 +279,7 @@ class Absensi_menu_model extends MY_Model
 		$post_timein 		= strtotime($post['time_in']);
 		$post_timeout 		= strtotime($post['time_out']);
 
-
+echo $datetime_in; die();
 		$is_late=''; $is_leaving_office_early = '';
 		if($timestamp_timein > $post_timein){
 			$is_late='Y';
@@ -289,6 +289,9 @@ class Absensi_menu_model extends MY_Model
 		}
 
   		$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+
+
+
 
   		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".date_format($date_attendance,"Y-m-d")."' and employee_id = '".$post['employee']."'")->result(); 
 
@@ -318,64 +321,51 @@ class Absensi_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
+		$date_attendance 	= date_create($post['date_attendance']);
+		$datetime_in 		= date_create($post['attendance_in']); 
+		$datetime_out 		= date_create($post['attendance_out']); 
+
+		$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
+		$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
+		$f_time_in 			= date_format($datetime_in,"H:i:s");
+		$f_time_out 		= date_format($datetime_out,"H:i:s");
+
+		$timestamp1 		= strtotime($f_datetime_in); 
+		$timestamp2 		= strtotime($f_datetime_out);
+		$timestamp_timein 	= strtotime($f_time_in); 
+		$timestamp_timeout 	= strtotime($f_time_out);
+		$post_timein 		= strtotime($post['time_in']);
+		$post_timeout 		= strtotime($post['time_out']);
+
+
+		$is_late=''; $is_leaving_office_early = '';
+		if($timestamp_timein > $post_timein){
+			$is_late='Y';
+		}
+		if($timestamp_timeout < $post_timeout){
+			$is_leaving_office_early = 'Y';
+		}
+
+  		$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+
 
 		if(!empty($post['id'])){
+			if(){
+
+			}
 
 			$data = [
-				'full_name' 					=> trim($post['full_name']),
-				'nick_name' 					=> trim($post['nick_name']),
-				'personal_email' 				=> trim($post['email']),
-				'personal_phone' 				=> trim($post['phone']),
-				'gender' 						=> trim($post['gender']),
-				'ethnic' 						=> trim($post['ethnic']),
-				'nationality' 					=> trim($post['nationality']),
-				'last_education_id' 			=> trim($post['last_education']),
-				'marital_status_id' 			=> trim($post['marital_status']),
-				'tanggungan' 					=> trim($post['tanggungan']),
-				'no_ktp' 						=> trim($post['no_ktp']),
-				'sim_a' 						=> trim($post['sim_a']),
-				'sim_c' 						=> trim($post['sim_c']),
-				'no_npwp' 						=> trim($post['no_npwp']),
-				'no_bpjs' 						=> trim($post['no_bpjs']),
-				'place_of_birth' 				=> trim($post['place_of_birth']),
-				'date_of_birth' 				=> trim($post['date_of_birth']),
-				'address_1' 					=> trim($post['address1']),
-				'address_2' 					=> trim($post['address2']),
-				'postal_code' 					=> trim($post['postal_code']),
-				'province_id' 					=> trim($post['province']),
-				'regency_id' 					=> trim($post['regency']),
-				'district_id' 					=> trim($post['district']),
-				'village_id' 					=> trim($post['village']),
-				'job_title_id' 					=> trim($post['job_title']),
-				'department_id' 				=> trim($post['department']),
-				'date_of_hire' 					=> trim($post['date_of_hire']),
-				'date_end_probation' 			=> trim($post['date_end_prob']),
-				'date_permanent' 				=> trim($post['date_permanent']),
-				'employment_status_id' 			=> trim($post['emp_status']),
-				'shift_type' 					=> trim($post['shift_type']),
-				'work_location' 				=> trim($post['work_loc']),
-				'direct_id' 					=> trim($post['direct']),
-				'indirect_id' 					=> trim($post['indirect']),
-				'emergency_contact_name' 		=> trim($post['emergency_name']),
-				'emergency_contact_phone' 		=> trim($post['emergency_phone']),
-				'emergency_contact_email' 		=> trim($post['emergency_email']),
-				'emergency_contact_relation' 	=> trim($post['emergency_relation']),
-				'bank_name' 					=> trim($post['bank_name']),
-				'bank_address' 					=> trim($post['bank_address']),
-				'bank_acc_name' 				=> trim($post['bank_acc_name']),
-				'bank_acc_no' 					=> trim($post['bank_acc_no']),
-				'date_resign_letter' 			=> trim($post['date_resign_letter']),
-				'date_resign_active' 			=> trim($post['date_resign_active']),
-				'resign_category' 				=> trim($post['resign_category']),
-				'resign_reason' 				=> trim($post['resign_reason']),
-				'resign_exit_interview_feedback' 	=> trim($post['resign_exit_feedback']),
-				/*'emp_photo' 					=> trim($post['emp_photo']),
-				'emp_signature' 				=> trim($post['emp_signature']),*/
-				'updated_at' 					=> date("Y-m-d H:i:s"),
-				'company_id' 					=> trim($post['company']),
-				'division_id' 					=> trim($post['division']),
-				'branch_id' 					=> trim($post['branch']),
-				'section_id' 					=> trim($post['section'])
+				/*'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
+				'employee_id' 				=> trim($post['employee']),
+				'attendance_type' 			=> trim($post['emp_type']),
+				'time_in' 					=> trim($post['time_in']),
+				'time_out' 					=> trim($post['time_out']),*/
+				'date_attendance_in' 		=> $f_datetime_in,
+				'date_attendance_out'		=> $f_datetime_out,
+				'is_late'					=> $is_late,
+				'is_leaving_office_early'	=> $is_leaving_office_early,
+				'num_of_working_hours'		=> $num_of_working_hours,
+				'updated_at'				=> date("Y-m-d H:i:s")
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
