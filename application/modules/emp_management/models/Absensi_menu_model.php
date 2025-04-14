@@ -263,35 +263,44 @@ class Absensi_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$date_attendance 	= date_create($post['date_attendance']);
-		$datetime_in 		= date_create($post['attendance_in']); 
-		$datetime_out 		= date_create($post['attendance_out']); 
-
-		$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
-		$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
-		$f_time_in 			= date_format($datetime_in,"H:i:s");
-		$f_time_out 		= date_format($datetime_out,"H:i:s");
-
-		$timestamp1 		= strtotime($f_datetime_in); 
-		$timestamp2 		= strtotime($f_datetime_out);
-		$timestamp_timein 	= strtotime($f_time_in); 
-		$timestamp_timeout 	= strtotime($f_time_out);
+		$date_attendance 	= date_create($post['date_attendance']); 
 		$post_timein 		= strtotime($post['time_in']);
 		$post_timeout 		= strtotime($post['time_out']);
 
+		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
 
-		$is_late=''; $is_leaving_office_early = '';
-		if($timestamp_timein > $post_timein){
-			$is_late='Y';
+		$f_datetime_in='';
+		if(!empty($post['attendance_in'])){
+			$datetime_in 		= date_create($post['attendance_in']);
+			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
+			$f_time_in 			= date_format($datetime_in,"H:i:s");
+			$timestamp_timein 	= strtotime($f_time_in); 
+			$timestamp1 		= strtotime($f_datetime_in); 
+
+			if($timestamp_timein > $post_timein){
+				$is_late='Y';
+			}
 		}
-		if($timestamp_timeout < $post_timeout){
-			$is_leaving_office_early = 'Y';
+
+		$f_datetime_out='';
+		if(!empty($post['attendance_out'])){
+			$datetime_out 		= date_create($post['attendance_out']);
+			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
+			$f_time_out 		= date_format($datetime_out,"H:i:s");
+			$timestamp_timeout 	= strtotime($f_time_out);
+			$timestamp2 		= strtotime($f_datetime_out);
+
+			if($timestamp_timeout < $post_timeout){
+				$is_leaving_office_early = 'Y';
+			}
 		}
 
-  		$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
+			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+		}
 
-
-
+		
+		
 
   		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".date_format($date_attendance,"Y-m-d")."' and employee_id = '".$post['employee']."'")->result(); 
 
@@ -321,38 +330,48 @@ class Absensi_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		$date_attendance 	= date_create($post['date_attendance']);
-		$datetime_in 		= date_create($post['attendance_in']); 
-		$datetime_out 		= date_create($post['attendance_out']); 
-
-		$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
-		$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
-		$f_time_in 			= date_format($datetime_in,"H:i:s");
-		$f_time_out 		= date_format($datetime_out,"H:i:s");
-
-		$timestamp1 		= strtotime($f_datetime_in); 
-		$timestamp2 		= strtotime($f_datetime_out);
-		$timestamp_timein 	= strtotime($f_time_in); 
-		$timestamp_timeout 	= strtotime($f_time_out);
+		$date_attendance 	= date_create($post['date_attendance']); 
 		$post_timein 		= strtotime($post['time_in']);
 		$post_timeout 		= strtotime($post['time_out']);
 
+		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
 
-		$is_late=''; $is_leaving_office_early = '';
-		if($timestamp_timein > $post_timein){
-			$is_late='Y';
-		}
-		if($timestamp_timeout < $post_timeout){
-			$is_leaving_office_early = 'Y';
+		$f_datetime_in='';
+		if(!empty($post['attendance_in'])){
+			$datetime_in 		= date_create($post['attendance_in']);
+			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
+			$f_time_in 			= date_format($datetime_in,"H:i:s");
+			$timestamp_timein 	= strtotime($f_time_in); 
+			$timestamp1 		= strtotime($f_datetime_in); 
+
+			if($timestamp_timein > $post_timein){
+				$is_late='Y';
+			}
 		}
 
-  		$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+		$f_datetime_out='';
+		if(!empty($post['attendance_out'])){
+			$datetime_out 		= date_create($post['attendance_out']);
+			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
+			$f_time_out 		= date_format($datetime_out,"H:i:s");
+			$timestamp_timeout 	= strtotime($f_time_out);
+			$timestamp2 		= strtotime($f_datetime_out);
+
+			if($timestamp_timeout < $post_timeout){
+				$is_leaving_office_early = 'Y';
+			}
+		}
+
+		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
+			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+		}
+		
 
 
 		if(!empty($post['id'])){
 		
 			$data = [
-				/*'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
+				/*'date_attendance' 		=> date_format($date_attendance,"Y-m-d"),
 				'employee_id' 				=> trim($post['employee']),
 				'attendance_type' 			=> trim($post['emp_type']),
 				'time_in' 					=> trim($post['time_in']),
