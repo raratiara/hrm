@@ -985,7 +985,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Dwi Kuswarno','','dwi','e10adc3949ba59abbe56e057f20f883e',NULL,'1','role',NULL,1,'2','2025-04-14 16:49:53','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-14 14:49:53');
+INSERT INTO `user` VALUES (1,'Dwi Kuswarno','','dwi','e10adc3949ba59abbe56e057f20f883e',NULL,'1','role',NULL,1,'2','2025-04-15 09:09:08','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-15 07:09:08');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1014,7 +1014,7 @@ CREATE TABLE `user_akses_role` (
   PRIMARY KEY (`user_akses_id`) USING BTREE,
   KEY `user_id` (`role_id`) USING BTREE,
   KEY `user_menu_id` (`user_menu_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1367 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1376 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1023,7 +1023,7 @@ CREATE TABLE `user_akses_role` (
 
 LOCK TABLES `user_akses_role` WRITE;
 /*!40000 ALTER TABLE `user_akses_role` DISABLE KEYS */;
-INSERT INTO `user_akses_role` VALUES (1,1,1,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(2,1,2,'1','1','1','1','1','1','1','dwi','2025-03-24 09:14:53',NULL,'2025-03-24 09:14:53'),(3,1,3,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(4,1,4,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(5,1,5,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1359,1,7,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1360,1,8,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1361,1,9,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1362,1,10,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1363,1,11,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1364,1,6,'1','1','1','1','1','1','1',NULL,'2025-03-24 10:46:56',NULL,NULL),(1365,1,12,'1','1','1','1','1','1','1',NULL,'2025-04-09 15:08:56',NULL,NULL),(1366,1,13,'1','1','1','1','1','1','1',NULL,'2025-04-15 02:54:52',NULL,NULL);
+INSERT INTO `user_akses_role` VALUES (1,1,1,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(2,1,2,'1','1','1','1','1','1','1','dwi','2025-03-24 09:14:53',NULL,'2025-03-24 09:14:53'),(3,1,3,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(4,1,4,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(5,1,5,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1359,1,7,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1360,1,8,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1361,1,9,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1362,1,10,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1363,1,11,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1364,1,6,'1','1','1','1','1','1','1',NULL,'2025-03-24 10:46:56',NULL,NULL),(1365,1,12,'1','1','1','1','1','1','1',NULL,'2025-04-09 15:08:56',NULL,NULL),(1366,1,13,'1','1','1','1','1','1','1',NULL,'2025-04-15 02:54:52',NULL,NULL),(1367,1,14,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1368,1,15,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1369,1,16,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1370,1,17,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1371,1,18,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1372,1,19,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1373,1,20,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1374,1,21,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL),(1375,1,22,'1','1','1','1','1','1','1',NULL,'2025-04-15 06:24:17',NULL,NULL);
 /*!40000 ALTER TABLE `user_akses_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1084,7 +1084,7 @@ CREATE TABLE `user_menu` (
   `update_by` varchar(45) DEFAULT NULL,
   `date_update` datetime DEFAULT NULL,
   PRIMARY KEY (`user_menu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1093,7 +1093,7 @@ CREATE TABLE `user_menu` (
 
 LOCK TABLES `user_menu` WRITE;
 /*!40000 ALTER TABLE `user_menu` DISABLE KEYS */;
-INSERT INTO `user_menu` VALUES (1,'Dashboard','page',0,'dashboard_menu','dashboard/dashboard_menu','',0,'0',NULL,'0','0','1',NULL,'1',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(4,'Employee Management','page',0,'emp_management','#','',0,'0',NULL,'0','1','1','fa-list-alt','6',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(5,'Data Karyawan','uri',0,'data_karyawan_menu','emp_management/data_karyawan_menu','',0,'0',NULL,'4','0','1',NULL,'1',NULL,'2025-02-27 04:08:58',NULL,'2025-02-27 04:08:58'),(6,'Absensi','uri',0,'absensi_menu','emp_management/absensi_menu','',0,'0',NULL,'4','0','1',NULL,'2',NULL,'2025-02-27 04:25:47',NULL,'2025-02-27 04:25:47'),(7,'Ijin','uri',0,'ijin_menu','emp_management/ijin_menu','',0,'0',NULL,'4','0','1',NULL,'3',NULL,'2025-02-27 04:30:52',NULL,'2025-02-27 04:30:52'),(12,'API','page',0,'api','api/api',NULL,0,'0',NULL,'0','0','0',NULL,'8',NULL,NULL,NULL,NULL),(13,'Tasklist','uri',0,'tasklist_menu','emp_management/tasklist_menu',NULL,0,'0',NULL,'4','0','1',NULL,'4',NULL,NULL,NULL,NULL);
+INSERT INTO `user_menu` VALUES (1,'Dashboard','page',0,'dashboard','#','',0,'0',NULL,'0','1','1','fa-list-alt','1',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(4,'Employee Management','page',0,'emp_management','#','',0,'0',NULL,'0','1','1','fa-list-alt','4',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(5,'Data Karyawan','uri',0,'data_karyawan_menu','emp_management/data_karyawan_menu','',0,'0',NULL,'4','0','1',NULL,'1',NULL,'2025-02-27 04:08:58',NULL,'2025-02-27 04:08:58'),(6,'Daily Absensi','uri',0,'absensi_menu','time_attendance/absensi_menu','',0,'0',NULL,'16','0','1',NULL,'1',NULL,'2025-02-27 04:25:47',NULL,'2025-02-27 04:25:47'),(7,'Leave Attendance','uri',0,'ijin_menu','time_attendance/ijin_menu','',0,'0',NULL,'16','0','1',NULL,'2',NULL,'2025-02-27 04:30:52',NULL,'2025-02-27 04:30:52'),(12,'API','page',0,'api','api/api',NULL,0,'0',NULL,'0','0','0',NULL,'8',NULL,NULL,NULL,NULL),(13,'Tasklist','uri',0,'tasklist_menu','emp_management/tasklist_menu',NULL,0,'0',NULL,'4','0','1',NULL,'2',NULL,NULL,NULL,NULL),(14,'HR Planning','page',0,'hr_planning','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','2',NULL,NULL,NULL,NULL),(15,'Recruitment Management','page',0,'recruitment_management','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','3',NULL,NULL,NULL,NULL),(16,'Time & Attendance','page',0,'time_attendance','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','5',NULL,NULL,NULL,NULL),(17,'Compensation & Benefit','page',0,'compensation_benefit','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','6',NULL,NULL,NULL,NULL),(18,'Training & Development','page',0,'training_development','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','7',NULL,NULL,NULL,NULL),(19,'Performance Management','page',0,'performance_management','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','8',NULL,NULL,NULL,NULL),(20,'Payroll','page',0,'payroll','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','9',NULL,NULL,NULL,NULL),(21,'Setup','page',0,'setup','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','10',NULL,NULL,NULL,NULL),(22,'General System','page',0,'general_system','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','11',NULL,NULL,NULL,NULL),(23,'Lembur','uri',0,'time_attendance','time_attendance/lembur_menu',NULL,0,'0',NULL,'16','0','1',NULL,'3',NULL,NULL,NULL,NULL),(24,'Reimbursement','uri',0,'compensation_benefit','compensation_benefit/reimbursement_menu',NULL,0,'0',NULL,'17','0','1',NULL,'1',NULL,NULL,NULL,NULL),(25,'Pinjaman','uri',0,'compensation_benefit','compensation_benefit/pinjaman_menu',NULL,0,'0',NULL,'17','0','1',NULL,'2',NULL,NULL,NULL,NULL),(26,'Perjalanan Dinas','uri',0,'compensation_benefit','compensation_benefit/perjalanan_dinas_menu',NULL,0,'0',NULL,'17','0','1',NULL,'3',NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `user_menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1218,4 +1218,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-15 11:11:55
+-- Dump completed on 2025-04-15 14:19:06
