@@ -4,8 +4,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Reimbursement_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "compensation_benefit/tasklist_menu";
- 	protected $table_name 				= _PREFIX_TABLE."tasklist";
+ 	protected $folder_name				= "compensation_benefit/reimbursement_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."medicalreimbursements";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -20,21 +20,21 @@ class Reimbursement_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
+			'dt.date_reimbursment',
 			'dt.employee_name',
-			'dt.task',
-			'dt.parent_name',
-			'dt.status_name',
-			'dt.progress_percentage',
-			'dt.due_date'
+			'dt.reimburse_for_name',
+			'dt.atas_nama',
+			'dt.diagnosa',
+			'dt.nominal_billing',
+			'dt.nominal_reimburse'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id)dt';
+		$sTable = '(select a.*, b.full_name as employee_name, c.name as reimburse_for_name
+					from medicalreimbursements a left join employees b on b.id = a.employee_id
+					left join master_reimbursfor_type c on c.id = a.reimburse_for)dt';
 		
 
 		/* Paging */
@@ -195,12 +195,13 @@ class Reimbursement_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
+				$row->date_reimbursment,
 				$row->employee_name,
-				$row->task,
-				$row->parent_name,
-				$row->status_name,
-				$row->progress_percentage,
-				$row->due_date
+				$row->reimburse_for_name,
+				$row->atas_nama,
+				$row->diagnosa,
+				$row->nominal_billing,
+				$row->nominal_reimburse
 
 
 			));
@@ -256,18 +257,19 @@ class Reimbursement_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		$date 		= date_create($post['date']); 
+		$f_date 	= date_format($date,"Y-m-d H:i:s");
 
 		
-  		if(!empty($post['task'])){ 
+  		if(!empty($post['date']) && !empty($post['employee'])){ 
   			$data = [
+				'date_reimbursment' 	=> $f_date,
 				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
+				'reimburse_for'			=> trim($post['reimburs_for']),
+				'atas_nama' 			=> trim($post['atas_nama']),
+				'diagnosa' 				=> trim($post['diagnosa']),
+				'nominal_billing' 		=> trim($post['nominal_billing']),
+				'nominal_reimburse' 	=> trim($post['nominal_reimburs']), 
 				'created_at'			=> date("Y-m-d H:i:s")
 			];
 			return $rs = $this->db->insert($this->table_name, $data);
@@ -276,20 +278,21 @@ class Reimbursement_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		$date 		= date_create($post['date']); 
+		$f_date 	= date_format($date,"Y-m-d H:i:s");
 		
 
 
-		if(!empty($post['task'])){ 
+		if(!empty($post['id'])){ 
 		
 			$data = [
+				'date_reimbursment' 	=> $f_date,
 				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
+				'reimburse_for'			=> trim($post['reimburs_for']),
+				'atas_nama' 			=> trim($post['atas_nama']),
+				'diagnosa' 				=> trim($post['diagnosa']),
+				'nominal_billing' 		=> trim($post['nominal_billing']),
+				'nominal_reimburse' 	=> trim($post['nominal_reimburs']),
 				'updated_at'			=> date("Y-m-d H:i:s")
 			];
 
@@ -298,11 +301,10 @@ class Reimbursement_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id
-			)dt';
+		$mTable = '(select a.*, b.full_name as employee_name, c.name as reimburse_for_name
+					from medicalreimbursements a left join employees b on b.id = a.employee_id
+					left join master_reimbursfor_type c on c.id = a.reimburse_for
+					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
@@ -319,12 +321,14 @@ class Reimbursement_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'employee_id' 			=> $v["B"],
-				'task' 					=> $v["C"],
-				'progress_percentage' 	=> $v["D"],
-				'parent_id' 			=> $v["E"],
-				'due_date' 				=> $v["F"],
-				'status_id' 			=> $v["G"]
+				'date_reimbursment' 	=> $v["B"],
+				'employee_id' 			=> $v["C"],
+				'reimburse_for' 		=> $v["D"],
+				'atas_nama' 			=> $v["E"],
+				'diagnosa' 				=> $v["F"],
+				'nominal_billing' 		=> $v["G"],
+				'nominal_reimburse' 	=> $v["H"],
+				'nominal_billing' 		=> $v["I"]
 				
 			];
 
@@ -337,10 +341,10 @@ class Reimbursement_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date   
-			from tasklist a left join employees b on b.id = a.employee_id
-			left join tasklist c on c.id = a.parent_id
-			left join master_tasklist_status d on d.id = a.status_id order by a.id asc
+		$sql = "select a.id, a.date_reimbursment, b.full_name as employee_name, c.name as reimburse_for_name, a.atas_nama, a.diagnosa, a.nominal_billing, a.nominal_reimburse
+			from medicalreimbursements a left join employees b on b.id = a.employee_id
+			left join master_reimbursfor_type c on c.id = a.reimburse_for order by a.id asc
+
 		";
 
 		$res = $this->db->query($sql);

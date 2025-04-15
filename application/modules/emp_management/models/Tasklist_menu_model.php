@@ -281,7 +281,7 @@ class Tasklist_menu_model extends MY_Model
 		
 
 
-		if(!empty($post['task'])){ 
+		if(!empty($post['id'])){ 
 		
 			$data = [
 				'employee_id' 			=> trim($post['employee']),

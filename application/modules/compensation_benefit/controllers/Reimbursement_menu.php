@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Reimbursement_menu extends MY_Controller
-{
+{ 
 	/* Module */
  	const  LABELMODULE				= "reimbursement_menu"; // identify menu
  	const  LABELMASTER				= "Menu Reimbursement Karyawan";
@@ -15,30 +15,28 @@ class Reimbursement_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date"];
+	public $tabel_header 			= ["ID","Date","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date"];
-	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date"];
+	public $colnames 				= ["ID","Date","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs"];
+	public $colfields 				= ["id","date_reimbursment","employee_name","reimburse_for_name","atas_nama","diagnosa","nominal_billing","nominal_reimburse"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
 		$field = [];
 		
-		$field['txttask'] 		= $this->self_model->return_build_txt('','task','task');
-		$field['txtprogress'] 	= $this->self_model->return_build_txt('','progress','progress');
-		$field['txtduedate'] 	= $this->self_model->return_build_txt('','due_date','due_date');
+		$field['txtdate'] 				= $this->self_model->return_build_txt('','date','date');
+		$field['txtnominalreimburs'] 	= $this->self_model->return_build_txt('','nominal_reimburs','nominal_reimburs','','','readonly');
+		$field['txtatasnama'] 			= $this->self_model->return_build_txt('','atas_nama','atas_nama');
+		$field['txtdiagnosa'] 			= $this->self_model->return_build_txt('','diagnosa','diagnosa');
+		$field['txtnominalbilling'] 	= $this->self_model->return_build_txt('','nominal_billing','nominal_billing');
 
-		$msstatus 				= $this->db->query("select * from master_tasklist_status")->result(); 
-		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
-		$mstask 				= $this->db->query("select * from tasklist")->result(); 
-		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
 		$msemp 					= $this->db->query("select * from employees")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
-
-
+		$msreimbursfor 			= $this->db->query("select * from master_reimbursfor_type")->result(); 
+		$field['selreimbursfor'] 	= $this->self_model->return_build_select2me($msreimbursfor,'','','','reimburs_for','reimburs_for','','','id','name',' ','','','',3,'-');
 
 		
 		return $field;

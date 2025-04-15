@@ -2,43 +2,48 @@
 	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Date</label>
+			<div class="col-md-8">
+				<?=$txtdate;?>
+			</div>
+		</div>
+
+		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right"> Employee</label>
 			<div class="col-md-8">
 				<?=$selemployee;?>
 			</div>
 		</div>
-
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Task</label>
+			<label class="col-md-4 control-label no-padding-right">Reimburs For</label>
 			<div class="col-md-8">
-				<?=$txttask;?>
+				<?=$selreimbursfor;?>
 			</div>
 		</div>
-		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Progress (%)</label>
+			<label class="col-md-4 control-label no-padding-right">Nominal Reimburs</label>
 			<div class="col-md-8">
-				<?=$txtprogress;?>
+				<?=$txtnominalreimburs;?>
 			</div>
 		</div>
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Status</label>
+			<label class="col-md-4 control-label no-padding-right">Atas Nama</label>
 			<div class="col-md-8">
-				<?=$selstatus;?>
+				<?=$txtatasnama;?>
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Task Parent </label>
+			<label class="col-md-4 control-label no-padding-right">Diagnosa </label>
 			<div class="col-md-8">
-				<?=$seltaskparent;?>
+				<?=$txtdiagnosa;?>
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Due Date </label>
+			<label class="col-md-4 control-label no-padding-right">Nominal Billing </label>
 			<div class="col-md-8">
-				<?=$txtduedate;?>
+				<?=$txtnominalbilling;?>
 			</div>
 		</div>
 		

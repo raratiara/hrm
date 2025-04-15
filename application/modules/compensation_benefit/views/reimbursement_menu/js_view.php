@@ -11,7 +11,7 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#due_date" ).datepicker();
+        $( "#date" ).datepicker();
 		
    	});
 });
@@ -120,11 +120,12 @@ function load_data()
 					$('[name="id"]').val(data.id);
 					
 					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#status').val(data.status_id).trigger('change.select2');
-					$('[name="task"]').val(data.task);
-					$('select#task_parent').val(data.parent_id).trigger('change.select2');
-					$('[name="progress"]').val(data.progress_percentage);
-					$('[name="due_date"]').val(data.due_date);
+					$('select#reimburs_for').val(data.reimburse_for).trigger('change.select2');
+					$('[name="date"]').val(data.date_reimbursment);
+					$('[name="nominal_reimburs"]').val(data.nominal_reimburse);
+					$('[name="atas_nama"]').val(data.atas_nama);
+					$('[name="diagnosa"]').val(data.diagnosa);
+					$('[name="nominal_billing"]').val(data.nominal_billing);
 
 					
 					$.uniform.update();
@@ -133,11 +134,12 @@ function load_data()
 				}
 				if(save_method == 'detail'){ 
 					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
+					$('span.date').html(data.date_reimbursment);
+					$('span.reimburs_for').html(data.reimburse_for);
+					$('span.nominal_reimburs').html(data.nominal_reimburse);
+					$('span.atas_nama').html(data.atas_nama);
+					$('span.diagnosa').html(data.diagnosa);
+					$('span.nominal_billing').html(data.nominal_billing);
 					
 					
 					$('#modal-view-data').modal('show');
@@ -174,52 +176,11 @@ function load_data()
 <?php } ?>
 
 
-$('#employee').on('change', function () { 
- 	var empid = $("#employee option:selected").val();
+$('#nominal_billing').on('keyup', function () { 
+ 	var nominal_billing = $("#nominal_billing").val();
  	
- 	if(empid != ''){
- 		
- 		$.ajax({
-			type: "POST",
-	        url : module_path+'/getDataEmp',
-			data: { empid: empid },
-			cache: false,		
-	        dataType: "JSON",
-	        success: function(data)
-	        {  
-				if(data != null){ 	
-					$('#emp_type').val(data.name);
-					$('#time_in').val(data.time_in);
-					$('#time_out').val(data.time_out);
-
-				} else { 
-					$('#emp_type').val('');
-					$('#time_in').val('');
-					$('#time_out').val('');
-
-				}
-
-	        },
-	        error: function (jqXHR, textStatus, errorThrown)
-	        {
-				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
-					buttons: {
-						confirm: {
-							label: 'Ok',
-							className: 'btn blue'
-						}
-					}
-				});
-	        }
-	    });
-
-
- 	}else{
- 		alert("Please choose Order Name");
- 	}
-
+ 	var reimburs = nominal_billing*0.85;
+ 	$('[name="nominal_reimburs"]').val(reimburs);
 });
 
 
