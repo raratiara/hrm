@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Ijin_menu extends MY_Controller
+class Tasklist_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "ijin_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Ijin Karyawan";
+ 	const  LABELMODULE				= "tasklist_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Tasklist Karyawan";
  	const  LABELFOLDER				= "emp_management"; // module folder
- 	const  LABELPATH				= "ijin_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "tasklist_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "emp_management"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -15,25 +15,29 @@ class Ijin_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Date Leave Start","Date Leave End","Leave Type","Leave Description"];
+	public $tabel_header 			= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Date Leave Start","Date Leave End","Leave Type","Leave Description"];
-	public $colfields 				= ["id","id","id","id","id","id"];
+	public $colnames 				= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date"];
+	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
 		$field = [];
 		
+		$field['txttask'] 		= $this->self_model->return_build_txt('','task','task');
+		$field['txtprogress'] 	= $this->self_model->return_build_txt('','progress','progress');
+		$field['txtduedate'] 	= $this->self_model->return_build_txt('','due_date','due_date');
+
+		$msstatus 				= $this->db->query("select * from master_tasklist_status")->result(); 
+		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
+		$mstask 				= $this->db->query("select * from tasklist")->result(); 
+		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
 		$msemp 					= $this->db->query("select * from employees")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
-		$msleave 				= $this->db->query("select * from master_leaves")->result(); 
-		$field['selleavetype'] 	= $this->self_model->return_build_select2me($msleave,'','','','leave_type','leave_type','','','id','name',' ','','','',3,'-');
-		$field['txtreason']		= $this->self_model->return_build_txtarea('','reason','reason');
-		$field['txtdatestart']	= $this->self_model->return_build_txt('','date_start','date_start');
-		$field['txtdateend']	= $this->self_model->return_build_txt('','date_end','date_end');
+
 
 
 		
@@ -89,16 +93,16 @@ class Ijin_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	public function getDataSisaCuti(){
+ 	public function getDataEmp(){
 		$post = $this->input->post(null, true);
-		$empid = $post['employee'];
+		$empid = $post['empid'];
 
-		$rs =  $this->self_model->get_data_sisa_cuti($empid);
+		$rs =  $this->self_model->getDataEmployee($empid);
 		
 
 		echo json_encode($rs);
 	}
 
- 	
+
 
 }

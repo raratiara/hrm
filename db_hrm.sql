@@ -303,33 +303,6 @@ LOCK TABLES `failed_jobs` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `holidays`
---
-
-DROP TABLE IF EXISTS `holidays`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `holidays` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date_holiday` date DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `holidays`
---
-
-LOCK TABLES `holidays` WRITE;
-/*!40000 ALTER TABLE `holidays` DISABLE KEYS */;
-INSERT INTO `holidays` VALUES (1,'2024-12-25','Natal','2024-10-26 01:15:15','2024-10-26 01:15:41'),(2,'2025-01-01','Tahun Baru','2024-10-26 01:15:27','2024-10-26 01:15:27');
-/*!40000 ALTER TABLE `holidays` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `inventories`
 --
 
@@ -382,7 +355,7 @@ CREATE TABLE `leave_absences` (
   `updated_at` datetime DEFAULT NULL,
   `total_leave` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -391,7 +364,7 @@ CREATE TABLE `leave_absences` (
 
 LOCK TABLES `leave_absences` WRITE;
 /*!40000 ALTER TABLE `leave_absences` DISABLE KEYS */;
-INSERT INTO `leave_absences` VALUES (1,2,'2024-10-28','2024-11-02',4,'Jalan jalan ke swedia lihat aurora','2024-10-26 05:13:13','2024-10-26 05:22:51',NULL),(2,12,'2025-03-27','2025-03-28',2,'acara keluarga','2025-03-26 01:52:53',NULL,NULL),(3,2,'2025-03-27','2025-03-29',4,'acara keluarga','2025-03-27 08:18:54',NULL,3),(4,3,'2025-03-28','2025-03-29',4,'acara keluarga','2025-03-27 09:24:26',NULL,NULL);
+INSERT INTO `leave_absences` VALUES (1,2,'2024-10-28','2024-11-02',4,'Jalan jalan ke swedia lihat aurora','2024-10-26 05:13:13','2024-10-26 05:22:51',NULL),(2,12,'2025-03-27','2025-03-28',2,'acara keluarga','2025-03-26 01:52:53',NULL,NULL),(3,2,'2025-03-27','2025-03-29',4,'acara keluarga','2025-03-27 08:18:54',NULL,3),(4,3,'2025-03-28','2025-03-29',4,'acara keluarga','2025-03-27 09:24:26',NULL,NULL),(5,2,'2025-04-20','2025-04-20',4,'jalan jalan','2025-04-10 05:30:42',NULL,NULL),(6,2,'2025-04-20','2025-04-20',4,'jalan jalan','2025-04-10 05:30:59',NULL,NULL);
 /*!40000 ALTER TABLE `leave_absences` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -441,6 +414,34 @@ LOCK TABLES `master_emp_status` WRITE;
 /*!40000 ALTER TABLE `master_emp_status` DISABLE KEYS */;
 INSERT INTO `master_emp_status` VALUES (1,'Probation'),(2,'Contract'),(3,'Permanent'),(4,'Freelance'),(5,'Internship');
 /*!40000 ALTER TABLE `master_emp_status` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `master_holidays`
+--
+
+DROP TABLE IF EXISTS `master_holidays`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `master_holidays` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` varchar(45) DEFAULT NULL,
+  `day` varchar(45) DEFAULT NULL,
+  `description` varchar(45) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `master_holidays`
+--
+
+LOCK TABLES `master_holidays` WRITE;
+/*!40000 ALTER TABLE `master_holidays` DISABLE KEYS */;
+INSERT INTO `master_holidays` VALUES (1,'2025-01-01','Rabu','Tahun Baru Masehi',NULL,NULL),(2,'2025-01-27','Senin','Isra Mi\'raj',NULL,NULL),(3,'2025-01-28','Selasa','Cuti Bersama Tahun Baru Imlek',NULL,NULL),(4,'2025-01-29','Rabu','Tahun Baru Imlek',NULL,NULL),(5,'2025-03-28','Jumat','Cuti Bersama Hari Suci Nyepi',NULL,NULL),(6,'2025-03-29','Sabtu','Hari Suci Nyepi',NULL,NULL),(7,'2025-03-31','Senin','Hari Raya Idul Fitri',NULL,NULL),(8,'2025-04-01','Selasa','Cuti Bersama Lebaran',NULL,NULL),(9,'2025-04-02','Rabu','Cuti Bersama Lebaran',NULL,NULL),(10,'2025-04-03','Kamis','Cuti Bersama Lebaran',NULL,NULL),(11,'2025-04-04','Jumat','Cuti Bersama Lebaran',NULL,NULL),(12,'2025-04-07','Senin','Cuti Bersama Lebaran',NULL,NULL),(13,'2025-04-18','Jumat','Jumat Agung',NULL,NULL),(14,'2025-04-20','Minggu','Paskah',NULL,NULL),(15,'2025-05-01','Kamis','Hari Buruh',NULL,NULL),(16,'2025-05-12','Senin','Hari Waisak',NULL,NULL),(17,'2025-05-13','Selasa','Cuti Bersama Hari Waisak',NULL,NULL),(18,'2025-05-29','Kamis','Kenaikan Isa Almasih',NULL,NULL),(19,'2025-05-30','Jumat','Cuti Bersama Kenaikan Isa Almasih',NULL,NULL),(20,'2025-06-01','Minggu','Hari Lahir Pancasila',NULL,NULL),(21,'2025-06-06','Jumat','Idul Adha',NULL,NULL),(22,'2025-06-09','Senin','Cuti Bersama Idul Adha',NULL,NULL),(23,'2025-06-27','Jumat','Tahun Baru Islam',NULL,NULL),(24,'2025-07-17','Minggu','Hari Kemerdekaan',NULL,NULL),(25,'2025-08-05','Jumat','Maulid Nabi Muhammad SAW',NULL,NULL),(26,'2025-12-25','Kamis','Hari Natal',NULL,NULL),(27,'2025-12-26','Jumat','Cuti Bersama Hari Natal',NULL,NULL);
+/*!40000 ALTER TABLE `master_holidays` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -543,6 +544,30 @@ LOCK TABLES `master_shift_time` WRITE;
 /*!40000 ALTER TABLE `master_shift_time` DISABLE KEYS */;
 INSERT INTO `master_shift_time` VALUES (1,'Reguler','08:00:00','17:00:00','Reguler'),(2,'Shift 1','07:00:00','16:00:00','Shift'),(3,'Shift 2','14:00:00','23:00:00','Shift');
 /*!40000 ALTER TABLE `master_shift_time` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `master_tasklist_status`
+--
+
+DROP TABLE IF EXISTS `master_tasklist_status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `master_tasklist_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `master_tasklist_status`
+--
+
+LOCK TABLES `master_tasklist_status` WRITE;
+/*!40000 ALTER TABLE `master_tasklist_status` DISABLE KEYS */;
+INSERT INTO `master_tasklist_status` VALUES (1,'Open'),(2,'Progress'),(3,'Closed');
+/*!40000 ALTER TABLE `master_tasklist_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -800,6 +825,37 @@ INSERT INTO `sync_tbl` VALUES (1,'https://gerbangdata.co.id/hrm',1),(2,'https://
 UNLOCK TABLES;
 
 --
+-- Table structure for table `tasklist`
+--
+
+DROP TABLE IF EXISTS `tasklist`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tasklist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `employee_id` int(11) DEFAULT NULL,
+  `task` text DEFAULT NULL,
+  `progress_percentage` int(11) DEFAULT NULL,
+  `parent_id` int(11) DEFAULT NULL,
+  `due_date` date DEFAULT NULL,
+  `status_id` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tasklist`
+--
+
+LOCK TABLES `tasklist` WRITE;
+/*!40000 ALTER TABLE `tasklist` DISABLE KEYS */;
+INSERT INTO `tasklist` VALUES (1,2,'AIM',60,0,'2025-04-20',2,NULL,NULL),(2,12,'Dashboard AIM',35,1,'2025-05-02',1,'2025-04-15 05:56:40','2025-04-15 06:10:15');
+/*!40000 ALTER TABLE `tasklist` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `tests`
 --
 
@@ -847,7 +903,7 @@ CREATE TABLE `time_attendances` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -856,7 +912,7 @@ CREATE TABLE `time_attendances` (
 
 LOCK TABLES `time_attendances` WRITE;
 /*!40000 ALTER TABLE `time_attendances` DISABLE KEYS */;
-INSERT INTO `time_attendances` VALUES (1,'2024-10-25',2,'Regular','08:00:00','17:00:00','2024-10-26 09:00:00','2024-10-26 16:49:41','Y','Y',6.20,'2024-10-26 03:49:59','2024-10-26 03:53:25'),(2,'2024-10-24',2,'Regular','08:00:00','17:00:00','2024-10-26 10:53:56','2024-10-26 16:54:00','Y','Y',5.00,'2024-10-26 03:54:15','2024-10-26 03:54:15'),(5,'2025-03-25',2,'Reguler','08:00:00','17:00:00','2025-03-25 07:30:00','2025-03-25 12:00:00','','Y',450.00,'2025-03-25 13:03:17',NULL),(6,'2025-03-26',2,'Reguler','08:00:00','17:00:00','2025-03-26 08:25:00','2025-03-26 20:10:00','Y','',705.00,'2025-03-27 05:55:29','2025-03-27 11:14:16');
+INSERT INTO `time_attendances` VALUES (1,'2024-10-25',2,'Regular','08:00:00','17:00:00','2024-10-26 09:00:00','2024-10-26 16:49:41','Y','Y',6.20,'2024-10-26 03:49:59','2024-10-26 03:53:25'),(2,'2024-10-24',2,'Regular','08:00:00','17:00:00','2024-10-26 10:53:56','2024-10-26 16:54:00','Y','Y',5.00,'2024-10-26 03:54:15','2024-10-26 03:54:15'),(5,'2025-03-25',2,'Reguler','08:00:00','17:00:00','2025-03-25 07:30:00','2025-03-25 12:00:00','','Y',450.00,'2025-03-25 13:03:17',NULL),(6,'2025-03-26',2,'Reguler','08:00:00','17:00:00','2025-03-26 08:25:00','2025-03-26 20:10:00','Y','',705.00,'2025-03-27 05:55:29','2025-03-27 11:14:16'),(7,'2025-04-10',2,'Reguler','08:00:00','17:00:00','2025-04-10 08:02:00',NULL,'Y',NULL,NULL,'2025-04-10 05:25:11',NULL),(8,'2025-04-14',2,'Reguler','08:00:00','17:00:00','2025-04-14 00:00:00','2025-04-14 00:05:00','','Y',0.08,'2025-04-14 06:04:20',NULL),(9,'2025-04-13',2,'Reguler','08:00:00','17:00:00','2025-04-13 07:16:00','2025-04-13 19:00:00','','',11.73,'2025-04-14 10:36:59',NULL),(17,'2025-04-12',2,'Reguler','08:00:00','17:00:00','2025-04-12 08:00:00','2025-04-12 18:00:00','','',10.00,'2025-04-14 11:33:09','2025-04-14 11:37:50');
 /*!40000 ALTER TABLE `time_attendances` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -929,7 +985,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Dwi Kuswarno','','dwi','e10adc3949ba59abbe56e057f20f883e',NULL,'1','role',NULL,1,'2','2025-04-09 16:13:23','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-09 14:13:23');
+INSERT INTO `user` VALUES (1,'Dwi Kuswarno','','dwi','e10adc3949ba59abbe56e057f20f883e',NULL,'1','role',NULL,1,'2','2025-04-14 16:49:53','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-14 14:49:53');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -958,7 +1014,7 @@ CREATE TABLE `user_akses_role` (
   PRIMARY KEY (`user_akses_id`) USING BTREE,
   KEY `user_id` (`role_id`) USING BTREE,
   KEY `user_menu_id` (`user_menu_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1366 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1367 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -967,7 +1023,7 @@ CREATE TABLE `user_akses_role` (
 
 LOCK TABLES `user_akses_role` WRITE;
 /*!40000 ALTER TABLE `user_akses_role` DISABLE KEYS */;
-INSERT INTO `user_akses_role` VALUES (1,1,1,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(2,1,2,'1','1','1','1','1','1','1','dwi','2025-03-24 09:14:53',NULL,'2025-03-24 09:14:53'),(3,1,3,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(4,1,4,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(5,1,5,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1359,1,7,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1360,1,8,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1361,1,9,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1362,1,10,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1363,1,11,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1364,1,6,'1','1','1','1','1','1','1',NULL,'2025-03-24 10:46:56',NULL,NULL),(1365,1,12,'1','1','1','1','1','1','1',NULL,'2025-04-09 15:08:56',NULL,NULL);
+INSERT INTO `user_akses_role` VALUES (1,1,1,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(2,1,2,'1','1','1','1','1','1','1','dwi','2025-03-24 09:14:53',NULL,'2025-03-24 09:14:53'),(3,1,3,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(4,1,4,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(5,1,5,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1359,1,7,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1360,1,8,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1361,1,9,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1362,1,10,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1363,1,11,'1','1','1','1','1','1','1','dwi','2025-03-24 09:13:33',NULL,'2025-03-24 09:13:33'),(1364,1,6,'1','1','1','1','1','1','1',NULL,'2025-03-24 10:46:56',NULL,NULL),(1365,1,12,'1','1','1','1','1','1','1',NULL,'2025-04-09 15:08:56',NULL,NULL),(1366,1,13,'1','1','1','1','1','1','1',NULL,'2025-04-15 02:54:52',NULL,NULL);
 /*!40000 ALTER TABLE `user_akses_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1028,7 +1084,7 @@ CREATE TABLE `user_menu` (
   `update_by` varchar(45) DEFAULT NULL,
   `date_update` datetime DEFAULT NULL,
   PRIMARY KEY (`user_menu_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1037,7 +1093,7 @@ CREATE TABLE `user_menu` (
 
 LOCK TABLES `user_menu` WRITE;
 /*!40000 ALTER TABLE `user_menu` DISABLE KEYS */;
-INSERT INTO `user_menu` VALUES (1,'Dashboard','page',0,'dashboard_menu','dashboard/dashboard_menu','',0,'0',NULL,'0','0','1',NULL,'1',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(4,'Employee Management','page',0,'emp_management','#','',0,'0',NULL,'0','1','1','fa-list-alt','6',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(5,'Data Karyawan','uri',0,'data_karyawan_menu','emp_management/data_karyawan_menu','',0,'0',NULL,'4','0','1',NULL,'1',NULL,'2025-02-27 04:08:58',NULL,'2025-02-27 04:08:58'),(6,'Absensi','uri',0,'absensi_menu','emp_management/absensi_menu','',0,'0',NULL,'4','0','1',NULL,'2',NULL,'2025-02-27 04:25:47',NULL,'2025-02-27 04:25:47'),(7,'Ijin','uri',0,'ijin_menu','emp_management/ijin_menu','',0,'0',NULL,'4','0','1',NULL,'3',NULL,'2025-02-27 04:30:52',NULL,'2025-02-27 04:30:52'),(12,'API','page',0,'api','api/api',NULL,0,'0',NULL,'0','0','0',NULL,'8',NULL,NULL,NULL,NULL);
+INSERT INTO `user_menu` VALUES (1,'Dashboard','page',0,'dashboard_menu','dashboard/dashboard_menu','',0,'0',NULL,'0','0','1',NULL,'1',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(4,'Employee Management','page',0,'emp_management','#','',0,'0',NULL,'0','1','1','fa-list-alt','6',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(5,'Data Karyawan','uri',0,'data_karyawan_menu','emp_management/data_karyawan_menu','',0,'0',NULL,'4','0','1',NULL,'1',NULL,'2025-02-27 04:08:58',NULL,'2025-02-27 04:08:58'),(6,'Absensi','uri',0,'absensi_menu','emp_management/absensi_menu','',0,'0',NULL,'4','0','1',NULL,'2',NULL,'2025-02-27 04:25:47',NULL,'2025-02-27 04:25:47'),(7,'Ijin','uri',0,'ijin_menu','emp_management/ijin_menu','',0,'0',NULL,'4','0','1',NULL,'3',NULL,'2025-02-27 04:30:52',NULL,'2025-02-27 04:30:52'),(12,'API','page',0,'api','api/api',NULL,0,'0',NULL,'0','0','0',NULL,'8',NULL,NULL,NULL,NULL),(13,'Tasklist','uri',0,'tasklist_menu','emp_management/tasklist_menu',NULL,0,'0',NULL,'4','0','1',NULL,'4',NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `user_menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1162,4 +1218,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-09 22:10:38
+-- Dump completed on 2025-04-15 11:11:55
