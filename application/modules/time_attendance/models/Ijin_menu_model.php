@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tasklist_menu_model extends MY_Model
+class Ijin_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "emp_management/tasklist_menu";
- 	protected $table_name 				= _PREFIX_TABLE."tasklist";
+ 	protected $folder_name				= "time_attendance/ijin_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."leave_absences";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -19,22 +19,20 @@ class Tasklist_menu_model extends MY_Model
 		$aColumns = [
 			NULL,
 			NULL,
-			'dt.id',
-			'dt.employee_name',
-			'dt.task',
-			'dt.parent_name',
-			'dt.status_name',
-			'dt.progress_percentage',
-			'dt.due_date'
+			'id',
+			'dt.full_name',
+			'dt.date_leave_start',
+			'dt.date_leave_end',
+			'dt.leave_name',
+			'dt.reason'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id)dt';
+		$sTable = '(select a.*, b.full_name, c.name as leave_name
+					from leave_absences a left join employees b on b.id = a.employee_id
+					left join master_leaves c on c.id = a.masterleave_id)dt';
 		
 
 		/* Paging */
@@ -195,13 +193,11 @@ class Tasklist_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->employee_name,
-				$row->task,
-				$row->parent_name,
-				$row->status_name,
-				$row->progress_percentage,
-				$row->due_date
-
+				$row->full_name,
+				$row->date_leave_start,
+				$row->date_leave_end,
+				$row->leave_name,
+				$row->reason
 
 			));
 		}
@@ -253,55 +249,101 @@ class Tasklist_menu_model extends MY_Model
 		} else return null;
 	}  
 
+	public function dayCount($from, $to) {
+	    $first_date = strtotime($from);
+	    $second_date = strtotime($to);
+	    $days_diff = $second_date - $first_date;
+	    return date('d',$days_diff);
+	}
 
 	public function add_data($post) { 
 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		$date_start 	= date_create($post['date_start']);
+		$date_end 		= date_create($post['date_end']);
+		$f_date_start 	= date_format($date_start,"Y-m-d");
+		$f_date_end 	= date_format($date_end,"Y-m-d");
 
+
+		if($post['employee'] != '' && $post['date_start'] != '' && $post['date_end'] != '' && $post['leave_type'] != ''){
+			$cek_sisa_cuti 	= $this->get_data_sisa_cuti($post['employee']);
+			$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+
+			$diff_day		= $this->dayCount($f_date_start, $f_date_end);
+
+			if($post['leave_type'] == '6'){ //Half day leave
+				$diff_day = $diff_day*0.5;
+			}
+			if($post['leave_type'] == '5'){ //Sick Leave
+				$diff_day = 0 ;
+			}
+			
+			if($diff_day <= $sisa_cuti){
+				$data = [
+
+					'employee_id' 				=> trim($post['employee']),
+					'date_leave_start' 			=> $f_date_start,
+					'date_leave_end' 			=> $f_date_end,
+					'masterleave_id' 			=> trim($post['leave_type']),
+					'reason' 					=> trim($post['reason']),
+					'total_leave' 				=> $diff_day,
+					'created_at'				=> date("Y-m-d H:i:s")
+					
+				];
+
+				return $rs = $this->db->insert($this->table_name, $data);
+			}
+			else return null;
+			
+		}else return null;
 		
-  		if(!empty($post['task'])){ 
-  			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
-				'created_at'			=> date("Y-m-d H:i:s")
-			];
-			return $rs = $this->db->insert($this->table_name, $data);
-  		}else return null;
-
 	}  
 
 	public function edit_data($post) { 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
-		
+
+		if(!empty($post['id'])){
+
+			$date_start 	= date_create($post['date_start']);
+			$date_end 		= date_create($post['date_end']);
+			$f_date_start 	= date_format($date_start,"Y-m-d");
+			$f_date_end 	= date_format($date_end,"Y-m-d");
+
+			if($post['employee'] != '' && $post['date_start'] != '' && $post['date_end'] != '' && $post['leave_type'] != ''){
+				$cek_sisa_cuti 	= $this->get_data_sisa_cuti($post['employee']);
+				$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+
+				$diff_day		= $this->dayCount($f_date_start, $f_date_end);
+
+				if($post['leave_type'] == '6'){ //Half day leave
+					$diff_day = $diff_day*0.5;
+				}
+				if($post['leave_type'] == '5'){ //Sick Leave
+					$diff_day = 0 ;
+				}
 
 
-		if(!empty($post['id'])){ 
-		
-			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
-				'updated_at'			=> date("Y-m-d H:i:s")
-			];
+				$data = [
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+					'employee_id' 				=> trim($post['employee']),
+					'date_leave_start' 			=> $f_date_start,
+					'date_leave_end' 			=> $f_date_end,
+					'masterleave_id' 			=> trim($post['leave_type']),
+					'reason' 					=> trim($post['reason']),
+					'updated_at'				=> date("Y-m-d H:i:s")
+					
+				];
+
+				return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			}
+			else return null;
+
 		} else return null;
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id
+		$mTable = '(select a.*, b.full_name, c.name as leave_name
+					from leave_absences a left join employees b on b.id = a.employee_id
+					left join master_leaves c on c.id = a.masterleave_id
+
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -319,12 +361,8 @@ class Tasklist_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'employee_id' 			=> $v["B"],
-				'task' 					=> $v["C"],
-				'progress_percentage' 	=> $v["D"],
-				'parent_id' 			=> $v["E"],
-				'due_date' 				=> $v["F"],
-				'status_id' 			=> $v["G"]
+				'code' 	=> $v["B"],
+				'name' 	=> $v["C"]
 				
 			];
 
@@ -337,15 +375,24 @@ class Tasklist_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date   
-			from tasklist a left join employees b on b.id = a.employee_id
-			left join tasklist c on c.id = a.parent_id
-			left join master_tasklist_status d on d.id = a.status_id order by a.id asc
+		$sql = "select id, code, name from mother_vessel
+	   		ORDER BY id ASC
 		";
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
+	}
+
+
+	public function get_data_sisa_cuti($empid){ 
+
+		$rs = $this->db->query("select sum(sisa_cuti) as ttl_sisa_cuti from total_cuti_karyawan where employee_id = '".$empid."' and status = 1")->result(); 
+
+		
+
+		return $rs;
+
 	}
 
 
