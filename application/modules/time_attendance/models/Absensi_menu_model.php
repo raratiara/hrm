@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tasklist_menu_model extends MY_Model
+class Absensi_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "emp_management/tasklist_menu";
- 	protected $table_name 				= _PREFIX_TABLE."tasklist";
+ 	protected $folder_name				= "time_attendance/absensi_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."time_attendances";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -20,21 +20,24 @@ class Tasklist_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.employee_name',
-			'dt.task',
-			'dt.parent_name',
-			'dt.status_name',
-			'dt.progress_percentage',
-			'dt.due_date'
+			'dt.date_attendance',
+			'dt.full_name',
+			'dt.attendance_type',
+			'dt.time_in',
+			'dt.time_out',
+			'dt.date_attendance_in',
+			'dt.date_attendance_out',
+			'dt.is_late_desc',
+			'dt.is_leaving_office_early_desc',
+			'dt.num_of_working_hours'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id)dt';
+		$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
+					if(a.is_leaving_office_early = "Y","Leaving Office Early","") as "is_leaving_office_early_desc" 
+					from time_attendances a left join employees b on b.id = a.employee_id)dt';
 		
 
 		/* Paging */
@@ -195,12 +198,16 @@ class Tasklist_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->employee_name,
-				$row->task,
-				$row->parent_name,
-				$row->status_name,
-				$row->progress_percentage,
-				$row->due_date
+				$row->date_attendance,
+				$row->full_name,
+				$row->attendance_type,
+				$row->time_in,
+				$row->time_out,
+				$row->date_attendance_in,
+				$row->date_attendance_out,
+				$row->is_late_desc,
+				$row->is_leaving_office_early_desc,
+				$row->num_of_working_hours
 
 
 			));
@@ -256,41 +263,125 @@ class Tasklist_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		$date_attendance 	= date_create($post['date_attendance']); 
+		$post_timein 		= strtotime($post['time_in']);
+		$post_timeout 		= strtotime($post['time_out']);
+
+		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
+
+		$f_datetime_in='';
+		if(!empty($post['attendance_in'])){
+			$datetime_in 		= date_create($post['attendance_in']);
+			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
+			$f_time_in 			= date_format($datetime_in,"H:i:s");
+			$timestamp_timein 	= strtotime($f_time_in); 
+			$timestamp1 		= strtotime($f_datetime_in); 
+
+			if($timestamp_timein > $post_timein){
+				$is_late='Y';
+			}
+		}
+
+		$f_datetime_out='';
+		if(!empty($post['attendance_out'])){
+			$datetime_out 		= date_create($post['attendance_out']);
+			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
+			$f_time_out 		= date_format($datetime_out,"H:i:s");
+			$timestamp_timeout 	= strtotime($f_time_out);
+			$timestamp2 		= strtotime($f_datetime_out);
+
+			if($timestamp_timeout < $post_timeout){
+				$is_leaving_office_early = 'Y';
+			}
+		}
+
+		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
+			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+		}
 
 		
-  		if(!empty($post['task'])){ 
-  			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
-				'created_at'			=> date("Y-m-d H:i:s")
-			];
-			return $rs = $this->db->insert($this->table_name, $data);
-  		}else return null;
+		
 
+  		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".date_format($date_attendance,"Y-m-d")."' and employee_id = '".$post['employee']."'")->result(); 
+
+  		if(empty($data_attendances)){ 
+  			$data = [
+				'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
+				'employee_id' 				=> trim($post['employee']),
+				'attendance_type' 			=> trim($post['emp_type']),
+				'time_in' 					=> trim($post['time_in']),
+				'time_out' 					=> trim($post['time_out']),
+				'date_attendance_in' 		=> $f_datetime_in,
+				'date_attendance_out'		=> $f_datetime_out,
+				'is_late'					=> $is_late,
+				'is_leaving_office_early'	=> $is_leaving_office_early,
+				'num_of_working_hours'		=> $num_of_working_hours,
+				'created_at'				=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert($this->table_name, $data);
+  		}else{ 
+  			$rs=false;
+  		}
+
+
+		
+
+		return $rs;
 	}  
 
 	public function edit_data($post) { 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		$date_attendance 	= date_create($post['date_attendance']); 
+		$post_timein 		= strtotime($post['time_in']);
+		$post_timeout 		= strtotime($post['time_out']);
+
+		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
+
+		$f_datetime_in='';
+		if(!empty($post['attendance_in'])){
+			$datetime_in 		= date_create($post['attendance_in']);
+			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
+			$f_time_in 			= date_format($datetime_in,"H:i:s");
+			$timestamp_timein 	= strtotime($f_time_in); 
+			$timestamp1 		= strtotime($f_datetime_in); 
+
+			if($timestamp_timein > $post_timein){
+				$is_late='Y';
+			}
+		}
+
+		$f_datetime_out='';
+		if(!empty($post['attendance_out'])){
+			$datetime_out 		= date_create($post['attendance_out']);
+			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
+			$f_time_out 		= date_format($datetime_out,"H:i:s");
+			$timestamp_timeout 	= strtotime($f_time_out);
+			$timestamp2 		= strtotime($f_datetime_out);
+
+			if($timestamp_timeout < $post_timeout){
+				$is_leaving_office_early = 'Y';
+			}
+		}
+
+		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
+			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+		}
 		
 
 
-		if(!empty($post['id'])){ 
+		if(!empty($post['id'])){
 		
 			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
-				'updated_at'			=> date("Y-m-d H:i:s")
+				/*'date_attendance' 		=> date_format($date_attendance,"Y-m-d"),
+				'employee_id' 				=> trim($post['employee']),
+				'attendance_type' 			=> trim($post['emp_type']),
+				'time_in' 					=> trim($post['time_in']),
+				'time_out' 					=> trim($post['time_out']),*/
+				'date_attendance_in' 		=> $f_datetime_in,
+				'date_attendance_out'		=> $f_datetime_out,
+				'is_late'					=> $is_late,
+				'is_leaving_office_early'	=> $is_leaving_office_early,
+				'num_of_working_hours'		=> $num_of_working_hours,
+				'updated_at'				=> date("Y-m-d H:i:s")
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -298,10 +389,7 @@ class Tasklist_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id
+		$mTable = '(SELECT a.*, b.full_name as employee_name FROM time_attendances a left join employees b on b.id = a.employee_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -319,12 +407,8 @@ class Tasklist_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'employee_id' 			=> $v["B"],
-				'task' 					=> $v["C"],
-				'progress_percentage' 	=> $v["D"],
-				'parent_id' 			=> $v["E"],
-				'due_date' 				=> $v["F"],
-				'status_id' 			=> $v["G"]
+				'code' 	=> $v["B"],
+				'name' 	=> $v["C"]
 				
 			];
 
@@ -337,10 +421,8 @@ class Tasklist_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date   
-			from tasklist a left join employees b on b.id = a.employee_id
-			left join tasklist c on c.id = a.parent_id
-			left join master_tasklist_status d on d.id = a.status_id order by a.id asc
+		$sql = "select id, code, name from mother_vessel
+	   		ORDER BY id ASC
 		";
 
 		$res = $this->db->query($sql);
@@ -348,5 +430,24 @@ class Tasklist_menu_model extends MY_Model
 		return $rs;
 	}
 
+
+	public function getDataEmployee($empid){ 
+
+		$rs = $this->db->query("select * from employees where id = '".$empid."' ")->result(); 
+
+		if($rs[0]->shift_type == 'Reguler'){
+			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+			
+			$dataX = array(
+				'name' 		=> $dt[0]->name,
+				'time_in' 	=> $dt[0]->time_in,
+				'time_out' 	=> $dt[0]->time_out
+			);
+		}
+
+
+		return $dataX;
+
+	}
 
 }
