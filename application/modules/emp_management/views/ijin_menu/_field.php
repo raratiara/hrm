@@ -20,6 +20,7 @@
 				<?=$txtreason;?>
 			</div>
 		</div>
+		<span style="color:red" class="sisa_cuti"></span>
 		
 	</div>
 	<div class="col-md-6 col-sm-12">
