@@ -125,6 +125,7 @@ function load_data()
 				
 					$('select#employee').val(data.employee_id).trigger('change.select2');
 					$('select#leave_type').val(data.masterleave_id).trigger('change.select2');
+					$("#employee ").val(data.employee_id).prop('disabled', true);
 					
 					
 					

@@ -355,7 +355,7 @@ CREATE TABLE `leave_absences` (
   `updated_at` datetime DEFAULT NULL,
   `total_leave` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -364,7 +364,7 @@ CREATE TABLE `leave_absences` (
 
 LOCK TABLES `leave_absences` WRITE;
 /*!40000 ALTER TABLE `leave_absences` DISABLE KEYS */;
-INSERT INTO `leave_absences` VALUES (1,2,'2024-10-28','2024-11-02',4,'Jalan jalan ke swedia lihat aurora','2024-10-26 05:13:13','2024-10-26 05:22:51',NULL),(2,12,'2025-03-27','2025-03-28',2,'acara keluarga','2025-03-26 01:52:53',NULL,NULL),(3,2,'2025-03-27','2025-03-29',4,'acara keluarga','2025-03-27 08:18:54',NULL,3),(4,3,'2025-03-28','2025-03-29',4,'acara keluarga','2025-03-27 09:24:26',NULL,NULL),(5,2,'2025-04-20','2025-04-20',4,'jalan jalan','2025-04-10 05:30:42',NULL,NULL),(6,2,'2025-04-20','2025-04-20',4,'jalan jalan','2025-04-10 05:30:59',NULL,NULL);
+INSERT INTO `leave_absences` VALUES (1,2,'2024-10-28','2024-11-02',4,'Jalan jalan ke swedia lihat aurora','2024-10-26 05:13:13','2024-10-26 05:22:51',1),(2,12,'2025-03-27','2025-03-28',2,'acara keluarga','2025-03-26 01:52:53',NULL,NULL),(3,2,'2025-03-27','2025-03-29',4,'acara keluarga','2025-03-27 08:18:54',NULL,3),(4,3,'2025-03-28','2025-03-29',4,'acara keluarga','2025-03-27 09:24:26',NULL,NULL),(5,2,'2025-04-20','2025-04-20',4,'jalan jalan','2025-04-10 05:30:42',NULL,1),(6,2,'2025-04-20','2025-04-20',4,'jalan jalan','2025-04-10 05:30:59',NULL,1),(7,2,'2025-04-18','2025-04-20',1,'pulang kampung','2025-04-16 11:30:55',NULL,3),(8,2,'2025-04-22','2025-04-23',2,'cuti','2025-04-16 11:33:42',NULL,2),(9,2,'2025-05-09','2025-05-09',1,'cuti','2025-04-16 13:48:34',NULL,1);
 /*!40000 ALTER TABLE `leave_absences` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -957,8 +957,9 @@ CREATE TABLE `total_cuti_karyawan` (
   `status` int(11) DEFAULT NULL,
   `created_date` date DEFAULT NULL,
   `updated_date` date DEFAULT NULL,
+  `expired_date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -967,7 +968,7 @@ CREATE TABLE `total_cuti_karyawan` (
 
 LOCK TABLES `total_cuti_karyawan` WRITE;
 /*!40000 ALTER TABLE `total_cuti_karyawan` DISABLE KEYS */;
-INSERT INTO `total_cuti_karyawan` VALUES (1,2,'2025-03-01','2026-03-01',9,1,'2025-02-28','2025-03-27');
+INSERT INTO `total_cuti_karyawan` VALUES (1,2,'2024-04-15','2025-04-15',2,1,'2024-04-15','2025-04-16','2025-10-16'),(7,3,'2024-04-15','2025-04-15',2,0,'2024-04-15','2025-04-16','2025-04-16'),(8,5,'2024-07-15','2025-07-15',1,1,'2024-07-15','0000-00-00','0000-00-00'),(9,2,'2025-04-16','2026-04-16',12,1,'2025-04-16',NULL,NULL),(10,3,'2025-04-16','2026-04-16',12,1,'2025-04-16',NULL,NULL),(11,4,'2025-04-20','2026-04-20',12,1,'2025-04-16',NULL,NULL);
 /*!40000 ALTER TABLE `total_cuti_karyawan` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1010,7 +1011,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Dwi Kuswarno','','dwi','e10adc3949ba59abbe56e057f20f883e',NULL,'1','role',NULL,1,'2','2025-04-15 15:33:48','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-15 13:33:48');
+INSERT INTO `user` VALUES (1,'Dwi Kuswarno','','dwi','e10adc3949ba59abbe56e057f20f883e',NULL,'1','role',NULL,1,'2','2025-04-16 08:38:02','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-16 06:38:02');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1243,4 +1244,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-15 21:33:06
+-- Dump completed on 2025-04-16 18:50:34

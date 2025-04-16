@@ -93,7 +93,7 @@ class Ijin_menu extends MY_Controller
 		$post = $this->input->post(null, true);
 		$empid = $post['employee'];
 
-		$rs =  $this->self_model->get_data_sisa_cuti($empid);
+		$rs =  $this->self_model->get_data_sisa_cuti_byEmp($empid);
 		
 
 		echo json_encode($rs);
