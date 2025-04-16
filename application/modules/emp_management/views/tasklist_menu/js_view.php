@@ -11,8 +11,7 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#date_start" ).datepicker();
-        $( "#date_end" ).datepicker();
+        $( "#due_date" ).datepicker();
 		
    	});
 });
@@ -119,26 +118,27 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
-					$('[name="reason"]').val(data.reason);
-					$('[name="date_start"]').val(data.date_leave_start);
-					$('[name="date_end"]').val(data.date_leave_end);
-				
+					
 					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#leave_type').val(data.masterleave_id).trigger('change.select2');
-					
-					
+					$('select#status').val(data.status_id).trigger('change.select2');
+					$('[name="task"]').val(data.task);
+					$('select#task_parent').val(data.parent_id).trigger('change.select2');
+					$('[name="progress"]').val(data.progress_percentage);
+					$('[name="due_date"]').val(data.due_date);
+
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.full_name);
-					$('span.leave_type').html(data.leave_name);
-					$('span.date_start').html(data.date_leave_start);
-					$('span.date_end').html(data.date_leave_end);
-					$('span.reason').html(data.reason);
-				
+					$('span.employee').html(data.employee_name);
+					$('span.task').html(data.task);
+					$('span.progress').html(data.progress_percentage);
+					$('span.status').html(data.status_name);
+					$('span.task_parent').html(data.parent_name);
+					$('span.due_date').html(data.due_date);
+					
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -171,27 +171,31 @@ function load_data()
         }
     });
 }
+<?php } ?>
+
 
 $('#employee').on('change', function () { 
-	var employee 	= $("#employee option:selected").val();
+ 	var empid = $("#employee option:selected").val();
  	
- 	if(employee != ''){
+ 	if(empid != ''){
  		
  		$.ajax({
 			type: "POST",
-	        url : module_path+'/getDataSisaCuti',
-			data: { employee: employee },
+	        url : module_path+'/getDataEmp',
+			data: { empid: empid },
 			cache: false,		
 	        dataType: "JSON",
 	        success: function(data)
-	        { console.log(data);
-				if(data != false){ 	
-					$('span.sisa_cuti').html('*Sisa Cuti : '+data[0].ttl_sisa_cuti);
-					if(data[0].ttl_sisa_cuti == null){
-						$('span.sisa_cuti').html('*Sisa Cuti : 0');
-					}
+	        {  
+				if(data != null){ 	
+					$('#emp_type').val(data.name);
+					$('#time_in').val(data.time_in);
+					$('#time_out').val(data.time_out);
+
 				} else { 
-					$('span.sisa_cuti').html('*Sisa Cuti : 0');
+					$('#emp_type').val('');
+					$('#time_in').val('');
+					$('#time_out').val('');
 
 				}
 
@@ -213,16 +217,10 @@ $('#employee').on('change', function () {
 
 
  	}else{
- 		alert("Please choose Employee Name");
+ 		alert("Please choose Order Name");
  	}
 
 });
-
-
-
-<?php } ?>
-
-
 
 
 </script>

@@ -21,7 +21,7 @@
 									<span class="act-container-btn">
 										<button class="btn btn-info" id="submit-data" onclick="save()">
 											<i class="fa fa-check"></i>
-											Save
+											Save 
 										</button>
 										<button class="btn" onclick="reset()">
 											<i class="fa fa-undo"></i>
