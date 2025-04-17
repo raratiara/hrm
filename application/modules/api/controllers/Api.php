@@ -88,15 +88,13 @@ class Api extends API_Controller
 			
 			$cek_login = $this->api->cek_login($username);	 
 			
-			//if(password_verify($password, isset($cek_login['password'])?$cek_login['password']:''))
-			if(password_verify($password, isset($cek_login['passwd'])?$cek_login['passwd']:''))
+			if(password_verify($password, isset($cek_login['password'])?$cek_login['password']:''))
 			{
 				$data = array(
-					//"id" 	=> $cek_login['id'],
-					"id" 	=> $cek_login['user_id'],
+					"id" 	=> $cek_login['id'],
 					"name" 	=> $cek_login['name'],
 					"email" => $cek_login['email'],
-					"employee_id" =>$cek_login['id_karyawan']
+					"employee_id" => $cek_login['id_karyawan']
 				);
 	 
 				$token = $this->genJWTdata($data);	 
@@ -106,7 +104,7 @@ class Api extends API_Controller
 					"token" 	=> $token[0],
 					"expire" 	=> $token[1],
 					"email" 	=> $cek_login['email'],
-					"employee_id" =>$cek_login['id_karyawan'] 
+					"employee_id" => $cek_login['id_karyawan'] 
 				];
 			} else {
 				$response = [

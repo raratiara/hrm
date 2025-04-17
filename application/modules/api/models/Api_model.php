@@ -5,7 +5,7 @@ class Api_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name	= "api/api";
-    protected $table 		= "user";
+    protected $table 		= "users";
 
 	function __construct()
 	{
@@ -21,12 +21,12 @@ class Api_model extends MY_Model
  
     public function cek_login($username)
     {
-        $query = $this->db->where('username', $username)
+        $query = $this->db->where('name', $username)
 				->get($this->table)
                 ->num_rows();
  
         if($query >  0){
-            $hasil = $this->db->where('username', $username)
+            $hasil = $this->db->where('name', $username)
                     ->limit(1)
                     ->get($this->table)
                     ->row_array();
