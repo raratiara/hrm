@@ -1011,7 +1011,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Dwi Kuswarno','kuswarno@gmail.com','dwi','$2y$10$uz3ra9PTKdJMBVCBHrR6hODkub1Focw4QuTpMUlvEHWJYJUOz/c32',2,'1','role',NULL,1,'2','2025-04-16 08:38:02','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-17 03:15:20');
+INSERT INTO `user` VALUES (1,'Dwi Kuswarno','','dwi','e10adc3949ba59abbe56e057f20f883e',NULL,'1','role',NULL,1,'2','2025-04-16 08:38:02','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-04-16 06:38:02');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1139,6 +1139,7 @@ CREATE TABLE `users` (
   `remember_token` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `id_karyawan` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `users_email_unique` (`email`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -1150,7 +1151,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Dwi ','kuswarno@gmail.com',NULL,'$2y$10$uz3ra9PTKdJMBVCBHrR6hODkub1Focw4QuTpMUlvEHWJYJUOz/c32',NULL,'2024-10-18 09:25:13','2024-10-18 09:25:13'),(2,'Dwi','kuswarno@yahoo.com',NULL,'$2y$10$HfpJjm0Gov65U3YzK33SnuTqud8VUqHkJUb9gDZp97zpiiwB7y9VO',NULL,'2024-10-18 09:52:35','2024-10-18 09:52:35');
+INSERT INTO `users` VALUES (1,'Dwi ','kuswarno@gmail.com',NULL,'$2y$10$uz3ra9PTKdJMBVCBHrR6hODkub1Focw4QuTpMUlvEHWJYJUOz/c32',NULL,'2024-10-18 09:25:13','2024-10-18 09:25:13',2),(2,'Dwi','kuswarno@yahoo.com',NULL,'$2y$10$HfpJjm0Gov65U3YzK33SnuTqud8VUqHkJUb9gDZp97zpiiwB7y9VO',NULL,'2024-10-18 09:52:35','2024-10-18 09:52:35',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1244,4 +1245,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-17 10:17:54
+-- Dump completed on 2025-04-17 12:02:06
