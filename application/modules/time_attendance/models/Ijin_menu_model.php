@@ -348,7 +348,7 @@ class Ijin_menu_model extends MY_Model
 					$getcurrTotalCuti = $getcurrLeave[0]->total_leave;
 				}
 
-				$cek_sisa_cuti 	= $this->get_data_sisa_cuti($post['employee']);
+				$cek_sisa_cuti 	= $this->get_data_sisa_cuti($getcurrLeave[0]->employee_id, $f_date_start, $f_date_end); 
 				$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti+$getcurrTotalCuti;
 
 				$diff_day		= $this->dayCount($f_date_start, $f_date_end);
@@ -361,6 +361,7 @@ class Ijin_menu_model extends MY_Model
 				}
 
 				if($diff_day <= $sisa_cuti || $post['leave_type'] == '2'){ //unpaid leave gak ngecek sisa cuti
+					
 					$data = [
 
 						'date_leave_start' 			=> $f_date_start,
@@ -375,67 +376,106 @@ class Ijin_menu_model extends MY_Model
 					$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 					//update sisa jatah cuti
-					
-					/*$update_jatah_cuti=1;
-					if($getcurrLeave[0]->masterleave_id == 2 && $post['leave_type'] == 2){ //tidak ada perubahan jika data sebelumnya dan data skrg sama2 unpaid leave
-						$update_jatah_cuti=0;
-					}
+					if($rs){
 
-					if($update_jatah_cuti == 1){
-						if($getcurrLeave[0]->masterleave_id == 2){ //kalau data sebelumnya adalah unpaid leave
-							$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$getcurrLeave[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
-
-							$is_update_jatah_selanjutnya=0;
-							$sisa_cuti = $sisa_cuti-$diff_day;
-
-							if($diff_day > $jatahcuti[0]->sisa_cuti){ 
-								$is_update_jatah_selanjutnya=1;
-								$sisa_cuti = 0;
-								$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
-								$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;
-								
-							}
-							
-							$data2 = [
-										'sisa_cuti' 	=> $sisa_cuti,
-										'updated_date'	=> date("Y-m-d H:i:s")
-									];
-							$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-							if($is_update_jatah_selanjutnya == 1){ 
-								$data3 = [
-											'sisa_cuti' 	=> $sisa_cuti2,
-											'updated_date'	=> date("Y-m-d H:i:s")
-										];
-								$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-							}
-						}else if($post['leave_type'] == 2){
-							$is_update_jatah_selanjutnya=0;
-
-							if($sisa_cuti > 12){
-								$tambahjatah = $sisa_cuti-12;
-								$is_update_jatah_selanjutnya=1;
-								$sisa_cuti=12;
-							}
-							$data2 = [
-										'sisa_cuti' 	=> $sisa_cuti,
-										'updated_date'	=> date("Y-m-d H:i:s")
-									];
-							$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-							if($is_update_jatah_selanjutnya == 1){
-								$data3 = [
-											'sisa_cuti' 	=> $jatahcuti[1]->sisa_cuti+$tambahjatah,
-											'updated_date'	=> date("Y-m-d H:i:s")
-										];
-								$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-							}
+						$update_jatah_cuti=1;
+						if($getcurrLeave[0]->masterleave_id == 2 && $post['leave_type'] == 2){ //tidak ada perubahan jika data sebelumnya dan data skrg sama2 unpaid leave
+							$update_jatah_cuti=0;
+							return $rs; 
 						}
-					}*/
-					
-					
 
-					return  $rs;
+						if($update_jatah_cuti == 1){
+							if($getcurrLeave[0]->masterleave_id == 2){ //kalau data sebelumnya adalah unpaid leave
+								
+								$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$getcurrLeave[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
+
+								//$is_update_jatah_selanjutnya=0;
+								$sisa_cuti = $sisa_cuti-$diff_day;
+
+								/*if($diff_day > $jatahcuti[0]->sisa_cuti){ 
+									$is_update_jatah_selanjutnya=1;
+									$sisa_cuti = 0;
+									$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
+									$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;
+									
+								}*/
+								
+								$data2 = [
+											'sisa_cuti' 	=> $sisa_cuti,
+											'updated_date'	=> date("Y-m-d H:i:s")
+										];
+								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+								/*if($is_update_jatah_selanjutnya == 1){ 
+									$data3 = [
+												'sisa_cuti' 	=> $sisa_cuti2,
+												'updated_date'	=> date("Y-m-d H:i:s")
+											];
+									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+								}*/
+							}else if($post['leave_type'] == 2){ //kalau data skrg adalah unpaid leave
+								
+								$is_update_jatah_selanjutnya=0;
+
+								if($sisa_cuti > 12){
+									$is_update_jatah_selanjutnya=1;
+									$tambahjatah = $sisa_cuti-12;
+									$sisa_cuti=12;
+								}
+								$data2 = [
+											'sisa_cuti' 	=> $sisa_cuti,
+											'updated_date'	=> date("Y-m-d H:i:s")
+										];
+								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+								if($is_update_jatah_selanjutnya == 1){
+									$nextjatah = $jatahcuti[1]->sisa_cuti+$tambahjatah;
+									
+									$sisa_cuti2 = $nextjatah;
+									if($nextjatah > 12){
+										$sisa_cuti2 = 12;
+									}
+									$data3 = [
+												'sisa_cuti' 	=> $sisa_cuti2,
+												'updated_date'	=> date("Y-m-d H:i:s")
+											];
+									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+								}
+							}else if($getcurrLeave[0]->masterleave_id != 2 && $post['leave_type'] != 2){
+
+								$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$getcurrLeave[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
+
+								$is_update_jatah_selanjutnya=0; echo $sisa_cuti; die();
+								$sisa_cuti = $sisa_cuti-$diff_day;
+echo 'sip'; die();
+								if($diff_day > $jatahcuti[0]->sisa_cuti){ echo 'haha'; die();
+									$is_update_jatah_selanjutnya=1;
+									$sisa_cuti = 0;
+									$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
+									$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;
+									
+								}else{echo $sisa_cuti; die();}
+								
+								$data2 = [
+											'sisa_cuti' 	=> $sisa_cuti,
+											'updated_date'	=> date("Y-m-d H:i:s")
+										];
+								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+								if($is_update_jatah_selanjutnya == 1){ 
+									$data3 = [
+												'sisa_cuti' 	=> $sisa_cuti2,
+												'updated_date'	=> date("Y-m-d H:i:s")
+											];
+									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+								}
+
+							}
+							else return null;
+						}
+						
+						return  $rs;
+					}else return null;
 
 				}else return null;
 			}
