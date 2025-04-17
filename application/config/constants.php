@@ -104,8 +104,8 @@ defined('_COMPANY_NAME')        OR define('_COMPANY_NAME','PT. Natha Buana Indon
 defined('_COMPANY_NAME_ABBR')   OR define('_COMPANY_NAME_ABBR','NBID');
 defined('_COPYRIGHT')        	OR define('_COPYRIGHT','Copyright &copy; PT. Natha Buana Indonesia 2020');
  
-defined('_URL_ADMIN')        	OR define('_URL_ADMIN','http://localhost/_13_simrs/');
-defined('_URL')        			OR define('_URL','http://localhost/_13_simrs/');
+defined('_URL_ADMIN')        	OR define('_URL_ADMIN','https://hrm.sandboxxplore.com/');
+defined('_URL')        			OR define('_URL','https://hrm.sandboxxplore.com/');
 defined('_ASSET')        		OR define('_ASSET',_URL."public/assets/");  
 defined('_ASSET_IMG')        	OR define('_ASSET_IMG',_URL."public/assets/images/");  
 defined('_ASSET_PLUGINS')       OR define('_ASSET_PLUGINS',_URL."public/assets/plugins/");  
