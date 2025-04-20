@@ -116,7 +116,7 @@ function load_data()
         dataType: "JSON",
         success: function(data)
         {
-			if(data != false){
+			if(data != false){ 
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					$('[name="reason"]').val(data.reason);
@@ -143,6 +143,7 @@ function load_data()
 					
 					$('#modal-view-data').modal('show');
 				}
+				
 			} else {
 				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
 				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';

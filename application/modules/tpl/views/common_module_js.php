@@ -19,8 +19,9 @@ function expire()
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1") { ?>
 /* open add form modal */
 $( "#btnAddData" ).on('click', function(){
+	$("#employee ").prop('disabled', false);
 	expire();
-	save_method = 'add';
+	save_method = 'add'; 
 	reset();
 	$('#mfdata').text('Add');
 	$('#modal-form-data').modal('show');

@@ -77,4 +77,27 @@ class Api_model extends MY_Model
         return $hasil;
     }
 
+    public function dayCount($from, $to) {
+        $first_date = strtotime($from);
+        $second_date = strtotime($to);
+        $days_diff = $second_date - $first_date;
+        return date('d',$days_diff);
+    }
+
+    public function get_data_sisa_cuti($empid, $startdate, $enddate){ 
+
+        $cek_start_date = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$empid."' and status = 1 and ( ('".$startdate."' >= period_start and '".$startdate."' <= period_end) or ('".$startdate."' >= period_start and '".$startdate."' <= expired_date) )")->result(); 
+
+        $cek_end_date = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$empid."' and status = 1 and ( ('".$enddate."' >= period_start and '".$enddate."' <= period_end) or ('".$enddate."' >= period_start and '".$enddate."' <= expired_date) )")->result(); 
+
+
+        // cek apakah startdate & enddate masuk dalam periode available cuti
+        if(!empty($cek_start_date) && !empty($cek_end_date)){
+            $rs = $this->db->query("select sum(sisa_cuti) as ttl_sisa_cuti from total_cuti_karyawan where employee_id = '".$empid."' and status = 1")->result(); 
+
+            return $rs;
+        }else return 0;
+
+    }
+
 }
