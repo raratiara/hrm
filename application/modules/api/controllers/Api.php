@@ -458,6 +458,7 @@ class Api extends API_Controller
 					'masterleave_id' 			=> $leave_type,
 					'reason' 					=> $reason,
 					'total_leave' 				=> $diff_day,
+					'status_approval' 			=> 1, //waiting approval
 					'created_at'				=> date("Y-m-d H:i:s")
 				];
 				$rs = $this->db->insert("leave_absences", $data);

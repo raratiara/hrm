@@ -24,13 +24,20 @@ class Ijin_menu_model extends MY_Model
 			'dt.date_leave_start',
 			'dt.date_leave_end',
 			'dt.leave_name',
-			'dt.reason'
+			'dt.reason',
+			'dt.total_leave',
+			'dt.status'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name, c.name as leave_name
+		$sTable = '(select a.*, b.full_name, c.name as leave_name,
+					(case
+						when a.status_approval = 1 then "Waiting Approval"
+						when a.status_approval = 2 then "Approved"
+						when a.status_approval = 3 then "Rejected"
+						 end) as status
 					from leave_absences a left join employees b on b.id = a.employee_id
 					left join master_leaves c on c.id = a.masterleave_id)dt';
 		
@@ -197,7 +204,9 @@ class Ijin_menu_model extends MY_Model
 				$row->date_leave_start,
 				$row->date_leave_end,
 				$row->leave_name,
-				$row->reason
+				$row->reason,
+				$row->total_leave,
+				$row->status
 
 			));
 		}
