@@ -99,6 +99,45 @@ class Ijin_menu extends MY_Controller
 		echo json_encode($rs);
 	}
 
+	public function rejectIjin(){
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+
+		if($id != ''){
+
+			$data = [
+				'status_approval' 	=> 3,
+				'date_approval'		=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->update('leave_absences', $data, "id = '".$id."'");
+			
+		}else{
+			$rs=null;
+		}
+
+		echo json_encode($rs);
+
+	}
+
+	public function approveIjin(){
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+
+		if($id != ''){
+			$data = [
+				'status_approval' 	=> 2,
+				'date_approval'		=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->update('leave_absences', $data, "id = '".$id."'");
+
+		}else{
+			$rs=null;
+		}
+
+		echo json_encode($rs);
+
+	}
+
  	
 
 }

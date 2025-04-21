@@ -1,3 +1,101 @@
+<!-- Modal Reject Data -->
+<div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content">
+			<form class="form-horizontal" id="frmRejectData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Delete Ijin
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Are you sure to delete this Data?</p>
+				<input type="hidden" name="id" id="id" value="">
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-reject-data" onclick="save_reject()">
+					<i class="fa fa-check"></i>
+					Ok
+				</button>
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Cancel
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+<!-- Modal Reject Data -->
+<div id="modal-approve-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-approve-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content">
+			<form class="form-horizontal" id="frmApproveData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Approval Ijin
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Are you sure to approve this Data?</p>
+				<input type="hidden" name="id" id="id" value="">
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-approve-data" onclick="save_approve()">
+					<i class="fa fa-check"></i>
+					Ok
+				</button>
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Cancel
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+<!-- Modal Reject Data -->
+<!-- <div id="modal-success" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-success" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content">
+			
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Delete Ijin
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center"><h1 style="cente">Success !</h1></p>
+			</div>
+			
+
+		</div>
+	</div>
+	</div>
+</div> -->
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -219,6 +317,115 @@ $('#employee').on('change', function () {
  	}
 
 });
+
+
+function reject(id){
+
+	$('#modal-reject-data').modal('show');
+	$('[name="id"]').val(id);
+
+}
+
+function approve(id){
+
+	$('#modal-approve-data').modal('show');
+	$('[name="id"]').val(id);
+
+}
+
+
+function save_reject(){
+	var id 	= $("#id").val();
+
+	$('#modal-reject-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/rejectIjin',
+			data: { id: id },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+	        	
+				if(data != false){ 	
+					alert("The data has been successfully rejected.");
+				} else { 
+					alert("Failed to reject the data!");
+				}
+
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+	}else{
+		alert("Data not found!");
+	}
+
+	location.reload();
+
+
+}
+
+
+function save_approve(){
+	var id 	= $("#id").val();
+
+	$('#modal-approve-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/approveIjin',
+			data: { id: id },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+	        	
+				if(data != false){ 	
+					alert("The data has been successfully approved.");
+				} else { 
+					alert("Failed to approve the data!");
+				}
+
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+	}else{
+		alert("Data not found!");
+	}
+
+	location.reload();
+
+
+}
 
 
 
