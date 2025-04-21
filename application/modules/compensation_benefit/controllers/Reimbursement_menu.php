@@ -37,6 +37,8 @@ class Reimbursement_menu extends MY_Controller
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 		$msreimbursfor 			= $this->db->query("select * from master_reimbursfor_type")->result(); 
 		$field['selreimbursfor'] 	= $this->self_model->return_build_select2me($msreimbursfor,'','','','reimburs_for','reimburs_for','','','id','name',' ','','','',3,'-');
+		$mstype 			= $this->db->query("select * from master_reimburs_type")->result(); 
+		$field['seltype'] 	= $this->self_model->return_build_select2me($mstype,'','','','type','type','','','id','name',' ','','','',3,'-');
 
 		
 		return $field;
@@ -91,6 +93,29 @@ class Reimbursement_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
+ 	public function genexpensesrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			if(isset($post['count']))
+			{  
+				$row = trim($post['count']); 
+				echo $this->self_model->getNewExpensesRow($row);
+			} else if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				echo json_encode($this->self_model->getNewExpensesRow($row,$id,$view));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+
  	public function getDataEmp(){
 		$post = $this->input->post(null, true);
 		$empid = $post['empid'];
@@ -99,6 +124,16 @@ class Reimbursement_menu extends MY_Controller
 		
 
 		echo json_encode($rs);
+	}
+
+	public function delrowDetailReimburs(){ 
+		$post = $this->input->post(); 
+		$id = trim($post['id']); 
+		
+		if($id != ''){
+			$rs = $this->db->delete('cctv',"id = '".$id."'");
+		}
+		
 	}
 
 

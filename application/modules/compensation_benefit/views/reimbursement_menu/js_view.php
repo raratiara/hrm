@@ -5,6 +5,11 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var modloc = '/_hrm/compensation_benefit/reimbursement_menu/';
+var opsForm = 'form#frmInputData';
+var locate = 'table.ca-list';
+var dlocate = 'table.dca-list';
+var wcount = 0; //for ca list row identify
 
 
 
@@ -182,6 +187,43 @@ $('#nominal_billing').on('keyup', function () {
  	var reimburs = nominal_billing*0.85;
  	$('[name="nominal_reimburs"]').val(reimburs);
 });
+
+
+$("#addcarow").on("click", function () { 
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount },success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.order-list');
+	});
+});
+
+
+function del(idx,hdnid){
+	
+	if(hdnid != ''){ //delete dr table
+
+		$.ajax({type: 'post',url: module_path+'/delrowDetailReimburs',data: { id:hdnid },success: function (response) {
+				
+			}
+		}).done(function() {
+			tSawBclear('table.order-list');
+		});
+
+	}
+
+	//delete tampilan row
+
+	var table = document.getElementById("tblDetailReimburs");
+	table.deleteRow(idx);
+	
+
+}
 
 
 </script>

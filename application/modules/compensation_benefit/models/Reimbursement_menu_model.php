@@ -8,6 +8,13 @@ class Reimbursement_menu_model extends MY_Model
  	protected $table_name 				= _PREFIX_TABLE."medicalreimbursements";
  	protected $primary_key 				= "id";
 
+ 	/* upload */
+ 	protected $attachment_folder	= "./uploads/reimbursement";
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
+
+
+
 	function __construct()
 	{
 		parent::__construct();
@@ -255,6 +262,57 @@ class Reimbursement_menu_model extends MY_Model
 	}  
 
 
+	// Upload file
+	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+		$data = array();
+		$data['status'] = FALSE; 
+		if(!empty($id) && !empty($fieldname)){ 
+			// handling multiple upload (as array field)
+
+			if($array){ 
+				// Define new $_FILES array - $_FILES['file']
+				$_FILES['file']['name'] = $_FILES[$fieldname]['name'];
+				$_FILES['file']['type'] = $_FILES[$fieldname]['type'];
+				$_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
+				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
+				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
+				// override field
+
+			}
+			// handling regular upload (as one field)
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			{ 
+				/*$dir = $this->attachment_folder.'/'.$id;
+				if(!is_dir($dir)) {
+					mkdir($dir);
+				}
+				if($replace){
+					$this->remove_file($id, $oldfilename);
+				}*/
+				$config['upload_path']   = $this->attachment_folder;
+				$config['allowed_types'] = $this->allow_type;
+				$config['max_size'] 	 = $this->allow_size;
+				
+				$this->load->library('upload', $config); 
+				
+				if(!$this->upload->do_upload($fieldname)){  
+					$err_msg = $this->upload->display_errors(); 
+					$data['error_warning'] = strip_tags($err_msg);				
+					$data['status'] = FALSE;
+				} else {
+					$fileData = $this->upload->data();
+					$data['upload_file'] = $fileData['file_name'];
+					$data['status'] = TRUE;
+				}
+			}
+		}
+
+		
+		
+		return $data;
+	}
+
+
 	public function add_data($post) { 
 
 		$date 		= date_create($post['date']); 
@@ -272,7 +330,39 @@ class Reimbursement_menu_model extends MY_Model
 				'nominal_reimburse' 	=> trim($post['nominal_reimburs']), 
 				'created_at'			=> date("Y-m-d H:i:s")
 			];
-			return $rs = $this->db->insert($this->table_name, $data);
+			$rs = $this->db->insert($this->table_name, $data);
+			$lastId = $this->db->insert_id();
+
+			if($rs){
+				if(isset($post['subtype'])){
+					$item_num = count($post['subtype']); // cek sum
+					$item_len_min = min(array_keys($post['subtype'])); // cek min key index
+					$item_len = max(array_keys($post['subtype'])); // cek max key index
+				} else {
+					$item_num = 0;
+				}
+
+				if($item_num>0){
+					for($i=$item_len_min;$i<=$item_len;$i++) 
+					{
+						if(isset($post['subtype'][$i])){
+							$itemData = [
+								'reimbursement_id' 	=> $lastId,
+								'subtype_id' 		=> trim($post['subtype'][$i]),
+								//'document' 			=> trim($post['document'][$i]),
+								'nominal_billing' 	=> trim($post['nominal_pengajuan'][$i]),
+								'days' 				=> trim($post['days'][$i]),
+								'notes' 			=> trim($post['notes'][$i])
+							];
+
+							$this->db->insert('reimbursement_detail', $itemData);
+						}
+					}
+				}
+			}
+
+			return $rs;
+
   		}else return null;
 
 	}  
@@ -350,6 +440,90 @@ class Reimbursement_menu_model extends MY_Model
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
+	}
+
+
+	public function getNewExpensesRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getExpensesRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			$msSubtype = $this->db->query("select * from master_reimburs_subtype")->result(); 
+			
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$this->return_build_chosenme($msSubtype,'','','','subtype['.$row.']','','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','days['.$row.']','','days','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_fileinput('document['.$row.']','','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','nominal_pengajuan['.$row.']','','nominal_pengajuan','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+	
+	// Generate expenses item rows for edit & view
+	public function getExpensesRows($id,$view,$print=FALSE){ 
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from reimbursement_detail where reimbursement_id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			/*if($view){
+				$arrSat = json_decode(json_encode($msObat), true);
+				$arrS = [];
+				foreach($arrSat as $ai){
+					$arrS[$ai['id']] = $ai;
+				}
+			}*/
+			foreach ($rd as $f){
+				$no = $row+1;
+				$msSubtype = $this->db->query("select * from master_reimburs_subtype")->result(); 
+
+				if(!$view){
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_chosenme($msSubtype,'',isset($f->subtype_id)?$f->subtype_id:1,'','subtype['.$row.']','','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->days,'days['.$row.']','','days','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->document,'document['.$row.']','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->nominal_billing,'nominal_pengajuan['.$row.']','','nominal_pengajuan','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '</tr>';
+				} else {
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					}
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->subtype_id.'</td>';
+					$dt .= '<td>'.$f->days.'</td>';
+					$dt .= '<td>'.$f->document.'</td>';
+					$dt .= '<td>'.$f->notes.'</td>';
+					$dt .= '<td>'.$f->nominal_billing.'</td>';
+					$dt .= '</tr>';
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
 	}
 
 

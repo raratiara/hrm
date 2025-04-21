@@ -192,12 +192,21 @@ class Ijin_menu_model extends MY_Model
 				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
+			$reject=""; 
+			$approve="";
+			if($row->status == 'Waiting Approval'){
+				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
+			}
+			
+
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
 					'.$detail.'
 					'.$edit.'
-					'.$delete.'
+					'.$reject.'
+					'.$approve.'
 				</div>',
 				$row->id,
 				$row->full_name,
@@ -296,6 +305,7 @@ class Ijin_menu_model extends MY_Model
 					'masterleave_id' 			=> trim($post['leave_type']),
 					'reason' 					=> trim($post['reason']),
 					'total_leave' 				=> $diff_day,
+					'status_approval' 			=> 1,
 					'created_at'				=> date("Y-m-d H:i:s")
 				];
 				$rs = $this->db->insert($this->table_name, $data);
