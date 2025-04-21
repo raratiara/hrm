@@ -15,12 +15,12 @@ class Ijin_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Date Leave Start","Date Leave End","Leave Type","Leave Description"];
+	public $tabel_header 			= ["ID","Employee Name","Date Leave Start","Date Leave End","Leave Type","Description","Total Leave", "Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Date Leave Start","Date Leave End","Leave Type","Leave Description"];
-	public $colfields 				= ["id","id","id","id","id","id"];
+	public $colnames 				= ["ID","Employee Name","Date Leave Start","Date Leave End","Leave Type","Description","Total Leave", "Status"];
+	public $colfields 				= ["id","id","id","id","id","id","id","id"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

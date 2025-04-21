@@ -127,7 +127,7 @@ function load_data()
 					$('select#leave_type').val(data.masterleave_id).trigger('change.select2');
 					$("#employee ").val(data.employee_id).prop('disabled', true);
 					
-					
+					$('span.sisa_cuti').html('');
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
