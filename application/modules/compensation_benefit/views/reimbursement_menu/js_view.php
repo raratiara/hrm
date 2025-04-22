@@ -126,11 +126,25 @@ function load_data()
 					
 					$('select#employee').val(data.employee_id).trigger('change.select2');
 					$('select#reimburs_for').val(data.reimburse_for).trigger('change.select2');
+					$('select#type').val(data.reimburs_type_id).trigger('change.select2');
 					$('[name="date"]').val(data.date_reimbursment);
 					$('[name="nominal_reimburs"]').val(data.nominal_reimburse);
 					$('[name="atas_nama"]').val(data.atas_nama);
 					$('[name="diagnosa"]').val(data.diagnosa);
 					$('[name="nominal_billing"]').val(data.nominal_billing);
+
+
+					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 
 					
 					$.uniform.update();
@@ -140,12 +154,26 @@ function load_data()
 				if(save_method == 'detail'){ 
 					$('span.employee').html(data.employee_name);
 					$('span.date').html(data.date_reimbursment);
-					$('span.reimburs_for').html(data.reimburse_for);
+					$('span.reimburs_for').html(data.reimburse_for_name);
 					$('span.nominal_reimburs').html(data.nominal_reimburse);
 					$('span.atas_nama').html(data.atas_nama);
 					$('span.diagnosa').html(data.diagnosa);
 					$('span.nominal_billing').html(data.nominal_billing);
+					$('span.type').html(data.reimburs_type_name);
 					
+
+					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
 					
 					$('#modal-view-data').modal('show');
 				}
