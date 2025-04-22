@@ -14,7 +14,6 @@ class Reimbursement_menu_model extends MY_Model
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
 
-
 	function __construct()
 	{
 		parent::__construct();
@@ -277,8 +276,9 @@ class Reimbursement_menu_model extends MY_Model
 				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
 				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
 				// override field
+				//$fieldname = 'document';
 
-			}
+			} 
 			// handling regular upload (as one field)
 			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
 			{ 
@@ -295,11 +295,11 @@ class Reimbursement_menu_model extends MY_Model
 				
 				$this->load->library('upload', $config); 
 				
-				if(!$this->upload->do_upload($fieldname)){  
+				if(!$this->upload->do_upload($fieldname)){ 
 					$err_msg = $this->upload->display_errors(); 
 					$data['error_warning'] = strip_tags($err_msg);				
 					$data['status'] = FALSE;
-				} else {
+				} else { 
 					$fileData = $this->upload->data();
 					$data['upload_file'] = $fileData['file_name'];
 					$data['status'] = TRUE;
@@ -345,13 +345,21 @@ class Reimbursement_menu_model extends MY_Model
 				if($item_num>0){
 					for($i=$item_len_min;$i<=$item_len;$i++) 
 					{
+						$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
+						$document = '';
+						if($upload_emp_photo['status']){ 
+							$document = $upload_emp_photo['upload_file'];
+						} else if(isset($upload_emp_photo['error_warning'])){ 
+							echo $upload_emp_photo['error_warning']; exit;
+						}
+
 						if(isset($post['subtype'][$i])){
 							$itemData = [
 								'reimbursement_id' 	=> $lastId,
 								'subtype_id' 		=> trim($post['subtype'][$i]),
-								//'document' 			=> trim($post['document'][$i]),
-								'nominal_billing' 	=> trim($post['nominal_pengajuan'][$i]),
-								'days' 				=> trim($post['days'][$i]),
+								'document' 			=> $document,
+								'biaya' 			=> trim($post['biaya'][$i]),
+								'qty' 				=> trim($post['qty'][$i]),
 								'notes' 			=> trim($post['notes'][$i])
 							];
 
@@ -378,6 +386,7 @@ class Reimbursement_menu_model extends MY_Model
 			$data = [
 				'date_reimbursment' 	=> $f_date,
 				'employee_id' 			=> trim($post['employee']),
+				'reimburs_type_id' 		=> trim($post['type']),
 				'reimburse_for'			=> trim($post['reimburs_for']),
 				'atas_nama' 			=> trim($post['atas_nama']),
 				'diagnosa' 				=> trim($post['diagnosa']),
@@ -386,14 +395,88 @@ class Reimbursement_menu_model extends MY_Model
 				'updated_at'			=> date("Y-m-d H:i:s")
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				if(isset($post['subtype'])){
+					$item_num = count($post['subtype']); // cek sum
+					$item_len_min = min(array_keys($post['subtype'])); // cek min key index
+					$item_len = max(array_keys($post['subtype'])); // cek max key index
+				} else {
+					$item_num = 0;
+				}
+
+				if($item_num>0){
+					for($i=$item_len_min;$i<=$item_len;$i++) 
+					{
+						$hdnid = trim($post['hdnid'][$i]);
+
+						if(!empty($hdnid)){ //update
+
+							$hdndocument = trim($post['hdndocument'.$i]);
+							$document = '';
+							$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
+							if($upload_emp_photo['status']){ 
+								$document = $upload_emp_photo['upload_file'];
+							} else if(isset($upload_emp_photo['error_warning'])){ 
+								echo $upload_emp_photo['error_warning']; exit;
+							}
+
+							if($document == '' && $hdndocument != ''){
+								$document = $hdndocument;
+							}
+
+							if(isset($post['subtype'][$i])){
+								$itemData = [
+									'subtype_id' 		=> trim($post['subtype'][$i]),
+									'document' 			=> $document,
+									'biaya' 			=> trim($post['biaya'][$i]),
+									'qty' 				=> trim($post['qty'][$i]),
+									'notes' 			=> trim($post['notes'][$i])
+								];
+
+								$this->db->update("reimbursement_detail", $itemData, "id = '".$hdnid."'");
+							}
+
+						}else{ //insert
+
+							$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
+							$document = '';
+							if($upload_emp_photo['status']){ 
+								$document = $upload_emp_photo['upload_file'];
+							} else if(isset($upload_emp_photo['error_warning'])){ 
+								echo $upload_emp_photo['error_warning']; exit;
+							}
+
+							if(isset($post['subtype'][$i])){
+								$itemData = [
+									'reimbursement_id' 	=> $post['id'],
+									'subtype_id' 		=> trim($post['subtype'][$i]),
+									'document' 			=> $document,
+									'biaya' 			=> trim($post['biaya'][$i]),
+									'qty' 				=> trim($post['qty'][$i]),
+									'notes' 			=> trim($post['notes'][$i])
+								];
+
+								$this->db->insert('reimbursement_detail', $itemData);
+							}
+
+						}
+						
+					}
+				}
+			}
+
+			return $rs;
 		} else return null;
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as employee_name, c.name as reimburse_for_name
-					from medicalreimbursements a left join employees b on b.id = a.employee_id
-					left join master_reimbursfor_type c on c.id = a.reimburse_for
+		$mTable = '(select a.*, b.full_name as employee_name, c.name as reimburse_for_name,
+						d.name as reimburs_type_name
+						from medicalreimbursements a left join employees b on b.id = a.employee_id
+						left join master_reimbursfor_type c on c.id = a.reimburse_for 
+					    left join master_reimburs_type d on d.id = a.reimburs_type_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -417,8 +500,7 @@ class Reimbursement_menu_model extends MY_Model
 				'atas_nama' 			=> $v["E"],
 				'diagnosa' 				=> $v["F"],
 				'nominal_billing' 		=> $v["G"],
-				'nominal_reimburse' 	=> $v["H"],
-				'nominal_billing' 		=> $v["I"]
+				'nominal_reimburse' 	=> $v["H"]
 				
 			];
 
@@ -454,10 +536,10 @@ class Reimbursement_menu_model extends MY_Model
 			
 			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
 			$data 	.= '<td>'.$this->return_build_chosenme($msSubtype,'','','','subtype['.$row.']','','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','days['.$row.']','','days','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_fileinput('document['.$row.']','','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','nominal_pengajuan['.$row.']','','nominal_pengajuan','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','biaya['.$row.']','','biaya','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 			$hdnid='';
 			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
@@ -468,9 +550,15 @@ class Reimbursement_menu_model extends MY_Model
 	
 	// Generate expenses item rows for edit & view
 	public function getExpensesRows($id,$view,$print=FALSE){ 
+		$uri = $_SERVER['REQUEST_URI'];
+	 	$xpl = explode("/",$uri);
+	 	$url = $_SERVER['SERVER_NAME'].'/'.$xpl[1].'/uploads/reimbursement';
+
+
 		$dt = ''; 
 		
-		$rs = $this->db->query("select * from reimbursement_detail where reimbursement_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select a.*, b.name as subtype_name from reimbursement_detail a 
+								left join master_reimburs_subtype b on b.id = a.subtype_id where a.reimbursement_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
@@ -488,19 +576,27 @@ class Reimbursement_menu_model extends MY_Model
 				$no = $row+1;
 				$msSubtype = $this->db->query("select * from master_reimburs_subtype")->result(); 
 
-				if(!$view){
+				if(!$view){ 
+					$viewdoc = '';
+					if($f->document != ''){
+						$viewdoc = '<a href="'.base_url().'uploads/reimbursement/'.$f->document.'" target="_blank">View</a>';
+					}
+
 					$dt .= '<tr>';
 
 					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
 					$dt .= '<td>'.$this->return_build_chosenme($msSubtype,'',isset($f->subtype_id)?$f->subtype_id:1,'','subtype['.$row.']','','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->days,'days['.$row.']','','days','text-align: right;','data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->document,'document['.$row.']','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->qty,'qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndocument'.$row.'" name="hdndocument'.$row.'" value="'.$f->document.'"/></td>';
+
 					$dt .= '<td>'.$this->return_build_txt($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->nominal_billing,'nominal_pengajuan['.$row.']','','nominal_pengajuan','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->biaya,'biaya['.$row.']','','biaya','text-align: right;','data-id="'.$row.'" ').'</td>';
 					
 					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
-				} else {
+				} else { 
+					
 					if($print){
 						if($row == ($rs_num-1)){
 							$dt .= '<tr class="item last">';
@@ -509,14 +605,20 @@ class Reimbursement_menu_model extends MY_Model
 						}
 					} else {
 						$dt .= '<tr>';
+					} 
+					$qty=$f->qty;
+					if($f->qty==0){
+						$qty='';
 					}
 					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->subtype_id.'</td>';
-					$dt .= '<td>'.$f->days.'</td>';
-					$dt .= '<td>'.$f->document.'</td>';
+					$dt .= '<td>'.$f->subtype_name.'</td>';
+					$dt .= '<td>'.$qty.'</td>';
+					$dt .= '<td><a href="'.base_url().'uploads/reimbursement/'.$f->document.'" target="_blank">View</a></td>';
 					$dt .= '<td>'.$f->notes.'</td>';
-					$dt .= '<td>'.$f->nominal_billing.'</td>';
+					$dt .= '<td>'.$f->biaya.'</td>';
 					$dt .= '</tr>';
+
+					
 				}
 
 				$row++;

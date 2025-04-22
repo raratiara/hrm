@@ -76,10 +76,10 @@
 						<tr>
 							<th scope="col">No</th>
 							<th scope="col" style="width:15%">Sub Type</th>
-							<th scope="col" style="width:7%">Days</th>
+							<th scope="col" style="width:7%">Qty</th>
 							<th scope="col">File</th>
 							<th scope="col">Notes</th>
-							<th scope="col">Nominal Pengajuan</th>
+							<th scope="col">Biaya</th>
 							<th scope="col"></th>
 						</tr>
 					</thead>
