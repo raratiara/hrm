@@ -683,9 +683,41 @@ class Api extends API_Controller
 		$this->output->set_header('Access-Control-Max-Age: 3600');
 		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 		$this->render_json($response, $response['status']);
+		
+    }
 
-    	
+    public function get_data_absen()
+    { 
+    	$this->verify_token();
 
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}
+
+    	$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
+			if(a.is_leaving_office_early = 'Y','Leaving Office Early','') as 'is_leaving_office_early_desc' 
+			from time_attendances a left join employees b on b.id = a.employee_id
+                    ".$where." ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $dataabsen
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
 		
     }
 
