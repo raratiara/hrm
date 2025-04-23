@@ -722,4 +722,74 @@ class Api extends API_Controller
     }
 
 
+    public function get_data_tasklist()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}
+
+    	$datatasklist = $this->db->query("select  a.id, b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date
+					from tasklist a left join employees b on b.id = a.employee_id
+					left join tasklist c on c.id = a.parent_id
+					left join master_tasklist_status d on d.id = a.status_id
+                    ".$where." ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datatasklist
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_master_task()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	/*$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}*/
+
+    	$datamaster = $this->db->query("select * from tasklist where parent_id = 0 ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
 }
