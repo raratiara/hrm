@@ -426,7 +426,39 @@ class Data_karyawan_menu_model extends MY_Model
 			'gender' 						=> trim($post['gender'])
 		];
 
-		return $rs = $this->db->insert($this->table_name, $data);
+		$rs = $this->db->insert($this->table_name, $data);
+		$lastId = $this->db->insert_id();
+
+		if($rs){
+			$pwd = '112233';
+			$password = md5($pwd);
+
+			$name = $post['full_name'];
+			$username = strtolower($name);
+
+			if ($username == trim($username) && strpos($username, ' ') !== false) {
+			    $username = str_replace(" ","_",$username);
+			}
+			
+
+			$data2 = [
+				'name' 			=> trim($post['full_name']),
+				'email' 		=> trim($post['email']),
+				'username'		=> $username,
+				'passwd' 		=> $password,
+				'id_karyawan'	=> $lastId,
+				'id_groups' 	=> 3, //user
+				'base_menu'		=> 'role',
+				'id_branch'		=> trim($post['branch']),
+				'isaktif' 		=> 2,
+				'date_insert' 	=> date("Y-m-d H:i:s")
+			];
+			$this->db->insert('user', $data2);
+		}
+
+
+
+		return $rs;
 	}  
 
 	public function edit_data($post) { 

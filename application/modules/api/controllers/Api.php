@@ -24,27 +24,7 @@ class Api extends API_Controller
 		exit;
 	}
 
-	public function tes(){
-		$username = 'dwi';
-		$password = '123456';
-
-		$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
-		$user = $this->db->query($sql)->row();
-
-		print_r($user); die();
-
-		if ($user) 
-		{
-			/*$updating['last_update_login'] = date('Y-m-d H:i:s');
-			$this->db->update("user", $updating, array('user_id' => $user->user_id));*/
-						
-			echo 'Welcome'; die();
-		}
-		else {
-			echo '<button class="close" data-close="alert"></button>
-					<span>Wrong Username Or Password</span>'; die();
-		}
-	}
+	
 	
 	// register basic example
     public function register()
