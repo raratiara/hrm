@@ -19,7 +19,7 @@ class Api_model extends MY_Model
         return $query;
     }
  
-    public function cek_login($username)
+    /*public function cek_login_old($username)
     {
         $query = $this->db->where('name', $username)
 				->get($this->table)
@@ -35,6 +35,17 @@ class Api_model extends MY_Model
         }
 
         return $hasil;
+    }*/
+
+
+    public function cek_login($username, $password)
+    {
+        $sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
+        $user = $this->db->query($sql)->row();
+
+        if($user){
+            return $user;
+        }else return null;
     }
 
     public function cek_company($url)

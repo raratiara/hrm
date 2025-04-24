@@ -117,14 +117,12 @@ function load_data()
         {
 			if(data != false){
 				if(save_method == 'update'){ 
-					$('[name="id"]').val(data.id);
+					$('[name="id"]').val(data.user_id);
 					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#status').val(data.status_id).trigger('change.select2');
-					$('[name="task"]').val(data.task);
-					$('select#task_parent').val(data.parent_id).trigger('change.select2');
-					$('[name="progress"]').val(data.progress_percentage);
-					$('[name="due_date"]').val(data.due_date);
+					$('select#name').val(data.id_karyawan).trigger('change.select2');
+					$('[name="email"]').val(data.personal_email);
+					$('[name="username"]').val(data.username);
+					$('[name="status"][value="'+data.isaktif+'"]').prop('checked', true);
 
 					
 					$.uniform.update();
@@ -132,12 +130,10 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
+					$('span.name').html(data.full_name);
+					$('span.email').html(data.personal_email);
+					$('span.username').html(data.username);
+					$('span.status').html(data.statusname);
 					
 					
 					$('#modal-view-data').modal('show');
@@ -174,7 +170,48 @@ function load_data()
 <?php } ?>
 
 
+$('#name').on('change', function () { 
+ 	var empid = $("#name option:selected").val();
+ 	
+ 	if(empid != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataEmp',
+			data: { empid: empid },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 	
+					$('#email').val(data.email);
+					$('#hdnname').val(data.full_name);
 
+				} else { 
+					$('#email').val('');
+					$('#hdnname').val('');
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+});
 
 
 </script>
