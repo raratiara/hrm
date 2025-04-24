@@ -250,7 +250,7 @@ class User_menu_model extends MY_Model
 		$password 	= md5($pwd);
 
 		$username = $post['username'];
-		if(empty($username)){
+		if(empty($username)){ 
 			$name = $post['hdnname'];
 			$username = strtolower($name);
 
@@ -273,15 +273,17 @@ class User_menu_model extends MY_Model
 						'id_groups' 	=> 3, //user
 						'base_menu'		=> 'role',
 						//'id_branch'		=> '',
-						'isaktif' 		=> 1,
+						'isaktif' 		=> 2,
 						'date_insert' 	=> date("Y-m-d H:i:s")
 					];
 					return $rs = $this->db->insert($this->table_name, $data);
-  				}else return null;
+
+					echo 'dd'; die();
+  				}else echo 'cc'; die();//return null;
   				
-  			}else return null;
+  			}else echo 'bb'; die();//return null;
   			
-  		}else return null;
+  		}else echo 'aa'; die();//return null;
 
 	}  
 
