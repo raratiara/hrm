@@ -262,7 +262,7 @@ class User_menu_model extends MY_Model
   		if(!empty($post['name'])){ 
   			$data_user = $this->db->query("select * from user where id_karyawan = '".$post['name']."' ")->result(); 
   			if(empty($data_user)){
-  				$data_username = $this->db->query("select * from user where username = '".$post['username']."' ")->result();
+  				$data_username = $this->db->query("select * from user where username = '".$username."' ")->result();
   				if(empty($data_username)){
   					$data = [
 						'name' 			=> trim($post['hdnname']),
