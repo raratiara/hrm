@@ -23,6 +23,28 @@ class Api extends API_Controller
 		$this->render_json($response, 400);
 		exit;
 	}
+
+	public function tes(){
+		$username = 'dwi';
+		$password = '123456';
+
+		$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
+		$user = $this->db->query($sql)->row();
+
+		print_r($user); die();
+
+		if ($user) 
+		{
+			/*$updating['last_update_login'] = date('Y-m-d H:i:s');
+			$this->db->update("user", $updating, array('user_id' => $user->user_id));*/
+						
+			echo 'Welcome'; die();
+		}
+		else {
+			echo '<button class="close" data-close="alert"></button>
+					<span>Wrong Username Or Password</span>'; die();
+		}
+	}
 	
 	// register basic example
     public function register()
@@ -74,6 +96,61 @@ class Api extends API_Controller
 
 
 
+    public function login_old()
+    {
+    	$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$username	= $_REQUEST['username'];
+    	$password 	= $_REQUEST['password'];
+
+
+		if($username != '' && $password != ''){
+			
+			$cek_login = $this->api->cek_login($username);	
+			
+			if(password_verify($password, isset($cek_login['password'])?$cek_login['password']:''))
+			{ 
+				$data = array(
+					"id" 			=> $cek_login['id'],
+					"name" 			=> $cek_login['name'],
+					"email" 		=> $cek_login['email'],
+					"employee_id" 	=> $cek_login['id_karyawan']
+				);
+	 
+				$token = $this->genJWTdata($data);	 
+				$response = [
+					'status' 		=> 200,
+					'message' 		=> 'Success',
+					"token" 		=> $token[0],
+					"expire" 		=> $token[1],
+					"email" 		=> $cek_login['email'],
+					"employee_id" 	=> $cek_login['id_karyawan'] 
+				];
+			} else { 
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Access credentials not match'
+				];
+			}
+
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
     public function login()
     {
     	$jsonData = file_get_contents('php://input');
@@ -86,27 +163,27 @@ class Api extends API_Controller
 
 		if($username != '' && $password != ''){
 			
-			$cek_login = $this->api->cek_login($username);	 
+			$cek_login = $this->api->cek_login($username, $password);	
 			
-			if(password_verify($password, isset($cek_login['password'])?$cek_login['password']:''))
-			{
+			if($cek_login != '')
+			{ 
 				$data = array(
-					"id" 	=> $cek_login['id'],
-					"name" 	=> $cek_login['name'],
-					"email" => $cek_login['email'],
-					"employee_id" => $cek_login['id_karyawan']
+					"id" 			=> $cek_login->id,
+					"name" 			=> $cek_login->name,
+					"email" 		=> $cek_login->email,
+					"employee_id" 	=> $cek_login->id_karyawan
 				);
 	 
 				$token = $this->genJWTdata($data);	 
 				$response = [
-					'status' 	=> 200,
-					'message' 	=> 'Success',
-					"token" 	=> $token[0],
-					"expire" 	=> $token[1],
-					"email" 	=> $cek_login['email'],
-					"employee_id" => $cek_login['id_karyawan'] 
+					'status' 		=> 200,
+					'message' 		=> 'Success',
+					"token" 		=> $token[0],
+					"expire" 		=> $token[1],
+					"email" 		=> $cek_login->email,
+					"employee_id" 	=> $cek_login->id_karyawan 
 				];
-			} else {
+			} else { 
 				$response = [
 					'status' 	=> 401,
 					'message' 	=> 'Failed',
@@ -781,6 +858,45 @@ class Api extends API_Controller
     		'status' 	=> 200,
 			'message' 	=> 'Success',
 			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_data_employee()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.id = '".$employee."' ";
+    	}
+
+    	$dataemp = $this->db->query("select a.id, a.full_name, b.name as division_name, a.shift_type, c.time_in, c.time_out 
+			,(select sum(total_leave) from leave_absences where employee_id = a.id) as ttl_ijin
+			,(select count(id) from time_attendances where employee_id = a.id and leave_type is null) as ttl_hadir
+			from employees a
+			left join divisions b on b.id = a.division_id
+			left join master_shift_time c on c.shift_type = a.shift_type
+                    ".$where." ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $dataemp
 		];
 
 		$this->output->set_header('Access-Control-Allow-Origin: *');
