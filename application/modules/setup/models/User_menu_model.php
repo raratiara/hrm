@@ -249,6 +249,15 @@ class User_menu_model extends MY_Model
 		$pwd 		= trim($post['pwd']);
 		$password 	= md5($pwd);
 
+		$username = $post['username'];
+		if(empty($username)){
+			$name = $post['hdnname'];
+			$username = strtolower($name);
+
+			if ($username == trim($username) && strpos($username, ' ') !== false) {
+			    $username = str_replace(" ","_",$username);
+			}
+		}
 		
   		if(!empty($post['name'])){ 
   			$data_user = $this->db->query("select * from user where id_karyawan = '".$post['name']."' ")->result(); 
@@ -258,7 +267,7 @@ class User_menu_model extends MY_Model
   					$data = [
 						'name' 			=> trim($post['hdnname']),
 						'email' 		=> trim($post['email']),
-						'username'		=> trim($post['username']),
+						'username'		=> $username,
 						'passwd' 		=> $password,
 						'id_karyawan'	=> trim($post['name']),
 						'id_groups' 	=> 3, //user
