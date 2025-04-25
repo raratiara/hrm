@@ -230,7 +230,8 @@ class Api extends API_Controller
 
 				if($cek_data['id'] != '')
 				{
-					$urllogo = $base_url.'_hrm/uploads/logo/'.$cek_data['logo'];
+					//in LOCAL => //$urllogo = $base_url.'_hrm/uploads/logo/'.$cek_data['logo'];
+					$urllogo = $base_url.'uploads/logo/'.$cek_data['logo'];
 					$data = array(
 						"nama_perusahaan" => $cek_data['name'],
 						"logo_perusahaan" => $urllogo,
