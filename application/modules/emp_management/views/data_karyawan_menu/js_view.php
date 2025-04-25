@@ -1,3 +1,7 @@
+
+
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -301,5 +305,9 @@ function load_data()
         }
     });
 }
+
+
+
+
 <?php } ?>
 </script>

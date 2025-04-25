@@ -189,7 +189,7 @@ class Api extends API_Controller
 
     public function sync()
     {
-    	$bearer_token = 'jk43242kdnsd';
+    	/*$bearer_token = 'jk43242kdnsd';
 
     	$headers = getallheaders();
     	if (substr($headers['Authorization'], 0, 7) !== 'Bearer ') {
@@ -203,7 +203,7 @@ class Api extends API_Controller
 		    	exit;
 			}
 
-		}
+		}*/
 
 
     	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
@@ -215,43 +215,57 @@ class Api extends API_Controller
     	$_REQUEST = $data;
 
     	$url	= $_REQUEST['url'];
+    	$username	= $_REQUEST['username'];
+    	$password 	= $_REQUEST['password'];
 
-		
-		if($url != ''){
+
+		$cek_login = $this->api->cek_login($username, $password);
+		if($cek_login != '')
+		{ 
+			if($url != ''){
 			
-			$cek_data = $this->api->cek_company($url);	
-			$getversion = $this->db->query("select * from version order by id desc limit 1")->result(); 
-			$version 	= $getversion[0]->version;
+				$cek_data = $this->api->cek_company($url);	
+				$getversion = $this->db->query("select * from version order by id desc limit 1")->result(); 
+				$version 	= $getversion[0]->version;
 
-			if($cek_data['id'] != '')
-			{
-				$urllogo = $base_url.'_hrm/uploads/logo/'.$cek_data['logo'];
-				$data = array(
-					"nama_perusahaan" => $cek_data['name'],
-					"logo_perusahaan" => $urllogo,
-					"version" => $version  
-				);
-	 
-				$response = [
-					'status' 	=> 200,
-					'message' 	=> 'Success',
-					"data" 		=> $data
-				];
+				if($cek_data['id'] != '')
+				{
+					$urllogo = $base_url.'_hrm/uploads/logo/'.$cek_data['logo'];
+					$data = array(
+						"nama_perusahaan" => $cek_data['name'],
+						"logo_perusahaan" => $urllogo,
+						"version" => $version  
+					);
+		 
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success',
+						"data" 		=> $data
+					];
+				} else {
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Company not found'
+					];
+				}
+				
 			} else {
 				$response = [
-					'status' 	=> 401,
-					'message' 	=> 'Failed',
-					'error' 	=> 'Company not found'
+					'status' 	=> 400, // Bad Request
+					'message'	=>'Failed',
+					'error'	 	=> 'Require not satisfied'
 				];
 			}
-			
-		} else {
+		}else{
 			$response = [
-				'status' 	=> 400, // Bad Request
-				'message'	=>'Failed',
-				'error'	 	=> 'Require not satisfied'
-			];
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Access credentials not match'
+				];
 		}
+
+		
 		
 		$this->output->set_header('Access-Control-Allow-Origin: *');
 		$this->output->set_header('Access-Control-Allow-Methods: POST');
