@@ -51,20 +51,20 @@
 
 
 <ul class="nav nav-tabs" id="tabContent">
-    <li class="active"><a href="#personal" data-toggle="tab">Personal</a></li>
-    <li><a href="#office" data-toggle="tab">Office</a></li>
-    <li><a href="#education" data-toggle="tab">Education</a></li>
-    <li><a href="#address" data-toggle="tab">Address</a></li>
-    <li><a href="#emergency_contact" data-toggle="tab">Emergency Contact</a></li>
-    <li><a href="#bank_account" data-toggle="tab">Bank Account</a></li>
-    <li><a href="#exit_clearance" data-toggle="tab">Exit Clearance</a></li>
+    <li class="active"><a href="#tab_personal" data-toggle="tab">Personal</a></li>
+    <li><a href="#tab_office" data-toggle="tab">Office</a></li>
+    <li><a href="#tab_education" data-toggle="tab">Education</a></li>
+    <li><a href="#tab_address" data-toggle="tab">Address</a></li>
+    <li><a href="#tab_emergency_contact" data-toggle="tab">Emergency Contact</a></li>
+    <li><a href="#tab_bank_account" data-toggle="tab">Bank Account</a></li>
+    <li><a href="#tab_exit_clearance" data-toggle="tab">Exit Clearance</a></li>
 </ul>
 
 
 
 <div class="tab-content">
 
-	<div class="tab-pane active" id="personal">
+	<div class="tab-pane active" id="tab_personal">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
@@ -138,7 +138,7 @@
 
 
 
-	<div class="tab-pane" id="office">
+	<div class="tab-pane" id="tab_office">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
@@ -248,7 +248,7 @@
 
 
 
-	<div class="tab-pane" id="education">
+	<div class="tab-pane" id="tab_education">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
@@ -265,7 +265,7 @@
 
 
 
-	<div class="tab-pane" id="address">
+	<div class="tab-pane" id="tab_address">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
@@ -321,7 +321,7 @@
 
 
 
-	<div class="tab-pane" id="emergency_contact">
+	<div class="tab-pane" id="tab_emergency_contact">
 		<div class="row">
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
@@ -358,7 +358,7 @@
 
 
 
-	<div class="tab-pane" id="bank_account">
+	<div class="tab-pane" id="tab_bank_account">
 
 		<div class="row">
 
@@ -398,7 +398,7 @@
 
 
 
-	<div class="tab-pane" id="exit_clearance">
+	<div class="tab-pane" id="tab_exit_clearance">
 
 		<div class="row">
 
