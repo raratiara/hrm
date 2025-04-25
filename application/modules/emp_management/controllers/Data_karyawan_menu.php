@@ -109,9 +109,6 @@ class Data_karyawan_menu extends MY_Controller
 		$msdivision 					= $this->db->query("select * from divisions")->result(); 
 		$field['seldivision'] 			= $this->self_model->return_build_select2me($msdivision,'','','','division','division','','','id','name',' ','','','',3,'-');
 
-		$msdivision 					= $this->db->query("select * from divisions")->result(); 
-		$field['seldivision'] 			= $this->self_model->return_build_select2me($msdivision,'','','','division','division','','','id','name',' ','','','',3,'-');
-
 		$msbranch 						= $this->db->query("select * from branches")->result(); 
 		$field['selbranch'] 			= $this->self_model->return_build_select2me($msbranch,'','','','branch','branch','','','id','name',' ','','','',3,'-');	
 
