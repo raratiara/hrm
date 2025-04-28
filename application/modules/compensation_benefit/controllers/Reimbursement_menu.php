@@ -98,32 +98,23 @@ class Reimbursement_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
+			$type = trim($post['type']); 
+
 			if(isset($post['count']))
 			{  
 				$row = trim($post['count']); 
-				echo $this->self_model->getNewExpensesRow($row);
+				echo $this->self_model->getNewExpensesRow($row,$type);
 			} else if(isset($post['id'])) { 
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewExpensesRow($row,$id,$view));
+				echo json_encode($this->self_model->getNewExpensesRow($row,$type,$id,$view));
 			}
 		}
 		else
 		{ 
 			$this->load->view('errors/html/error_hacks_401');
 		}
-	}
-
-
- 	public function getDataEmp(){
-		$post = $this->input->post(null, true);
-		$empid = $post['empid'];
-
-		$rs =  $this->self_model->getDataEmployee($empid);
-		
-
-		echo json_encode($rs);
 	}
 
 	public function delrowDetailReimburs(){ 
@@ -134,6 +125,16 @@ class Reimbursement_menu extends MY_Controller
 			$rs = $this->db->delete('cctv',"id = '".$id."'");
 		}
 		
+	}
+
+	public function getDataSubtype(){
+		$post = $this->input->post(null, true);
+		$type = $post['type'];
+
+		$rs =  $this->self_model->getDataSubtype($type);
+		
+
+		echo json_encode($rs);
 	}
 
 

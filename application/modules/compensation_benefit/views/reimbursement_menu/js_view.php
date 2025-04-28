@@ -1,3 +1,5 @@
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -10,6 +12,9 @@ var opsForm = 'form#frmInputData';
 var locate = 'table.ca-list';
 var dlocate = 'table.dca-list';
 var wcount = 0; //for ca list row identify
+
+
+
 
 
 
@@ -212,23 +217,35 @@ function load_data()
 $('#nominal_billing').on('keyup', function () { 
  	var nominal_billing = $("#nominal_billing").val();
  	
- 	var reimburs = nominal_billing*0.85;
+ 	/*var reimburs = nominal_billing*0.85;*/
+ 	var reimburs = nominal_billing;
  	$('[name="nominal_reimburs"]').val(reimburs);
 });
 
 
 $("#addcarow").on("click", function () { 
-	expire();
-	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount },success: function (response) {
-			newRow.append(response);
-			$(locate).append(newRow);
-			wcount++;
-			
-		}
-	}).done(function() {
-		tSawBclear('table.order-list');
-	});
+	var type = $("#type option:selected").val();
+	
+
+	if(type != ''){
+		expire();
+		var newRow = $("<tr>");
+		$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount, type:type },success: function (response) {
+				newRow.append(response);
+				$(locate).append(newRow);
+				wcount++;
+				
+			}
+		}).done(function() {
+			tSawBclear('table.order-list');
+		});
+
+		//getSubtype(type);
+
+	}else{
+		alert("Please choose Reimburs Type");
+	}
+	
 });
 
 
@@ -252,6 +269,66 @@ function del(idx,hdnid){
 	
 
 }
+
+function getSubtype(type){
+	if(type != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataSubtype',
+			data: { type: type },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 	
+					var $el = $(".subtype");
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.mssubtype, function(key,value) {
+					  	$el.append($("<option></option>")
+					     .attr("value", value.id).text(value.name));
+					});
+					//$('select#subtype').val(joborderid).trigger('change.select2');
+
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}else{
+ 		alert("Please choose Order Name");
+ 	}
+
+
+}
+
+
+$('#type').on('change', function () { 
+ 	var type = $("#type option:selected").val();
+ 	
+
+ 	getSubtype(type);
+ 	
+
+});
 
 
 </script>
