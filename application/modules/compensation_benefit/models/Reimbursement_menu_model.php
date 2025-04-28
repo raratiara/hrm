@@ -312,134 +312,68 @@ class Reimbursement_menu_model extends MY_Model
 		return $data;
 	}
 
+	public function get_sisa_plafon($emp_id, $type_id){
+		$getplafon = $this->db->query("select a.id, b.nominal_plafon, b.reimburs_type_id 
+				from employees a left join master_plafon b on b.grade_id = a.grade_id and b.reimburs_type_id = '".$type_id."' where a.id = '".$emp_id."' ")->result(); 
+		$plafon=0;
+		if($getplafon != ''){
+			$plafon = $getplafon[0]->nominal_plafon;
+		}
+
+		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' ")->result(); 
+		$pemakaian=0;
+		if($getpemakaian != ''){
+			$pemakaian = $getpemakaian[0]->total_pemakaian;
+		}
+
+		$sisa = $plafon-$pemakaian;
+		if($sisa <= 0){
+			$sisa=0;
+		} 
+
+
+
+
+		return $sisa;
+	}
+
 
 	public function add_data($post) { 
 
 		$date 		= date_create($post['date']); 
 		$f_date 	= date_format($date,"Y-m-d H:i:s");
 
+		$sisa_plafon = $this->get_sisa_plafon($post['employee'], $post['type']);
+
 		
   		if(!empty($post['date']) && !empty($post['employee'])){ 
-  			$data = [
-				'date_reimbursment' 	=> $f_date,
-				'employee_id' 			=> trim($post['employee']),
-				'reimburse_for'			=> trim($post['reimburs_for']),
-				'atas_nama' 			=> trim($post['atas_nama']),
-				'diagnosa' 				=> trim($post['diagnosa']),
-				'nominal_billing' 		=> trim($post['nominal_billing']),
-				'nominal_reimburse' 	=> trim($post['nominal_reimburs']), 
-				'created_at'			=> date("Y-m-d H:i:s")
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-			$lastId = $this->db->insert_id();
+  			if($post['nominal_reimburs'] <= $sisa_plafon){ //jika masih ada plafon
+  				$data = [
+					'date_reimbursment' 	=> $f_date,
+					'employee_id' 			=> trim($post['employee']),
+					'reimburs_type_id' 		=> trim($post['type']),
+					'reimburse_for'			=> trim($post['reimburs_for']),
+					'atas_nama' 			=> trim($post['atas_nama']),
+					'diagnosa' 				=> trim($post['diagnosa']),
+					'nominal_billing' 		=> trim($post['nominal_billing']),
+					'nominal_reimburse' 	=> trim($post['nominal_reimburs']), 
+					'created_at'			=> date("Y-m-d H:i:s")
+				];
+				$rs = $this->db->insert($this->table_name, $data);
+				$lastId = $this->db->insert_id();
 
-			if($rs){
-				if(isset($post['subtype'])){
-					$item_num = count($post['subtype']); // cek sum
-					$item_len_min = min(array_keys($post['subtype'])); // cek min key index
-					$item_len = max(array_keys($post['subtype'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
-
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
-						$document = '';
-						if($upload_emp_photo['status']){ 
-							$document = $upload_emp_photo['upload_file'];
-						} else if(isset($upload_emp_photo['error_warning'])){ 
-							echo $upload_emp_photo['error_warning']; exit;
-						}
-
-						if(isset($post['subtype'][$i])){
-							$itemData = [
-								'reimbursement_id' 	=> $lastId,
-								'subtype_id' 		=> trim($post['subtype'][$i]),
-								'document' 			=> $document,
-								'biaya' 			=> trim($post['biaya'][$i]),
-								'qty' 				=> trim($post['qty'][$i]),
-								'notes' 			=> trim($post['notes'][$i])
-							];
-
-							$this->db->insert('reimbursement_detail', $itemData);
-						}
+				if($rs){
+					if(isset($post['subtype'])){
+						$item_num = count($post['subtype']); // cek sum
+						$item_len_min = min(array_keys($post['subtype'])); // cek min key index
+						$item_len = max(array_keys($post['subtype'])); // cek max key index
+					} else {
+						$item_num = 0;
 					}
-				}
-			}
 
-			return $rs;
-
-  		}else return null;
-
-	}  
-
-	public function edit_data($post) { 
-		$date 		= date_create($post['date']); 
-		$f_date 	= date_format($date,"Y-m-d H:i:s");
-		
-
-
-		if(!empty($post['id'])){ 
-		
-			$data = [
-				'date_reimbursment' 	=> $f_date,
-				'employee_id' 			=> trim($post['employee']),
-				'reimburs_type_id' 		=> trim($post['type']),
-				'reimburse_for'			=> trim($post['reimburs_for']),
-				'atas_nama' 			=> trim($post['atas_nama']),
-				'diagnosa' 				=> trim($post['diagnosa']),
-				'nominal_billing' 		=> trim($post['nominal_billing']),
-				'nominal_reimburse' 	=> trim($post['nominal_reimburs']),
-				'updated_at'			=> date("Y-m-d H:i:s")
-			];
-
-			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-
-			if($rs){
-				if(isset($post['subtype'])){
-					$item_num = count($post['subtype']); // cek sum
-					$item_len_min = min(array_keys($post['subtype'])); // cek min key index
-					$item_len = max(array_keys($post['subtype'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
-
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						$hdnid = trim($post['hdnid'][$i]);
-
-						if(!empty($hdnid)){ //update
-
-							$hdndocument = trim($post['hdndocument'.$i]);
-							$document = '';
-							$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
-							if($upload_emp_photo['status']){ 
-								$document = $upload_emp_photo['upload_file'];
-							} else if(isset($upload_emp_photo['error_warning'])){ 
-								echo $upload_emp_photo['error_warning']; exit;
-							}
-
-							if($document == '' && $hdndocument != ''){
-								$document = $hdndocument;
-							}
-
-							if(isset($post['subtype'][$i])){
-								$itemData = [
-									'subtype_id' 		=> trim($post['subtype'][$i]),
-									'document' 			=> $document,
-									'biaya' 			=> trim($post['biaya'][$i]),
-									'qty' 				=> trim($post['qty'][$i]),
-									'notes' 			=> trim($post['notes'][$i])
-								];
-
-								$this->db->update("reimbursement_detail", $itemData, "id = '".$hdnid."'");
-							}
-
-						}else{ //insert
-
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
 							$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
 							$document = '';
 							if($upload_emp_photo['status']){ 
@@ -450,7 +384,7 @@ class Reimbursement_menu_model extends MY_Model
 
 							if(isset($post['subtype'][$i])){
 								$itemData = [
-									'reimbursement_id' 	=> $post['id'],
+									'reimbursement_id' 	=> $lastId,
 									'subtype_id' 		=> trim($post['subtype'][$i]),
 									'document' 			=> $document,
 									'biaya' 			=> trim($post['biaya'][$i]),
@@ -460,14 +394,123 @@ class Reimbursement_menu_model extends MY_Model
 
 								$this->db->insert('reimbursement_detail', $itemData);
 							}
-
 						}
-						
 					}
 				}
+
+				return $rs;
+
+  			}else{
+  				return null;
+  			}
+
+  		}else return null;
+
+	}  
+
+	public function edit_data($post) { 
+		$date 		= date_create($post['date']); 
+		$f_date 	= date_format($date,"Y-m-d H:i:s");
+		
+		$sisa_plafon = $this->get_sisa_plafon($post['employee'], $post['type']);
+
+
+		if(!empty($post['id'])){ 
+			$getdata = $this->db->query("select * from medicalreimbursements where id = '".$post['id']."' ")->result(); 
+			$curr_nominal_reimburs = $getdata[0]->nominal_reimburse;
+			$sisa_plafon = $sisa_plafon+$curr_nominal_reimburs;
+
+			if($post['nominal_reimburs'] <= $sisa_plafon){ //jika masih ada plafon
+				$data = [
+					'date_reimbursment' 	=> $f_date,
+					'employee_id' 			=> trim($post['employee']),
+					'reimburs_type_id' 		=> trim($post['type']),
+					'reimburse_for'			=> trim($post['reimburs_for']),
+					'atas_nama' 			=> trim($post['atas_nama']),
+					'diagnosa' 				=> trim($post['diagnosa']),
+					'nominal_billing' 		=> trim($post['nominal_billing']),
+					'nominal_reimburse' 	=> trim($post['nominal_reimburs']),
+					'updated_at'			=> date("Y-m-d H:i:s")
+				];
+
+				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+				if($rs){
+					if(isset($post['subtype'])){
+						$item_num = count($post['subtype']); // cek sum
+						$item_len_min = min(array_keys($post['subtype'])); // cek min key index
+						$item_len = max(array_keys($post['subtype'])); // cek max key index
+					} else {
+						$item_num = 0;
+					}
+
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+							$hdnid = trim($post['hdnid'][$i]);
+
+							if(!empty($hdnid)){ //update
+
+								$hdndocument = trim($post['hdndocument'.$i]);
+								$document = '';
+								$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
+								if($upload_emp_photo['status']){ 
+									$document = $upload_emp_photo['upload_file'];
+								} else if(isset($upload_emp_photo['error_warning'])){ 
+									echo $upload_emp_photo['error_warning']; exit;
+								}
+
+								if($document == '' && $hdndocument != ''){
+									$document = $hdndocument;
+								}
+
+								if(isset($post['subtype'][$i])){
+									$itemData = [
+										'subtype_id' 		=> trim($post['subtype'][$i]),
+										'document' 			=> $document,
+										'biaya' 			=> trim($post['biaya'][$i]),
+										'qty' 				=> trim($post['qty'][$i]),
+										'notes' 			=> trim($post['notes'][$i])
+									];
+
+									$this->db->update("reimbursement_detail", $itemData, "id = '".$hdnid."'");
+								}
+
+							}else{ //insert
+
+								$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
+								$document = '';
+								if($upload_emp_photo['status']){ 
+									$document = $upload_emp_photo['upload_file'];
+								} else if(isset($upload_emp_photo['error_warning'])){ 
+									echo $upload_emp_photo['error_warning']; exit;
+								}
+
+								if(isset($post['subtype'][$i])){
+									$itemData = [
+										'reimbursement_id' 	=> $post['id'],
+										'subtype_id' 		=> trim($post['subtype'][$i]),
+										'document' 			=> $document,
+										'biaya' 			=> trim($post['biaya'][$i]),
+										'qty' 				=> trim($post['qty'][$i]),
+										'notes' 			=> trim($post['notes'][$i])
+									];
+
+									$this->db->insert('reimbursement_detail', $itemData);
+								}
+
+							}
+							
+						}
+					}
+				}
+
+				return $rs;
+
+			}else{
+				return null;
 			}
 
-			return $rs;
 		} else return null;
 	}  
 
@@ -525,17 +568,17 @@ class Reimbursement_menu_model extends MY_Model
 	}
 
 
-	public function getNewExpensesRow($row,$id=0,$view=FALSE)
+	public function getNewExpensesRow($row,$type,$id=0,$view=FALSE)
 	{ 
 		if($id > 0){ 
-			$data = $this->getExpensesRows($id,$view);
+			$data = $this->getExpensesRows($type,$id,$view);
 		} else { 
 			$data = '';
 			$no = $row+1;
-			$msSubtype = $this->db->query("select * from master_reimburs_subtype")->result(); 
+			$msSubtype = $this->db->query("select * from master_reimburs_subtype where reimburs_type_id = '".$type."'")->result(); 
 			
 			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
-			$data 	.= '<td>'.$this->return_build_chosenme($msSubtype,'','','','subtype['.$row.']','','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_chosenme($msSubtype,'','','','subtype['.$row.']','subtype','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
@@ -549,7 +592,7 @@ class Reimbursement_menu_model extends MY_Model
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function getExpensesRows($id,$view,$print=FALSE){ 
+	public function getExpensesRows($type,$id,$view,$print=FALSE){ 
 		$uri = $_SERVER['REQUEST_URI'];
 	 	$xpl = explode("/",$uri);
 	 	$url = $_SERVER['SERVER_NAME'].'/'.$xpl[1].'/uploads/reimbursement';
@@ -574,7 +617,7 @@ class Reimbursement_menu_model extends MY_Model
 			}*/
 			foreach ($rd as $f){
 				$no = $row+1;
-				$msSubtype = $this->db->query("select * from master_reimburs_subtype")->result(); 
+				$msSubtype = $this->db->query("select * from master_reimburs_subtype where reimburs_type_id = '".$type."'")->result(); 
 
 				if(!$view){ 
 					$viewdoc = '';
@@ -585,7 +628,7 @@ class Reimbursement_menu_model extends MY_Model
 					$dt .= '<tr>';
 
 					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
-					$dt .= '<td>'.$this->return_build_chosenme($msSubtype,'',isset($f->subtype_id)?$f->subtype_id:1,'','subtype['.$row.']','','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_chosenme($msSubtype,'',isset($f->subtype_id)?$f->subtype_id:1,'','subtype['.$row.']','subtype','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 					$dt .= '<td>'.$this->return_build_txt($f->qty,'qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndocument'.$row.'" name="hdndocument'.$row.'" value="'.$f->document.'"/></td>';
@@ -626,6 +669,18 @@ class Reimbursement_menu_model extends MY_Model
 		}
 
 		return [$dt,$row];
+	}
+
+
+	public function getDataSubtype($type){ 
+
+		$rs = $this->db->query("select * from master_reimburs_subtype where reimburs_type_id = '".$type."' ")->result(); 
+
+		$data['mssubtype'] = $rs;
+
+
+		return $data;
+
 	}
 
 

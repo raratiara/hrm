@@ -26,7 +26,8 @@ class Ijin_menu_model extends MY_Model
 			'dt.leave_name',
 			'dt.reason',
 			'dt.total_leave',
-			'dt.status'
+			'dt.status',
+			'dt.direct_id'
 		];
 		
 		
@@ -37,7 +38,7 @@ class Ijin_menu_model extends MY_Model
 						when a.status_approval = 1 then "Waiting Approval"
 						when a.status_approval = 2 then "Approved"
 						when a.status_approval = 3 then "Rejected"
-						 end) as status
+						 end) as status, b.direct_id
 					from leave_absences a left join employees b on b.id = a.employee_id
 					left join master_leaves c on c.id = a.masterleave_id)dt';
 		
@@ -141,6 +142,9 @@ class Ijin_menu_model extends MY_Model
 			}
 		}
 
+		$getdirect = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$direct_karyawan_id = $getdirect[0]->id_karyawan;
+
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
 		$sQuery = "
@@ -194,7 +198,7 @@ class Ijin_menu_model extends MY_Model
 
 			$reject=""; 
 			$approve="";
-			if($row->status == 'Waiting Approval'){
+			if($row->status == 'Waiting Approval' && $row->direct_id == $direct_karyawan_id){
 				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
 			}
