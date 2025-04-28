@@ -810,7 +810,7 @@ class Api extends API_Controller
     		$where = " where a.employee_id = '".$employee."' ";
     	}
 
-    	$datatasklist = $this->db->query("select  a.id, b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date
+    	$datatasklist = $this->db->query("select a.id, a.employee_id, b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.status_id, a.parent_id
 					from tasklist a left join employees b on b.id = a.employee_id
 					left join tasklist c on c.id = a.parent_id
 					left join master_tasklist_status d on d.id = a.status_id
@@ -902,5 +902,100 @@ class Api extends API_Controller
 		
     }
 
+
+    public function save_tasklist()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$type			= $_REQUEST['type']; // insert or update
+    	$id 			= $_REQUEST['id'];
+    	$employee		= $_REQUEST['employee_id'];
+    	$task			= $_REQUEST['task'];
+    	$progress		= $_REQUEST['progress'];
+    	$task_parent	= $_REQUEST['task_parent_id'];
+    	$due_date		= $_REQUEST['due_date'];
+    	$status 		= $_REQUEST['status_id'];
+
+
+    	if($type == 'insert'){
+
+    		$data = [
+				'employee_id' 			=> $employee,
+				'task' 					=> $task,
+				'progress_percentage'	=> $progress,
+				'parent_id' 			=> $task_parent,
+				'due_date' 				=> $due_date,
+				'status_id' 			=> $status,
+				'created_at'			=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert("tasklist", $data);
+
+			if($rs){
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+
+    	}else if($type == 'update'){
+    		if($id != ''){
+    			$data = [
+					'employee_id' 			=> $employee,
+					'task' 					=> $task,
+					'progress_percentage'	=> $progress,
+					'parent_id' 			=> $task_parent,
+					'due_date' 				=> $due_date,
+					'status_id' 			=> $status,
+					'updated_at'			=> date("Y-m-d H:i:s")
+				];
+				$rs = $this->db->update("tasklist", $data, "id = '".$id."'");
+				if($rs){
+					$response = [
+			    		'status' 	=> 200,
+						'message' 	=> 'Success'
+					];
+				}else{
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Error submit'
+					];
+				}
+
+    		}else{
+    			$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'ID not found'
+				];
+    		}
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Type not found'
+			];
+    	}
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
 
 }
