@@ -6,6 +6,13 @@ class Api extends API_Controller
 	/* Module */
  	//private $model_name				= "api_model";
 
+
+ 	/* upload */
+ 	protected $attachment_folder	= "./uploads/absensi";
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
+
+
    	public function __construct()
 	{
       	parent::__construct();
@@ -281,13 +288,23 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
+		/*$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true); 
     	$_REQUEST = $data;
 
     	$employee	= $_REQUEST['employee'];
-    	$tipe = $_REQUEST['tipe'];
+    	$tipe 		= $_REQUEST['tipe'];
     	$datetime	= $_REQUEST['datetime_attendance'];
+    	$notes		= $_REQUEST['notes'];
+    	$photo		= $_REQUEST['photo'];*/
+
+    	$employee	= $_POST['employee'];
+    	$tipe 		= $_POST['tipe'];
+    	$datetime	= $_POST['datetime_attendance'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['photo'];
+
+    	//print_r($photo); die();
 
 		if($employee != '' && $tipe != '' && $datetime != ''){
 			/*$date 	= date_format($datetime,"Y-m-d");
@@ -380,6 +397,39 @@ class Api extends API_Controller
 
 				}else{ //insert
 					if($tipe == 'checkin'){
+
+						//upload 
+						$dataU = array();
+        				$dataU['status'] = FALSE; 
+						$fieldname='photo';
+						if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			            { 
+			               
+			                $config['upload_path']   = $this->attachment_folder;
+			                $config['allowed_types'] = $this->allow_type;
+			                $config['max_size']      = $this->allow_size;
+			                
+			                $this->load->library('upload', $config); 
+			                
+			                if(!$this->upload->do_upload($fieldname)){ 
+			                    $err_msg = $this->upload->display_errors(); 
+			                    $dataU['error_warning'] = strip_tags($err_msg);              
+			                    $dataU['status'] = FALSE;
+			                } else { 
+			                    $fileData = $this->upload->data();
+			                    $dataU['upload_file'] = $fileData['file_name'];
+			                    $dataU['status'] = TRUE;
+			                }
+			            }
+			            $document = '';
+						if($dataU['status']){ 
+							$document = $dataU['upload_file'];
+						} else if(isset($dataU['error_warning'])){ 
+							echo $dataU['error_warning']; exit;
+						}
+
+			            //end upload
+
 						$data = [
 							'date_attendance' 			=> $date,
 							'employee_id' 				=> $employee,
@@ -388,7 +438,9 @@ class Api extends API_Controller
 							'time_out' 					=> $time_out,
 							'date_attendance_in' 		=> $datetime,
 							'is_late'					=> $is_late,
-							'created_at'				=> date("Y-m-d H:i:s")
+							'created_at'				=> date("Y-m-d H:i:s"),
+							'notes' => $notes,
+							'photo' => $document
 						];
 
 						$rs = $this->db->insert("time_attendances", $data);
@@ -444,7 +496,7 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$jsonData = file_get_contents('php://input');
+		/*$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
@@ -454,7 +506,18 @@ class Api extends API_Controller
     	$date_end 	= $_REQUEST['date_end'];
     	$reason		= $_REQUEST['reason'];
     	$method_type	= $_REQUEST['method_type']; //insert or update
-    	$id = $_REQUEST['id'];
+    	$id 		= $_REQUEST['id'];*/
+
+
+    	$employee	= $_POST['employee'];
+    	$leave_type = $_POST['leave_type'];
+    	$date_start	= $_POST['date_start'];
+    	$date_end 	= $_POST['date_end'];
+    	$reason		= $_POST['reason'];
+    	$method_type	= $_POST['method_type']; //insert or update
+    	$id 		= $_POST['id'];
+    	$photo 		= $_FILES['photo'];
+
     	//$method_type = 'update';
 
 		if($employee != '' && $leave_type != '' && $date_start != '' && $date_end != '' ){
@@ -464,7 +527,7 @@ class Api extends API_Controller
 			if($cek_emp['id'] != '')
 			{
 				if($method_type == 'insert'){
-					$rs = $this->insert_ijin($employee, $leave_type, $date_start, $date_end, $reason);
+					$rs = $this->insert_ijin($employee, $leave_type, $date_start, $date_end, $reason, $photo);
 				}else if($method_type == 'update'){
 					$rs = $this->update_ijin($employee, $leave_type, $date_start, $date_end, $reason, $id);
 				}
@@ -506,7 +569,7 @@ class Api extends API_Controller
 		$this->render_json($response, $response['status']);
     }
 
-    public function insert_ijin($employee, $leave_type, $date_start, $date_end, $reason){
+    public function insert_ijin($employee, $leave_type, $date_start, $date_end, $reason, $photo){
 
     	if($employee != '' && $date_start != '' && $date_end != '' && $leave_type != ''){ 
 			$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
@@ -523,6 +586,38 @@ class Api extends API_Controller
 			
 
 			if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
+
+				//upload 
+				$dataU = array();
+				$dataU['status'] = FALSE; 
+				$fieldname='photo';
+				if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+	            { 
+	               
+	                $config['upload_path']   = $this->attachment_folder;
+	                $config['allowed_types'] = $this->allow_type;
+	                $config['max_size']      = $this->allow_size;
+	                
+	                $this->load->library('upload', $config); 
+	                
+	                if(!$this->upload->do_upload($fieldname)){ 
+	                    $err_msg = $this->upload->display_errors(); 
+	                    $dataU['error_warning'] = strip_tags($err_msg);              
+	                    $dataU['status'] = FALSE;
+	                } else { 
+	                    $fileData = $this->upload->data();
+	                    $dataU['upload_file'] = $fileData['file_name'];
+	                    $dataU['status'] = TRUE;
+	                }
+	            }
+	            $document = '';
+				if($dataU['status']){ 
+					$document = $dataU['upload_file'];
+				} else if(isset($dataU['error_warning'])){ 
+					echo $dataU['error_warning']; exit;
+				}
+	            //end upload
+
 				$data = [
 					'employee_id' 				=> $employee,
 					'date_leave_start' 			=> $date_start,
@@ -531,7 +626,8 @@ class Api extends API_Controller
 					'reason' 					=> $reason,
 					'total_leave' 				=> $diff_day,
 					'status_approval' 			=> 1, //waiting approval
-					'created_at'				=> date("Y-m-d H:i:s")
+					'created_at'				=> date("Y-m-d H:i:s"),
+					'photo' => $document
 				];
 				$rs = $this->db->insert("leave_absences", $data);
 

@@ -106,11 +106,17 @@ var ldx; //for save list index string
 
 
 
+
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#date_start" ).datepicker();
-        $( "#date_end" ).datepicker();
+        $( "#date_start" ).datepicker({
+        	startDate: '+1d'
+        });
+
+        $( "#date_end" ).datepicker({
+        	startDate: '+1d'
+    	});
 		
    	});
 });
@@ -426,6 +432,46 @@ function save_approve(){
 
 
 }
+
+
+$('#leave_type').on('change', function () { 
+	var leave_type 	= $("#leave_type option:selected").val();
+
+
+
+	//if(leave_type == '5'){ //sick leave
+		//$(function() {
+	   		/*$( "#date_start" ).datepicker({
+	        	startDate: _endDate
+	        });
+
+	        $( "#date_end" ).datepicker({
+	        	startDate: _endDate
+	    	});*/
+
+	    	//$('#date_start').datepicker({autoclose: true, startDate: '+3d' });
+		//});
+		/*alert('sick');
+		var minDate = new Date();
+	    $('#enddate').datepicker('setStartDate', minDate);
+	    $('#enddate').datepicker('setDate', minDate);
+
+
+		$('#date_start').val('').datepicker("refresh");
+
+	}else{ 
+		$(function() {
+			$( "#date_start" ).datepicker({
+	        	startDate: '+1d'
+	        });
+
+	        $( "#date_end" ).datepicker({
+	        	startDate: '+1d'
+	    	});
+		});
+	}*/
+
+});
 
 
 

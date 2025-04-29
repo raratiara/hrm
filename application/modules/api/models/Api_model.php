@@ -7,6 +7,11 @@ class Api_model extends MY_Model
  	protected $folder_name	= "api/api";
     protected $table 		= "users";
 
+    /* upload */
+    protected $attachment_folder    = "./uploads/absensi";
+    protected $allow_type           = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+    protected $allow_size           = "0"; // 0 for limit by default php conf (in Kb)
+
 	function __construct()
 	{
 		parent::__construct();
@@ -109,6 +114,58 @@ class Api_model extends MY_Model
             return $rs;
         }else return 0;
 
+    }
+
+
+    // Upload file
+    public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+        $data = array();
+        $data['status'] = FALSE; 
+        if(!empty($id) && !empty($fieldname)){ 
+            // handling multiple upload (as array field)
+
+            if($array){ 
+                // Define new $_FILES array - $_FILES['file']
+                $_FILES['file']['name'] = $_FILES[$fieldname]['name'];
+                $_FILES['file']['type'] = $_FILES[$fieldname]['type'];
+                $_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
+                $_FILES['file']['error'] = $_FILES[$fieldname]['error'];
+                $_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
+                // override field
+                //$fieldname = 'document';
+
+            } 
+            // handling regular upload (as one field)
+            if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+            { 
+                /*$dir = $this->attachment_folder.'/'.$id;
+                if(!is_dir($dir)) {
+                    mkdir($dir);
+                }
+                if($replace){
+                    $this->remove_file($id, $oldfilename);
+                }*/
+                $config['upload_path']   = $this->attachment_folder;
+                $config['allowed_types'] = $this->allow_type;
+                $config['max_size']      = $this->allow_size;
+                
+                $this->load->library('upload', $config); 
+                
+                if(!$this->upload->do_upload($fieldname)){ 
+                    $err_msg = $this->upload->display_errors(); 
+                    $data['error_warning'] = strip_tags($err_msg);              
+                    $data['status'] = FALSE;
+                } else { 
+                    $fileData = $this->upload->data();
+                    $data['upload_file'] = $fileData['file_name'];
+                    $data['status'] = TRUE;
+                }
+            }
+        }
+
+        
+        
+        return $data;
     }
 
 }

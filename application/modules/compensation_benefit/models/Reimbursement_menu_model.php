@@ -32,13 +32,21 @@ class Reimbursement_menu_model extends MY_Model
 			'dt.atas_nama',
 			'dt.diagnosa',
 			'dt.nominal_billing',
-			'dt.nominal_reimburse'
+			'dt.nominal_reimburse',
+			'dt.status_name',
+			'dt.direct_id'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.name as reimburse_for_name
+		$sTable = '(select a.*, b.full_name as employee_name, c.name as reimburse_for_name,
+					(case 
+						when a.status_id = 1 then "Waiting Approval"
+					    when a.status_id = 2 then "Approved"
+					    when a.status_id = 3 then "Rejected"
+					    else ""
+					end) as status_name, b.direct_id
 					from medicalreimbursements a left join employees b on b.id = a.employee_id
 					left join master_reimbursfor_type c on c.id = a.reimburse_for)dt';
 		
@@ -142,6 +150,10 @@ class Reimbursement_menu_model extends MY_Model
 			}
 		}
 
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
 		$sQuery = "
@@ -193,12 +205,20 @@ class Reimbursement_menu_model extends MY_Model
 				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
+			$reject=""; 
+			$approve="";
+			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
+				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
+			}
+
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
 					'.$detail.'
 					'.$edit.'
-					'.$delete.'
+					'.$reject.'
+					'.$approve.'
 				</div>',
 				$row->id,
 				$row->date_reimbursment,
@@ -207,8 +227,8 @@ class Reimbursement_menu_model extends MY_Model
 				$row->atas_nama,
 				$row->diagnosa,
 				$row->nominal_billing,
-				$row->nominal_reimburse
-
+				$row->nominal_reimburse,
+				$row->status_name
 
 			));
 		}
@@ -357,7 +377,8 @@ class Reimbursement_menu_model extends MY_Model
 					'diagnosa' 				=> trim($post['diagnosa']),
 					'nominal_billing' 		=> trim($post['nominal_billing']),
 					'nominal_reimburse' 	=> trim($post['nominal_reimburs']), 
-					'created_at'			=> date("Y-m-d H:i:s")
+					'created_at'			=> date("Y-m-d H:i:s"),
+					'status_id' 			=> 1 //waiting approval
 				];
 				$rs = $this->db->insert($this->table_name, $data);
 				$lastId = $this->db->insert_id();
