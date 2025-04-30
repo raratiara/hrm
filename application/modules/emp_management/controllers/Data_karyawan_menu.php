@@ -172,4 +172,42 @@ class Data_karyawan_menu extends MY_Controller
  	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
 	//============================== Additional Method ==============================//
+
+
+ 	public function genexpensesrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			$type = trim($post['type']); 
+
+			if(isset($post['count']))
+			{  
+				$row = trim($post['count']); 
+				echo $this->self_model->getNewExpensesRow($row,$type);
+			} else if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				echo json_encode($this->self_model->getNewExpensesRow($row,$type,$id,$view));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+	public function delrowDetailEdu(){ 
+		$post = $this->input->post(); 
+		$id = trim($post['id']); 
+		
+		if($id != ''){
+			$rs = $this->db->delete('cctv',"id = '".$id."'");
+		}
+		
+	}
+
+
+
 }

@@ -9,6 +9,11 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var modloc = '/_hrm/emp_management/data_karyawan_menu/';
+var opsForm = 'form#frmInputData';
+var locate = 'table.ca-list';
+var dlocate = 'table.dca-list';
+var wcount = 0; //for ca list row identify
 
 
 
@@ -304,6 +309,55 @@ function load_data()
 			});
         }
     });
+}
+
+
+
+$("#addcarow").on("click", function () { 
+	var type = $("#type option:selected").val();
+	
+
+	if(type != ''){
+		expire();
+		var newRow = $("<tr>");
+		$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount, type:type },success: function (response) {
+				newRow.append(response);
+				$(locate).append(newRow);
+				wcount++;
+				
+			}
+		}).done(function() {
+			tSawBclear('table.order-list');
+		});
+
+		//getSubtype(type);
+
+	}else{
+		alert("Please choose Reimburs Type");
+	}
+	
+});
+
+
+function del(idx,hdnid){
+	
+	if(hdnid != ''){ //delete dr table
+
+		$.ajax({type: 'post',url: module_path+'/delrowDetailEdu',data: { id:hdnid },success: function (response) {
+				
+			}
+		}).done(function() {
+			tSawBclear('table.order-list');
+		});
+
+	}
+
+	//delete tampilan row
+
+	var table = document.getElementById("tblDetailEdu");
+	table.deleteRow(idx);
+	
+
 }
 
 
