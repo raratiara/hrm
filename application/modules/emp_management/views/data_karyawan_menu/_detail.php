@@ -57,6 +57,9 @@
     <li><a href="#tab_address" data-toggle="tab">Address</a></li>
     <li><a href="#tab_emergency_contact" data-toggle="tab">Emergency Contact</a></li>
     <li><a href="#tab_bank_account" data-toggle="tab">Bank Account</a></li>
+    <li><a href="#tab_training" data-toggle="tab">Training</a></li>
+    <li><a href="#tab_organization" data-toggle="tab">Organization</a></li>
+    <li><a href="#tab_workexp" data-toggle="tab">Work Experience</a></li>
     <li><a href="#tab_exit_clearance" data-toggle="tab">Exit Clearance</a></li>
 </ul>
 
@@ -431,7 +434,7 @@
 
 
 
-	<div class="tab-pane" id="tab_education">
+	<div class="tab-pane" id="tab_training">
 		<div class="row">
 
 			<div class="row ca">
@@ -450,6 +453,88 @@
 									<tr>
 										<th scope="col">No</th>
 										<th scope="col">Training Name</th>
+										<th scope="col">City</th>
+										<th scope="col">Year</th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+	<div class="tab-pane" id="tab_organization">
+		<div class="row">
+
+			<div class="row ca">
+			    <div class="col-md-12">
+					<div class="portlet box green">
+						<div class="portlet-title">
+							<div class="caption">Detail Organization </div>
+							<div class="tools">
+								
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="table-scrollable tablesaw-cont">
+							<table class="table table-striped table-bordered table-hover ca-list-orgdtl tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblOrg">
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Organization Name</th>
+										<th scope="col">Institution</th>
+										<th scope="col">Position</th>
+										<th scope="col">City</th>
+										<th scope="col">Year</th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+
+	<div class="tab-pane" id="tab_workexp">
+		<div class="row">
+
+			<div class="row ca">
+			    <div class="col-md-12">
+					<div class="portlet box green">
+						<div class="portlet-title">
+							<div class="caption">Detail Work Experience </div>
+							<div class="tools">
+								
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="table-scrollable tablesaw-cont">
+							<table class="table table-striped table-bordered table-hover ca-list-workexpdtl tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblWorkexp">
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Company</th>
+										<th scope="col">Position</th>
 										<th scope="col">City</th>
 										<th scope="col">Year</th>
 									</tr>

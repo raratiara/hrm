@@ -14,6 +14,10 @@ var opsForm = 'form#frmInputData';
 
 var dlocate = 'table.dca-list';
 var wcount = 0; //for ca list row identify
+var wcount_training = 0; //for ca list row identify
+var wcount_org = 0; //for ca list row identify
+var wcount_workexp = 0; //for ca list row identify
+
 
 
 
@@ -219,6 +223,49 @@ function load_data()
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
+
+
+
+					var locate_training = 'table.ca-list-training';
+					$.ajax({type: 'post',url: modloc+'gentrainingrow',data: { id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate_training+' tbody').html(obj[0]);
+							
+							wcount_training=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate_training);
+						///expenseviewadjust(lstatus);
+					});
+
+
+					var locate_org = 'table.ca-list-org';
+					$.ajax({type: 'post',url: modloc+'genorgrow',data: { id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate_org+' tbody').html(obj[0]);
+							
+							wcount_org=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate_org);
+						///expenseviewadjust(lstatus);
+					});
+
+
+					var locate_workexp = 'table.ca-list-workexp';
+					$.ajax({type: 'post',url: modloc+'genworkexprow',data: { id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate_workexp+' tbody').html(obj[0]);
+							
+							wcount_workexp=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate_workexp);
+						///expenseviewadjust(lstatus);
+					});
 					
 					
 					
@@ -307,6 +354,49 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
+
+
+					var locate_training = 'table.ca-list-trainingdtl';
+					$.ajax({type: 'post',url: modloc+'gentrainingrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate_training+' tbody').html(obj[0]);
+							
+							wcount_training=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate_training);
+						///expenseviewadjust(lstatus);
+					});
+
+
+					var locate_org = 'table.ca-list-orgdtl';
+					$.ajax({type: 'post',url: modloc+'genorgrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate_org+' tbody').html(obj[0]);
+							
+							wcount_org=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate_org);
+						///expenseviewadjust(lstatus);
+					});
+
+
+					var locate_workexp = 'table.ca-list-workexpdtl';
+					$.ajax({type: 'post',url: modloc+'genworkexprow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate_workexp+' tbody').html(obj[0]);
+							
+							wcount_workexp=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate_workexp);
+						///expenseviewadjust(lstatus);
+					});
+
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -363,13 +453,51 @@ $("#addcarow").on("click", function () {
 
 $("#addcarow-training").on("click", function () { 
 	var locate = 'table.ca-list-training';
-
+	
 	expire();
 	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/gentrainingrow',data: { count:wcount},success: function (response) {
+	$.ajax({type: 'post',url: module_path+'/gentrainingrow',data: { count:wcount_training},success: function (response) {
 			newRow.append(response);
 			$(locate).append(newRow);
-			wcount++;
+			wcount_training++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.order-list');
+	});
+
+	
+});
+
+
+$("#addcarow-org").on("click", function () { 
+	var locate = 'table.ca-list-org';
+	
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genorgrow',data: { count:wcount_org},success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount_org++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.order-list');
+	});
+
+	
+});
+
+
+$("#addcarow-workexp").on("click", function () { 
+	var locate = 'table.ca-list-workexp';
+	
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genworkexprow',data: { count:wcount_workexp},success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount_workexp++;
 			
 		}
 	}).done(function() {

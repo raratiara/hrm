@@ -458,6 +458,90 @@ class Data_karyawan_menu_model extends MY_Model
 			}
 			// end add ke table education detail //
 
+			// add ke table training detail //
+			if(isset($post['training_name'])){
+				$item_num_training = count($post['training_name']); // cek sum
+				$item_len_min_training = min(array_keys($post['training_name'])); // cek min key index
+				$item_len_training = max(array_keys($post['training_name'])); // cek max key index
+			} else {
+				$item_num_training = 0;
+			}
+
+			if($item_num_training>0){
+				for($i=$item_len_min_training;$i<=$item_len_training;$i++) 
+				{
+					if(isset($post['training_name'][$i])){
+						$itemData_training = [
+							'employee_id' 	=> $lastId,
+							'training_name' => trim($post['training_name'][$i]),
+							'city' 			=> trim($post['city_training'][$i]),
+							'year' 			=> trim($post['year_training'][$i])
+						];
+
+						$this->db->insert('training_detail', $itemData_training);
+					}
+				}
+			}
+			// end add ke table training detail //
+
+			// add ke table organisasi detail //
+			if(isset($post['organization_name'])){
+				$item_num_org = count($post['organization_name']); // cek sum
+				$item_len_min_org = min(array_keys($post['organization_name'])); // cek min key index
+				$item_len_org = max(array_keys($post['organization_name'])); // cek max key index
+			} else {
+				$item_num_org = 0;
+			}
+
+			if($item_num_org>0){
+				for($i=$item_len_min_org;$i<=$item_len_org;$i++) 
+				{
+					if(isset($post['organization_name'][$i])){
+						$itemData_org = [
+							'employee_id' 		=> $lastId,
+							'organization_name' => trim($post['organization_name'][$i]),
+							'institution' 		=> trim($post['institution_org'][$i]),
+							'position' 			=> trim($post['position'][$i]),
+							'city' 				=> trim($post['city_org'][$i]),
+							'year' 				=> trim($post['year_org'][$i])
+						];
+
+						$this->db->insert('organization_detail', $itemData_org);
+					}
+				}
+			}
+			// end add ke table organisasi detail //
+
+			// add ke table work experience detail //
+			if(isset($post['company_workexp'])){
+				$item_num_workexp = count($post['company_workexp']); // cek sum
+				$item_len_min_workexp = min(array_keys($post['company_workexp'])); // cek min key index
+				$item_len_workexp = max(array_keys($post['company_workexp'])); // cek max key index
+			} else {
+				$item_num_workexp = 0;
+			}
+
+			if($item_num_workexp>0){
+				for($i=$item_len_min_workexp;$i<=$item_len_workexp;$i++) 
+				{
+					if(isset($post['company_workexp'][$i])){
+						$itemData_workexp = [
+							'employee_id' 		=> $lastId,
+							'company' 			=> trim($post['company_workexp'][$i]),
+							'position' 			=> trim($post['position_workexp'][$i]),
+							'city' 				=> trim($post['city_workexp'][$i]),
+							'year' 				=> trim($post['year_workexp'][$i])
+						];
+
+						$this->db->insert('work_experience_detail', $itemData_workexp);
+					}
+				}
+			}
+			// end add ke table work experience detail //
+
+
+
+
 			// add ke table user //
 			$pwd = '112233';
 			$password = md5($pwd);
@@ -538,7 +622,7 @@ class Data_karyawan_menu_model extends MY_Model
 				'gender' 						=> trim($post['gender']),
 				'ethnic' 						=> trim($post['ethnic']),
 				'nationality' 					=> trim($post['nationality']),
-				'last_education_id' 			=> trim($post['last_education']),
+				//'last_education_id' 			=> trim($post['last_education']),
 				'marital_status_id' 			=> trim($post['marital_status']),
 				'tanggungan' 					=> trim($post['tanggungan']),
 				'no_ktp' 						=> trim($post['no_ktp']),
@@ -591,6 +675,7 @@ class Data_karyawan_menu_model extends MY_Model
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if($rs){
+				// add education detail //
 				if(isset($post['education'])){
 					$item_num = count($post['education']); // cek sum
 					$item_len_min = min(array_keys($post['education'])); // cek min key index
@@ -635,6 +720,157 @@ class Data_karyawan_menu_model extends MY_Model
 						
 					}
 				}
+
+				// end add education detail //
+
+				// add training detail //
+				if(isset($post['training_name'])){
+					$item_num_training = count($post['training_name']); // cek sum
+					$item_len_min_training = min(array_keys($post['training_name'])); // cek min key index
+					$item_len_training = max(array_keys($post['training_name'])); // cek max key index
+				} else {
+					$item_num_training = 0;
+				}
+
+				if($item_num_training>0){
+					for($i=$item_len_min_training;$i<=$item_len_training;$i++) 
+					{
+						$hdnid_training = trim($post['hdnid_training'][$i]);
+
+						if(!empty($hdnid_training)){ //update
+
+							if(isset($post['training_name'][$i])){
+								$itemData_training = [
+									'training_name' => trim($post['training_name'][$i]),
+									'city' 			=> trim($post['city_training'][$i]),
+									'year' 			=> trim($post['year_training'][$i])
+								];
+
+								$this->db->update("training_detail", $itemData_training, "id = '".$hdnid_training."'");
+							}
+
+						}else{ //insert
+
+							if(isset($post['training_name'][$i])){
+								$itemData_training = [
+									'employee_id' 	=> $post['id'],
+									'training_name' => trim($post['training_name'][$i]),
+									'city' 			=> trim($post['city_training'][$i]),
+									'year' 			=> trim($post['year_training'][$i])
+								];
+
+								$this->db->insert('training_detail', $itemData_training);
+							}
+
+						}
+						
+					}
+				}
+
+				// end add education detail //
+
+
+
+				// add organisasi detail //
+				if(isset($post['organization_name'])){
+					$item_num_org = count($post['organization_name']); // cek sum
+					$item_len_min_org = min(array_keys($post['organization_name'])); // cek min key index
+					$item_len_org = max(array_keys($post['organization_name'])); // cek max key index
+				} else {
+					$item_num_org = 0;
+				}
+
+				if($item_num_org>0){
+					for($i=$item_len_min_org;$i<=$item_len_org;$i++) 
+					{
+						$hdnid_org = trim($post['hdnid_org'][$i]);
+
+						if(!empty($hdnid_org)){ //update
+
+							if(isset($post['organization_name'][$i])){
+								$itemData_org = [
+									'organization_name' => trim($post['organization_name'][$i]),
+									'institution' 		=> trim($post['institution_org'][$i]),
+									'position' 			=> trim($post['position'][$i]),
+									'city' 				=> trim($post['city_org'][$i]),
+									'year' 				=> trim($post['year_org'][$i])
+								];
+
+								$this->db->update("organization_detail", $itemData_org, "id = '".$hdnid_org."'");
+							}
+
+						}else{ //insert
+
+							if(isset($post['organization_name'][$i])){
+								$itemData_org = [
+									'employee_id' 	=> $post['id'],
+									'organization_name' => trim($post['organization_name'][$i]),
+									'institution' 		=> trim($post['institution_org'][$i]),
+									'position' 			=> trim($post['position'][$i]),
+									'city' 				=> trim($post['city_org'][$i]),
+									'year' 				=> trim($post['year_org'][$i])
+								];
+
+								$this->db->insert('organization_detail', $itemData_org);
+							}
+
+						}
+						
+					}
+				}
+
+				// end add education detail //
+
+
+				// add work experience detail //
+				if(isset($post['company_workexp'])){
+					$item_num_workexp = count($post['company_workexp']); // cek sum
+					$item_len_min_workexp = min(array_keys($post['company_workexp'])); // cek min key index
+					$item_len_workexp = max(array_keys($post['company_workexp'])); // cek max key index
+				} else {
+					$item_num_workexp = 0;
+				}
+
+				if($item_num_workexp>0){
+					for($i=$item_len_min_workexp;$i<=$item_len_workexp;$i++) 
+					{
+						$hdnid_workexp = trim($post['hdnid_workexp'][$i]);
+
+						if(!empty($hdnid_workexp)){ //update
+
+							if(isset($post['company_workexp'][$i])){
+								$itemData_workexp = [
+									'company'	=> trim($post['company_workexp'][$i]),
+									'position' 	=> trim($post['position_workexp'][$i]),
+									'city' 		=> trim($post['city_workexp'][$i]),
+									'year' 		=> trim($post['year_workexp'][$i])
+								];
+
+								$this->db->update("work_experience_detail", $itemData_workexp, "id = '".$hdnid_workexp."'");
+							}
+
+						}else{ //insert
+
+							if(isset($post['company_workexp'][$i])){
+								$itemData_workexp = [
+									'employee_id' 	=> $post['id'],
+									'company'	=> trim($post['company_workexp'][$i]),
+									'position' 	=> trim($post['position_workexp'][$i]),
+									'city' 		=> trim($post['city_workexp'][$i]),
+									'year' 		=> trim($post['year_workexp'][$i])
+								];
+
+								$this->db->insert('work_experience_detail', $itemData_workexp);
+							}
+
+						}
+						
+					}
+				}
+
+				// end add education detail //
+
+
 			}
 
 
@@ -809,6 +1045,274 @@ class Data_karyawan_menu_model extends MY_Model
 					$dt .= '<td>'.$no.'</td>';
 					$dt .= '<td>'.$f->education_name.'</td>';
 					$dt .= '<td>'.$f->institution.'</td>';
+					$dt .= '<td>'.$f->city.'</td>';
+					$dt .= '<td>'.$f->year.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
+	}
+
+
+	public function getNewTrainingRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getTrainingRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid_training'.$row.'" name="hdnid_training['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$this->return_build_txt('','training_name['.$row.']','','training_name','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','city_training['.$row.']','','city_training','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','year_training['.$row.']','','year_training','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del-training(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+
+	// Generate expenses item rows for edit & view
+	public function getTrainingRows($id,$view,$print=FALSE){ 
+		
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from training_detail where employee_id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			/*if($view){
+				$arrSat = json_decode(json_encode($msObat), true);
+				$arrS = [];
+				foreach($arrSat as $ai){
+					$arrS[$ai['id']] = $ai;
+				}
+			}*/
+			foreach ($rd as $f){
+				$no = $row+1;
+				
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid_training'.$row.'" name="hdnid_training['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($f->training_name,'training_name['.$row.']','','training_name','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->city,'city_training['.$row.']','','city_training','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->year,'year_training['.$row.']','','year_training','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del-training(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					$qty=$f->qty;
+					if($f->qty==0){
+						$qty='';
+					}
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->training_name.'</td>';
+					$dt .= '<td>'.$f->city.'</td>';
+					$dt .= '<td>'.$f->year.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
+	}
+
+
+	public function getNewOrgRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getOrgRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid_org'.$row.'" name="hdnid_org['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$this->return_build_txt('','organization_name['.$row.']','','organization_name','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','institution_org['.$row.']','','institution_org','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','position['.$row.']','','position','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','city_org['.$row.']','','city_org','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','year_org['.$row.']','','year_org','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del-org(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+
+	// Generate expenses item rows for edit & view
+	public function getOrgRows($id,$view,$print=FALSE){ 
+		
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from organization_detail where employee_id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			/*if($view){
+				$arrSat = json_decode(json_encode($msObat), true);
+				$arrS = [];
+				foreach($arrSat as $ai){
+					$arrS[$ai['id']] = $ai;
+				}
+			}*/
+			foreach ($rd as $f){
+				$no = $row+1;
+				
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid_org'.$row.'" name="hdnid_org['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($f->organization_name,'organization_name['.$row.']','','organization_name','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->institution,'institution_org['.$row.']','','institution_org','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->position,'position_org['.$row.']','','position_org','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->city,'city_org['.$row.']','','city_org','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->year,'year_org['.$row.']','','year_org','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del-org(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					$qty=$f->qty;
+					if($f->qty==0){
+						$qty='';
+					}
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->organization_name.'</td>';
+					$dt .= '<td>'.$f->institution.'</td>';
+					$dt .= '<td>'.$f->position.'</td>';
+					$dt .= '<td>'.$f->city.'</td>';
+					$dt .= '<td>'.$f->year.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
+	}
+
+
+	public function getNewWorkexpRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getWorkexpRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid_workexp'.$row.'" name="hdnid_workexp['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$this->return_build_txt('','company_workexp['.$row.']','','company_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','position_workexp['.$row.']','','position_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','city_workexp['.$row.']','','city_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','year_workexp['.$row.']','','year_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del-workexp(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+
+	// Generate expenses item rows for edit & view
+	public function getWorkexpRows($id,$view,$print=FALSE){ 
+		
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from work_experience_detail where employee_id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			/*if($view){
+				$arrSat = json_decode(json_encode($msObat), true);
+				$arrS = [];
+				foreach($arrSat as $ai){
+					$arrS[$ai['id']] = $ai;
+				}
+			}*/
+			foreach ($rd as $f){
+				$no = $row+1;
+				
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid_workexp'.$row.'" name="hdnid_workexp['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($f->company,'company_workexp['.$row.']','','company_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+	
+					$dt .= '<td>'.$this->return_build_txt($f->position,'position_workexp['.$row.']','','position_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->city,'city_workexp['.$row.']','','city_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->year,'year_workexp['.$row.']','','year_workexp','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del-workexp(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					$qty=$f->qty;
+					if($f->qty==0){
+						$qty='';
+					}
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->company.'</td>';
+					$dt .= '<td>'.$f->position.'</td>';
 					$dt .= '<td>'.$f->city.'</td>';
 					$dt .= '<td>'.$f->year.'</td>';
 					$dt .= '</tr>';
