@@ -400,11 +400,13 @@ class Api extends API_Controller
 			                    $dataU['status'] = TRUE;
 			                }
 			            }
-			            $document = '';
+			            $document = 'kosong';
 						if($dataU['status']){ 
 							$document = $dataU['upload_file'];
 						} else if(isset($dataU['error_warning'])){ 
-							echo $dataU['error_warning']; exit;
+							//echo $dataU['error_warning']; exit;
+
+							$document = $dataU['error_warning'];
 						}
 
 			            //end upload

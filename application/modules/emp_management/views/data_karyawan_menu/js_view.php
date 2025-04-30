@@ -205,6 +205,19 @@ function load_data()
 					$('select#company').val(data.company_id).trigger('change.select2');
 					$('select#division').val(data.division_id).trigger('change.select2');
 					$('select#section').val(data.section_id).trigger('change.select2');
+
+
+					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 					
 					
 					
@@ -278,6 +291,20 @@ function load_data()
 					}else{
 						$('span.emp_signature').html('');
 					}
+
+
+					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
 					
 					$('#modal-view-data').modal('show');
 				}

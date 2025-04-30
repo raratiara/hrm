@@ -179,17 +179,16 @@ class Data_karyawan_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
-			$type = trim($post['type']); 
 
 			if(isset($post['count']))
 			{  
 				$row = trim($post['count']); 
-				echo $this->self_model->getNewExpensesRow($row,$type);
+				echo $this->self_model->getNewExpensesRow($row);
 			} else if(isset($post['id'])) { 
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewExpensesRow($row,$type,$id,$view));
+				echo json_encode($this->self_model->getNewExpensesRow($row,$id,$view));
 			}
 		}
 		else
