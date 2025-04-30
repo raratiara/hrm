@@ -271,7 +271,7 @@
 						</div>
 						<div class="portlet-body">
 							<div class="table-scrollable tablesaw-cont">
-							<table class="table table-striped table-bordered table-hover ca-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblEducation">
+							<table class="table table-striped table-bordered table-hover ca-list-detail tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblEducation">
 								<thead>
 									<tr>
 										<th scope="col">No</th>
