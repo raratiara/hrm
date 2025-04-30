@@ -390,9 +390,13 @@ class Api extends API_Controller
 						if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
 			            { 
 			               
-			                $config['upload_path']   = $this->attachment_folder;
-			                $config['allowed_types'] = $this->allow_type;
-			                $config['max_size']      = $this->allow_size;
+			                // $config['upload_path']   = $this->attachment_folder;
+			                // $config['allowed_types'] = $this->allow_type;
+			                // $config['max_size']      = $this->allow_size;
+
+			                $config['upload_path']   = "hrm.sandboxxplore.com/uploads/absensi";
+			                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+			                $config['max_size']      = "0"; 
 			                
 			                $this->load->library('upload', $config); 
 			                
@@ -406,7 +410,7 @@ class Api extends API_Controller
 			                    $dataU['status'] = TRUE;
 			                }
 			            }
-			            $document = 'kosong';
+			            $document = '';
 						if($dataU['status']){ 
 							$document = $dataU['upload_file'];
 						} else if(isset($dataU['error_warning'])){ 
