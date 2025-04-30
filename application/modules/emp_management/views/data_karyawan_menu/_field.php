@@ -256,14 +256,49 @@
 
     <div class="tab-pane" id="education">
         <div class="row">
-        	<div class="col-md-6 col-sm-12">
+        	<!-- <div class="col-md-6 col-sm-12">
         		<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">Last Education</label>
 							<div class="col-md-8">
 								<?=$seleducation;?>
 							</div>
 						</div>
-        	</div>
+        	</div> -->
+
+        	<div class="row ca">
+			    <div class="col-md-12">
+					<div class="portlet box green">
+						<div class="portlet-title">
+							<div class="caption">Detail Education </div>
+							<div class="tools">
+								<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addcarow" value="Add Row" />
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="table-scrollable tablesaw-cont">
+							<table class="table table-striped table-bordered table-hover ca-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailEdu">
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Type</th>
+										<th scope="col">Institusi</th>
+										<th scope="col">Kota</th>
+										<th scope="col">Tahun</th>
+										<th scope="col"></th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
         </div>
     </div> 
 

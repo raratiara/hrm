@@ -376,7 +376,7 @@ class Data_karyawan_menu_model extends MY_Model
 			'gender' 						=> trim($post['gender']),
 			'ethnic' 						=> trim($post['ethnic']),
 			'nationality' 					=> trim($post['nationality']),
-			'last_education_id' 			=> trim($post['last_education']),
+			//'last_education_id' 			=> trim($post['last_education']),
 			'marital_status_id' 			=> trim($post['marital_status']),
 			'tanggungan' 					=> trim($post['tanggungan']),
 			'no_ktp' 						=> trim($post['no_ktp']),
@@ -430,6 +430,35 @@ class Data_karyawan_menu_model extends MY_Model
 		$lastId = $this->db->insert_id();
 
 		if($rs){
+
+			// add ke table education detail //
+			if(isset($post['education'])){
+				$item_num = count($post['education']); // cek sum
+				$item_len_min = min(array_keys($post['education'])); // cek min key index
+				$item_len = max(array_keys($post['education'])); // cek max key index
+			} else {
+				$item_num = 0;
+			}
+
+			if($item_num>0){
+				for($i=$item_len_min;$i<=$item_len;$i++) 
+				{
+					if(isset($post['education'][$i])){
+						$itemData = [
+							'employee_id' 	=> $lastId,
+							'education_id' 		=> trim($post['subtype'][$i]),
+							'biaya' 			=> trim($post['biaya'][$i]),
+							'qty' 				=> trim($post['qty'][$i]),
+							'notes' 			=> trim($post['notes'][$i])
+						];
+
+						$this->db->insert('reimbursement_detail', $itemData);
+					}
+				}
+			}
+			// end add ke table education detail //
+
+			// add ke table user //
 			$pwd = '112233';
 			$password = md5($pwd);
 
@@ -454,6 +483,7 @@ class Data_karyawan_menu_model extends MY_Model
 				'date_insert' 	=> date("Y-m-d H:i:s")
 			];
 			$this->db->insert('user', $data2);
+			// end add ke table user //
 		}
 
 
@@ -651,6 +681,96 @@ class Data_karyawan_menu_model extends MY_Model
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
+	}
+
+	public function getNewExpensesRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getExpensesRows($type,$id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			$msEdu = $this->db->query("select * from master_education")->result(); 
+			
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$this->return_build_chosenme($msEdu,'','','','education['.$row.']','education','education','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','institution['.$row.']','','institution','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','city['.$row.']','','city','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','year['.$row.']','','year','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+
+	// Generate expenses item rows for edit & view
+	public function getExpensesRows($id,$view,$print=FALSE){ 
+		
+		$dt = ''; 
+		
+		$rs = $this->db->query("select a.*, b.name  from education_detail a left join master_education b on b.id = a.education_id where a.employee_id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			/*if($view){
+				$arrSat = json_decode(json_encode($msObat), true);
+				$arrS = [];
+				foreach($arrSat as $ai){
+					$arrS[$ai['id']] = $ai;
+				}
+			}*/
+			foreach ($rd as $f){
+				$no = $row+1;
+				$msEdu = $this->db->query("select * from master_education")->result(); 
+
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_chosenme($msEdu,'',isset($f->education_id)?$f->education_id:1,'','education['.$row.']','education','education','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->institution,'institution['.$row.']','','institution','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->city,'city['.$row.']','','city','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->year,'year['.$row.']','','year','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					$qty=$f->qty;
+					if($f->qty==0){
+						$qty='';
+					}
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->education_name.'</td>';
+					$dt .= '<td>'.$f->institution.'</td>';
+					$dt .= '<td>'.$f->city.'</td>';
+					$dt .= '<td>'.$f->year.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
 	}
 
 }

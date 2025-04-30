@@ -340,7 +340,13 @@ class Api extends API_Controller
 
 				if($cek_data[0]->id != ''){ //update
 					if($tipe == 'checkin'){
-						$data = [
+						
+						$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'Require not satisfied'
+						];
+						/*$data = [
 							'attendance_type' 			=> $attendance_type,
 							'time_in' 					=> $time_in,
 							'time_out' 					=> $time_out,
@@ -361,7 +367,7 @@ class Api extends API_Controller
 								'message' 	=> 'Failed',
 								'error' 	=> 'Error update checkin'
 							];
-						}
+						}*/
 
 					}else{ //checkout
 						$f_datetime_in 			= $cek_data[0]->date_attendance_in;
@@ -370,33 +376,6 @@ class Api extends API_Controller
 						$timestamp2 			= strtotime($f_datetime_out);
 						$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
 
-						$data = [
-							'attendance_type' 			=> $attendance_type,
-							'time_in' 					=> $time_in,
-							'time_out' 					=> $time_out,
-							'date_attendance_out' 		=> $datetime,
-							'is_leaving_office_early'	=> $is_leaving_office_early,
-							'num_of_working_hours'		=> $num_of_working_hours,
-							'updated_at'				=> date("Y-m-d H:i:s")
-						];
-						$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
-
-						if($rs){
-							$response = [
-								'status' 	=> 200,
-								'message' 	=> 'Success b'
-							];
-						}else{
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Error update checkout'
-							];
-						}
-					}
-
-				}else{ //insert
-					if($tipe == 'checkin'){
 
 						//upload 
 						$dataU = array();
@@ -431,6 +410,36 @@ class Api extends API_Controller
 			            //end upload
 
 						$data = [
+							'attendance_type' 			=> $attendance_type,
+							'time_in' 					=> $time_in,
+							'time_out' 					=> $time_out,
+							'date_attendance_out' 		=> $datetime,
+							'is_leaving_office_early'	=> $is_leaving_office_early,
+							'num_of_working_hours'		=> $num_of_working_hours,
+							'updated_at'				=> date("Y-m-d H:i:s"),
+							'notes' => $notes,
+							'photo' => $document
+						];
+						$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
+
+						if($rs){
+							$response = [
+								'status' 	=> 200,
+								'message' 	=> 'Success'
+							];
+						}else{
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Error update checkout'
+							];
+						}
+					}
+
+				}else{ //insert
+					if($tipe == 'checkin'){
+
+						$data = [
 							'date_attendance' 			=> $date,
 							'employee_id' 				=> $employee,
 							'attendance_type' 			=> $attendance_type,
@@ -438,9 +447,7 @@ class Api extends API_Controller
 							'time_out' 					=> $time_out,
 							'date_attendance_in' 		=> $datetime,
 							'is_late'					=> $is_late,
-							'created_at'				=> date("Y-m-d H:i:s"),
-							'notes' => $notes,
-							'photo' => $document
+							'created_at'				=> date("Y-m-d H:i:s")
 						];
 
 						$rs = $this->db->insert("time_attendances", $data);
