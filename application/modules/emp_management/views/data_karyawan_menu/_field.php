@@ -56,6 +56,8 @@
     <li><a href="#emergency_contact" data-toggle="tab">Emergency Contact</a></li>
     <li><a href="#bank_account" data-toggle="tab">Bank Account</a></li>
     <li><a href="#training" data-toggle="tab">Training</a></li>
+    <li><a href="#organization" data-toggle="tab">Organization</a></li>
+    <li><a href="#work_experience" data-toggle="tab">Work Experience</a></li>
     <li><a href="#exit_clearance" data-toggle="tab">Exit Clearance</a></li>
 </ul>
 
@@ -477,6 +479,92 @@
         </div>
 
     </div> 
+
+
+
+    <div class="tab-pane" id="organization">
+        <div class="row">
+
+        	<div class="row ca">
+			    <div class="col-md-12">
+					<div class="portlet box green">
+						<div class="portlet-title">
+							<div class="caption">Detail Organization </div>
+							<div class="tools">
+								<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addcarow-org" value="Add Row" />
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="table-scrollable tablesaw-cont">
+							<table class="table table-striped table-bordered table-hover ca-list-org tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailOrg">
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Organization Name</th>
+										<th scope="col">Institution</th>
+										<th scope="col">Position</th>
+										<th scope="col">City</th>
+										<th scope="col">Year</th>
+										<th scope="col"></th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+        </div>
+
+    </div>
+
+
+    <div class="tab-pane" id="work_experience">
+        <div class="row">
+
+        	<div class="row ca">
+			    <div class="col-md-12">
+					<div class="portlet box green">
+						<div class="portlet-title">
+							<div class="caption">Detail Work Experience </div>
+							<div class="tools">
+								<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addcarow-workexp" value="Add Row" />
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="table-scrollable tablesaw-cont">
+							<table class="table table-striped table-bordered table-hover ca-list-workexp tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailWorkexp">
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Company</th>
+										<th scope="col">Position</th>
+										<th scope="col">City</th>
+										<th scope="col">Year</th>
+										<th scope="col"></th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+        </div>
+
+    </div>
 
 
 
