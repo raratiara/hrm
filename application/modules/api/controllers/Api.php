@@ -8,7 +8,8 @@ class Api extends API_Controller
 
 
  	/* upload */
- 	protected $attachment_folder	= "./uploads/absensi";
+ 	//di LOCAL ->//protected $attachment_folder	= "./uploads/absensi"; 
+ 	protected $attachment_folder	= "hrm.sandboxxplore.com/uploads/absensi"; 
 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
@@ -18,6 +19,11 @@ class Api extends API_Controller
       	parent::__construct();
 
 		//$this->load->model($this->model_name);
+   	}
+
+   	public function tes(){
+   		$x = $this->attachment_folder;
+   		echo $x; die();
    	}
 
     public function index()

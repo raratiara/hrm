@@ -11,7 +11,7 @@ var idx; //for save index string
 var ldx; //for save list index string
 var modloc = '/_hrm/emp_management/data_karyawan_menu/';
 var opsForm = 'form#frmInputData';
-var locate = 'table.ca-list';
+
 var dlocate = 'table.dca-list';
 var wcount = 0; //for ca list row identify
 
@@ -207,6 +207,7 @@ function load_data()
 					$('select#section').val(data.section_id).trigger('change.select2');
 
 
+					var locate = 'table.ca-list';
 					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
@@ -293,6 +294,7 @@ function load_data()
 					}
 
 
+					var locate = 'table.ca-list-detail';
 					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
