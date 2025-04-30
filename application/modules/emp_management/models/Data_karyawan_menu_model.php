@@ -446,13 +446,13 @@ class Data_karyawan_menu_model extends MY_Model
 					if(isset($post['education'][$i])){
 						$itemData = [
 							'employee_id' 	=> $lastId,
-							'education_id' 		=> trim($post['subtype'][$i]),
-							'biaya' 			=> trim($post['biaya'][$i]),
-							'qty' 				=> trim($post['qty'][$i]),
-							'notes' 			=> trim($post['notes'][$i])
+							'education_id' 	=> trim($post['education'][$i]),
+							'institution' 	=> trim($post['institution'][$i]),
+							'city' 			=> trim($post['city'][$i]),
+							'year' 			=> trim($post['year'][$i])
 						];
 
-						$this->db->insert('reimbursement_detail', $itemData);
+						$this->db->insert('education_detail', $itemData);
 					}
 				}
 			}
@@ -588,7 +588,57 @@ class Data_karyawan_menu_model extends MY_Model
 				'gender' 						=> trim($post['gender'])
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				if(isset($post['education'])){
+					$item_num = count($post['education']); // cek sum
+					$item_len_min = min(array_keys($post['education'])); // cek min key index
+					$item_len = max(array_keys($post['education'])); // cek max key index
+				} else {
+					$item_num = 0;
+				}
+
+				if($item_num>0){
+					for($i=$item_len_min;$i<=$item_len;$i++) 
+					{
+						$hdnid = trim($post['hdnid'][$i]);
+
+						if(!empty($hdnid)){ //update
+
+							if(isset($post['education'][$i])){
+								$itemData = [
+									'education_id' 	=> trim($post['education'][$i]),
+									'institution' 	=> trim($post['institution'][$i]),
+									'city' 			=> trim($post['city'][$i]),
+									'year' 			=> trim($post['year'][$i])
+								];
+
+								$this->db->update("education_detail", $itemData, "id = '".$hdnid."'");
+							}
+
+						}else{ //insert
+
+							if(isset($post['education'][$i])){
+								$itemData = [
+									'employee_id' 	=> $post['id'],
+									'education_id' 	=> trim($post['education'][$i]),
+									'institution' 	=> trim($post['institution'][$i]),
+									'city' 			=> trim($post['city'][$i]),
+									'year' 			=> trim($post['year'][$i])
+								];
+
+								$this->db->insert('education_detail', $itemData);
+							}
+
+						}
+						
+					}
+				}
+			}
+
+
+			return $rs;
 		} else return null;
 	}  
 
@@ -686,7 +736,7 @@ class Data_karyawan_menu_model extends MY_Model
 	public function getNewExpensesRow($row,$id=0,$view=FALSE)
 	{ 
 		if($id > 0){ 
-			$data = $this->getExpensesRows($type,$id,$view);
+			$data = $this->getExpensesRows($id,$view);
 		} else { 
 			$data = '';
 			$no = $row+1;
@@ -710,7 +760,7 @@ class Data_karyawan_menu_model extends MY_Model
 		
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.*, b.name  from education_detail a left join master_education b on b.id = a.education_id where a.employee_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select a.*, b.name as education_name from education_detail a left join master_education b on b.id = a.education_id where a.employee_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
