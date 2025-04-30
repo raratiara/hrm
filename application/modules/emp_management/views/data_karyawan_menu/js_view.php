@@ -343,27 +343,39 @@ function load_data()
 
 
 $("#addcarow").on("click", function () { 
-	var type = $("#type option:selected").val();
+	var locate = 'table.ca-list';
+
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount},success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.order-list');
+	});
+
 	
+});
 
-	if(type != ''){
-		expire();
-		var newRow = $("<tr>");
-		$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount, type:type },success: function (response) {
-				newRow.append(response);
-				$(locate).append(newRow);
-				wcount++;
-				
-			}
-		}).done(function() {
-			tSawBclear('table.order-list');
-		});
 
-		//getSubtype(type);
+$("#addcarow-training").on("click", function () { 
+	var locate = 'table.ca-list-training';
 
-	}else{
-		alert("Please choose Reimburs Type");
-	}
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/gentrainingrow',data: { count:wcount},success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.order-list');
+	});
+
 	
 });
 

@@ -55,6 +55,7 @@
     <li><a href="#address" data-toggle="tab">Address</a></li>
     <li><a href="#emergency_contact" data-toggle="tab">Emergency Contact</a></li>
     <li><a href="#bank_account" data-toggle="tab">Bank Account</a></li>
+    <li><a href="#training" data-toggle="tab">Training</a></li>
     <li><a href="#exit_clearance" data-toggle="tab">Exit Clearance</a></li>
 </ul>
 
@@ -434,6 +435,48 @@
 
         </div>
     </div>
+
+
+
+	<div class="tab-pane" id="training">
+        <div class="row">
+
+        	<div class="row ca">
+			    <div class="col-md-12">
+					<div class="portlet box green">
+						<div class="portlet-title">
+							<div class="caption">Detail Training </div>
+							<div class="tools">
+								<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addcarow-training" value="Add Row" />
+							</div>
+						</div>
+						<div class="portlet-body">
+							<div class="table-scrollable tablesaw-cont">
+							<table class="table table-striped table-bordered table-hover ca-list-training tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailTraining">
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Training Name</th>
+										<th scope="col">City</th>
+										<th scope="col">Year</th>
+										<th scope="col"></th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+        </div>
+
+    </div> 
 
 
 
