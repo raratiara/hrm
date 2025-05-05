@@ -27,18 +27,14 @@ class Perjalanan_dinas_menu extends MY_Controller
 	{
 		$field = [];
 		
-		$field['txtdate'] 				= $this->self_model->return_build_txt('','date','date');
-		$field['txtnominalreimburs'] 	= $this->self_model->return_build_txt('','nominal_reimburs','nominal_reimburs','','','readonly');
-		$field['txtatasnama'] 			= $this->self_model->return_build_txt('','atas_nama','atas_nama');
-		$field['txtdiagnosa'] 			= $this->self_model->return_build_txt('','diagnosa','diagnosa');
-		$field['txtnominalbilling'] 	= $this->self_model->return_build_txt('','nominal_billing','nominal_billing');
-
+		$field['txtdestination']	= $this->self_model->return_build_txt('','destination','destination');
+		$field['txtreason'] 		= $this->self_model->return_build_txtarea('','reason','reason');
+		$field['txtstartdate'] 		= $this->self_model->return_build_txt('','start_date','start_date');
+		$field['txtenddate'] 		= $this->self_model->return_build_txt('','end_date','end_date');
+		
 		$msemp 					= $this->db->query("select * from employees")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
-		$msreimbursfor 			= $this->db->query("select * from master_reimbursfor_type")->result(); 
-		$field['selreimbursfor'] 	= $this->self_model->return_build_select2me($msreimbursfor,'','','','reimburs_for','reimburs_for','','','id','name',' ','','','',3,'-');
-		$mstype 			= $this->db->query("select * from master_reimburs_type")->result(); 
-		$field['seltype'] 	= $this->self_model->return_build_select2me($mstype,'','','','type','type','','','id','name',' ','','','',3,'-');
+
 
 		
 		return $field;
