@@ -1,15 +1,12 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Perjalanan_dinas_menu_model extends MY_Model
+class Lembur_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "compensation_benefit/perjalanan_dinas_menu";
- 	protected $table_name 				= _PREFIX_TABLE."business_trip";
+ 	protected $folder_name				= "time_attendance/lembur_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."overtimes";
  	protected $primary_key 				= "id";
-
- 
-
 
 	function __construct()
 	{
@@ -22,11 +19,13 @@ class Perjalanan_dinas_menu_model extends MY_Model
 		$aColumns = [
 			NULL,
 			NULL,
-			'dt.id',
+			'id',
+			'dt.date_overtime',
 			'dt.full_name',
-			'dt.destination',
-			'dt.start_date',
-			'dt.end_date',
+			'dt.datetime_start',
+			'dt.datetime_end',
+			'dt.num_of_hour',
+			'dt.amount',
 			'dt.reason',
 			'dt.status_name',
 			'dt.direct_id'
@@ -35,15 +34,14 @@ class Perjalanan_dinas_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name, b.direct_id,
+		$sTable = '(select a.*, b.full_name,  b.direct_id,
 					(case 
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "Rejected"
 					else ""
 					end) as status_name 
-					from business_trip a left join employees b on b.id = a.employee_id)dt';
-
+					from overtimes a left join employees b on b.id = a.employee_id)dt';
 		
 
 		/* Paging */
@@ -145,9 +143,8 @@ class Perjalanan_dinas_menu_model extends MY_Model
 			}
 		}
 
-
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$getdirect = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$direct_karyawan_id = $getdirect[0]->id_karyawan;
 
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
@@ -202,10 +199,11 @@ class Perjalanan_dinas_menu_model extends MY_Model
 
 			$reject=""; 
 			$approve="";
-			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
+			if($row->status == 'Waiting Approval' && $row->direct_id == $direct_karyawan_id){
 				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
 			}
+			
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -216,10 +214,12 @@ class Perjalanan_dinas_menu_model extends MY_Model
 					'.$approve.'
 				</div>',
 				$row->id,
+				$row->date_overtime,
 				$row->full_name,
-				$row->destination,
-				$row->start_date,
-				$row->end_date,
+				$row->datetime_start,
+				$row->datetime_end,
+				$row->num_of_hour,
+				$row->amount,
 				$row->reason,
 				$row->status_name
 
@@ -273,51 +273,86 @@ class Perjalanan_dinas_menu_model extends MY_Model
 		} else return null;
 	}  
 
+	public function dayCount($from, $to) {
+	    $first_date = strtotime($from);
+	    $second_date = strtotime($to);
+	    $days_diff = $second_date - $first_date;
+	    return date('d',$days_diff);
+	}
 
 	public function add_data($post) { 
 
-		$start_date 	= date_create($post['start_date']); 
-		$f_start_date 	= date_format($start_date,"Y-m-d H:i:s");
-		$end_date 		= date_create($post['end_date']); 
-		$f_end_date 	= date_format($end_date,"Y-m-d H:i:s");
+		$date_overtime 		= date_create($post['date']);
+		$datetime_start 	= date_create($post['datetime_start']);
+		$datetime_end 		= date_create($post['datetime_end']);
+		$f_datetime_start 	= date_format($datetime_start,"Y-m-d H:i:s");
+		$f_datetime_end 	= date_format($datetime_end,"Y-m-d H:i:s");
+		$f_date_overtime 	= date_format($date_overtime,"Y-m-d");
+
+		$timestamp1 = strtotime($f_datetime_start); 
+		$timestamp2 = strtotime($f_datetime_end);
 
 		
-		
-  		if(!empty($post['employee'])){ 
-  			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'destination' 			=> trim($post['destination']),
-				'start_date'			=> $f_start_date,
-				'end_date' 				=> $f_end_date,
-				'reason' 				=> trim($post['reason']),
-				'status_id' 			=> 1, //waiting approval
-				'created_date'			=> date("Y-m-d H:i:s")
-				
+		$num_of_hour= abs($timestamp2 - $timestamp1); //jam
+		$biaya='50000';
+		$amount = $num_of_hour*$biaya;
+
+
+		if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
+			
+			$data = [
+				'date_overtime' 			=> $f_date_overtime,
+				'employee_id' 				=> trim($post['employee']),
+				'datetime_start' 			=> $f_datetime_start,
+				'datetime_end' 				=> $f_datetime_end,
+				'num_of_hour' 				=> $num_of_hour,
+				'amount' 					=> $amount,
+				'reason' 					=> trim($post['reason']),
+				'status_id' 				=> 1,
+				'created_at'				=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 
-  		}else return null;
-
+		}else return null;
+		
 	}  
 
 	public function edit_data($post) { 
-		$start_date 	= date_create($post['start_date']); 
-		$f_start_date 	= date_format($start_date,"Y-m-d H:i:s");
-		$end_date 		= date_create($post['end_date']); 
-		$f_end_date 	= date_format($end_date,"Y-m-d H:i:s");
+
+		if(!empty($post['id'])){
+
+			$date_overtime 		= date_create($post['date']);
+			$datetime_start 	= date_create($post['datetime_start']);
+			$datetime_end 		= date_create($post['datetime_end']);
+			$f_datetime_start 	= date_format($datetime_start,"Y-m-d H:i:s");
+			$f_datetime_end 	= date_format($datetime_end,"Y-m-d H:i:s");
+			$f_date_overtime 	= date_format($date_overtime,"Y-m-d");
+
+			$timestamp1 = strtotime($f_datetime_start); 
+			$timestamp2 = strtotime($f_datetime_end);
+
+			
+			$num_of_hour= abs($timestamp2 - $timestamp1); //jam
+			$biaya='50000';
+			$amount = $num_of_hour*$biaya;
 
 
-		if(!empty($post['id'])){ 
-			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'destination' 			=> trim($post['destination']),
-				'start_date'			=> $f_start_date,
-				'end_date' 				=> $f_end_date,
-				'reason' 				=> trim($post['reason']),
-				'updated_date'			=> date("Y-m-d H:i:s")
+			if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
+			
+				$data = [
+					'date_overtime' 			=> $f_date_overtime,
+					'employee_id' 				=> trim($post['employee']),
+					'datetime_start' 			=> $f_datetime_start,
+					'datetime_end' 				=> $f_datetime_end,
+					'num_of_hour' 				=> $num_of_hour,
+					'amount' 					=> $amount,
+					'reason' 					=> trim($post['reason']),
+					'updated_at'				=> date("Y-m-d H:i:s")
+				];
+				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			}else return null;
 				
-			];
-			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 		} else return null;
 	}  
@@ -330,8 +365,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 					when a.status_id = 3 then "Rejected"
 					else ""
 					end) as status_name 
-					from business_trip a left join employees b on b.id = a.employee_id
-					)dt';
+					from overtimes a left join employees b on b.id = a.employee_id
+
+			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
@@ -347,14 +383,24 @@ class Perjalanan_dinas_menu_model extends MY_Model
 		foreach ($list_data as $k => $v) {
 			$i += 1;
 
+			$timestamp1 = strtotime($v["D"]); //Y-m-d H:i:s
+			$timestamp2 = strtotime($v["E"]); //Y-m-d H:i:s
+
+			
+			$num_of_hour= abs($timestamp2 - $timestamp1); //jam
+			$biaya='50000';
+			$amount = $num_of_hour*$biaya;
+
 			$data = [
-				'employee_id' 	=> $v["B"],
-				'destination' 	=> $v["C"],
-				'start_date' 	=> $v["D"],
-				'end_date' 		=> $v["E"],
-				'reason' 		=> $v["F"],
-				'status_id' 	=> $v["G"],
-				'created_date' 	=> date("Y-m-d H:i:s")
+				'date_overtime' 	=> $v["B"],
+				'employee_id' 		=> $v["C"],
+				'datetime_start' 	=> $v["D"],
+				'datetime_end' 		=> $v["E"],
+				'num_of_hour' 		=> $num_of_hour,
+				'amount' 			=> $amount,
+				'reason' 			=> $v["F"],
+				'created_at' 		=> $v["G"],
+				'status_id' 		=> $v["H"]
 				
 			];
 
@@ -367,22 +413,22 @@ class Perjalanan_dinas_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.id, b.full_name, a.destination, a.start_date, a.end_date, a.reason,
+		$sql = 'select a.id, a.date_overtime, b.full_name, a.datetime_start, a.datetime_end, a.num_of_hour, a.amount,a.reason, 
 				(case 
-				when a.status_id = 1 then 'Waiting Approval'
-				when a.status_id = 2 then 'Approved'
-				when a.status_id = 3 then 'Rejected'
-				else ''
+				when a.status_id = 1 then "Waiting Approval"
+				when a.status_id = 2 then "Approved"
+				when a.status_id = 3 then "Rejected"
+				else ""
 				end) as status_name 
-				from business_trip a left join employees b on b.id = a.employee_id
+				from overtimes a left join employees b on b.id = a.employee_id
 				order by a.id asc
-
-		";
+		';
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
 	}
+
 
 
 

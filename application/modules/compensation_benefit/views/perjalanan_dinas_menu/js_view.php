@@ -7,13 +7,6 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-var modloc = '/_hrm/compensation_benefit/reimbursement_menu/';
-var opsForm = 'form#frmInputData';
-var locate = 'table.ca-list';
-var dlocate = 'table.dca-list';
-var wcount = 0; //for ca list row identify
-
-
 
 
 
@@ -131,54 +124,23 @@ function load_data()
 					$('[name="id"]').val(data.id);
 					
 					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#reimburs_for').val(data.reimburse_for).trigger('change.select2');
-					$('select#type').val(data.reimburs_type_id).trigger('change.select2');
-					$('[name="date"]').val(data.date_reimbursment);
-					$('[name="nominal_reimburs"]').val(data.nominal_reimburse);
-					$('[name="atas_nama"]').val(data.atas_nama);
-					$('[name="diagnosa"]').val(data.diagnosa);
-					$('[name="nominal_billing"]').val(data.nominal_billing);
-
-
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id },success: function (response) {
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
-
+					$('[name="destination"]').val(data.destination);
+					$('[name="reason"]').val(data.reason);
+					$('[name="start_date"]').val(data.start_date);
+					$('[name="end_date"]').val(data.end_date);
+					
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.date').html(data.date_reimbursment);
-					$('span.reimburs_for').html(data.reimburse_for_name);
-					$('span.nominal_reimburs').html(data.nominal_reimburse);
-					$('span.atas_nama').html(data.atas_nama);
-					$('span.diagnosa').html(data.diagnosa);
-					$('span.nominal_billing').html(data.nominal_billing);
-					$('span.type').html(data.reimburs_type_name);
-					
-
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
+					$('span.employee').html(data.full_name);
+					$('span.destination').html(data.destination);
+					$('span.reason').html(data.reason);
+					$('span.start_date').html(data.start_date);
+					$('span.end_date').html(data.end_date);
+				
 
 					
 					$('#modal-view-data').modal('show');

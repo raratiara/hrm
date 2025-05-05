@@ -1001,10 +1001,14 @@ class Api extends API_Controller
 
     	$employee	= $_REQUEST['employee'];
 
-    	$where=''; 
-    	if($employee != ''){
+    	
+    	if($employee == null || $employee == ''){
+    		$where=''; 
+
+    	}else{
     		$where = " where a.id = '".$employee."' ";
     	}
+    	
 
     	$dataemp = $this->db->query("select a.id, a.full_name, b.name as division_name, a.shift_type, c.time_in, c.time_out 
 			,(select sum(total_leave) from leave_absences where employee_id = a.id) as ttl_ijin
