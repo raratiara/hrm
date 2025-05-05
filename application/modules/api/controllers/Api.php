@@ -157,11 +157,11 @@ class Api extends API_Controller
 		if($username != '' && $password != ''){
 			
 			$cek_login = $this->api->cek_login($username, $password);	
-			print_r($cek_login); die();
+			
 			if($cek_login != '')
 			{ 
 				$data = array(
-					"id" 			=> $cek_login->id,
+					"id" 			=> $cek_login->user_id,
 					"name" 			=> $cek_login->name,
 					"email" 		=> $cek_login->email,
 					"employee_id" 	=> $cek_login->id_karyawan
