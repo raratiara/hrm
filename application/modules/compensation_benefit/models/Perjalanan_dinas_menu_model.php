@@ -1,17 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Reimbursement_menu_model extends MY_Model
+class Perjalanan_dinas_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "compensation_benefit/reimbursement_menu";
- 	protected $table_name 				= _PREFIX_TABLE."medicalreimbursements";
+ 	protected $folder_name				= "compensation_benefit/perjalanan_dinas_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."business_trip";
  	protected $primary_key 				= "id";
 
- 	/* upload */
- 	protected $attachment_folder	= "./uploads/reimbursement";
-	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
+ 
 
 
 	function __construct()
@@ -26,13 +23,11 @@ class Reimbursement_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.date_reimbursment',
-			'dt.employee_name',
-			'dt.reimburse_for_name',
-			'dt.atas_nama',
-			'dt.diagnosa',
-			'dt.nominal_billing',
-			'dt.nominal_reimburse',
+			'dt.full_name',
+			'dt.destination',
+			'dt.start_date',
+			'dt.end_date',
+			'dt.reason',
 			'dt.status_name',
 			'dt.direct_id'
 		];
@@ -40,15 +35,15 @@ class Reimbursement_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.name as reimburse_for_name,
+		$sTable = '(select a.*, b.full_name, b.direct_id,
 					(case 
-						when a.status_id = 1 then "Waiting Approval"
-					    when a.status_id = 2 then "Approved"
-					    when a.status_id = 3 then "Rejected"
-					    else ""
-					end) as status_name, b.direct_id
-					from medicalreimbursements a left join employees b on b.id = a.employee_id
-					left join master_reimbursfor_type c on c.id = a.reimburse_for)dt';
+					when a.status_id = 1 then "Waiting Approval"
+					when a.status_id = 2 then "Approved"
+					when a.status_id = 3 then "Rejected"
+					else ""
+					end) as status_name 
+					from business_trip a left join employees b on b.id = a.employee_id)dt';
+
 		
 
 		/* Paging */
@@ -221,13 +216,11 @@ class Reimbursement_menu_model extends MY_Model
 					'.$approve.'
 				</div>',
 				$row->id,
-				$row->date_reimbursment,
-				$row->employee_name,
-				$row->reimburse_for_name,
-				$row->atas_nama,
-				$row->diagnosa,
-				$row->nominal_billing,
-				$row->nominal_reimburse,
+				$row->full_name,
+				$row->destination,
+				$row->start_date,
+				$row->end_date,
+				$row->reason,
 				$row->status_name
 
 			));
@@ -279,83 +272,6 @@ class Reimbursement_menu_model extends MY_Model
 			return $data;
 		} else return null;
 	}  
-
-
-	// Upload file
-	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
-		$data = array();
-		$data['status'] = FALSE; 
-		if(!empty($id) && !empty($fieldname)){ 
-			// handling multiple upload (as array field)
-
-			if($array){ 
-				// Define new $_FILES array - $_FILES['file']
-				$_FILES['file']['name'] = $_FILES[$fieldname]['name'];
-				$_FILES['file']['type'] = $_FILES[$fieldname]['type'];
-				$_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
-				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
-				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
-				// override field
-				//$fieldname = 'document';
-
-			} 
-			// handling regular upload (as one field)
-			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-			{ 
-				/*$dir = $this->attachment_folder.'/'.$id;
-				if(!is_dir($dir)) {
-					mkdir($dir);
-				}
-				if($replace){
-					$this->remove_file($id, $oldfilename);
-				}*/
-				$config['upload_path']   = $this->attachment_folder;
-				$config['allowed_types'] = $this->allow_type;
-				$config['max_size'] 	 = $this->allow_size;
-				
-				$this->load->library('upload', $config); 
-				
-				if(!$this->upload->do_upload($fieldname)){ 
-					$err_msg = $this->upload->display_errors(); 
-					$data['error_warning'] = strip_tags($err_msg);				
-					$data['status'] = FALSE;
-				} else { 
-					$fileData = $this->upload->data();
-					$data['upload_file'] = $fileData['file_name'];
-					$data['status'] = TRUE;
-				}
-			}
-		}
-
-		
-		
-		return $data;
-	}
-
-	public function get_sisa_plafon($emp_id, $type_id){
-		$getplafon = $this->db->query("select a.id, b.nominal_plafon, b.reimburs_type_id 
-				from employees a left join master_plafon b on b.grade_id = a.grade_id and b.reimburs_type_id = '".$type_id."' where a.id = '".$emp_id."' ")->result(); 
-		$plafon=0;
-		if($getplafon != ''){
-			$plafon = $getplafon[0]->nominal_plafon;
-		}
-
-		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' ")->result(); 
-		$pemakaian=0;
-		if($getpemakaian != ''){
-			$pemakaian = $getpemakaian[0]->total_pemakaian;
-		}
-
-		$sisa = $plafon-$pemakaian;
-		if($sisa <= 0){
-			$sisa=0;
-		} 
-
-
-
-
-		return $sisa;
-	}
 
 
 	public function add_data($post) { 
@@ -588,121 +504,6 @@ class Reimbursement_menu_model extends MY_Model
 		return $rs;
 	}
 
-
-	public function getNewExpensesRow($row,$type,$id=0,$view=FALSE)
-	{ 
-		if($id > 0){ 
-			$data = $this->getExpensesRows($type,$id,$view);
-		} else { 
-			$data = '';
-			$no = $row+1;
-			$msSubtype = $this->db->query("select * from master_reimburs_subtype where reimburs_type_id = '".$type."'")->result(); 
-			
-			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
-			$data 	.= '<td>'.$this->return_build_chosenme($msSubtype,'','','','subtype['.$row.']','subtype','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','biaya['.$row.']','','biaya','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-			$hdnid='';
-			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
-		}
-
-		return $data;
-	} 
-	
-	// Generate expenses item rows for edit & view
-	public function getExpensesRows($type,$id,$view,$print=FALSE){ 
-		$uri = $_SERVER['REQUEST_URI'];
-	 	$xpl = explode("/",$uri);
-	 	$url = $_SERVER['SERVER_NAME'].'/'.$xpl[1].'/uploads/reimbursement';
-
-
-		$dt = ''; 
-		
-		$rs = $this->db->query("select a.*, b.name as subtype_name from reimbursement_detail a 
-								left join master_reimburs_subtype b on b.id = a.subtype_id where a.reimbursement_id = '".$id."' ")->result(); 
-		$rd = $rs;
-
-		$row = 0; 
-		if(!empty($rd)){ 
-			$rs_num = count($rd); 
-			
-			/*if($view){
-				$arrSat = json_decode(json_encode($msObat), true);
-				$arrS = [];
-				foreach($arrSat as $ai){
-					$arrS[$ai['id']] = $ai;
-				}
-			}*/
-			foreach ($rd as $f){
-				$no = $row+1;
-				$msSubtype = $this->db->query("select * from master_reimburs_subtype where reimburs_type_id = '".$type."'")->result(); 
-
-				if(!$view){ 
-					$viewdoc = '';
-					if($f->document != ''){
-						$viewdoc = '<a href="'.base_url().'uploads/reimbursement/'.$f->document.'" target="_blank">View</a>';
-					}
-
-					$dt .= '<tr>';
-
-					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
-					$dt .= '<td>'.$this->return_build_chosenme($msSubtype,'',isset($f->subtype_id)?$f->subtype_id:1,'','subtype['.$row.']','subtype','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->qty,'qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndocument'.$row.'" name="hdndocument'.$row.'" value="'.$f->document.'"/></td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->biaya,'biaya['.$row.']','','biaya','text-align: right;','data-id="'.$row.'" ').'</td>';
-					
-					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
-					$dt .= '</tr>';
-				} else { 
-					
-					if($print){
-						if($row == ($rs_num-1)){
-							$dt .= '<tr class="item last">';
-						} else {
-							$dt .= '<tr class="item">';
-						}
-					} else {
-						$dt .= '<tr>';
-					} 
-					$qty=$f->qty;
-					if($f->qty==0){
-						$qty='';
-					}
-					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->subtype_name.'</td>';
-					$dt .= '<td>'.$qty.'</td>';
-					$dt .= '<td><a href="'.base_url().'uploads/reimbursement/'.$f->document.'" target="_blank">View</a></td>';
-					$dt .= '<td>'.$f->notes.'</td>';
-					$dt .= '<td>'.$f->biaya.'</td>';
-					$dt .= '</tr>';
-
-					
-				}
-
-				$row++;
-			}
-		}
-
-		return [$dt,$row];
-	}
-
-
-	public function getDataSubtype($type){ 
-
-		$rs = $this->db->query("select * from master_reimburs_subtype where reimburs_type_id = '".$type."' ")->result(); 
-
-		$data['mssubtype'] = $rs;
-
-
-		return $data;
-
-	}
 
 
 }

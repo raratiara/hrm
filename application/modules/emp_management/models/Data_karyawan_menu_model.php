@@ -207,7 +207,8 @@ class Data_karyawan_menu_model extends MY_Model
 				$row->personal_phone,
 				$row->gender,
 				$row->date_of_birth,
-				$row->job_title
+				//$row->job_title
+				$this->attachment_folder
 
 			));
 		}
@@ -577,7 +578,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
-		echo $this->attachment_folder; die();
+
 
 		if(!empty($post['id'])){ 
 			$date_of_birth 		= trim($post['date_of_birth']);
