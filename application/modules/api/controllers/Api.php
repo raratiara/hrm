@@ -345,7 +345,7 @@ class Api extends API_Controller
 				$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
 
 
-				if($cek_data != ''){
+				if($cek_data != ''){  print_r($cek_data); die();
 					if($cek_data[0]->id != ''){ //update
 						if($tipe == 'checkin'){
 							
