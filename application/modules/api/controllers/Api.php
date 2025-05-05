@@ -614,7 +614,7 @@ class Api extends API_Controller
 				if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
 	            { 
 	               
-	                $config['upload_path']   = "uploads/ijin/";
+	                $config['upload_path']   = "uploads/absensi/";
 	                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	                $config['max_size']      = "0"; 
 	                
