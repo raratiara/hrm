@@ -577,6 +577,8 @@ class Data_karyawan_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
+		echo $this->attachment_folder; die();
+
 		if(!empty($post['id'])){ 
 			$date_of_birth 		= trim($post['date_of_birth']);
 			$date_of_hire 		= trim($post['date_of_hire']);

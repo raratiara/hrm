@@ -416,7 +416,7 @@ class Api extends API_Controller
 						} else if(isset($dataU['error_warning'])){ 
 							//echo $dataU['error_warning']; exit;
 
-							$document = $dataU['error_warning'];
+							$document = $dataU['error_warning'].' //'.$config['upload_path'];
 						}
 
 			            //end upload
