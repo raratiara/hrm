@@ -15,12 +15,12 @@ class Perjalanan_dinas_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Date","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs","Status"];
+	public $tabel_header 			= ["ID","Employee Name","Destination","Start Date","End Date","Reason","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Date","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs","Status"];
-	public $colfields 				= ["id","date_reimbursment","employee_name","reimburse_for_name","atas_nama","diagnosa","nominal_billing","nominal_reimburse","id"];
+	public $colnames 				= ["ID","Employee Name","Destination","Start Date","End Date","Reason","Status"];
+	public $colfields 				= ["id","id","id","id","id","id","id"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -93,50 +93,5 @@ class Perjalanan_dinas_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	public function genexpensesrow()
-	{ 
-		if(_USER_ACCESS_LEVEL_VIEW == "1")
-		{ 
-			$post = $this->input->post(null, true);
-			$type = trim($post['type']); 
-
-			if(isset($post['count']))
-			{  
-				$row = trim($post['count']); 
-				echo $this->self_model->getNewExpensesRow($row,$type);
-			} else if(isset($post['id'])) { 
-				$row = 0;
-				$id = trim($post['id']);
-				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewExpensesRow($row,$type,$id,$view));
-			}
-		}
-		else
-		{ 
-			$this->load->view('errors/html/error_hacks_401');
-		}
-	}
-
-	public function delrowDetailReimburs(){ 
-		$post = $this->input->post(); 
-		$id = trim($post['id']); 
-		
-		if($id != ''){
-			$rs = $this->db->delete('cctv',"id = '".$id."'");
-		}
-		
-	}
-
-	public function getDataSubtype(){
-		$post = $this->input->post(null, true);
-		$type = $post['type'];
-
-		$rs =  $this->self_model->getDataSubtype($type);
-		
-
-		echo json_encode($rs);
-	}
-
-
-
+ 	
 }
