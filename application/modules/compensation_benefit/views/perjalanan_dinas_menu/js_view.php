@@ -21,7 +21,8 @@ var wcount = 0; //for ca list row identify
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#date" ).datepicker();
+        $( "#start_date" ).datepicker();
+        $( "#end_date" ).datepicker();
 		
    	});
 });
