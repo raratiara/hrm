@@ -397,7 +397,7 @@ class Api extends API_Controller
 				                // $config['max_size']      = $this->allow_size;
 
 				                //$config['upload_path']   = "hrm.sandboxxplore.com/uploads/absensi";
-				            	$config['upload_path']   = "../../../../uploads/absensi/";
+				            	$config['upload_path']   = "uploads/absensi/";
 				                 
 				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 				                $config['max_size']      = "0"; 
@@ -420,7 +420,7 @@ class Api extends API_Controller
 							} else if(isset($dataU['error_warning'])){ 
 								//echo $dataU['error_warning']; exit;
 
-								$document = $dataU['error_warning'].' //'.$config['upload_path'];
+								$document = $dataU['error_warning'].' &'.$config['upload_path'];
 							}
 
 				            //end upload
