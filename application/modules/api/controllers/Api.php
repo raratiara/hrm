@@ -9,9 +9,9 @@ class Api extends API_Controller
 
  	/* upload */
  	//di LOCAL ->//protected $attachment_folder	= "./uploads/absensi"; 
- 	protected $attachment_folder	= "hrm.sandboxxplore.com/uploads/absensi"; 
+ 	/*protected $attachment_folder	= "hrm.sandboxxplore.com/uploads/absensi"; 
 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
+	protected $allow_size			= "0";*/ // 0 for limit by default php conf (in Kb)
 
 
    	public function __construct()
@@ -19,11 +19,6 @@ class Api extends API_Controller
       	parent::__construct();
 
 		//$this->load->model($this->model_name);
-   	}
-
-   	public function tes(){
-   		$x = $this->attachment_folder;
-   		echo $x; die();
    	}
 
     public function index()
@@ -392,13 +387,8 @@ class Api extends API_Controller
 							if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
 				            { 
 				               
-				                // $config['upload_path']   = $this->attachment_folder;
-				                // $config['allowed_types'] = $this->allow_type;
-				                // $config['max_size']      = $this->allow_size;
-
-				                //$config['upload_path']   = "hrm.sandboxxplore.com/uploads/absensi";
+				                
 				            	$config['upload_path']   = "uploads/absensi/";
-				                 
 				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 				                $config['max_size']      = "0"; 
 				                
@@ -420,7 +410,7 @@ class Api extends API_Controller
 							} else if(isset($dataU['error_warning'])){ 
 								//echo $dataU['error_warning']; exit;
 
-								$document = $dataU['error_warning'].' &'.$config['upload_path'];
+								$document = 'ERROR : '.$dataU['error_warning'];
 							}
 
 				            //end upload
@@ -624,9 +614,9 @@ class Api extends API_Controller
 				if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
 	            { 
 	               
-	                $config['upload_path']   = $this->attachment_folder;
-	                $config['allowed_types'] = $this->allow_type;
-	                $config['max_size']      = $this->allow_size;
+	                $config['upload_path']   = "uploads/ijin/";
+	                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	                $config['max_size']      = "0"; 
 	                
 	                $this->load->library('upload', $config); 
 	                
@@ -644,7 +634,8 @@ class Api extends API_Controller
 				if($dataU['status']){ 
 					$document = $dataU['upload_file'];
 				} else if(isset($dataU['error_warning'])){ 
-					echo $dataU['error_warning']; exit;
+					//echo $dataU['error_warning']; exit;
+					$document = 'ERROR : '.$dataU['error_warning'];
 				}
 	            //end upload
 
