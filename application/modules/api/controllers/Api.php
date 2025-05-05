@@ -344,110 +344,121 @@ class Api extends API_Controller
 
 				$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
 
-				if($cek_data[0]->id != ''){ //update
-					if($tipe == 'checkin'){
-						
+
+				if($cek_data != ''){
+					if($cek_data[0]->id != ''){ //update
+						if($tipe == 'checkin'){
+							
+							$response = [
+								'status' 	=> 400, // Bad Request
+								'message' 	=>'Failed',
+								'error' 	=> 'Require not satisfied'
+							];
+							/*$data = [
+								'attendance_type' 			=> $attendance_type,
+								'time_in' 					=> $time_in,
+								'time_out' 					=> $time_out,
+								'date_attendance_in' 		=> $datetime,
+								'is_late'					=> $is_late,
+								'updated_at'				=> date("Y-m-d H:i:s")
+							];
+							$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
+
+							if($rs){
+								$response = [
+									'status' 	=> 200,
+									'message' 	=> 'Success'
+								];
+							}else{
+								$response = [
+									'status' 	=> 401,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Error update checkin'
+								];
+							}*/
+
+						}else{ //checkout
+							$f_datetime_in 			= $cek_data[0]->date_attendance_in;
+							$f_datetime_out 		= $datetime;
+							$timestamp1 			= strtotime($f_datetime_in); 
+							$timestamp2 			= strtotime($f_datetime_out);
+							$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+
+
+							//upload 
+							$dataU = array();
+	        				$dataU['status'] = FALSE; 
+							$fieldname='photo';
+							if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+				            { 
+				               
+				                // $config['upload_path']   = $this->attachment_folder;
+				                // $config['allowed_types'] = $this->allow_type;
+				                // $config['max_size']      = $this->allow_size;
+
+				                //$config['upload_path']   = "hrm.sandboxxplore.com/uploads/absensi";
+				            	$config['upload_path']   = "../../../../uploads/absensi/";
+				                 
+				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+				                $config['max_size']      = "0"; 
+				                
+				                $this->load->library('upload', $config); 
+				                
+				                if(!$this->upload->do_upload($fieldname)){ 
+				                    $err_msg = $this->upload->display_errors(); 
+				                    $dataU['error_warning'] = strip_tags($err_msg);              
+				                    $dataU['status'] = FALSE;
+				                } else { 
+				                    $fileData = $this->upload->data();
+				                    $dataU['upload_file'] = $fileData['file_name'];
+				                    $dataU['status'] = TRUE;
+				                }
+				            }
+				            $document = '';
+							if($dataU['status']){ 
+								$document = $dataU['upload_file'];
+							} else if(isset($dataU['error_warning'])){ 
+								//echo $dataU['error_warning']; exit;
+
+								$document = $dataU['error_warning'].' //'.$config['upload_path'];
+							}
+
+				            //end upload
+
+							$data = [
+								'attendance_type' 			=> $attendance_type,
+								'time_in' 					=> $time_in,
+								'time_out' 					=> $time_out,
+								'date_attendance_out' 		=> $datetime,
+								'is_leaving_office_early'	=> $is_leaving_office_early,
+								'num_of_working_hours'		=> $num_of_working_hours,
+								'updated_at'				=> date("Y-m-d H:i:s"),
+								'notes' => $notes,
+								'photo' => $document
+							];
+							$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
+
+							if($rs){
+								$response = [
+									'status' 	=> 200,
+									'message' 	=> 'Success'
+								];
+							}else{
+								$response = [
+									'status' 	=> 401,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Error update checkout'
+								];
+							}
+						}
+
+					}else{
 						$response = [
 							'status' 	=> 400, // Bad Request
 							'message' 	=>'Failed',
 							'error' 	=> 'Require not satisfied'
 						];
-						/*$data = [
-							'attendance_type' 			=> $attendance_type,
-							'time_in' 					=> $time_in,
-							'time_out' 					=> $time_out,
-							'date_attendance_in' 		=> $datetime,
-							'is_late'					=> $is_late,
-							'updated_at'				=> date("Y-m-d H:i:s")
-						];
-						$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
-
-						if($rs){
-							$response = [
-								'status' 	=> 200,
-								'message' 	=> 'Success'
-							];
-						}else{
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Error update checkin'
-							];
-						}*/
-
-					}else{ //checkout
-						$f_datetime_in 			= $cek_data[0]->date_attendance_in;
-						$f_datetime_out 		= $datetime;
-						$timestamp1 			= strtotime($f_datetime_in); 
-						$timestamp2 			= strtotime($f_datetime_out);
-						$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
-
-
-						//upload 
-						$dataU = array();
-        				$dataU['status'] = FALSE; 
-						$fieldname='photo';
-						if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-			            { 
-			               
-			                // $config['upload_path']   = $this->attachment_folder;
-			                // $config['allowed_types'] = $this->allow_type;
-			                // $config['max_size']      = $this->allow_size;
-
-			                $config['upload_path']   = "hrm.sandboxxplore.com/uploads/absensi";
-			                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-			                $config['max_size']      = "0"; 
-			                
-			                $this->load->library('upload', $config); 
-			                
-			                if(!$this->upload->do_upload($fieldname)){ 
-			                    $err_msg = $this->upload->display_errors(); 
-			                    $dataU['error_warning'] = strip_tags($err_msg);              
-			                    $dataU['status'] = FALSE;
-			                } else { 
-			                    $fileData = $this->upload->data();
-			                    $dataU['upload_file'] = $fileData['file_name'];
-			                    $dataU['status'] = TRUE;
-			                }
-			            }
-			            $document = '';
-						if($dataU['status']){ 
-							$document = $dataU['upload_file'];
-						} else if(isset($dataU['error_warning'])){ 
-							//echo $dataU['error_warning']; exit;
-
-							$document = $dataU['error_warning'].' //'.$config['upload_path'];
-						}
-
-			            //end upload
-
-						$data = [
-							'attendance_type' 			=> $attendance_type,
-							'time_in' 					=> $time_in,
-							'time_out' 					=> $time_out,
-							'date_attendance_out' 		=> $datetime,
-							'is_leaving_office_early'	=> $is_leaving_office_early,
-							'num_of_working_hours'		=> $num_of_working_hours,
-							'updated_at'				=> date("Y-m-d H:i:s"),
-							'notes' => $notes,
-							'photo' => $document
-						];
-						$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
-
-						if($rs){
-							$response = [
-								'status' 	=> 200,
-								'message' 	=> 'Success'
-							];
-						}else{
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Error update checkout'
-							];
-						}
 					}
-
 				}else{ //insert
 					if($tipe == 'checkin'){
 
@@ -485,7 +496,7 @@ class Api extends API_Controller
 						];
 					}
 				}
-
+				
 			} else {
 				$response = [
 					'status' 	=> 401,
