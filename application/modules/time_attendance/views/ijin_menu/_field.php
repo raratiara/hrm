@@ -37,6 +37,16 @@
 			</div>
 		</div>
 		
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Attachment</label>
+			<div class="col-md-4">
+				<?=$attachment;?>
+				<input type="hidden" id="hdnattachment" name="hdnattachment"/>
+			</div>
+			<div class="col-md-4">
+				<span class="file_attachment"></span>
+			</div>
+		</div>
 		
 	</div>
 </div>

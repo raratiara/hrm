@@ -302,6 +302,39 @@ class Ijin_menu_model extends MY_Model
 
 			if($f_date_end >= $f_date_start){
 				if($diff_day <= $sisa_cuti || $post['leave_type'] == '2'){ //unpaid leave gak ngecek sisa cuti
+					//upload 
+					$dataU = array();
+					$dataU['status'] = FALSE; 
+					$fieldname='attachment';
+					if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+		            { 
+		               
+		                $config['upload_path']   = "./uploads/ijin";
+		                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+		                $config['max_size']      = "0"; 
+		                
+		                $this->load->library('upload', $config); 
+		                
+		                if(!$this->upload->do_upload($fieldname)){ 
+		                    $err_msg = $this->upload->display_errors(); 
+		                    $dataU['error_warning'] = strip_tags($err_msg);              
+		                    $dataU['status'] = FALSE;
+		                } else { 
+		                    $fileData = $this->upload->data();
+		                    $dataU['upload_file'] = $fileData['file_name'];
+		                    $dataU['status'] = TRUE;
+		                }
+		            }
+		            $document = '';
+					if($dataU['status']){ 
+						$document = $dataU['upload_file'];
+					} else if(isset($dataU['error_warning'])){ 
+						//echo $dataU['error_warning']; exit;
+						$document = 'ERROR : '.$dataU['error_warning'];
+					}
+		            //end upload
+
+
 					$data = [
 						'employee_id' 				=> trim($post['employee']),
 						'date_leave_start' 			=> $f_date_start,
@@ -310,6 +343,7 @@ class Ijin_menu_model extends MY_Model
 						'reason' 					=> trim($post['reason']),
 						'total_leave' 				=> $diff_day,
 						'status_approval' 			=> 1,
+						'photo' 					=> $document,
 						'created_at'				=> date("Y-m-d H:i:s")
 					];
 					$rs = $this->db->insert($this->table_name, $data);

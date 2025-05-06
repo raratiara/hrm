@@ -212,6 +212,12 @@ jQuery(function($) {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 function load_data()
 {
+	var getUrl = window.location;
+	//local=> //var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
+
+
     $.ajax({
 		type: "POST",
         url : module_path+'/get_detail_data',
@@ -232,6 +238,14 @@ function load_data()
 					$("#employee ").val(data.employee_id).prop('disabled', true);
 					
 					$('span.sisa_cuti').html('');
+
+					$('[name="hdnattachment"]').val(data.photo);
+					if(data.photo != '' && data.photo != null){
+						$('span.file_attachment').html('<img src="'+baseUrl+'/uploads/ijin/'+data.photo+'" width="150" height="150" >');
+					}else{
+						$('span.file_attachment').html('');
+					}
+
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -243,6 +257,12 @@ function load_data()
 					$('span.date_start').html(data.date_leave_start);
 					$('span.date_end').html(data.date_leave_end);
 					$('span.reason').html(data.reason);
+
+					if(data.photo != '' && data.photo != null){
+						$('span.attachment').html('<img src="'+baseUrl+'/uploads/ijin/'+data.photo+'" width="150" height="150" >');
+					}else{
+						$('span.attachment').html('');
+					}
 				
 					
 					$('#modal-view-data').modal('show');
