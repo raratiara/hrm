@@ -1,3 +1,4 @@
+
 <!-- Modal Reject Data -->
 <div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true">
 	<div class="vertical-alignment-helper">
@@ -7,7 +8,7 @@
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
-					Reject
+					Reject 
 				</div>
 			</div>
 
@@ -72,29 +73,6 @@
 </div>
 
 
-<!-- Modal Reject Data -->
-<!-- <div id="modal-success" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-success" aria-hidden="true">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content">
-			
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					Delete Ijin
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center"><h1 style="cente">Success !</h1></p>
-			</div>
-			
-
-		</div>
-	</div>
-	</div>
-</div> -->
-
 
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
@@ -110,17 +88,7 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#date" ).datepicker({
-        	//startDate: '+1d'
-        });
-
-        $( "#datetime_start" ).datetimepicker({
-        	//startDate: '+1d'
-    	});
-
-    	$( "#datetime_end" ).datetimepicker({
-        	//startDate: '+1d'
-    	});
+        $( "#training_date" ).datetimepicker();
 		
    	});
 });
@@ -224,15 +192,16 @@ function load_data()
         dataType: "JSON",
         success: function(data)
         {
-			if(data != false){ 
+			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
-					$('[name="date"]').val(data.date_overtime);
-					$('[name="reason"]').val(data.reason);
-					$('[name="datetime_start"]').val(data.datetime_start);
-					$('[name="datetime_end"]').val(data.datetime_end);
-				
+					
 					$('select#employee').val(data.employee_id).trigger('change.select2');
+					$('[name="training_name"]').val(data.training_name);
+					$('[name="training_date"]').val(data.training_date);
+					$('[name="location"]').val(data.location);
+					$('[name="trainer"]').val(data.trainer);
+					$('[name="notes"]').val(data.notes);
 					
 					
 					$.uniform.update();
@@ -241,18 +210,15 @@ function load_data()
 				}
 				if(save_method == 'detail'){ 
 					$('span.employee').html(data.full_name);
-					$('span.date').html(data.date_overtime);
-					$('span.datetime_start').html(data.datetime_start);
-					$('span.datetime_end').html(data.datetime_end);
-					$('span.reason').html(data.reason);
-					$('span.num_of_hour').html(data.num_of_hour);
-					$('span.amount').html(data.amount);
-					$('span.status').html(data.status_name);
-				
+					$('span.training_name').html(data.training_name);
+					$('span.training_date').html(data.training_date);
+					$('span.location').html(data.location);
+					$('span.trainer').html(data.trainer);
+					$('span.notes').html(data.notes);
+
 					
 					$('#modal-view-data').modal('show');
 				}
-				
 			} else {
 				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
 				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
@@ -282,7 +248,7 @@ function load_data()
         }
     });
 }
-
+<?php } ?>
 
 
 function reject(id){
@@ -392,11 +358,5 @@ function save_approve(){
 
 
 }
-
-
-<?php } ?>
-
-
-
 
 </script>

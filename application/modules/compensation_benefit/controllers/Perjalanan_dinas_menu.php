@@ -89,5 +89,48 @@ class Perjalanan_dinas_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
+ 	public function reject(){
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+
+		if($id != ''){
+
+			$data = [
+				'status_id' 	=> 3,
+				'approval_date'	=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->update('business_trip', $data, "id = '".$id."'");
+
+			return $rs;
+			
+		}else{
+			$rs=null;
+		}
+
+		echo json_encode($rs);
+
+	}
+
+	public function approve(){
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+
+		if($id != ''){
+			$data = [
+				'status_id' 	=> 2, 
+				'approval_date'	=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->update('business_trip', $data, "id = '".$id."'");
+			
+			return $rs;
+
+		}else{
+			$rs=null;
+		}
+
+		echo json_encode($rs);
+
+	}
+
  	
 }
