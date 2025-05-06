@@ -34,6 +34,7 @@ class Ijin_menu extends MY_Controller
 		$field['txtreason']		= $this->self_model->return_build_txtarea('','reason','reason');
 		$field['txtdatestart']	= $this->self_model->return_build_txt('','date_start','date_start');
 		$field['txtdateend']	= $this->self_model->return_build_txt('','date_end','date_end');
+		$field['attachment'] 	= $this->self_model->return_build_fileinput('attachment','attachment');
 
 
 		
