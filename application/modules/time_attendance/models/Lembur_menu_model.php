@@ -19,7 +19,7 @@ class Lembur_menu_model extends MY_Model
 		$aColumns = [
 			NULL,
 			NULL,
-			'id',
+			'dt.id',
 			'dt.date_overtime',
 			'dt.full_name',
 			'dt.datetime_start',
