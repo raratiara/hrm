@@ -1,39 +1,41 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Lembur_menu extends MY_Controller
-{
+class Training_menu extends MY_Controller
+{ 
 	/* Module */
- 	const  LABELMODULE				= "lembur_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Lembur";
- 	const  LABELFOLDER				= "time_attendance"; // module folder
- 	const  LABELPATH				= "lembur_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "time_attendance"; // adjusted 1st sub parent segment
+ 	const  LABELMODULE				= "training_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Training";
+ 	const  LABELFOLDER				= "training_development"; // module folder
+ 	const  LABELPATH				= "training_menu"; // controller file (lowercase)
+ 	const  LABELNAVSEG1				= "training_development"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Date","Employee Name","Date Time Start","Date Time End","Num of Hour","Amount","Reason","Status"];
+	public $tabel_header 			= ["ID","Employee Name","Training Name","Training Date","Location","Trainer","Notes","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Date","Employee Name","Date Time Start","Date Time End","Num of Hour","Amount","Reason","Status"];
-	public $colfields 				= ["id","id","id","id","id","id","id","id","id"];
+	public $colnames 				= ["ID","Employee Name","Training Name","Training Date","Location","Trainer","Notes","Status"];
+	public $colfields 				= ["id","id","id","id","id","id","id","id"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
 		$field = [];
 		
+		$field['txttrainingdate']	= $this->self_model->return_build_txt('','training_date','training_date');
+		$field['txtnotes'] 			= $this->self_model->return_build_txtarea('','notes','notes');
+		$field['txttrainer'] 		= $this->self_model->return_build_txt('','trainer','trainer');
+		$field['txttrainingname'] 	= $this->self_model->return_build_txt('','training_name','training_name');
+		$field['txtlocation'] 		= $this->self_model->return_build_txt('','location','location');
+		
+		
 		$msemp 					= $this->db->query("select * from employees")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
-		
-		$field['txtdate']			= $this->self_model->return_build_txt('','date','date');
-		$field['txtreason']			= $this->self_model->return_build_txtarea('','reason','reason');
-		$field['txtdatetimestart']	= $this->self_model->return_build_txt('','datetime_start','datetime_start');
-		$field['txtdatetimeend']	= $this->self_model->return_build_txt('','datetime_end','datetime_end');
 
 
 		
@@ -89,7 +91,8 @@ class Lembur_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
-	public function reject(){
+
+ 	public function reject(){
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
 
@@ -99,7 +102,7 @@ class Lembur_menu extends MY_Controller
 				'status_id' 	=> 3,
 				'approval_date'	=> date("Y-m-d H:i:s")
 			];
-			$rs = $this->db->update('overtimes', $data, "id = '".$id."'");
+			$rs = $this->db->update('employee_training', $data, "id = '".$id."'");
 
 			return $rs;
 			
@@ -120,7 +123,7 @@ class Lembur_menu extends MY_Controller
 				'status_id' 	=> 2, 
 				'approval_date'	=> date("Y-m-d H:i:s")
 			];
-			$rs = $this->db->update('overtimes', $data, "id = '".$id."'");
+			$rs = $this->db->update('employee_training', $data, "id = '".$id."'");
 			
 			return $rs;
 
@@ -131,6 +134,6 @@ class Lembur_menu extends MY_Controller
 		echo json_encode($rs);
 
 	}
- 	
 
+ 	
 }

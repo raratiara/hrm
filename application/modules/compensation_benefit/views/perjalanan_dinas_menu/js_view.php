@@ -1,4 +1,77 @@
 
+<!-- Modal Reject Data -->
+<div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content">
+			<form class="form-horizontal" id="frmRejectData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Reject 
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Are you sure to reject this Data?</p>
+				<input type="hidden" name="id" id="id" value="">
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-reject-data" onclick="save_reject()">
+					<i class="fa fa-check"></i>
+					Ok
+				</button>
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Cancel
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+<!-- Modal Reject Data -->
+<div id="modal-approve-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-approve-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content">
+			<form class="form-horizontal" id="frmApproveData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Approval 
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Are you sure to approve this Data?</p>
+				<input type="hidden" name="id" id="id" value="">
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-approve-data" onclick="save_approve()">
+					<i class="fa fa-check"></i>
+					Ok
+				</button>
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Cancel
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
 
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
@@ -176,88 +249,42 @@ function load_data()
 }
 <?php } ?>
 
+function reject(id){
 
-$('#nominal_billing').on('keyup', function () { 
- 	var nominal_billing = $("#nominal_billing").val();
- 	
- 	/*var reimburs = nominal_billing*0.85;*/
- 	var reimburs = nominal_billing;
- 	$('[name="nominal_reimburs"]').val(reimburs);
-});
-
-
-$("#addcarow").on("click", function () { 
-	var type = $("#type option:selected").val();
-	
-
-	if(type != ''){
-		expire();
-		var newRow = $("<tr>");
-		$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { count:wcount, type:type },success: function (response) {
-				newRow.append(response);
-				$(locate).append(newRow);
-				wcount++;
-				
-			}
-		}).done(function() {
-			tSawBclear('table.order-list');
-		});
-
-		//getSubtype(type);
-
-	}else{
-		alert("Please choose Reimburs Type");
-	}
-	
-});
-
-
-function del(idx,hdnid){
-	
-	if(hdnid != ''){ //delete dr table
-
-		$.ajax({type: 'post',url: module_path+'/delrowDetailReimburs',data: { id:hdnid },success: function (response) {
-				
-			}
-		}).done(function() {
-			tSawBclear('table.order-list');
-		});
-
-	}
-
-	//delete tampilan row
-
-	var table = document.getElementById("tblDetailReimburs");
-	table.deleteRow(idx);
-	
+	$('#modal-reject-data').modal('show');
+	$('[name="id"]').val(id);
 
 }
 
-function getSubtype(type){
-	if(type != ''){
- 		
- 		$.ajax({
+function approve(id){
+
+	$('#modal-approve-data').modal('show');
+	$('[name="id"]').val(id);
+
+}
+
+
+function save_reject(){
+	var id 	= $("#id").val();
+
+	$('#modal-reject-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
 			type: "POST",
-	        url : module_path+'/getDataSubtype',
-			data: { type: type },
+	        url : module_path+'/reject',
+			data: { id: id },
 			cache: false,		
 	        dataType: "JSON",
 	        success: function(data)
-	        {  
-				if(data != null){ 	
-					var $el = $(".subtype");
-					$el.empty(); // remove old options
-					$el.append($("<option></option>").attr("value", "").text(""));
-					$.each(data.mssubtype, function(key,value) {
-					  	$el.append($("<option></option>")
-					     .attr("value", value.id).text(value.name));
-					});
-					//$('select#subtype').val(joborderid).trigger('change.select2');
-
+	        { 
+	        	
+				if(data != false){ 	
+					alert("The data has been successfully rejected.");
 				} else { 
-					
-
+					alert("Failed to reject the data!");
 				}
+
 
 	        },
 	        error: function (jqXHR, textStatus, errorThrown)
@@ -274,24 +301,61 @@ function getSubtype(type){
 				});
 	        }
 	    });
+	}else{
+		alert("Data not found!");
+	}
 
-
- 	}else{
- 		alert("Please choose Order Name");
- 	}
+	location.reload();
 
 
 }
 
 
-$('#type').on('change', function () { 
- 	var type = $("#type option:selected").val();
- 	
+function save_approve(){
+	var id 	= $("#id").val();
 
- 	getSubtype(type);
- 	
+	$('#modal-approve-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/approve',
+			data: { id: id },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+	        	
+				if(data != false){ 	
+					alert("The data has been successfully approved.");
+				} else { 
+					alert("Failed to approve the data!");
+				}
 
-});
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+	}else{
+		alert("Data not found!");
+	}
+
+	location.reload();
+
+
+}
 
 
 </script>

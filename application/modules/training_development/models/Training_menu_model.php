@@ -1,12 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Lembur_menu_model extends MY_Model
+class Training_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "time_attendance/lembur_menu";
- 	protected $table_name 				= _PREFIX_TABLE."overtimes";
+ 	protected $folder_name				= "training_development/training_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."employee_training";
  	protected $primary_key 				= "id";
+
+ 
+
 
 	function __construct()
 	{
@@ -20,13 +23,12 @@ class Lembur_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.date_overtime',
 			'dt.full_name',
-			'dt.datetime_start',
-			'dt.datetime_end',
-			'dt.num_of_hour',
-			'dt.amount',
-			'dt.reason',
+			'dt.training_name',
+			'dt.training_date',
+			'dt.location',
+			'dt.trainer',
+			'dt.notes',
 			'dt.status_name',
 			'dt.direct_id'
 		];
@@ -34,14 +36,15 @@ class Lembur_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name,  b.direct_id,
-					(case 
+		$sTable = '(select a.*, b.full_name, b.direct_id,
+					(case
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "Rejected"
 					else ""
-					end) as status_name 
-					from overtimes a left join employees b on b.id = a.employee_id)dt';
+					 end) as status_name
+					from employee_training a left join employees b on b.id = a.employee_id)dt';
+
 		
 
 		/* Paging */
@@ -143,8 +146,9 @@ class Lembur_menu_model extends MY_Model
 			}
 		}
 
-		$getdirect = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$direct_karyawan_id = $getdirect[0]->id_karyawan;
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
@@ -199,11 +203,10 @@ class Lembur_menu_model extends MY_Model
 
 			$reject=""; 
 			$approve="";
-			if($row->status_name == 'Waiting Approval' && $row->direct_id == $direct_karyawan_id){
+			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
 				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
 			}
-			
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -214,14 +217,14 @@ class Lembur_menu_model extends MY_Model
 					'.$approve.'
 				</div>',
 				$row->id,
-				$row->date_overtime,
 				$row->full_name,
-				$row->datetime_start,
-				$row->datetime_end,
-				$row->num_of_hour,
-				$row->amount,
-				$row->reason,
+				$row->training_name,
+				$row->training_date,
+				$row->location,
+				$row->trainer,
+				$row->notes,
 				$row->status_name
+
 
 			));
 		}
@@ -273,101 +276,63 @@ class Lembur_menu_model extends MY_Model
 		} else return null;
 	}  
 
-	public function dayCount($from, $to) {
-	    $first_date = strtotime($from);
-	    $second_date = strtotime($to);
-	    $days_diff = $second_date - $first_date;
-	    return date('d',$days_diff);
-	}
 
 	public function add_data($post) { 
 
-		$date_overtime 		= date_create($post['date']);
-		$datetime_start 	= date_create($post['datetime_start']);
-		$datetime_end 		= date_create($post['datetime_end']);
-		$f_datetime_start 	= date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end 	= date_format($datetime_end,"Y-m-d H:i:s");
-		$f_date_overtime 	= date_format($date_overtime,"Y-m-d");
-
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
-
+		$training_date 		= date_create($post['training_date']); 
+		$f_training_date	= date_format($training_date,"Y-m-d H:i:s");
 		
-		$num_of_hour= abs($timestamp2 - $timestamp1); //jam
-		$biaya='50000';
-		$amount = $num_of_hour*$biaya;
-
-
-		if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
-			
-			$data = [
-				'date_overtime' 			=> $f_date_overtime,
-				'employee_id' 				=> trim($post['employee']),
-				'datetime_start' 			=> $f_datetime_start,
-				'datetime_end' 				=> $f_datetime_end,
-				'num_of_hour' 				=> $num_of_hour,
-				'amount' 					=> $amount,
-				'reason' 					=> trim($post['reason']),
-				'status_id' 				=> 1,
-				'created_at'				=> date("Y-m-d H:i:s")
+		
+		
+  		if(!empty($post['employee'])){ 
+  			$data = [
+				'employee_id' 			=> trim($post['employee']),
+				'training_name' 		=> trim($post['training_name']),
+				'training_date'			=> $f_training_date,
+				'location' 				=> trim($post['location']),
+				'trainer' 				=> trim($post['trainer']),
+				'notes' 				=> trim($post['notes']),
+				'status_id' 			=> 1, //waiting approval
+				'created_at'			=> date("Y-m-d H:i:s")
+				
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 
-		}else return null;
-		
+  		}else return null;
+
 	}  
 
 	public function edit_data($post) { 
-
-		if(!empty($post['id'])){
-
-			$date_overtime 		= date_create($post['date']);
-			$datetime_start 	= date_create($post['datetime_start']);
-			$datetime_end 		= date_create($post['datetime_end']);
-			$f_datetime_start 	= date_format($datetime_start,"Y-m-d H:i:s");
-			$f_datetime_end 	= date_format($datetime_end,"Y-m-d H:i:s");
-			$f_date_overtime 	= date_format($date_overtime,"Y-m-d");
-
-			$timestamp1 = strtotime($f_datetime_start); 
-			$timestamp2 = strtotime($f_datetime_end);
-
-			
-			$num_of_hour= abs($timestamp2 - $timestamp1); //jam
-			$biaya='50000';
-			$amount = $num_of_hour*$biaya;
+		$training_date 		= date_create($post['training_date']); 
+		$f_training_date	= date_format($training_date,"Y-m-d H:i:s");
 
 
-			if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
-			
-				$data = [
-					'date_overtime' 			=> $f_date_overtime,
-					'employee_id' 				=> trim($post['employee']),
-					'datetime_start' 			=> $f_datetime_start,
-					'datetime_end' 				=> $f_datetime_end,
-					'num_of_hour' 				=> $num_of_hour,
-					'amount' 					=> $amount,
-					'reason' 					=> trim($post['reason']),
-					'updated_at'				=> date("Y-m-d H:i:s")
-				];
-				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-
-			}else return null;
+		if(!empty($post['id'])){ 
+			$data = [
+				'employee_id' 			=> trim($post['employee']),
+				'training_name' 		=> trim($post['training_name']),
+				'training_date'			=> $f_training_date,
+				'location' 				=> trim($post['location']),
+				'trainer' 				=> trim($post['trainer']),
+				'notes' 				=> trim($post['notes']),
+				'updated_at'			=> date("Y-m-d H:i:s")
 				
+			];
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 		} else return null;
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name, b.direct_id,
-					(case 
+		$mTable = '(select a.*, b.full_name, 
+					(case
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "Rejected"
 					else ""
-					end) as status_name 
-					from overtimes a left join employees b on b.id = a.employee_id
-
-			)dt';
+					 end) as status_name
+					from employee_training a left join employees b on b.id = a.employee_id
+					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
@@ -383,24 +348,15 @@ class Lembur_menu_model extends MY_Model
 		foreach ($list_data as $k => $v) {
 			$i += 1;
 
-			$timestamp1 = strtotime($v["D"]); //Y-m-d H:i:s
-			$timestamp2 = strtotime($v["E"]); //Y-m-d H:i:s
-
-			
-			$num_of_hour= abs($timestamp2 - $timestamp1); //jam
-			$biaya='50000';
-			$amount = $num_of_hour*$biaya;
-
 			$data = [
-				'date_overtime' 	=> $v["B"],
-				'employee_id' 		=> $v["C"],
-				'datetime_start' 	=> $v["D"],
-				'datetime_end' 		=> $v["E"],
-				'num_of_hour' 		=> $num_of_hour,
-				'amount' 			=> $amount,
-				'reason' 			=> $v["F"],
-				'created_at' 		=> $v["G"],
-				'status_id' 		=> $v["H"]
+				'employee_id' 	=> $v["B"],
+				'training_name' => $v["C"],
+				'training_date' => $v["D"],
+				'location' 		=> $v["E"],
+				'trainer' 		=> $v["F"],
+				'notes' 		=> $v["G"],
+				'status_id' 	=> $v["H"],
+				'created_at' 	=> date("Y-m-d H:i:s")
 				
 			];
 
@@ -413,22 +369,22 @@ class Lembur_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = 'select a.id, a.date_overtime, b.full_name, a.datetime_start, a.datetime_end, a.num_of_hour, a.amount,a.reason, 
-				(case 
-				when a.status_id = 1 then "Waiting Approval"
-				when a.status_id = 2 then "Approved"
-				when a.status_id = 3 then "Rejected"
-				else ""
-				end) as status_name 
-				from overtimes a left join employees b on b.id = a.employee_id
+		$sql = 'select a.id, b.full_name, a.training_name, a.training_date, a.location, a.trainer, a.notes,
+					(case
+					when a.status_id = 1 then "Waiting Approval"
+					when a.status_id = 2 then "Approved"
+					when a.status_id = 3 then "Rejected"
+					else ""
+					 end) as status_name
+					from employee_training a left join employees b on b.id = a.employee_id
 				order by a.id asc
+
 		';
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
 	}
-
 
 
 
