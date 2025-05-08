@@ -511,6 +511,252 @@ class Api extends API_Controller
     }
 
 
+    public function absen_checkin()
+    {
+    	$this->verify_token();
+
+    	$employee	= $_POST['employee_id'];
+    	$tipe 		= 'checkin';
+    	$datetime	= $_POST['datetime_attendance'];
+    	
+
+
+		if($employee != '' && $datetime != ''){
+
+			$exp 			= explode(" ",$datetime);
+			$date 			= $exp[0];
+			$time 			= $exp[1];
+			$timestamp_time = strtotime($time); 
+
+			$cek_emp = $this->api->cek_employee($employee);	
+
+			if($cek_emp['shift_type'] != '')
+			{
+				if($cek_emp['shift_type'] == 'Reguler'){
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					$attendance_type 	= $dt[0]->name;
+					$time_in 			= $dt[0]->time_in;
+					$time_out 			= $dt[0]->time_out;
+					$post_timein 		= strtotime($time_in);
+					$post_timeout 		= strtotime($time_out);
+				}
+
+				$is_late=''; 
+				if($timestamp_time > $post_timein){
+					$is_late='Y';
+				}
+				
+
+				$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+
+
+				if(!empty($cek_data)){  
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Cannot double checkin'
+					];
+				}else{ //insert
+					
+					$data = [
+						'date_attendance' 			=> $date,
+						'employee_id' 				=> $employee,
+						'attendance_type' 			=> $attendance_type,
+						'time_in' 					=> $time_in,
+						'time_out' 					=> $time_out,
+						'date_attendance_in' 		=> $datetime,
+						'is_late'					=> $is_late,
+						'created_at'				=> date("Y-m-d H:i:s")
+					];
+
+					$rs = $this->db->insert("time_attendances", $data);
+
+					if($rs){
+						$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success'
+						];
+					}else{
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Error submit checkin'
+						];
+					}
+
+				}
+				
+			} else {
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
+				];
+			}
+			
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+
+    public function absen_checkout()
+    {
+    	$this->verify_token();
+
+    	$employee	= $_POST['employee_id'];
+    	$tipe 		= 'checkout';
+    	$datetime	= $_POST['datetime_attendance'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['photo'];
+
+
+		if($employee != '' && $datetime != ''){
+
+			$exp 			= explode(" ",$datetime);
+			$date 			= $exp[0];
+			$time 			= $exp[1];
+			$timestamp_time = strtotime($time); 
+
+			$cek_emp = $this->api->cek_employee($employee);	
+
+			if($cek_emp['shift_type'] != '')
+			{
+				if($cek_emp['shift_type'] == 'Reguler'){
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					$attendance_type 	= $dt[0]->name;
+					$time_in 			= $dt[0]->time_in;
+					$time_out 			= $dt[0]->time_out;
+					$post_timein 		= strtotime($time_in);
+					$post_timeout 		= strtotime($time_out);
+				}
+
+				$is_leaving_office_early = '';
+				if($timestamp_time < $post_timeout){
+					$is_leaving_office_early = 'Y';
+				}
+
+				$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+
+
+				if(!empty($cek_data)){  
+					if($cek_data[0]->id != ''){ //update checkout
+						
+						$f_datetime_in 			= $cek_data[0]->date_attendance_in;
+						$f_datetime_out 		= $datetime;
+						$timestamp1 			= strtotime($f_datetime_in); 
+						$timestamp2 			= strtotime($f_datetime_out);
+						$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+
+
+						//upload 
+						$dataU = array();
+        				$dataU['status'] = FALSE; 
+						$fieldname='photo';
+						if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			            { 
+			               
+			                
+			            	$config['upload_path']   = "uploads/absensi/";
+			                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+			                $config['max_size']      = "0"; 
+			                
+			                $this->load->library('upload', $config); 
+			                
+			                if(!$this->upload->do_upload($fieldname)){ 
+			                    $err_msg = $this->upload->display_errors(); 
+			                    $dataU['error_warning'] = strip_tags($err_msg);              
+			                    $dataU['status'] = FALSE;
+			                } else { 
+			                    $fileData = $this->upload->data();
+			                    $dataU['upload_file'] = $fileData['file_name'];
+			                    $dataU['status'] = TRUE;
+			                }
+			            }
+			            $document = '';
+						if($dataU['status']){ 
+							$document = $dataU['upload_file'];
+						} else if(isset($dataU['error_warning'])){ 
+							//echo $dataU['error_warning']; exit;
+
+							$document = 'ERROR : '.$dataU['error_warning'];
+						}
+
+			            //end upload
+
+						$data = [
+							'date_attendance_out' 		=> $datetime,
+							'is_leaving_office_early'	=> $is_leaving_office_early,
+							'num_of_working_hours'		=> $num_of_working_hours,
+							'updated_at'				=> date("Y-m-d H:i:s"),
+							'notes' => $notes,
+							'photo' => $document
+						];
+						$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
+
+						if($rs){
+							$response = [
+								'status' 	=> 200,
+								'message' 	=> 'Success'
+							];
+						}else{
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Error update checkout'
+							];
+						}
+						
+
+					}else{
+						$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'Require not satisfied'
+						];
+					}
+				}else{ //insert
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Please CheckIn first'
+					];
+				}
+				
+			} else {
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
+				];
+			}
+			
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+
     public function ijin()
     {
     	$this->verify_token();

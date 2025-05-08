@@ -12,8 +12,8 @@
 }
 
 .modal-content{
-    width:1100px;
-    margin-left:-250px
+    width:1200px;
+    margin-left:-300px
 }
 
 

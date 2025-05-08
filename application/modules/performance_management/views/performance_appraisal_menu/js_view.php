@@ -83,6 +83,11 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var modloc = '/_hrm/performance_management/performance_appraisal_menu/';
+var opsForm = 'form#frmInputData';
+var locate = 'table.ca-list';
+var dlocate = 'table.dca-list';
+var wcount = 0; //for ca list row identify
 
 
 
@@ -91,6 +96,42 @@ $(document).ready(function() {
    	$(function() {
    		
         $( "#training_date" ).datetimepicker();
+
+        /*var acc = document.getElementsByClassName("accordion");
+		var i;
+
+		for (i = 0; i < acc.length; i++) {
+		  acc[i].addEventListener("click", function() {
+		    this.classList.toggle("active");
+		    var panel = this.nextElementSibling;
+		    if (panel.style.display === "block") {
+		      panel.style.display = "none";
+		    } else {
+		      panel.style.display = "block";
+		    }
+		  });
+		}*/
+
+
+		const acc = document.querySelector('.accordion');
+		const panel = document.querySelector('.panel');
+
+		  acc.addEventListener('click', function() {
+		    acc.classList.toggle('active');
+		    panel.classList.toggle('show');
+		  });
+
+
+
+		const acc2 = document.querySelector('#accordion_softskill');
+		const panel2 = document.querySelector('#tabsoftskill');
+
+		  acc2.addEventListener('click', function() {
+		    acc2.classList.toggle('active');
+		    panel2.classList.toggle('show');
+		  });
+
+
 		
    	});
 });
@@ -193,13 +234,27 @@ function load_data()
 		cache: false,		
         dataType: "JSON",
         success: function(data)
-        {
+        { 
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					
 					$('select#employee').val(data.employee_id).trigger('change.select2');
 					$('[name="year"]').val(data.year);
+
+					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+					getSoftskill(data.employee_id,data.id,save_method);
 					
 					
 					$.uniform.update();
@@ -209,6 +264,20 @@ function load_data()
 				if(save_method == 'detail'){ 
 					$('span.employee').html(data.full_name);
 					$('span.year').html(data.year);
+
+					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+					getSoftskill(data.employee_id,data.id,save_method);
 
 					
 					$('#modal-view-data').modal('show');
@@ -353,5 +422,107 @@ function save_approve(){
 
 
 }
+
+
+$("#addhardskill").on("click", function () { 
+	
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genhardskillrow',data: { count:wcount },success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.order-list');
+	});
+
+	
+});
+
+
+function del(idx,hdnid){
+	
+	if(hdnid != ''){ //delete dr table
+
+		$.ajax({type: 'post',url: module_path+'/delrowDetailHardskill',data: { id:hdnid },success: function (response) {
+				
+			}
+		}).done(function() {
+			tSawBclear('table.order-list');
+		});
+
+	}
+
+	//delete tampilan row
+
+	var table = document.getElementById("tblDetailHardskill");
+	table.deleteRow(idx);
+	
+
+}
+
+
+function getSoftskill(employee,id,save_method){
+		
+	$.ajax({
+		type: "POST",
+        url : module_path+'/getDataSoftskill',
+		data: { employee: employee, id:id, save_method:save_method },
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        {   
+			if(data != null){ 	
+				if(save_method == 'detail'){
+					$('span#tblsoftskill_detail').html(data.tblsoftskill);
+				}else{
+					$('span#tblsoftskill').html(data.tblsoftskill);
+				}
+
+			} else { 
+				if(save_method == 'detail'){
+					$('span#tblsoftskill_detail').html('');
+				}else{
+					$('span#tblsoftskill').html('');
+				}
+			}
+
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+
+
+}
+
+
+$('#employee').on('change', function () { 
+ 	var employee 	= $("#employee option:selected").val();
+ 	var id 			= $("#id").val();
+ 
+ 	
+
+ 	getSoftskill(employee,id,save_method);
+ 	
+
+});
+
+
+
+
+
 
 </script>

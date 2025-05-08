@@ -31,7 +31,7 @@ class Data_karyawan_menu_model extends MY_Model
 			'dt.nick_name',
 			'dt.personal_email',
 			'dt.personal_phone',
-			'dt.gender',
+			'dt.gender_name',
 			'dt.date_of_birth',
 			'dt.job_title_id'
 		];
@@ -39,7 +39,7 @@ class Data_karyawan_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select * from employees)dt';
+		$sTable = '(select *,(case when gender="M" then "Male" when gender="F" then "Female" else "" end) as gender_name from employees)dt';
 		
 
 		/* Paging */
@@ -205,10 +205,9 @@ class Data_karyawan_menu_model extends MY_Model
 				$row->nick_name,
 				$row->personal_email,
 				$row->personal_phone,
-				$row->gender,
+				$row->gender_name,
 				$row->date_of_birth,
-				//$row->job_title
-				$this->attachment_folder
+				$row->job_title
 
 			));
 		}
@@ -1329,5 +1328,18 @@ class Data_karyawan_menu_model extends MY_Model
 
 		return [$dt,$row];
 	}
+
+
+	public function getDataDistrict($province){ 
+
+		$rs = $this->db->query("select * from districts where province_id = '".$province."' order by name asc")->result(); 
+
+		$data['msdistrict'] = $rs;
+
+
+		return $data;
+
+	}
+
 
 }

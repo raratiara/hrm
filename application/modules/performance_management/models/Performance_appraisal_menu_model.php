@@ -272,14 +272,77 @@ class Performance_appraisal_menu_model extends MY_Model
 	public function add_data($post) { 
 		
   		if(!empty($post['employee'])){ 
-  			$data = [
-				'employee_id' 	=> trim($post['employee']),
-				'year' 			=> trim($post['year']),
-				'status_id' 	=> 1, //waiting approval
-				'created_at'	=> date("Y-m-d H:i:s")
-				
-			];
-			$rs = $this->db->insert($this->table_name, $data);
+
+  			$data_appraisal = $this->db->query("select * from performance_appraisal where employee_id = '".$post['employee']."' and year = '".$post['year']."'")->result(); 
+
+  			if(empty($data_appraisal)){
+  				$data = [
+					'employee_id' 	=> trim($post['employee']),
+					'year' 			=> trim($post['year']),
+					'status_id' 	=> 1, //waiting approval
+					'created_at'	=> date("Y-m-d H:i:s")
+					
+				];
+				$rs = $this->db->insert($this->table_name, $data);
+				$lastId = $this->db->insert_id();
+
+				if($rs){
+					if(isset($post['hardskill'])){
+						$item_num = count($post['hardskill']); // cek sum
+						$item_len_min = min(array_keys($post['hardskill'])); // cek min key index
+						$item_len = max(array_keys($post['hardskill'])); // cek max key index
+					} else {
+						$item_num = 0;
+					}
+
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+						
+							if(isset($post['hardskill'][$i])){
+								$itemData = [
+									'performance_appraisal_id' 	=> $lastId,
+									'hardskill' 		=> trim($post['hardskill'][$i]),
+									'notes' 			=> trim($post['notes'][$i]),
+									'score_emp' 		=> trim($post['score_emp'][$i]),
+									'score_direct' 		=> trim($post['score_direct'][$i])
+								];
+
+								$this->db->insert('performance_appraisal_hardskill', $itemData);
+							}
+						}
+					}
+
+
+					//softskill
+					if(isset($post['hdnid_mastersoftskill'])){
+						$item_num2 = count($post['hdnid_mastersoftskill']); // cek sum
+						$item_len_min2 = min(array_keys($post['hdnid_mastersoftskill'])); // cek min key index
+						$item_len2 = max(array_keys($post['hdnid_mastersoftskill'])); // cek max key index
+					} else {
+						$item_num2 = 0;
+					}
+
+					if($item_num2>0){
+						for($i=$item_len_min2;$i<=$item_len2;$i++) 
+						{
+						
+							if(isset($post['hdnid_mastersoftskill'][$i])){
+								$itemData2 = [
+									'performance_appraisal_id' 	=> $lastId,
+									'softskill_id' 		=> trim($post['hdnid_mastersoftskill'][$i]),
+									'notes' 			=> trim($post['notes_softskill'][$i]),
+									'score_emp' 		=> trim($post['score_emp_softskill'][$i]),
+									'score_direct' 		=> trim($post['score_direct_softskill'][$i])
+								];
+
+								$this->db->insert('performance_appraisal_softskill', $itemData2);
+							}
+						}
+					}
+					return $rs;
+				}
+  			}else return null;
 
   		}else return null;
 
@@ -295,6 +358,45 @@ class Performance_appraisal_menu_model extends MY_Model
 				
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){ 
+				if(isset($post['hardskill'])){
+					$item_num = count($post['hardskill']); // cek sum
+					$item_len_min = min(array_keys($post['hardskill'])); // cek min key index
+					$item_len = max(array_keys($post['hardskill'])); // cek max key index
+				} else {
+					$item_num = 0;
+				}
+
+				if($item_num>0){
+					for($i=$item_len_min;$i<=$item_len;$i++) 
+					{
+						$hdnid = $post['hdnid'][$i];
+						if(isset($post['hardskill'][$i])){
+							if($hdnid != ''){ //update
+								$itemData = [
+									'hardskill' 		=> trim($post['hardskill'][$i]),
+									'notes' 			=> trim($post['notes'][$i]),
+									'score_emp' 		=> trim($post['score_emp'][$i]),
+									'score_direct' 		=> trim($post['score_direct'][$i])
+								];
+								$this->db->update('performance_appraisal_hardskill', $itemData, "id = '".$hdnid."'");
+							}else{ //insert
+								$itemData = [
+									'performance_appraisal_id' 	=> $post['id'],
+									'hardskill' 		=> trim($post['hardskill'][$i]),
+									'notes' 			=> trim($post['notes'][$i]),
+									'score_emp' 		=> trim($post['score_emp'][$i]),
+									'score_direct' 		=> trim($post['score_direct'][$i])
+								];
+
+								$this->db->insert('performance_appraisal_hardskill', $itemData);
+							}
+						}
+					}
+				}
+				return $rs; 
+			}else return null;
 
 		} else return null;
 	}  
@@ -356,6 +458,285 @@ class Performance_appraisal_menu_model extends MY_Model
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
+	}
+
+
+	public function getNewHardskillRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getHardskillRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			
+			$data 	.= '<td>'.$this->return_build_txt('','hardskill['.$row.']','','hardskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txtarea('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+	
+	// Generate expenses item rows for edit & view
+	public function getHardskillRows($id,$view,$print=FALSE){ 
+
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from performance_appraisal_hardskill where performance_appraisal_id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			/*if($view){
+				$arrSat = json_decode(json_encode($msObat), true);
+				$arrS = [];
+				foreach($arrSat as $ai){
+					$arrS[$ai['id']] = $ai;
+				}
+			}*/
+			foreach ($rd as $f){
+				$no = $row+1;
+
+				if(!$view){ 
+					
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+					
+					$dt .= '<td>'.$this->return_build_txt($f->hardskill,'hardskill['.$row.']','','hardskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->score_emp,'score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->score_direct,'score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					$qty=$f->qty;
+					if($f->qty==0){
+						$qty='';
+					}
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->hardskill.'</td>';
+					$dt .= '<td>'.$f->notes.'</td>';
+					$dt .= '<td>'.$f->score_emp.'</td>';
+					$dt .= '<td>'.$f->score_direct.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
+	}
+
+
+	public function getDataSoftskill($employee,$id,$save_method){ 
+
+		if($save_method == 'detail'){ //VIEW
+			$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '".$id."' ")->result(); 
+
+			$dt='';
+			if(!empty($datasoftskill)){ 
+				$row = 0; 
+				
+				foreach ($datasoftskill as $f){
+					$no = $row+1;
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$f->name.'</td>';
+					$dt .= '<td>'.$f->weight_percentage.'</td>';
+					$dt .= '<td>'.$f->score_emp.'</td>';
+					$dt .= '<td>'.$f->score_direct.'</td>';
+					$dt .= '<td>'.$f->notes.'</td>';
+
+					$dt .= '</tr>';
+
+
+					$row++;
+				}
+			}
+
+			$tblsoftskill = '<div class="row">
+			    <div class="col-md-12">
+					<div class="portlet box">
+						<div class="portlet-title">
+							<div class="caption">Softskill </div>
+							<div class="tools">
+								
+							</div>
+						</div> 
+						<div class="portlet-body"> 
+							<span style="color:red">
+							Keterangan Nilai:
+							1 = Sangat Kurang, 2 = Kurang, 3 = Cukup, 4 = Baik, 5 = Sangat Baik
+							</span>
+							<div class="table-scrollable tablesaw-cont">
+							
+							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSoftskill">
+							
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Name</th>
+										<th scope="col">Weight (%)</th>
+										<th scope="col" style="width:7%">Score (1-5)</th>
+										<th scope="col" style="width:7%">Score by Direct (1-5)</th>
+										<th scope="col">Notes by Direct</th>
+									</tr>
+								</thead>
+								<tbody>
+									'.$dt.'
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>';
+
+
+			$data['tblsoftskill'] = $tblsoftskill;
+
+
+			return $data;
+
+		}else{ // ADD OR UPDATE
+			$emp = $this->db->query("select * from employees where id = '".$employee."' ")->result(); 
+
+			if($emp[0]->grade_id != ''){ 
+
+				$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '".$id."' ")->result(); 
+				if(!empty($datasoftskill)){ 
+
+					$dt='';
+					$row = 0; 
+					
+					foreach ($datasoftskill as $f){
+						$no = $row+1;
+
+						$dt .= '<tr>';
+
+						$dt .= '<td>'.$no.'</td>';
+						$dt .= '<td>'.$f->name.'</td>';
+						$dt .= '<td>'.$f->weight_percentage.'</td>';
+						
+						$dt .= '<td>'.$this->return_build_txt($f->score_emp,'score_emp_softskill['.$row.']','','score_emp_softskill','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_softskill'.$row.'" name="hdnid_softskill['.$row.']" value="'.$f->id.'"/><input type="hidden" id="hdnid_mastersoftskill'.$row.'" name="hdnid_mastersoftskill['.$row.']" value="'.$f->softskill_id.'"/></td>';
+						$dt .= '<td>'.$this->return_build_txt($f->score_direct,'score_direct_softskill['.$row.']','','score_direct_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+						$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes_softskill['.$row.']','','notes_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+						$dt .= '</tr>';
+
+
+						$row++;
+					}
+
+				}else{ 
+					$rs = $this->db->query("select * from master_softskill where grade_id = '".$emp[0]->grade_id."' order by weight_percentage desc ")->result(); 
+
+					$dt='';
+					$row = 0; 
+					if(!empty($rs)){ 
+						foreach ($rs as $f){
+							$no = $row+1;
+
+							$dt .= '<tr>';
+
+							$dt .= '<td>'.$no.'</td>';
+							$dt .= '<td>'.$f->name.'</td>';
+							$dt .= '<td>'.$f->weight_percentage.'</td>';
+							
+							$dt .= '<td>'.$this->return_build_txt('','score_emp_softskill['.$row.']','','score_emp_softskill','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_softskill'.$row.'" name="hdnid_softskill['.$row.']" value=""/><input type="hidden" id="hdnid_mastersoftskill'.$row.'" name="hdnid_mastersoftskill['.$row.']" value="'.$f->id.'"/></td>';
+							$dt .= '<td>'.$this->return_build_txt('','score_direct_softskill['.$row.']','','score_direct_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+							$dt .= '<td>'.$this->return_build_txtarea('','notes_softskill['.$row.']','','notes_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+							$dt .= '</tr>';
+
+
+							$row++;
+						}
+					}
+				}
+
+
+
+				$tblsoftskill = '<div class="row">
+				    <div class="col-md-12">
+						<div class="portlet box">
+							<div class="portlet-title">
+								<div class="caption">Softskill </div>
+								<div class="tools">
+									
+								</div>
+							</div> 
+							<div class="portlet-body"> 
+								<span style="color:red">
+								Keterangan Nilai:
+								1 = Sangat Kurang, 2 = Kurang, 3 = Cukup, 4 = Baik, 5 = Sangat Baik
+								</span>
+								<div class="table-scrollable tablesaw-cont">
+								
+								<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSoftskill">
+								
+									<thead>
+										<tr>
+											<th scope="col">No</th>
+											<th scope="col">Name</th>
+											<th scope="col">Weight (%)</th>
+											<th scope="col" style="width:7%">Score (1-5)</th>
+											<th scope="col" style="width:7%">Score by Direct (1-5)</th>
+											<th scope="col">Notes by Direct</th>
+											<th scope="col"></th>
+										</tr>
+									</thead>
+									<tbody>
+										'.$dt.'
+									</tbody>
+									<tfoot>
+									</tfoot>
+								</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>';
+
+				
+				
+
+				$data['tblsoftskill'] = $tblsoftskill;
+
+
+				return $data;
+
+			}else return null;
+		}
+
+		
 	}
 
 

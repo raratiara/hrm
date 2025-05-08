@@ -531,6 +531,97 @@ function del(idx,hdnid){
 }
 
 
+$('#address1').on('keyup', function () { 
+	var chksame = $('input[name=is_same_address]:checked').val();
+	var address1 = $("#address1").val();
+ 	
+ 	if(chksame == 'Y'){
+		$('[name="address2"]').val(address1);
+ 	}
+ 	
+ 	
+});
+
+
+$('#is_same_address').change(function() { 
+	var chksame = $('input[name=is_same_address]:checked').val();
+	var address1 = $("#address1").val();
+
+	if(chksame == 'Y'){
+		$('[name="address2"]').val(address1);
+ 	}
+  
+});
+
+
+function getDistrict(province, addresstype){
+	if(province != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataDistrict',
+			data: { province: province },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					if(addresstype == 1){ //ktp address
+						var $el = $(".district1");
+					}else{ //residential address
+						var $el = $(".district2");
+					}	
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text("aa"));
+					$.each(data.msdistrict, function(key,value) {
+					  	$el.append($("<option></option>")
+					     .attr("value", value.id).text(value.name));
+					});
+					//$('select#subtype').val(joborderid).trigger('change.select2');
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}else{
+ 		alert("Please choose Order Name");
+ 	}
+
+
+}
+
+
+$('#province1').on('change', function () { 
+	$('[name="district1"]').val('');
+
+
+ 	var province1 = $("#province1 option:selected").val();
+ 	
+
+ 	getDistrict(province1,'1');
+
+});
+
+
 
 
 <?php } ?>

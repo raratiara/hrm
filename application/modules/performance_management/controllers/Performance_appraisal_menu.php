@@ -132,5 +132,51 @@ class Performance_appraisal_menu extends MY_Controller
 
 	}
 
+
+	public function genhardskillrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+
+			if(isset($post['count']))
+			{  
+				$row = trim($post['count']); 
+				echo $this->self_model->getNewHardskillRow($row);
+			} else if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				echo json_encode($this->self_model->getNewHardskillRow($row,$id,$view));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+	public function delrowDetailHardskill(){ 
+		$post = $this->input->post(); 
+		$id = trim($post['id']); 
+		
+		if($id != ''){
+			$rs = $this->db->delete('performance_appraisal_hardskill',"id = '".$id."'");
+		}
+		
+	}
+
+	public function getDataSoftskill(){
+		$post = $this->input->post(null, true);
+		$employee = $post['employee'];
+		$id = $post['id'];
+		$save_method = $post['save_method'];
+
+		$rs =  $this->self_model->getDataSoftskill($employee,$id,$save_method);
+		
+
+		echo json_encode($rs);
+	}
+
  	
 }
