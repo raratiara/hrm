@@ -306,7 +306,7 @@
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Address</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">KTP Address</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="address1"></span>
 					</div>
@@ -314,42 +314,73 @@
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Province</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="province"></span>
+						: <span class="province1"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Regency</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="regency1"></span>
 					</div>
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">District</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="district"></span>
+						: <span class="district1"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Village</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="village1"></span>
 					</div>
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Postal Code</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="postal_code"></span>
+						: <span class="postal_code1"></span>
 					</div>
 				</div>
 			</div>
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Address 2</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Residential Address</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="address2"></span>
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Village</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Province</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="village"></span>
+						: <span class="province2"></span>
 					</div>
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Regency</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="regency"></span>
+						: <span class="regency2"></span>
 					</div>
 				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">District</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="district2"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Village</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="village2"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Postal Code</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="postal_code2"></span>
+					</div>
+				</div>
+				
 			</div>
 			
 		</div>

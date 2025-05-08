@@ -78,18 +78,20 @@ class Data_karyawan_menu extends MY_Controller
 		$field['selprovince1'] 			= $this->self_model->return_build_select2me($msprovince,'','','','province1','province1','','','id','name',' ','','','',3,'-');
 		$field['selprovince2'] 			= $this->self_model->return_build_select2me($msprovince,'','','','province2','province2','','','id','name',' ','','','',3,'-');
 
-		$msregency 						= $this->db->query("select * from regencies order by name asc")->result(); 
-		$field['selregency1'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency1','regency1','','','id','name',' ','','','',3,'-');
-		$field['selregency2'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency2','regency2','','','id','name',' ','','','',3,'-');
+		/*$msregency 				= $this->db->query("select * from regencies order by name asc")->result();*/ 
+		$msregency 						= array();
+		$field['selregency1'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency1','regency1','regency1','','id','name',' ','','','',3,'-');
+		$field['selregency2'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency2','regency2','regency2','','id','name',' ','','','',3,'-');
 
 		/*$msdistrict 					= $this->db->query("select * from districts order by name asc")->result(); */
 		$msdistrict 					= array();
 		$field['seldistrict1'] 			= $this->self_model->return_build_select2me($msdistrict,'','','','district1','district1','district1','','id','name',' ','','','',3,'-');
-		$field['seldistrict2'] 			= $this->self_model->return_build_select2me($msdistrict,'','','','district2','district2','','','id','name',' ','','','',3,'-');
+		$field['seldistrict2'] 			= $this->self_model->return_build_select2me($msdistrict,'','','','district2','district2','district2','','id','name',' ','','','',3,'-');
 
-		$msvillage 						= $this->db->query("select * from villages order by name asc")->result(); 
-		$field['selvillage1'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village1','village1','','','id','name',' ','','','',3,'-');
-		$field['selvillage2'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village2','village2','','','id','name',' ','','','',3,'-');
+		/*$msvillage 			= $this->db->query("select * from villages order by name asc")->result();*/
+		$msvillage 						= array(); 
+		$field['selvillage1'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village1','village1','village1','','id','name',' ','','','',3,'-');
+		$field['selvillage2'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village2','village2','village2','','id','name',' ','','','',3,'-');
 
 		$msjobtitle 					= $this->db->query("select * from master_job_title")->result(); 
 		$field['seljobtitle'] 			= $this->self_model->return_build_select2me($msjobtitle,'','','','job_title','job_title','','','id','name',' ','','','',3,'-');
@@ -285,10 +287,33 @@ class Data_karyawan_menu extends MY_Controller
 
 
 	public function getDataDistrict(){
-		$post = $this->input->post(null, true);
-		$province = $post['province'];
+		$post 		= $this->input->post(null, true);
+		$province 	= $post['province'];
+		$regency 	= $post['regency'];
 
-		$rs =  $this->self_model->getDataDistrict($province);
+		$rs =  $this->self_model->getDataDistrict($province,$regency);
+		
+
+		echo json_encode($rs);
+	}
+
+	public function getDataRegency(){
+		$post 		= $this->input->post(null, true);
+		$province 	= $post['province'];
+
+		$rs =  $this->self_model->getDataRegency($province);
+		
+
+		echo json_encode($rs);
+	}
+
+	public function getDataVillage(){
+		$post 		= $this->input->post(null, true);
+		$province 	= $post['province'];
+		$regency 	= $post['regency'];
+		$district 	= $post['district'];
+
+		$rs =  $this->self_model->getDataVillage($province,$regency,$district);
 		
 
 		echo json_encode($rs);

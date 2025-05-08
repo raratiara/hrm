@@ -214,13 +214,13 @@ function load_data()
 <?php } ?>
 
 
-$('#nominal_billing').on('keyup', function () { 
+/*$('#nominal_billing').on('keyup', function () { 
  	var nominal_billing = $("#nominal_billing").val();
  	
- 	/*var reimburs = nominal_billing*0.85;*/
+ 	
  	var reimburs = nominal_billing;
  	$('[name="nominal_reimburs"]').val(reimburs);
-});
+});*/
 
 
 $("#addcarow").on("click", function () { 
@@ -329,6 +329,19 @@ $('#type').on('change', function () {
  	
 
 });
+
+
+$(document).on("keyup", ".biaya", function() {
+    var sum = 0;
+    $(".biaya").each(function(){
+        sum += +$(this).val();
+    });
+    $("#nominal_billing").val(sum);
+    $("#nominal_reimburs").val(sum);
+});
+
+
+
 
 
 </script>

@@ -31,7 +31,7 @@ class Reimbursement_menu extends MY_Controller
 		$field['txtnominalreimburs'] 	= $this->self_model->return_build_txt('','nominal_reimburs','nominal_reimburs','','','readonly');
 		$field['txtatasnama'] 			= $this->self_model->return_build_txt('','atas_nama','atas_nama');
 		$field['txtdiagnosa'] 			= $this->self_model->return_build_txt('','diagnosa','diagnosa');
-		$field['txtnominalbilling'] 	= $this->self_model->return_build_txt('','nominal_billing','nominal_billing');
+		$field['txtnominalbilling'] 	= $this->self_model->return_build_txt('','nominal_billing','nominal_billing','','','readonly');
 
 		$msemp 					= $this->db->query("select * from employees")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
