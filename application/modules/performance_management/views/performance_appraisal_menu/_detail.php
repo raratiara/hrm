@@ -22,3 +22,41 @@
 	</div>
 </div>
 
+
+
+<div class="row ca">
+    <div class="col-md-12">
+		<div class="portlet box green">
+			<div class="portlet-title">
+				<div class="caption">Detail Job </div>
+				<div class="tools">
+					
+				</div>
+			</div>
+			<div class="portlet-body">
+				<div class="table-scrollable tablesaw-cont">
+				<table class="table table-striped table-bordered table-hover ca-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblHardskill">
+					<thead>
+						<tr>
+							<th scope="col">No</th>
+							<th scope="col">Job</th>
+							<th scope="col">Notes</th>
+							<th scope="col">Score by Employee (%)</th>
+							<th scope="col">Score by Direct (%)</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<span id="tblsoftskill_detail"></span>
+

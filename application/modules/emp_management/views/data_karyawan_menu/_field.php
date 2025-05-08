@@ -312,50 +312,86 @@
 
         	<div class="col-md-6 col-sm-12">
         		<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Address </label>
-							<div class="col-md-8">
-								<?=$txtaddress1;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Province </label>
-							<div class="col-md-8">
-								<?=$selprovince;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">District </label>
-							<div class="col-md-8">
-								<?=$seldistrict;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Postal Code </label>
-							<div class="col-md-8">
-								<?=$txtpostalcode;?>
-							</div>
-						</div>
+					<label class="col-md-4 control-label no-padding-right">KTP Address </label>
+					<div class="col-md-8">
+						<?=$txtaddress1;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Province </label>
+					<div class="col-md-8">
+						<?=$selprovince1;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">District </label>
+					<div class="col-md-8">
+						<?=$seldistrict1;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Village </label>
+					<div class="col-md-8">
+						<?=$selvillage1;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Regency </label>
+					<div class="col-md-8">
+						<?=$selregency1;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Postal Code </label>
+					<div class="col-md-8">
+						<?=$txtpostalcode1;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Is the Residential Address the same as the Address on the KTP? </label>
+					<div class="col-md-8">
+						<?=$chksameaddress;?>
+					</div>
+				</div>
         	</div>
 
         	<div class="col-md-6 col-sm-12">
         		<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Address 2 </label>
-							<div class="col-md-8">
-								<?=$txtaddress2;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Village </label>
-							<div class="col-md-8">
-								<?=$selvillage;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Regency </label>
-							<div class="col-md-8">
-								<?=$selregency;?>
-							</div>
-						</div>
+					<label class="col-md-4 control-label no-padding-right">Residential Address </label>
+					<div class="col-md-8">
+						<?=$txtaddress2;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Province </label>
+					<div class="col-md-8">
+						<?=$selprovince2;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">District </label>
+					<div class="col-md-8">
+						<?=$seldistrict2;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Village </label>
+					<div class="col-md-8">
+						<?=$selvillage2;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Regency </label>
+					<div class="col-md-8">
+						<?=$selregency2;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Postal Code </label>
+					<div class="col-md-8">
+						<?=$txtpostalcode2;?>
+					</div>
+				</div>
         	</div>
 
         </div>

@@ -363,7 +363,7 @@ CREATE TABLE `employees` (
 
 LOCK TABLES `employees` WRITE;
 /*!40000 ALTER TABLE `employees` DISABLE KEYS */;
-INSERT INTO `employees` VALUES (2,'Dwi Kuswarno','Dwi','dwi.k@gmail.com','08788909099','L','Jawa','Indonesia',0,2,'','327590932321323','4234353','6575342','323456547','2209090','Jakarta','1993-01-22','jakarta raya','jakarta','17118',11,1101,110102,1101022013,'GDI0001',3,2,'2024-11-05','2025-01-20','2025-01-22',3,'Reguler','Bekasi',2,2,'Sarah','08129901721','sar22@gmail.com','saudara','bca','jakarta','dwi','3214234','1970-01-01','1970-01-01','1','-','-','2024-10-26 03:41:32','2025-04-30 13:45:00','20-scaled4.jpg','th_(1).jpg',2,2,1,1,1),(3,'Yehezkie Simbuang',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0002',0,NULL,NULL,NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:14:03','2024-10-28 05:27:04',NULL,NULL,NULL,2,NULL,NULL,3),(4,'Ignasius Teguh Raharjo Rubiyo',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Makasar','2001-10-17',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0003',0,NULL,'2024-08-23','2024-11-22',NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:24:52','2024-10-28 05:35:55',NULL,NULL,NULL,2,NULL,NULL,3),(5,'Hendrico Kristiawan',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0004',0,NULL,'2024-08-21',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'Hendrico Kristiawan','1560015224555',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:29:37','2024-11-25 02:41:20',NULL,NULL,NULL,2,NULL,NULL,3),(6,'Amario Fausta',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0005',0,NULL,'2024-08-21',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'Amario Fausta Harlastputra','1560021698339',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:30:20','2024-11-25 02:42:41',NULL,NULL,NULL,2,NULL,NULL,3),(7,'Denistian Diky',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0006',0,NULL,'2024-10-07',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'DHENISTIAN DICKIE MA','1180013275630',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:32:03','2024-11-25 02:43:57',NULL,NULL,NULL,2,NULL,NULL,3),(8,'Ivan Maulana Agusti',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0007',0,NULL,'2024-10-28','2024-12-28',NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'BCA',NULL,'IVAN MAULANA AGUSTI','8421132275',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:34:46','2024-11-25 03:04:22',NULL,NULL,NULL,2,NULL,NULL,3),(9,'ADELIA CHRISTYANTI',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0010',0,NULL,'2024-11-07',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'ADELIA CHRISTYANTI','1550013036424',NULL,NULL,NULL,NULL,NULL,'2024-11-25 03:07:48','2024-11-25 03:12:29',NULL,NULL,NULL,2,NULL,NULL,3),(10,'Fidela',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0009',0,NULL,'2024-11-07',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'Fidela','1670005956478',NULL,NULL,NULL,NULL,NULL,'2024-11-25 03:08:51','2024-11-25 03:13:02',NULL,NULL,NULL,2,NULL,NULL,3),(11,'Niken',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0008',0,NULL,'2024-11-06',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'',NULL,NULL,NULL,NULL,NULL,NULL,'2024-11-25 03:11:54','2024-11-25 03:13:23',NULL,NULL,NULL,2,NULL,NULL,3),(12,'Rara Tiara','Rara','rts@gmail.com','','','','',0,0,'','','','','','','','0000-00-00','','','',0,0,0,0,'GDI0011',0,0,'0000-00-00','0000-00-00','0000-00-00',0,'Reguler','',2,2,'','','','','','','','','0000-00-00','0000-00-00','','','','2025-03-25 08:09:32',NULL,NULL,NULL,0,2,0,0,3);
+INSERT INTO `employees` VALUES (2,'Dwi Kuswarno','Dwi','dwi.k@gmail.com','08788909099','M','Jawa','Indonesia',0,2,'','327590932321323','4234353','6575342','323456547','2209090','Jakarta','1993-01-22','jakarta raya','jakarta','17118',11,1101,110102,1101022013,'GDI0001',3,2,'2024-11-05','2025-01-20','2025-01-22',3,'Reguler','Bekasi',2,2,'Sarah','08129901721','sar22@gmail.com','saudara','bca','jakarta','dwi','3214234','1970-01-01','1970-01-01','1','-','-','2024-10-26 03:41:32','2025-04-30 13:45:00','20-scaled4.jpg','th_(1).jpg',2,2,1,1,1),(3,'Yehezkie Simbuang',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0002',0,NULL,NULL,NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:14:03','2024-10-28 05:27:04',NULL,NULL,NULL,2,NULL,NULL,3),(4,'Ignasius Teguh Raharjo Rubiyo',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Makasar','2001-10-17',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0003',0,NULL,'2024-08-23','2024-11-22',NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:24:52','2024-10-28 05:35:55',NULL,NULL,NULL,2,NULL,NULL,3),(5,'Hendrico Kristiawan',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0004',0,NULL,'2024-08-21',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'Hendrico Kristiawan','1560015224555',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:29:37','2024-11-25 02:41:20',NULL,NULL,NULL,2,NULL,NULL,3),(6,'Amario Fausta',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0005',0,NULL,'2024-08-21',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'Amario Fausta Harlastputra','1560021698339',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:30:20','2024-11-25 02:42:41',NULL,NULL,NULL,2,NULL,NULL,3),(7,'Denistian Diky',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0006',0,NULL,'2024-10-07',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'DHENISTIAN DICKIE MA','1180013275630',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:32:03','2024-11-25 02:43:57',NULL,NULL,NULL,2,NULL,NULL,3),(8,'Ivan Maulana Agusti',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0007',0,NULL,'2024-10-28','2024-12-28',NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'BCA',NULL,'IVAN MAULANA AGUSTI','8421132275',NULL,NULL,NULL,NULL,NULL,'2024-10-28 05:34:46','2024-11-25 03:04:22',NULL,NULL,NULL,2,NULL,NULL,3),(9,'ADELIA CHRISTYANTI',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0010',0,NULL,'2024-11-07',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'ADELIA CHRISTYANTI','1550013036424',NULL,NULL,NULL,NULL,NULL,'2024-11-25 03:07:48','2024-11-25 03:12:29',NULL,NULL,NULL,2,NULL,NULL,3),(10,'Fidela',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0009',0,NULL,'2024-11-07',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Mandiri',NULL,'Fidela','1670005956478',NULL,NULL,NULL,NULL,NULL,'2024-11-25 03:08:51','2024-11-25 03:13:02',NULL,NULL,NULL,2,NULL,NULL,3),(11,'Niken',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'GDI0008',0,NULL,'2024-11-06',NULL,NULL,0,'Reguler',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,'',NULL,NULL,NULL,NULL,NULL,NULL,'2024-11-25 03:11:54','2024-11-25 03:13:23',NULL,NULL,NULL,2,NULL,NULL,3),(12,'Rara Tiara','Rara','rts@gmail.com','','','','',0,0,'','','','','','','','0000-00-00','','','',0,0,0,0,'GDI0011',0,0,'0000-00-00','0000-00-00','0000-00-00',0,'Reguler','',2,2,'','','','','','','','','0000-00-00','0000-00-00','','','','2025-03-25 08:09:32',NULL,NULL,NULL,0,2,0,0,3);
 /*!40000 ALTER TABLE `employees` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -627,7 +627,7 @@ CREATE TABLE `master_marital_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -636,7 +636,7 @@ CREATE TABLE `master_marital_status` (
 
 LOCK TABLES `master_marital_status` WRITE;
 /*!40000 ALTER TABLE `master_marital_status` DISABLE KEYS */;
-INSERT INTO `master_marital_status` VALUES (1,'Single'),(2,'Married'),(3,'Widow');
+INSERT INTO `master_marital_status` VALUES (1,'TK/0'),(2,'TK/1'),(3,'TK/2'),(4,'TK/3'),(5,'K/0'),(6,'K/1'),(7,'K/2'),(8,'K/3');
 /*!40000 ALTER TABLE `master_marital_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -776,10 +776,10 @@ DROP TABLE IF EXISTS `master_softskill`;
 CREATE TABLE `master_softskill` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `notes` text DEFAULT NULL,
   `grade_id` int(11) DEFAULT NULL,
+  `weight_percentage` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -788,7 +788,7 @@ CREATE TABLE `master_softskill` (
 
 LOCK TABLES `master_softskill` WRITE;
 /*!40000 ALTER TABLE `master_softskill` DISABLE KEYS */;
-INSERT INTO `master_softskill` VALUES (1,'Communication','Kemampuan menyampaikan ide dengan jelas; Mendengarkan secara aktif; Menyampaikan umpan balik dengan konstruktif',NULL),(2,'Teamwork','Kemampuan bekerja efektif dalam tim; Saling mendukung antar anggota tim; Mampu berkolaborasi lintas departemen',NULL),(3,'Time Management','Menyelesaikan tugas sesuai deadline; Mampu memprioritaskan pekerjaan; Tidak menunda-nunda',NULL),(4,'Problem Solving','Mampu menganalisis masalah dan mencari solusi; Kreativitas dalam mencari pendekatan baru; Berpikir kritis dalam mengambil keputusan',NULL),(5,'Work Ethic and Professionalism','Tanggung jawab terhadap tugas dan kewajiban; Disiplin dan dapat diandalkan; Menjaga integritas dan etika dalam bekerja',NULL),(6,'Interpersonal Skills','Membangun hubungan kerja yang positif; Empati terhadap rekan kerja; Mampu menyelesaikan konflik secara efektif',NULL),(7,'Creativity and Innovation','Menyumbang ide-ide baru; Mampu berpikir (out of the box); Terlibat aktif dalam perbaikan proses kerja',NULL),(8,'Motivation and Enthusiasm','Memiliki dorongan untuk berkembang; Antusias dalam menjalankan tugas; Menunjukkan semangat positif dalam tim',NULL),(9,'Leadership','Inisiatif dalam memimpin proyek atau tim; Mampu mengarahkan dan memotivasi rekan kerja; Mampu mengarahkan tim untuk mencapai tujuan',3),(10,'Team Management and Delegation','Mampu membagi tugas secara efektif sesuai kapasitas tim; Memberi kepercayaan kepada anggota tim; Memonitor hasil kerja tanpa menjadi mikro-manajer',3),(11,'Coaching & Mentoring Skills','Memberikan bimbingan untuk pengembangan staf; Melakukan evaluasi dan memberi umpan balik membangun; Membantu pengembangan karier anggota tim',3),(12,'Planning and Organization','Mampu menyusun rencana kerja jangka pendek dan panjang; Mengatur sumber daya (orang, waktu, anggaran) secara efisien; Menjaga fokus tim terhadap target yang telah ditentukan',3),(13,'Decision making','Mengambil keputusan penting dengan risiko terukur; Bertanggung jawab penuh atas hasil keputusan strategis; Mampu mengelola krisis dan mengambil tindakan cepat',2),(14,'Strategic Thinking','Mampu merumuskan visi dan arah jangka panjang; Menganalisis tren eksternal dan menghubungkannya dengan strategi bisnis; Membuat keputusan berdasarkan proyeksi, risiko, dan dampak jangka panjang',2),(15,'Interpersonal & Political Savvy','Membangun hubungan baik dengan stakeholder internal dan eksternal; Mampu memahami dinamika politik kantor dan mengelolanya secara positif; Pandai dalam membangun koalisi dan aliansi strategis',2),(16,'Influence and Negotiation','Mampu menyampaikan ide dan strategi secara meyakinkan kepada berbagai audiens (direksi, investor, tim, publik); Kemampuan negosiasi tingkat tinggi; Mampu membentuk opini dan memengaruhi keputusan penting',2);
+INSERT INTO `master_softskill` VALUES (1,'Discipline',1,'5'),(2,'Quality of Work',1,'10'),(3,'Productivity',1,'10'),(4,'Teamwork',1,'10'),(5,'Initiative and Creativity',1,'10'),(6,'Communication',1,'10'),(7,'Discipline',2,'5'),(8,'Quality of Work',2,'10'),(9,'Productivity',2,'5'),(10,'Teamwork',2,'5'),(11,'Initiative and Creativity',2,'5'),(12,'Communication',2,'10'),(13,'Discipline',3,'10'),(14,'Quality of Work',3,'10'),(15,'Productivity',3,'10'),(16,'Teamwork',3,'10'),(17,'Initiative and Creativity',3,'10'),(18,'Communication',3,'10'),(19,'Discipline',4,'20'),(20,'Quality of Work',4,'20'),(21,'Productivity',4,'20'),(22,'Teamwork',4,'15'),(23,'Initiative and Creativity',4,'15'),(24,'Communication',4,'10'),(25,'Leadership',3,'15'),(26,'Team Management and Delegation',3,'15'),(27,'Planning and Organization',3,'10'),(28,'Leadership',2,'15'),(29,'Team Management and Delegation',2,'15'),(30,'Planning and Organization',2,'15'),(31,'Decision making',1,'15'),(32,'Interpersonal & Political Savvy',1,'15'),(33,'Influence and Negotiation',1,'15'),(34,'Decision making',2,'15');
 /*!40000 ALTER TABLE `master_softskill` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -985,6 +985,8 @@ CREATE TABLE `performance_appraisal` (
   `approval_date` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `final_score_emp` varchar(45) DEFAULT NULL,
+  `final_score_direct` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -995,7 +997,7 @@ CREATE TABLE `performance_appraisal` (
 
 LOCK TABLES `performance_appraisal` WRITE;
 /*!40000 ALTER TABLE `performance_appraisal` DISABLE KEYS */;
-INSERT INTO `performance_appraisal` VALUES (1,12,'2024',1,NULL,NULL,NULL);
+INSERT INTO `performance_appraisal` VALUES (1,12,'2024',1,NULL,'2025-05-07 09:48:05',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `performance_appraisal` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1011,10 +1013,10 @@ CREATE TABLE `performance_appraisal_hardskill` (
   `performance_appraisal_id` int(11) DEFAULT NULL,
   `hardskill` varchar(255) DEFAULT NULL,
   `notes` text DEFAULT NULL,
-  `value_emp` varchar(45) DEFAULT NULL,
-  `value_direct` varchar(45) DEFAULT NULL,
+  `score_emp` varchar(45) DEFAULT NULL,
+  `score_direct` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1023,6 +1025,7 @@ CREATE TABLE `performance_appraisal_hardskill` (
 
 LOCK TABLES `performance_appraisal_hardskill` WRITE;
 /*!40000 ALTER TABLE `performance_appraisal_hardskill` DISABLE KEYS */;
+INSERT INTO `performance_appraisal_hardskill` VALUES (1,1,'dashboard AIM','membuat dashboard AIM','40',''),(2,1,'aplikasi HRIS','membuat aplikasi HRIS','60','');
 /*!40000 ALTER TABLE `performance_appraisal_hardskill` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1037,10 +1040,11 @@ CREATE TABLE `performance_appraisal_softskill` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `performance_appraisal_id` int(11) DEFAULT NULL,
   `softskill_id` int(11) DEFAULT NULL,
-  `value_emp` varchar(45) DEFAULT NULL,
-  `value_direct` varchar(45) DEFAULT NULL,
+  `score_emp` varchar(45) DEFAULT NULL,
+  `score_direct` varchar(45) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1049,6 +1053,7 @@ CREATE TABLE `performance_appraisal_softskill` (
 
 LOCK TABLES `performance_appraisal_softskill` WRITE;
 /*!40000 ALTER TABLE `performance_appraisal_softskill` DISABLE KEYS */;
+INSERT INTO `performance_appraisal_softskill` VALUES (1,1,25,'3','',''),(2,1,26,'4','',''),(3,1,13,'2','',''),(4,1,14,'4','',''),(5,1,15,'3','',''),(6,1,16,'3','',''),(7,1,17,'3','',''),(8,1,18,'4','',''),(9,1,27,'4','','');
 /*!40000 ALTER TABLE `performance_appraisal_softskill` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1298,7 +1303,7 @@ CREATE TABLE `time_attendances` (
   `notes` varchar(255) DEFAULT NULL,
   `photo` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1307,7 +1312,7 @@ CREATE TABLE `time_attendances` (
 
 LOCK TABLES `time_attendances` WRITE;
 /*!40000 ALTER TABLE `time_attendances` DISABLE KEYS */;
-INSERT INTO `time_attendances` VALUES (1,'2024-10-25',2,'Regular','08:00:00','17:00:00','2024-10-26 09:00:00','2024-10-26 16:49:41','Y','Y',6.20,'2024-10-26 03:49:59','2024-10-26 03:53:25',NULL,NULL,NULL),(2,'2024-10-24',2,'Regular','08:00:00','17:00:00','2024-10-26 10:53:56','2024-10-26 16:54:00','Y','Y',5.00,'2024-10-26 03:54:15','2024-10-26 03:54:15',NULL,NULL,NULL),(5,'2025-03-25',2,'Reguler','08:00:00','17:00:00','2025-03-25 07:30:00','2025-03-25 12:00:00','','Y',450.00,'2025-03-25 13:03:17',NULL,NULL,NULL,NULL),(6,'2025-03-26',2,'Reguler','08:00:00','17:00:00','2025-03-26 08:25:00','2025-03-26 20:10:00','Y','',705.00,'2025-03-27 05:55:29','2025-03-27 11:14:16',NULL,NULL,NULL),(7,'2025-04-10',2,'Reguler','08:00:00','17:00:00','2025-04-10 08:02:00',NULL,'Y',NULL,NULL,'2025-04-10 05:25:11',NULL,NULL,NULL,NULL),(8,'2025-04-14',2,'Reguler','08:00:00','17:00:00','2025-04-14 00:00:00','2025-04-14 00:05:00','','Y',0.08,'2025-04-14 06:04:20',NULL,NULL,NULL,NULL),(9,'2025-04-13',2,'Reguler','08:00:00','17:00:00','2025-04-13 07:16:00','2025-04-13 19:00:00','','',11.73,'2025-04-14 10:36:59',NULL,NULL,NULL,NULL),(17,'2025-04-12',2,'Reguler','08:00:00','17:00:00','2025-04-12 08:00:00','2025-04-12 18:00:00','','',10.00,'2025-04-14 11:33:09','2025-04-14 11:37:50',NULL,NULL,NULL),(20,'2025-03-27',12,'Reguler','08:00:00','17:00:00','2025-03-27 00:00:00','2025-03-27 00:00:00',NULL,NULL,NULL,'2025-04-23 10:04:59',NULL,2,NULL,NULL),(21,'2025-03-28',12,'Reguler','08:00:00','17:00:00','2025-03-28 00:00:00','2025-03-28 00:00:00',NULL,NULL,NULL,'2025-04-23 10:04:59',NULL,2,NULL,NULL),(23,'2025-04-29',2,'Reguler','08:00:00','17:00:00','2025-04-29 08:05:00',NULL,'Y',NULL,NULL,'2025-04-29 12:06:44',NULL,NULL,'absen cekin','Screenshot_2025-02-01_085333.png'),(24,'2025-04-30',2,'Reguler','08:00:00','17:00:00','2025-04-30 09:05:00','2025-04-30 19:05:00','Y','',10.00,'2025-04-30 08:34:54','2025-04-30 08:35:50',NULL,'absen pulang','20-scaled.jpg');
+INSERT INTO `time_attendances` VALUES (1,'2024-10-25',2,'Regular','08:00:00','17:00:00','2024-10-26 09:00:00','2024-10-26 16:49:41','Y','Y',6.20,'2024-10-26 03:49:59','2024-10-26 03:53:25',NULL,NULL,NULL),(2,'2024-10-24',2,'Regular','08:00:00','17:00:00','2024-10-26 10:53:56','2024-10-26 16:54:00','Y','Y',5.00,'2024-10-26 03:54:15','2024-10-26 03:54:15',NULL,NULL,NULL),(5,'2025-03-25',2,'Reguler','08:00:00','17:00:00','2025-03-25 07:30:00','2025-03-25 12:00:00','','Y',450.00,'2025-03-25 13:03:17',NULL,NULL,NULL,NULL),(6,'2025-03-26',2,'Reguler','08:00:00','17:00:00','2025-03-26 08:25:00','2025-03-26 20:10:00','Y','',705.00,'2025-03-27 05:55:29','2025-03-27 11:14:16',NULL,NULL,NULL),(7,'2025-04-10',2,'Reguler','08:00:00','17:00:00','2025-04-10 08:02:00',NULL,'Y',NULL,NULL,'2025-04-10 05:25:11',NULL,NULL,NULL,NULL),(8,'2025-04-14',2,'Reguler','08:00:00','17:00:00','2025-04-14 00:00:00','2025-04-14 00:05:00','','Y',0.08,'2025-04-14 06:04:20',NULL,NULL,NULL,NULL),(9,'2025-04-13',2,'Reguler','08:00:00','17:00:00','2025-04-13 07:16:00','2025-04-13 19:00:00','','',11.73,'2025-04-14 10:36:59',NULL,NULL,NULL,NULL),(17,'2025-04-12',2,'Reguler','08:00:00','17:00:00','2025-04-12 08:00:00','2025-04-12 18:00:00','','',10.00,'2025-04-14 11:33:09','2025-04-14 11:37:50',NULL,NULL,NULL),(20,'2025-03-27',12,'Reguler','08:00:00','17:00:00','2025-03-27 00:00:00','2025-03-27 00:00:00',NULL,NULL,NULL,'2025-04-23 10:04:59',NULL,2,NULL,NULL),(21,'2025-03-28',12,'Reguler','08:00:00','17:00:00','2025-03-28 00:00:00','2025-03-28 00:00:00',NULL,NULL,NULL,'2025-04-23 10:04:59',NULL,2,NULL,NULL),(23,'2025-04-29',2,'Reguler','08:00:00','17:00:00','2025-04-29 08:05:00',NULL,'Y',NULL,NULL,'2025-04-29 12:06:44',NULL,NULL,'absen cekin','Screenshot_2025-02-01_085333.png'),(24,'2025-04-30',2,'Reguler','08:00:00','17:00:00','2025-04-30 09:05:00','2025-04-30 19:05:00','Y','',10.00,'2025-04-30 08:34:54','2025-04-30 08:35:50',NULL,'absen pulang','20-scaled.jpg'),(25,'2025-05-08',12,'Reguler','08:00:00','17:00:00','2025-05-08 08:05:00','2025-05-08 18:05:00','Y','',10.00,'2025-05-08 08:32:40','2025-05-08 08:37:33',NULL,'mengerjakan hris','Screenshot_2025-03-14_091843.png');
 /*!40000 ALTER TABLE `time_attendances` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1408,7 +1413,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Dwi Kuswarno','kuswarno@gmail.com','dwi','e10adc3949ba59abbe56e057f20f883e',2,'1','role',NULL,1,'2','2025-05-06 09:22:12','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-05-06 07:22:12'),(14,'Rara Tiara','rts@gmail.com','rara','d0970714757783e6cf17b26fb8e2298f',12,'3','role',NULL,NULL,'2','2025-04-28 06:26:08','',NULL,'',NULL,'2025-04-24 01:10:00',NULL,'2025-04-28 04:26:08'),(16,'Niken','','niken','d41d8cd98f00b204e9800998ecf8427e',11,'3','role',NULL,NULL,'1',NULL,'',NULL,'',NULL,'2025-04-24 06:06:03',NULL,NULL);
+INSERT INTO `user` VALUES (1,'Dwi Kuswarno','kuswarno@gmail.com','dwi','e10adc3949ba59abbe56e057f20f883e',2,'1','role',NULL,1,'2','2025-05-08 03:52:22','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-05-08 01:52:22'),(14,'Rara Tiara','rts@gmail.com','rara','d0970714757783e6cf17b26fb8e2298f',12,'3','role',NULL,NULL,'2','2025-04-28 06:26:08','',NULL,'',NULL,'2025-04-24 01:10:00',NULL,'2025-04-28 04:26:08'),(16,'Niken','','niken','d41d8cd98f00b204e9800998ecf8427e',11,'3','role',NULL,NULL,'1',NULL,'',NULL,'',NULL,'2025-04-24 06:06:03',NULL,NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1516,7 +1521,7 @@ CREATE TABLE `user_menu` (
 
 LOCK TABLES `user_menu` WRITE;
 /*!40000 ALTER TABLE `user_menu` DISABLE KEYS */;
-INSERT INTO `user_menu` VALUES (1,'Dashboard','page',0,'dashboard','#','',0,'0',NULL,'0','1','1','fa-list-alt','1',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(4,'Employee Management','page',0,'emp_management','#','',0,'0',NULL,'0','1','1','fa-list-alt','4',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(5,'Data Karyawan','uri',0,'data_karyawan_menu','emp_management/data_karyawan_menu','',0,'0',NULL,'4','0','1',NULL,'1',NULL,'2025-02-27 04:08:58',NULL,'2025-02-27 04:08:58'),(6,'Daily Absensi','uri',0,'absensi_menu','time_attendance/absensi_menu','',0,'0',NULL,'16','0','1',NULL,'1',NULL,'2025-02-27 04:25:47',NULL,'2025-02-27 04:25:47'),(7,'Leave Attendance','uri',0,'ijin_menu','time_attendance/ijin_menu','',0,'0',NULL,'16','0','1',NULL,'2',NULL,'2025-02-27 04:30:52',NULL,'2025-02-27 04:30:52'),(12,'API','page',0,'api','api/api',NULL,0,'0',NULL,'0','0','0',NULL,'8',NULL,NULL,NULL,NULL),(13,'Tasklist','uri',0,'tasklist_menu','emp_management/tasklist_menu',NULL,0,'0',NULL,'4','0','1',NULL,'2',NULL,NULL,NULL,NULL),(14,'HR Planning','page',0,'hr_planning','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','2',NULL,NULL,NULL,NULL),(15,'Recruitment Management','page',0,'recruitment_management','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','3',NULL,NULL,NULL,NULL),(16,'Time & Attendance','page',0,'time_attendance','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','5',NULL,NULL,NULL,NULL),(17,'Compensation & Benefit','page',0,'compensation_benefit','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','6',NULL,NULL,NULL,NULL),(18,'Training & Development','page',0,'training_development','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','7',NULL,NULL,NULL,NULL),(19,'Performance Management','page',0,'performance_management','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','8',NULL,NULL,NULL,NULL),(20,'Payroll','page',0,'payroll','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','9',NULL,NULL,NULL,NULL),(21,'Setup','page',0,'setup','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','9',NULL,NULL,NULL,NULL),(22,'General System','page',0,'general_system','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','11',NULL,NULL,NULL,NULL),(23,'Lembur','uri',0,'lembur_menu','time_attendance/lembur_menu',NULL,0,'0',NULL,'16','0','1',NULL,'3',NULL,NULL,NULL,NULL),(24,'Reimbursement','uri',0,'reimbursement_menu','compensation_benefit/reimbursement_menu',NULL,0,'0',NULL,'17','0','1',NULL,'1',NULL,NULL,NULL,NULL),(25,'Pinjaman','uri',0,'pinjaman_menu','compensation_benefit/pinjaman_menu',NULL,0,'0',NULL,'17','0','1',NULL,'2',NULL,NULL,NULL,NULL),(26,'Perjalanan Dinas','uri',0,'perjalanan_dinas_menu','compensation_benefit/perjalanan_dinas_menu',NULL,0,'0',NULL,'17','0','1',NULL,'3',NULL,NULL,NULL,NULL),(27,'Master User','uri',0,'user_menu','setup/user_menu',NULL,0,'0',NULL,'21','0','1',NULL,'1',NULL,NULL,NULL,NULL),(29,'Tbl Time Attendance','uri',0,'tbl_timeattendance_menu','setup/tbl_timeattendance_menu',NULL,0,'0',NULL,'21','0','0',NULL,'2',NULL,NULL,NULL,NULL),(30,'Training','uri',0,'training_menu','training_development/training_menu',NULL,0,'0',NULL,'18','0','1',NULL,'1',NULL,NULL,NULL,NULL),(31,'Perfomance Appraisal','uri',0,'performance_appraisal_menu','performance_management/performance_appraisal_menu',NULL,0,'0',NULL,'19','0','1',NULL,'1',NULL,NULL,NULL,NULL);
+INSERT INTO `user_menu` VALUES (1,'Dashboard','page',0,'dashboard','#','',0,'0',NULL,'0','1','1','fa-list-alt','1',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(4,'Employee Management','page',0,'emp_management','#','',0,'0',NULL,'0','1','1','fa-list-alt','4',NULL,'2025-03-21 12:15:35',NULL,'2025-03-21 12:15:35'),(5,'Data Karyawan','uri',0,'data_karyawan_menu','emp_management/data_karyawan_menu','',0,'0',NULL,'4','0','1',NULL,'1',NULL,'2025-02-27 04:08:58',NULL,'2025-02-27 04:08:58'),(6,'Daily Absensi','uri',0,'absensi_menu','time_attendance/absensi_menu','',0,'0',NULL,'16','0','1',NULL,'1',NULL,'2025-02-27 04:25:47',NULL,'2025-02-27 04:25:47'),(7,'Leave Attendance','uri',0,'ijin_menu','time_attendance/ijin_menu','',0,'0',NULL,'16','0','1',NULL,'2',NULL,'2025-02-27 04:30:52',NULL,'2025-02-27 04:30:52'),(12,'API','page',0,'api','api/api',NULL,0,'0',NULL,'0','0','0',NULL,'8',NULL,NULL,NULL,NULL),(13,'Tasklist','uri',0,'tasklist_menu','emp_management/tasklist_menu',NULL,0,'0',NULL,'4','0','1',NULL,'2',NULL,NULL,NULL,NULL),(14,'HR Planning','page',0,'hr_planning','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','2',NULL,NULL,NULL,NULL),(15,'Recruitment Management','page',0,'recruitment_management','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','3',NULL,NULL,NULL,NULL),(16,'Time & Attendance','page',0,'time_attendance','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','5',NULL,NULL,NULL,NULL),(17,'Compensation & Benefit','page',0,'compensation_benefit','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','6',NULL,NULL,NULL,NULL),(18,'Training & Development','page',0,'training_development','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','7',NULL,NULL,NULL,NULL),(19,'Performance Management','page',0,'performance_management','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','8',NULL,NULL,NULL,NULL),(20,'Payroll','page',0,'payroll','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','9',NULL,NULL,NULL,NULL),(21,'Setup','page',0,'setup','#',NULL,0,'0',NULL,'0','1','1','fa-list-alt','9',NULL,NULL,NULL,NULL),(22,'General System','page',0,'general_system','#',NULL,0,'0',NULL,'0','1','0','fa-list-alt','11',NULL,NULL,NULL,NULL),(23,'Lembur','uri',0,'lembur_menu','time_attendance/lembur_menu',NULL,0,'0',NULL,'16','0','1',NULL,'3',NULL,NULL,NULL,NULL),(24,'Reimbursement','uri',0,'reimbursement_menu','compensation_benefit/reimbursement_menu',NULL,0,'0',NULL,'17','0','1',NULL,'1',NULL,NULL,NULL,NULL),(25,'Pinjaman','uri',0,'pinjaman_menu','compensation_benefit/pinjaman_menu',NULL,0,'0',NULL,'17','0','1',NULL,'2',NULL,NULL,NULL,NULL),(26,'Perjalanan Dinas','uri',0,'perjalanan_dinas_menu','compensation_benefit/perjalanan_dinas_menu',NULL,0,'0',NULL,'17','0','1',NULL,'3',NULL,NULL,NULL,NULL),(27,'Master User','uri',0,'user_menu','setup/user_menu',NULL,0,'0',NULL,'21','0','1',NULL,'1',NULL,NULL,NULL,NULL),(29,'Tbl Time Attendance','uri',0,'tbl_timeattendance_menu','setup/tbl_timeattendance_menu',NULL,0,'0',NULL,'21','0','0',NULL,'2',NULL,NULL,NULL,NULL),(30,'Training','uri',0,'training_menu','training_development/training_menu',NULL,0,'0',NULL,'18','0','1',NULL,'1',NULL,NULL,NULL,NULL),(31,'Performance Appraisal','uri',0,'performance_appraisal_menu','performance_management/performance_appraisal_menu',NULL,0,'0',NULL,'19','0','1',NULL,'1',NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `user_menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1670,4 +1675,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-06 17:12:21
+-- Dump completed on 2025-05-08 13:44:36

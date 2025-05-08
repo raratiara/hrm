@@ -35,7 +35,8 @@ class Data_karyawan_menu extends MY_Controller
 		$field['txtnonpwp'] 			= $this->self_model->return_build_txt('','no_npwp','no_npwp');
 		$field['txtplaceofbirth'] 		= $this->self_model->return_build_txt('','place_of_birth','place_of_birth');
 		$field['txtaddress1'] 			= $this->self_model->return_build_txtarea('','address1','address1');
-		$field['txtpostalcode'] 		= $this->self_model->return_build_txt('','postal_code','postal_code');
+		$field['txtpostalcode1'] 		= $this->self_model->return_build_txt('','postal_code1','postal_code1');
+		$field['txtpostalcode2'] 		= $this->self_model->return_build_txt('','postal_code2','postal_code2');
 		$field['txtdateendprob'] 		= $this->self_model->return_build_txtdate('','date_end_prob','date_end_prob');
 		$field['txtworklocation'] 		= $this->self_model->return_build_txt('','work_loc','work_loc');
 		$field['selindirect'] 			= $this->self_model->return_build_txt('','indirect','indirect');
@@ -73,20 +74,22 @@ class Data_karyawan_menu extends MY_Controller
 		$mseducation 					= $this->db->query("select * from master_education")->result(); 
 		$field['seleducation'] 			= $this->self_model->return_build_select2me($mseducation,'','','','last_education','last_education','','','id','name',' ','','','',3,'-');
 
-		$msprovince 					= $this->db->query("select * from provinces")->result(); 
-		$field['selprovince'] 			= $this->self_model->return_build_select2me($msprovince,'','','','province','province','','','id','name',' ','','','',3,'-');
+		$msprovince 					= $this->db->query("select * from provinces order by name asc")->result(); 
+		$field['selprovince1'] 			= $this->self_model->return_build_select2me($msprovince,'','','','province1','province1','','','id','name',' ','','','',3,'-');
+		$field['selprovince2'] 			= $this->self_model->return_build_select2me($msprovince,'','','','province2','province2','','','id','name',' ','','','',3,'-');
 
-		$msprovince 					= $this->db->query("select * from provinces")->result(); 
-		$field['selprovince'] 			= $this->self_model->return_build_select2me($msprovince,'','','','province','province','','','id','name',' ','','','',3,'-');
+		$msregency 						= $this->db->query("select * from regencies order by name asc")->result(); 
+		$field['selregency1'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency1','regency1','','','id','name',' ','','','',3,'-');
+		$field['selregency2'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency2','regency2','','','id','name',' ','','','',3,'-');
 
-		$msregency 						= $this->db->query("select * from regencies")->result(); 
-		$field['selregency'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency','regency','','','id','name',' ','','','',3,'-');
+		/*$msdistrict 					= $this->db->query("select * from districts order by name asc")->result(); */
+		$msdistrict 					= array();
+		$field['seldistrict1'] 			= $this->self_model->return_build_select2me($msdistrict,'','','','district1','district1','district1','','id','name',' ','','','',3,'-');
+		$field['seldistrict2'] 			= $this->self_model->return_build_select2me($msdistrict,'','','','district2','district2','','','id','name',' ','','','',3,'-');
 
-		$msdistrict 					= $this->db->query("select * from districts")->result(); 
-		$field['seldistrict'] 			= $this->self_model->return_build_select2me($msdistrict,'','','','district','district','','','id','name',' ','','','',3,'-');
-
-		$msvillage 						= $this->db->query("select * from villages")->result(); 
-		$field['selvillage'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village','village','','','id','name',' ','','','',3,'-');
+		$msvillage 						= $this->db->query("select * from villages order by name asc")->result(); 
+		$field['selvillage1'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village1','village1','','','id','name',' ','','','',3,'-');
+		$field['selvillage2'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village2','village2','','','id','name',' ','','','',3,'-');
 
 		$msjobtitle 					= $this->db->query("select * from master_job_title")->result(); 
 		$field['seljobtitle'] 			= $this->self_model->return_build_select2me($msjobtitle,'','','','job_title','job_title','','','id','name',' ','','','',3,'-');
@@ -115,7 +118,9 @@ class Data_karyawan_menu extends MY_Controller
 		$mssection 						= $this->db->query("select * from sections")->result(); 
 		$field['selsection'] 			= $this->self_model->return_build_select2me($mssection,'','','','section','section','','','id','name',' ','','','',3,'-');	
 
-		$field['txtgender'] 			= $this->self_model->return_build_radio('', [['L','Laki-Laki'],['P','Perempuan']], 'gender', '', 'inline');
+		$field['txtgender'] 			= $this->self_model->return_build_radio('', [['M','Male'],['F','Female']], 'gender', '', 'inline');
+
+		$field['chksameaddress'] 		= $this->self_model->return_build_radio('', [['Y','Yes'],['N','No']], 'is_same_address', 'is_same_address', 'inline');
 		
 
 
@@ -276,6 +281,17 @@ class Data_karyawan_menu extends MY_Controller
 			$rs = $this->db->delete('cctv',"id = '".$id."'");
 		}
 		
+	}
+
+
+	public function getDataDistrict(){
+		$post = $this->input->post(null, true);
+		$province = $post['province'];
+
+		$rs =  $this->self_model->getDataDistrict($province);
+		
+
+		echo json_encode($rs);
 	}
 
 
