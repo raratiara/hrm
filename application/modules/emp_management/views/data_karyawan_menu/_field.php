@@ -324,6 +324,12 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Regency </label>
+					<div class="col-md-8">
+						<?=$selregency1;?>
+					</div>
+				</div>
+				<div class="form-group">
 					<label class="col-md-4 control-label no-padding-right">District </label>
 					<div class="col-md-8">
 						<?=$seldistrict1;?>
@@ -333,12 +339,6 @@
 					<label class="col-md-4 control-label no-padding-right">Village </label>
 					<div class="col-md-8">
 						<?=$selvillage1;?>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Regency </label>
-					<div class="col-md-8">
-						<?=$selregency1;?>
 					</div>
 				</div>
 				<div class="form-group">
@@ -369,6 +369,12 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Regency </label>
+					<div class="col-md-8">
+						<?=$selregency2;?>
+					</div>
+				</div>
+				<div class="form-group">
 					<label class="col-md-4 control-label no-padding-right">District </label>
 					<div class="col-md-8">
 						<?=$seldistrict2;?>
@@ -378,12 +384,6 @@
 					<label class="col-md-4 control-label no-padding-right">Village </label>
 					<div class="col-md-8">
 						<?=$selvillage2;?>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Regency </label>
-					<div class="col-md-8">
-						<?=$selregency2;?>
 					</div>
 				</div>
 				<div class="form-group">

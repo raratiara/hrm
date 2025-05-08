@@ -74,7 +74,6 @@
 						<tr>
 							<th scope="col">No</th>
 							<th scope="col">Sub Type</th>
-							<th scope="col">Qty</th>
 							<th scope="col">File</th>
 							<th scope="col">Notes</th>
 							<th scope="col">Biaya</th>

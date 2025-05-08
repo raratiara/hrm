@@ -150,8 +150,10 @@ function load_data()
 					$('[name="sim_a"]').val(data.sim_a);
 					$('[name="no_npwp"]').val(data.no_npwp);
 					$('[name="place_of_birth"]').val(data.place_of_birth);
-					$('[name="address1"]').val(data.address_1);
-					$('[name="postal_code"]').val(data.postal_code);
+					$('[name="address1"]').val(data.address_ktp);
+					$('[name="address2"]').val(data.address_residen);
+					$('[name="postal_code1"]').val(data.postal_code_ktp);
+					$('[name="postal_code2"]').val(data.postal_code_residen);
 					$('[name="work_loc"]').val(data.work_location);
 					$('[name="emergency_phone"]').val(data.emergency_contact_phone);
 					$('[name="bank_address"]').val(data.bank_address);
@@ -163,7 +165,6 @@ function load_data()
 					$('[name="no_ktp"]').val(data.no_ktp);
 					$('[name="sim_c"]').val(data.sim_c);
 					$('[name="no_bpjs"]').val(data.no_bpjs);
-					$('[name="address2"]').val(data.address_2);
 					$('[name="shift_type"]').val(data.shift_type);
 					$('[name="emergency_name"]').val(data.emergency_contact_name);
 					$('[name="emergency_email"]').val(data.emergency_contact_email);
@@ -197,19 +198,27 @@ function load_data()
 
 					$('select#indirect').val(data.indirect_id).trigger('change.select2');
 					$('select#marital_status').val(data.marital_status_id).trigger('change.select2');
-					$('select#province').val(data.province_id).trigger('change.select2');
-					$('select#district').val(data.district_id).trigger('change.select2');
+					$('select#province1').val(data.province_id_ktp).trigger('change.select2');
+					$('select#province2').val(data.province_id_residen).trigger('change.select2');
 					$('select#job_title').val(data.job_title_id).trigger('change.select2');
 					$('select#direct').val(data.direct_id).trigger('change.select2');
 					$('select#emp_status').val(data.employment_status_id).trigger('change.select2');
-					$('select#regency').val(data.regency_id).trigger('change.select2');
-					$('select#village').val(data.village_id).trigger('change.select2');
+					/*$('select#regency').val(data.regency_id).trigger('change.select2');
+					$('select#village').val(data.village_id).trigger('change.select2');*/
 					$('select#department').val(data.department_id).trigger('change.select2');
 					$('select#last_education').val(data.last_education_id).trigger('change.select2');
 					$('select#branch').val(data.branch_id).trigger('change.select2');
 					$('select#company').val(data.company_id).trigger('change.select2');
 					$('select#division').val(data.division_id).trigger('change.select2');
 					$('select#section').val(data.section_id).trigger('change.select2');
+
+					getRegency(data.province_id_ktp,'1','selected',data.regency_id_ktp);
+					getDistrict(data.regency_id_ktp,data.province_id_ktp,'1','selected',data.district_id_ktp);
+					getVillage(data.district_id_ktp,data.regency_id_ktp,data.province_id_ktp,'1','selected',data.village_id_ktp);
+
+					getRegency(data.province_id_residen,'2','selected',data.regency_id_residen);
+					getDistrict(data.regency_id_residen,data.province_id_residen,'2','selected',data.district_id_residen);
+					getVillage(data.district_id_residen,data.regency_id_residen,data.province_id_residen,'2','selected',data.village_id_residen);
 
 
 					var locate = 'table.ca-list';
@@ -284,8 +293,10 @@ function load_data()
 					$('span.sim_a').html(data.sim_a);
 					$('span.no_npwp').html(data.no_npwp);
 					$('span.place_of_birth').html(data.place_of_birth);
-					$('span.address1').html(data.address_1);
-					$('span.postal_code').html(data.postal_code);
+					$('span.address1').html(data.address_ktp);
+					$('span.address2').html(data.address_residen);
+					$('span.postal_code1').html(data.postal_code_ktp);
+					$('span.postal_code2').html(data.postal_code_residen);
 					$('span.date_end_prob').html(data.date_end_probation);
 					$('span.work_loc').html(data.work_location);
 					$('span.emergency_phone').html(data.emergency_contact_phone);
@@ -315,15 +326,19 @@ function load_data()
 					$('span.division').html(data.division_name);
 					$('span.section').html(data.section_name);
 					$('span.last_education').html(data.last_education_name);
-					$('span.regency').html(data.regency_name);
-					$('span.village').html(data.village_name);
+					$('span.regency1').html(data.regency_name_ktp);
+					$('span.regency2').html(data.regency_name_residen);
+					$('span.village1').html(data.village_name_ktp);
+					$('span.village2').html(data.village_name_residen);
 					$('span.department').html(data.department_name);
 					$('span.emp_status').html(data.emp_status_name);
 					$('span.indirect').html(data.indirect_name);
 					$('span.branch').html(data.branch_name);
 					$('span.marital_status').html(data.marital_status_name);
-					$('span.province').html(data.province_name);
-					$('span.district').html(data.district_name);
+					$('span.province1').html(data.province_name_ktp);
+					$('span.province2').html(data.province_name_residen);
+					$('span.district1').html(data.district_name_ktp);
+					$('span.district2').html(data.district_name_residen);
 					$('span.job_title').html(data.job_title_name);
 					$('span.direct').html(data.direct_name);
 					$('[name="gender"][value="'+data.gender+'"]').prop('checked', true);
@@ -539,28 +554,50 @@ $('#address1').on('keyup', function () {
 		$('[name="address2"]').val(address1);
  	}
  	
+});
+
+$('#postal_code1').on('keyup', function () { 
+	var chksame 		= $('input[name=is_same_address]:checked').val();
+	var postal_code1 	= $("#postal_code1").val();
+ 	
+ 	if(chksame == 'Y'){
+		$('[name="postal_code2"]').val(postal_code1);
+ 	}
  	
 });
 
 
 $('#is_same_address').change(function() { 
-	var chksame = $('input[name=is_same_address]:checked').val();
-	var address1 = $("#address1").val();
+	var chksame 	= $('input[name=is_same_address]:checked').val();
+	var address1 	= $("#address1").val();
+	var province1 	= $("#province1 option:selected").val();
+	var regency1 	= $("#regency1 option:selected").val();
+	var district1 	= $("#district1 option:selected").val();
+	var village1 	= $("#village1 option:selected").val();
+ 	var postal_code1 = $("#postal_code1").val();
 
-	if(chksame == 'Y'){
+	if(chksame == 'Y'){ 
 		$('[name="address2"]').val(address1);
+		$('[name="postal_code2"]').val(postal_code1);
+		$('select#province2').val(province1).trigger('change.select2');
+
+		getRegency(province1,'2','selected',regency1);
+		getDistrict(regency1,province1,'2','selected',district1);
+		getVillage(district1,regency1,province1,'2','selected',village1);
+		
  	}
   
 });
 
 
-function getDistrict(province, addresstype){
-	if(province != ''){
+function getDistrict(regency,province, addresstype, selected='',idVal=''){
+
+	if(regency != '' && province != ''){
  		
  		$.ajax({
 			type: "POST",
 	        url : module_path+'/getDataDistrict',
-			data: { province: province },
+			data: { province: province, regency:regency },
 			cache: false,		
 	        dataType: "JSON",
 	        success: function(data)
@@ -573,12 +610,19 @@ function getDistrict(province, addresstype){
 					}	
 
 					$el.empty(); // remove old options
-					$el.append($("<option></option>").attr("value", "").text("aa"));
+					$el.append($("<option></option>").attr("value", "").text(""));
 					$.each(data.msdistrict, function(key,value) {
 					  	$el.append($("<option></option>")
 					     .attr("value", value.id).text(value.name));
 					});
-					//$('select#subtype').val(joborderid).trigger('change.select2');
+					
+					if(selected=='selected'){
+						if(addresstype == 1){
+							$('select#district1').val(idVal).trigger('change.select2');
+						}else{
+							$('select#district2').val(idVal).trigger('change.select2');
+						}
+					}
 					
 				} else { 
 					
@@ -602,23 +646,207 @@ function getDistrict(province, addresstype){
 	    });
 
 
- 	}else{
- 		alert("Please choose Order Name");
  	}
-
 
 }
 
 
+function getRegency(province, addresstype,selected='',idVal=''){ 
+
+	if(province != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataRegency',
+			data: { province: province },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					if(addresstype == 1){ //ktp address
+						var $el = $(".regency1");
+					}else{ //residential address
+						var $el = $(".regency2");
+					}	
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.msregency, function(key,value) {
+						$el.append($("<option></option>")
+				     	.attr("value", value.id).text(value.name));
+					  	
+					});
+
+					if(selected=='selected'){
+						if(addresstype == 1){
+							$('select#regency1').val(idVal).trigger('change.select2');
+						}else{
+							$('select#regency2').val(idVal).trigger('change.select2');
+						}
+					}
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
+
+function getVillage(district,regency,province, addresstype, selected='',idVal=''){
+
+	if(district != '' && regency != '' && province != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataVillage',
+			data: { province: province, regency:regency, district:district },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					if(addresstype == 1){ //ktp address
+						var $el = $(".village1");
+					}else{ //residential address
+						var $el = $(".village2");
+					}	
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.msvillage, function(key,value) {
+					  	$el.append($("<option></option>")
+					     .attr("value", value.id).text(value.name));
+					});
+					
+					if(selected=='selected'){
+						if(addresstype == 1){
+							$('select#village1').val(idVal).trigger('change.select2');
+						}else{
+							$('select#village2').val(idVal).trigger('change.select2');
+						}
+						
+					}
+
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
+
+
+
 $('#province1').on('change', function () { 
-	$('[name="district1"]').val('');
+ 	var province1 	= $("#province1 option:selected").val();
+ 	var chksame 	= $('input[name=is_same_address]:checked').val();
 
+	if(chksame == 'Y'){
+		$('select#province2').val(province1).trigger('change.select2');
+ 	}
 
- 	var province1 = $("#province1 option:selected").val();
  	
+ 	getRegency(province1,'1');
+});
 
- 	getDistrict(province1,'1');
+$('#province2').on('change', function () { 
+ 	var province2 = $("#province2 option:selected").val();
+ 	
+ 	getRegency(province2,'2');
+});
 
+$('#regency1').on('change', function () { 
+ 	var regency1 	= $("#regency1 option:selected").val();
+ 	var province1 	= $("#province1 option:selected").val();
+ 	var chksame 	= $('input[name=is_same_address]:checked').val();
+
+ 	if(chksame == 'Y'){
+		getRegency(province1,'2','selected');
+ 	}
+ 	
+ 	getDistrict(regency1,province1,'1');
+});
+
+$('#regency2').on('change', function () { 
+ 	var regency2 	= $("#regency2 option:selected").val();
+ 	var province2 	= $("#province2 option:selected").val();
+ 	
+ 	getDistrict(regency2,province2,'2');
+});
+
+$('#district1').on('change', function () { 
+ 	var district1 	= $("#district1 option:selected").val();
+ 	var regency1 	= $("#regency1 option:selected").val();
+ 	var province1 	= $("#province1 option:selected").val();
+ 	var chksame 	= $('input[name=is_same_address]:checked').val();
+
+ 	if(chksame == 'Y'){
+		getDistrict(regency1,province1,'2','selected');
+ 	}
+ 	
+ 	getVillage(district1,regency1,province1,'1');
+});
+
+$('#district2').on('change', function () { 
+ 	var district2 	= $("#district2 option:selected").val();
+ 	var regency2 	= $("#regency2 option:selected").val();
+ 	var province2 	= $("#province2 option:selected").val();
+ 	
+ 	getVillage(district2,regency2,province2,'2');
+});
+
+
+$('#village1').on('change', function () { 
+ 	var village1 	= $("#village1 option:selected").val();
+ 	var chksame 	= $('input[name=is_same_address]:checked').val();
+
+ 	var district1 	= $("#district1 option:selected").val();
+ 	var regency1 	= $("#regency1 option:selected").val();
+ 	var province1 	= $("#province1 option:selected").val();
+
+ 	if(chksame == 'Y'){
+		getVillage(district1,regency1,province1,'2','selected');
+ 	}
+ 	
 });
 
 

@@ -409,7 +409,6 @@ class Reimbursement_menu_model extends MY_Model
 									'subtype_id' 		=> trim($post['subtype'][$i]),
 									'document' 			=> $document,
 									'biaya' 			=> trim($post['biaya'][$i]),
-									'qty' 				=> trim($post['qty'][$i]),
 									'notes' 			=> trim($post['notes'][$i])
 								];
 
@@ -490,7 +489,6 @@ class Reimbursement_menu_model extends MY_Model
 										'subtype_id' 		=> trim($post['subtype'][$i]),
 										'document' 			=> $document,
 										'biaya' 			=> trim($post['biaya'][$i]),
-										'qty' 				=> trim($post['qty'][$i]),
 										'notes' 			=> trim($post['notes'][$i])
 									];
 
@@ -513,7 +511,6 @@ class Reimbursement_menu_model extends MY_Model
 										'subtype_id' 		=> trim($post['subtype'][$i]),
 										'document' 			=> $document,
 										'biaya' 			=> trim($post['biaya'][$i]),
-										'qty' 				=> trim($post['qty'][$i]),
 										'notes' 			=> trim($post['notes'][$i])
 									];
 
@@ -600,7 +597,6 @@ class Reimbursement_menu_model extends MY_Model
 			
 			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
 			$data 	.= '<td>'.$this->return_build_chosenme($msSubtype,'','','','subtype['.$row.']','subtype','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','biaya['.$row.']','','biaya','text-align: right;','data-id="'.$row.'" ').'</td>';
@@ -650,8 +646,7 @@ class Reimbursement_menu_model extends MY_Model
 
 					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
 					$dt .= '<td>'.$this->return_build_chosenme($msSubtype,'',isset($f->subtype_id)?$f->subtype_id:1,'','subtype['.$row.']','subtype','subtype','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->qty,'qty['.$row.']','','qty','text-align: right;','data-id="'.$row.'" ').'</td>';
-
+				
 					$dt .= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndocument'.$row.'" name="hdndocument'.$row.'" value="'.$f->document.'"/></td>';
 
 					$dt .= '<td>'.$this->return_build_txt($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
@@ -670,13 +665,9 @@ class Reimbursement_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
-					$qty=$f->qty;
-					if($f->qty==0){
-						$qty='';
-					}
+					
 					$dt .= '<td>'.$no.'</td>';
 					$dt .= '<td>'.$f->subtype_name.'</td>';
-					$dt .= '<td>'.$qty.'</td>';
 					$dt .= '<td><a href="'.base_url().'uploads/reimbursement/'.$f->document.'" target="_blank">View</a></td>';
 					$dt .= '<td>'.$f->notes.'</td>';
 					$dt .= '<td>'.$f->biaya.'</td>';

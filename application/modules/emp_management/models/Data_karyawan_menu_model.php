@@ -386,13 +386,18 @@ class Data_karyawan_menu_model extends MY_Model
 			'no_bpjs' 						=> trim($post['no_bpjs']),
 			'place_of_birth' 				=> trim($post['place_of_birth']),
 			'date_of_birth' 				=> date("Y-m-d", strtotime($date_of_birth)),
-			'address_1' 					=> trim($post['address1']),
-			'address_2' 					=> trim($post['address2']),
-			'postal_code' 					=> trim($post['postal_code']),
-			'province_id' 					=> trim($post['province']),
-			'regency_id' 					=> trim($post['regency']),
-			'district_id' 					=> trim($post['district']),
-			'village_id' 					=> trim($post['village']),
+			'address_ktp' 					=> trim($post['address1']),
+			'address_residen' 				=> trim($post['address2']),
+			'postal_code_ktp' 				=> trim($post['postal_code1']),
+			'postal_code_residen' 			=> trim($post['postal_code2']),
+			'province_id_ktp' 				=> trim($post['province1']),
+			'province_id_residen' 			=> trim($post['province2']),
+			'regency_id_ktp' 				=> trim($post['regency1']),
+			'regency_id_residen' 			=> trim($post['regency2']),
+			'district_id_ktp' 				=> trim($post['district1']),
+			'district_id_residen' 			=> trim($post['district2']),
+			'village_id_ktp' 				=> trim($post['village1']),
+			'village_id_residen' 			=> trim($post['village2']),
 			'job_title_id' 					=> trim($post['job_title']),
 			'department_id' 				=> trim($post['department']),
 			'date_of_hire' 					=> date("Y-m-d", strtotime($date_of_hire)),
@@ -624,7 +629,6 @@ class Data_karyawan_menu_model extends MY_Model
 				'gender' 						=> trim($post['gender']),
 				'ethnic' 						=> trim($post['ethnic']),
 				'nationality' 					=> trim($post['nationality']),
-				//'last_education_id' 			=> trim($post['last_education']),
 				'marital_status_id' 			=> trim($post['marital_status']),
 				'tanggungan' 					=> trim($post['tanggungan']),
 				'no_ktp' 						=> trim($post['no_ktp']),
@@ -634,13 +638,18 @@ class Data_karyawan_menu_model extends MY_Model
 				'no_bpjs' 						=> trim($post['no_bpjs']),
 				'place_of_birth' 				=> trim($post['place_of_birth']),
 				'date_of_birth' 				=> date("Y-m-d", strtotime($date_of_birth)),
-				'address_1' 					=> trim($post['address1']),
-				'address_2' 					=> trim($post['address2']),
-				'postal_code' 					=> trim($post['postal_code']),
-				'province_id' 					=> trim($post['province']),
-				'regency_id' 					=> trim($post['regency']),
-				'district_id' 					=> trim($post['district']),
-				'village_id' 					=> trim($post['village']),
+				'address_ktp' 					=> trim($post['address1']),
+				'address_residen' 				=> trim($post['address2']),
+				'postal_code_ktp' 				=> trim($post['postal_code1']),
+				'postal_code_residen' 			=> trim($post['postal_code2']),
+				'province_id_ktp' 				=> trim($post['province1']),
+				'province_id_residen' 			=> trim($post['province2']),
+				'regency_id_ktp' 				=> trim($post['regency1']),
+				'regency_id_residen' 			=> trim($post['regency2']),
+				'district_id_ktp' 				=> trim($post['district1']),
+				'district_id_residen' 			=> trim($post['district2']),
+				'village_id_ktp' 				=> trim($post['village1']),
+				'village_id_residen' 			=> trim($post['village2']),
 				'job_title_id' 					=> trim($post['job_title']),
 				'department_id' 				=> trim($post['department']),
 				'date_of_hire' 					=> date("Y-m-d", strtotime($date_of_hire)),
@@ -886,16 +895,19 @@ class Data_karyawan_menu_model extends MY_Model
 					    b.name AS company_name,
 					    c.name AS division_name,
 					    d.name AS section_name,
-					    e.name AS last_education_name,
-					    f.name AS regency_name,
-					    g.name AS village_name,
+					    f.name AS regency_name_ktp,
+                        f2.name AS regency_name_residen,
+					    g.name AS village_name_ktp,
+                        g2.name AS village_name_residen,
 					    h.name AS department_name,
 					    i.name AS emp_status_name,
 					    j.full_name AS indirect_name,
 					    k.name AS branch_name,
 					    l.name AS marital_status_name,
-					    m.name AS province_name,
-					    n.name AS district_name,
+					    m.name AS province_name_ktp,
+						m2.name AS province_name_residen,
+					    n.name AS district_name_ktp,
+                        n2.name AS district_name_residen,
 					    o.name AS job_title_name,
 					    p.full_name AS direct_name
 					FROM
@@ -907,11 +919,13 @@ class Data_karyawan_menu_model extends MY_Model
 					        LEFT JOIN
 					    sections d ON d.id = a.section_id
 					        LEFT JOIN
-					    master_education e ON e.id = a.last_education_id
+					    regencies f ON f.id = a.regency_id_ktp
+                        LEFT JOIN
+					    regencies f2 ON f2.id = a.regency_id_residen
 					        LEFT JOIN
-					    regencies f ON f.id = a.regency_id
-					        LEFT JOIN
-					    villages g ON g.id = a.village_id
+					    villages g ON g.id = a.village_id_ktp
+                        LEFT JOIN
+					    villages g2 ON g2.id = a.village_id_residen
 					        LEFT JOIN
 					    departments h ON h.id = a.department_id
 					        LEFT JOIN
@@ -923,9 +937,13 @@ class Data_karyawan_menu_model extends MY_Model
 					        LEFT JOIN
 					    master_marital_status l ON l.id = a.marital_status_id
 					        LEFT JOIN
-					    provinces m ON m.id = a.province_id
+					    provinces m ON m.id = a.province_id_ktp
+                        LEFT JOIN
+					    provinces m2 ON m2.id = a.province_id_residen
 					        LEFT JOIN
-					    districts n ON n.id = a.district_id
+					    districts n ON n.id = a.district_id_ktp
+                        LEFT JOIN
+					    districts n2 ON n2.id = a.district_id_residen
 					        LEFT JOIN
 					    master_job_title o ON o.id = a.job_title_id
 					        LEFT JOIN
@@ -1329,12 +1347,34 @@ class Data_karyawan_menu_model extends MY_Model
 		return [$dt,$row];
 	}
 
+	public function getDataRegency($province){ 
 
-	public function getDataDistrict($province){ 
+		$rs = $this->db->query("select * from regencies where province_id = '".$province."' order by name asc")->result(); 
 
-		$rs = $this->db->query("select * from districts where province_id = '".$province."' order by name asc")->result(); 
+		$data['msregency'] = $rs;
+
+
+		return $data;
+
+	}
+
+	public function getDataDistrict($province,$regency){ 
+
+		$rs = $this->db->query("select * from districts where province_id = '".$province."' and regency_id = '".$regency."' order by name asc")->result(); 
 
 		$data['msdistrict'] = $rs;
+
+
+		return $data;
+
+	}
+
+
+	public function getDataVillage($province,$regency,$district){ 
+
+		$rs = $this->db->query("select * from villages where province_id = '".$province."' and regency_id = '".$regency."' and district_id = '".$district."' order by name asc")->result(); 
+
+		$data['msvillage'] = $rs;
 
 
 		return $data;
