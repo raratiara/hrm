@@ -33,13 +33,16 @@ class Data_karyawan_menu_model extends MY_Model
 			'dt.personal_phone',
 			'dt.gender_name',
 			'dt.date_of_birth',
-			'dt.job_title_id'
+			'dt.job_title_name'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select *,(case when gender="M" then "Male" when gender="F" then "Female" else "" end) as gender_name from employees)dt';
+		$sTable = '(select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name 
+			,o.name AS job_title_name
+			from employees a
+			LEFT JOIN master_job_title o ON o.id = a.job_title_id)dt';
 		
 
 		/* Paging */
@@ -207,7 +210,7 @@ class Data_karyawan_menu_model extends MY_Model
 				$row->personal_phone,
 				$row->gender_name,
 				$row->date_of_birth,
-				$row->job_title
+				$row->job_title_name
 
 			));
 		}
