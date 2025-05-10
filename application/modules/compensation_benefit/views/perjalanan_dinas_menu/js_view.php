@@ -80,7 +80,10 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-
+var modloc = '/_hrm/compensation_benefit/perjalanan_dinas_menu/';
+var opsForm = 'form#frmInputData';
+var locate = 'table.bustrip-list';
+var wcount = 0; //for ca list row identify
 
 
 
@@ -201,6 +204,19 @@ function load_data()
 					$('[name="reason"]').val(data.reason);
 					$('[name="start_date"]').val(data.start_date);
 					$('[name="end_date"]').val(data.end_date);
+
+
+					$.ajax({type: 'post',url: modloc+'genbustriprow',data: { id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 					
 					
 					$.uniform.update();
@@ -214,6 +230,18 @@ function load_data()
 					$('span.start_date').html(data.start_date);
 					$('span.end_date').html(data.end_date);
 				
+
+					$.ajax({type: 'post',url: modloc+'genbustriprow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 
 					
 					$('#modal-view-data').modal('show');
@@ -357,5 +385,44 @@ function save_approve(){
 
 }
 
+
+$("#addbustriprow").on("click", function () { 
+	
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genbustriprow',data: { count:wcount },success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.bustrip-list');
+	});
+
+	
+});
+
+
+function del(idx,hdnid){
+	
+	if(hdnid != ''){ //delete dr table
+
+		$.ajax({type: 'post',url: module_path+'/delrowDetailBustrip',data: { id:hdnid },success: function (response) {
+				
+			}
+		}).done(function() {
+			tSawBclear('table.bustrip-list');
+		});
+
+	}
+
+	//delete tampilan row
+
+	var table = document.getElementById("tblDetailReimburs");
+	table.deleteRow(idx);
+	
+
+}
 
 </script>

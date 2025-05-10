@@ -15,8 +15,12 @@
 			<div class="modal-body" style="min-height:100px; margin:10px">
 				<p class="text-center">Are you sure to request for update this Data?</p>
 				<input type="hidden" name="id" id="id" value="">
-				Reason :
-				<input type="text" name="rfu_reason" id="rfu_reason" value="">
+				<div class="form-group" style="margin-left:160px">
+					<label class="col-md-4 control-label no-padding-right">Reason </label>
+					<div class="col-md-8">
+						<textarea></textarea>
+					</div>
+				</div>
 			</div>
 			 </form>
 
@@ -83,10 +87,9 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-var modloc = '/_hrm/performance_management/performance_appraisal_menu/';
+var modloc = '/_hrm/performance_management/performance_plan_menu/';
 var opsForm = 'form#frmInputData';
-var locate = 'table.ca-list';
-var dlocate = 'table.dca-list';
+var locate = 'table.performance-plan-list';
 var wcount = 0; //for ca list row identify
 
 
@@ -120,17 +123,6 @@ $(document).ready(function() {
 		    acc.classList.toggle('active');
 		    panel.classList.toggle('show');
 		  });
-
-
-
-		const acc2 = document.querySelector('#accordion_softskill');
-		const panel2 = document.querySelector('#tabsoftskill');
-
-		  acc2.addEventListener('click', function() {
-		    acc2.classList.toggle('active');
-		    panel2.classList.toggle('show');
-		  });
-
 
 		
    	});
@@ -241,9 +233,6 @@ function load_data()
 					
 					$('select#employee').val(data.employee_id).trigger('change.select2');
 					$('[name="year"]').val(data.year);
-					$('[name="hdnttl_final_score"]').val(data.total_final_score);
-					$('span#ttl_final_score').html(data.total_final_score);
-					
 
 					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
@@ -257,8 +246,7 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
-					getSoftskill(data.employee_id,data.id,save_method);
-					
+				
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -267,7 +255,6 @@ function load_data()
 				if(save_method == 'detail'){ 
 					$('span.employee').html(data.full_name);
 					$('span.year').html(data.year);
-					$('span#ttl_final_score').html(data.total_final_score);
 
 					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
@@ -280,8 +267,6 @@ function load_data()
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
-
-					getSoftskill(data.employee_id,data.id,save_method);
 
 					
 					$('#modal-view-data').modal('show');
@@ -467,138 +452,6 @@ function del(idx,hdnid){
 
 }
 
-
-function getSoftskill(employee,id,save_method){
-		
-	$.ajax({
-		type: "POST",
-        url : module_path+'/getDataSoftskill',
-		data: { employee: employee, id:id, save_method:save_method },
-		cache: false,		
-        dataType: "JSON",
-        success: function(data)
-        {   
-			if(data != null){ 	
-				if(save_method == 'detail'){
-					$('span#tblsoftskill_detail').html(data.tblsoftskill);
-				}else{
-					$('span#tblsoftskill').html(data.tblsoftskill);
-				}
-
-			} else { 
-				if(save_method == 'detail'){
-					$('span#tblsoftskill_detail').html('');
-				}else{
-					$('span#tblsoftskill').html('');
-				}
-			}
-
-        },
-        error: function (jqXHR, textStatus, errorThrown)
-        {
-			var dialog = bootbox.dialog({
-				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-				message: jqXHR.responseText,
-				buttons: {
-					confirm: {
-						label: 'Ok',
-						className: 'btn blue'
-					}
-				}
-			});
-        }
-    });
-
-
-}
-
-
-$('#employee').on('change', function () { 
- 	var employee 	= $("#employee option:selected").val();
- 	var id 			= $("#id").val();
- 
- 
- 	getSoftskill(employee,id,save_method);
- 	
-});
-
-
-
-function set_score_emp(val){ 
-	var row = val.dataset.id;  
-	var score_emp = val.value;
-	var weight = $('[name="weight['+row+']"]').val();
-
-	var final_score = (weight*score_emp)/100;
-	
-	$('[name="final_score['+row+']"]').val(final_score);
-	$('[name="score_emp['+row+']"]').val(score_emp);
-
-
-	var sum=0; 
-    $(".final_score").each(function(index, element){ 
-        sum += +$(this).val(); 
-    });
-    $('span#ttl_final_score').html(sum/2); //dibagi 2 karna rownya munculnya 2x lipat?
-    $('[name="hdnttl_final_score"]').val(sum/2);
-
-    
-}
-
-
-
-
-function set_score_direct(val){ 
-	var row = val.dataset.id;  
-	var score_direct = val.value;
-	var weight = $('[name="weight['+row+']"]').val();
-
-	var final_score = (weight*score_direct)/100;
-	/*console.log('weight: '+weight+' & score: '+score_emp+'');*/
-	
-	$('[name="final_score['+row+']"]').val(final_score);
-	$('[name="score_direct['+row+']"]').val(score_direct);
-
-
-	var sum=0; 
-	$(".final_score").each(function(index, element){ 
-        sum += +$(this).val(); 
-    });
-    $('span#ttl_final_score').html(sum/2); //dibagi 2 karna rownya munculnya 2x lipat?
-    $('[name="hdnttl_final_score"]').val(sum/2);
-
-}
-
-
-function set_weight(val){ 
-	var row = val.dataset.id;  
-	var weight = val.value;
-	var score_emp = $('[name="score_emp['+row+']"]').val();
-	var score_direct = $('[name="score_direct['+row+']"]').val();
-
-	var score = score_emp;
-	if(score_direct != ''){
-		var score = score_direct;
-	}
-	
-	
-
-	var final_score = (weight*score)/100;
-	//console.log('weight: '+weight+' & score: '+score_emp+'');
-	
-	$('[name="final_score['+row+']"]').val(final_score);
-	$('[name="weight['+row+']"]').val(weight);
-
-
-
-	var sum=0; 
-	$(".final_score").each(function(index, element){ 
-        sum += +$(this).val(); 
-    });
-    $('span#ttl_final_score').html(sum/2); //dibagi 2 karna rownya munculnya 2x lipat?
-    $('[name="hdnttl_final_score"]').val(sum/2);
-
-}
 
 
 
