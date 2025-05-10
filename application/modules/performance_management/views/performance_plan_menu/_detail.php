@@ -35,16 +35,13 @@
 			</div>
 			<div class="portlet-body">
 				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover ca-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblHardskill">
+				<table class="table table-striped table-bordered table-hover performance-plan-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblHardskill_plan">
 					<thead>
 						<tr>
 							<th scope="col">No</th>
 							<th scope="col">Job</th>
 							<th scope="col">Notes</th>
-							<th scope="col">Weight</th>
-							<th scope="col">Score by Employee (%)</th>
-							<th scope="col">Score by Direct (%)</th>
-							<th scope="col">Final Score</th>
+							<th scope="col">Weight (%)</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -58,7 +55,4 @@
 		</div>
 	</div>
 </div>
-
-
-<span id="tblsoftskill_detail"></span>
 

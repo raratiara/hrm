@@ -50,17 +50,42 @@
 								<th scope="col">No</th>
 								<th scope="col">Job</th>
 								<th scope="col">Notes</th>
+								<th scope="col" style="width:7%">Weight</th>
 								<th scope="col" style="width:7%">Score by Employee (%)</th>
 								<th scope="col" style="width:7%">Score by Direct (%)</th>
+								<th scope="col" style="width:7%">Final Score</th>
 								<th scope="col"></th>
 							</tr>
 						</thead>
 						<tbody>
 							
 						</tbody>
+
 						<tfoot>
 						</tfoot>
 					</table>
+
+					<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" >
+						<thead>
+							<tr>
+							
+							</tr>
+						</thead>
+						<tbody>
+								<tr>
+									<td style="width:796px; text-align: right;">Total Final Score</td>
+									<td><span id="ttl_final_score"></span>
+										<input type="hidden" name="hdnttl_final_score" id="hdnttl_final_score">
+									</td>
+									
+								</tr>
+						</tbody>
+
+						<tfoot>
+						</tfoot>
+					</table>
+
+					
 					</div>
 				</div>
 			</div>

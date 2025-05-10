@@ -1,18 +1,12 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Perjalanan_dinas_menu_model extends MY_Model
+class Performance_plan_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "compensation_benefit/perjalanan_dinas_menu";
- 	protected $table_name 				= _PREFIX_TABLE."business_trip";
+ 	protected $folder_name				= "performance_management/performance_plan_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."performance_plan";
  	protected $primary_key 				= "id";
-
-
- 	/* upload */
- 	protected $attachment_folder	= "./uploads/bustrip";
-	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
  
 
@@ -30,10 +24,7 @@ class Perjalanan_dinas_menu_model extends MY_Model
 			NULL,
 			'dt.id',
 			'dt.full_name',
-			'dt.destination',
-			'dt.start_date',
-			'dt.end_date',
-			'dt.reason',
+			'dt.year',
 			'dt.status_name',
 			'dt.direct_id'
 		];
@@ -45,10 +36,10 @@ class Perjalanan_dinas_menu_model extends MY_Model
 					(case 
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
-					when a.status_id = 3 then "Rejected"
+					when a.status_id = 3 then "RFU"
 					else ""
-					end) as status_name 
-					from business_trip a left join employees b on b.id = a.employee_id)dt';
+					 end) as status_name
+					from performance_plan a left join employees b on b.id = a.employee_id)dt';
 
 		
 
@@ -206,10 +197,11 @@ class Perjalanan_dinas_menu_model extends MY_Model
 				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
-			$reject=""; 
-			$approve="";
+			/*$reject=""; */
+			$approve=""; $rfu="";
 			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
-				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';*/
+				$rfu = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="rfu('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
 			}
 
@@ -218,16 +210,14 @@ class Perjalanan_dinas_menu_model extends MY_Model
 				'<div class="action-buttons">
 					'.$detail.'
 					'.$edit.'
-					'.$reject.'
+					'.$rfu.'
 					'.$approve.'
 				</div>',
 				$row->id,
 				$row->full_name,
-				$row->destination,
-				$row->start_date,
-				$row->end_date,
-				$row->reason,
+				$row->year,
 				$row->status_name
+
 
 			));
 		}
@@ -280,147 +270,75 @@ class Perjalanan_dinas_menu_model extends MY_Model
 	}  
 
 
-	// Upload file
-	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
-		$data = array();
-		$data['status'] = FALSE; 
-		if(!empty($id) && !empty($fieldname)){ 
-			// handling multiple upload (as array field)
-
-			if($array){ 
-				// Define new $_FILES array - $_FILES['file']
-				$_FILES['file']['name'] = $_FILES[$fieldname]['name'];
-				$_FILES['file']['type'] = $_FILES[$fieldname]['type'];
-				$_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
-				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
-				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
-				// override field
-				//$fieldname = 'document';
-
-			} 
-			// handling regular upload (as one field)
-			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-			{ 
-				/*$dir = $this->attachment_folder.'/'.$id;
-				if(!is_dir($dir)) {
-					mkdir($dir);
-				}
-				if($replace){
-					$this->remove_file($id, $oldfilename);
-				}*/
-				$config['upload_path']   = $this->attachment_folder;
-				$config['allowed_types'] = $this->allow_type;
-				$config['max_size'] 	 = $this->allow_size;
-				
-				$this->load->library('upload', $config); 
-				
-				if(!$this->upload->do_upload($fieldname)){ 
-					$err_msg = $this->upload->display_errors(); 
-					$data['error_warning'] = strip_tags($err_msg);				
-					$data['status'] = FALSE;
-				} else { 
-					$fileData = $this->upload->data();
-					$data['upload_file'] = $fileData['file_name'];
-					$data['status'] = TRUE;
-				}
-			}
-		}
-
-		
-		
-		return $data;
-	}
-
-
 	public function add_data($post) { 
-
-		$start_date 	= date_create($post['start_date']); 
-		$f_start_date 	= date_format($start_date,"Y-m-d H:i:s");
-		$end_date 		= date_create($post['end_date']); 
-		$f_end_date 	= date_format($end_date,"Y-m-d H:i:s");
-
-		
 		
   		if(!empty($post['employee'])){ 
-  			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'destination' 			=> trim($post['destination']),
-				'start_date'			=> $f_start_date,
-				'end_date' 				=> $f_end_date,
-				'reason' 				=> trim($post['reason']),
-				'status_id' 			=> 1, //waiting approval
-				'created_date'			=> date("Y-m-d H:i:s")
-				
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-			$lastId = $this->db->insert_id();
 
-			if($rs){
-				if(isset($post['type'])){
-					$item_num = count($post['type']); // cek sum
-					$item_len_min = min(array_keys($post['type'])); // cek min key index
-					$item_len = max(array_keys($post['type'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
+  			$data_plan = $this->db->query("select * from performance_plan where employee_id = '".$post['employee']."' and year = '".$post['year']."'")->result(); 
 
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						$upload_doc = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
-						$document = '';
-						if($upload_doc['status']){ 
-							$document = $upload_doc['upload_file'];
-						} else if(isset($upload_doc['error_warning'])){ 
-							echo $upload_doc['error_warning']; exit;
-						}
+  			if(empty($data_plan)){ 
+  				$data = [
+					'employee_id' 	=> trim($post['employee']),
+					'year' 			=> trim($post['year']),
+					'status_id' 	=> 1, //waiting approval
+					'created_at'	=> date("Y-m-d H:i:s")
+					
+				];
+				$rs = $this->db->insert($this->table_name, $data);
+				$lastId = $this->db->insert_id();
 
-						if(isset($post['type'][$i])){
-							$itemData = [
-								'business_trip_id' 	=> $lastId,
-								'bustrip_type_id' 	=> trim($post['type'][$i]),
-								'document' 			=> $document,
-								'amount' 			=> trim($post['amount'][$i]),
-								'description' 		=> trim($post['description'][$i])
-							];
+				if($rs){ 
+					if(isset($post['hardskill'])){
+						$item_num = count($post['hardskill']); // cek sum
+						$item_len_min = min(array_keys($post['hardskill'])); // cek min key index
+						$item_len = max(array_keys($post['hardskill'])); // cek max key index
+					} else {
+						$item_num = 0;
+					}
 
-							$this->db->insert('business_trip_detail', $itemData);
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+						
+							if(isset($post['hardskill'][$i])){
+								$itemData = [
+									'performance_plan_id' 	=> $lastId,
+									'hardskill' 			=> trim($post['hardskill'][$i]),
+									'notes' 				=> trim($post['notes'][$i]),
+									'weight' 				=> trim($post['weight'][$i])
+								];
+
+								$this->db->insert('performance_plan_hardskill', $itemData);
+							}
 						}
 					}
+
+					return $rs;
+				}else{
+					return null;
 				}
-
-				return $rs;
-			}else return null;
-
+  			}else return null;
 
   		}else return null;
 
 	}  
 
 	public function edit_data($post) { 
-		$start_date 	= date_create($post['start_date']); 
-		$f_start_date 	= date_format($start_date,"Y-m-d H:i:s");
-		$end_date 		= date_create($post['end_date']); 
-		$f_end_date 	= date_format($end_date,"Y-m-d H:i:s");
-
-
+		
 		if(!empty($post['id'])){ 
 			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'destination' 			=> trim($post['destination']),
-				'start_date'			=> $f_start_date,
-				'end_date' 				=> $f_end_date,
-				'reason' 				=> trim($post['reason']),
-				'updated_date'			=> date("Y-m-d H:i:s")
+				'employee_id' 	=> trim($post['employee']),
+				'year' 			=> trim($post['year']),
+				'updated_at'	=> date("Y-m-d H:i:s")
 				
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if($rs){ 
-				if(isset($post['type'])){
-					$item_num = count($post['type']); // cek sum
-					$item_len_min = min(array_keys($post['type'])); // cek min key index
-					$item_len = max(array_keys($post['type'])); // cek max key index
+				if(isset($post['hardskill'])){
+					$item_num = count($post['hardskill']); // cek sum
+					$item_len_min = min(array_keys($post['hardskill'])); // cek min key index
+					$item_len = max(array_keys($post['hardskill'])); // cek max key index
 				} else {
 					$item_num = 0;
 				}
@@ -428,63 +346,29 @@ class Perjalanan_dinas_menu_model extends MY_Model
 				if($item_num>0){
 					for($i=$item_len_min;$i<=$item_len;$i++) 
 					{
-						$hdnid = trim($post['hdnid'][$i]);
-
-						if(!empty($hdnid)){ //update
-
-							$hdndocument = trim($post['hdndocument'.$i]);
-							$upload_doc = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
-							$document = '';
-							if($upload_doc['status']){ 
-								$document = $upload_doc['upload_file'];
-							} else if(isset($upload_doc['error_warning'])){ 
-								echo $upload_doc['error_warning']; exit;
-							}
-
-							if($document == '' && $hdndocument != ''){
-								$document = $hdndocument;
-							}
-
-							if(isset($post['type'][$i])){
+						$hdnid = $post['hdnid'][$i];
+						if(isset($post['hardskill'][$i])){
+							if($hdnid != ''){ //update
 								$itemData = [
-									'bustrip_type_id' 	=> trim($post['type'][$i]),
-									'document' 			=> $document,
-									'amount' 			=> trim($post['amount'][$i]),
-									'description' 		=> trim($post['description'][$i])
+									'hardskill' 		=> trim($post['hardskill'][$i]),
+									'notes' 			=> trim($post['notes'][$i]),
+									'weight' 			=> trim($post['weight'][$i])
+								];
+								$this->db->update('performance_plan_hardskill', $itemData, "id = '".$hdnid."'");
+							}else{ //insert
+								$itemData = [
+									'performance_plan_id' 	=> $post['id'],
+									'hardskill' 			=> trim($post['hardskill'][$i]),
+									'notes' 				=> trim($post['notes'][$i]),
+									'weight' 				=> trim($post['weight'][$i])
 								];
 
-								$this->db->update("business_trip_detail", $itemData, "id = '".$hdnid."'");
+								$this->db->insert('performance_plan_hardskill', $itemData);
 							}
-
-						}else{ //insert
-
-							$upload_doc = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
-							$document = '';
-							if($upload_doc['status']){ 
-								$document = $upload_doc['upload_file'];
-							} else if(isset($upload_doc['error_warning'])){ 
-								echo $upload_doc['error_warning']; exit;
-							}
-
-							if(isset($post['type'][$i])){ 
-								$itemData = [
-									'business_trip_id' 	=> $post['id'],
-									'bustrip_type_id' 	=> trim($post['type'][$i]),
-									'document' 			=> $document,
-									'amount' 			=> trim($post['amount'][$i]),
-									'description' 		=> trim($post['description'][$i])
-								];
-
-								$this->db->insert('business_trip_detail', $itemData);
-							}
-
 						}
-						
 					}
 				}
-
-
-				return $rs;
+				return $rs; 
 			}else return null;
 
 		} else return null;
@@ -495,10 +379,10 @@ class Perjalanan_dinas_menu_model extends MY_Model
 					(case 
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
-					when a.status_id = 3 then "Rejected"
+					when a.status_id = 3 then "RFU"
 					else ""
-					end) as status_name 
-					from business_trip a left join employees b on b.id = a.employee_id
+					 end) as status_name
+					from performance_plan a left join employees b on b.id = a.employee_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -517,12 +401,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 
 			$data = [
 				'employee_id' 	=> $v["B"],
-				'destination' 	=> $v["C"],
-				'start_date' 	=> $v["D"],
-				'end_date' 		=> $v["E"],
-				'reason' 		=> $v["F"],
-				'status_id' 	=> $v["G"],
-				'created_date' 	=> date("Y-m-d H:i:s")
+				'year' 			=> $v["C"],
+				'status_id' 	=> 1,
+				'created_at' 	=> date("Y-m-d H:i:s")
 				
 			];
 
@@ -535,17 +416,17 @@ class Perjalanan_dinas_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.id, b.full_name, a.destination, a.start_date, a.end_date, a.reason,
+		$sql = 'select a.id, b.full_name, a.year, 
 				(case 
-				when a.status_id = 1 then 'Waiting Approval'
-				when a.status_id = 2 then 'Approved'
-				when a.status_id = 3 then 'Rejected'
-				else ''
-				end) as status_name 
-				from business_trip a left join employees b on b.id = a.employee_id
+				when a.status_id = 1 then "Waiting Approval"
+				when a.status_id = 2 then "Approved"
+				when a.status_id = 3 then "RFU"
+				else ""
+				 end) as status_name
+				from performance_plan a left join employees b on b.id = a.employee_id
 				order by a.id asc
 
-		";
+		';
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
@@ -553,22 +434,20 @@ class Perjalanan_dinas_menu_model extends MY_Model
 	}
 
 
-	public function getNewBustripRow($row,$id=0,$view=FALSE)
+	public function getNewHardskillRow($row,$id=0,$view=FALSE)
 	{ 
 		if($id > 0){ 
-			$data = $this->getBustripRows($id,$view);
-		} else { 
+			$data = $this->getHardskillRows($id,$view);
+		} else {  
 			$data = '';
 			$no = $row+1;
-			$msBustripType = $this->db->query("select * from master_bustrip_type")->result(); 
 			
 			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
-			$data 	.= '<td>'.$this->return_build_chosenme($msBustripType,'','','','type['.$row.']','type','type','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','description['.$row.']','','description','text-align: right;','data-id="'.$row.'" ').'</td>';
 			
-
+			$data 	.= '<td>'.$this->return_build_txt('','hardskill['.$row.']','','hardskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txtarea('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','weight['.$row.']','','weight','text-align: right;','data-id="'.$row.'" ').'</td>';
+			
 			$hdnid='';
 			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
 		}
@@ -577,16 +456,11 @@ class Perjalanan_dinas_menu_model extends MY_Model
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function getBustripRows($id,$view,$print=FALSE){ 
-		$uri = $_SERVER['REQUEST_URI'];
-	 	$xpl = explode("/",$uri);
-	 	$url = $_SERVER['SERVER_NAME'].'/'.$xpl[1].'/uploads/bustrip';
-
+	public function getHardskillRows($id,$view,$print=FALSE){ 
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.*, b.name as type_name from business_trip_detail a 
-								left join master_bustrip_type b on b.id = a.bustrip_type_id where a.business_trip_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select * from performance_plan_hardskill where performance_plan_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
@@ -602,23 +476,16 @@ class Perjalanan_dinas_menu_model extends MY_Model
 			}*/
 			foreach ($rd as $f){
 				$no = $row+1;
-				$msBustripType = $this->db->query("select * from master_bustrip_type")->result();
 
 				if(!$view){ 
-					$viewdoc = '';
-					if($f->document != ''){
-						$viewdoc = '<a href="'.base_url().'uploads/bustrip/'.$f->document.'" target="_blank">View</a>';
-					}
-
+					
 					$dt .= '<tr>';
 
 					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
-					$dt .= '<td>'.$this->return_build_chosenme($msBustripType,'',isset($f->bustrip_type_id)?$f->bustrip_type_id:1,'','type['.$row.']','type','type','','id','name','','','',' data-id="'.$row.'" ').'</td>';
-				
-					$dt .= '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndocument'.$row.'" name="hdndocument'.$row.'" value="'.$f->document.'"/></td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->description,'description['.$row.']','','description','text-align: right;','data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" ').'</td>';
+					
+					$dt .= '<td>'.$this->return_build_txt($f->hardskill,'hardskill['.$row.']','','hardskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->weight,'weight['.$row.']','','weight','text-align: right;','data-id="'.$row.'" ').'</td>';
 					
 					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
@@ -633,13 +500,14 @@ class Perjalanan_dinas_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
-					
+					$qty=$f->qty;
+					if($f->qty==0){
+						$qty='';
+					}
 					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->type_name.'</td>';
-					$dt .= '<td>'.$f->amount.'</td>';
-					$dt .= '<td><a href="'.base_url().'uploads/bustrip/'.$f->document.'" target="_blank">View</a></td>';
-					$dt .= '<td>'.$f->description.'</td>';
-					
+					$dt .= '<td>'.$f->hardskill.'</td>';
+					$dt .= '<td>'.$f->notes.'</td>';
+					$dt .= '<td>'.$f->weight.'</td>';
 					$dt .= '</tr>';
 
 					
@@ -651,6 +519,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 
 		return [$dt,$row];
 	}
+
+
+	
 
 
 

@@ -34,6 +34,7 @@ class Performance_appraisal_menu_model extends MY_Model
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*, b.full_name, b.direct_id,
 					(case 
+					when a.status_id = 0 then "Draft"
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "RFU"
@@ -352,9 +353,11 @@ class Performance_appraisal_menu_model extends MY_Model
 		
 		if(!empty($post['id'])){ 
 			$data = [
-				'employee_id' 	=> trim($post['employee']),
-				'year' 			=> trim($post['year']),
-				'updated_at'	=> date("Y-m-d H:i:s")
+				'employee_id' 		=> trim($post['employee']),
+				'year' 				=> trim($post['year']),
+				'updated_at'		=> date("Y-m-d H:i:s"),
+				'total_final_score'	=> $post['hdnttl_final_score'],
+				'status_id' => 1 //waiting approval
 				
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -378,7 +381,9 @@ class Performance_appraisal_menu_model extends MY_Model
 									'hardskill' 		=> trim($post['hardskill'][$i]),
 									'notes' 			=> trim($post['notes'][$i]),
 									'score_emp' 		=> trim($post['score_emp'][$i]),
-									'score_direct' 		=> trim($post['score_direct'][$i])
+									'score_direct' 		=> trim($post['score_direct'][$i]),
+									'weight' 			=> trim($post['weight'][$i]),
+									'final_score' 		=> trim($post['final_score'][$i])
 								];
 								$this->db->update('performance_appraisal_hardskill', $itemData, "id = '".$hdnid."'");
 							}else{ //insert
@@ -387,7 +392,9 @@ class Performance_appraisal_menu_model extends MY_Model
 									'hardskill' 		=> trim($post['hardskill'][$i]),
 									'notes' 			=> trim($post['notes'][$i]),
 									'score_emp' 		=> trim($post['score_emp'][$i]),
-									'score_direct' 		=> trim($post['score_direct'][$i])
+									'score_direct' 		=> trim($post['score_direct'][$i]),
+									'weight' 			=> trim($post['weight'][$i]),
+									'final_score' 		=> trim($post['final_score'][$i])
 								];
 
 								$this->db->insert('performance_appraisal_hardskill', $itemData);
@@ -404,6 +411,7 @@ class Performance_appraisal_menu_model extends MY_Model
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.full_name, b.direct_id,
 					(case 
+					when a.status_id = 0 then "Draft"
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "RFU"
@@ -445,6 +453,7 @@ class Performance_appraisal_menu_model extends MY_Model
 	{
 		$sql = 'select a.id, b.full_name, a.year, 
 				(case 
+				when a.status_id = 0 then "Draft"
 				when a.status_id = 1 then "Waiting Approval"
 				when a.status_id = 2 then "Approved"
 				when a.status_id = 3 then "RFU"
@@ -473,9 +482,11 @@ class Performance_appraisal_menu_model extends MY_Model
 			
 			$data 	.= '<td>'.$this->return_build_txt('','hardskill['.$row.']','','hardskill','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txtarea('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" ').'</td>';
-
+			$data 	.= '<td>'.$this->return_build_txt('','weight['.$row.']','','weight','text-align: right;','data-id="'.$row.'" onkeyup="set_weight(this)" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" onkeyup="set_score_emp(this)" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" onkeyup="set_score_direct(this)" readonly ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','final_score['.$row.']','aa','final_score','text-align: right;','data-id="'.$row.'" ').'</td>';
+			
 			$hdnid='';
 			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
 		}
@@ -486,6 +497,9 @@ class Performance_appraisal_menu_model extends MY_Model
 	// Generate expenses item rows for edit & view
 	public function getHardskillRows($id,$view,$print=FALSE){ 
 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
 		$dt = ''; 
 		
 		$rs = $this->db->query("select * from performance_appraisal_hardskill where performance_appraisal_id = '".$id."' ")->result(); 
@@ -493,6 +507,27 @@ class Performance_appraisal_menu_model extends MY_Model
 
 		$row = 0; 
 		if(!empty($rd)){ 
+			$status = $this->db->query("select a.*, b.direct_id from performance_appraisal a left join employees b on b.id = a.employee_id where a.id = '".$id."' ")->result(); 
+			$isdirect = 0; $isemp=0;
+			if($status[0]->direct_id == $karyawan_id){
+				$isdirect = 1;
+			}
+			if($status[0]->employee_id == $karyawan_id){
+				$isemp = 1;
+			}
+
+
+			$readonly_direct = 'readonly';
+			$readonly_emp = 'readonly';
+			/*$readonly_emp = '';*/
+			if($status[0]->status_id == 1 && $isdirect == 1){ //waiting approval direct
+				$readonly_direct = '';
+			}
+			if($isemp == 1 && ($status[0]->status_id == '0' || $status[0]->status_id == '3')){ //draft atau rfu
+				$readonly_emp = '';
+			}
+
+
 			$rs_num = count($rd); 
 			
 			/*if($view){
@@ -513,8 +548,10 @@ class Performance_appraisal_menu_model extends MY_Model
 					
 					$dt .= '<td>'.$this->return_build_txt($f->hardskill,'hardskill['.$row.']','','hardskill','text-align: right;','data-id="'.$row.'" ').'</td>';
 					$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->score_emp,'score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->score_direct,'score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->weight,'weight['.$row.']','','weight','text-align: right;','data-id="'.$row.'" onkeyup="set_weight(this)" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->score_emp,'score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" onkeyup="set_score_emp(this)" '.$readonly_emp.' ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->score_direct,'score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" onkeyup="set_score_direct(this)" '.$readonly_direct.' ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->final_score,'final_score['.$row.']','bb','final_score','text-align: right;','data-id="'.$row.'" readonly').'</td>';
 					
 					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
@@ -536,8 +573,10 @@ class Performance_appraisal_menu_model extends MY_Model
 					$dt .= '<td>'.$no.'</td>';
 					$dt .= '<td>'.$f->hardskill.'</td>';
 					$dt .= '<td>'.$f->notes.'</td>';
+					$dt .= '<td>'.$f->weight.'</td>';
 					$dt .= '<td>'.$f->score_emp.'</td>';
 					$dt .= '<td>'.$f->score_direct.'</td>';
+					$dt .= '<td>'.$f->final_score.'</td>';
 					$dt .= '</tr>';
 
 					
@@ -545,6 +584,7 @@ class Performance_appraisal_menu_model extends MY_Model
 
 				$row++;
 			}
+
 		}
 
 		return [$dt,$row];
