@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" style="margin-bottom: 20px;">
 	
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		
@@ -26,7 +26,7 @@
 
 <div class="row ca">
     <div class="col-md-12">
-		<div class="portlet box green">
+		<div class="portlet box grey">
 			<div class="portlet-title">
 				<div class="caption">Detail Job </div>
 				<div class="tools">

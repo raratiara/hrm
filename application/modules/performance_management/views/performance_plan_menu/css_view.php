@@ -16,6 +16,9 @@
     margin-left:-250px
 }
 
+#modal-rfu-data{
+    padding-left: 600px
+}
 
 /*.accordion {
   background-color: #eee;

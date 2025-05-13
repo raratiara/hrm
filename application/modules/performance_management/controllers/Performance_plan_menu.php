@@ -15,12 +15,12 @@ class Performance_plan_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Year","Status"];
+	public $tabel_header 			= ["ID","Employee Name","Year","Status","RFU Reason"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Year","Status"];
-	public $colfields 				= ["id","id","id","id"];
+	public $colnames 				= ["ID","Employee Name","Year","Status","RFU Reason"];
+	public $colfields 				= ["id","id","id","id","id"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -28,6 +28,8 @@ class Performance_plan_menu extends MY_Controller
 		$field = [];
 		
 		$field['txtyear']	= $this->self_model->return_build_txt('','year','year');
+		$field['rfu_reason']	= $this->self_model->return_build_txtarea('','rfu_reason_plan','rfu_reason_plan');
+		
 		
 		$msemp 					= $this->db->query("select * from employees")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
@@ -111,7 +113,7 @@ class Performance_plan_menu extends MY_Controller
 
 	}
 
-	public function approve(){
+	/*public function approve(){
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
 
@@ -158,7 +160,7 @@ class Performance_plan_menu extends MY_Controller
 
 		echo json_encode($rs);
 
-	}
+	}*/
 
 
 	public function genhardskillrow()

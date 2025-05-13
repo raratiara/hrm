@@ -1,9 +1,9 @@
 
 <!-- Modal Reject Data -->
-<div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true">
+<div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true" style="padding-left: 600px">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content">
+		<div class="modal-content" style="width:80%; text-align:center;">
 			<form class="form-horizontal" id="frmRfuData">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
@@ -14,11 +14,11 @@
 
 			<div class="modal-body" style="min-height:100px; margin:10px">
 				<p class="text-center">Are you sure to request for update this Data?</p>
-				<input type="hidden" name="id" id="id" value="">
-				<div class="form-group" style="margin-left:160px">
-					<label class="col-md-4 control-label no-padding-right">Reason </label>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Reason</label>
 					<div class="col-md-8">
-						<textarea></textarea>
+						<?=$rfu_reason;?>
+						<input type="hidden" name="id" id="id" value="">
 					</div>
 				</div>
 			</div>
@@ -229,12 +229,32 @@ function load_data()
         { 
 			if(data != false){
 				if(save_method == 'update'){ 
-					$('[name="id"]').val(data.id);
-					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('[name="year"]').val(data.year);
 
-					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id },success: function (response) {
+					if(data.rowdata.status_id == 1 && data.isdirect == 1){
+						document.getElementById("submit-data").innerText = "Approve";
+						document.getElementById("submit-data").className = "btn btn-success";
+
+						var modalFooter =  document.getElementById('mdlFooter');
+						// Create a new button
+						var rfuButton = document.createElement('button');
+						rfuButton.innerText = 'RFU';
+						rfuButton.className = 'btn btn-warning btnRfu';
+						// Append the button to the footer
+						modalFooter.appendChild(rfuButton);
+
+						rfuButton.addEventListener('click', function() {
+							$('#modal-rfu-data').modal('show');
+							$('[name="id"]').val(data.rowdata.id);
+						});
+
+					}
+
+
+					$('[name="id"]').val(data.rowdata.id);
+					$('select#employee').val(data.rowdata.employee_id).trigger('change.select2');
+					$('[name="year"]').val(data.rowdata.year);
+
+					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.rowdata.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -253,10 +273,10 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.full_name);
-					$('span.year').html(data.year);
+					$('span.employee').html(data.rowdata.full_name);
+					$('span.year').html(data.rowdata.year);
 
-					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -303,24 +323,24 @@ function load_data()
 <?php } ?>
 
 
-function rfu(id){
+/*function rfu(id){
 
 	$('#modal-rfu-data').modal('show');
 	$('[name="id"]').val(id);
 
-}
+}*/
 
-function approve(id){
+/*function approve(id){
 
 	$('#modal-approve-data').modal('show');
 	$('[name="id"]').val(id);
 
-}
+}*/
 
 
 function save_rfu(){
 	var id 		= $("#id").val();
-	var reason 	= $("#rfu_reason").val();
+	var reason 	= $("#rfu_reason_plan").val();
 
 	$('#modal-rfu-data').modal('hide');
 	
@@ -366,7 +386,7 @@ function save_rfu(){
 }
 
 
-function save_approve(){
+/*function save_approve(){
 	var id 	= $("#id").val();
 
 	$('#modal-approve-data').modal('hide');
@@ -410,23 +430,28 @@ function save_approve(){
 	location.reload();
 
 
-}
+}*/
 
 
-$("#addhardskill").on("click", function () { 
+$("#addhardskill_plan").on("click", function () { 
+	var employee 	= $("#employee option:selected").val();
+
+	if(employee == ''){
+		alert("Please choose Employee");
+	}else{
+		expire();
+		var newRow = $("<tr>");
+		$.ajax({type: 'post',url: module_path+'/genhardskillrow',data: { count:wcount },success: function (response) {
+				newRow.append(response);
+				$(locate).append(newRow);
+				wcount++;
+				
+			}
+		}).done(function() {
+			tSawBclear('table.order-list');
+		});
+	}
 	
-	expire();
-	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/genhardskillrow',data: { count:wcount },success: function (response) {
-			newRow.append(response);
-			$(locate).append(newRow);
-			wcount++;
-			
-		}
-	}).done(function() {
-		tSawBclear('table.order-list');
-	});
-
 	
 });
 

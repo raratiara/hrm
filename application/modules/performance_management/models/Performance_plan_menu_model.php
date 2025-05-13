@@ -26,7 +26,9 @@ class Performance_plan_menu_model extends MY_Model
 			'dt.full_name',
 			'dt.year',
 			'dt.status_name',
-			'dt.direct_id'
+			'dt.direct_id',
+			'dt.rfu_reason',
+			'dt.employee_id'
 		];
 		
 		
@@ -187,7 +189,7 @@ class Performance_plan_menu_model extends MY_Model
 				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && (($row->status_name == 'RFU' && $karyawan_id == $row->employee_id ) || ($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id) ) )  {
 				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
@@ -198,26 +200,24 @@ class Performance_plan_menu_model extends MY_Model
 			}
 
 			/*$reject=""; */
-			$approve=""; $rfu="";
-			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
+			/*$approve=""; $rfu="";
+			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){*/
 				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';*/
-				$rfu = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="rfu('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+				/*$rfu = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="rfu('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
-			}
+			}*/
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
 					'.$detail.'
 					'.$edit.'
-					'.$rfu.'
-					'.$approve.'
 				</div>',
 				$row->id,
 				$row->full_name,
 				$row->year,
-				$row->status_name
-
+				$row->status_name,
+				$row->rfu_reason
 
 			));
 		}
@@ -272,7 +272,7 @@ class Performance_plan_menu_model extends MY_Model
 
 	public function add_data($post) { 
 		
-  		if(!empty($post['employee'])){ 
+  		if(!empty($post['employee']) && !empty($post['year'])){ 
 
   			$data_plan = $this->db->query("select * from performance_plan where employee_id = '".$post['employee']."' and year = '".$post['year']."'")->result(); 
 
@@ -326,48 +326,90 @@ class Performance_plan_menu_model extends MY_Model
 	public function edit_data($post) { 
 		
 		if(!empty($post['id'])){ 
+			$rowdata = $this->db->query("select * from performance_plan where id = '".$post['id']."' ")->result(); 
+			$next_status='';
+			if($rowdata[0]->status_id == 3){ // rfu
+				$next_status = 1; //waiting approval direct
+			}else if($rowdata[0]->status_id == 1){
+				$next_status = 2; //approved
+			}
+
+
 			$data = [
 				'employee_id' 	=> trim($post['employee']),
 				'year' 			=> trim($post['year']),
-				'updated_at'	=> date("Y-m-d H:i:s")
+				'updated_at'	=> date("Y-m-d H:i:s"),
+				'status_id' 	=> $next_status,
+				'rfu_reason' 	=> ''
 				
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if($rs){ 
-				if(isset($post['hardskill'])){
-					$item_num = count($post['hardskill']); // cek sum
-					$item_len_min = min(array_keys($post['hardskill'])); // cek min key index
-					$item_len = max(array_keys($post['hardskill'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
+				if($next_status != 2){
+					if(isset($post['hardskill'])){
+						$item_num = count($post['hardskill']); // cek sum
+						$item_len_min = min(array_keys($post['hardskill'])); // cek min key index
+						$item_len = max(array_keys($post['hardskill'])); // cek max key index
+					} else {
+						$item_num = 0;
+					}
 
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						$hdnid = $post['hdnid'][$i];
-						if(isset($post['hardskill'][$i])){
-							if($hdnid != ''){ //update
-								$itemData = [
-									'hardskill' 		=> trim($post['hardskill'][$i]),
-									'notes' 			=> trim($post['notes'][$i]),
-									'weight' 			=> trim($post['weight'][$i])
-								];
-								$this->db->update('performance_plan_hardskill', $itemData, "id = '".$hdnid."'");
-							}else{ //insert
-								$itemData = [
-									'performance_plan_id' 	=> $post['id'],
-									'hardskill' 			=> trim($post['hardskill'][$i]),
-									'notes' 				=> trim($post['notes'][$i]),
-									'weight' 				=> trim($post['weight'][$i])
-								];
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+							$hdnid = $post['hdnid'][$i];
+							if(isset($post['hardskill'][$i])){
+								if($hdnid != ''){ //update
+									$itemData = [
+										'hardskill' 		=> trim($post['hardskill'][$i]),
+										'notes' 			=> trim($post['notes'][$i]),
+										'weight' 			=> trim($post['weight'][$i])
+									];
+									$this->db->update('performance_plan_hardskill', $itemData, "id = '".$hdnid."'");
+								}else{ //insert
+									$itemData = [
+										'performance_plan_id' 	=> $post['id'],
+										'hardskill' 			=> trim($post['hardskill'][$i]),
+										'notes' 				=> trim($post['notes'][$i]),
+										'weight' 				=> trim($post['weight'][$i])
+									];
 
-								$this->db->insert('performance_plan_hardskill', $itemData);
+									$this->db->insert('performance_plan_hardskill', $itemData);
+								}
 							}
 						}
 					}
 				}
+
+				if($next_status == 2){ //approved
+					//ADD DATA KE APPRAISAL
+					$data_plan = $this->db->query("select * from performance_plan where id = '".$post['id']."'")->result();
+
+					$data2 = [
+						'employee_id' 	=> $data_plan[0]->employee_id,
+						'year' 			=> $data_plan[0]->year,
+						'status_id' 	=> 0, //draft
+						'created_at'	=> date("Y-m-d H:i:s")
+						
+					];
+					$rs_appraisal = $this->db->insert('performance_appraisal', $data2);
+					$lastId = $this->db->insert_id();
+
+					$data_plan_hardskill = $this->db->query("select * from performance_plan_hardskill where performance_plan_id = '".$post['id']."'")->result();
+
+					foreach($data_plan_hardskill as $row_plan){
+						$itemData2 = [
+							'performance_appraisal_id' 	=> $lastId,
+							'hardskill' 				=> $row_plan->hardskill,
+							'notes' 					=> $row_plan->notes,
+							'weight' 					=> $row_plan->weight
+						];
+
+						$this->db->insert('performance_appraisal_hardskill', $itemData2);
+					}
+				}
+				
 				return $rs; 
 			}else return null;
 
@@ -387,9 +429,22 @@ class Performance_plan_menu_model extends MY_Model
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+		$isdirect = 0;
+		if($rs->direct_id == $karyawan_id){
+			$isdirect = 1;
+		}
 		
+		$data = array(
+			'rowdata' 	=> $rs,
+			'isdirect' 	=> $isdirect
+		);
 		
-		return $rs;
+		return $data;
+		
 	} 
 
 	public function import_data($list_data)

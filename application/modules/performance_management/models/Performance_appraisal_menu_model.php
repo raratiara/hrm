@@ -26,7 +26,9 @@ class Performance_appraisal_menu_model extends MY_Model
 			'dt.full_name',
 			'dt.year',
 			'dt.status_name',
-			'dt.direct_id'
+			'dt.direct_id',
+			'dt.employee_id',
+			'dt.rfu_reason'
 		];
 		
 		
@@ -188,7 +190,7 @@ class Performance_appraisal_menu_model extends MY_Model
 				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && ((($row->status_name == 'Draft' || $row->status_name == 'RFU') && $karyawan_id == $row->employee_id ) || ($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id) ) )  {
 				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
@@ -198,26 +200,24 @@ class Performance_appraisal_menu_model extends MY_Model
 				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
-			$reject=""; 
+			/*$reject=""; 
 			$approve="";
 			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
 				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
-			}
+			}*/
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
 					'.$detail.'
 					'.$edit.'
-					'.$reject.'
-					'.$approve.'
 				</div>',
 				$row->id,
 				$row->full_name,
 				$row->year,
-				$row->status_name
-
+				$row->status_name,
+				$row->rfu_reason
 
 			));
 		}
@@ -306,7 +306,8 @@ class Performance_appraisal_menu_model extends MY_Model
 									'hardskill' 		=> trim($post['hardskill'][$i]),
 									'notes' 			=> trim($post['notes'][$i]),
 									'score_emp' 		=> trim($post['score_emp'][$i]),
-									'score_direct' 		=> trim($post['score_direct'][$i])
+									'score_direct' 		=> trim($post['score_direct'][$i]),
+									'final_score' 		=> trim($post['final_score'][$i])
 								];
 
 								$this->db->insert('performance_appraisal_hardskill', $itemData);
@@ -334,7 +335,8 @@ class Performance_appraisal_menu_model extends MY_Model
 									'softskill_id' 		=> trim($post['hdnid_mastersoftskill'][$i]),
 									'notes' 			=> trim($post['notes_softskill'][$i]),
 									'score_emp' 		=> trim($post['score_emp_softskill'][$i]),
-									'score_direct' 		=> trim($post['score_direct_softskill'][$i])
+									'score_direct' 		=> trim($post['score_direct_softskill'][$i]),
+									'final_score' 		=> trim($post['final_score_softskill'][$i])
 								];
 
 								$this->db->insert('performance_appraisal_softskill', $itemData2);
@@ -352,12 +354,23 @@ class Performance_appraisal_menu_model extends MY_Model
 	public function edit_data($post) { 
 		
 		if(!empty($post['id'])){ 
+			$rowdata = $this->db->query("select * from performance_appraisal where id = '".$post['id']."' ")->result(); 
+			$next_status='';
+			if($rowdata[0]->status_id == 0 || $rowdata[0]->status_id == 3){ //draft atau rfu
+				$next_status = 1; //waiting approval direct
+			}else if($rowdata[0]->status_id == 1){
+				$next_status = 2; //approved
+			}
+
+
 			$data = [
 				'employee_id' 		=> trim($post['employee']),
 				'year' 				=> trim($post['year']),
 				'updated_at'		=> date("Y-m-d H:i:s"),
 				'total_final_score'	=> $post['hdnttl_final_score'],
-				'status_id' => 1 //waiting approval
+				'total_final_score_softskill'	=> $post['hdnttl_final_score_softskill'],
+				'status_id' 		=> $next_status,
+				'rfu_reason' 		=> ''
 				
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -402,6 +415,50 @@ class Performance_appraisal_menu_model extends MY_Model
 						}
 					}
 				}
+
+
+				//softskill
+				if(isset($post['hdnid_mastersoftskill'])){
+					$item_num2 = count($post['hdnid_mastersoftskill']); // cek sum
+					$item_len_min2 = min(array_keys($post['hdnid_mastersoftskill'])); // cek min key index
+					$item_len2 = max(array_keys($post['hdnid_mastersoftskill'])); // cek max key index
+				} else {
+					$item_num2 = 0;
+				}
+
+				if($item_num2>0){
+					for($i=$item_len_min2;$i<=$item_len2;$i++) 
+					{
+						$hdnid_softskill = $post['hdnid_softskill'][$i];
+						if(isset($post['hdnid_mastersoftskill'][$i])){
+							if($hdnid_softskill != ''){ //update
+								$itemData2 = [
+									'softskill_id' 		=> trim($post['hdnid_mastersoftskill'][$i]),
+									'notes' 			=> trim($post['notes_softskill'][$i]),
+									'score_emp' 		=> trim($post['score_emp_softskill'][$i]),
+									'score_direct' 		=> trim($post['score_direct_softskill'][$i]),
+									'final_score' 		=> trim($post['final_score_softskill'][$i])
+								];
+
+								$this->db->update('performance_appraisal_softskill', $itemData2, "id = '".$hdnid_softskill."'");
+							}
+							else{ //insert
+								$itemData2 = [
+									'performance_appraisal_id' 	=> $post['id'],
+									'softskill_id' 		=> trim($post['hdnid_mastersoftskill'][$i]),
+									'notes' 			=> trim($post['notes_softskill'][$i]),
+									'score_emp' 		=> trim($post['score_emp_softskill'][$i]),
+									'score_direct' 		=> trim($post['score_direct_softskill'][$i]),
+									'final_score' 		=> trim($post['final_score_softskill'][$i])
+								];
+
+								$this->db->insert('performance_appraisal_softskill', $itemData2);
+							}
+						}
+					}
+				}
+
+
 				return $rs; 
 			}else return null;
 
@@ -421,10 +478,21 @@ class Performance_appraisal_menu_model extends MY_Model
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+		$isdirect = 0;
+		if($rs->direct_id == $karyawan_id){
+			$isdirect = 1;
+		}
 		
+		$data = array(
+			'rowdata' 	=> $rs,
+			'isdirect' 	=> $isdirect
+		);
 		
-		
-		return $rs;
+		return $data;
 	} 
 
 	public function import_data($list_data)
@@ -485,7 +553,7 @@ class Performance_appraisal_menu_model extends MY_Model
 			$data 	.= '<td>'.$this->return_build_txt('','weight['.$row.']','','weight','text-align: right;','data-id="'.$row.'" onkeyup="set_weight(this)" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" onkeyup="set_score_emp(this)" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" onkeyup="set_score_direct(this)" readonly ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','final_score['.$row.']','aa','final_score','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','final_score['.$row.']','','final_score','text-align: right;','data-id="'.$row.'" ').'</td>';
 			
 			$hdnid='';
 			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
@@ -519,7 +587,6 @@ class Performance_appraisal_menu_model extends MY_Model
 
 			$readonly_direct = 'readonly';
 			$readonly_emp = 'readonly';
-			/*$readonly_emp = '';*/
 			if($status[0]->status_id == 1 && $isdirect == 1){ //waiting approval direct
 				$readonly_direct = '';
 			}
@@ -551,7 +618,7 @@ class Performance_appraisal_menu_model extends MY_Model
 					$dt .= '<td>'.$this->return_build_txt($f->weight,'weight['.$row.']','','weight','text-align: right;','data-id="'.$row.'" onkeyup="set_weight(this)" ').'</td>';
 					$dt .= '<td>'.$this->return_build_txt($f->score_emp,'score_emp['.$row.']','','score_emp','text-align: right;','data-id="'.$row.'" onkeyup="set_score_emp(this)" '.$readonly_emp.' ').'</td>';
 					$dt .= '<td>'.$this->return_build_txt($f->score_direct,'score_direct['.$row.']','','score_direct','text-align: right;','data-id="'.$row.'" onkeyup="set_score_direct(this)" '.$readonly_direct.' ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($f->final_score,'final_score['.$row.']','bb','final_score','text-align: right;','data-id="'.$row.'" readonly').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->final_score,'final_score['.$row.']','','final_score','text-align: right;','data-id="'.$row.'" readonly').'</td>';
 					
 					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
@@ -593,12 +660,15 @@ class Performance_appraisal_menu_model extends MY_Model
 
 	public function getDataSoftskill($employee,$id,$save_method){ 
 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
 		if($save_method == 'detail'){ //VIEW
 			$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '".$id."' ")->result(); 
 
 			$dt='';
 			if(!empty($datasoftskill)){ 
-				$row = 0; 
+				$row = 0; $ttl=0;
 				
 				foreach ($datasoftskill as $f){
 					$no = $row+1;
@@ -611,17 +681,18 @@ class Performance_appraisal_menu_model extends MY_Model
 					$dt .= '<td>'.$f->score_emp.'</td>';
 					$dt .= '<td>'.$f->score_direct.'</td>';
 					$dt .= '<td>'.$f->notes.'</td>';
+					$dt .= '<td>'.$f->final_score.'</td>';
 
 					$dt .= '</tr>';
 
-
+					$ttl+= $f->final_score;
 					$row++;
 				}
 			}
 
 			$tblsoftskill = '<div class="row">
 			    <div class="col-md-12">
-					<div class="portlet box">
+					<div class="portlet box grey">
 						<div class="portlet-title">
 							<div class="caption">Softskill </div>
 							<div class="tools">
@@ -645,6 +716,7 @@ class Performance_appraisal_menu_model extends MY_Model
 										<th scope="col" style="width:7%">Score (1-5)</th>
 										<th scope="col" style="width:7%">Score by Direct (1-5)</th>
 										<th scope="col">Notes by Direct</th>
+										<th scope="col">Final Score</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -653,6 +725,22 @@ class Performance_appraisal_menu_model extends MY_Model
 								<tfoot>
 								</tfoot>
 							</table>
+
+							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" >
+							
+								<thead>
+									
+								</thead>
+								<tbody>
+									<tr>
+										<td style="width:896px; text-align: right;"><b>Total Final Score</b></td>
+										<td><b><span id="total_final_score_softskill">'.$ttl.'</span></b></td>
+									</tr>
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+
 							</div>
 						</div>
 					</div>
@@ -671,12 +759,36 @@ class Performance_appraisal_menu_model extends MY_Model
 			if($emp[0]->grade_id != ''){ 
 
 				$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '".$id."' ")->result(); 
+
+				$status = $this->db->query("select a.*, b.direct_id from performance_appraisal a left join employees b on b.id = a.employee_id where a.id = '".$id."' ")->result(); 
+				$isdirect = 0; $isemp=0;
+				if($status[0]->direct_id == $karyawan_id){
+					$isdirect = 1;
+				}
+				if($status[0]->employee_id == $karyawan_id){
+					$isemp = 1;
+				}
+
+
+				$readonly_direct = 'readonly';
+				$readonly_emp = 'readonly';
+				if($status[0]->status_id == 1 && $isdirect == 1){ //waiting approval direct
+					$readonly_direct = '';
+				}
+				if($isemp == 1 && ($status[0]->status_id == '0' || $status[0]->status_id == '3')){ //draft atau rfu
+					$readonly_emp = '';
+				}
+
+
+
+
 				if(!empty($datasoftskill)){ 
 
 					$dt='';
-					$row = 0; 
+					$row = 0; $ttl=0;
 					
 					foreach ($datasoftskill as $f){
+						$ttl+= $f->final_score;
 						$no = $row+1;
 
 						$dt .= '<tr>';
@@ -685,9 +797,12 @@ class Performance_appraisal_menu_model extends MY_Model
 						$dt .= '<td>'.$f->name.'</td>';
 						$dt .= '<td>'.$f->weight_percentage.'</td>';
 						
-						$dt .= '<td>'.$this->return_build_txt($f->score_emp,'score_emp_softskill['.$row.']','','score_emp_softskill','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_softskill'.$row.'" name="hdnid_softskill['.$row.']" value="'.$f->id.'"/><input type="hidden" id="hdnid_mastersoftskill'.$row.'" name="hdnid_mastersoftskill['.$row.']" value="'.$f->softskill_id.'"/></td>';
-						$dt .= '<td>'.$this->return_build_txt($f->score_direct,'score_direct_softskill['.$row.']','','score_direct_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
-						$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes_softskill['.$row.']','','notes_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+						$dt .= '<td>'.$this->return_build_txt($f->score_emp,'score_emp_softskill['.$row.']','','score_emp_softskill','text-align: right;','data-id="'.$row.'" onkeyup="set_score_emp_softskill(this)" '.$readonly_emp.' ').'<input type="hidden" id="hdnid_softskill'.$row.'" name="hdnid_softskill['.$row.']" value="'.$f->id.'"/><input type="hidden" id="hdnid_mastersoftskill'.$row.'" name="hdnid_mastersoftskill['.$row.']" value="'.$f->softskill_id.'"/><input type="hidden" id="weight_softskill'.$row.'" name="weight_softskill['.$row.']" value="'.$f->weight_percentage.'"/></td>';
+
+						$dt .= '<td>'.$this->return_build_txt($f->score_direct,'score_direct_softskill['.$row.']','','score_direct_softskill','text-align: right;','data-id="'.$row.'" onkeyup="set_score_direct_softskill(this)" '.$readonly_direct.' ').'</td>';
+
+						$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes_softskill['.$row.']','','notes_softskill','text-align: right;','data-id="'.$row.'" '.$readonly_direct.' ').'</td>';
+						$dt .= '<td>'.$this->return_build_txt($f->final_score,'final_score_softskill['.$row.']','','final_score_softskill','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 						$dt .= '</tr>';
 
@@ -699,9 +814,10 @@ class Performance_appraisal_menu_model extends MY_Model
 					$rs = $this->db->query("select * from master_softskill where grade_id = '".$emp[0]->grade_id."' order by weight_percentage desc ")->result(); 
 
 					$dt='';
-					$row = 0; 
+					$row = 0; $ttl=0;
 					if(!empty($rs)){ 
 						foreach ($rs as $f){
+							$ttl+= $f->final_score;
 							$no = $row+1;
 
 							$dt .= '<tr>';
@@ -710,9 +826,13 @@ class Performance_appraisal_menu_model extends MY_Model
 							$dt .= '<td>'.$f->name.'</td>';
 							$dt .= '<td>'.$f->weight_percentage.'</td>';
 							
-							$dt .= '<td>'.$this->return_build_txt('','score_emp_softskill['.$row.']','','score_emp_softskill','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_softskill'.$row.'" name="hdnid_softskill['.$row.']" value=""/><input type="hidden" id="hdnid_mastersoftskill'.$row.'" name="hdnid_mastersoftskill['.$row.']" value="'.$f->id.'"/></td>';
-							$dt .= '<td>'.$this->return_build_txt('','score_direct_softskill['.$row.']','','score_direct_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
-							$dt .= '<td>'.$this->return_build_txtarea('','notes_softskill['.$row.']','','notes_softskill','text-align: right;','data-id="'.$row.'" ').'</td>';
+							$dt .= '<td>'.$this->return_build_txt('','score_emp_softskill['.$row.']','','score_emp_softskill','text-align: right;','data-id="'.$row.'" onkeyup="set_score_emp_softskill(this)" '.$readonly_emp.' ').'<input type="hidden" id="hdnid_softskill'.$row.'" name="hdnid_softskill['.$row.']" value=""/><input type="hidden" id="hdnid_mastersoftskill'.$row.'" name="hdnid_mastersoftskill['.$row.']" value="'.$f->id.'"/><input type="hidden" id="weight_softskill'.$row.'" name="weight_softskill['.$row.']" value="'.$f->weight_percentage.'"/></td>';
+
+							$dt .= '<td>'.$this->return_build_txt('','score_direct_softskill['.$row.']','','score_direct_softskill','text-align: right;','data-id="'.$row.'" onkeyup="set_score_direct_softskill(this)" '.$readonly_direct.' ').'</td>';
+
+							$dt .= '<td>'.$this->return_build_txtarea('','notes_softskill['.$row.']','','notes_softskill','text-align: right;','data-id="'.$row.'" '.$readonly_direct.' ').'</td>';
+
+							$dt .= '<td>'.$this->return_build_txt('','final_score_softskill['.$row.']','','final_score_softskill','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 							$dt .= '</tr>';
 
@@ -726,7 +846,7 @@ class Performance_appraisal_menu_model extends MY_Model
 
 				$tblsoftskill = '<div class="row">
 				    <div class="col-md-12">
-						<div class="portlet box">
+						<div class="portlet box grey">
 							<div class="portlet-title">
 								<div class="caption">Softskill </div>
 								<div class="tools">
@@ -750,6 +870,7 @@ class Performance_appraisal_menu_model extends MY_Model
 											<th scope="col" style="width:7%">Score (1-5)</th>
 											<th scope="col" style="width:7%">Score by Direct (1-5)</th>
 											<th scope="col">Notes by Direct</th>
+											<th scope="col">Final Score</th>
 											<th scope="col"></th>
 										</tr>
 									</thead>
@@ -759,6 +880,24 @@ class Performance_appraisal_menu_model extends MY_Model
 									<tfoot>
 									</tfoot>
 								</table>
+
+								<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSoftskill">
+								
+									<thead>
+										
+									</thead>
+									<tbody>
+										<tr>
+											<td style="width:758px; text-align: right;"><b>Total Final Score</b></td>
+											<td><b><span id="total_final_score_softskill">'.$ttl.'</span></b>
+											<input type="hidden" name="hdnttl_final_score_softskill" id="hdnttl_final_score_softskill" value="'.$ttl.'">
+											</td>
+										</tr>
+									</tbody>
+									<tfoot>
+									</tfoot>
+								</table>
+
 								</div>
 							</div>
 						</div>
