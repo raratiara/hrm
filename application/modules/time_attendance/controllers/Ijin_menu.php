@@ -195,7 +195,8 @@ class Ijin_menu extends MY_Controller
 						'date_attendance_in' 		=> $date_att,
 						'date_attendance_out'		=> $date_att,
 						'created_at'				=> date("Y-m-d H:i:s"),
-						'leave_type' 				=> $leaves[0]->masterleave_id
+						'leave_type' 				=> $leaves[0]->masterleave_id,
+						'leave_absences_id' 		=> $leaves[0]->id
 					];
 					$this->db->insert("time_attendances", $data2);
 

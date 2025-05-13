@@ -73,8 +73,8 @@
 						</thead>
 						<tbody>
 								<tr>
-									<td style="width:796px; text-align: right;">Total Final Score</td>
-									<td><span id="ttl_final_score"></span>
+									<td style="width:796px; text-align: right;"><b>Total Final Score</b></td>
+									<td><b><span id="ttl_final_score"></span></b>
 										<input type="hidden" name="hdnttl_final_score" id="hdnttl_final_score">
 									</td>
 									
@@ -99,6 +99,11 @@
 <div class="panel" id="tabsoftskill">
 	<span id="tblsoftskill"></span>
 </div>
+
+
+Total Kehadiran : <b><span id="ttl_kehadiran"></span></b> </br>
+Total Ijin : <b><span id="ttl_ijin"></span></b> </br>
+Total Telat : <b><span id="ttl_telat"></span></b>
 
 
 

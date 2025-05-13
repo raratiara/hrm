@@ -267,7 +267,9 @@ function load_data()
 					$('[name="year"]').val(data.rowdata.year);
 					$('[name="hdnttl_final_score"]').val(data.rowdata.total_final_score);
 					$('span#ttl_final_score').html(data.rowdata.total_final_score);
-					
+					$('span#ttl_kehadiran').html(data.ttl_kehadiran);
+					$('span#ttl_ijin').html(data.ttl_ijin);
+					$('span#ttl_telat').html(data.ttl_telat);
 					
 
 					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.rowdata.id },success: function (response) {
@@ -293,7 +295,9 @@ function load_data()
 					$('span.employee').html(data.rowdata.full_name);
 					$('span.year').html(data.rowdata.year);
 					$('span#ttl_final_score').html(data.rowdata.total_final_score);
-
+					$('span#ttl_kehadiran_dtl').html(data.ttl_kehadiran);
+					$('span#ttl_ijin_dtl').html(data.ttl_ijin);
+					$('span#ttl_telat_dtl').html(data.ttl_telat);
 					
 
 					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
