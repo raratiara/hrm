@@ -17,11 +17,11 @@
 								</div>
 								</form>
 
-								<div class="modal-footer no-margin-top">
+								<div class="modal-footer no-margin-top" id="mdlFooter">
 									<span class="act-container-btn">
 										<button class="btn btn-info" id="submit-data" onclick="save()">
 											<i class="fa fa-check"></i>
-											Save 
+											Save
 										</button>
 										<button class="btn" onclick="reset()">
 											<i class="fa fa-undo"></i>

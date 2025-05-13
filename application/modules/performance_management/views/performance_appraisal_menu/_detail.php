@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" style="margin-bottom:20px">
 	
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		
@@ -26,7 +26,7 @@
 
 <div class="row ca">
     <div class="col-md-12">
-		<div class="portlet box green">
+		<div class="portlet box grey">
 			<div class="portlet-title">
 				<div class="caption">Detail Job </div>
 				<div class="tools">
@@ -53,6 +53,21 @@
 					<tfoot>
 					</tfoot>
 				</table>
+
+				<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack">
+					<thead>
+						
+					</thead>
+					<tbody>
+						<tr>
+							<td style="width:906px; text-align: right;"><b>Total Final Score</b></td>
+							<td><b><span id="ttl_final_score"></span></b></td>
+						</tr>
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+
 				</div>
 			</div>
 		</div>

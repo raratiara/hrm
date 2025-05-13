@@ -1,9 +1,9 @@
 
 <!-- Modal Reject Data -->
-<div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true">
+<div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true" style="padding-left: 600px">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content">
+		<div class="modal-content" style="width:80%; text-align:center;">
 			<form class="form-horizontal" id="frmRfuData">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
@@ -14,9 +14,13 @@
 
 			<div class="modal-body" style="min-height:100px; margin:10px">
 				<p class="text-center">Are you sure to request for update this Data?</p>
-				<input type="hidden" name="id" id="id" value="">
-				Reason :
-				<input type="text" name="rfu_reason" id="rfu_reason" value="">
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Reason</label>
+					<div class="col-md-8">
+						<?=$rfu_reason;?>
+						<input type="hidden" name="id" id="id" value="">
+					</div>
+				</div>
 			</div>
 			 </form>
 
@@ -234,18 +238,39 @@ function load_data()
 		cache: false,		
         dataType: "JSON",
         success: function(data)
-        { 
+        { console.log(data);
 			if(data != false){
 				if(save_method == 'update'){ 
-					$('[name="id"]').val(data.id);
-					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('[name="year"]').val(data.year);
-					$('[name="hdnttl_final_score"]').val(data.total_final_score);
-					$('span#ttl_final_score').html(data.total_final_score);
+
+					if(data.rowdata.status_id == 1 && data.isdirect == 1){
+						document.getElementById("submit-data").innerText = "Approve";
+						document.getElementById("submit-data").className = "btn btn-success";
+
+						var modalFooter =  document.getElementById('mdlFooter');
+						// Create a new button
+						var rfuButton = document.createElement('button');
+						rfuButton.innerText = 'RFU';
+						rfuButton.className = 'btn btn-warning btnRfu';
+						// Append the button to the footer
+						modalFooter.appendChild(rfuButton);
+
+						rfuButton.addEventListener('click', function() {
+							$('#modal-rfu-data').modal('show');
+							$('[name="id"]').val(data.rowdata.id);
+						});
+
+					}
 					
 
-					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id },success: function (response) {
+					$('[name="id"]').val(data.rowdata.id);
+					$('select#employee').val(data.rowdata.employee_id).trigger('change.select2');
+					$('[name="year"]').val(data.rowdata.year);
+					$('[name="hdnttl_final_score"]').val(data.rowdata.total_final_score);
+					$('span#ttl_final_score').html(data.rowdata.total_final_score);
+					
+					
+
+					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.rowdata.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -257,7 +282,7 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
-					getSoftskill(data.employee_id,data.id,save_method);
+					getSoftskill(data.rowdata.employee_id,data.rowdata.id,save_method);
 					
 					
 					$.uniform.update();
@@ -265,11 +290,13 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.full_name);
-					$('span.year').html(data.year);
-					$('span#ttl_final_score').html(data.total_final_score);
+					$('span.employee').html(data.rowdata.full_name);
+					$('span.year').html(data.rowdata.year);
+					$('span#ttl_final_score').html(data.rowdata.total_final_score);
 
-					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.id, view:true },success: function (response) { 
+					
+
+					$.ajax({type: 'post',url: modloc+'genhardskillrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -281,7 +308,7 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
-					getSoftskill(data.employee_id,data.id,save_method);
+					getSoftskill(data.rowdata.employee_id,data.rowdata.id,save_method);
 
 					
 					$('#modal-view-data').modal('show');
@@ -318,19 +345,19 @@ function load_data()
 <?php } ?>
 
 
-function rfu(id){
+/*function rfu(id){
 
 	$('#modal-rfu-data').modal('show');
 	$('[name="id"]').val(id);
 
-}
+}*/
 
-function approve(id){
+/*function approve(id){
 
 	$('#modal-approve-data').modal('show');
 	$('[name="id"]').val(id);
 
-}
+}*/
 
 
 function save_rfu(){
@@ -381,7 +408,7 @@ function save_rfu(){
 }
 
 
-function save_approve(){
+/*function save_approve(){
 	var id 	= $("#id").val();
 
 	$('#modal-approve-data').modal('hide');
@@ -425,23 +452,29 @@ function save_approve(){
 	location.reload();
 
 
-}
+}*/
 
 
 $("#addhardskill").on("click", function () { 
 	
-	expire();
-	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/genhardskillrow',data: { count:wcount },success: function (response) {
-			newRow.append(response);
-			$(locate).append(newRow);
-			wcount++;
-			
-		}
-	}).done(function() {
-		tSawBclear('table.order-list');
-	});
+	var employee 	= $("#employee option:selected").val();
 
+	if(employee == ''){
+		alert("Please choose Employee");
+	}else{
+		expire();
+		var newRow = $("<tr>");
+		$.ajax({type: 'post',url: module_path+'/genhardskillrow',data: { count:wcount },success: function (response) {
+				newRow.append(response);
+				$(locate).append(newRow);
+				wcount++;
+				
+			}
+		}).done(function() {
+			tSawBclear('table.order-list');
+		});
+	}
+	
 	
 });
 
@@ -599,6 +632,52 @@ function set_weight(val){
     $('[name="hdnttl_final_score"]').val(sum/2);
 
 }
+
+
+function set_score_emp_softskill(val){ 
+	var row = val.dataset.id;  
+	var score_emp = val.value;
+	var weight = $('[name="weight_softskill['+row+']"]').val();
+
+	var final_score = ((weight*score_emp)/100)*20;
+	
+	$('[name="final_score_softskill['+row+']"]').val(final_score);
+	$('[name="score_emp_softskill['+row+']"]').val(score_emp);
+
+
+	var sum=0; 
+    $(".final_score_softskill").each(function(index, element){ 
+        sum += +$(this).val(); 
+    });
+    
+    $('span#total_final_score_softskill').html(sum); 
+    $('[name="hdnttl_final_score_softskill"]').val(sum);
+
+    
+}
+
+
+function set_score_direct_softskill(val){ 
+	var row = val.dataset.id;  
+	var score_direct = val.value;
+	var weight = $('[name="weight_softskill['+row+']"]').val();
+
+	var final_score = ((weight*score_direct)/100)*20;
+	/*console.log('weight: '+weight+' & score: '+score_emp+'');*/
+	
+	$('[name="final_score_softskill['+row+']"]').val(final_score);
+	$('[name="score_direct_softskill['+row+']"]').val(score_direct);
+
+
+	var sum=0; 
+	$(".final_score_softskill").each(function(index, element){ 
+        sum += +$(this).val(); 
+    });
+    $('span#total_final_score_softskill').html(sum); 
+    $('[name="hdnttl_final_score_softskill"]').val(sum);
+
+}
+
 
 
 
