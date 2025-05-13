@@ -482,6 +482,27 @@ class Performance_appraisal_menu_model extends MY_Model
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 
+		$absensi = $this->db->query("select * from time_attendances where employee_id = '".$rs->employee_id."' and year(date_attendance) = '".$rs->year."' and leave_absences_id is null ")->result(); 
+		$ttl_kehadiran =0;
+		if(!empty($absensi)){
+			$ttl_kehadiran = count($absensi);
+		}
+
+		$ijin = $this->db->query("select a.*, b.status_approval from time_attendances a 
+					left join leave_absences b on b.id = a.leave_absences_id where a.employee_id = '".$rs->employee_id."' and year(a.date_attendance) = '".$rs->year."' and a.leave_absences_id is not null and b.status_approval = 2 ")->result(); 
+		$ttl_ijin =0;
+		if(!empty($ijin)){
+			$ttl_ijin = count($ijin);
+		}
+
+		$telat = $this->db->query("select * from time_attendances where employee_id = '".$rs->employee_id."' and year(date_attendance) = '".$rs->year."' and leave_absences_id is null and is_late = 'Y' ")->result(); 
+		$ttl_telat =0;
+		if(!empty($telat)){
+			$ttl_telat = count($telat);
+		}
+
+
+
 		$isdirect = 0;
 		if($rs->direct_id == $karyawan_id){
 			$isdirect = 1;
@@ -489,7 +510,10 @@ class Performance_appraisal_menu_model extends MY_Model
 		
 		$data = array(
 			'rowdata' 	=> $rs,
-			'isdirect' 	=> $isdirect
+			'isdirect' 	=> $isdirect,
+			'ttl_kehadiran' => $ttl_kehadiran,
+			'ttl_ijin' => $ttl_ijin,
+			'ttl_telat' => $ttl_telat
 		);
 		
 		return $data;

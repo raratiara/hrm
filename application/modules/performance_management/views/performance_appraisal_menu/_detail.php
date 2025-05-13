@@ -77,3 +77,8 @@
 
 <span id="tblsoftskill_detail"></span>
 
+
+Total Kehadiran : <b><span id="ttl_kehadiran_dtl"></span></b> </br>
+Total Ijin : <b><span id="ttl_ijin_dtl"></span></b> </br>
+Total Telat : <b><span id="ttl_telat_dtl"></span></b>
+
