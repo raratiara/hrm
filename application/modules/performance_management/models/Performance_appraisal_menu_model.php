@@ -690,9 +690,9 @@ class Performance_appraisal_menu_model extends MY_Model
 		if($save_method == 'detail'){ //VIEW
 			$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '".$id."' ")->result(); 
 
-			$dt='';
+			$dt=''; $ttl=0;
 			if(!empty($datasoftskill)){ 
-				$row = 0; $ttl=0;
+				$row = 0; 
 				
 				foreach ($datasoftskill as $f){
 					$no = $row+1;
