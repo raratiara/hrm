@@ -109,28 +109,7 @@ class Performance_appraisal_menu extends MY_Controller
 		echo json_encode($rs);
 
 	}
-
-	/*public function approve(){
-		$post = $this->input->post(null, true);
-		$id = $post['id'];
-
-		if($id != ''){
-			$data = [
-				'status_id' 	=> 2, 
-				'approval_date'	=> date("Y-m-d H:i:s")
-			];
-			$rs = $this->db->update('performance_appraisal', $data, "id = '".$id."'");
-			
-			return $rs;
-
-		}else{
-			$rs=null;
-		}
-
-		echo json_encode($rs);
-
-	}
-*/
+	
 
 	public function genhardskillrow()
 	{ 
