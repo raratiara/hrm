@@ -657,10 +657,7 @@ class Performance_appraisal_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
-					$qty=$f->qty;
-					if($f->qty==0){
-						$qty='';
-					}
+					
 					$dt .= '<td>'.$no.'</td>';
 					$dt .= '<td>'.$f->hardskill.'</td>';
 					$dt .= '<td>'.$f->notes.'</td>';
