@@ -196,24 +196,21 @@ class Api extends API_Controller
 
 
     public function sync()
-    { echo 'tes';
+    { 
 
-    	/*$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-		$base_url = $protocol . $_SERVER['HTTP_HOST'] . '/';*/
-
-
+    	
     	$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
-echo 'ok';
+
     	$url		= $_REQUEST['url'];
     	$username	= $_REQUEST['username'];
     	$password 	= $_REQUEST['password'];
-echo 'sip';
+
 
     	$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
-    	print_r($cek_url);
-    	if(!empty($cek_url)){ echo 'aa'; 
+    	print_r($cek_url); die();
+    	/*if(!empty($cek_url)){ echo 'aa'; 
     		$nama_db 			= $cek_url[0]->nama_db;
     		$logo 				= $cek_url[0]->logo;
     		$nama_perusahaan 	= $cek_url[0]->name;
@@ -252,7 +249,7 @@ echo 'sip';
 				'message' 	=> 'Failed',
 				'error' 	=> 'URL not found'
 			];
-    	}
+    	}*/
 
 		
 
