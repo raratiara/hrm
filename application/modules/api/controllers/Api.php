@@ -209,16 +209,16 @@ class Api extends API_Controller
 
 
     	$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
-    	print_r($cek_url); die();
-    	/*if(!empty($cek_url)){ echo 'aa'; 
+    	
+    	if(!empty($cek_url)){ 
     		$nama_db 			= $cek_url[0]->nama_db;
     		$logo 				= $cek_url[0]->logo;
     		$nama_perusahaan 	= $cek_url[0]->name;
     		
     		$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1"; 
-    		$cek_login = $this->api->query_db($nama_db, $sql); echo 'bb'; 
-    		
-    		if(!empty($cek_login)){ echo 'ff';
+    		$cek_login = $this->api->query_db($nama_db, $sql); 
+    	
+    		if(!empty($cek_login)){ 
     			$sqlver 	= "select * from version order by id desc limit 1";
     			$getversion = $this->api->query_db($nama_db, $sqlver); 
 				$version 	= $getversion['version'];
@@ -249,7 +249,7 @@ class Api extends API_Controller
 				'message' 	=> 'Failed',
 				'error' 	=> 'URL not found'
 			];
-    	}*/
+    	}
 
 		
 
