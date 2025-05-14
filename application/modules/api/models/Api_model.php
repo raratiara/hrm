@@ -171,15 +171,15 @@ class Api_model extends MY_Model
 
 
     public function query_db($db, $sql)
-    { echo 'cc';
-        $servername = "172.30.5.202";
+    { 
+        /*$servername = "172.30.5.202";
         $username = "hrm";
         $password = "hrm@2025!";
         $database = $db; 
 
         // Create connection
         $conn = new mysqli($servername, $username, $password, $database);
-echo 'dd';
+
         // Check connection
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
@@ -193,7 +193,40 @@ echo 'dd';
             
 
             return $row;
-        }else return null;
+        }else return null;*/
+
+
+        /*$host = "172.30.5.202";
+        $dbname = $db;
+        $user = "hrm";
+        $pass = "hrm@2025!";*/
+
+        $host = "localhost";
+        $dbname = $db; 
+        $user = "root";
+        $pass = "";
+
+
+        try {
+            $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            // Enable error exceptions
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            //echo "Connected successfully<br>";
+
+            $stmt = $pdo->query($sql);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e) {
+            //die("Connection failed: " . $e->getMessage());
+            $row='failed';
+        }
+
+
+        
+      
+        
+        return $row; 
+
 
     }
 
