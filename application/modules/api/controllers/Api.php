@@ -213,15 +213,15 @@ class Api extends API_Controller
 
     	$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
     	
-    	if(!empty($cek_url)){ 
+    	if(!empty($cek_url)){ echo 'aa'; 
     		$nama_db 			= $cek_url[0]->nama_db;
     		$logo 				= $cek_url[0]->logo;
     		$nama_perusahaan 	= $cek_url[0]->name;
     		
-    		$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
-    		$cek_login = $this->api->query_db($nama_db, $sql); 
+    		$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1"; 
+    		$cek_login = $this->api->query_db($nama_db, $sql); echo 'bb'; 
     		
-    		if(!empty($cek_login)){
+    		if(!empty($cek_login)){ echo 'ff';
     			$sqlver 	= "select * from version order by id desc limit 1";
     			$getversion = $this->api->query_db($nama_db, $sqlver); 
 				$version 	= $getversion['version'];

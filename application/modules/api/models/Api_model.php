@@ -171,7 +171,7 @@ class Api_model extends MY_Model
 
 
     public function query_db($db, $sql)
-    {
+    { echo 'cc';
         $servername = "172.30.5.202";
         $username = "hrm";
         $password = "hrm@2025!";
@@ -179,13 +179,13 @@ class Api_model extends MY_Model
 
         // Create connection
         $conn = new mysqli($servername, $username, $password, $database);
-
+echo 'dd';
         // Check connection
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-       
+       echo 'ee'; 
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
@@ -194,7 +194,7 @@ class Api_model extends MY_Model
 
             return $row;
         }else return null;
-        
+
     }
 
 
