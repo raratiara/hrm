@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
--- Host: localhost    Database: hrm
+-- Host: localhost    Database: hrm_gdi
 -- ------------------------------------------------------
 -- Server version	5.5.5-10.4.32-MariaDB
 
@@ -131,11 +131,8 @@ CREATE TABLE `companies` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `logo` varchar(255) DEFAULT NULL,
-  `nama_db` varchar(45) DEFAULT NULL,
-  `username_db` varchar(45) DEFAULT NULL,
-  `password_db` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -144,7 +141,7 @@ CREATE TABLE `companies` (
 
 LOCK TABLES `companies` WRITE;
 /*!40000 ALTER TABLE `companies` DISABLE KEYS */;
-INSERT INTO `companies` VALUES (1,'Nathabuana','Bekasi','natha@natha.com','08567884825','www.nathabuana.id','Anung Wicaksono','2015-10-10','112','34',NULL,NULL,'nathabuana.png',NULL,NULL,NULL),(2,'Gerbang Data','Bekasi','gerbangdata@gerbangdata.co.id','08567884825','hrm.sandboxxplore.com','Dwi','2024-10-17','12','34','2024-10-24 06:52:52','2024-10-25 09:47:27','gerbangdata.jpg','hrm_gdi',NULL,NULL);
+INSERT INTO `companies` VALUES (1,'Gerbang Data','Bekasi','gerbangdata@gerbangdata.co.id','08567884825','www.gerbangdata.co.id','Dwi','2024-10-17','12','34','2024-10-24 06:52:52','2024-10-25 09:47:27','gerbangdata.jpg');
 /*!40000 ALTER TABLE `companies` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1533,7 +1530,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Dwi Kuswarno','kuswarno@gmail.com','dwi','e10adc3949ba59abbe56e057f20f883e',2,'1','role',NULL,1,'2','2025-05-14 03:28:56','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-05-14 01:28:56'),(14,'Rara Tiara','rts@gmail.com','rara','d0970714757783e6cf17b26fb8e2298f',12,'3','role',NULL,NULL,'2','2025-05-13 13:41:45','',NULL,'',NULL,'2025-04-24 01:10:00','dwi','2025-05-13 11:41:45'),(16,'Niken','','niken','d41d8cd98f00b204e9800998ecf8427e',11,'3','role',NULL,NULL,'1',NULL,'',NULL,'',NULL,'2025-04-24 06:06:03',NULL,NULL),(18,'Yehezkie Simbuang','','yehezkie','d0970714757783e6cf17b26fb8e2298f',3,'3','role',NULL,NULL,'2','2025-05-13 11:39:40','',NULL,'',NULL,'2025-05-13 09:38:49',NULL,'2025-05-13 09:39:40'),(19,'Raisul','','raisul','d0970714757783e6cf17b26fb8e2298f',13,'3','role',NULL,0,'2',NULL,'',NULL,'',NULL,'2025-05-13 04:51:08',NULL,NULL),(20,'Ivan Maulana Agusti','','ivan','d0970714757783e6cf17b26fb8e2298f',8,'3','role',NULL,NULL,'2',NULL,'',NULL,'',NULL,'2025-05-13 11:43:39',NULL,NULL);
+INSERT INTO `user` VALUES (1,'Dwi Kuswarno','kuswarno@gmail.com','dwi','e10adc3949ba59abbe56e057f20f883e',2,'1','role',NULL,1,'2','2025-05-13 16:52:32','',NULL,'HXDBKvhqrdfoQ4HNQjAVrN5jcsEEw7Py9bMJxKFvIM0zLw7WainnRkOgAY1ioltO',NULL,'2016-10-27 17:39:53',NULL,'2025-05-13 14:52:32'),(14,'Rara Tiara','rts@gmail.com','rara','d0970714757783e6cf17b26fb8e2298f',12,'3','role',NULL,NULL,'2','2025-05-13 13:41:45','',NULL,'',NULL,'2025-04-24 01:10:00','dwi','2025-05-14 05:17:59'),(16,'Niken','','niken','d41d8cd98f00b204e9800998ecf8427e',11,'3','role',NULL,NULL,'1',NULL,'',NULL,'',NULL,'2025-04-24 06:06:03',NULL,NULL),(18,'Yehezkie Simbuang','','yehezkie','d0970714757783e6cf17b26fb8e2298f',3,'3','role',NULL,NULL,'2','2025-05-13 11:39:40','',NULL,'',NULL,'2025-05-13 09:38:49',NULL,'2025-05-13 09:39:40'),(19,'Raisul','','raisul','d0970714757783e6cf17b26fb8e2298f',13,'3','role',NULL,0,'2',NULL,'',NULL,'',NULL,'2025-05-13 04:51:08',NULL,NULL),(20,'Ivan Maulana Agusti','','ivan','d0970714757783e6cf17b26fb8e2298f',8,'3','role',NULL,NULL,'2',NULL,'',NULL,'',NULL,'2025-05-13 11:43:39',NULL,NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1833,4 +1830,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-14 14:31:12
+-- Dump completed on 2025-05-14 14:31:54

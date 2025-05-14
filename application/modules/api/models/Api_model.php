@@ -12,6 +12,7 @@ class Api_model extends MY_Model
     protected $allow_type           = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
     protected $allow_size           = "0"; // 0 for limit by default php conf (in Kb)
 
+
 	function __construct()
 	{
 		parent::__construct();
@@ -166,6 +167,69 @@ class Api_model extends MY_Model
         
         
         return $data;
+    }
+
+
+    public function query_db($db, $sql)
+    {
+        $servername = "172.30.5.202";
+        $username = "hrm";
+        $password = "hrm@2025!";
+        $database = $db; 
+
+        // Create connection
+        $conn = new mysqli($servername, $username, $password, $database);
+
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+       
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc(); // Get one row
+            
+
+            return $row;
+        }else return null;
+        
+    }
+
+
+    public function query_db_local($db, $sql)
+    {
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $database = $db; 
+
+        // Create connection
+        $conn = new mysqli($servername, $username, $password, $database);
+
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        /*// Cross-database query
+        $sql = "
+            SELECT u.name, o.order_date
+            FROM db1.users u
+            JOIN db2.orders o ON u.id = o.user_id
+        ";*/
+
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc(); // Get one row
+            
+
+            return $row;
+        }else return null;
+
+        
     }
 
 }
