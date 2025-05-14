@@ -197,6 +197,77 @@ class Api extends API_Controller
 
     public function sync()
     {
+
+    	/*$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+		$base_url = $protocol . $_SERVER['HTTP_HOST'] . '/';*/
+
+
+    	$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$url		= $_REQUEST['url'];
+    	$username	= $_REQUEST['username'];
+    	$password 	= $_REQUEST['password'];
+
+
+    	$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
+    	
+    	if(!empty($cek_url)){ 
+    		$nama_db 			= $cek_url[0]->nama_db;
+    		$logo 				= $cek_url[0]->logo;
+    		$nama_perusahaan 	= $cek_url[0]->name;
+    		
+    		$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
+    		$cek_login = $this->api->query_db($nama_db, $sql); 
+    		
+    		if(!empty($cek_login)){
+    			$sqlver 	= "select * from version order by id desc limit 1";
+    			$getversion = $this->api->query_db($nama_db, $sqlver); 
+				$version 	= $getversion['version'];
+    			$urllogo 	= $url.'/uploads/logo/'.$logo;
+
+				$data = array(
+					"nama_perusahaan" => $nama_perusahaan,
+					"logo_perusahaan" => $urllogo,
+					"version" => $version  
+				);
+	 
+				$response = [
+					'status' 	=> 200,
+					'message' 	=> 'Success',
+					"data" 		=> $data
+				];
+    		}else{ 
+    			$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'User not found'
+				];
+    		}
+    		
+    	}else{
+    		$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'URL not found'
+			];
+    	}
+
+		
+
+		
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+
+    public function sync_old()
+    {
     	/*$bearer_token = 'jk43242kdnsd';
 
     	$headers = getallheaders();
