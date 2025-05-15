@@ -170,7 +170,7 @@ class Api_model extends MY_Model
     }
 
 
-    public function query_db($db, $sql)
+    public function query_db($nama_db, $username_db, $password_db, $sql)
     { 
         /*$servername = "172.30.5.202";
         $username = "hrm";
@@ -196,15 +196,11 @@ class Api_model extends MY_Model
         }else return null;*/
 
 
-        /*$host = "172.30.5.202";
+        $host = "172.30.5.202";
         $dbname = $db;
         $user = "hrm";
-        $pass = "hrm@2025!";*/
+        $pass = "hrm@2025!";
 
-        $host = "localhost";
-        $dbname = $db; 
-        $user = "root";
-        $pass = "";
 
 
         try {

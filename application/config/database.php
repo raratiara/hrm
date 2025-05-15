@@ -121,9 +121,9 @@ $db['default'] = array(
 
 $db['hrm_gdi'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
+	'hostname' => '172.30.5.202',
+	'username' => 'hrm',
+	'password' => 'hrm@2025!',
 	'database' => 'hrm_gdi',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
