@@ -212,7 +212,7 @@ class Api extends API_Controller
     	$sql = "select * from companies where website = '".$url."'";
     	$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
     	$cek_url = $this->api->query_db($nama_db, $username_db, $password_db, $sql); 
-    print_r($cek_url); die();	
+    
     	if(!empty($cek_url)){ 
     		/*$nama_db 			= $cek_url[0]->nama_db;
     		$username_db 		= $cek_url[0]->username_db;
@@ -252,7 +252,7 @@ class Api extends API_Controller
     		$response = [
 				'status' 	=> 401,
 				'message' 	=> 'Failed',
-				'error' 	=> 'URL not found'
+				'error' 	=> 'URL not found x'
 			];
     	}
 
