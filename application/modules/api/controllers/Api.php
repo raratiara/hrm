@@ -13,6 +13,10 @@ class Api extends API_Controller
 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	protected $allow_size			= "0";*/ // 0 for limit by default php conf (in Kb)
 
+	protected $nama_db 		= "hrm_gdi";
+	protected $username_db 	= "hrm_gdi";
+	protected $password_db 	= "hrm_gdi@2025!";
+
 
    	public function __construct()
 	{
@@ -151,9 +155,11 @@ class Api extends API_Controller
 
 		if($username != '' && $password != ''){
 			
-			$cek_login = $this->api->cek_login($username, $password);	
+			//$cek_login = $this->api->cek_login($username, $password);	
+			$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
+			$cek_login = $this->api->query_db($this->nama_db, $this->username_db, $this->password_db, $sql);
 			
-			if($cek_login != '')
+			if(!empty($cek_login))
 			{ 
 				$data = array(
 					"id" 			=> $cek_login->user_id,
