@@ -195,6 +195,10 @@ class Api_model extends MY_Model
             return $row;
         }else return null;*/
 
+        /*$host   = "localhost";
+        $dbname = "hrm_gdi";
+        $user   = "root";
+        $pass   = "";*/
 
         $host   = "172.30.5.202";
         $dbname = $nama_db;
