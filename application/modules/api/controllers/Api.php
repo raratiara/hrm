@@ -219,6 +219,7 @@ class Api extends API_Controller
     		$password_db 		= $cek_url[0]->password_db;*/
     		$logo 				= $cek_url['logo'];
     		$nama_perusahaan 	= $cek_url['name'];
+    		$url_app 			= $cek_url['url_app'];
     		
 
     		$cek_login = $this->api->cek_login($username, $password);
@@ -233,7 +234,7 @@ class Api extends API_Controller
 					"nama_perusahaan" => $nama_perusahaan,
 					"logo_perusahaan" => $urllogo,
 					"version" => $version,
-					"url_app" => "https://hrm.sandboxxplore.com"  
+					"url_app" => "https://hrm.sandboxxplore.com"  //$url_app
 				);
 	 
 				$response = [
