@@ -232,7 +232,8 @@ class Api extends API_Controller
 				$data = array(
 					"nama_perusahaan" => $nama_perusahaan,
 					"logo_perusahaan" => $urllogo,
-					"version" => $version  
+					"version" => $version,
+					"url_app" => "https://hrm.sandboxxplore.com"  
 				);
 	 
 				$response = [
