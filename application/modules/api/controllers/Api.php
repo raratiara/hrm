@@ -13,10 +13,6 @@ class Api extends API_Controller
 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	protected $allow_size			= "0";*/ // 0 for limit by default php conf (in Kb)
 
-	protected $nama_db 		= "hrm_gdi";
-	protected $username_db 	= "hrm_gdi";
-	protected $password_db 	= "hrm_gdi@2025!";
-
 
    	public function __construct()
 	{
@@ -155,11 +151,9 @@ class Api extends API_Controller
 
 		if($username != '' && $password != ''){
 			
-			//$cek_login = $this->api->cek_login($username, $password);	
-			$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
-			$cek_login = $this->api->query_db($this->nama_db, $this->username_db, $this->password_db, $sql);
+			$cek_login = $this->api->cek_login($username, $password);	
 			
-			if(!empty($cek_login))
+			if($cek_login != '')
 			{ 
 				$data = array(
 					"id" 			=> $cek_login->user_id,
@@ -214,22 +208,25 @@ class Api extends API_Controller
     	$password 	= $_REQUEST['password'];
 
 
-    	$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
+    	//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
+    	$sql = "select * from companies where website = '".$url."'";
+    	$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
+    	$cek_url = $this->api->query_db($nama_db, $username_db, $password_db, $sql); 
     	
     	if(!empty($cek_url)){ 
-    		$nama_db 			= $cek_url[0]->nama_db;
+    		/*$nama_db 			= $cek_url[0]->nama_db;
     		$username_db 		= $cek_url[0]->username_db;
-    		$password_db 		= $cek_url[0]->password_db;
-    		$logo 				= $cek_url[0]->logo;
-    		$nama_perusahaan 	= $cek_url[0]->name;
+    		$password_db 		= $cek_url[0]->password_db;*/
+    		$logo 				= $cek_url['logo'];
+    		$nama_perusahaan 	= $cek_url['name'];
     		
-    		$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1"; 
-    		$cek_login = $this->api->query_db($nama_db, $username_db, $password_db, $sql); 
+
+    		$cek_login = $this->api->cek_login($username, $password);
     	
     		if(!empty($cek_login)){ 
-    			$sqlver 	= "select * from version order by id desc limit 1";
-    			$getversion = $this->api->query_db($nama_db, $username_db, $password_db, $sqlver); 
-				$version 	= $getversion['version'];
+    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
+
+				$version 	= $getversion[0]->version;
     			$urllogo 	= $url.'/uploads/logo/'.$logo;
 
 				$data = array(
@@ -360,7 +357,7 @@ class Api extends API_Controller
     }
 
 
-    public function absen()
+    public function absen_old()
     {
     	$this->verify_token();
 

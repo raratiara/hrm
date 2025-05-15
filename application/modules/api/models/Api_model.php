@@ -172,31 +172,10 @@ class Api_model extends MY_Model
 
     public function query_db($nama_db, $username_db, $password_db, $sql)
     { 
-        /*$servername = "172.30.5.202";
-        $username = "hrm";
-        $password = "hrm@2025!";
-        $database = $db; 
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $database);
-
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
-       echo 'ee'; 
-        $result = $conn->query($sql);
-
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc(); // Get one row
-            
-
-            return $row;
-        }else return null;*/
+       
 
         /*$host   = "localhost";
-        $dbname = "hrm_gdi";
+        $dbname = "hrm";
         $user   = "root";
         $pass   = "";*/
 
@@ -204,8 +183,7 @@ class Api_model extends MY_Model
         $dbname = $nama_db;
         $user   = $username_db;
         $pass   = $password_db;
-
-
+        
 
         try {
             $pdo = new PDO("mysql:host=$host;dbname=$nama_db", $user, $pass);
@@ -223,10 +201,7 @@ class Api_model extends MY_Model
 
 
         
-      
-        
-        return $row; 
-
+        return $row;
 
     }
 
