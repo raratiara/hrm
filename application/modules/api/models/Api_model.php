@@ -196,15 +196,15 @@ class Api_model extends MY_Model
         }else return null;*/
 
 
-        $host = "172.30.5.202";
-        $dbname = $db;
-        $user = "hrm";
-        $pass = "hrm@2025!";
+        $host   = "172.30.5.202";
+        $dbname = $nama_db;
+        $user   = $username_db;
+        $pass   = $password_db;
 
 
 
         try {
-            $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+            $pdo = new PDO("mysql:host=$host;dbname=$nama_db", $user, $pass);
             // Enable error exceptions
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             //echo "Connected successfully<br>";
