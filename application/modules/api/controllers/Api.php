@@ -223,7 +223,6 @@ class Api extends API_Controller
     		if(!empty($cek_login)){ 
     			$sqlver 	= "select * from version order by id desc limit 1";
     			$getversion = $this->api->query_db($nama_db, $username_db, $password_db, $sqlver); 
-    			echo $getversion['version']; die();
 				$version 	= $getversion['version'];
     			$urllogo 	= $url.'/uploads/logo/'.$logo;
 
