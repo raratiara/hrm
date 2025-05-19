@@ -129,4 +129,39 @@ class Bypass extends MY_Controller
 	}
 
 
+	public function submit_absen_holiday(){ //jalanin setiap hari jam 8 pagi
+
+		$Holidays = $this->db->query("select * from master_holidays where date = '".date("Y-m-d")."'")->result();
+		$holID = $Holidays[0]->id;
+
+		if(!empty($Holidays)){
+			$rowEmp = $this->db->query("select * from employees")->result();
+
+			if(!empty($rowEmp)){ 
+				foreach($rowEmp as $row){
+
+					$data = [
+						'date_attendance' 			=> date("Y-m-d"),
+						'employee_id' 				=> $row->id,
+						'attendance_type' 			=> $row->shift_type,
+						'created_at'				=> date("Y-m-d H:i:s"),
+						'holidays_id' 				=> $holID
+					];
+					$this->db->insert("time_attendances", $data);
+
+					echo 'Data Absen Holiday di submit, employee ID ='.$row->id.' </br>'; 
+				}
+
+				
+			}else{
+				echo 'Tidak ada data yg disubmit'; die();
+			}
+		}else{
+			echo 'Tidak ada data yg disubmit'; die();
+		}
+
+
+	}
+
+
 }
