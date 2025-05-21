@@ -222,7 +222,7 @@ function load_data()
 
 
 					var locate = 'table.ca-list';
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -237,7 +237,7 @@ function load_data()
 
 
 					var locate_training = 'table.ca-list-training';
-					$.ajax({type: 'post',url: modloc+'gentrainingrow',data: { id:data.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/gentrainingrow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate_training+' tbody').html(obj[0]);
 							
@@ -251,7 +251,7 @@ function load_data()
 
 
 					var locate_org = 'table.ca-list-org';
-					$.ajax({type: 'post',url: modloc+'genorgrow',data: { id:data.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genorgrow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate_org+' tbody').html(obj[0]);
 							
@@ -265,7 +265,7 @@ function load_data()
 
 
 					var locate_workexp = 'table.ca-list-workexp';
-					$.ajax({type: 'post',url: modloc+'genworkexprow',data: { id:data.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genworkexprow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate_workexp+' tbody').html(obj[0]);
 							
@@ -358,7 +358,7 @@ function load_data()
 
 
 					var locate = 'table.ca-list-detail';
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -373,7 +373,7 @@ function load_data()
 
 
 					var locate_training = 'table.ca-list-trainingdtl';
-					$.ajax({type: 'post',url: modloc+'gentrainingrow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/gentrainingrow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate_training+' tbody').html(obj[0]);
 							
@@ -387,7 +387,7 @@ function load_data()
 
 
 					var locate_org = 'table.ca-list-orgdtl';
-					$.ajax({type: 'post',url: modloc+'genorgrow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genorgrow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate_org+' tbody').html(obj[0]);
 							
@@ -401,7 +401,7 @@ function load_data()
 
 
 					var locate_workexp = 'table.ca-list-workexpdtl';
-					$.ajax({type: 'post',url: modloc+'genworkexprow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genworkexprow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate_workexp+' tbody').html(obj[0]);
 							
