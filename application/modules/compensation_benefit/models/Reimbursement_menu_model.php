@@ -37,6 +37,8 @@ class Reimbursement_menu_model extends MY_Model
 			'dt.direct_id'
 		];
 		
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		
 
 		$sIndexColumn = $this->primary_key;
@@ -48,7 +50,9 @@ class Reimbursement_menu_model extends MY_Model
 					    else ""
 					end) as status_name, b.direct_id
 					from medicalreimbursements a left join employees b on b.id = a.employee_id
-					left join master_reimbursfor_type c on c.id = a.reimburse_for)dt';
+					left join master_reimbursfor_type c on c.id = a.reimburse_for
+					where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'"
+				)dt';
 		
 
 		/* Paging */
@@ -150,9 +154,6 @@ class Reimbursement_menu_model extends MY_Model
 			}
 		}
 
-
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
 
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value

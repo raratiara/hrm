@@ -32,7 +32,8 @@ class Absensi_menu_model extends MY_Model
 			'dt.num_of_working_hours'
 		];
 		
-		
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
@@ -42,7 +43,9 @@ class Absensi_menu_model extends MY_Model
 					else ""
 					end) as is_leaving_office_early_desc
 					from time_attendances a left join employees b on b.id = a.employee_id
-					left join master_leaves c on c.id = a.leave_type)dt';
+					left join master_leaves c on c.id = a.leave_type
+					where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'"
+				)dt';
 		
 
 		/* Paging */
