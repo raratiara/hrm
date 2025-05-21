@@ -206,7 +206,7 @@ function load_data()
 					$('[name="end_date"]').val(data.end_date);
 
 
-					$.ajax({type: 'post',url: modloc+'genbustriprow',data: { id:data.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genbustriprow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -231,7 +231,7 @@ function load_data()
 					$('span.end_date').html(data.end_date);
 				
 
-					$.ajax({type: 'post',url: modloc+'genbustriprow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genbustriprow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							

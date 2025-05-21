@@ -139,7 +139,7 @@ function load_data()
 					$('[name="nominal_billing"]').val(data.nominal_billing);
 
 
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -167,7 +167,7 @@ function load_data()
 					$('span.type').html(data.reimburs_type_name);
 					
 
-					$.ajax({type: 'post',url: modloc+'genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
