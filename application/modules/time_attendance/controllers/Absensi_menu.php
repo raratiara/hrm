@@ -25,6 +25,8 @@ class Absensi_menu extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
+		
+
 		$field = [];
 		$field['txtdateattendance']		= $this->self_model->return_build_txt('','date_attendance','date_attendance');
 		$msemp 							= $this->db->query("select * from employees")->result(); 

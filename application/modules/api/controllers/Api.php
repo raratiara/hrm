@@ -1165,7 +1165,7 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	/*$islogin_employee	= $_REQUEST['islogin_employee'];
     	$employee			= $_REQUEST['employee']; //filter employee
 
 
@@ -1199,7 +1199,34 @@ class Api extends API_Controller
 				'message' 	=> 'Failed',
 				'error' 	=> 'Employee ID Login not found'
 			];
+    	}*/
+
+
+    	$employee			= $_REQUEST['employee']; //filter employee
+
+		$where=""; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
     	}
+
+    	$dataijin = $this->db->query("select a.id, b.full_name, a.date_leave_start, a.date_leave_end, c.name as 			leave_name, a.reason, a.total_leave, 
+						(case
+						when a.status_approval = 1 then 'Waiting Approval'
+						when a.status_approval = 2 then 'Approved'
+						when a.status_approval = 3 then 'Rejected'
+						 end) as status, b.direct_id
+					from leave_absences a left join employees b on b.id = a.employee_id
+					left join master_leaves c on c.id = a.masterleave_id
+					
+                    ".$where." ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $dataijin
+		];
+
+    	
 
 
     	
@@ -1221,7 +1248,7 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	/*$islogin_employee	= $_REQUEST['islogin_employee'];
     	$employee			= $_REQUEST['employee']; //filter employee
 
 
@@ -1250,7 +1277,30 @@ class Api extends API_Controller
 				'message' 	=> 'Failed',
 				'error' 	=> 'Employee ID Login not found'
 			];
+    	}*/
+
+
+
+    	$employee			= $_REQUEST['employee']; //filter employee
+
+		$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
     	}
+
+    	$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
+			if(a.is_leaving_office_early = 'Y','Leaving Office Early','') as 'is_leaving_office_early_desc', b.direct_id 
+			from time_attendances a left join employees b on b.id = a.employee_id
+			 
+                    ".$where." ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $dataabsen
+		];
+
+    	
 
     	
 
@@ -1272,7 +1322,7 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	/*$islogin_employee	= $_REQUEST['islogin_employee'];
     	$employee			= $_REQUEST['employee'];
 
 
@@ -1302,7 +1352,32 @@ class Api extends API_Controller
 				'message' 	=> 'Failed',
 				'error' 	=> 'Employee ID Login not found'
 			];
+    	}*/
+
+
+    	$employee			= $_REQUEST['employee'];
+
+
+
+		$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
     	}
+
+    	$datatasklist = $this->db->query("select a.id, a.employee_id, b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.status_id, a.parent_id, b.direct_id
+					from tasklist a left join employees b on b.id = a.employee_id
+					left join tasklist c on c.id = a.parent_id
+					left join master_tasklist_status d on d.id = a.status_id
+				
+                    ".$where." ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datatasklist
+		];
+
+    	
     	
 
 		$this->output->set_header('Access-Control-Allow-Origin: *');

@@ -8,6 +8,19 @@
                                         <?php if (isset($icon) && $icon<>"") echo '<i class="fa '.$icon.'"></i>';?><?php if (isset($title) && $title<>"") echo $title;?>
 									</div>
                                     <div class="actions">
+
+                                    	<?php
+                                    	if($this->module_name == 'absensi_menu'){
+                                    		?>
+                                    		<a class="btn btn-danger btn-circle" id="btnAbsen">
+												<!-- <i class="fa fa-floppy-o"></i> -->
+												ABSEN
+											</a> 
+                                    		<?php
+                                    	}
+                                    	?>
+                                    	
+
 										<?php if  (defined('_REPORT') && _REPORT == "1") { ?>
 											<a class="btn btn-default btn-sm btn-circle" id="btnReportData">
 												<i class="fa fa-file"></i>
