@@ -1370,6 +1370,7 @@ class Api extends API_Controller
     	$dataemp = $this->db->query("select a.id, a.full_name, b.name as division_name, a.shift_type, c.time_in, c.time_out 
 			,(select sum(total_leave) from leave_absences where employee_id = a.id) as ttl_ijin
 			,(select count(id) from time_attendances where employee_id = a.id and leave_type is null) as ttl_hadir
+			,a.direct_id
 			from employees a
 			left join divisions b on b.id = a.division_id
 			left join master_shift_time c on c.shift_type = a.shift_type
@@ -1486,75 +1487,150 @@ class Api extends API_Controller
     }
 
 
-     public function approve_ijin(){
+     public function approval_ijin(){
     	$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
 
 		if(!empty($_REQUEST)){
+			$status = $_REQUEST['status']; //approve or reject
 			$id 	= $_REQUEST['id'];
 
-			if($id != ''){
-				$data1 = [
-					'status_approval' 	=> 2,
-					'date_approval'		=> date("Y-m-d H:i:s")
-				];
-				$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
+			if($status != ''){
+				if($id != ''){
+					if($status == 'approve'){ 
 
-				if($rs){
-					$leaves = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
-					$total_leave = $leaves[0]->total_leave;
-					
-					$employees = $this->db->query("select * from employees where id = '".$leaves[0]->employee_id."' ")->result(); 
-
-					$time_in 	= "";
-					$time_out 	= "";
-					if($employees[0]->shift_type == 'Reguler'){
-						$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
-						$time_in 	= $dt[0]->time_in;
-						$time_out 	= $dt[0]->time_out;
-					}
-					
-					
-					$date_att = $leaves[0]->date_leave_start;
-
-					for ($i=0; $i < $total_leave; $i++) { 
-
-
-						$data2 = [
-							'date_attendance' 			=> $date_att,
-							'employee_id' 				=> $leaves[0]->employee_id,
-							'attendance_type' 			=> $employees[0]->shift_type,
-							'time_in' 					=> $time_in,
-							'time_out' 					=> $time_out,
-							'date_attendance_in' 		=> $date_att,
-							'date_attendance_out'		=> $date_att,
-							'created_at'				=> date("Y-m-d H:i:s"),
-							'leave_type' 				=> $leaves[0]->masterleave_id,
-							'leave_absences_id' 		=> $leaves[0]->id
+						$data1 = [
+							'status_approval' 	=> 2,
+							'date_approval'		=> date("Y-m-d H:i:s")
 						];
-						$this->db->insert("time_attendances", $data2);
+						$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
 
+						if($rs){
+							$leaves = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
+							$total_leave = $leaves[0]->total_leave;
+							
+							$employees = $this->db->query("select * from employees where id = '".$leaves[0]->employee_id."' ")->result(); 
+
+							$time_in 	= "";
+							$time_out 	= "";
+							if($employees[0]->shift_type == 'Reguler'){
+								$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+								$time_in 	= $dt[0]->time_in;
+								$time_out 	= $dt[0]->time_out;
+							}
+							
+							
+							$date_att = $leaves[0]->date_leave_start;
+
+							for ($i=0; $i < $total_leave; $i++) { 
+
+
+								$data2 = [
+									'date_attendance' 			=> $date_att,
+									'employee_id' 				=> $leaves[0]->employee_id,
+									'attendance_type' 			=> $employees[0]->shift_type,
+									'time_in' 					=> $time_in,
+									'time_out' 					=> $time_out,
+									'date_attendance_in' 		=> $date_att,
+									'date_attendance_out'		=> $date_att,
+									'created_at'				=> date("Y-m-d H:i:s"),
+									'leave_type' 				=> $leaves[0]->masterleave_id,
+									'leave_absences_id' 		=> $leaves[0]->id
+								];
+								$this->db->insert("time_attendances", $data2);
+
+								
+								$date_att = date("Y-m-d", strtotime($date_att.'+ 1 days'));
+
+							}
+						}
 						
-						$date_att = date("Y-m-d", strtotime($date_att.'+ 1 days'));
+						$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success'
+						];
 
+					}else if($status == 'reject'){
+
+						$leave = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
+
+						$data1 = [
+							'status_approval' 	=> 3,
+							'date_approval'		=> date("Y-m-d H:i:s")
+						];
+						$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
+
+						if($rs){
+							if($leave[0]->masterleave_id != 2){ // tipenya bukan unpaid leave maka jatah cuti dikembalikan
+								//penambahan cuti
+								$jatahcuti 			= $this->db->query("select * from total_cuti_karyawan where employee_id = '".$leave[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
+								$jml_tambahan_cuti 	= $leave[0]->total_leave;
+								$sisa_cuti_1 		= $jatahcuti[0]->sisa_cuti+$jml_tambahan_cuti;
+
+								$tambah_selanjutnya=0;
+								if($sisa_cuti_1 > 12){
+									$tambah_selanjutnya = 1;
+									$slot_tambah 		= 12- $jatahcuti[0]->sisa_cuti;
+									$sisa_slot_tambah 	= $jml_tambahan_cuti-$slot_tambah;
+									$sisa_cuti_1 		= 12;
+								}
+								$data2 = [
+									'sisa_cuti' 	=> $sisa_cuti_1,
+									'updated_date'	=> date("Y-m-d H:i:s")
+								];
+								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+								if($tambah_selanjutnya == 1){
+									$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti+$sisa_slot_tambah;
+									if($sisa_cuti_2 > 12){
+										$sisa_cuti_2 = 12;
+									}
+
+									$data3 = [
+										'sisa_cuti' 	=> $sisa_cuti_2,
+										'updated_date'	=> date("Y-m-d H:i:s")
+									];
+									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+								}
+							}
+
+
+							$response = [
+					    		'status' 	=> 200,
+								'message' 	=> 'Success'
+							];
+
+						}else{
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed'
+							];
+						}
+
+					}else{
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Status not found'
+						];
 					}
+				}else{
+					$response = [
+						'status' 	=> 400, // Bad Request
+						'message' 	=>'Failed',
+						'error' 	=> 'Require not satisfied'
+					];
 				}
 				
-				$response = [
-					'status' 	=> 200,
-					'message' 	=> 'Success'
-				];
-
 			}else{
 				$response = [
-					'status' 	=> 401,
-					'message' 	=> 'Failed',
-					'error' 	=> 'ID not found'
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Require not satisfied'
 				];
 			}
-
 
 		}else {
 			$response = [
