@@ -327,14 +327,12 @@ class Absensi_menu_model extends MY_Model
 				'created_at'				=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->insert($this->table_name, $data);
-  		}else{ 
-  			$rs=false;
-  		}
 
+			return $rs;
+
+  		}else return null;
 
 		
-
-		return $rs;
 	}  
 
 	public function edit_data($post) { 
