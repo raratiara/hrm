@@ -874,12 +874,27 @@ class Api extends API_Controller
 				}
 				
 
-				if($rs){
+				if($rs == 1){
 					$response = [
 						'status' 	=> 200,
 						'message' 	=> 'Success'
 					];
-				}else{
+				}
+				else if($rs == 'sisa_cuti_tidak_cukup'){
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Sisa Cuti Tidak Cukup'
+					];
+				}
+				else if($rs == 'cannot_edit_approved_leave'){
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Cannot Edit Approved Leave'
+					];
+				}
+				else{
 					$response = [
 						'status' 	=> 401,
 						'message' 	=> 'Failed',
@@ -975,7 +990,7 @@ class Api extends API_Controller
 
 
 				//update sisa jatah cuti
-				if($leave_type != '2'){ //unpaid leave gak update sisa cuti
+				/*if($leave_type != '2'){ //unpaid leave gak update sisa cuti
 					$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
 
 					$is_update_jatah_selanjutnya=0;
@@ -1003,11 +1018,11 @@ class Api extends API_Controller
 						$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
 					}
 
-				}
+				}*/
 
 				return $rs;
 			}
-			else return null;
+			else return 'sisa_cuti_tidak_cukup';
 			
 		}else return null;
 
@@ -1021,133 +1036,139 @@ class Api extends API_Controller
 
 			if($date_start != '' && $date_end != '' && $leave_type != ''){ 
 				$getcurrLeave = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
-				$getcurrTotalCuti =0;
-				if($getcurrLeave[0]->masterleave_id != 2){ //data sebelumnya bukan unpaid leave, maka sisa cuti dibalikin
-					$getcurrTotalCuti = $getcurrLeave[0]->total_leave;
-				}
 
-				$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end); 
-				$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti+$getcurrTotalCuti;
+				if($getcurrLeave[0]->status_approval == 1){ //waiting approval
+					$getcurrTotalCuti =0;
+					if($getcurrLeave[0]->masterleave_id != 2){ //data sebelumnya bukan unpaid leave, maka sisa cuti dibalikin
+						$getcurrTotalCuti = $getcurrLeave[0]->total_leave;
+					}
 
-				$diff_day		= $this->api->dayCount($date_start, $date_end);
+					$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end); 
+					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti+$getcurrTotalCuti;
 
-				if($leave_type == '6'){ //Half day leave
-					$diff_day = $diff_day*0.5;
-				}
-				if($leave_type == '5'){ //Sick Leave
-					$diff_day = 0 ;
-				}
+					$diff_day		= $this->api->dayCount($date_start, $date_end);
 
-				if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
-					
-					$data = [
+					if($leave_type == '6'){ //Half day leave
+						$diff_day = $diff_day*0.5;
+					}
+					if($leave_type == '5'){ //Sick Leave
+						$diff_day = 0 ;
+					}
 
-						'date_leave_start' 			=> $date_start,
-						'date_leave_end' 			=> $date_end,
-						'masterleave_id' 			=> $leave_type,
-						'reason' 					=> $reason,
-						'total_leave' 				=> $diff_day,
-						'updated_at'				=> date("Y-m-d H:i:s")
+					if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
 						
-					];
+						$data = [
 
-					$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
-
-					//update sisa jatah cuti
-					if($rs){
-
-						$update_jatah_cuti=1;
-						if($getcurrLeave[0]->masterleave_id == 2 && $leave_type == 2){ //tidak ada perubahan jika data sebelumnya dan data skrg sama2 unpaid leave
-							$update_jatah_cuti=0;
-							return $rs; 
-						}
-
-						if($update_jatah_cuti == 1){
-
-							if($leave_type == 2){
-								$diff_day=0;
-							}
-
-							$jml_tambahan_cuti =  $getcurrTotalCuti-$diff_day;
-
-							if($jml_tambahan_cuti != 0){
-								$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
-
-								if($jml_tambahan_cuti > 0){ // metode tambahin cuti
-								
-									$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti+$jml_tambahan_cuti;
-
-									$tambah_selanjutnya=0;
-									if($sisa_cuti_1 > 12){
-										$tambah_selanjutnya =1;
-										$slot_tambah = 12- $jatahcuti[0]->sisa_cuti;
-										$sisa_slot_tambah = $jml_tambahan_cuti-$slot_tambah;
-										$sisa_cuti_1 =12;
-									}
-									$data2 = [
-										'sisa_cuti' 	=> $sisa_cuti_1,
-										'updated_date'	=> date("Y-m-d H:i:s")
-									];
-									$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-									if($tambah_selanjutnya == 1){
-										$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti+$sisa_slot_tambah;
-										if($sisa_cuti_2 > 12){
-											$sisa_cuti_2 = 12;
-										}
-
-										$data3 = [
-											'sisa_cuti' 	=> $sisa_cuti_2,
-											'updated_date'	=> date("Y-m-d H:i:s")
-										];
-										$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-									}
-
-								}else{ //metode kurangi cuti
-
-									$jml_kurang_cuti = $diff_day-$getcurrTotalCuti;
-									$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti-$jml_kurang_cuti;
-
-									$kurang_selanjutnya=0;
-									if($sisa_cuti_1 < 0){
-										$kurang_selanjutnya = 1;
-
-										if($jatahcuti[0]->sisa_cuti == 0){
-											$slot_kurang =0;
-										}else{
-											$slot_kurang = $jml_kurang_cuti-$jatahcuti[0]->sisa_cuti;
-										}
-										
-										$sisa_slot_kurang = $jml_kurang_cuti-$slot_kurang;
-										$sisa_cuti_1 = 0;
-									}
-									$data2 = [
-										'sisa_cuti' 	=> $sisa_cuti_1,
-										'updated_date'	=> date("Y-m-d H:i:s")
-									];
-									$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-									if($kurang_selanjutnya == 1){
-										$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti-$sisa_slot_kurang;
-										if($sisa_cuti_2 < 0){
-											$sisa_cuti_2 = 0;
-										}
-										$data3 = [
-											'sisa_cuti' 	=> $sisa_cuti_2,
-											'updated_date'	=> date("Y-m-d H:i:s")
-										];
-										$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-									}
-
-								}
-							}
+							'date_leave_start' 			=> $date_start,
+							'date_leave_end' 			=> $date_end,
+							'masterleave_id' 			=> $leave_type,
+							'reason' 					=> $reason,
+							'total_leave' 				=> $diff_day,
+							'updated_at'				=> date("Y-m-d H:i:s")
 							
-						}
-						
-						return  $rs;
-					}else return null;
+						];
 
-				}else return null; // cuti gak cukup
+						$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
+
+						//update sisa jatah cuti
+						if($rs){
+
+							/*$update_jatah_cuti=1;
+							if($getcurrLeave[0]->masterleave_id == 2 && $leave_type == 2){ //tidak ada perubahan jika data sebelumnya dan data skrg sama2 unpaid leave
+								$update_jatah_cuti=0;
+								return $rs; 
+							}
+
+							if($update_jatah_cuti == 1){
+
+								if($leave_type == 2){
+									$diff_day=0;
+								}
+
+								$jml_tambahan_cuti =  $getcurrTotalCuti-$diff_day;
+
+								if($jml_tambahan_cuti != 0){
+									$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
+
+									if($jml_tambahan_cuti > 0){ // metode tambahin cuti
+									
+										$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti+$jml_tambahan_cuti;
+
+										$tambah_selanjutnya=0;
+										if($sisa_cuti_1 > 12){
+											$tambah_selanjutnya =1;
+											$slot_tambah = 12- $jatahcuti[0]->sisa_cuti;
+											$sisa_slot_tambah = $jml_tambahan_cuti-$slot_tambah;
+											$sisa_cuti_1 =12;
+										}
+										$data2 = [
+											'sisa_cuti' 	=> $sisa_cuti_1,
+											'updated_date'	=> date("Y-m-d H:i:s")
+										];
+										$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+										if($tambah_selanjutnya == 1){
+											$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti+$sisa_slot_tambah;
+											if($sisa_cuti_2 > 12){
+												$sisa_cuti_2 = 12;
+											}
+
+											$data3 = [
+												'sisa_cuti' 	=> $sisa_cuti_2,
+												'updated_date'	=> date("Y-m-d H:i:s")
+											];
+											$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+										}
+
+									}else{ //metode kurangi cuti
+
+										$jml_kurang_cuti = $diff_day-$getcurrTotalCuti;
+										$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti-$jml_kurang_cuti;
+
+										$kurang_selanjutnya=0;
+										if($sisa_cuti_1 < 0){
+											$kurang_selanjutnya = 1;
+
+											if($jatahcuti[0]->sisa_cuti == 0){
+												$slot_kurang =0;
+											}else{
+												$slot_kurang = $jml_kurang_cuti-$jatahcuti[0]->sisa_cuti;
+											}
+											
+											$sisa_slot_kurang = $jml_kurang_cuti-$slot_kurang;
+											$sisa_cuti_1 = 0;
+										}
+										$data2 = [
+											'sisa_cuti' 	=> $sisa_cuti_1,
+											'updated_date'	=> date("Y-m-d H:i:s")
+										];
+										$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+										if($kurang_selanjutnya == 1){
+											$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti-$sisa_slot_kurang;
+											if($sisa_cuti_2 < 0){
+												$sisa_cuti_2 = 0;
+											}
+											$data3 = [
+												'sisa_cuti' 	=> $sisa_cuti_2,
+												'updated_date'	=> date("Y-m-d H:i:s")
+											];
+											$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+										}
+
+									}
+								}
+								
+							}*/
+							
+							return  $rs;
+						}else return null;
+
+					}else return 'sisa_cuti_tidak_cukup'; // cuti gak cukup
+				}else{
+					return 'cannot_edit_approved_leave';
+				}
+
 			}
 			else return null;
 
@@ -1585,7 +1606,40 @@ class Api extends API_Controller
 						if($rs){
 							$leaves = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
 							$total_leave = $leaves[0]->total_leave;
-							
+
+							// update table jatah cuti
+							if($leaves[0]->masterleave_id != '2'){ //unpaid leave gak update sisa cuti
+								$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
+
+								$is_update_jatah_selanjutnya=0;
+								$sisa_cuti = $jatahcuti[0]->sisa_cuti-$total_leave;
+
+								if($total_leave > $jatahcuti[0]->sisa_cuti){ 
+									$is_update_jatah_selanjutnya=1;
+									$sisa_cuti = 0;
+									$diff_day2 = $total_leave-$jatahcuti[0]->sisa_cuti;
+									$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;	
+								}
+								
+								$data2 = [
+									'sisa_cuti' 	=> $sisa_cuti,
+									'updated_date'	=> date("Y-m-d H:i:s")
+								];
+								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+
+								if($is_update_jatah_selanjutnya == 1){ 
+									$data3 = [
+										'sisa_cuti' 	=> $sisa_cuti2,
+										'updated_date'	=> date("Y-m-d H:i:s")
+									];
+									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+								}
+
+							}
+
+
+							// masukin ke table absensi
 							$employees = $this->db->query("select * from employees where id = '".$leaves[0]->employee_id."' ")->result(); 
 
 							$time_in 	= "";
@@ -1638,7 +1692,7 @@ class Api extends API_Controller
 						$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
 
 						if($rs){
-							if($leave[0]->masterleave_id != 2){ // tipenya bukan unpaid leave maka jatah cuti dikembalikan
+							/*if($leave[0]->masterleave_id != 2){ // tipenya bukan unpaid leave maka jatah cuti dikembalikan
 								//penambahan cuti
 								$jatahcuti 			= $this->db->query("select * from total_cuti_karyawan where employee_id = '".$leave[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
 								$jml_tambahan_cuti 	= $leave[0]->total_leave;
@@ -1669,7 +1723,7 @@ class Api extends API_Controller
 									];
 									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
 								}
-							}
+							}*/
 
 
 							$response = [
@@ -1725,5 +1779,57 @@ class Api extends API_Controller
 		$this->render_json($response, $response['status']);
 
 	}
+
+
+	public function cek_sisa_cuti(){
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+
+		if(!empty($_REQUEST)){
+			$employee = $_REQUEST['employee'];
+
+			if($employee != ''){
+				$cek_sisa_cuti 	= $this->db->query("select sum(sisa_cuti) as ttl_sisa_cuti from total_cuti_karyawan where employee_id = '".$employee."' and status = 1")->result(); 
+				$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+
+
+
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success',
+					'sisa_cuti' => $sisa_cuti
+				];
+
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Require not satisfied'
+				];
+			}
+
+		}else{
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+	}
+
+
 
 }
