@@ -1189,7 +1189,7 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	/*$islogin_employee	= $_REQUEST['islogin_employee'];
+    	$islogin_employee	= $_REQUEST['islogin_employee'];
     	$employee			= $_REQUEST['employee']; //filter employee
 
 
@@ -1223,10 +1223,10 @@ class Api extends API_Controller
 				'message' 	=> 'Failed',
 				'error' 	=> 'Employee ID Login not found'
 			];
-    	}*/
+    	}
 
 
-    	$employee			= $_REQUEST['employee']; //filter employee
+    	/*$employee			= $_REQUEST['employee']; //filter employee
 
 		$where=""; 
     	if($employee != ''){
@@ -1248,7 +1248,7 @@ class Api extends API_Controller
     		'status' 	=> 200,
 			'message' 	=> 'Success',
 			'data' 		=> $dataijin
-		];
+		];*/
 
     	
 
