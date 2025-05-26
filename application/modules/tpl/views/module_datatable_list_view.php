@@ -9,16 +9,15 @@
 									</div>
                                     <div class="actions">
 
-                                    	<?php
+                                    	<!-- <?php
                                     	if($this->module_name == 'absensi_menu'){
                                     		?>
                                     		<a class="btn btn-danger btn-circle" id="btnAbsen">
-												<!-- <i class="fa fa-floppy-o"></i> -->
 												ABSEN
 											</a> 
                                     		<?php
                                     	}
-                                    	?>
+                                    	?> -->
                                     	
 
 										<?php if  (defined('_REPORT') && _REPORT == "1") { ?>
