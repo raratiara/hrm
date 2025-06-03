@@ -635,6 +635,8 @@ class Api extends API_Controller
 			$year = date("Y", strtotime($date));
 			$month = date("m", strtotime($date));
 			$timestamp_datetime = strtotime($datetime);
+			$period = date("Y-m", strtotime($date));
+			$tgl = date("d", strtotime($date));
 
 			$cek_emp = $this->api->cek_employee($employee);	
 
@@ -645,9 +647,18 @@ class Api extends API_Controller
 					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 					
 				}else if($cek_emp['shift_type'] == 'Shift'){
-					$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
+					/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
 					left join master_shift_time b on b.id = a.master_shift_time_id
-					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); 
+					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+
+					$dt = $this->db->query("select a.*, b.periode
+							, b.`".$tgl."` as 'shift' 
+							, c.time_in, c.time_out, c.name 
+							from shift_schedule a
+							left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+							left join master_shift_time c on c.id = b.`".$tgl."`
+							where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
+
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
 				} 
@@ -688,8 +699,16 @@ class Api extends API_Controller
 									if(!empty($cek_data_shift_besok)){ 
 										$error='Cannot double checkin';
 									}else{ 
-										$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a left join master_shift_time b on b.id = a.master_shift_time_id
-										where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); 
+										/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a left join master_shift_time b on b.id = a.master_shift_time_id
+										where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+
+										$dt = $this->db->query("select a.*, b.periode
+												, b.`".$tgl."` as 'shift' 
+												, c.time_in, c.time_out, c.name 
+												from shift_schedule a
+												left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+												left join master_shift_time c on c.id = b.`".$tgl."`
+												where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
 
 										if(empty($dt)){
 											$error='Checkin Date not valid';
@@ -712,7 +731,13 @@ class Api extends API_Controller
 									$error='Checkin Date not valid';
 								}
 							}else{
-								$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a left join master_shift_time b on b.id = a.master_shift_time_id where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); 
+								$dt = $this->db->query("select a.*, b.periode
+										, b.`".$tgl."` as 'shift' 
+										, c.time_in, c.time_out, c.name 
+										from shift_schedule a
+										left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+										left join master_shift_time c on c.id = b.`".$tgl."`
+										where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
 								if(empty($dt)){
 									$error='Checkin Date not valid';
 								}
@@ -804,8 +829,10 @@ class Api extends API_Controller
 			$date 			= $exp[0];
 			$time 			= $exp[1];
 			$timestamp_time = strtotime($time); 
-			$year = date("Y", strtotime($date));
-			$month = date("m", strtotime($date));
+			$year 			= date("Y", strtotime($date));
+			$month 			= date("m", strtotime($date));
+			$tgl 			= date("d", strtotime($date));
+			$period 		= date("Y-m", strtotime($date));
 
 			$cek_emp = $this->api->cek_employee($employee);	
 
@@ -817,9 +844,17 @@ class Api extends API_Controller
 					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 					$datetime_out = $date.' '.$dt[0]->time_out;
 				}else if($cek_emp['shift_type'] == 'Shift'){ 
-					$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
+					/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
 					left join master_shift_time b on b.id = a.master_shift_time_id
-					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); 
+					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+					
+					$dt = $this->db->query("select a.*, b.periode
+							, b.`".$tgl."` as 'shift' 
+							, c.time_in, c.time_out, c.name 
+							from shift_schedule a
+							left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+							left join master_shift_time c on c.id = b.`".$tgl."`
+							where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
 					
 					$datetime_out = $dt[0]->date.' '.$dt[0]->time_out;
 				}else{ //tidak ada shift type

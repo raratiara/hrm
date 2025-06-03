@@ -7,7 +7,7 @@
 								<div class="modal-header bg-blue bg-font-blue no-padding">
 									<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 									<div class="table-header">
-										<span id="mfdata"></span> <?php echo $smodul; ?>
+										<span id="mfdata"></span> <?php echo $smodul; ?> 
 									</div>
 								</div>
 
