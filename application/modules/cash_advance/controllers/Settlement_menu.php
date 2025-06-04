@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Fpu_menu extends MY_Controller
+class Settlement_menu extends MY_Controller
 { 
 	/* Module */
- 	const  LABELMODULE				= "fpu_menu"; // identify menu
- 	const  LABELMASTER				= "Menu FPU";
+ 	const  LABELMODULE				= "settlement_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Settlement";
  	const  LABELFOLDER				= "cash_advance"; // module folder
- 	const  LABELPATH				= "fpu_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "settlement_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "cash_advance"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -15,12 +15,12 @@ class Fpu_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","FPU Number","Request Date","Prepared By","Requested By","Total Cost","Status"];
+	public $tabel_header 			= ["ID","Settlement Number","Request Date","Prepared By","Requested By","Total Cost","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","FPU Number","Request Date","Prepared By","Requested By","Total Cost","Status"];
-	public $colfields 				= ["id","fpu_number","request_date","prepared_by_name","requested_by_name","total_cost","status_name"];
+	public $colnames 				= ["ID","Settlement Number","Request Date","Prepared By","Requested By","Total Cost","Status"];
+	public $colfields 				= ["id","settlement_number","request_date","prepared_by_name","requested_by_name","total_cost","status_name"];
 
 
 

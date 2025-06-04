@@ -1,15 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Fpu_menu_model extends MY_Model
+class Settlement_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "cash_advance/fpu_menu";
- 	protected $table_name 				= _PREFIX_TABLE."fpu";
+ 	protected $folder_name				= "cash_advance/settlement_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."settlement";
  	protected $primary_key 				= "id";
 
  	/* upload */
- 	protected $attachment_folder	= "./uploads/cashadvance/fpu";
+ 	protected $attachment_folder	= "./uploads/cashadvance/settlement";
 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
