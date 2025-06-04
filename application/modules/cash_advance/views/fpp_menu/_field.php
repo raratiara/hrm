@@ -2,9 +2,9 @@
 	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> FPU Number</label>
+			<label class="col-md-4 control-label no-padding-right"> FPP Number</label>
 			<div class="col-md-8">
-				<?=$txtfpunum;?>
+				<?=$txtfppnum;?>
 				<input type="hidden" id="action_type" name="action_type" />
 			</div>
 		</div>
@@ -13,6 +13,12 @@
 			<label class="col-md-4 control-label no-padding-right"> Prepared By</label>
 			<div class="col-md-8">
 				<?=$txtpreparedby;?>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Type</label>
+			<div class="col-md-8">
+				<?=$txttype;?>
 			</div>
 		</div>
 		
@@ -30,7 +36,40 @@
 				<?=$txtrequestedby;?>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">No Rekening</label>
+			<div class="col-md-8">
+				<?=$txtnorekening;?>
+			</div>
+		</div>
 		
+	</div>
+</div>
+
+
+<div id="inputVendor" style="display: none;">
+	<div class="col-md-6 col-sm-12">
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Vendor Name</label>
+			<div class="col-md-8">
+				<?=$txtvendorname;?>
+				<input type="hidden" id="action_type" name="action_type" />
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Invoice Number</label>
+			<div class="col-md-8">
+				<?=$txtinvoicenum;?>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12">
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Invoice Date</label>
+			<div class="col-md-8">
+				<?=$txtinvoicedate;?>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -43,12 +82,12 @@
 			<div class="portlet-title">
 				<div class="caption">Advance Request Details </div>
 				<div class="tools">
-					<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addfpurow" value="Add Row" />
+					<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addfpprow" value="Add Row" />
 				</div>
 			</div>
 			<div class="portlet-body">
 				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover fpu-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailFpu">
+				<table class="table table-striped table-bordered table-hover fpp-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailFpp">
 					<thead>
 						<tr>
 							<th scope="col">No</th>

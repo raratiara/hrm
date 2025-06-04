@@ -97,9 +97,9 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-var modloc = '/_hrm/cash_advance/fpu_menu/';
+var modloc = '/_hrm/cash_advance/fpp_menu/';
 var opsForm = 'form#frmInputData';
-var locate = 'table.fpu-list';
+var locate = 'table.fpp-list';
 var wcount = 0; //for ca list row identify
 
 
@@ -260,7 +260,7 @@ function load_data()
 					}
 
 
-					$('[name="fpu_number"]').val(data.rowdata.fpu_number);
+					$('[name="fpp_number"]').val(data.rowdata.fpp_number);
 					$('[name="request_date"]').val(data.rowdata.request_date);
 					$('[name="prepared_by"]').val(data.rowdata.prepared_by_name);
 					$('[name="id"]').val(data.rowdata.id);
@@ -268,16 +268,21 @@ function load_data()
 					$('[name="total_cost"]').val(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
       				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+      				$('[name="no_rekening"]').val(data.rowdata.no_rekening);
+      				$('[name="fpp_type"][value="'+data.rowdata.type+'"]').prop('checked', true);
+      				$('[name="vendor_name"]').val(data.rowdata.vendor_name);
+      				$('[name="invoice_date"]').val(data.rowdata.invoice_date);
+      				$('[name="invoice_number"]').val(data.rowdata.invoice_number);
 
       				$('[name="hdndoc"]').val(data.rowdata.document);
 					if(data.rowdata.document != '' && data.rowdata.document != null){
-						$('span.file_doc').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
+						$('span.file_doc').html('<img src="'+baseUrl+'/uploads/cashadvance/fpp/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.file_doc').html('');
 					}
 					
 
-					$.ajax({type: 'post',url: module_path+'/genfpurow',data: { id:data.rowdata.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genfpprow',data: { id:data.rowdata.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -295,22 +300,27 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.fpu_number').html(data.rowdata.fpu_number);
+					$('span.fpp_number').html(data.rowdata.fpp_number);
 					$('span.prepared_by').html(data.rowdata.prepared_by_name);
 					$('span.request_date').html(data.rowdata.request_date);
 					$('span.requested_by').html(data.rowdata.requested_by_name);
 					$('span.total_cost').html(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
 					$('span.total_cost_terbilang').html(total_cost_terbilang);
+					$('span.fpp_type').html(data.rowdata.type);
+					$('span.no_rekening').html(data.rowdata.no_rekening);
+					$('span.vendor_name').html(data.rowdata.vendor_name);
+					$('span.invoice_date').html(data.rowdata.invoice_date);
+					$('span.invoice_number').html(data.rowdata.invoice_number);
 					
 					if(data.rowdata.document != '' && data.rowdata.document != null){
-						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
+						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/fpp/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.document').html('');
 					}
 					
 
-					$.ajax({type: 'post',url: module_path+'/genfpurow',data: { id:data.rowdata.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genfpprow',data: { id:data.rowdata.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -358,18 +368,18 @@ function load_data()
 
 
 
-$("#addfpurow").on("click", function () { 
+$("#addfpprow").on("click", function () { 
 	
 	expire();
 	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/genfpurow',data: { count:wcount },success: function (response) {
+	$.ajax({type: 'post',url: module_path+'/genfpprow',data: { count:wcount },success: function (response) {
 			newRow.append(response);
 			$(locate).append(newRow);
 			wcount++;
 			
 		}
 	}).done(function() {
-		tSawBclear('table.fpu-list');
+		tSawBclear('table.fpp-list');
 	});
 
 });
@@ -378,9 +388,9 @@ $("#addfpurow").on("click", function () {
 function del(idx,hdnid){
 	
 	if(hdnid != ''){ //delete dr table
-		$.ajax({type: 'post',url: module_path+'/delrowDetailFpu',data: { id:hdnid },success: function (response) {}
+		$.ajax({type: 'post',url: module_path+'/delrowDetailFpp',data: { id:hdnid },success: function (response) {}
 		}).done(function() {
-			tSawBclear('table.fpu-list');
+			tSawBclear('table.fpp-list');
 
 
 			var sum=0; 
@@ -395,7 +405,7 @@ function del(idx,hdnid){
 	}
 
 	//delete tampilan row
-	var table = document.getElementById("tblDetailFpu");
+	var table = document.getElementById("tblDetailFpp");
 	table.deleteRow(idx);
 }
 
@@ -594,5 +604,18 @@ function save_reject(){
 
 }
 
+
+
+document.querySelectorAll('input[name="fpp_type"]').forEach(function(radio) {
+  radio.addEventListener('click', function() {
+  	
+	  	if(this.value == 'Company'){
+	  		document.getElementById("inputVendor").style.display = "block";
+	  	}else{
+	  		document.getElementById("inputVendor").style.display = "none";
+	  	}
+    
+  });
+});
 
 </script>

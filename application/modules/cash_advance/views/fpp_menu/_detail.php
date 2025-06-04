@@ -2,15 +2,21 @@
 	
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">FPU Number</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">FPP Number</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="fpu_number"></span>
+				: <span class="fpp_number"></span>
 			</div>
 		</div>
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Prepared By</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="prepared_by"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Type</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="fpp_type"></span>
 			</div>
 		</div>
 	</div>
@@ -29,7 +35,40 @@
 				: <span class="requested_by"></span>
 			</div>
 		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No Rekening</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="no_rekening"></span>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<div id="inputVendorView" style="display: none;">
+	<div class="col-md-6 col-sm-12 col-xs-12">
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Vendor Name</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="vendor_name"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Invoice Number</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="invoice_number"></span>
+			</div>
+		</div>
 		
+	</div>
+
+	<div class="col-md-6 col-sm-12 col-xs-12">
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Invoice Date</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="invoice_date"></span>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -45,7 +84,7 @@
 			</div>
 			<div class="portlet-body">
 				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover fpu-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblFpu">
+				<table class="table table-striped table-bordered table-hover fpp-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblFpp">
 					<thead>
 						<tr>
 							<th scope="col">No</th>

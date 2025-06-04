@@ -1,15 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Fpu_menu_model extends MY_Model
+class Fpp_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "cash_advance/fpu_menu";
- 	protected $table_name 				= _PREFIX_TABLE."fpu";
+ 	protected $folder_name				= "cash_advance/fpp_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."fpp";
  	protected $primary_key 				= "id";
 
  	/* upload */
- 	protected $attachment_folder	= "./uploads/cashadvance/fpu";
+ 	protected $attachment_folder	= "./uploads/cashadvance/fpp";
 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
@@ -26,7 +26,7 @@ class Fpu_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.fpu_number',
+			'dt.fpp_number',
 			'dt.request_date',
 			'dt.prepared_by_name',
 			'dt.requested_by_name',
@@ -42,7 +42,7 @@ class Fpu_menu_model extends MY_Model
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 					, d.name as status_name, c.direct_id   
-					from fpu a left join employees b on b.id = a.prepared_by
+					from fpp a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
 				)dt';
@@ -227,7 +227,7 @@ class Fpu_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->fpu_number,
+				$row->fpp_number,
 				$row->request_date,
 				$row->prepared_by_name,
 				$row->requested_by_name,
@@ -336,31 +336,6 @@ class Fpu_menu_model extends MY_Model
 		return $data;
 	}
 
-	public function get_sisa_plafon($emp_id, $type_id){
-		$getplafon = $this->db->query("select a.id, b.nominal_plafon, b.reimburs_type_id 
-				from employees a left join master_plafon b on b.grade_id = a.grade_id and b.reimburs_type_id = '".$type_id."' where a.id = '".$emp_id."' ")->result(); 
-		$plafon=0;
-		if($getplafon != ''){
-			$plafon = $getplafon[0]->nominal_plafon;
-		}
-
-		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' ")->result(); 
-		$pemakaian=0;
-		if($getpemakaian != ''){
-			$pemakaian = $getpemakaian[0]->total_pemakaian;
-		}
-
-		$sisa = $plafon-$pemakaian;
-		if($sisa <= 0){
-			$sisa=0;
-		} 
-
-
-
-
-		return $sisa;
-	}
-
 
 	// Get next number 
 	public function getNextNumber() { 
@@ -370,13 +345,13 @@ class Fpu_menu_model extends MY_Model
 		$period = $yearcode.$monthcode; 
 		
 
-		$cek = $this->db->query("select * from fpu where SUBSTRING(fpu_number, 4, 4) = '".$period."'");
+		$cek = $this->db->query("select * from fpp where SUBSTRING(fpp_number, 4, 4) = '".$period."'");
 		$rs_cek = $cek->result_array();
 
 		if(empty($rs_cek)){
 			$num = '0001';
 		}else{
-			$cek2 = $this->db->query("select max(fpu_number) as maxnum from fpu where SUBSTRING(fpu_number, 4, 4) = '".$period."'");
+			$cek2 = $this->db->query("select max(fpp_number) as maxnum from fpp where SUBSTRING(fpp_number, 4, 4) = '".$period."'");
 			$rs_cek2 = $cek2->result_array();
 			$dt = $rs_cek2[0]['maxnum']; 
 			$getnum = substr($dt,7); 
@@ -394,7 +369,7 @@ class Fpu_menu_model extends MY_Model
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 
-		$lettercode = ('FPU'); // ca code
+		$lettercode = ('FPP'); // ca code
 		$yearcode = date("y");
 		$monthcode = date("m");
 		$period = $yearcode.$monthcode; 
@@ -405,7 +380,7 @@ class Fpu_menu_model extends MY_Model
 
 		
   		if(!empty($post['requested_by'])){ 
-  			$upload_doc = $this->upload_file('1', 'fpu_document', FALSE, '', TRUE);
+  			$upload_doc = $this->upload_file('1', 'fpp_document', FALSE, '', TRUE);
 			$document = '';
 			if($upload_doc['status']){ 
 				$document = $upload_doc['upload_file'];
@@ -414,13 +389,18 @@ class Fpu_menu_model extends MY_Model
 			}
 
 			$data = [
-				'fpu_number' 	=> $nextnum,
-				'request_date' 	=> trim($post['request_date']),
-				'prepared_by' 	=> $karyawan_id,
-				'requested_by'	=> trim($post['requested_by']),
-				'total_cost' 	=> trim($post['total_cost']),
-				'document' 		=> $document,
-				'status_id' 	=> 1 //waiting approval
+				'fpp_number' 		=> $nextnum,
+				'request_date' 		=> trim($post['request_date']),
+				'prepared_by' 		=> $karyawan_id,
+				'requested_by'		=> trim($post['requested_by']),
+				'total_cost' 		=> trim($post['total_cost']),
+				'document' 			=> $document,
+				'type' 				=> trim($post['fpp_type']),
+				'no_rekening' 		=> trim($post['no_rekening']),
+				'vendor_name' 		=> trim($post['vendor_name']),
+				'invoice_number' 	=> trim($post['invoice_number']),
+				'invoice_date' 		=> trim($post['invoice_date']),
+				'status_id' 		=> 1 //waiting approval
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
@@ -439,7 +419,7 @@ class Fpu_menu_model extends MY_Model
 					{
 						if(isset($post['name'][$i])){
 							$itemData = [
-								'fpu_id' 		=> $lastId,
+								'fpp_id' 		=> $lastId,
 								'name' 			=> trim($post['name'][$i]),
 								'amount' 		=> trim($post['amount'][$i]),
 								'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
@@ -447,7 +427,7 @@ class Fpu_menu_model extends MY_Model
 								'notes' 		=> trim($post['notes'][$i])
 							];
 
-							$this->db->insert('fpu_details', $itemData);
+							$this->db->insert('fpp_details', $itemData);
 						}
 					}
 				}
@@ -482,7 +462,7 @@ class Fpu_menu_model extends MY_Model
 		}else{
 			if(!empty($post['id'])){ 
 
-				$upload_doc = $this->upload_file('1', 'fpu_document', FALSE, '', TRUE);
+				$upload_doc = $this->upload_file('1', 'fpp_document', FALSE, '', TRUE);
 				$document = '';
 				if($upload_doc['status']){ 
 					$document = $upload_doc['upload_file'];
@@ -497,22 +477,32 @@ class Fpu_menu_model extends MY_Model
 
 
 
-				$getdata = $this->db->query("select * from fpu where id = '".$post['id']."'")->result(); 
+				$getdata = $this->db->query("select * from fpp where id = '".$post['id']."'")->result(); 
 				if($getdata[0]->status_id == 4 && ($karyawan_id == $getdata[0]->prepared_by || $karyawan_id == $getdata[0]->requested_by)){ // edit RFU
 
 					$data = [
-						'requested_by'	=> trim($post['requested_by']),
-						'total_cost' 	=> trim($post['total_cost']),
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s"),
-						'status_id' 	=> 1
+						'requested_by'		=> trim($post['requested_by']),
+						'total_cost' 		=> trim($post['total_cost']),
+						'document' 			=> $document,
+						'updated_at'		=> date("Y-m-d H:i:s"),
+						'type' 				=> trim($post['fpp_type']),
+						'no_rekening' 		=> trim($post['no_rekening']),
+						'vendor_name' 		=> trim($post['vendor_name']),
+						'invoice_number' 	=> trim($post['invoice_number']),
+						'invoice_date' 		=> trim($post['invoice_date']),
+						'status_id' 		=> 1
 					];
 				}else{
 					$data = [
-						'requested_by'	=> trim($post['requested_by']),
-						'total_cost' 	=> trim($post['total_cost']),
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s")
+						'requested_by'		=> trim($post['requested_by']),
+						'total_cost' 		=> trim($post['total_cost']),
+						'document' 			=> $document,
+						'type' 				=> trim($post['fpp_type']),
+						'no_rekening' 		=> trim($post['no_rekening']),
+						'vendor_name' 		=> trim($post['vendor_name']),
+						'invoice_number' 	=> trim($post['invoice_number']),
+						'invoice_date' 		=> trim($post['invoice_date']),
+						'updated_at'		=> date("Y-m-d H:i:s")
 					];
 				}
 
@@ -543,12 +533,12 @@ class Fpu_menu_model extends MY_Model
 										'notes' 		=> trim($post['notes'][$i])
 									];
 
-									$this->db->update("fpu_details", $itemData, "id = '".$hdnid."'");
+									$this->db->update("fpp_details", $itemData, "id = '".$hdnid."'");
 								}
 							}else{ //insert
 								if(isset($post['name'][$i])){
 									$itemData = [
-										'fpu_id' 		=> $post['id'],
+										'fpp_id' 		=> $post['id'],
 										'name' 			=> trim($post['name'][$i]),
 										'amount' 		=> trim($post['amount'][$i]),
 										'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
@@ -556,7 +546,7 @@ class Fpu_menu_model extends MY_Model
 										'notes' 		=> trim($post['notes'][$i])
 									];
 
-									$this->db->insert('fpu_details', $itemData);
+									$this->db->insert('fpp_details', $itemData);
 								}
 							}
 						}
@@ -575,7 +565,7 @@ class Fpu_menu_model extends MY_Model
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 						, d.name as status_name, c.direct_id   
-						from fpu a left join employees b on b.id = a.prepared_by
+						from fpp a left join employees b on b.id = a.prepared_by
 						left join employees c on c.id = a.requested_by
 						left join master_status_cashadvance d on d.id = a.status_id
 					)dt';
@@ -607,7 +597,7 @@ class Fpu_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'fpu_number' 	=> $v["B"],
+				'fpp_number' 	=> $v["B"],
 				'request_date' 	=> $v["C"],
 				'prepared_by' 	=> $v["D"],
 				'requested_by' 	=> $v["E"],
@@ -627,7 +617,7 @@ class Fpu_menu_model extends MY_Model
 	{
 		$sql = "select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 					, d.name as status_name, c.direct_id   
-					from fpu a left join employees b on b.id = a.prepared_by
+					from fpp a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
 					order by a.id asc
@@ -640,10 +630,10 @@ class Fpu_menu_model extends MY_Model
 	}
 
 
-	public function getNewFpuRow($row,$id=0,$view=FALSE)
+	public function getNewFppRow($row,$id=0,$view=FALSE)
 	{ 
 		if($id > 0){ 
-			$data = $this->getFpuRows($id,$view);
+			$data = $this->getFppRows($id,$view);
 		} else { 
 			$data = '';
 			$no = $row+1;
@@ -668,11 +658,11 @@ class Fpu_menu_model extends MY_Model
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function getFpuRows($id,$view,$print=FALSE){ 
+	public function getFppRows($id,$view,$print=FALSE){ 
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select * from fpu_details where fpu_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select * from fpp_details where fpp_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
