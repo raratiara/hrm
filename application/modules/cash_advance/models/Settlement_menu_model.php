@@ -26,11 +26,12 @@ class Settlement_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.fpu_number',
-			'dt.request_date',
+			'dt.settlement_number',
+			'dt.ca_number',
+			'dt.settlement_date',
 			'dt.prepared_by_name',
 			'dt.requested_by_name',
-			'dt.total_cost',
+			'dt.settlement_amount',
 			'dt.status_name',
 			'dt.direct_id',
 			'dt.prepared_by',
@@ -40,11 +41,12 @@ class Settlement_menu_model extends MY_Model
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id   
-					from fpu a left join employees b on b.id = a.prepared_by
-					left join employees c on c.id = a.requested_by
-					left join master_status_cashadvance d on d.id = a.status_id
+		$sTable = '(select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, d.direct_id, e.name as status_name
+					from settlement a 
+					left join cash_advance b on b.id = a.cash_advance_id
+					left join employees c on c.id = a.prepared_by
+					left join employees d on d.id = a.requested_by
+					left join master_status_cashadvance e on e.id = a.status_id
 				)dt';
 		
 
@@ -227,11 +229,12 @@ class Settlement_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->fpu_number,
-				$row->request_date,
+				$row->settlement_number,
+				$row->ca_number,
+				$row->settlement_date,
 				$row->prepared_by_name,
 				$row->requested_by_name,
-				$row->total_cost,
+				$row->settlement_amount,
 				$row->status_name
 
 			));
@@ -336,30 +339,6 @@ class Settlement_menu_model extends MY_Model
 		return $data;
 	}
 
-	public function get_sisa_plafon($emp_id, $type_id){
-		$getplafon = $this->db->query("select a.id, b.nominal_plafon, b.reimburs_type_id 
-				from employees a left join master_plafon b on b.grade_id = a.grade_id and b.reimburs_type_id = '".$type_id."' where a.id = '".$emp_id."' ")->result(); 
-		$plafon=0;
-		if($getplafon != ''){
-			$plafon = $getplafon[0]->nominal_plafon;
-		}
-
-		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' ")->result(); 
-		$pemakaian=0;
-		if($getpemakaian != ''){
-			$pemakaian = $getpemakaian[0]->total_pemakaian;
-		}
-
-		$sisa = $plafon-$pemakaian;
-		if($sisa <= 0){
-			$sisa=0;
-		} 
-
-
-
-
-		return $sisa;
-	}
 
 
 	// Get next number 
@@ -370,13 +349,13 @@ class Settlement_menu_model extends MY_Model
 		$period = $yearcode.$monthcode; 
 		
 
-		$cek = $this->db->query("select * from fpu where SUBSTRING(fpu_number, 4, 4) = '".$period."'");
+		$cek = $this->db->query("select * from settlement where SUBSTRING(settlement_number, 4, 4) = '".$period."'");
 		$rs_cek = $cek->result_array();
 
 		if(empty($rs_cek)){
 			$num = '0001';
 		}else{
-			$cek2 = $this->db->query("select max(fpu_number) as maxnum from fpu where SUBSTRING(fpu_number, 4, 4) = '".$period."'");
+			$cek2 = $this->db->query("select max(settlement_number) as maxnum from settlement where SUBSTRING(settlement_number, 4, 4) = '".$period."'");
 			$rs_cek2 = $cek2->result_array();
 			$dt = $rs_cek2[0]['maxnum']; 
 			$getnum = substr($dt,7); 
@@ -394,7 +373,7 @@ class Settlement_menu_model extends MY_Model
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 
-		$lettercode = ('FPU'); // ca code
+		$lettercode = ('STL'); // code
 		$yearcode = date("y");
 		$monthcode = date("m");
 		$period = $yearcode.$monthcode; 
@@ -405,7 +384,7 @@ class Settlement_menu_model extends MY_Model
 
 		
   		if(!empty($post['requested_by'])){ 
-  			$upload_doc = $this->upload_file('1', 'fpu_document', FALSE, '', TRUE);
+  			$upload_doc = $this->upload_file('1', 'settlement_document', FALSE, '', TRUE);
 			$document = '';
 			if($upload_doc['status']){ 
 				$document = $upload_doc['upload_file'];
@@ -413,14 +392,31 @@ class Settlement_menu_model extends MY_Model
 				echo $upload_doc['error_warning']; exit;
 			}
 
+			//bukti transfer
+			$upload_doc_buktitransfer = $this->upload_file('1', 'bukti_transfer', FALSE, '', TRUE);
+			$document_buktitransfer = '';
+			if($upload_doc_buktitransfer['status']){ 
+				$document_buktitransfer = $upload_doc_buktitransfer['upload_file'];
+			} else if(isset($upload_doc_buktitransfer['error_warning'])){ 
+				echo $upload_doc_buktitransfer['error_warning']; exit;
+			}
+
+
+
 			$data = [
-				'fpu_number' 	=> $nextnum,
-				'request_date' 	=> trim($post['request_date']),
-				'prepared_by' 	=> $karyawan_id,
-				'requested_by'	=> trim($post['requested_by']),
-				'total_cost' 	=> trim($post['total_cost']),
-				'document' 		=> $document,
-				'status_id' 	=> 1 //waiting approval
+				'settlement_number'	=> $nextnum,
+				'settlement_date' 	=> trim($post['request_date']),
+				'cash_advance_id' 	=> trim($post['ca_number']), 
+				'prepared_by' 		=> $karyawan_id,
+				'requested_by'		=> trim($post['requested_by']),
+				'total_cost' 		=> trim($post['total_cost']),
+				'settlement_amount' => trim($post['settlement_amount']),
+				'document' 			=> $document,
+				'status_id' 		=> 1, //waiting approval
+				'bukti_transfer' 	=> $document_buktitransfer,
+				'no_rekening' 		=> trim($post['no_rekening']),
+				'nama_rekening' 	=> trim($post['nama_rekening']),
+				'bank_rekening' 	=> trim($post['bank'])
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
@@ -439,7 +435,7 @@ class Settlement_menu_model extends MY_Model
 					{
 						if(isset($post['name'][$i])){
 							$itemData = [
-								'fpu_id' 		=> $lastId,
+								'settlement_id' => $lastId,
 								'name' 			=> trim($post['name'][$i]),
 								'amount' 		=> trim($post['amount'][$i]),
 								'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
@@ -447,7 +443,7 @@ class Settlement_menu_model extends MY_Model
 								'notes' 		=> trim($post['notes'][$i])
 							];
 
-							$this->db->insert('fpu_details', $itemData);
+							$this->db->insert('settlement_details', $itemData);
 						}
 					}
 				}
@@ -495,24 +491,48 @@ class Settlement_menu_model extends MY_Model
 					$document = $hdndoc;
 				}
 
+				//bukti transfer
+				$upload_doc_buktitransfer = $this->upload_file('1', 'bukti_transfer', FALSE, '', TRUE);
+				$document_buktitransfer = '';
+				if($upload_doc_buktitransfer['status']){ 
+					$document_buktitransfer = $upload_doc_buktitransfer['upload_file'];
+				} else if(isset($upload_doc_buktitransfer['error_warning'])){ 
+					echo $upload_doc_buktitransfer['error_warning']; exit;
+				}
+				$hdndoc_buktitransfer = $post['hdndoc_buktitransfer'];
+
+				if($document_buktitransfer == '' && $hdndoc_buktitransfer != ''){
+					$document_buktitransfer = $hdndoc_buktitransfer;
+				}
+
 
 
 				$getdata = $this->db->query("select * from fpu where id = '".$post['id']."'")->result(); 
 				if($getdata[0]->status_id == 4 && ($karyawan_id == $getdata[0]->prepared_by || $karyawan_id == $getdata[0]->requested_by)){ // edit RFU
 
 					$data = [
-						'requested_by'	=> trim($post['requested_by']),
-						'total_cost' 	=> trim($post['total_cost']),
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s"),
-						'status_id' 	=> 1
+						'requested_by'		=> trim($post['requested_by']),
+						'total_cost' 		=> trim($post['total_cost']),
+						'settlement_amount' => trim($post['settlement_amount']),
+						'document' 			=> $document,
+						'updated_at'		=> date("Y-m-d H:i:s"),
+						'status_id' 		=> 1,
+						'bukti_transfer' 	=> $document_buktitransfer,
+						'no_rekening' 		=> trim($post['no_rekening']),
+						'nama_rekening' 	=> trim($post['nama_rekening']),
+						'bank_rekening' 	=> trim($post['bank'])
 					];
 				}else{
 					$data = [
-						'requested_by'	=> trim($post['requested_by']),
-						'total_cost' 	=> trim($post['total_cost']),
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s")
+						'requested_by'		=> trim($post['requested_by']),
+						'total_cost' 		=> trim($post['total_cost']),
+						'settlement_amount' => trim($post['settlement_amount']),
+						'document' 			=> $document,
+						'updated_at'		=> date("Y-m-d H:i:s"),
+						'bukti_transfer' 	=> $document_buktitransfer,
+						'no_rekening' 		=> trim($post['no_rekening']),
+						'nama_rekening' 	=> trim($post['nama_rekening']),
+						'bank_rekening' 	=> trim($post['bank'])
 					];
 				}
 
@@ -543,12 +563,12 @@ class Settlement_menu_model extends MY_Model
 										'notes' 		=> trim($post['notes'][$i])
 									];
 
-									$this->db->update("fpu_details", $itemData, "id = '".$hdnid."'");
+									$this->db->update("settlement_details", $itemData, "id = '".$hdnid."'");
 								}
 							}else{ //insert
 								if(isset($post['name'][$i])){
 									$itemData = [
-										'fpu_id' 		=> $post['id'],
+										'settlement_id' => $post['id'],
 										'name' 			=> trim($post['name'][$i]),
 										'amount' 		=> trim($post['amount'][$i]),
 										'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
@@ -556,7 +576,7 @@ class Settlement_menu_model extends MY_Model
 										'notes' 		=> trim($post['notes'][$i])
 									];
 
-									$this->db->insert('fpu_details', $itemData);
+									$this->db->insert('settlement_details', $itemData);
 								}
 							}
 						}
@@ -573,11 +593,12 @@ class Settlement_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-						, d.name as status_name, c.direct_id   
-						from fpu a left join employees b on b.id = a.prepared_by
-						left join employees c on c.id = a.requested_by
-						left join master_status_cashadvance d on d.id = a.status_id
+		$mTable = '(select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, d.direct_id, e.name as status_name, b.total_cost as total_cost_ca 
+						from settlement a 
+						left join cash_advance b on b.id = a.cash_advance_id
+						left join employees c on c.id = a.prepared_by
+						left join employees d on d.id = a.requested_by
+						left join master_status_cashadvance e on e.id = a.status_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -607,12 +628,14 @@ class Settlement_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'fpu_number' 	=> $v["B"],
-				'request_date' 	=> $v["C"],
-				'prepared_by' 	=> $v["D"],
-				'requested_by' 	=> $v["E"],
-				'total_cost' 	=> $v["F"],
-				'status_id' 	=> $v["G"]
+				'settlement_number' => $v["B"],
+				'settlement_date' 	=> $v["C"],
+				'cash_advance_id' 	=> $v["D"],
+				'prepared_by' 		=> $v["E"],
+				'requested_by' 		=> $v["F"],
+				'total_cost' 		=> $v["G"],
+				'settlement_amount' => $v["H"],
+				'status_id' 		=> $v["I"]
 				
 			];
 
@@ -625,11 +648,12 @@ class Settlement_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id   
-					from fpu a left join employees b on b.id = a.prepared_by
-					left join employees c on c.id = a.requested_by
-					left join master_status_cashadvance d on d.id = a.status_id
+		$sql = "select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, d.direct_id, e.name as status_name
+						from settlement a 
+						left join cash_advance b on b.id = a.cash_advance_id
+						left join employees c on c.id = a.prepared_by
+						left join employees d on d.id = a.requested_by
+						left join master_status_cashadvance e on e.id = a.status_id
 					order by a.id asc
 
 		";
@@ -640,10 +664,10 @@ class Settlement_menu_model extends MY_Model
 	}
 
 
-	public function getNewFpuRow($row,$id=0,$view=FALSE)
+	public function getNewSettRow($row,$id=0,$view=FALSE)
 	{ 
 		if($id > 0){ 
-			$data = $this->getFpuRows($id,$view);
+			$data = $this->getSettRows($id,$view);
 		} else { 
 			$data = '';
 			$no = $row+1;
@@ -668,11 +692,17 @@ class Settlement_menu_model extends MY_Model
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function getFpuRows($id,$view,$print=FALSE){ 
+	public function getSettRows($id,$view,$print=FALSE){ 
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select * from fpu_details where fpu_id = '".$id."' ")->result(); 
+		$data_sett = $this->db->query("select * from settlement where id = '".$id."' ")->result();
+		if(!empty($data_sett)){ 
+			$rs = $this->db->query("select * from settlement_details where settlement_id = '".$id."' ")->result(); 
+		}else{ 
+			$rs = $this->db->query("select * from cash_advance_details where cash_advance_id = '".$id."' ")->result(); 
+		}
+		
 		$rd = $rs;
 
 		$row = 0; 
@@ -729,6 +759,16 @@ class Settlement_menu_model extends MY_Model
 		}
 
 		return [$dt,$row];
+	}
+
+
+	public function getDataCashadvance($id){ 
+
+		$rs = $this->db->query("select * from cash_advance where id = '".$id."' ")->result(); 
+
+
+		return $rs;
+
 	}
 
 

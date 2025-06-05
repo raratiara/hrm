@@ -47,6 +47,54 @@
     ?>
 	
     <link rel="shortcut icon" href="favicon.ico" />
+
+
+    <style type="text/css">
+        
+        .page-sidebar-wrapper {
+          /*width: 210px;
+          height: 100vh;*/
+          background-color: #38ACEC;
+          color: #fff;
+          /*padding: 30px 20px;*/
+          /*position: fixed;
+          left: 0;
+          top: 0;*/
+          /*overflow-y: auto;*/
+          box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        /*.page-sidebar-wrapper h2 {
+          text-align: center;
+          margin-bottom: 30px;
+          font-size: 24px;
+          font-weight: bold;
+        }*/
+
+        /*.nav-toggle {
+          list-style: none;
+        }
+
+        .nav-toggle li {
+          margin: 15px 0;
+        }
+
+        .nav-toggle a {
+          text-decoration: none;
+          color: #ecf0f1;
+          padding: 10px;
+          display: block;
+          border-radius: 5px;
+          transition: 0.3s;
+        }
+
+        .nav-toggle a:hover {
+          background-color: #34495e;
+        }*/
+
+    </style>
+
+
 </head>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">

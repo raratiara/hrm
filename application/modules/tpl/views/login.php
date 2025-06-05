@@ -25,7 +25,7 @@
         <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
         <!-- END PAGE LEVEL PLUGINS -->
         <!-- BEGIN THEME GLOBAL STYLES -->
-        <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+        <!-- <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>css/components.min.css" rel="stylesheet" id="style_components" type="text/css" /> -->
         <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>css/plugins.min.css" rel="stylesheet" type="text/css" />
         <!-- END THEME GLOBAL STYLES -->
         <!-- BEGIN PAGE LEVEL STYLES -->
@@ -33,7 +33,115 @@
         <!-- END PAGE LEVEL STYLES -->
         <!-- BEGIN THEME LAYOUT STYLES -->
         <!-- END THEME LAYOUT STYLES -->
-        <link rel="shortcut icon" href="favicon.ico" /> </head>
+        <link rel="shortcut icon" href="favicon.ico" /> 
+
+        <style type="text/css">
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+              font-family: "Segoe UI", sans-serif;
+            }
+
+            body {
+              /*display: flex;*/
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background: linear-gradient(135deg, #E5E4E2, #4863A0);
+            }
+
+            .content {
+              background: #737CA1;
+              padding: 40px;
+              /*width: 300px;*/
+              border-radius: 15px;
+              box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+            }
+
+            #btnLogin {
+              background-color: #4863A0;  /* green background */
+              color: white;               /* white text */
+              padding: 10px 20px;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+            }
+
+
+            #btnLogin:hover {
+              background-color: #15317E;  /* darker green when hovered */
+            }
+            
+
+            /*.font-sign {
+                color: #32c5d2 !important; 
+            }*/
+
+            /*.login-box {
+              background: #fff;
+              padding: 40px;
+              width: 300px;
+              border-radius: 15px;
+              box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+              text-align: center;
+            }
+
+            .login-box h2 {
+              margin-bottom: 30px;
+              color: #333;
+            }
+
+            .input-box {
+              position: relative;
+              margin-bottom: 30px;
+            }
+
+            .input-box input {
+              width: 100%;
+              padding: 10px 10px;
+              font-size: 16px;
+              color: #333;
+              border: none;
+              border-bottom: 2px solid #aaa;
+              background: transparent;
+              outline: none;
+            }
+
+            .input-box label {
+              position: absolute;
+              left: 10px;
+              top: 10px;
+              color: #aaa;
+              pointer-events: none;
+              transition: 0.3s ease;
+            }
+
+            .input-box input:focus ~ label,
+            .input-box input:valid ~ label {
+              top: -10px;
+              font-size: 12px;
+              color: #6e8efb;
+            }
+
+            .login-btn {
+              width: 100%;
+              padding: 10px;
+              background: #6e8efb;
+              border: none;
+              color: #fff;
+              border-radius: 25px;
+              font-size: 16px;
+              cursor: pointer;
+              transition: 0.3s;
+            }
+
+            .login-btn:hover {
+              background: #5b78e0;
+            }*/
+        </style>
+
+    </head>
     <!-- END HEAD -->
 
     <body class=" login">
@@ -47,32 +155,33 @@
         <div class="content">
             <!-- BEGIN LOGIN FORM -->
             <form id="login-form" class="login-form">
-                <h3 class="form-title font-green">Sign In</h3>
+                <h3 class="form-title font-green">Sign In</h3> 
                 <div class="alert alert-danger display-hide">
                     <button class="close" data-close="alert"></button>
                     <span> Enter any username and password. </span>
                 </div>
                 <div class="form-group">
-                    <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
+                   
                     <label class="control-label visible-ie8 visible-ie9">Username</label>
                     <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="Username" name="username" /> </div>
                 <div class="form-group">
                     <label class="control-label visible-ie8 visible-ie9">Password</label>
                     <input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off" placeholder="Password" name="userpasswd" /> </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn green uppercase">Login</button>
+                    <button type="submit" class="btn green uppercase" id="btnLogin">Login</button>
                     <label class="rememberme check">
                         <input type="checkbox" name="remember" value="1" />Remember </label>
                 </div>
-                <div class="create-account">
+               <!--  <div class="create-account">
                     <p>
                         &nbsp;
                     </p>
-                </div>
+                </div> -->
             </form>
+             
             <!-- END LOGIN FORM -->
         </div>
-        <div class="copyright"><?php echo _COPYRIGHT; ?></div>
+        <!-- <div class="copyright"><?php echo _COPYRIGHT; ?></div> -->
         <!--[if lt IE 9]>
 <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/respond.min.js"></script>
 <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/excanvas.min.js"></script> 

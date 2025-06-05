@@ -5,7 +5,7 @@ class Fpp_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "cash_advance/fpp_menu";
- 	protected $table_name 				= _PREFIX_TABLE."fpp";
+ 	protected $table_name 				= _PREFIX_TABLE."cash_advance";
  	protected $primary_key 				= "id";
 
  	/* upload */
@@ -26,7 +26,7 @@ class Fpp_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.fpp_number',
+			'dt.ca_number',
 			'dt.request_date',
 			'dt.prepared_by_name',
 			'dt.requested_by_name',
@@ -42,7 +42,7 @@ class Fpp_menu_model extends MY_Model
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 					, d.name as status_name, c.direct_id   
-					from fpp a left join employees b on b.id = a.prepared_by
+					from cash_advance a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
 				)dt';
@@ -227,7 +227,7 @@ class Fpp_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->fpp_number,
+				$row->ca_number,
 				$row->request_date,
 				$row->prepared_by_name,
 				$row->requested_by_name,
@@ -345,13 +345,13 @@ class Fpp_menu_model extends MY_Model
 		$period = $yearcode.$monthcode; 
 		
 
-		$cek = $this->db->query("select * from fpp where SUBSTRING(fpp_number, 4, 4) = '".$period."'");
+		$cek = $this->db->query("select * from cash_advance where ca_type = '2' and SUBSTRING(ca_number, 4, 4) = '".$period."'");
 		$rs_cek = $cek->result_array();
 
 		if(empty($rs_cek)){
 			$num = '0001';
 		}else{
-			$cek2 = $this->db->query("select max(fpp_number) as maxnum from fpp where SUBSTRING(fpp_number, 4, 4) = '".$period."'");
+			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = '2' and SUBSTRING(ca_number, 4, 4) = '".$period."'");
 			$rs_cek2 = $cek2->result_array();
 			$dt = $rs_cek2[0]['maxnum']; 
 			$getnum = substr($dt,7); 
@@ -389,13 +389,14 @@ class Fpp_menu_model extends MY_Model
 			}
 
 			$data = [
-				'fpp_number' 		=> $nextnum,
+				'ca_number' 		=> $nextnum,
+				'ca_type' 			=> 2, //fpp
 				'request_date' 		=> trim($post['request_date']),
 				'prepared_by' 		=> $karyawan_id,
 				'requested_by'		=> trim($post['requested_by']),
 				'total_cost' 		=> trim($post['total_cost']),
 				'document' 			=> $document,
-				'type' 				=> trim($post['fpp_type']),
+				'fpp_type' 			=> trim($post['fpp_type']),
 				'no_rekening' 		=> trim($post['no_rekening']),
 				'vendor_name' 		=> trim($post['vendor_name']),
 				'invoice_number' 	=> trim($post['invoice_number']),
@@ -419,15 +420,15 @@ class Fpp_menu_model extends MY_Model
 					{
 						if(isset($post['name'][$i])){
 							$itemData = [
-								'fpp_id' 		=> $lastId,
-								'name' 			=> trim($post['name'][$i]),
-								'amount' 		=> trim($post['amount'][$i]),
-								'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
-								'total_amount'	=> trim($post['total_amount'][$i]),
-								'notes' 		=> trim($post['notes'][$i])
+								'cash_advance_id'	=> $lastId,
+								'name' 				=> trim($post['name'][$i]),
+								'amount' 			=> trim($post['amount'][$i]),
+								'ppn_pph' 			=> trim($post['ppn_pph'][$i]),
+								'total_amount'		=> trim($post['total_amount'][$i]),
+								'notes' 			=> trim($post['notes'][$i])
 							];
 
-							$this->db->insert('fpp_details', $itemData);
+							$this->db->insert('cash_advance_details', $itemData);
 						}
 					}
 				}
@@ -477,7 +478,7 @@ class Fpp_menu_model extends MY_Model
 
 
 
-				$getdata = $this->db->query("select * from fpp where id = '".$post['id']."'")->result(); 
+				$getdata = $this->db->query("select * from cash_advance where id = '".$post['id']."'")->result(); 
 				if($getdata[0]->status_id == 4 && ($karyawan_id == $getdata[0]->prepared_by || $karyawan_id == $getdata[0]->requested_by)){ // edit RFU
 
 					$data = [
@@ -485,7 +486,7 @@ class Fpp_menu_model extends MY_Model
 						'total_cost' 		=> trim($post['total_cost']),
 						'document' 			=> $document,
 						'updated_at'		=> date("Y-m-d H:i:s"),
-						'type' 				=> trim($post['fpp_type']),
+						'fpp_type' 			=> trim($post['fpp_type']),
 						'no_rekening' 		=> trim($post['no_rekening']),
 						'vendor_name' 		=> trim($post['vendor_name']),
 						'invoice_number' 	=> trim($post['invoice_number']),
@@ -497,7 +498,7 @@ class Fpp_menu_model extends MY_Model
 						'requested_by'		=> trim($post['requested_by']),
 						'total_cost' 		=> trim($post['total_cost']),
 						'document' 			=> $document,
-						'type' 				=> trim($post['fpp_type']),
+						'fpp_type' 			=> trim($post['fpp_type']),
 						'no_rekening' 		=> trim($post['no_rekening']),
 						'vendor_name' 		=> trim($post['vendor_name']),
 						'invoice_number' 	=> trim($post['invoice_number']),
@@ -533,20 +534,20 @@ class Fpp_menu_model extends MY_Model
 										'notes' 		=> trim($post['notes'][$i])
 									];
 
-									$this->db->update("fpp_details", $itemData, "id = '".$hdnid."'");
+									$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
 								}
 							}else{ //insert
 								if(isset($post['name'][$i])){
 									$itemData = [
-										'fpp_id' 		=> $post['id'],
-										'name' 			=> trim($post['name'][$i]),
-										'amount' 		=> trim($post['amount'][$i]),
-										'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
-										'total_amount'	=> trim($post['total_amount'][$i]),
-										'notes' 		=> trim($post['notes'][$i])
+										'cash_advance_id'	=> $post['id'],
+										'name' 				=> trim($post['name'][$i]),
+										'amount' 			=> trim($post['amount'][$i]),
+										'ppn_pph' 			=> trim($post['ppn_pph'][$i]),
+										'total_amount'		=> trim($post['total_amount'][$i]),
+										'notes' 			=> trim($post['notes'][$i])
 									];
 
-									$this->db->insert('fpp_details', $itemData);
+									$this->db->insert('cash_advance_details', $itemData);
 								}
 							}
 						}
@@ -565,7 +566,7 @@ class Fpp_menu_model extends MY_Model
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 						, d.name as status_name, c.direct_id   
-						from fpp a left join employees b on b.id = a.prepared_by
+						from cash_advance a left join employees b on b.id = a.prepared_by
 						left join employees c on c.id = a.requested_by
 						left join master_status_cashadvance d on d.id = a.status_id
 					)dt';
@@ -597,12 +598,13 @@ class Fpp_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'fpp_number' 	=> $v["B"],
+				'ca_number' 	=> $v["B"],
 				'request_date' 	=> $v["C"],
 				'prepared_by' 	=> $v["D"],
 				'requested_by' 	=> $v["E"],
 				'total_cost' 	=> $v["F"],
-				'status_id' 	=> $v["G"]
+				'status_id' 	=> $v["G"],
+				'ca_type' 		=> 2 //fpp
 				
 			];
 
@@ -617,9 +619,10 @@ class Fpp_menu_model extends MY_Model
 	{
 		$sql = "select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 					, d.name as status_name, c.direct_id   
-					from fpp a left join employees b on b.id = a.prepared_by
+					from cash_advance a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
+					where a.ca_type = '2'
 					order by a.id asc
 
 		";
@@ -662,7 +665,7 @@ class Fpp_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select * from fpp_details where fpp_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select * from cash_advance_details where cash_advance_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 

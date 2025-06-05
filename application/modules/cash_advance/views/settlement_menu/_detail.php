@@ -2,9 +2,9 @@
 	
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">FPU Number</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Settlement Number</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="fpu_number"></span>
+				: <span class="settlement_number"></span>
 			</div>
 		</div>
 		<div class="row">
@@ -13,20 +13,32 @@
 				: <span class="prepared_by"></span>
 			</div>
 		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">FPU/FPP Number</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="ca_number"></span>
+			</div>
+		</div>
 	</div>
 
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Request Date</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Settlement Date</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="request_date"></span>
+				: <span class="settlement_date"></span>
 			</div>
 		</div>
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Requested By</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="requested_by"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">FPU/FPP Cost</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="ca_cost"></span>
 			</div>
 		</div>
 		
@@ -84,6 +96,36 @@
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Terbilang</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="total_cost_terbilang"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Settlement Amount</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="settlement_amount"></span>
+			</div>
+		</div>
+		<div class="row" id="div_bukti_transfer_view" style="display:none">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Bukti Transfer</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="bukti_transfer"></span>
+			</div>
+		</div>
+		<div class="row" id="div_no_rekening_view" style="display:none">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No Rekening</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="no_rekening"></span>
+			</div>
+		</div>
+		<div class="row" id="div_bank_view" style="display:none">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Bank</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="bank"></span>
+			</div>
+		</div>
+		<div class="row" id="div_nama_rekening_view" style="display:none">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Nama Rekening</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="nama_rekening"></span>
 			</div>
 		</div>
 	</div>

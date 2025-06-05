@@ -20,7 +20,7 @@ class Fpu_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","FPU Number","Request Date","Prepared By","Requested By","Total Cost","Status"];
-	public $colfields 				= ["id","fpu_number","request_date","prepared_by_name","requested_by_name","total_cost","status_name"];
+	public $colfields 				= ["id","ca_number","request_date","prepared_by_name","requested_by_name","total_cost","status_name"];
 
 
 
@@ -128,7 +128,7 @@ class Fpu_menu extends MY_Controller
 		$id = trim($post['id']); 
 		
 		if($id != ''){
-			$rs = $this->db->delete('fpu_details',"id = '".$id."'");
+			$rs = $this->db->delete('cash_advance_details',"id = '".$id."'");
 		}
 		
 	}
@@ -147,7 +147,7 @@ class Fpu_menu extends MY_Controller
 				'rfu_reason' 	=> $reason,
 				'approval_date'	=> date("Y-m-d H:i:s")
 			];
-			$rs = $this->db->update('fpu', $data, "id = '".$id."'");
+			$rs = $this->db->update('cash_advance', $data, "id = '".$id."'");
 
 			return $rs;
 			
@@ -170,7 +170,7 @@ class Fpu_menu extends MY_Controller
 				'reject_reason' => $reason,
 				'approval_date'	=> date("Y-m-d H:i:s")
 			];
-			$rs = $this->db->update('fpu', $data, "id = '".$id."'");
+			$rs = $this->db->update('cash_advance', $data, "id = '".$id."'");
 
 			return $rs;
 			

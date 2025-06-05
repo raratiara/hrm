@@ -2,24 +2,28 @@
 	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> FPU Number</label>
+			<label class="col-md-4 control-label no-padding-right"> Settlement Number</label>
 			<div class="col-md-8">
-				<?=$txtfpunum;?>
+				<?=$txtsettlementnum;?>
 				<input type="hidden" id="action_type" name="action_type" />
 			</div>
 		</div>
-
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right"> Prepared By</label>
 			<div class="col-md-8">
 				<?=$txtpreparedby;?>
 			</div>
 		</div>
-		
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> FPU/FPP Number</label>
+			<div class="col-md-8">
+				<?=$selcanumber;?>
+			</div>
+		</div>
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Request Date</label>
+			<label class="col-md-4 control-label no-padding-right">Settlement Date</label>
 			<div class="col-md-8">
 				<?=$txtreqdate;?>
 			</div>
@@ -28,6 +32,12 @@
 			<label class="col-md-4 control-label no-padding-right">Requested By</label>
 			<div class="col-md-8">
 				<?=$txtrequestedby;?>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">FPU/FPP Cost</label>
+			<div class="col-md-8">
+				<?=$txtcacost;?>
 			</div>
 		</div>
 		
@@ -43,12 +53,12 @@
 			<div class="portlet-title">
 				<div class="caption">Advance Request Details </div>
 				<div class="tools">
-					<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addfpurow" value="Add Row" />
+					<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addsettrow" value="Add Row" />
 				</div>
 			</div>
 			<div class="portlet-body">
 				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover fpu-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailFpu">
+				<table class="table table-striped table-bordered table-hover sett-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSett">
 					<thead>
 						<tr>
 							<th scope="col">No</th>
@@ -88,6 +98,40 @@
 				<?=$txtterbilang;?>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Settlement Amount</label>
+			<div class="col-md-8">
+				<?=$txtsettamount;?>
+			</div>
+		</div>
+		<div class="form-group" id="div_bukti_transfer" style="display:none">
+			<label class="col-md-4 control-label no-padding-right"> Bukti Transfer</label>
+			<div class="col-md-4">
+				<?=$txtdoc_buktitransfer;?>
+				<input type="hidden" id="hdndoc_buktitransfer" name="hdndoc_buktitransfer"/>
+			</div>
+			<div class="col-md-4">
+				<span class="file_doc_buktitransfer"></span>
+			</div>
+		</div>
+		<div class="form-group" id="div_no_rekening" style="display:none">
+			<label class="col-md-4 control-label no-padding-right"> No Rekening</label>
+			<div class="col-md-8">
+				<?=$txtnorekening;?>
+			</div>
+		</div>
+		<div class="form-group" id="div_bank" style="display:none">
+			<label class="col-md-4 control-label no-padding-right"> Bank</label>
+			<div class="col-md-8">
+				<?=$txtbank;?>
+			</div>
+		</div>
+		<div class="form-group" id="div_nama_rekening" style="display:none">
+			<label class="col-md-4 control-label no-padding-right"> Nama Rekening</label>
+			<div class="col-md-8">
+				<?=$txtnamarekening;?>
+			</div>
+		</div>
 	</div>
 
 	<div class="col-md-6 col-sm-12">
@@ -103,10 +147,5 @@
 		</div>
 	</div>
 
-
-	
 </div>
 
-
-
-										
