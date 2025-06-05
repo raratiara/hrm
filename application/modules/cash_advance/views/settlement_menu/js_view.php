@@ -97,9 +97,9 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-var modloc = '/_hrm/cash_advance/fpu_menu/';
+var modloc = '/_hrm/cash_advance/settlement_menu/';
 var opsForm = 'form#frmInputData';
-var locate = 'table.fpu-list';
+var locate = 'table.sett-list';
 var wcount = 0; //for ca list row identify
 
 
@@ -260,24 +260,43 @@ function load_data()
 					}
 
 
-					$('[name="fpu_number"]').val(data.rowdata.fpu_number);
-					$('[name="request_date"]').val(data.rowdata.request_date);
+					$('[name="settlement_number"]').val(data.rowdata.settlement_number);
+					$('[name="settlement_date"]').val(data.rowdata.settlement_date);
+					$('[name="settlement_amount"]').val(data.rowdata.settlement_amount);
+					$('[name="ca_cost"]').val(data.rowdata.total_cost_ca);
 					$('[name="prepared_by"]').val(data.rowdata.prepared_by_name);
 					$('[name="id"]').val(data.rowdata.id);
 					$('select#requested_by').val(data.rowdata.requested_by).trigger('change.select2');
+					$('select#ca_number').val(data.rowdata.cash_advance_id).trigger('change.select2');
 					$('[name="total_cost"]').val(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
       				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+      				$('[name="no_rekening"]').val(data.rowdata.no_rekening);
+      				$('[name="bank"]').val(data.rowdata.bank_rekening);
+      				$('[name="nama_rekening"]').val(data.rowdata.nama_rekening);
+
+
+      				setinputanSettlement(data.rowdata.total_cost_ca, data.rowdata.total_cost);
+
 
       				$('[name="hdndoc"]').val(data.rowdata.document);
 					if(data.rowdata.document != '' && data.rowdata.document != null){
-						$('span.file_doc').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
+						$('span.file_doc').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.file_doc').html('');
 					}
+
+
+					//bukti transfer
+					$('[name="hdndoc_buktitransfer"]').val(data.rowdata.bukti_transfer);
+					if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
+						$('span.file_doc_buktitransfer').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.bukti_transfer+'" width="150" height="150" >');
+					}else{
+						$('span.file_doc_buktitransfer').html('');
+					}
 					
 
-					$.ajax({type: 'post',url: module_path+'/genfpurow',data: { id:data.rowdata.id },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:data.rowdata.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -295,22 +314,39 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.fpu_number').html(data.rowdata.fpu_number);
+					
+					$('span.ca_number').html(data.rowdata.ca_number);
+					$('span.ca_cost').html(data.rowdata.total_cost_ca);
+					$('span.settlement_number').html(data.rowdata.settlement_number);
+					$('span.settlement_amount').html(data.rowdata.settlement_amount);
+					$('span.no_rekening').html(data.rowdata.no_rekening);
+					$('span.bank').html(data.rowdata.bank_rekening);
+					$('span.nama_rekening').html(data.rowdata.nama_rekening);
 					$('span.prepared_by').html(data.rowdata.prepared_by_name);
-					$('span.request_date').html(data.rowdata.request_date);
+					$('span.settlement_date').html(data.rowdata.settlement_date);
 					$('span.requested_by').html(data.rowdata.requested_by_name);
 					$('span.total_cost').html(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
 					$('span.total_cost_terbilang').html(total_cost_terbilang);
+
+
+					setinputanSettlement(data.rowdata.total_cost_ca, data.rowdata.total_cost,'view');
 					
 					if(data.rowdata.document != '' && data.rowdata.document != null){
-						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
+						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.document').html('');
 					}
+
+					//bukti transfer
+					if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
+						$('span.bukti_transfer').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.bukti_transfer+'" width="150" height="150" >');
+					}else{
+						$('span.bukti_transfer').html('');
+					}
 					
 
-					$.ajax({type: 'post',url: module_path+'/genfpurow',data: { id:data.rowdata.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -358,18 +394,18 @@ function load_data()
 
 
 
-$("#addfpurow").on("click", function () { 
+$("#addsettrow").on("click", function () { 
 	
 	expire();
 	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/genfpurow',data: { count:wcount },success: function (response) {
+	$.ajax({type: 'post',url: module_path+'/gensettrow',data: { count:wcount },success: function (response) {
 			newRow.append(response);
 			$(locate).append(newRow);
 			wcount++;
 			
 		}
 	}).done(function() {
-		tSawBclear('table.fpu-list');
+		tSawBclear('table.sett-list');
 	});
 
 });
@@ -378,9 +414,9 @@ $("#addfpurow").on("click", function () {
 function del(idx,hdnid){
 	
 	if(hdnid != ''){ //delete dr table
-		$.ajax({type: 'post',url: module_path+'/delrowDetailFpu',data: { id:hdnid },success: function (response) {}
+		$.ajax({type: 'post',url: module_path+'/delrowDetailSett',data: { id:hdnid },success: function (response) {}
 		}).done(function() {
-			tSawBclear('table.fpu-list');
+			tSawBclear('table.sett-list');
 
 
 			var sum=0; 
@@ -395,7 +431,7 @@ function del(idx,hdnid){
 	}
 
 	//delete tampilan row
-	var table = document.getElementById("tblDetailFpu");
+	var table = document.getElementById("tblDetailSett");
 	table.deleteRow(idx);
 }
 
@@ -434,7 +470,9 @@ function set_total_amount(val){
     $('[name="total_cost"]').val(sum);
     updateTerbilang();
 
-    
+    var ca_cost = $("#ca_cost").val();
+    setinputanSettlement(ca_cost, sum);
+
 }
 
 function set_total_amount2(val){ 
@@ -459,6 +497,10 @@ function set_total_amount2(val){
     
     $('[name="total_cost"]').val(sum);
     updateTerbilang();
+
+
+    var ca_cost = $("#ca_cost").val();
+    setinputanSettlement(ca_cost, sum);
 
     
 }
@@ -593,6 +635,103 @@ function save_reject(){
 
 
 }
+
+
+$('#ca_number').on('change', function () { 
+ 	var ca_number = $("#ca_number option:selected").val();
+ 	
+ 	if(ca_number != ''){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataCashadvance',
+			data: { id: ca_number },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 	
+
+					$('[name="ca_cost"]').val(data[0].total_cost);
+					$('[name="total_cost"]').val(data[0].total_cost);
+					var total_cost_terbilang = terbilang(data[0].total_cost);
+      				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+      				$('[name="settlement_amount"]').val('0');
+
+					
+					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:ca_number },success: function (response) {
+						var obj = JSON.parse(response);
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+
+function setinputanSettlement(ca_cost, sett_cost, type=''){ 
+	var selisih = Number(ca_cost)-Number(sett_cost);
+    $('[name="settlement_amount"]').val(selisih);
+
+    if(selisih != 0){
+    	if(type == 'view'){
+    		if(selisih > 0){ //ada sisa
+	    		document.getElementById("div_bukti_transfer_view").style.display = "block";
+	    		document.getElementById("div_no_rekening_view").style.display = "none";
+	    		document.getElementById("div_bank_view").style.display = "none";
+	    		document.getElementById("div_nama_rekening_view").style.display = "none";
+		    }else{
+		    	document.getElementById("div_bukti_transfer_view").style.display = "none";
+		    	document.getElementById("div_no_rekening_view").style.display = "block";
+	    		document.getElementById("div_bank_view").style.display = "block";
+	    		document.getElementById("div_nama_rekening_view").style.display = "block";
+		    }
+    	}else{
+    		if(selisih > 0){ //ada sisa
+	    		document.getElementById("div_bukti_transfer").style.display = "block";
+	    		document.getElementById("div_no_rekening").style.display = "none";
+	    		document.getElementById("div_bank").style.display = "none";
+	    		document.getElementById("div_nama_rekening").style.display = "none";
+		    }else{
+		    	document.getElementById("div_bukti_transfer").style.display = "none";
+		    	document.getElementById("div_no_rekening").style.display = "block";
+	    		document.getElementById("div_bank").style.display = "block";
+	    		document.getElementById("div_nama_rekening").style.display = "block";
+		    }
+    	}
+    	
+    }
+}
+
+
 
 
 </script>
