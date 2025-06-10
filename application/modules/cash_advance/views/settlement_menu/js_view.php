@@ -268,9 +268,9 @@ function load_data()
 					$('[name="id"]').val(data.rowdata.id);
 					$('select#requested_by').val(data.rowdata.requested_by).trigger('change.select2');
 					$('select#ca_number').val(data.rowdata.cash_advance_id).trigger('change.select2');
-					$('[name="total_cost"]').val(data.rowdata.total_cost);
+					$('[name="total_cost_sett"]').val(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
-      				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+      				$('[name="total_cost_terbilang_sett"]').val(total_cost_terbilang);
       				$('[name="no_rekening"]').val(data.rowdata.no_rekening);
       				$('[name="bank"]').val(data.rowdata.bank_rekening);
       				$('[name="nama_rekening"]').val(data.rowdata.nama_rekening);
@@ -325,9 +325,9 @@ function load_data()
 					$('span.prepared_by').html(data.rowdata.prepared_by_name);
 					$('span.settlement_date').html(data.rowdata.settlement_date);
 					$('span.requested_by').html(data.rowdata.requested_by_name);
-					$('span.total_cost').html(data.rowdata.total_cost);
+					$('span.total_cost_sett').html(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
-					$('span.total_cost_terbilang').html(total_cost_terbilang);
+					$('span.total_cost_terbilang_sett').html(total_cost_terbilang);
 
 
 					setinputanSettlement(data.rowdata.total_cost_ca, data.rowdata.total_cost,'view');
@@ -345,7 +345,7 @@ function load_data()
 						$('span.bukti_transfer').html('');
 					}
 					
-
+					var locate = 'table.sett-list-view';
 					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
@@ -395,18 +395,24 @@ function load_data()
 
 
 $("#addsettrow").on("click", function () { 
-	
-	expire();
-	var newRow = $("<tr>");
-	$.ajax({type: 'post',url: module_path+'/gensettrow',data: { count:wcount },success: function (response) {
-			newRow.append(response);
-			$(locate).append(newRow);
-			wcount++;
-			
-		}
-	}).done(function() {
-		tSawBclear('table.sett-list');
-	});
+	var ca_number 		= $("#ca_number").val();
+
+	if(ca_number == ''){
+		alert("Please choose FPU/FPP Number");
+	}else{
+		expire();
+		var newRow = $("<tr>");
+		$.ajax({type: 'post',url: module_path+'/gensettrow',data: { count:wcount },success: function (response) {
+				newRow.append(response);
+				$(locate).append(newRow);
+				wcount++;
+				
+			}
+		}).done(function() {
+			tSawBclear('table.sett-list');
+		});
+	}
+
 
 });
 
@@ -420,11 +426,11 @@ function del(idx,hdnid){
 
 
 			var sum=0; 
-		    $(".total_amount").each(function(index, element){ 
+		    $(".total_amount_sett").each(function(index, element){ 
 		        sum += +$(this).val(); 
 		    });
 		    
-		    $('[name="total_cost"]').val(sum);
+		    $('[name="total_cost_sett"]').val(sum);
 		    updateTerbilang();
 
 		});
@@ -436,21 +442,21 @@ function del(idx,hdnid){
 }
 
 
-$(document).on("keyup", ".total_amount", function() {
+$(document).on("keyup", ".total_amount_sett", function() {
     var sum = 0;
-    $(".total_amount").each(function(){
+    $(".total_amount_sett").each(function(){
         sum += +$(this).val();
     });
-    $("#total_cost").val(sum);
+    $("#total_cost_sett").val(sum);
     
 });
 
 
 
-function set_total_amount(val){ 
+function set_total_amount_sett(val){ 
 	var row = val.dataset.id;  
 	var amount = val.value;
-	var pajak = $('[name="ppn_pph['+row+']"]').val();
+	var pajak = $('[name="ppn_pph_sett['+row+']"]').val();
 
 	if(pajak == 0){
 		var total_amount = amount;
@@ -460,14 +466,14 @@ function set_total_amount(val){
 	}
 	
 
-	$('[name="total_amount['+row+']"]').val(total_amount);
+	$('[name="total_amount_sett['+row+']"]').val(total_amount);
 
 	var sum=0; 
-    $(".total_amount").each(function(index, element){ 
+    $(".total_amount_sett").each(function(index, element){ 
         sum += +$(this).val(); 
     });
     
-    $('[name="total_cost"]').val(sum);
+    $('[name="total_cost_sett"]').val(sum);
     updateTerbilang();
 
     var ca_cost = $("#ca_cost").val();
@@ -475,10 +481,10 @@ function set_total_amount(val){
 
 }
 
-function set_total_amount2(val){ 
+function set_total_amount2_sett(val){ 
 	var row = val.dataset.id;  
 	var pajak = val.value;
-	var amount = $('[name="amount['+row+']"]').val();
+	var amount = $('[name="amount_sett['+row+']"]').val();
 
 	if(pajak == 0){
 		var total_amount = amount;
@@ -488,14 +494,14 @@ function set_total_amount2(val){
 	}
 	
 
-	$('[name="total_amount['+row+']"]').val(total_amount);
+	$('[name="total_amount_sett['+row+']"]').val(total_amount);
 
 	var sum=0; 
-    $(".total_amount").each(function(index, element){ 
+    $(".total_amount_sett").each(function(index, element){ 
         sum += +$(this).val(); 
     });
     
-    $('[name="total_cost"]').val(sum);
+    $('[name="total_cost_sett"]').val(sum);
     updateTerbilang();
 
 
@@ -529,13 +535,13 @@ function terbilang(n) {
 
 
 function updateTerbilang() { 
-    const nilai = document.getElementById("total_cost").value;
+    const nilai = document.getElementById("total_cost_sett").value;
    
     if (nilai) {
       total_cost_terbilang = terbilang(nilai);
-      $('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+      $('[name="total_cost_terbilang_sett"]').val(total_cost_terbilang);
     } else {
-      $('[name="total_cost_terbilang"]').val("");
+      $('[name="total_cost_terbilang_sett"]').val("");
     }
 }
 
@@ -653,9 +659,9 @@ $('#ca_number').on('change', function () {
 				if(data != null){ 	
 
 					$('[name="ca_cost"]').val(data[0].total_cost);
-					$('[name="total_cost"]').val(data[0].total_cost);
+					$('[name="total_cost_sett"]').val(data[0].total_cost);
 					var total_cost_terbilang = terbilang(data[0].total_cost);
-      				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+      				$('[name="total_cost_terbilang_sett"]').val(total_cost_terbilang);
       				$('[name="settlement_amount"]').val('0');
 
 					

@@ -73,7 +73,7 @@
 </div>
 
 
-<div class="row ca">
+<div>
     <div class="col-md-12">
 		<div class="portlet box grey">
 			<div class="portlet-title">
@@ -84,7 +84,7 @@
 			</div>
 			<div class="portlet-body">
 				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover fpp-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblFpp">
+				<table class="table table-striped table-bordered table-hover fpp-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblFpp">
 					<thead>
 						<tr>
 							<th scope="col">No</th>
@@ -116,13 +116,13 @@
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Total Cost</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="total_cost"></span>
+				: <span class="total_cost_fpp"></span>
 			</div>
 		</div>
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Terbilang</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="total_cost_terbilang"></span>
+				: <span class="total_cost_terbilang_fpp"></span>
 			</div>
 		</div>
 	</div>

@@ -421,11 +421,11 @@ class Fpp_menu_model extends MY_Model
 						if(isset($post['name'][$i])){
 							$itemData = [
 								'cash_advance_id'	=> $lastId,
-								'name' 				=> trim($post['name'][$i]),
-								'amount' 			=> trim($post['amount'][$i]),
-								'ppn_pph' 			=> trim($post['ppn_pph'][$i]),
-								'total_amount'		=> trim($post['total_amount'][$i]),
-								'notes' 			=> trim($post['notes'][$i])
+								'name' 				=> trim($post['name_fpp'][$i]),
+								'amount' 			=> trim($post['amount_fpp'][$i]),
+								'ppn_pph' 			=> trim($post['ppn_pph_fpp'][$i]),
+								'total_amount'		=> trim($post['total_amount_fpp'][$i]),
+								'notes' 			=> trim($post['notes_fpp'][$i])
 							];
 
 							$this->db->insert('cash_advance_details', $itemData);
@@ -522,16 +522,16 @@ class Fpp_menu_model extends MY_Model
 					if($item_num>0){
 						for($i=$item_len_min;$i<=$item_len;$i++) 
 						{
-							$hdnid = trim($post['hdnid'][$i]);
+							$hdnid = trim($post['hdnid_fpp'][$i]);
 
 							if(!empty($hdnid)){ //update
 								if(isset($post['name'][$i])){
 									$itemData = [
-										'name' 			=> trim($post['name'][$i]),
-										'amount' 		=> trim($post['amount'][$i]),
-										'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
-										'total_amount'	=> trim($post['total_amount'][$i]),
-										'notes' 		=> trim($post['notes'][$i])
+										'name' 			=> trim($post['name_fpp'][$i]),
+										'amount' 		=> trim($post['amount_fpp'][$i]),
+										'ppn_pph' 		=> trim($post['ppn_pph_fpp'][$i]),
+										'total_amount'	=> trim($post['total_amount_fpp'][$i]),
+										'notes' 		=> trim($post['notes_fpp'][$i])
 									];
 
 									$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
@@ -540,11 +540,11 @@ class Fpp_menu_model extends MY_Model
 								if(isset($post['name'][$i])){
 									$itemData = [
 										'cash_advance_id'	=> $post['id'],
-										'name' 				=> trim($post['name'][$i]),
-										'amount' 			=> trim($post['amount'][$i]),
-										'ppn_pph' 			=> trim($post['ppn_pph'][$i]),
-										'total_amount'		=> trim($post['total_amount'][$i]),
-										'notes' 			=> trim($post['notes'][$i])
+										'name' 				=> trim($post['name_fpp'][$i]),
+										'amount' 			=> trim($post['amount_fpp'][$i]),
+										'ppn_pph' 			=> trim($post['ppn_pph_fpp'][$i]),
+										'total_amount'		=> trim($post['total_amount_fpp'][$i]),
+										'notes' 			=> trim($post['notes_fpp'][$i])
 									];
 
 									$this->db->insert('cash_advance_details', $itemData);
@@ -641,20 +641,20 @@ class Fpp_menu_model extends MY_Model
 			$data = '';
 			$no = $row+1;
 			
-			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid_fpp'.$row.'" name="hdnid_fpp['.$row.']" value=""/></td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','name_fpp['.$row.']','','name_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount(this)" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','amount_fpp['.$row.']','','amount_fpp','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_fpp(this)" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','ppn_pph['.$row.']','','ppn_pph','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2(this)" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','ppn_pph_fpp['.$row.']','','ppn_pph_fpp','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2_fpp(this)" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','total_amount['.$row.']','','total_amount','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','total_amount_fpp['.$row.']','','total_amount_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txtarea('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txtarea('','notes_fpp['.$row.']','','notes_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 			$hdnid='';
-			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del_fpp(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
 		}
 
 		return $data;
@@ -679,20 +679,20 @@ class Fpp_menu_model extends MY_Model
 
 					$dt .= '<tr>';
 
-					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid_fpp'.$row.'" name="hdnid_fpp['.$row.']" value="'.$f->id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->name,'name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->name,'name_fpp['.$row.']','','name_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount(this)" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount_fpp['.$row.']','','amount_fpp','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_fpp(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->ppn_pph,'ppn_pph['.$row.']','','ppn_pph','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2(this)" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->ppn_pph,'ppn_pph_fpp['.$row.']','','ppn_pph_fpp','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2_fpp(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_amount,'total_amount['.$row.']','','total_amount','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->total_amount,'total_amount_fpp['.$row.']','','total_amount_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes_fpp['.$row.']','','notes_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 					
-					$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" id="btndel" value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" id="btndel" value="Delete" onclick="del_fpp(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
 				} else { 
 					

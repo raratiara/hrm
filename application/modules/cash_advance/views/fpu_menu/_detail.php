@@ -34,7 +34,7 @@
 </div>
 
 
-<div class="row ca">
+<div>
     <div class="col-md-12">
 		<div class="portlet box grey">
 			<div class="portlet-title">
@@ -45,7 +45,7 @@
 			</div>
 			<div class="portlet-body">
 				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover fpu-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblFpu">
+				<table class="table table-striped table-bordered table-hover fpu-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblFpu">
 					<thead>
 						<tr>
 							<th scope="col">No</th>

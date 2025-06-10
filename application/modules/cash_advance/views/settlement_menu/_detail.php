@@ -57,7 +57,7 @@
 			</div>
 			<div class="portlet-body">
 				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover fpu-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblFpu">
+				<table class="table table-striped table-bordered table-hover sett-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblSett">
 					<thead>
 						<tr>
 							<th scope="col">No</th>
@@ -89,13 +89,13 @@
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Total Cost</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="total_cost"></span>
+				: <span class="total_cost_sett"></span>
 			</div>
 		</div>
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Terbilang</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="total_cost_terbilang"></span>
+				: <span class="total_cost_terbilang_sett"></span>
 			</div>
 		</div>
 		<div class="row">
