@@ -436,11 +436,11 @@ class Settlement_menu_model extends MY_Model
 						if(isset($post['name'][$i])){
 							$itemData = [
 								'settlement_id' => $lastId,
-								'name' 			=> trim($post['name'][$i]),
-								'amount' 		=> trim($post['amount'][$i]),
-								'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
-								'total_amount'	=> trim($post['total_amount'][$i]),
-								'notes' 		=> trim($post['notes'][$i])
+								'name' 			=> trim($post['name_sett'][$i]),
+								'amount' 		=> trim($post['amount_sett'][$i]),
+								'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
+								'total_amount'	=> trim($post['total_amount_sett'][$i]),
+								'notes' 		=> trim($post['notes_sett'][$i])
 							];
 
 							$this->db->insert('settlement_details', $itemData);
@@ -551,16 +551,16 @@ class Settlement_menu_model extends MY_Model
 					if($item_num>0){
 						for($i=$item_len_min;$i<=$item_len;$i++) 
 						{
-							$hdnid = trim($post['hdnid'][$i]);
+							$hdnid = trim($post['hdnid_sett'][$i]);
 
 							if(!empty($hdnid)){ //update
 								if(isset($post['name'][$i])){
 									$itemData = [
-										'name' 			=> trim($post['name'][$i]),
-										'amount' 		=> trim($post['amount'][$i]),
-										'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
-										'total_amount'	=> trim($post['total_amount'][$i]),
-										'notes' 		=> trim($post['notes'][$i])
+										'name' 			=> trim($post['name_sett'][$i]),
+										'amount' 		=> trim($post['amount_sett'][$i]),
+										'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
+										'total_amount'	=> trim($post['total_amount_sett'][$i]),
+										'notes' 		=> trim($post['notes_sett'][$i])
 									];
 
 									$this->db->update("settlement_details", $itemData, "id = '".$hdnid."'");
@@ -569,11 +569,11 @@ class Settlement_menu_model extends MY_Model
 								if(isset($post['name'][$i])){
 									$itemData = [
 										'settlement_id' => $post['id'],
-										'name' 			=> trim($post['name'][$i]),
-										'amount' 		=> trim($post['amount'][$i]),
-										'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
-										'total_amount'	=> trim($post['total_amount'][$i]),
-										'notes' 		=> trim($post['notes'][$i])
+										'name' 			=> trim($post['name_sett'][$i]),
+										'amount' 		=> trim($post['amount_sett'][$i]),
+										'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
+										'total_amount'	=> trim($post['total_amount_sett'][$i]),
+										'notes' 		=> trim($post['notes_sett'][$i])
 									];
 
 									$this->db->insert('settlement_details', $itemData);
@@ -672,20 +672,20 @@ class Settlement_menu_model extends MY_Model
 			$data = '';
 			$no = $row+1;
 			
-			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid_sett'.$row.'" name="hdnid_sett['.$row.']" value=""/></td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','name_sett['.$row.']','','name_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount(this)" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','amount_sett['.$row.']','','amount_sett','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_sett(this)" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','ppn_pph['.$row.']','','ppn_pph','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2(this)" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','ppn_pph_sett['.$row.']','','ppn_pph_sett','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2_sett(this)" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','total_amount['.$row.']','','total_amount','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','total_amount_sett['.$row.']','','total_amount_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txtarea('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txtarea('','notes_sett['.$row.']','','notes_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 			$hdnid='';
-			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del_sett(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
 		}
 
 		return $data;
@@ -716,20 +716,20 @@ class Settlement_menu_model extends MY_Model
 
 					$dt .= '<tr>';
 
-					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid_sett'.$row.'" name="hdnid_sett['.$row.']" value="'.$f->id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->name,'name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->name,'name_sett['.$row.']','','name_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount(this)" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount_sett['.$row.']','','amount_sett','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_sett(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->ppn_pph,'ppn_pph['.$row.']','','ppn_pph','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2(this)" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->ppn_pph,'ppn_pph_sett['.$row.']','','ppn_pph_sett','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2_sett(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_amount,'total_amount['.$row.']','','total_amount','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->total_amount,'total_amount_sett['.$row.']','','total_amount_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txtarea($f->notes,'notes_sett['.$row.']','','notes_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 					
-					$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" id="btndel" value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
+					$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" id="btndel" value="Delete" onclick="del_sett(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
 				} else { 
 					

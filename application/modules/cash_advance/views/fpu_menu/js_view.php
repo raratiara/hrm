@@ -309,7 +309,7 @@ function load_data()
 						$('span.document').html('');
 					}
 					
-
+					var locate = 'table.fpu-list-view';
 					$.ajax({type: 'post',url: module_path+'/genfpurow',data: { id:data.rowdata.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
@@ -442,11 +442,12 @@ function set_total_amount2(val){
 	var pajak = val.value;
 	var amount = $('[name="amount['+row+']"]').val();
 
-	if(pajak == 0){
+	if(pajak == 0){ 
 		var total_amount = amount;
 	}else{ 
 		var amount_pajak = pajak/100; 
 		var total_amount = Number((amount*amount_pajak))+Number(amount);
+		//console.log(amount+' & '+amount_pajak);
 	}
 	
 
