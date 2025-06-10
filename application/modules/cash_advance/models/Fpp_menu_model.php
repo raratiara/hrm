@@ -421,7 +421,7 @@ class Fpp_menu_model extends MY_Model
 						if(isset($post['name'][$i])){
 							$itemData = [
 								'cash_advance_id'	=> $lastId,
-								'name' 				=> trim($post['name_fpp'][$i]),
+								'post_budget_id' 	=> trim($post['post_budget_fpp'][$i]),
 								'amount' 			=> trim($post['amount_fpp'][$i]),
 								'ppn_pph' 			=> trim($post['ppn_pph_fpp'][$i]),
 								'total_amount'		=> trim($post['total_amount_fpp'][$i]),
@@ -527,7 +527,7 @@ class Fpp_menu_model extends MY_Model
 							if(!empty($hdnid)){ //update
 								if(isset($post['name'][$i])){
 									$itemData = [
-										'name' 			=> trim($post['name_fpp'][$i]),
+										'post_budget_id'	=> trim($post['post_budget_fpp'][$i]),
 										'amount' 		=> trim($post['amount_fpp'][$i]),
 										'ppn_pph' 		=> trim($post['ppn_pph_fpp'][$i]),
 										'total_amount'	=> trim($post['total_amount_fpp'][$i]),
@@ -540,7 +540,7 @@ class Fpp_menu_model extends MY_Model
 								if(isset($post['name'][$i])){
 									$itemData = [
 										'cash_advance_id'	=> $post['id'],
-										'name' 				=> trim($post['name_fpp'][$i]),
+										'post_budget_id' 	=> trim($post['post_budget'][$i]),
 										'amount' 			=> trim($post['amount_fpp'][$i]),
 										'ppn_pph' 			=> trim($post['ppn_pph_fpp'][$i]),
 										'total_amount'		=> trim($post['total_amount_fpp'][$i]),
@@ -640,10 +640,12 @@ class Fpp_menu_model extends MY_Model
 		} else { 
 			$data = '';
 			$no = $row+1;
+			$msPostbudget = $this->db->query("select * from master_post_budget")->result(); 
 			
 			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid_fpp'.$row.'" name="hdnid_fpp['.$row.']" value=""/></td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','name_fpp['.$row.']','','name_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
+			/*$data 	.= '<td>'.$this->return_build_txt('','name_fpp['.$row.']','','name_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+			$data 	.= '<td>'.$this->return_build_chosenme($msPostbudget,'','','','post_budget_fpp['.$row.']','post_budget_fpp','post_budget_fpp','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 
 			$data 	.= '<td>'.$this->return_build_txt('','amount_fpp['.$row.']','','amount_fpp','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_fpp(this)" ').'</td>';
 
@@ -665,7 +667,7 @@ class Fpp_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select * from cash_advance_details where cash_advance_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select a.*, b.name as post_budget_name from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id where a.cash_advance_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
@@ -674,6 +676,7 @@ class Fpp_menu_model extends MY_Model
 			
 			foreach ($rd as $f){
 				$no = $row+1;
+				$msPostbudget = $this->db->query("select * from master_post_budget")->result(); 
 				
 				if(!$view){ 
 
@@ -681,7 +684,8 @@ class Fpp_menu_model extends MY_Model
 
 					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid_fpp'.$row.'" name="hdnid_fpp['.$row.']" value="'.$f->id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->name,'name_fpp['.$row.']','','name_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';
+					/*$dt .= '<td>'.$this->return_build_txt($f->name,'name_fpp['.$row.']','','name_fpp','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+					$dt .= '<td>'.$this->return_build_chosenme($msPostbudget,'',isset($f->post_budget_id)?$f->post_budget_id:1,'','post_budget_fpp['.$row.']','post_budget_fpp','post_budget_fpp','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount_fpp['.$row.']','','amount_fpp','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_fpp(this)" ').'</td>';
 
@@ -707,7 +711,7 @@ class Fpp_menu_model extends MY_Model
 					} 
 					
 					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->name.'</td>';
+					$dt .= '<td>'.$f->post_budget_name.'</td>';
 					$dt .= '<td>'.$f->amount.'</td>';
 					$dt .= '<td>'.$f->ppn_pph.'</td>';
 					$dt .= '<td>'.$f->total_amount.'</td>';

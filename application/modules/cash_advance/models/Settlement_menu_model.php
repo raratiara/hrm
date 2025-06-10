@@ -436,7 +436,7 @@ class Settlement_menu_model extends MY_Model
 						if(isset($post['name'][$i])){
 							$itemData = [
 								'settlement_id' => $lastId,
-								'name' 			=> trim($post['name_sett'][$i]),
+								'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
 								'amount' 		=> trim($post['amount_sett'][$i]),
 								'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
 								'total_amount'	=> trim($post['total_amount_sett'][$i]),
@@ -556,7 +556,7 @@ class Settlement_menu_model extends MY_Model
 							if(!empty($hdnid)){ //update
 								if(isset($post['name'][$i])){
 									$itemData = [
-										'name' 			=> trim($post['name_sett'][$i]),
+										'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
 										'amount' 		=> trim($post['amount_sett'][$i]),
 										'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
 										'total_amount'	=> trim($post['total_amount_sett'][$i]),
@@ -569,7 +569,7 @@ class Settlement_menu_model extends MY_Model
 								if(isset($post['name'][$i])){
 									$itemData = [
 										'settlement_id' => $post['id'],
-										'name' 			=> trim($post['name_sett'][$i]),
+										'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
 										'amount' 		=> trim($post['amount_sett'][$i]),
 										'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
 										'total_amount'	=> trim($post['total_amount_sett'][$i]),
@@ -671,10 +671,12 @@ class Settlement_menu_model extends MY_Model
 		} else { 
 			$data = '';
 			$no = $row+1;
+			$msPostbudget = $this->db->query("select * from master_post_budget")->result(); 
 			
 			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid_sett'.$row.'" name="hdnid_sett['.$row.']" value=""/></td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','name_sett['.$row.']','','name_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
+			/*$data 	.= '<td>'.$this->return_build_txt('','name_sett['.$row.']','','name_sett','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+			$data 	.= '<td>'.$this->return_build_chosenme($msPostbudget,'','','','post_budget_sett['.$row.']','post_budget_sett','post_budget_sett','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 
 			$data 	.= '<td>'.$this->return_build_txt('','amount_sett['.$row.']','','amount_sett','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_sett(this)" ').'</td>';
 
@@ -698,9 +700,9 @@ class Settlement_menu_model extends MY_Model
 		
 		$data_sett = $this->db->query("select * from settlement where id = '".$id."' ")->result();
 		if(!empty($data_sett)){ 
-			$rs = $this->db->query("select * from settlement_details where settlement_id = '".$id."' ")->result(); 
+			$rs = $this->db->query("select a.*, b.name as post_budget_name from settlement_details a left join master_post_budget b on b.id = a.post_budget_id where a.settlement_id = '".$id."' ")->result(); 
 		}else{ 
-			$rs = $this->db->query("select * from cash_advance_details where cash_advance_id = '".$id."' ")->result(); 
+			$rs = $this->db->query("select a.*, b.name as post_budget_name from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id where a.cash_advance_id = '".$id."' ")->result(); 
 		}
 		
 		$rd = $rs;
@@ -711,6 +713,7 @@ class Settlement_menu_model extends MY_Model
 			
 			foreach ($rd as $f){
 				$no = $row+1;
+				$msPostbudget = $this->db->query("select * from master_post_budget")->result(); 
 				
 				if(!$view){ 
 
@@ -718,7 +721,8 @@ class Settlement_menu_model extends MY_Model
 
 					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid_sett'.$row.'" name="hdnid_sett['.$row.']" value="'.$f->id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->name,'name_sett['.$row.']','','name_sett','text-align: right;','data-id="'.$row.'" ').'</td>';
+					/*$dt .= '<td>'.$this->return_build_txt($f->name,'name_sett['.$row.']','','name_sett','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+					$dt .= '<td>'.$this->return_build_chosenme($msPostbudget,'',isset($f->post_budget_id)?$f->post_budget_id:1,'','post_budget_sett['.$row.']','post_budget_sett','post_budget_sett','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount_sett['.$row.']','','amount_sett','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount_sett(this)" ').'</td>';
 
@@ -744,7 +748,7 @@ class Settlement_menu_model extends MY_Model
 					} 
 					
 					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->name.'</td>';
+					$dt .= '<td>'.$f->post_budget_name.'</td>';
 					$dt .= '<td>'.$f->amount.'</td>';
 					$dt .= '<td>'.$f->ppn_pph.'</td>';
 					$dt .= '<td>'.$f->total_amount.'</td>';

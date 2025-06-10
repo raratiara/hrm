@@ -202,4 +202,14 @@ class Settlement_menu extends MY_Controller
 	}
 
 
+	public function getDataEmp(){
+		$post = $this->input->post(null, true);
+		$employee_id = $post['employee_id'];
+
+		$rs = $this->db->query("select * from employees where id = '".$employee_id."' ")->result(); 
+		
+
+		echo json_encode($rs);
+	}
+
 }

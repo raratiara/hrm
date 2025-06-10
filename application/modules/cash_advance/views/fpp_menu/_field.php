@@ -91,7 +91,7 @@
 					<thead>
 						<tr>
 							<th scope="col">No</th>
-							<th scope="col">Name</th>
+							<th scope="col">Post Budget</th>
 							<th scope="col">Amount</th>
 							<th scope="col">PPN/PPH (%)</th>
 							<th scope="col">Total</th>
