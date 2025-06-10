@@ -623,6 +623,9 @@ class Api extends API_Controller
     	$employee	= $_POST['employee_id'];
     	$tipe 		= 'checkin';
     	$datetime	= $_POST['datetime_attendance'];
+    	$latitude	= $_POST['latitude'];
+    	$longitude	= $_POST['longitude'];
+    	$work_location	= $_POST['work_location'];
     	
 
 
@@ -754,12 +757,22 @@ class Api extends API_Controller
 								'time_out' 					=> $time_out,
 								'date_attendance_in' 		=> $datetime,
 								'is_late'					=> $is_late,
-								'created_at'				=> date("Y-m-d H:i:s")
+								'created_at'				=> date("Y-m-d H:i:s"),
+								'lat_checkin' 				=> $latitude,
+								'long_checkin' 				=> $longitude,
+								'work_location' 			=> $work_location
 							];
 
 							$rs = $this->db->insert("time_attendances", $data);
 
 							if($rs){
+								$upd_emp = [
+									'last_lat' 				=> $latitude,
+									'last_long' 			=> $longitude
+								];
+								$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+
 								$response = [
 									'status' 	=> 200,
 									'message' 	=> 'Success'
@@ -821,6 +834,8 @@ class Api extends API_Controller
     	$datetime	= $_POST['datetime_attendance'];
     	$notes		= $_POST['notes'];
     	$photo		= $_FILES['photo'];
+    	$latitude	= $_POST['latitude'];
+    	$longitude	= $_POST['longitude'];
 
 
 		if($employee != '' && $datetime != ''){
@@ -944,12 +959,22 @@ class Api extends API_Controller
 									'is_leaving_office_early'	=> $is_leaving_office_early,
 									'num_of_working_hours'		=> $num_of_working_hours,
 									'updated_at'				=> date("Y-m-d H:i:s"),
-									'notes' => $notes,
-									'photo' => $document
+									'notes' 					=> $notes,
+									'photo' 					=> $document,
+									'lat_checkout' 				=> $latitude,
+									'long_checkout' 			=> $longitude
 								];
 								$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
 
 								if($rs){
+									$upd_emp = [
+										'last_lat' 				=> $latitude,
+										'last_long' 			=> $longitude
+									];
+									$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+
+								
 									$response = [
 										'status' 	=> 200,
 										'message' 	=> 'Success'

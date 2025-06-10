@@ -704,33 +704,78 @@ $('#ca_number').on('change', function () {
 
 
 function setinputanSettlement(ca_cost, sett_cost, type=''){ 
+	var requested_by = $("#requested_by option:selected").val();
+
 	var selisih = Number(ca_cost)-Number(sett_cost);
     $('[name="settlement_amount"]').val(selisih);
 
     if(selisih != 0){
-    	if(type == 'view'){
+    	if(type == 'view'){ 
     		if(selisih > 0){ //ada sisa
-	    		document.getElementById("div_bukti_transfer_view").style.display = "block";
+	    		document.getElementById("div_bukti_transfer_view").style.display = "";
 	    		document.getElementById("div_no_rekening_view").style.display = "none";
 	    		document.getElementById("div_bank_view").style.display = "none";
 	    		document.getElementById("div_nama_rekening_view").style.display = "none";
 		    }else{
 		    	document.getElementById("div_bukti_transfer_view").style.display = "none";
-		    	document.getElementById("div_no_rekening_view").style.display = "block";
-	    		document.getElementById("div_bank_view").style.display = "block";
-	    		document.getElementById("div_nama_rekening_view").style.display = "block";
+		    	document.getElementById("div_no_rekening_view").style.display = "";
+	    		document.getElementById("div_bank_view").style.display = "";
+	    		document.getElementById("div_nama_rekening_view").style.display = "";
 		    }
-    	}else{
+    	}else{ 
     		if(selisih > 0){ //ada sisa
-	    		document.getElementById("div_bukti_transfer").style.display = "block";
+	    		document.getElementById("div_bukti_transfer").style.display = "";
 	    		document.getElementById("div_no_rekening").style.display = "none";
 	    		document.getElementById("div_bank").style.display = "none";
 	    		document.getElementById("div_nama_rekening").style.display = "none";
-		    }else{
+		    }else{ 
 		    	document.getElementById("div_bukti_transfer").style.display = "none";
-		    	document.getElementById("div_no_rekening").style.display = "block";
-	    		document.getElementById("div_bank").style.display = "block";
-	    		document.getElementById("div_nama_rekening").style.display = "block";
+		    	document.getElementById("div_no_rekening").style.display = "";
+	    		document.getElementById("div_bank").style.display = "";
+	    		document.getElementById("div_nama_rekening").style.display = "";
+
+	    		if(requested_by != ''){ 
+	    			$.ajax({
+						type: "POST",
+				        url : module_path+'/getDataEmp',
+						data: { employee_id: requested_by },
+						cache: false,		
+				        dataType: "JSON",
+				        success: function(data)
+				        {  
+							if(data != null){ 	
+
+								$('[name="no_rekening"]').val(data[0].bank_acc_no);
+				  				$('[name="bank"]').val(data[0].bank_name);
+				  				$('[name="nama_rekening"]').val(data[0].bank_acc_name);
+
+							} else { 
+								$('[name="no_rekening"]').val('');
+				  				$('[name="bank"]').val('');
+				  				$('[name="nama_rekening"]').val('');
+							}
+
+				        },
+				        error: function (jqXHR, textStatus, errorThrown)
+				        {
+							var dialog = bootbox.dialog({
+								title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+								message: jqXHR.responseText,
+								buttons: {
+									confirm: {
+										label: 'Ok',
+										className: 'btn blue'
+									}
+								}
+							});
+				        }
+				    });
+	    		}else{ 
+	    			$('[name="no_rekening"]').val('');
+	  				$('[name="bank"]').val('');
+	  				$('[name="nama_rekening"]').val('');
+	    		}
+
 		    }
     	}
     	

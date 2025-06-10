@@ -402,10 +402,10 @@ class Fpu_menu_model extends MY_Model
 			$lastId = $this->db->insert_id();
 
 			if($rs){
-				if(isset($post['name'])){
-					$item_num = count($post['name']); // cek sum
-					$item_len_min = min(array_keys($post['name'])); // cek min key index
-					$item_len = max(array_keys($post['name'])); // cek max key index
+				if(isset($post['post_budget'])){
+					$item_num = count($post['post_budget']); // cek sum
+					$item_len_min = min(array_keys($post['post_budget'])); // cek min key index
+					$item_len = max(array_keys($post['post_budget'])); // cek max key index
 				} else {
 					$item_num = 0;
 				}
@@ -413,10 +413,10 @@ class Fpu_menu_model extends MY_Model
 				if($item_num>0){
 					for($i=$item_len_min;$i<=$item_len;$i++) 
 					{
-						if(isset($post['name'][$i])){
+						if(isset($post['post_budget'][$i])){
 							$itemData = [
 								'cash_advance_id'	=> $lastId,
-								'name' 				=> trim($post['name'][$i]),
+								'post_budget_id' 	=> trim($post['post_budget'][$i]),
 								'amount' 			=> trim($post['amount'][$i]),
 								'ppn_pph' 			=> trim($post['ppn_pph'][$i]),
 								'total_amount'		=> trim($post['total_amount'][$i]),
@@ -496,10 +496,10 @@ class Fpu_menu_model extends MY_Model
 				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 				if($rs){
-					if(isset($post['name'])){
-						$item_num = count($post['name']); // cek sum
-						$item_len_min = min(array_keys($post['name'])); // cek min key index
-						$item_len = max(array_keys($post['name'])); // cek max key index
+					if(isset($post['post_budget'])){
+						$item_num = count($post['post_budget']); // cek sum
+						$item_len_min = min(array_keys($post['post_budget'])); // cek min key index
+						$item_len = max(array_keys($post['post_budget'])); // cek max key index
 					} else {
 						$item_num = 0;
 					}
@@ -510,9 +510,9 @@ class Fpu_menu_model extends MY_Model
 							$hdnid = trim($post['hdnid'][$i]);
 
 							if(!empty($hdnid)){ //update
-								if(isset($post['name'][$i])){
+								if(isset($post['post_budget'][$i])){
 									$itemData = [
-										'name' 			=> trim($post['name'][$i]),
+										'post_budget_id'	=> trim($post['post_budget'][$i]),
 										'amount' 		=> trim($post['amount'][$i]),
 										'ppn_pph' 		=> trim($post['ppn_pph'][$i]),
 										'total_amount'	=> trim($post['total_amount'][$i]),
@@ -522,10 +522,10 @@ class Fpu_menu_model extends MY_Model
 									$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
 								}
 							}else{ //insert
-								if(isset($post['name'][$i])){
+								if(isset($post['post_budget'][$i])){
 									$itemData = [
 										'cash_advance_id'	=> $post['id'],
-										'name' 				=> trim($post['name'][$i]),
+										'post_budget_id' 	=> trim($post['post_budget'][$i]),
 										'amount' 			=> trim($post['amount'][$i]),
 										'ppn_pph' 			=> trim($post['ppn_pph'][$i]),
 										'total_amount'		=> trim($post['total_amount'][$i]),
@@ -625,10 +625,12 @@ class Fpu_menu_model extends MY_Model
 		} else { 
 			$data = '';
 			$no = $row+1;
+			$msPostbudget = $this->db->query("select * from master_post_budget")->result(); 
 			
 			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';
+			/*$data 	.= '<td>'.$this->return_build_txt('','name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+			$data 	.= '<td>'.$this->return_build_chosenme($msPostbudget,'','','','post_budget['.$row.']','post_budget','post_budget','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 
 			$data 	.= '<td>'.$this->return_build_txt('','amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount(this)" ').'</td>';
 
@@ -650,7 +652,7 @@ class Fpu_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select * from cash_advance_details where cash_advance_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select a.*, b.name as post_budget_name from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id where a.cash_advance_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
@@ -659,6 +661,7 @@ class Fpu_menu_model extends MY_Model
 			
 			foreach ($rd as $f){
 				$no = $row+1;
+				$msPostbudget = $this->db->query("select * from master_post_budget")->result(); 
 				
 				if(!$view){ 
 
@@ -666,7 +669,8 @@ class Fpu_menu_model extends MY_Model
 
 					$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->name,'name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';
+					/*$dt .= '<td>'.$this->return_build_txt($f->name,'name['.$row.']','','name','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+					$dt .= '<td>'.$this->return_build_chosenme($msPostbudget,'',isset($f->post_budget_id)?$f->post_budget_id:1,'','post_budget['.$row.']','post_budget','post_budget','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($f->amount,'amount['.$row.']','','amount','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount(this)" ').'</td>';
 
@@ -692,7 +696,7 @@ class Fpu_menu_model extends MY_Model
 					} 
 					
 					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->name.'</td>';
+					$dt .= '<td>'.$f->post_budget_name.'</td>';
 					$dt .= '<td>'.$f->amount.'</td>';
 					$dt .= '<td>'.$f->ppn_pph.'</td>';
 					$dt .= '<td>'.$f->total_amount.'</td>';
