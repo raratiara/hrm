@@ -26,12 +26,23 @@
 												Report
 											</a>
 										<?php } ?>
-										<?php if  (_USER_ACCESS_LEVEL_EKSPORT == "1") { ?>
-											<a class="btn btn-default btn-sm btn-circle" id="btnEksportData">
-												<i class="fa fa-download"></i>
-												Eksport
-											</a>
-										<?php } ?>
+										<?php if  (_USER_ACCESS_LEVEL_EKSPORT == "1") { 
+											if($this->module_name == 'absence_report_menu'){
+												?>
+												<a class="btn btn-default btn-sm btn-circle" onclick="getReport()">
+													<i class="fa fa-download"></i>
+													Report
+												</a>
+												<?php 
+											}else{
+												?>
+												<a class="btn btn-default btn-sm btn-circle" id="btnEksportData">
+													<i class="fa fa-download"></i>
+													Eksport
+												</a>
+												<?php 
+											}
+										} ?>
 										<?php if  (_USER_ACCESS_LEVEL_IMPORT == "1") { ?>
 											<a class="btn btn-default btn-sm btn-circle" id="btnImportData">
 												<i class="fa fa-upload"></i>
