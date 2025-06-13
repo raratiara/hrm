@@ -261,21 +261,35 @@ class Absence_report_menu extends MY_Controller
 				];
 			}
 			
+			if($where_emp==""){ //ada sheet summary, tampikan di paling depan
+				// Ambil sheet terakhir
+				$lastKey = array_key_last($dataSheets);
+				$lastSheet = [$lastKey => $dataSheets[$lastKey]];
 
+				// Hapus dari array asli
+				unset($dataSheets[$lastKey]);
 
+				// Gabungkan ulang: sheet terakhir jadi pertama
+				$dataSheets = $lastSheet + $dataSheets;
+			}
+
+		}else{ //tidak ada data
+			$dataSheets['Summary'] = [
+		        'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+		        'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+		        'rows' => [
+			            ['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data']
+			        ], 
+		        'subtitle' => [
+		            ['Area', 'All'],
+		            ['Leader', 'All'],
+		            ['Periode', $filter_periode],
+		        ],
+		        'footer' => []	    
+			];
 		}
-//echo "tes"; die();
-		if($where_emp==""){ //ada sheet summary, tampikan di paling depan
-			// Ambil sheet terakhir
-			$lastKey = array_key_last($dataSheets);
-			$lastSheet = [$lastKey => $dataSheets[$lastKey]];
 
-			// Hapus dari array asli
-			unset($dataSheets[$lastKey]);
-
-			// Gabungkan ulang: sheet terakhir jadi pertama
-			$dataSheets = $lastSheet + $dataSheets;
-		}
+		
 
 
 
