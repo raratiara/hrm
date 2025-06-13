@@ -9,7 +9,7 @@
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Employee Namee</label>
+			<label class="col-md-4 control-label no-padding-right">Employee Name</label>
 			<div class="col-md-8">
 				<?=$selemployee;?>
 			</div>
