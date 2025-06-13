@@ -131,7 +131,7 @@ class Absence_report_menu extends MY_Controller
 		   </Style>
 		 </Styles>';*/
 
-echo "aa"; die();
+
 
 	 	$dateNow = date("Y-m-d");
 
@@ -147,7 +147,7 @@ echo "aa"; die();
 			$where_emp = " and employee_id = '".$_GET['flemployee']."' ";
 		}
 
-		
+		echo "tes b"; die();
 		$dataSheets = [];
 
 
