@@ -14,7 +14,7 @@ class Bypass extends MY_Controller
    	}
 	
 
-	// cron jalan setiap hari di jam 06.00 pagi
+	// cron jalan setiap hari di jam 08.00 pagi
 	public function generate_jatah_cuti(){
 		//generate h+1 dr period end
 
@@ -68,7 +68,7 @@ class Bypass extends MY_Controller
 	}
 
 
-	// cron jalan setiap hari di jam 06.00 pagi
+	// cron jalan setiap hari di jam 08.00 pagi
 	public function update_status_jatah_cuti(){
 
 		$dateNow = date("Y-m-d");
@@ -164,20 +164,63 @@ class Bypass extends MY_Controller
 	}
 
 
-	/*public function submit_daily_absen(){
-		$yesterday = date('Y-m-d', strtotime('-1 day'));
+	public function submit_daily_absen(){ // jalan setiap hari, jam 8 pagi
+		$tanggal = date('Y-m-d');
+		$yesterday = date('Y-m-d', strtotime('-1 day', strtotime($tanggal)));
+		$period = date("Y-m", strtotime($yesterday));
+		$tgl = date("d", strtotime($yesterday));
+
+		
+		$hari = date('w', strtotime($yesterday)); // 0 = Minggu, 6 = Sabtu
+		$is_sabtuminggu = 0;
+		if ($hari == 0 || $hari == 6) {
+		   $is_sabtuminggu = 1;
+		} 
+
+
 
 		$emp = $this->db->query("select * from employees")->result();
 
 		foreach($emp as $row_emp){
 			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
+
 			if(count($absen) == 0){
+				$emp_shift_type=1; $reguler_sabtuminggu=0;
+				if($row_emp->shift_type == 'Reguler'){
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					if($is_sabtuminggu == 1){
+						$reguler_sabtuminggu=1;
+					}
+					
+				}else if($row_emp->shift_type == 'Shift'){
+					$dt = $this->db->query("select a.*, b.periode
+							, b.`".$tgl."` as 'shift' 
+							, c.time_in, c.time_out, c.name 
+							from shift_schedule a
+							left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+							left join master_shift_time c on c.id = b.`".$tgl."`
+							where a.employee_id = '".$row_emp->id."' and b.periode = '".$period."' ")->result(); 
+
+				}else{ //tidak ada shift type
+					$emp_shift_type=0;
+				} 
+
+				$attendance_type=""; $time_in=""; $time_out="";
+				if($emp_shift_type==1){
+					$attendance_type 	= $dt[0]->name;
+					if($reguler_sabtuminggu!=1){
+						$time_in 	= $dt[0]->time_in;
+						$time_out 	= $dt[0]->time_out;
+					}
+				}
+
+
 				$data = [
 					'date_attendance' 			=> $yesterday,
 					'employee_id' 				=> $row_emp->id,
-					'attendance_type' 			=> trim($post['emp_type']),
-					'time_in' 					=> trim($post['time_in']),
-					'time_out' 					=> trim($post['time_out']),
+					'attendance_type' 			=> $attendance_type,
+					'time_in' 					=> $time_in,
+					'time_out' 					=> $time_out,
 					'created_at'				=> date("Y-m-d H:i:s")
 				];
 				$rs = $this->db->insert('time_attendances', $data);
@@ -185,7 +228,9 @@ class Bypass extends MY_Controller
 			
 		}
 
-	}*/
+
+
+	}
 
 
 }
