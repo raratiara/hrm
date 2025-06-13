@@ -5,7 +5,7 @@ class Dashboard_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "dashboard/dashboard_menu";
- 	protected $table_name 				= _PREFIX_TABLE."cctv";
+ 	protected $table_name 				= _PREFIX_TABLE."employees";
  	protected $primary_key 				= "id";
 
 	function __construct()
