@@ -437,11 +437,14 @@ class Absensi_menu_model extends MY_Model
 	}
 
 
-	public function getDataEmployee($empid){ 
+	public function getDataEmployee($empid,$date=''){ 
+
+		$period = date("Y-m", strtotime($date));
+		$tgl = date("d", strtotime($date));
 
 		$rs = $this->db->query("select * from employees where id = '".$empid."' ")->result(); 
 
-		if($rs[0]->shift_type == 'Reguler'){
+		/*if($rs[0]->shift_type == 'Reguler'){
 			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 			
 			$dataX = array(
@@ -449,10 +452,36 @@ class Absensi_menu_model extends MY_Model
 				'time_in' 	=> $dt[0]->time_in,
 				'time_out' 	=> $dt[0]->time_out
 			);
-		}
+		}*/
+
+		$emp_shift_type=1;
+		if($rs[0]->shift_type == 'Reguler'){
+			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+			
+		}else if($rs[0]->shift_type == 'Shift'){
+			$dt = $this->db->query("select a.*, b.periode
+					, b.`".$tgl."` as 'shift' 
+					, c.time_in, c.time_out, c.name 
+					from shift_schedule a
+					left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+					left join master_shift_time c on c.id = b.`".$tgl."`
+					where a.employee_id = '".$empid."' and b.periode = '".$period."' ")->result(); 
+
+		}else{ //tidak ada shift type
+			$emp_shift_type=0;
+		} 
 
 
-		return $dataX;
+		if($emp_shift_type==1){
+			$dataX = array(
+				'name' 		=> $dt[0]->name,
+				'time_in' 	=> $dt[0]->time_in,
+				'time_out' 	=> $dt[0]->time_out
+			);
+
+			return $dataX;
+		}else return null;
+
 
 	}
 
