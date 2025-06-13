@@ -110,7 +110,7 @@ class Absence_report_menu extends MY_Controller
 	public function getAbsenceReport(){
 
 		
-		/*header("Content-Type: application/vnd.ms-excel");
+		header("Content-Type: application/vnd.ms-excel");
 		header("Content-Disposition: attachment; filename=\"multi_sheet_export.xls\"");
 
 		echo '<?xml version="1.0"?>
@@ -129,7 +129,7 @@ class Absence_report_menu extends MY_Controller
 		     <Font ss:Bold="1"/>
 		     <Interior ss:Color="#D3D3D3" ss:Pattern="Solid"/>
 		   </Style>
-		 </Styles>';*/
+		 </Styles>';
 
 
 
@@ -150,7 +150,7 @@ class Absence_report_menu extends MY_Controller
 		
 		$dataSheets = [];
 
-		$emp_absen = $this->db->query("select distinct(employee_id) from time_attendances where 1=1 ".$where_emp.$where_date." ")->result(); echo "tes c"; die();
+		$emp_absen = $this->db->query("select distinct(employee_id) from time_attendances where 1=1 ".$where_emp.$where_date." ")->result(); 
 		if(count($emp_absen) != 0){ 
 			$no=1;
 			
@@ -264,7 +264,7 @@ class Absence_report_menu extends MY_Controller
 
 
 		}
-echo "tes"; die();
+//echo "tes"; die();
 		if($where_emp==""){ //ada sheet summary, tampikan di paling depan
 			// Ambil sheet terakhir
 			$lastKey = array_key_last($dataSheets);
