@@ -1,71 +1,84 @@
 
- 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
-
-
-
-	<div id='map' style="width: 100%; height: 600px;"></div> 
 
 	
+	<div class="chart_monthly_att_summ">
+	    <h2>Monthly Attendance Summary</h2>
+	    <canvas id="monthly_att_summ"></canvas>
+  	</div>
+
+  	
+
+	<div class="dashboard">
+	    <div class="info-box">
+	      <div class="info-title">Total Employee</div>
+	      <div class="info-value">12,450 <!-- <i class="fas fa-dollar-sign info-icon"></i> --></div>
+	      <div class="info-footer">Updated 5 mins ago</div>
+	    </div>
+
+	    <div class="info-box">
+	      <div class="info-title">Projects</div>
+	      <div class="info-value">340 <!-- <i class="fas fa-shopping-cart info-icon"> --></i></div>
+	      <div class="info-footer"><!-- 24h performance --></div>
+	    </div>
+	    
+	    <div class="info-box">
+	      <div class="info-title">Attendance</div>
+	      <div class="info-value">2,345 <!-- <i class="fas fa-users info-icon"></i> --></div>
+	      <div class="info-footer">This month</div>
+	    </div>
+
+	    <div class="info-box">
+	      <div class="info-title">Leave Taken</div>
+	      <div class="info-value">895 <!-- <i class="fas fa-shopping-cart info-icon"></i> --></div>
+	      <div class="info-footer"><!-- 24h performance --></div>
+	    </div>
+
+	    <div class="info-box">
+	      <div class="info-title">Reimbursement Amount</div>
+	      <div class="info-value">Rp 121.750.000 <!-- <i class="fas fa-users info-icon"></i> --></div>
+	      <div class="info-footer">This month</div>
+	    </div>
+
+	    <div class="info-box">
+	      <div class="info-title">Overtime</div>
+	      <div class="info-value">327 hrs <!-- <i class="fas fa-shopping-cart info-icon"></i> --></div>
+	      <div class="info-footer"><!-- 24h performance --></div>
+	    </div>
+	    
+  	</div>
 
 
-	<div class="container demo">
-		<!-- Modal -->
-		<div class="modal right fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
+  	
 
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel2">Select Floating Crane</h4>
-					</div>
 
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-md-12 col-sm-12">
-								<div class="form-group">
-									<label class="col-md-12 control-label no-padding-right">Floating Crane Loc</label>
-								</div>
-							</div>
-							<div class="col-md-12 col-sm-12">
-								<div class="form-group">
-									<div class="col-md-12">
-										<?=$selfloatcrane?>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+  	<div class="chart_att_statistic">
+	    <h2>Attendance Statistics</h2>
+	    <canvas id="att_statistic"></canvas>
+  	</div>
 
-				</div>
-				<!-- modal-content -->
-			</div>
-			<!-- modal-dialog -->
-		</div>
-		<!-- modal -->
-	</div>
-	<!-- container -->
-	
+
+  	<div class="chart_empbydeptgender">
+	    <h2>Employees by Department & Gender</h2>
+	    <canvas id="empby_dept_gender"></canvas>
+  	</div>
+
+
+  	
+	<div class="chart_empbygen">
+	    <h2>Employees by Generation</h2>
+	    <canvas id="empby_gen"></canvas>
+  	</div>
+
+
+ 	<!-- <div class="chart_attpercentage">
+	    <h2>Attendance Percentage</h2>
+	    <canvas id="att_percentage"></canvas>
+  	</div> -->
 
 
 
 
-	
 
-	
-
-
-	
-
-	
-
-
-
-		
-	
-
-
-	 
 
 
 
