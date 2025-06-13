@@ -286,18 +286,17 @@ class Lembur_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$date_overtime 		= date_create($post['date']);
-		$datetime_start 	= date_create($post['datetime_start']);
-		$datetime_end 		= date_create($post['datetime_end']);
-		$f_datetime_start 	= date_format($datetime_start,"Y-m-d H:i:s");
-		$f_datetime_end 	= date_format($datetime_end,"Y-m-d H:i:s");
-		$f_date_overtime 	= date_format($date_overtime,"Y-m-d");
+		$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
+		$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
+		$date_overtime = date('Y-m-d', strtotime($post['date']));
 
-		$timestamp1 = strtotime($f_datetime_start); 
-		$timestamp2 = strtotime($f_datetime_end);
+		$start = strtotime($datetime_start);
+		$end = strtotime($datetime_end);
 
-		
-		$num_of_hour= abs($timestamp2 - $timestamp1); //jam
+		$selisihDetik = $end - $start;
+		$num_of_hour = floor($selisihDetik / 3600);
+		/*$menit = floor(($selisihDetik % 3600) / 60);*/
+
 		$biaya='50000';
 		$amount = $num_of_hour*$biaya;
 
@@ -305,10 +304,10 @@ class Lembur_menu_model extends MY_Model
 		if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
 			
 			$data = [
-				'date_overtime' 			=> $f_date_overtime,
+				'date_overtime' 			=> $date_overtime,
 				'employee_id' 				=> trim($post['employee']),
-				'datetime_start' 			=> $f_datetime_start,
-				'datetime_end' 				=> $f_datetime_end,
+				'datetime_start' 			=> $datetime_start,
+				'datetime_end' 				=> $datetime_end,
 				'num_of_hour' 				=> $num_of_hour,
 				'amount' 					=> $amount,
 				'reason' 					=> trim($post['reason']),
@@ -316,6 +315,8 @@ class Lembur_menu_model extends MY_Model
 				'created_at'				=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->insert($this->table_name, $data);
+
+			return $rs; 
 
 		}else return null;
 		
@@ -325,18 +326,17 @@ class Lembur_menu_model extends MY_Model
 
 		if(!empty($post['id'])){
 
-			$date_overtime 		= date_create($post['date']);
-			$datetime_start 	= date_create($post['datetime_start']);
-			$datetime_end 		= date_create($post['datetime_end']);
-			$f_datetime_start 	= date_format($datetime_start,"Y-m-d H:i:s");
-			$f_datetime_end 	= date_format($datetime_end,"Y-m-d H:i:s");
-			$f_date_overtime 	= date_format($date_overtime,"Y-m-d");
+			$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
+			$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
+			$date_overtime = date('Y-m-d', strtotime($post['date']));
 
-			$timestamp1 = strtotime($f_datetime_start); 
-			$timestamp2 = strtotime($f_datetime_end);
+			$start = strtotime($datetime_start);
+			$end = strtotime($datetime_end);
 
-			
-			$num_of_hour= abs($timestamp2 - $timestamp1); //jam
+			$selisihDetik = $end - $start;
+			$num_of_hour = floor($selisihDetik / 3600);
+			/*$menit = floor(($selisihDetik % 3600) / 60);*/
+
 			$biaya='50000';
 			$amount = $num_of_hour*$biaya;
 
@@ -344,10 +344,10 @@ class Lembur_menu_model extends MY_Model
 			if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
 			
 				$data = [
-					'date_overtime' 			=> $f_date_overtime,
+					'date_overtime' 			=> $date_overtime,
 					'employee_id' 				=> trim($post['employee']),
-					'datetime_start' 			=> $f_datetime_start,
-					'datetime_end' 				=> $f_datetime_end,
+					'datetime_start' 			=> $datetime_start,
+					'datetime_end' 				=> $datetime_end,
 					'num_of_hour' 				=> $num_of_hour,
 					'amount' 					=> $amount,
 					'reason' 					=> trim($post['reason']),
@@ -355,6 +355,7 @@ class Lembur_menu_model extends MY_Model
 				];
 				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
+				return $rs;
 			}else return null;
 				
 
