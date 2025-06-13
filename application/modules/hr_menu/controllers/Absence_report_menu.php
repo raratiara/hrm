@@ -149,9 +149,8 @@ class Absence_report_menu extends MY_Controller
 
 		
 		$dataSheets = [];
-echo "select * from time_attendances where 1=1 ".$where_emp.$where_date." group by employee_id"; die();
 
-		$emp_absen = $this->db->query("select * from time_attendances where 1=1 ".$where_emp.$where_date." group by employee_id ")->result(); echo "tes c"; die();
+		$emp_absen = $this->db->query("select distinct(employee_id) from time_attendances where 1=1 ".$where_emp.$where_date." ")->result(); echo "tes c"; die();
 		if(count($emp_absen) != 0){ 
 			$no=1;
 			

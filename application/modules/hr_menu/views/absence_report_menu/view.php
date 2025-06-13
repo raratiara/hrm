@@ -28,7 +28,7 @@
   	<div style="margin-top: 10px;">
   		<div class="col-md-4 col-sm-12" style="margin-left:-30px" >
   			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">Employee Namee</label>
+				<label class="col-md-4 control-label no-padding-right">Employee Name</label>
 				<div class="col-md-6">
 					<?=$selflemployee;?>
 				</div>
