@@ -164,4 +164,21 @@ class Bypass extends MY_Controller
 	}
 
 
+	/*public function submit_daily_absen(){
+		$yesterday = date('Y-m-d', strtotime('-1 day'));
+
+		$emp = $this->db->query("select * from employees")->result();
+
+		$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
+
+		foreach($emp as $row_emp){
+			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
+			
+		}
+
+		
+		echo $yesterday; die();
+	}*/
+
+
 }
