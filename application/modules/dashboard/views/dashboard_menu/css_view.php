@@ -11,63 +11,128 @@
     width: 100%!important;
 }
 
-#refreshButton {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  /*background-color: #f5f7fa;*/
+ /* padding: 40px;*/
+}
+.chart_monthly_att_summ {
+  /*width: 50%;*/
+  /*max-width: 400px;*/
+  /*margin: auto;*/
+  background: #fff;
   padding: 10px;
-  z-index: 400;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  left: 20px;
+  width: 300px;
+  float: left; /* atau gunakan display: inline-block */
+}
+h2 {
+  text-align: left;
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 
-    .modal.left .modal-dialog,
-    .modal.right .modal-dialog {
-        position: fixed;
-        margin: auto;
-        width: 320px;
-        height: 100%;
-        -webkit-transform: translate3d(0%, 0, 0);
-            -ms-transform: translate3d(0%, 0, 0);
-             -o-transform: translate3d(0%, 0, 0);
-                transform: translate3d(0%, 0, 0);
-    }
-
-    .modal.left .modal-content,
-    .modal.right .modal-content {
-        height: 100%;
-        overflow-y: auto;
-    }
-    
-    .modal.left .modal-body,
-    .modal.right .modal-body {
-        padding: 15px 15px 80px;
-    }
+.chart_att_statistic {
+  /*width: 90%;*/
+  max-width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 400px;
+  float: left; /* atau gunakan display: inline-block */
+}
 
 
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  width: 450px;
+}
 
-        
-/*Right*/
-    .modal.right.fade .modal-dialog {
-        right: -320px;
-        -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
-           -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
-             -o-transition: opacity 0.3s linear, right 0.3s ease-out;
-                transition: opacity 0.3s linear, right 0.3s ease-out;
-    }
-    .modal.right.fade.in .modal-dialog {
-        right: 0;
-    }
+.info-box {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+  width: 180px;
+}
 
-/* ----- MODAL STYLE ----- */
-    .modal-content {
-        border-radius: 0;
-        border: none;
-    }
+.info-box:hover {
+  transform: translateY(-4px);
+}
 
-    .modal-header {
-        border-bottom-color: #EEEEEE;
-        background-color: #FAFAFA;
-    }
+.info-title {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.info-icon {
+  float: right;
+  font-size: 25px;
+  color: #4e73df;
+}
+
+.info-footer {
+  font-size: 10px;
+  color: #999;
+  margin-top: 10px;
+}
+
+
+.chart_empbydeptgender {
+  /*width: 50%;*/
+  max-width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  left: 20px;
+  width: 400px;
+  float: left; /* atau gunakan display: inline-block */
+}
+
+.chart_empbygen {
+  width: 300px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.chart_attpercentage {
+  /*width: 50%;*/
+  max-width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  left: 20px;
+  width: 400px;
+  float: left; /* atau gunakan display: inline-block */
+}
+
+
+
 
 
 

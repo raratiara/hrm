@@ -111,7 +111,7 @@ class Absence_report_menu extends MY_Controller
 
 		
 		header("Content-Type: application/vnd.ms-excel");
-		header("Content-Disposition: attachment; filename=\"multi_sheet_export.xls\"");
+		header("Content-Disposition: attachment; filename=\"absence_report.xls\"");
 
 		echo '<?xml version="1.0"?>
 		<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
