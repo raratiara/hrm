@@ -169,15 +169,22 @@ class Bypass extends MY_Controller
 
 		$emp = $this->db->query("select * from employees")->result();
 
-		$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
-
 		foreach($emp as $row_emp){
 			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
+			if(count($absen) == 0){
+				$data = [
+					'date_attendance' 			=> $yesterday,
+					'employee_id' 				=> $row_emp->id,
+					'attendance_type' 			=> trim($post['emp_type']),
+					'time_in' 					=> trim($post['time_in']),
+					'time_out' 					=> trim($post['time_out']),
+					'created_at'				=> date("Y-m-d H:i:s")
+				];
+				$rs = $this->db->insert('time_attendances', $data);
+			}
 			
 		}
 
-		
-		echo $yesterday; die();
 	}*/
 
 

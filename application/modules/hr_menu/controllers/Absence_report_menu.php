@@ -131,7 +131,7 @@ class Absence_report_menu extends MY_Controller
 		   </Style>
 		 </Styles>';*/
 
-
+echo "aa"; die();
 
 	 	$dateNow = date("Y-m-d");
 
