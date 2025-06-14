@@ -89,7 +89,79 @@ class Dashboard_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	
+ 	public function get_data_total(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+		
+		$ttl_emp = $this->db->query("select count(id) as ttl from employees")->result(); 
+		$ttl_projects = $this->db->query("select count(id) as ttl from tasklist ")->result(); 
+		$ttl_attendance = $this->db->query("select count(id) as ttl from time_attendances ")->result(); 
+		$ttl_reimbursement = $this->db->query("select sum(nominal_reimburse) as ttl from medicalreimbursements ")->result(); 
+		$ttl_leaves = $this->db->query("select sum(total_leave) as ttl from leave_absences ")->result(); 
+		$ttl_overtimes = $this->db->query("select sum(num_of_hour) as ttl from overtimes ")->result(); 
+
+		
+
+
+		$rs = array(
+			'ttl_emp' 			=> $ttl_emp[0]->ttl,
+			'ttl_projects' 		=> $ttl_projects[0]->ttl,
+			'ttl_attendance'	=> $ttl_attendance[0]->ttl,
+			'ttl_reimbursement'	=> 'Rp. '.$ttl_reimbursement[0]->ttl,
+			'ttl_leaves'		=> $ttl_leaves[0]->ttl,
+			'ttl_overtimes' 	=> $ttl_overtimes[0]->ttl.' hrs'
+		);
+
+
+		
+		echo json_encode($rs);
+ 	}
+
+
+ 	public function get_data_empbyGen(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+
+		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees")->result(); 
+
+		$boomer=0; 		$gen_x=0; 		$gen_z=0;
+		$gen_mill=0; 	$gen_alpha=0; 	$unkgen=0;
+
+		foreach($data_emp as $row){
+			$birthYear = $row->year_of_birth;
+
+			if ($birthYear >= 1946 && $birthYear <= 1964) {
+		        $boomer += 1;
+		    } elseif ($birthYear >= 1965 && $birthYear <= 1980) {
+		        $gen_x += 1;
+		    } elseif ($birthYear >= 1981 && $birthYear <= 1996) {
+		        $gen_mill += 1;
+		    } elseif ($birthYear >= 1997 && $birthYear <= 2012) {
+		        $gen_z += 1;
+		    } elseif ($birthYear >= 2013) {
+	         	$gen_alpha += 1;
+		    } else {
+		        $unkgen += 1;
+		    }
+		}
+
+		
+		$rs = array(
+			'ttl_boomer' 	=> $boomer,
+			'ttl_gen_x' 	=> $gen_x,
+			'ttl_gen_mill'	=> $gen_mill,
+			'ttl_gen_z'		=> $gen_z,
+			'ttl_gen_alpha'	=> $gen_alpha,
+			'ttl_unkgen' 	=> $unkgen
+		);
+		
+		echo json_encode($rs);
+
+ 	}
 
 
 

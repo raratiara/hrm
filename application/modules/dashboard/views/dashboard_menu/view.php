@@ -133,13 +133,13 @@
 
 	  <div class="box box-3">
 	  	<div class="box-title">Total Employee</div>
-      	<div class="box-value">12,450 </div>
+      	<div class="box-value"><span id="ttl_employee"></span> </div>
       	<!-- <div class="box-footer">Updated 5 mins ago</div> -->
 	  </div>
 
 	  <div class="box box-4">
 	  	<div class="box-title">Projects</div>
-	    <div class="box-value">340 </div>
+	    <div class="box-value"><span id="ttl_projects"></span> </div>
 	    <!-- <div class="info-footer"></div> -->
 	  </div>
 
@@ -159,25 +159,25 @@
 
 	  <div class="box box-7">
 	  	<div class="box-title">Attendance</div>
-      	<div class="box-value">2,345</div>
+      	<div class="box-value"><span id="ttl_attendance"></span></div>
       	<!-- <div class="info-footer">This month</div> -->
 	  </div>
 
 	  <div class="box box-8">
 	  	<div class="box-title">Reimbursement Amount</div>
-      	<div class="box-value">Rp 121.750.000 </div>
+      	<div class="box-value"><span id="ttl_reimbursement"></span> </div>
       	<!-- <div class="info-footer">This month</div> -->
 	  </div>
 
 	  <div class="box box-9">
 	  	<div class="box-title">Leave Taken</div>
-      	<div class="box-value">895</div>
+      	<div class="box-value"><span id="ttl_leave"></span></div>
       	<!-- <div class="info-footer"></div> -->
 	  </div>
 
 	  <div class="box box-10">
 	  	<div class="box-title">Overtime</div>
-      	<div class="box-value">327 hrs </div>
+      	<div class="box-value"><span id="ttl_overtime"></span> </div>
       	<!-- <div class="info-footer"></div> -->
 	  </div>
 

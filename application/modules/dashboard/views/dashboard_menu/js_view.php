@@ -11,7 +11,7 @@
 
 
 <script type="text/javascript">
-
+var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 
 $(document).ready(function() {
    	$(function() {
@@ -24,9 +24,64 @@ $(document).ready(function() {
 	   		empbyGen();
 	   		attPercentage();
 	   		workhrsPercentage();
+	   		dataTotal();
         
    	});
 });
+
+
+function dataTotal(){
+
+	var dateperiod = "";
+	var employee = "";
+
+	$.ajax({
+		type: "POST",
+    url : module_path+'/get_data_total',
+		data: { dateperiod: dateperiod, employee: employee },
+		cache: false,		
+    dataType: "JSON",
+    success: function(data)
+    {
+			if(data != false){
+				
+					$('span#ttl_employee').html(data.ttl_emp);
+					$('span#ttl_projects').html(data.ttl_projects);
+					$('span#ttl_attendance').html(data.ttl_attendance);
+					$('span#ttl_reimbursement').html(data.ttl_reimbursement);
+					$('span#ttl_leave').html(data.ttl_leaves);
+					$('span#ttl_overtime').html(data.ttl_overtimes);
+
+
+			} else {
+
+					$('span#ttl_employee').html('0');
+					$('span#ttl_projects').html('0');
+					$('span#ttl_attendance').html('0');
+					$('span#ttl_reimbursement').html('0');
+					$('span#ttl_leave').html('0');
+					$('span#ttl_overtime').html('0');
+
+			}
+    },
+    error: function (jqXHR, textStatus, errorThrown)
+    {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+    }
+});
+
+	
+
+}
 
 
 
@@ -291,57 +346,97 @@ function empbyDeptGender(){
 
 function empbyGen(){
 
-	const ctx = document.getElementById('empby_gen').getContext('2d');
+	var dateperiod = "";
+	var employee = "";
 
-    new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Gen X', 'Millenial', 'Gen Z', 'Boomer'],
-        datasets: [{
-          label: 'Market Share',
-          data: [30, 25, 20, 15],
-          backgroundColor: [
-            '#3381fc',
-            '#fc3381',
-            '#74dce0',
-            '#f6c23e'
-          ],
-          borderWidth: 2,
-          borderColor: '#fff',
-          hoverOffset: 10
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            labels: {
-		          font: {
-		            size: 8  // kecilkan ukuran legend text
-		          },
-		          boxWidth: 12,        // kecilkan ukuran kotak warna
-		          boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-		          borderRadius: 4,     // ubah jadi bulat (opsional)
-		          usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
-		        },
-            position: 'bottom'
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                let label = context.label || '';
-                let value = context.parsed;
-                return `${label}: ${value}%`;
-              }
-            }
-          },
-          title: {
-            display: false
-          }
-        }
-      }
-    });
 
+	$.ajax({
+			type: "POST",
+	    url : module_path+'/get_data_empbyGen',
+			data: { dateperiod: dateperiod, employee: employee },
+			cache: false,		
+	    dataType: "JSON",
+	    success: function(data)
+	    {
+				if(data != false){
+					
+						const ctx = document.getElementById('empby_gen').getContext('2d');
+
+				    new Chart(ctx, {
+				      type: 'pie',
+				      data: {
+				        labels: ['Gen X', 'Millenial', 'Gen Z', 'Boomer'],
+				        datasets: [{
+				          label: 'Generation',
+				          data: [data.ttl_gen_x, data.ttl_gen_mill, data.ttl_gen_z, data.ttl_boomer],
+				          backgroundColor: [
+				            '#3381fc',
+				            '#fc3381',
+				            '#74dce0',
+				            '#f6c23e'
+				          ],
+				          borderWidth: 2,
+				          borderColor: '#fff',
+				          hoverOffset: 10
+				        }]
+				      },
+				      options: {
+				        responsive: true,
+				        plugins: {
+				          legend: {
+				            labels: {
+						          font: {
+						            size: 8  // kecilkan ukuran legend text
+						          },
+						          boxWidth: 12,        // kecilkan ukuran kotak warna
+						          boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
+						          borderRadius: 4,     // ubah jadi bulat (opsional)
+						          usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
+						        },
+				            position: 'bottom'
+				          },
+				          tooltip: {
+				            callbacks: {
+				              label: function(context) {
+				                let label = context.label || '';
+				                let value = context.parsed;
+				                /*return `${label}: ${value}%`;*/
+				                return `${label}: ${value}`;
+				              }
+				            }
+				          },
+				          title: {
+				            display: false
+				          }
+				        }
+				      }
+				    });
+
+
+
+				} else {
+
+						
+
+				}
+	    },
+	    error: function (jqXHR, textStatus, errorThrown)
+	    {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	    }
+	});
+
+
+		
 }
 
 
