@@ -28,20 +28,12 @@ class Dashboard_menu extends MY_Controller
 	public function form_field_asset()
 	{
 		$field = [];
-		//$id_fc = $_GET['id'];
 
-	
-		/*$field['txtstartdate'] 		= $this->self_model->return_build_txtdate('','start_date','start_date');
-		$field['txtenddate'] 		= $this->self_model->return_build_txtdate('','end_date','end_date');
-		$msfloating 				= $this->db->query("select * from floating_crane")->result(); 
-		$field['selfloatcrane'] 	= $this->self_model->return_build_select2me($msfloating,'','','','floating_crane','floating_crane','','','id','name',' ','','','',3,'-');
-		$field['txtdatetimestart']	= $this->self_model->return_build_txt('','txtdatetimestart','txtdatetimestart','','','readonly');
-		$msorder 					= $this->db->query("select * from job_order where floating_crane_id = '".$id_fc."'")->result(); 
-		$field['selordername'] 	= $this->self_model->return_build_select2me($msorder,'','','','order_name','order_name','','','id','order_name',' ','','','',3,'-');
-		$field['txtcurrdatetime'] 	= $this->self_model->return_build_txt('','txtcurrdatetime','txtcurrdatetime','','','readonly');
-		$field['txtmothervessel'] 	= $this->self_model->return_build_txt('','txtmothervessel','txtmothervessel','','','readonly');
-		$field['txtprocesstime'] 	= $this->self_model->return_build_txt('','txtprocesstime','txtprocesstime','','','readonly');*/
 
+		$msemp 				= $this->db->query("select * from employees")->result(); 
+		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','fldashemp','fldashemp','','','id','full_name',' ','','','',3,'-');
+
+		$field['master_emp'] = $this->db->query("select * from employees order by full_name asc")->result(); 
 		
 		return $field;
 	}
