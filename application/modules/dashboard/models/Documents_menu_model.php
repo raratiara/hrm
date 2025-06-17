@@ -5,8 +5,16 @@ class Documents_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "dashboard/documents_menu";
- 	protected $table_name 				= _PREFIX_TABLE."employees";
+ 	protected $table_name 				= _PREFIX_TABLE."documents";
  	protected $primary_key 				= "id";
+
+
+ 	/* upload */
+ 	protected $attachment_folder	= "./uploads/documents";
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
+
+
 
 	function __construct()
 	{
@@ -20,15 +28,14 @@ class Documents_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.id',
-			'dt.id',
-			'dt.id'
+			'dt.name',
+			'dt.file'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select * from employees)dt';
+		$sTable = '(select * from documents)dt';
 		
 
 		/* Paging */
@@ -181,6 +188,8 @@ class Documents_menu_model extends MY_Model
 				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
+			$doc = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="downloadFile('."'".$row->file."'".')" role="button"><i class="fa fa-download"></i></a>';
+
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
@@ -189,9 +198,9 @@ class Documents_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->id,
-				$row->id,
-				$row->id
+				$row->name,
+				$doc
+				/*<button onclick="downloadFile('example.pdf')">Download File</button>*/
 
 			));
 		}
@@ -243,10 +252,117 @@ class Documents_menu_model extends MY_Model
 		} else return null;
 	}  
 
+
+	// Upload file
+	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+		$data = array();
+		$data['status'] = FALSE; 
+		if(!empty($id) && !empty($fieldname)){ 
+			// handling multiple upload (as array field)
+
+			if($array){ 
+				// Define new $_FILES array - $_FILES['file']
+				$_FILES['file']['name'] = $_FILES[$fieldname]['name'];
+				$_FILES['file']['type'] = $_FILES[$fieldname]['type'];
+				$_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
+				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
+				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
+				// override field
+
+			}
+			// handling regular upload (as one field)
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			{ 
+				/*$dir = $this->attachment_folder.'/'.$id;
+				if(!is_dir($dir)) {
+					mkdir($dir);
+				}
+				if($replace){
+					$this->remove_file($id, $oldfilename);
+				}*/
+				$config['upload_path']   = $this->attachment_folder;
+				$config['allowed_types'] = $this->allow_type;
+				$config['max_size'] 	 = $this->allow_size;
+				
+				$this->load->library('upload', $config); 
+				
+				if(!$this->upload->do_upload($fieldname)){  
+					$err_msg = $this->upload->display_errors(); 
+					$data['error_warning'] = strip_tags($err_msg);				
+					$data['status'] = FALSE;
+				} else {
+					$fileData = $this->upload->data();
+					$data['upload_file'] = $fileData['file_name'];
+					$data['status'] = TRUE;
+				}
+			}
+		}
+
+		
+		
+		return $data;
+	}
+
+
+	public function add_data($post) { 
+
+		$name = trim($post['name']); 
+		
+		
+  		if(!empty($post['name'])){ 
+
+  			$upload_file = $this->upload_file('1', 'file', FALSE, '', TRUE, '');
+			$file = '';
+			if($upload_file['status']){
+				$file = $upload_file['upload_file'];
+			} else if(isset($upload_emp_photo['error_warning'])){
+				echo $upload_file['error_warning']; exit;
+			}	
+
+
+  			$data = [
+				'name' 			=> trim($post['name']),
+				'file' 			=> $file,
+				'created_at'	=> date("Y-m-d H:i:s")
+			];
+			return $rs = $this->db->insert($this->table_name, $data);
+  		}else return null;
+
+	}  
+
+	public function edit_data($post) { 
+		$name = trim($post['name']); 
+
+
+		if(!empty($post['id'])){ 
+
+			$hdnfile 		= trim($post['hdnfile']);
+			$upload_file 	= $this->upload_file('1', 'file', FALSE, '', TRUE, '');
+			$file = '';
+			if($upload_file['status']){
+				$file = $upload_file['upload_file'];
+			} else if(isset($upload_file['error_warning'])){
+				echo $upload_file['error_warning']; exit;
+			}
+
+			if($file == '' && $hdnfile != ''){
+				$file = $hdnfile;
+			}
+
+		
+			$data = [
+				'name' 			=> trim($post['name']),
+				'file' 			=> $file,
+				'updated_at'	=> date("Y-m-d H:i:s")
+			];
+
+			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+		} else return null;
+	}
 	
 
 	public function getRowData($id) { 
-		$mTable = '(select * from employees)dt';
+		$mTable = '(select * from documents)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
@@ -263,7 +379,7 @@ class Documents_menu_model extends MY_Model
 	
 	public function eksport_data()
 	{
-		$sql = "select * from employees
+		$sql = "select * from documents
 	   		ORDER BY id ASC
 		";
 
