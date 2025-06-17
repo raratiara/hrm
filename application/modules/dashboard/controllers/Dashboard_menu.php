@@ -165,4 +165,201 @@ class Dashboard_menu extends MY_Controller
 
 
 
+
+
+ 	public function get_data_empbyDeptGender(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+		
+		$rs = $this->db->query("select
+				    a.department_id, b.name as department_name,
+				    SUM(CASE WHEN a.gender = 'M' THEN 1 ELSE 0 END) AS total_laki_laki,
+				    SUM(CASE WHEN a.gender = 'F' THEN 1 ELSE 0 END) AS total_perempuan,
+				    COUNT(*) AS total_karyawan
+				FROM
+				    employees a
+				    left join departments b on b.id = a.department_id
+				GROUP BY
+				    a.department_id ")->result(); 
+
+		$departments=[]; $total_male=[]; $total_female=[];
+		foreach($rs as $row){
+			$departments[] 	= $row->department_name;
+			$total_male[] 	= $row->total_laki_laki;
+			$total_female[]	= $row->total_perempuan;
+		}
+
+
+		$data = array(
+			'departments' 	=> $departments,
+			'total_male' 	=> $total_male,
+			'total_female' 	=> $total_female
+		);
+
+
+		echo json_encode($data);
+ 	}
+
+
+ 	public function get_data_monthlyAttSumm(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+		$where_date="";
+		if($dateperiod != ''){
+			$where_date = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
+		}
+		$where_emp="";
+		if($employee != ''){
+			$where_emp = " and employee_id = '".$employee."'";
+		}
+
+
+    	$rs = $this->db->query("select
+				    DATE_FORMAT(date_attendance, '%Y-%m') AS tahun_bulan,
+				    COUNT(*) AS total_absensi
+				FROM
+				    time_attendances where 1=1
+				".$where_date.$where_emp."
+				GROUP BY
+				    DATE_FORMAT(date_attendance, '%Y-%m')
+				ORDER BY
+				    tahun_bulan ")->result(); 
+
+		$periode=[]; $total_absensi=[]; 
+		foreach($rs as $row){
+			$periode[] 			= $row->tahun_bulan;
+			$total_absensi[] 	= $row->total_absensi;
+			
+		}
+
+
+		$data = array(
+			'periode' 		=> $periode,
+			'total_absensi'	=> $total_absensi
+		);
+
+
+		echo json_encode($data);
+
+
+ 	}
+
+
+
+ 	public function get_data_attStatistic(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+		$where_date="";
+		if($dateperiod != ''){
+			$where_date = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
+		}
+		$where_emp="";
+		if($employee != ''){
+			$where_emp = " and employee_id = '".$employee."'";
+		}
+
+
+    	$rs = $this->db->query("select
+				    DATE(date_attendance) AS hari,
+				    SUM(CASE WHEN is_late != 'Y' and is_leaving_office_early != 'Y' and leave_absences_id is null THEN 1 ELSE 0 END) AS total_on_work_time,
+				    SUM(CASE WHEN is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
+				    SUM(CASE WHEN num_of_working_hours > '8' THEN 1 ELSE 0 END) AS total_overtime,
+				    SUM(CASE WHEN is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS total_leaving_early,
+				    SUM(CASE WHEN leave_absences_id != '' or leave_absences_id is not null THEN 1 ELSE 0 END) AS total_leave,
+				    SUM(CASE WHEN (date_attendance_in is null or date_attendance_out is null) and leave_absences_id is null  THEN 1 ELSE 0 END) as total_absent,
+				    count(id) as total_absensi
+				FROM
+				    time_attendances
+				where 1=1 ".$where_date.$where_emp."
+				GROUP BY
+				    DATE(date_attendance)
+				ORDER BY
+				    hari ")->result(); 
+
+		$hari=[]; $total_on_work_time=[]; $total_late=[]; $total_overtime=[]; 
+		$total_leave=[]; $total_absent=[]; $total_leaving_early=[];
+		foreach($rs as $row){
+			$hari[] 				= $row->hari;
+			$total_on_work_time[] 	= $row->total_on_work_time;
+			$total_late[] 			= $row->total_late;
+			$total_overtime[] 		= $row->total_overtime;
+			$total_leaving_early[] 	= $row->total_leaving_early;
+			$total_leave[] 			= $row->total_leave;
+			$total_absent[] 		= $row->total_absent;
+			
+		}
+
+
+		$data = array(
+			'hari' 					=> $hari,
+			'total_on_work_time'	=> $total_on_work_time,
+			'total_late' 			=> $total_late,
+			'total_overtime' 		=> $total_overtime,
+			'total_leaving_early' 	=> $total_leaving_early,
+			'total_leave' 			=> $total_leave,
+			'total_absent' 			=> $total_absent
+		);
+
+
+		echo json_encode($data);
+
+ 	}
+
+
+
+ 	public function get_data_attPercentage(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+
+    	$rs = $this->db->query("select
+				    COUNT(*) AS total_absen,
+				    SUM(CASE WHEN date_attendance_in is not null and date_attendance_out is not null and leave_absences_id is null THEN 1 ELSE 0 END) AS total_hadir,
+				    SUM(CASE WHEN date_attendance_in is null or date_attendance_out is null or leave_absences_id is not null THEN 1 ELSE 0 END) AS total_tidak_hadir,
+				    ROUND(SUM(CASE WHEN date_attendance_in is not null and date_attendance_out is not null and leave_absences_id is null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_hadir,
+				    ROUND(SUM(CASE WHEN date_attendance_in is null or date_attendance_out is null or leave_absences_id is not null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_tidak_hadir
+				FROM time_attendances;
+				 ")->result(); 
+
+
+    	echo json_encode($rs);
+
+
+ 	}
+
+
+
+ 	public function get_data_workhrsPercentage(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+
+    	$rs = $this->db->query("select
+					    ROUND(SUM(TIMESTAMPDIFF(MINUTE, date_attendance_in, date_attendance_out)) / 60, 2) AS total_worked_hours,
+					    COUNT(*) * 8 AS total_standar_hours,
+					    ROUND(SUM(TIMESTAMPDIFF(MINUTE, date_attendance_in, date_attendance_out)) / 60 / (COUNT(*) * 8) * 100, 2) AS persen_worked,
+					    ROUND(100 - (SUM(TIMESTAMPDIFF(MINUTE, date_attendance_in, date_attendance_out)) / 60 / (COUNT(*) * 8) * 100), 2) AS persen_idle
+					FROM
+					    time_attendances
+					WHERE
+					    date_attendance_in IS NOT NULL AND date_attendance_out IS NOT NULL;
+
+				 ")->result(); 
+
+
+    	echo json_encode($rs);
+
+
+ 	}
+
+
+
 }

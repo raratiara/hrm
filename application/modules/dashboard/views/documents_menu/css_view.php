@@ -24,7 +24,18 @@ body {
   /*background-color: #f5f7fa;*/
  /* padding: 40px;*/
 }
-
+.chart_monthly_att_summ {
+  /*width: 50%;*/
+  /*max-width: 400px;*/
+  /*margin: auto;*/
+  background: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  left: 20px;
+  width: 300px;
+  float: left; /* atau gunakan display: inline-block */
+}
 h2 {
   text-align: left;
   font-size: 16px;
@@ -33,19 +44,16 @@ h2 {
 }
 
 
-#monthly_att_summ {
-  width: 350px;
-  height: 250px;
-}
-
-#att_statistic {
-    width: 350px;
-    height: 250px;
-}
-
-#empby_dept_gender {
-    width: 330px;
-    height: 250px;
+.chart_att_statistic {
+  /*width: 90%;*/
+  max-width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 400px;
+  float: left; /* atau gunakan display: inline-block */
 }
 
 
@@ -97,20 +105,56 @@ h2 {
 }
 
 
-#empby_gen {
-    width: 200px;
-    height: 180px;
+.chart_empbydeptgender {
+  /*width: 50%;*/
+  max-width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  left: 20px;
+  width: 400px;
+  float: left; /* atau gunakan display: inline-block */
 }
+
+.chart_empbygen {
+  width: 300px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.chart_attpercentage {
+  /*width: 50%;*/
+  max-width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  left: 20px;
+  width: 400px;
+  float: left; /* atau gunakan display: inline-block */
+}
+
 
 #att_percentage {
-    width: 100px;
-    height: 100px;
-}
-
-
-#workhrs_percentage {
-    width: 100px;
-    height: 100px;
+  /*width: 150px;
+  height: 100px;
+  padding: 2px;*/
+  /*max-width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  left: 20px;
+  width: 400px;
+  float: left;*/ /* atau gunakan display: inline-block */
 }
 
 

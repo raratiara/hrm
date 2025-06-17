@@ -107,7 +107,8 @@
 	  	<div class="box box-1"> 
 	  		<div class="box-title">Select Date</div>
 	      	<div class="box-value">
-	      		<input type="text" style="width: 150px; height:20px; font-size: 10px;" class="form-control" id="fldashdateperiod" name="fldashdateperiod">
+	      		<!-- <input type="text" style="width: 150px; height:20px; font-size: 10px;" class="form-control" id="fldashdateperiod" name="fldashdateperiod"> -->
+	      		<input type="month" style="width: 150px; height:20px; font-size: 10px;" id="fldashdateperiod" name="fldashdateperiod" class="form-control">
 	      	</div>
 	      	<div class="info-footer"></div>
 	  	</div>
@@ -116,7 +117,7 @@
 	  	<div class="box-title">Select Employee</div>
 	      	<div class="box-value">
 	      		<!-- <?=$selemp?> -->
-	      		<select style="width: 130px; height:20px; font-size: 10px;">
+	      		<select style="width: 130px; height:20px; font-size: 10px;" id="fldashemp" name="fldashemp">
 	      			<option></option>
 	      			<?php
 	      			foreach($master_emp as $row){
@@ -146,7 +147,7 @@
 	  <div class="box box-5">
 	  	<div class="box-title">Attendance Percentage</div>
 	    <div class="box-value">
-	    	<canvas id="att_percentage" width="100" height="100"></canvas>
+	    	<canvas id="att_percentage"></canvas>
 	    </div>
 	  </div>
 
@@ -184,7 +185,7 @@
 	  <div class="box box-11">
 	  	<div class="box-title">Worked Hours Percentage</div>
 	    <div class="box-value">
-	    	<canvas id="workhrs_percentage" width="100" height="100"></canvas>
+	    	<canvas id="workhrs_percentage"></canvas>
 	    </div>
 	  </div>
 
@@ -209,7 +210,7 @@
 	  <div class="box box-16">
 	  	<div class="box-title">Employees by Generation</div>
 	    <div class="box-value">
-	    	<canvas id="empby_gen" width="200" height="180"></canvas>
+	    	<canvas id="empby_gen"></canvas>
 	    </div>
 	  </div>
 	 
