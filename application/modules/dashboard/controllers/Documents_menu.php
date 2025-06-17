@@ -15,11 +15,11 @@ class Documents_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Floating Crane","CCTV Code","CCTV Name"];
+	public $tabel_header 			= ["ID","Name","File"];
 	
 	/* Export */
-	public $colnames 				= ["Date","Order No","Order Name","Floating Crane","Mother Vessel","Activity","Datetime Start","Datetime End","Total Time","Degree","Degree 2","PIC","Status"];
-	public $colfields 				= ["date","order_no","order_name","floating_crane_name","mother_vessel_name","activity_name","datetime_start","datetime_end","total_time","degree","degree_2","pic","status_name"];
+	public $colnames 				= ["ID","Name","File"];
+	public $colfields 				= ["id","name","file"];
 
 
 
@@ -30,11 +30,10 @@ class Documents_menu extends MY_Controller
 		$field = [];
 
 
-		$msemp 				= $this->db->query("select * from employees")->result(); 
-		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','fldashemp','fldashemp','','','id','full_name',' ','','','',3,'-');
+		$field['txtname']	= $this->self_model->return_build_txt('','name','name'); 
+		$field['txtfile'] 	= $this->self_model->return_build_fileinput('file','file');
 
-		$field['master_emp'] = $this->db->query("select * from employees order by full_name asc")->result(); 
-		
+
 		return $field;
 	}
 
@@ -47,12 +46,12 @@ class Documents_menu extends MY_Controller
 		# akses level
 		$akses = $this->self_model->user_akses($this->module_name);
 		define('_USER_ACCESS_LEVEL_VIEW',$akses["view"]); 
-		/*define('_USER_ACCESS_LEVEL_ADD',$akses["add"]);
+		define('_USER_ACCESS_LEVEL_ADD',$akses["add"]);
 		define('_USER_ACCESS_LEVEL_UPDATE',$akses["edit"]);
 		define('_USER_ACCESS_LEVEL_DELETE',$akses["del"]);
 		define('_USER_ACCESS_LEVEL_DETAIL',$akses["detail"]);
 		define('_USER_ACCESS_LEVEL_IMPORT',$akses["import"]);
-		define('_USER_ACCESS_LEVEL_EKSPORT',$akses["eksport"]);*/
+		define('_USER_ACCESS_LEVEL_EKSPORT',$akses["eksport"]);
     }
 
 	/* Module */
@@ -89,21 +88,28 @@ class Documents_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	public function get_maps()
-	{ 
-		if(_USER_ACCESS_LEVEL_VIEW == "1")
-		{ 
+ 	public function downloadFile(){ 
 
-			$rs =  $this->db->query("select id, full_name as nama, last_lat as lat, last_long as lng from employees where last_lat is not null and last_long is not null")->result(); 
+		$filename = $_GET['file']; // e.g., "example.pdf"
 
-			echo json_encode($rs);
+		// Set the full file path
+		/*$filePath = 'documents/' . basename($filename);*/ // folder 'documents'
+		$filePath = "./uploads/documents/" . basename($filename);
+
+
+		if (file_exists($filePath)) {
+		    header('Content-Description: File Transfer');
+		    header('Content-Type: application/octet-stream');
+		    header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+		    header('Content-Length: ' . filesize($filePath));
+		    readfile($filePath);
+		    exit;
+		} else {
+		    http_response_code(404);
+		    echo "File not found.";
 		}
-		else
-		{ 
-			$this->load->view('errors/html/error_hacks_401');
-		}
-	}
 
+ 	}
 
 
 }
