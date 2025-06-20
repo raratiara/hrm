@@ -20,7 +20,9 @@
 body {
   font-family: sans-serif;
   padding: 20px;
+  overflow-x: auto;
 }
+
 
 #btnGen {
   background-color: #cdd232; 
@@ -131,5 +133,157 @@ body {
   max-height: 400px;
   padding: 16px 24px;
 }
+
+
+
+
+table { border-collapse: collapse; margin-top: 10px; min-width: 100%; }
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+  min-width: 80px;
+}
+.date-header { font-size: 12px; }
+.drop-cell { min-height: 40px; position: relative; }
+.shift-btn {
+  padding: 4px 8px; margin: 2px; border-radius: 4px;
+  font-size: 12px; cursor: grab; color: white;
+}
+/*.shift1 { background-color: #4CAF50; }
+.shift2 { background-color: #2196F3; }
+.shift3 { background-color: #cd4141; }*/
+/*.assigned {
+  background-color: #FF9800;
+  color: white;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 2px;
+  display: inline-block;
+}*/
+button { margin: 5px; padding: 6px 10px; }
+
+
+.btnweek {
+  margin-top: 12px;
+  padding: 8px 16px;
+  /*background-color: #cccccc;*/
+  color: black;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btnpilihshift {
+
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: #4187cd;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+
+/*MODAL*/
+.custom-modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  /*padding-top: 90px;*/
+  top: 10px; width: 300px; height: 20%;
+  float: right;
+  margin-left:750px;
+  /*background-color: rgba(0,0,0,0.6);*/
+}
+
+.custom-modal-content {
+  background-color: #fff;
+  margin: auto;
+  padding: 20px;
+  border-radius: 12px;
+  width: 300px;
+  max-width: 400px;
+  animation: fadeIn 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  float: right;
+}
+
+.custom-close {
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+}
+#close-shift:hover {
+  color: red;
+}
+
+.assigned {
+  color: white;
+  padding: 4px 6px;
+  border-radius: 10px;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  
+}
+
+.shift1 { background-color: #4CAF50; }
+.shift2 { background-color: #3F51B5; }
+.shift3 { background-color: #cd4141; }
+
+.shift-btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: grab;
+  color: white;
+  margin: 4px 6px 12px 0;
+}
+
+.shift-btn.shift1 {
+  background-color: #4CAF50;
+}
+
+.shift-btn.shift2 {
+  background-color: #3F51B5;
+}
+
+.shift-btn.shift3 {
+  background-color: #cd4141;
+}
+
+.button-shift {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: crimson;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.button-shift:hover {
+  background-color: darkred;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+
+/*.drop-cell {
+  border: 1px dashed #aaa;
+  background-color: #f9f9f9;
+}*/
+
+
 
 </style>

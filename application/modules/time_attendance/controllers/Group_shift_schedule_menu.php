@@ -15,7 +15,7 @@ class Group_shift_schedule_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Periode","Group"];
+	public $tabel_header 			= ["ID","Periode","Created Date"];
 
 	
 	/* Export */
@@ -27,10 +27,10 @@ class Group_shift_schedule_menu extends MY_Controller
 	{
 		$field = [];
 		
-		$master_group_shift = $this->db->query("select * from master_group_shift")->result(); 
+		/*$master_group_shift = $this->db->query("select * from master_group_shift")->result(); 
 		$field['selgroup'] 	= $this->self_model->return_build_select2me($master_group_shift,'','','','group','group','','','id','name',' ','','','',3,'-');
 		
-		$field['txtperiode'] = $this->self_model->return_build_txt('','periode','periode');
+		$field['txtperiode'] = $this->self_model->return_build_txt('','periode','periode');*/
 		
 
 
@@ -108,6 +108,20 @@ class Group_shift_schedule_menu extends MY_Controller
 		{ 
 			$this->load->view('errors/html/error_hacks_401');
 		}
+	}
+
+
+	public function get_shift(){
+		$post = $this->input->post(null, true);
+		/*$empid 	= $post['empid'];*/
+
+
+		$data =  $this->db->query("select id, full_name from employees order by full_name asc")->result();
+
+
+		echo json_encode($data);
+
+
 	}
  	
 

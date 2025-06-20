@@ -22,12 +22,13 @@ $(document).ready(function() {
 
 
 
-function getMaps(){
+function getMaps(empid=''){
+
 
 	$.ajax({
 		type: "POST",
         url : module_path+'/get_maps',
-		data: { },
+		data: {empid: empid },
 		cache: false,		
         dataType: "JSON",
         success: function(data)
@@ -35,6 +36,11 @@ function getMaps(){
 		if(data != false){ 
 
 			console.log(data);
+
+			var container = L.DomUtil.get('map');
+	      	if(container != null){
+		        container._leaflet_id = null;
+	      	}
 			
 			// Inisialisasi peta
 			  var map = L.map('map').setView([-6.224598, 106.992416], 13); // titik awal (latitude, longitude, zoom)
@@ -190,6 +196,13 @@ function getMaps_old(){
     });
 }
 
+
+$('#fldashemp').on('change', function () { 
+ 	
+ 	var employee = $("#fldashemp option:selected").val();
+ 	getMaps(employee);
+
+});
 
 
 

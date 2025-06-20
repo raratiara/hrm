@@ -20,16 +20,17 @@ class Group_shift_schedule_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.periode',
-			'dt.group_name'
+			'dt.period',
+			'dt.created_at'
 		];
 		
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.name as group_name from group_shift_schedule a 
+		/*$sTable = '(select a.*, b.name as group_name from group_shift_schedule a 
 						left join master_group_shift b on b.id = a.master_group_shift_id
-					)dt';
+					)dt';*/
+		$sTable = '(select * from shift_schedule)dt';
 		
 
 		/* Paging */
@@ -202,8 +203,8 @@ class Group_shift_schedule_menu_model extends MY_Model
 					'.$approve.'
 				</div>',
 				$row->id,
-				$row->periode,
-				$row->group_name
+				$row->period,
+				$row->created_at
 
 			));
 		}
@@ -257,7 +258,112 @@ class Group_shift_schedule_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
+		$bulan = $post['bulan']+1; //di plus 1 karna di js bulannya mulainya dr index 0
 
+		
+		if($bulan < 10){
+			$bulan = "0".$bulan;
+		}
+
+		$period = $post['tahun'].'-'.$bulan;
+		$selectedshift = json_decode($post['selectedshift']);
+
+		$shiftschedule = $this->db->query("select * from shift_schedule where period = '".$period."'")->result();
+		if(empty($shiftschedule)){
+			$data_shiftschedule = [
+				'period' 		=> $period,
+				'created_at'	=> date("Y-m-d H:i:s")
+			];
+			$rs_shiftschedule = $this->db->insert('shift_schedule', $data_shiftschedule);
+			$shiftschedule_id = $this->db->insert_id();
+		}else{
+			$shiftschedule_id = $shiftschedule[0]->id;
+		} 
+
+
+		$grouped = [];
+		foreach ($selectedshift as $row) {
+		    $id = $row->id;
+
+		    if (!isset($grouped[$id])) {
+		        $grouped[$id] = [
+		        	'id' => $id,
+		            'name' => $row->empname,
+		            'jadwal' => []
+		        ];
+		    }
+
+		    $grouped[$id]['jadwal'][] = [
+		        'tgl' => $row->tgl,
+		        'shift' => $row->shift
+		    ];
+		}
+
+		
+		if($period != ''){
+
+			foreach($grouped as $groupedRow)
+			{
+				$exist_data = $this->db->query("select * from group_shift_schedule where periode = '".$period."' and employee_id = '".$groupedRow['id']."'")->result(); 
+
+				if(empty($exist_data)){
+					$data = [
+						'periode' 		=> $period,
+						'shift_schedule_id' => $shiftschedule_id,
+						'employee_id'	=> $groupedRow['id'],
+						'created_at'	=> date("Y-m-d H:i:s")
+					];
+					$rs = $this->db->insert($this->table_name, $data);
+					$lastId = $this->db->insert_id();
+
+
+					if($rs){
+
+						if(isset($groupedRow['jadwal'])){
+							$item_num = count($groupedRow['jadwal']); // cek sum
+							$item_len_min = min(array_keys($groupedRow['jadwal'])); // cek min key index
+							$item_len = max(array_keys($groupedRow['jadwal'])); // cek max key index
+						} else {
+							$item_num = 0;
+						}
+
+						if($item_num>0){
+
+							for($i=$item_len_min;$i<=$item_len;$i++) 
+							{
+								
+								$fulltanggal = $groupedRow['jadwal'][$i]['tgl'];
+								$exp = explode("-",$fulltanggal);
+								$tgl = $exp[2];
+
+
+								if(isset($groupedRow['jadwal'][$i]['tgl'])){
+									$fullshift = $groupedRow['jadwal'][$i]['shift'];
+									$exp2 = explode(" ",$fullshift);
+									$shift = $exp2[1];
+
+									$itemData = [
+										'`'.$tgl.'`' 	=> $shift
+									];
+									$this->db->update($this->table_name, $itemData, "id = '".$lastId."'");
+								}
+							}
+						}
+					}
+				}
+			}
+				
+			return $rs;
+
+		}else return null;
+			
+		
+	} 
+
+
+	public function add_data_old($post) { 
+
+		
 		$period = $post['period'];
 		$group 	= $post['group'];
 		
@@ -336,7 +442,200 @@ class Group_shift_schedule_menu_model extends MY_Model
 		
 	}  
 
-	public function edit_data($post) { 
+
+	public function edit_data($post){ //baru
+
+		$bulan = $post['bulan']+1; //di plus 1 karna di js bulannya mulainya dr index 0
+
+		
+		if($bulan < 10){
+			$bulan = "0".$bulan;
+		}
+
+		$period = $post['tahun'].'-'.$bulan;
+		$selectedshift = json_decode($post['selectedshift']);
+
+		$shiftschedule = $this->db->query("select * from shift_schedule where period = '".$period."'")->result();
+		if(empty($shiftschedule)){
+			$data_shiftschedule = [
+				'period' 		=> $period,
+				'created_at'	=> date("Y-m-d H:i:s")
+			];
+			$rs_shiftschedule = $this->db->insert('shift_schedule', $data_shiftschedule);
+			$shiftschedule_id = $this->db->insert_id();
+		}else{
+			$shiftschedule_id = $shiftschedule[0]->id;
+		} 
+
+
+		$grouped = [];
+		foreach ($selectedshift as $row) {
+		    $id = $row->id;
+
+		    if (!isset($grouped[$id])) {
+		        $grouped[$id] = [
+		        	'id' => $id,
+		            'name' => $row->empname,
+		            'jadwal' => []
+		        ];
+		    }
+
+		    $grouped[$id]['jadwal'][] = [
+		        'tgl' => $row->tgl,
+		        'shift' => $row->shift
+		    ];
+		}
+
+		
+		if($period != ''){
+
+			foreach($grouped as $groupedRow)
+			{
+				$exist_data = $this->db->query("select * from group_shift_schedule where periode = '".$period."' and employee_id = '".$groupedRow['id']."'")->result(); 
+
+				if(empty($exist_data)){
+					$data = [
+						'periode' 		=> $period,
+						'shift_schedule_id' => $shiftschedule_id,
+						'employee_id'	=> $groupedRow['id'],
+						'created_at'	=> date("Y-m-d H:i:s")
+					];
+					$rs = $this->db->insert($this->table_name, $data);
+					$lastId = $this->db->insert_id();
+
+
+					if($rs){
+
+						if(isset($groupedRow['jadwal'])){
+							$item_num = count($groupedRow['jadwal']); // cek sum
+							$item_len_min = min(array_keys($groupedRow['jadwal'])); // cek min key index
+							$item_len = max(array_keys($groupedRow['jadwal'])); // cek max key index
+						} else {
+							$item_num = 0;
+						}
+
+						if($item_num>0){
+
+							for($i=$item_len_min;$i<=$item_len;$i++) 
+							{
+								
+								$fulltanggal = $groupedRow['jadwal'][$i]['tgl'];
+								$exp = explode("-",$fulltanggal);
+								$tgl = $exp[2];
+
+
+								if(isset($groupedRow['jadwal'][$i]['tgl'])){
+									$fullshift = $groupedRow['jadwal'][$i]['shift'];
+									$exp2 = explode(" ",$fullshift);
+									$shift = $exp2[1];
+
+									$itemData = [
+										'`'.$tgl.'`' 	=> $shift
+									];
+									$this->db->update($this->table_name, $itemData, "id = '".$lastId."'");
+								}
+							}
+						}
+					}
+				}
+				else{
+					$del = $this->db->delete('group_shift_schedule',"id = '".$exist_data[0]->id."'");
+
+					$data = [
+						'periode' 		=> $period,
+						'shift_schedule_id' => $shiftschedule_id,
+						'employee_id'	=> $groupedRow['id'],
+						'created_at'	=> date("Y-m-d H:i:s")
+					];
+					$rs = $this->db->insert($this->table_name, $data);
+					$lastId = $this->db->insert_id();
+
+					if($rs){
+
+						if(isset($groupedRow['jadwal'])){
+							$item_num = count($groupedRow['jadwal']); // cek sum
+							$item_len_min = min(array_keys($groupedRow['jadwal'])); // cek min key index
+							$item_len = max(array_keys($groupedRow['jadwal'])); // cek max key index
+						} else {
+							$item_num = 0;
+						}
+
+						if($item_num>0){
+
+							for($i=$item_len_min;$i<=$item_len;$i++) 
+							{
+								
+								$fulltanggal = $groupedRow['jadwal'][$i]['tgl'];
+								$exp = explode("-",$fulltanggal);
+								$tgl = $exp[2];
+
+
+								if(isset($groupedRow['jadwal'][$i]['tgl'])){
+									$fullshift = $groupedRow['jadwal'][$i]['shift'];
+									$exp2 = explode(" ",$fullshift);
+									$shift = $exp2[1];
+
+									$itemData = [
+										'`'.$tgl.'`' 	=> $shift
+									];
+									$this->db->update($this->table_name, $itemData, "id = '".$lastId."'");
+								}
+							}
+						}
+					}
+
+
+					
+				}
+
+
+				/*else{ //update
+					$lastId = $exist_data[0]->id;
+
+
+					$ttl_jadwal=count($groupedRow['jadwal']); 
+					for($i=0;$i<=$ttl_jadwal;$i++) 
+					{
+						$fulltanggal = $groupedRow['jadwal'][$i]['tgl'];
+						$exp = explode("-",$fulltanggal);
+						$tgl = $exp[2]; 
+
+						$fullshift = $groupedRow['jadwal'][$i]['shift'];
+						$exp2 = explode(" ",$fullshift);
+						$shift = $exp2[1];
+						
+
+						for($j=1; $j<=31; $j++){
+							$tgldb = sprintf("%02d", $j);
+							$shiftdb = $exist_data[0]->$tgldb;
+							$fulltgldb = $period.'-'.$tgldb;
+
+
+							if($tgldb == $tgl){ 
+								$itemData = [
+									'`'.$tgl.'`' 	=> $shift
+								]; 
+								$rs = $this->db->update($this->table_name, $itemData, "id = '".$lastId."'");
+							}
+						}
+						
+					}
+
+				}*/
+			}
+				
+			return $rs;
+
+		}else return null;
+
+
+	}
+
+
+
+
+
+	public function edit_data_old($post) { 
 
 		if(!empty($post['id'])){
 
@@ -424,7 +723,39 @@ class Group_shift_schedule_menu_model extends MY_Model
 		} else return null;
 	}  
 
-	public function getRowData($id) { 
+
+	public function getRowData($id){
+
+		$result = $this->db->query("select a.*, b.full_name from group_shift_schedule a left join employees b on b.id = a.employee_id where a.shift_schedule_id = '".$id."' ")->result(); 
+
+		$savedData=[];
+		foreach($result as $rows){ 
+			$id = $rows->id; 
+			$employee_id 	= $rows->employee_id; 
+		    $employee_name 	= $rows->full_name;
+		    $period 		= $rows->periode;
+
+		    for($i=1; $i<=31; $i++){ 
+				$field = sprintf("%02d", $i); 
+		    	$shift = $rows->$field;
+
+				if($shift != '' && $shift != null){
+					$savedData[] = [
+		                'employee_id' 	=> $employee_id,
+		                'employee_name' => $employee_name,
+		                'period' 	=> $period,
+		                'tanggal' 	=> $period.'-'.$field,
+		                'shift' 	=> 'Shift '.$shift
+		            ];
+				}
+		    }
+		}
+
+
+		return $savedData;
+	}
+
+	public function getRowData_old($id) { 
 		/*$mTable = '(select a.*, b.name as group_name from group_shift_schedule a 
 						left join master_group_shift b on b.id = a.master_group_shift_id
 

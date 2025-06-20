@@ -36,7 +36,7 @@ jQuery(function($) {
 		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
 		],
 		"aaSorting": [
-		  	[2,'asc'] 
+		  	[2,'desc'] 
 		],
 		"sAjaxSource": module_path+"/get_data",
 		"bProcessing": true,

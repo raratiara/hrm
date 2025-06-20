@@ -37,28 +37,11 @@ class Api extends API_Controller
 
 
 	public function tes(){
-		$datetime = '2025-05-26 00:00:00';
-		$exp 			= explode(" ",$datetime);
-		$date 			= $exp[0];
-		$time 			= $exp[1];
-		$timestamp_time = strtotime($time); 
-		$timestamp_datetime = strtotime($datetime); 
+		$j=28;
+		$field = sprintf("%02d", $j);
 
 
-		//$time_in 			= $dt[0]->time_in;
-		//$time_out 			= $dt[0]->time_out;
-		//$post_timein 		= strtotime($time_in);
-		//$post_timeout 		= strtotime($time_out);
-
-		$datetime_out 			= '2025-05-25 24:00:00';
-		$post_datetimeout 		= strtotime($datetime_out);
-
-
-		$is_leaving_office_early = 'N';
-		if($timestamp_datetime < $post_datetimeout){
-			$is_leaving_office_early = 'Y';
-		}
-		echo $is_leaving_office_early; die();
+		echo $field; die();
 
 
 	}
