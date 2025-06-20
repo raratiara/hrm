@@ -23,7 +23,7 @@
 											<i class="fa fa-check"></i>
 											Save
 										</button>
-										<button class="btn" onclick="reset()">
+										<button class="btn" onclick="reset()" id="btnReset">
 											<i class="fa fa-undo"></i>
 											Reset
 										</button>

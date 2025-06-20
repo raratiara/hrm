@@ -18,16 +18,15 @@ var wcount = 0; //for ca list row identify
 
 $(document).ready(function() {
 
-	document.getElementById("btnAccordion").style.display = "none";
+		/*document.getElementById("btnAccordion").style.display = "none";
 
    	$(function() {
         const picker = document.getElementById('monthPicker');
 
 				picker.addEventListener('change', function () {
-				  const value = this.value; // format is "YYYY-MM"
+				  const value = this.value; 
 				  const [year, month] = value.split('-');
-				  /*console.log("Year:", year);
-				  console.log("Month:", month);*/
+				  
 
 				  generate();
 				});		
@@ -40,7 +39,12 @@ $(document).ready(function() {
 			    panel.classList.toggle('show');
 		  	});
 		
-   	});
+   	});*/
+
+		/*let currentWeek = 0;
+		renderSchedule(currentWeek);*/	
+
+		
 
 });
 
@@ -133,7 +137,153 @@ jQuery(function($) {
 <?php } ?>
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
+
+// deklarasi global
+let currentWeek = 0;
+let jadwalData = [];
+let selectedShift = []; 
+
+const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+
+
+
 function load_data()
+{ 
+    $.ajax({
+		type: "POST",
+    url : module_path+'/get_detail_data',
+		data: { id: idx },
+		cache: false,		
+    dataType: "JSON",
+    success: function(data)
+    { 
+			if(data != false){ 
+
+					
+					$('[name="id"]').val(idx);
+					document.getElementById("hdnjadwalTersimpan").value = JSON.stringify(data);
+					document.getElementById("selectedshift").value = JSON.stringify(data);
+
+					/*let jadwalData = [];*/ // penampung sementara semua shift yang di-drag
+				  // Buat baris per karyawan
+				  data.forEach(emp => {
+				  	var id = emp.employee_id;
+				  	var empname = emp.employee_name;
+				  	var tgl = emp.tanggal;
+				  	var shift = emp.shift;
+				    jadwalData.push({ id, empname, tgl, shift });
+				    $('[name="selectedshift"]').val(JSON.stringify(jadwalData)); 
+		 			});
+					
+
+
+					let periode = data[0].period;
+					let myArray = periode.split("-");
+					let tahun = myArray[0];
+					let bulan = parseInt(myArray[1]-1);
+					$('select#bulan').val(bulan).trigger('change.select2');
+					$('select#tahun').val(tahun).trigger('change.select2');
+
+					
+					
+					let tanggalList = generateTanggalMingguan(); // misalnya minggu ini
+
+					/*let jadwalData = [];*/ // penampung untuk update saat save
+					
+					let currentWeek=0;
+					/*renderFormJadwal(karyawanList, jadwalTersimpan,jadwalData,tanggalList);*/
+					renderSchedule(currentWeek, data, jadwalData, tanggalList);
+
+					
+
+
+					if(save_method == 'update'){ 
+
+							document.getElementById("btnpilihshift").style.display = "block";
+							document.getElementById("submit-data").style.display = "block";
+							document.getElementById("btnReset").style.display = "block";
+
+							$.uniform.update();
+							$('#mfdata').text('Update');
+							$('#modal-form-data').modal('show');
+
+					}else if(save_method == 'detail'){
+
+							document.getElementById("btnpilihshift").style.display = "none";
+							document.getElementById("submit-data").style.display = "none";
+							document.getElementById("btnReset").style.display = "none";
+							
+
+							$.uniform.update();
+							$('#mfdata').text('	view');
+							$('#modal-form-data').modal('show');
+					}
+
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+}
+
+
+
+function generateTanggalMingguan() {
+
+	let month = document.getElementById('bulan').value;
+	let year = document.getElementById('tahun').value;
+  let currentWeek = 0;
+
+	if(month == '' && year == ''){ 
+		let month = new Date().getMonth(); 
+		let year = new Date().getFullYear();
+	}
+
+
+
+	/*let startDate = new Date(year, month, 1 + currentWeek * 7);*/ //awal bulan
+  const result = [];
+  const today = new Date();
+  /*const start = new Date(today.setDate(today.getDate() - today.getDay()));*/ // minggu ini
+  const start = new Date(year, month, 1 + currentWeek * 7);
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    result.push(d.toISOString().slice(0, 10));
+  }
+
+  return result;
+}
+
+
+
+function load_data_old()
 {
     $.ajax({
 		type: "POST",
@@ -150,18 +300,6 @@ function load_data()
 				
 					$('select#group').val(data.master_group_shift_id).trigger('change.select2');
 					
-
-					/*var shiftData = {
-					  "2025-06-01": "1",
-					  "2025-06-02": "1",
-					  "2025-06-03": "1",
-					  "2025-06-04": "2",
-					  "2025-06-05": "2",
-					  "2025-06-06": "2",
-					  "2025-06-07": "0",
-					  "2025-06-08": "0",
-					  "2025-06-09": "3"
-					};*/
 
 					var dt = data.periode.split("-");
 					var year = dt[0];
@@ -331,50 +469,6 @@ function generateCalendar(year, month, shiftData='') {
 	    calendar.appendChild(cell);
 
 
-
-
-
-
-
-
-      	/*const box = document.createElement('div');
-      	box.className = 'day-box';
-
-      	const dayNum = document.createElement('div');
-      	dayNum.className = 'day-number';
-      	dayNum.textContent = day;*/
-
-
-        // Create the <select> element
-		/*const select = document.createElement("select");
-		select.name = "shift[]";
-		select.id = "shiftSelect";*/
-		/*select.className = "form-control";*/
-
-		// Create and append <option> elements with values
-		/*const shifts  = [
-		  { label: "", value: "" },
-		  { label: "Shift 1", value: "1" },
-		  { label: "Shift 2", value: "2" },
-		  { label: "Shift 3", value: "3" },
-		  { label: "OFF", value: "0" }
-		];*/
-
-		/*shifts.forEach(shift => {
-		  const option = document.createElement("option");
-		  option.textContent = shift.label; // Text shown to the user
-		  option.value = shift.value;       // The actual value submitted
-		  select.appendChild(option);
-		});*/
-
-		// Append the select to the DOM
-		//document.body.appendChild(select);
-
-
-      	//box.appendChild(dayNum);
-      	//box.appendChild(select);
-
-      	//calendar.appendChild(box);
     }
 
     document.getElementById("btnAccordion").style.display = "";
@@ -517,6 +611,518 @@ function del(idx,hdnid){
 	table.deleteRow(idx);
 
 }
+
+
+
+function formatDateLocal(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+
+function renderSchedule(currentWeek, jadwalTersimpan='',jadwalData='',tanggalList=''){
+
+	
+	let hdnjadwalTersimpana = $("#hdnjadwalTersimpan").val(); console.log(hdnjadwalTersimpana);
+	if(hdnjadwalTersimpana != ''){ 
+		//let hdnjadwalTersimpan = JSON.parse(hdnjadwalTersimpana);
+		jadwalTersimpan = JSON.parse(hdnjadwalTersimpana);
+	}else{ 
+		jadwalTersimpan=[];
+	}
+	
+
+	let month = document.getElementById('bulan').value; 
+	let year = document.getElementById('tahun').value; 
+	if(month == '' && year == ''){ 
+		let month = new Date().getMonth(); 
+		let year = new Date().getFullYear(); 
+	}
+
+
+
+ 	$.ajax({
+		type: "POST",
+    url : module_path+'/get_shift',
+		data: { },
+		cache: false,		
+    dataType: "JSON",
+    success: function(data)
+    {
+			if(data != false){ 
+
+				let karyawanList = data;
+			  let tbody = document.getElementById('jadwal-body');
+			  tbody.innerHTML = "";
+
+			  var perioddate = year+'-'+month;
+
+			  // Hitung tanggal awal minggu
+			  //let startDate = new Date(year, month, 1 + currentWeek * 7);
+
+			  // Jika ingin mulai dari hari Minggu
+				//startDate.setDate(startDate.getDate() - startDate.getDay()); 
+
+				// Jika ingin mulai dari hari Senin
+				/*startDate.setDate(startDate.getDate() - ((startDate.getDay() + 6) % 7));*/
+
+			  
+
+			  // Set header tanggal
+			  /*for (let i = 0; i < 7; i++) {
+			    let tgl = new Date(startDate);
+			    tgl.setDate(startDate.getDate() + i);
+			    let id = "tgl" + (i + 1);
+			    let el = document.getElementById(id);
+			    el.textContent = isValidDate(tgl) ? tgl.toISOString().slice(0, 10) : 'Tanggal tidak valid';
+			    el.dataset.tgl = el.textContent;
+			  }*/
+
+			  /*for (let i = 0; i < 7; i++) {
+  let tgl = new Date(startDate);
+  tgl.setDate(startDate.getDate() + i);
+
+  let id = "tgl" + (i + 1);
+  let el = document.getElementById(id);
+console.log(tgl);
+  if (isValidDate(tgl)) {
+    // Ambil nama hari sesuai tanggalnya secara dinamis (lokal Indonesia)
+    let namaHari = tgl.toLocaleDateString('id-ID', { weekday: 'long' });
+    let tanggalStr = tgl.toISOString().slice(0, 10);
+    
+    el.innerHTML = `${namaHari}<br>${tanggalStr}`;
+    el.dataset.tgl = tanggalStr;
+  } else {
+    el.textContent = 'Tanggal tidak valid';
+  }
+}*/
+
+
+				
+			  let startDate = new Date(year, month, 1 + currentWeek * 7);
+
+for (let i = 0; i < 7; i++) {
+  let tgl = new Date(year, month, 1 + currentWeek * 7 + i); // 👍 LEBIH AMAN
+  
+  let id = "tgl" + (i + 1);
+  let el = document.getElementById(id);
+
+  
+
+  if (isValidDate(tgl)) {
+    let namaHari = tgl.toLocaleDateString('id-ID', { weekday: 'long' });
+    /*let tanggalStr = tgl.toISOString().slice(0, 10);*/
+    let tanggalStr = formatDateLocal(tgl);
+
+
+
+
+    
+    el.innerHTML = `${namaHari}<br>${tanggalStr}`;
+    el.dataset.tgl = tanggalStr;
+  } else {
+    el.textContent = 'Tanggal tidak valid';
+  }
+}
+
+
+
+
+
+
+			 
+
+
+
+			  let jadwalData = []; // penampung sementara semua shift yang di-drag
+			  // Buat baris per karyawan
+			  karyawanList.forEach(emp => {
+			    let tr = document.createElement('tr');
+			    tr.innerHTML = `<td><strong>${emp.full_name}</strong></td>`;
+
+			    for (let i = 0; i < 7; i++) {
+			      let tgl = document.getElementById("tgl" + (i + 1)).dataset.tgl;
+			      let td = document.createElement('td');
+			      td.className = 'drop-cell';
+			      td.dataset.karyawan = emp.full_name;
+			      td.dataset.tanggal = tgl;
+
+
+			      const spltgl = tgl.split("-");
+						let tglX = spltgl[2];
+
+
+
+						/*let jadwalTersimpan = [
+						  { nama: "Rara Tiara", tanggal: "2025-06-01", shift: "1" },
+						  { nama: "Rara Tiara", tanggal: "2025-06-02", shift: "2" },
+						  { nama: "Ivan Maulana Agusti", tanggal: "2025-06-01", shift: "3" }
+						];*/
+
+
+			      // Cek apakah ada shift yang disimpan sebelumnya
+			      const jadwal = jadwalTersimpan.find(j => j.employee_name === emp.full_name && j.tanggal === tgl);
+			   
+			      if (jadwal) { 
+			      	
+			        const shiftClass = jadwal.shift.toLowerCase().replace(/\s+/g, '');
+			        const shiftName = jadwal.shift;
+			        td.innerHTML = `
+			          <div class="assigned ${shiftClass}" onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">
+			            ${shiftName}
+			          </div>`;
+			        
+			        // Push ke jadwalData juga
+		          var id = emp.id;
+					  	var empname = emp.full_name;
+					    jadwalData.push({ id, empname, tgl, shiftName });
+
+
+			      }
+
+
+
+
+			      td.addEventListener('dragover', e => e.preventDefault());
+			      td.addEventListener('drop', e => {
+			        e.preventDefault();
+			        let shift = e.dataTransfer.getData('text/plain');
+			        td.innerHTML = `<div class="assigned ${shift.toLowerCase().replace(/\s+/g, '')}" onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${shift}</div>`;
+
+			        // Simpan ke PHP
+			        /*fetch('save.php', {
+			          method: 'POST',
+			          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			          body: `karyawan=${encodeURIComponent(nama)}&shift=${encodeURIComponent(shift)}&tanggal=${tgl}`
+			        });*/
+
+			        
+			        const existing = jadwalData.find(item => item.nama === emp.full_name && item.tgl === tgl);
+						  if (existing) {
+						    existing.shift = shift;
+						  } else {
+						  	var id = emp.id;
+						  	var empname = emp.full_name;
+						    jadwalData.push({ id, empname, tgl, shift });
+						    $('[name="selectedshift"]').val(JSON.stringify(jadwalData)); 
+						  }
+
+
+			        //console.log("Tanggal ke-" + (i + 1), tgl);
+			      });
+
+			      tr.appendChild(td);
+			    }
+
+			    tbody.appendChild(tr);
+			  });
+
+
+
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+    },
+    error: function (jqXHR, textStatus, errorThrown)
+    {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+    }
+  });
+
+
+}
+
+
+
+function renderSchedule_old(currentWeek, jadwalTersimpan='',jadwalData='',tanggalList=''){
+
+	let month = document.getElementById('bulan').value;
+	let year = document.getElementById('tahun').value;
+
+
+	if(month == '' && year == ''){ 
+		let month = new Date().getMonth(); 
+		let year = new Date().getFullYear();
+	}
+
+
+	 $.ajax({
+		type: "POST",
+    url : module_path+'/get_shift',
+		data: { },
+		cache: false,		
+    dataType: "JSON",
+    success: function(data)
+    {
+			if(data != false){ 
+
+				let karyawanList = data;
+				
+				/*let month = 5; // Juni (0-indexed, jadi 5)
+				let year = 2025;*/
+
+				
+				/*document.getElementById('bulan').value = month;
+				document.getElementById('tahun').value = year;*/
+
+
+			  let tbody = document.getElementById('jadwal-body');
+			  tbody.innerHTML = "";
+
+			  // Hitung tanggal awal minggu
+			  let startDate = new Date(year, month, 1 + currentWeek * 7);
+
+			  // Set header tanggal
+			  for (let i = 0; i < 7; i++) {
+			    let tgl = new Date(startDate);
+			    tgl.setDate(startDate.getDate() + i);
+			    let id = "tgl" + (i + 1);
+			    let el = document.getElementById(id);
+			    el.textContent = isValidDate(tgl) ? tgl.toISOString().slice(0, 10) : 'Tanggal tidak valid';
+			    el.dataset.tgl = el.textContent;
+
+
+			  }
+
+			  let jadwalData = []; // penampung sementara semua shift yang di-drag
+			  // Buat baris per karyawan
+			  karyawanList.forEach(emp => {
+			    let tr = document.createElement('tr');
+			    tr.innerHTML = `<td><strong>${emp.full_name}</strong></td>`;
+
+			    for (let i = 0; i < 7; i++) {
+			      let tgl = document.getElementById("tgl" + (i + 1)).dataset.tgl;
+			      let td = document.createElement('td');
+			      td.className = 'drop-cell';
+			      td.dataset.karyawan = emp.full_name;
+			      td.dataset.tanggal = tgl;
+
+			      td.addEventListener('dragover', e => e.preventDefault());
+			      td.addEventListener('drop', e => {
+			        e.preventDefault();
+			        let shift = e.dataTransfer.getData('text/plain');
+			        td.innerHTML = `<div class="assigned ${shift.toLowerCase().replace(/\s+/g, '')}" onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${shift}</div>`;
+
+			        // Simpan ke PHP
+			        /*fetch('save.php', {
+			          method: 'POST',
+			          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			          body: `karyawan=${encodeURIComponent(nama)}&shift=${encodeURIComponent(shift)}&tanggal=${tgl}`
+			        });*/
+
+			        
+			        const existing = jadwalData.find(item => item.nama === emp.full_name && item.tgl === tgl);
+						  if (existing) {
+						    existing.shift = shift;
+						  } else {
+						  	var id = emp.id;
+						  	var empname = emp.full_name;
+						    jadwalData.push({ id, empname, tgl, shift });
+						    $('[name="selectedshift"]').val(JSON.stringify(jadwalData)); 
+						  }
+
+
+			        //console.log("Tanggal ke-" + (i + 1), tgl);
+			      });
+
+			      tr.appendChild(td);
+			    }
+
+			    tbody.appendChild(tr);
+			  });
+
+
+
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+    },
+    error: function (jqXHR, textStatus, errorThrown)
+    {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+    }
+  });
+
+
+}
+
+
+function pilihShift(){
+
+	var bln = document.getElementById('bulan').value;
+	var thn = document.getElementById('tahun').value;
+
+	if(bln != '' && thn != ''){
+		document.getElementById('shiftModal').style.display = 'block';
+	}else{
+		alert('Silahkan pilih bulan & tahun');
+	}
+
+	
+}
+
+
+// Navigasi minggu
+function changeWeek(delta) { 
+	/*let currentWeek = 0;*/ // minggu ke-0 = awal bulan
+	let month = document.getElementById('bulan').value;
+	let year = document.getElementById('tahun').value;
+
+	
+
+	if(month == '' && year == ''){
+		let month 	= new Date().getMonth();
+		let year 		= new Date().getFullYear();
+	}
+
+
+  const nextStart = new Date(year, month, 1 + (currentWeek + delta) * 7); 
+  if (nextStart.getMonth() == month) {    // hanya izinkan jika masih dalam bulan yang sama
+    currentWeek += delta; 
+    renderSchedule(currentWeek);
+  }
+}
+
+// Drag shift
+document.querySelectorAll('.shift-btn').forEach(btn => {
+  btn.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', btn.dataset.shift);
+  });
+});
+
+
+
+function deleteShift_old(el, karyawan, tanggal) {
+  // Konfirmasi hapus
+  if (confirm(`Hapus shift ${el.innerText} untuk ${karyawan} di ${tanggal}?`)) {
+    el.parentElement.innerHTML = ''; // Hapus dari tampilan
+
+    // Hapus dari database
+    /*fetch('delete.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `karyawan=${encodeURIComponent(karyawan)}&tanggal=${tanggal}`
+    }).then(r => r.text()).then(console.log);*/
+  }
+}
+
+
+
+function deleteShift(el, nama, tanggal) { 
+  // Hapus tampilan shift di dalam cell
+  el.parentElement.innerHTML = "";
+
+
+  getselectedShift = document.getElementById("selectedshift").value;
+  selectedShift = JSON.parse(getselectedShift);
+  
+  // Hapus dari selectedShift berdasarkan nama & tanggal
+  selectedShift = selectedShift.filter(item => !(item.empname === nama && item.tgl === tanggal));
+  $('[name="selectedshift"]').val(JSON.stringify(selectedShift)); 
+}
+
+
+
+function resetToBulanTahun() { 
+  month = parseInt(document.getElementById('bulan').value); 
+  year = parseInt(document.getElementById('tahun').value);
+  
+  currentWeek = 0;
+  renderSchedule(currentWeek);
+}
+
+
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d);
+}
+
+
+
+
+let selectedShiftData = {}; // untuk menyimpan info saat klik shift
+
+function openShiftModal(nama, shift, tanggal) {
+  selectedShiftData = { nama, shift, tanggal };
+  document.getElementById('modalKaryawan').innerText = nama;
+  document.getElementById('modalTanggal').innerText = tanggal;
+  document.getElementById('modalShift').innerText = shift;
+  document.getElementById('shiftModal').style.display = 'block';
+}
+
+function closeShiftModal() {
+  document.getElementById('shiftModal').style.display = 'none';
+}
+
+// Drag dari dalam modal
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.getAttribute('data-shift'));
+}
+
+// Fungsi hapus shift
+function confirmDeleteShift() {
+  if (confirm(`Hapus shift ${selectedShiftData.shift} untuk ${selectedShiftData.nama} di ${selectedShiftData.tanggal}?`)) {
+    // Hapus dari tampilan
+    const allCells = document.querySelectorAll('td');
+    allCells.forEach(td => {
+      if (td.innerText.includes(selectedShiftData.shift) && td.innerText.includes(selectedShiftData.nama)) {
+        td.innerHTML = '';
+      }
+    });
+
+    // Hapus dari database (jika perlu)
+    fetch('delete.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `karyawan=${encodeURIComponent(selectedShiftData.nama)}&tanggal=${selectedShiftData.tanggal}`
+    }).then(res => res.text()).then(alert);
+
+    closeShiftModal();
+  }
+}
+
+
 
 
 
