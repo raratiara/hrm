@@ -127,8 +127,9 @@ function load_data()
 {
 	
 	var getUrl = window.location;
-	//local=> //var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-	var baseUrl = getUrl .protocol + "//" + getUrl.host;
+	//local=> 
+	var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	/*var baseUrl = getUrl .protocol + "//" + getUrl.host;*/
 	
 
     $.ajax({
@@ -165,7 +166,7 @@ function load_data()
 					$('[name="no_ktp"]').val(data.no_ktp);
 					$('[name="sim_c"]').val(data.sim_c);
 					$('[name="no_bpjs"]').val(data.no_bpjs);
-					$('[name="shift_type"]').val(data.shift_type);
+					
 					$('[name="emergency_name"]').val(data.emergency_contact_name);
 					$('[name="emergency_email"]').val(data.emergency_contact_email);
 					$('[name="emergency_relation"]').val(data.emergency_contact_relation);
@@ -174,6 +175,8 @@ function load_data()
 					$('[name="resign_reason"]').val(data.resign_reason);
 					$('[name="resign_exit_feedback"]').val(data.resign_exit_interview_feedback);
 					$('[name="gender"][value="'+data.gender+'"]').prop('checked', true);
+					$('[name="status"][value="'+data.status_id+'"]').prop('checked', true);
+					$('[name="shift_type"][value="'+data.shift_type+'"]').prop('checked', true);
 					
 					$('[name="hdnempphoto"]').val(data.emp_photo);
 					if(data.emp_photo != '' && data.emp_photo != null){
@@ -187,6 +190,51 @@ function load_data()
 						$('span.file_emp_sign').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_signature+'" width="150" height="150" >');
 					}else{
 						$('span.file_emp_sign').html('');
+					}
+
+					$('[name="hdnfotoktp"]').val(data.foto_ktp);
+					if(data.foto_ktp != '' && data.foto_ktp != null){
+						document.getElementById("form_file_ktp").style.display = "";
+						$('span.file_ktp').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_ktp+'" width="150" height="150" >');
+					}else{
+						document.getElementById("form_file_ktp").style.display = "none";
+						$('span.file_ktp').html('');
+					}
+
+					$('[name="hdnfotonpwp"]').val(data.foto_npwp);
+					if(data.foto_npwp != '' && data.foto_npwp != null){
+						document.getElementById("form_file_npwp").style.display = "";
+						$('span.file_npwp').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_npwp+'" width="150" height="150" >');
+					}else{
+						document.getElementById("form_file_npwp").style.display = "none";
+						$('span.file_npwp').html('');
+					}
+
+					$('[name="hdnfotobpjs"]').val(data.foto_bpjs);
+					if(data.foto_bpjs != '' && data.foto_bpjs != null){
+						document.getElementById("form_file_bpjs").style.display = "";
+						$('span.file_bpjs').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_bpjs+'" width="150" height="150" >');
+					}else{
+						document.getElementById("form_file_bpjs").style.display = "none";
+						$('span.file_bpjs').html('');
+					}
+
+					$('[name="hdnfotosima"]').val(data.foto_sima);
+					if(data.foto_sima != '' && data.foto_sima != null){
+						document.getElementById("form_file_sima").style.display = "";
+						$('span.file_sima').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_sima+'" width="150" height="150" >');
+					}else{
+						document.getElementById("form_file_sima").style.display = "none";
+						$('span.file_sima').html('');
+					}
+
+					$('[name="hdnfotosimc"]').val(data.foto_simc);
+					if(data.foto_simc != '' && data.foto_simc != null){
+						document.getElementById("form_file_simc").style.display = "";
+						$('span.file_simc').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_simc+'" width="150" height="150" >');
+					}else{
+						document.getElementById("form_file_simc").style.display = "none";
+						$('span.file_simc').html('');
 					}
 					
 					$('[name="date_of_hire"]').val(data.date_of_hire);
@@ -211,6 +259,8 @@ function load_data()
 					$('select#company').val(data.company_id).trigger('change.select2');
 					$('select#division').val(data.division_id).trigger('change.select2');
 					$('select#section').val(data.section_id).trigger('change.select2');
+					$('select#job_level').val(data.job_level_id).trigger('change.select2');
+					$('select#grade').val(data.grade_id).trigger('change.select2');
 
 					getRegency(data.province_id_ktp,'1','selected',data.regency_id_ktp);
 					getDistrict(data.regency_id_ktp,data.province_id_ktp,'1','selected',data.district_id_ktp);
@@ -341,7 +391,10 @@ function load_data()
 					$('span.district2').html(data.district_name_residen);
 					$('span.job_title').html(data.job_title_name);
 					$('span.direct').html(data.direct_name);
-					$('[name="gender"][value="'+data.gender+'"]').prop('checked', true);
+					$('span.gender').html(data.gender_name);
+					$('span.status').html(data.status_name);
+					$('span.job_level').html(data.job_level_name);
+					$('span.grade').html(data.grade_name);
 
 
 					if(data.emp_photo != '' && data.emp_photo != null){
@@ -354,6 +407,51 @@ function load_data()
 						$('span.emp_signature').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_signature+'" width="150" height="150" >');
 					}else{
 						$('span.emp_signature').html('');
+					}
+
+					
+					if(data.foto_ktp != '' && data.foto_ktp != null){
+						document.getElementById("view_foto_ktp").style.display = "";
+						$('span.foto_ktp').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_ktp+'" width="150" height="150" >');
+					}else{
+						document.getElementById("view_foto_ktp").style.display = "none";
+						$('span.foto_ktp').html('');
+					}
+
+					
+					if(data.foto_npwp != '' && data.foto_npwp != null){
+						document.getElementById("view_foto_npwp").style.display = "";
+						$('span.foto_npwp').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_npwp+'" width="150" height="150" >');
+					}else{
+						document.getElementById("view_foto_npwp").style.display = "none";
+						$('span.foto_npwp').html('');
+					}
+
+					
+					if(data.foto_bpjs != '' && data.foto_bpjs != null){
+						document.getElementById("view_foto_bpjs").style.display = "";
+						$('span.foto_bpjs').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_bpjs+'" width="150" height="150" >');
+					}else{
+						document.getElementById("view_foto_bpjs").style.display = "none";
+						$('span.foto_bpjs').html('');
+					}
+
+					
+					if(data.foto_sima != '' && data.foto_sima != null){
+						document.getElementById("view_foto_sima").style.display = "";
+						$('span.foto_sima').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_sima+'" width="150" height="150" >');
+					}else{
+						document.getElementById("view_foto_sima").style.display = "none";
+						$('span.foto_sima').html('');
+					}
+
+					
+					if(data.foto_simc != '' && data.foto_simc != null){
+						document.getElementById("view_foto_simc").style.display = "";
+						$('span.foto_simc').html('<img src="'+baseUrl+'/uploads/employee/'+data.foto_simc+'" width="150" height="150" >');
+					}else{
+						document.getElementById("view_foto_simc").style.display = "none";
+						$('span.foto_simc').html('');
 					}
 
 

@@ -57,7 +57,7 @@ class Data_karyawan_menu extends MY_Controller
 		$field['txtaddress2'] 			= $this->self_model->return_build_txtarea('','address2','address2');
 		$field['txtdateofhire'] 		= $this->self_model->return_build_txtdate('','date_of_hire','date_of_hire');
 		$field['txtdatepermanent'] 		= $this->self_model->return_build_txtdate('','date_permanent','date_permanent');
-		$field['txtshifttype'] 			= $this->self_model->return_build_txt('','shift_type','shift_type');
+		
 		$field['seldirect'] 			= $this->self_model->return_build_txt('','direct','direct');
 		$field['txtemergencyname'] 		= $this->self_model->return_build_txt('','emergency_name','emergency_name');
 		$field['txtemergencyemail'] 	= $this->self_model->return_build_txt('','emergency_email','emergency_email');
@@ -112,10 +112,10 @@ class Data_karyawan_menu extends MY_Controller
 		$field['selcompany'] 			= $this->self_model->return_build_select2me($mscompany,'','','','company','company','','','id','name',' ','','','',3,'-');
 
 		$msdivision 					= $this->db->query("select * from divisions")->result(); 
-		$field['seldivision'] 			= $this->self_model->return_build_select2me($msdivision,'','','','division','division','','','id','name',' ','','','',3,'-');
+		$field['seldivision'] 			= $this->self_model->return_build_select2me($msdivision,'','','','division','division','','','id','name',' ','','','',1,'-');
 
 		$msbranch 						= $this->db->query("select * from branches")->result(); 
-		$field['selbranch'] 			= $this->self_model->return_build_select2me($msbranch,'','','','branch','branch','','','id','name',' ','','','',3,'-');	
+		$field['selbranch'] 			= $this->self_model->return_build_select2me($msbranch,'','','','branch','branch','','','id','name',' ','','','',1,'-');	
 
 		$mssection 						= $this->db->query("select * from sections")->result(); 
 		$field['selsection'] 			= $this->self_model->return_build_select2me($mssection,'','','','section','section','','','id','name',' ','','','',3,'-');	
@@ -123,6 +123,22 @@ class Data_karyawan_menu extends MY_Controller
 		$field['txtgender'] 			= $this->self_model->return_build_radio('', [['M','Male'],['F','Female']], 'gender', '', 'inline');
 
 		$field['chksameaddress'] 		= $this->self_model->return_build_radio('', [['Y','Yes'],['N','No']], 'is_same_address', 'is_same_address', 'inline');
+
+		$field['txtstatus'] 			= $this->self_model->return_build_radio('', [['1','Active'],['0','Not Active']], 'status', '', 'inline');
+
+		$msjoblevel 					= $this->db->query("select * from master_job_level")->result(); 
+		$field['seljoblevel'] 			= $this->self_model->return_build_select2me($msjoblevel,'','','','job_level','job_level','','','id','name',' ','','','',1,'-');
+
+		$msgrade 					= $this->db->query("select * from master_grade")->result(); 
+		$field['selgrade'] 			= $this->self_model->return_build_select2me($msgrade,'','','','grade','grade','','','id','name',' ','','','',1,'-');
+
+		$field['txtshifttype'] 			= $this->self_model->return_build_radio('', [['Reguler','Reguler'],['Shift','Shift']], 'shift_type', '', 'inline');
+
+		$field['txtfotoktp'] 			= $this->self_model->return_build_fileinput('foto_ktp','foto_ktp');
+		$field['txtfotonpwp'] 			= $this->self_model->return_build_fileinput('foto_npwp','foto_npwp');
+		$field['txtfotobpjs'] 			= $this->self_model->return_build_fileinput('foto_bpjs','foto_bpjs');
+		$field['txtfotosima'] 			= $this->self_model->return_build_fileinput('foto_sima','foto_sima');
+		$field['txtfotosimc'] 			= $this->self_model->return_build_fileinput('foto_simc','foto_simc');
 		
 
 

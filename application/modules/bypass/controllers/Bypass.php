@@ -185,21 +185,25 @@ class Bypass extends MY_Controller
 			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
 
 			if(count($absen) == 0){
-				$emp_shift_type=1; $reguler_sabtuminggu=0;
-				if($row_emp->shift_type == 'Reguler'){
+				$emp_shift_type=1; $reguler_sabtuminggu=0; 
+				if($row_emp->shift_type == 'Reguler'){ 
 					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 					if($is_sabtuminggu == 1){
 						$reguler_sabtuminggu=1;
 					}
 					
-				}else if($row_emp->shift_type == 'Shift'){
-					$dt = $this->db->query("select a.*, b.periode
+				}else if($row_emp->shift_type == 'Shift'){ 
+					/*$dt = $this->db->query("select a.*, b.periode
 							, b.`".$tgl."` as 'shift' 
 							, c.time_in, c.time_out, c.name 
 							from shift_schedule a
 							left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
 							left join master_shift_time c on c.id = b.`".$tgl."`
-							where a.employee_id = '".$row_emp->id."' and b.periode = '".$period."' ")->result(); 
+							where a.employee_id = '".$row_emp->id."' and b.periode = '".$period."' ")->result(); */
+
+					$dt = $this->db->query("select a.*, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+						from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id left join master_shift_time c on c.id = b.`".$tgl."`
+						where b.employee_id = '".$row_emp->id."' and a.period = '".$period."' ")->result(); 
 
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
