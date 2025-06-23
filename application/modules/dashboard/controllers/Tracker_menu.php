@@ -91,26 +91,59 @@ class Tracker_menu extends MY_Controller
 
  	public function get_maps()
 	{ 
-		$post = $this->input->post(null, true);
+		$post 	= $this->input->post(null, true);
 		$empid 	= $post['empid'];
+		$period = $post['period'];
 
 
 
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
-			if($empid != '' && $empid != 'all'){
+		
+			/*if($empid != '' && $empid != 'all'){
 
-				$rs =  $this->db->query("select a.*, b.full_name 
+				$empid = "'" . implode("','", $empid) . "'";
+
+				$rs =  $this->db->query("select a.*, b.full_name as nama
 						, if(lat_checkout is null or lat_checkout='',lat_checkin,lat_checkout) as lat
 						, if(long_checkout is null or long_checkout='',long_checkin,long_checkout) as lng
-						, date_attendance as nama
+						
 						from time_attendances a 
 						left join employees b on b.id = a.employee_id
-						where a.employee_id = '".$empid."' and 
-						(((lat_checkin is not null or lat_checkin != '') and (long_checkin is not null or long_checkin != '')) or ((lat_checkout is not null or lat_checkout != '') and (long_checkout is not null or long_checkout != '')))")->result();
+						where a.employee_id in (".$empid.") and 
+						(((lat_checkin is not null or lat_checkin != '') and (long_checkin is not null or long_checkin != '')) or ((lat_checkout is not null or lat_checkout != '') and (long_checkout is not null or long_checkout != ''))) ".$whr_period." ")->result();
 
 			}else{
 				$rs =  $this->db->query("select id, full_name as nama, last_lat as lat, last_long as lng from employees where (last_lat is not null or last_lat != '') and (last_long is not null or last_long != '')")->result();
+			}*/
+
+
+
+			if($empid == '' && $period == ''){
+				$rs =  $this->db->query("select id, full_name as nama, last_lat as lat, last_long as lng from employees where (last_lat is not null or last_lat != '') and (last_long is not null or last_long != '')")->result();
+			}else{
+				$whr_emp=""; $whr_period="";
+				if($empid != ''){
+					$empid = "'" . implode("','", $empid) . "'";
+					$whr_emp = " and (a.employee_id in (".$empid."))";
+				}
+				if($period != ''){
+					$exp = explode(" - ",$period);
+					$start = $exp[0];
+					$end = $exp[1];
+
+					$whr_period = " and (a.date_attendance between '".$start."' and '".$end."')";
+				}
+
+				$rs =  $this->db->query("select a.*, b.full_name as nama
+						, if(lat_checkout is null or lat_checkout='',lat_checkin,lat_checkout) as lat
+						, if(long_checkout is null or long_checkout='',long_checkin,long_checkout) as lng
+						
+						from time_attendances a 
+						left join employees b on b.id = a.employee_id
+						where 
+						(((lat_checkin is not null or lat_checkin != '') and (long_checkin is not null or long_checkin != '')) or ((lat_checkout is not null or lat_checkout != '') and (long_checkout is not null or long_checkout != ''))) ".$whr_emp.$whr_period." ")->result();
+
 			}
 
 			

@@ -18,6 +18,10 @@
   height: 20px;
 }
 
+.filter-overlay {
+  pointer-events: none;
+}
+
 
 body {
   font-family: 'Segoe UI', sans-serif;

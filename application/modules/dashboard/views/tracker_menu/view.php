@@ -56,7 +56,7 @@
       z-index: 1000;
       transition: left 0.3s ease;
       width: 250px;
-      height: 80px;
+      height: 120px;
     }
 
     .video-container.collapsed {
@@ -114,6 +114,25 @@
       width: 200px;
     }
 
+    .box-title2 {
+     
+      font-size: 10px;
+      color: #888;
+      position: absolute;
+      top: 60px;
+      left: 8px;
+      
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+      
+    }
+
+    
+    .boxInputPeriod {
+      margin-top: 70px;
+    }
+
 
     .video-container h4 { margin: 10px 0 5px; }
     .video-container p { margin: 0; font-size: 14px; }
@@ -139,18 +158,9 @@
       color: white;
     }
 
-    /*.select2-container {
-  width: 100% !important;
-}
-
-.select2-selection--single {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}*/
-
-
 </style>
+
+
 
 <div class="video-toggle" onclick="toggleVideos()" title="Toggle Videos">
   <i class="fa-solid fa-sort"></i>
@@ -158,13 +168,12 @@
 
 
 <div class="video-container" id="videoContainer">
-  
     <div class="box-title">Select Employee</div>
     <div class="box-value">
       <!-- <?=$selemp?> -->
-      <!-- <select style="width: 130px; height:20px; font-size: 10px;" id="fldashemp" name="fldashemp"> -->
-      <select style="width: 100%;" id="fldashemp" name="fldashemp">
-        <option value="all">-- ALL --</option>
+     
+      <select multiple style="width: 100%;" id="fldashemp" name="fldashemp[]">
+        <!-- <option value="all">-- ALL --</option> -->
         <?php
         foreach($master_emp as $row){
           ?>
@@ -172,19 +181,14 @@
           <?php
         }
         ?>
-        
       </select>
-      <!-- <select id="searchableSelect" style="width: 150px;">
-        <option value=""></option>
-        <option value="id">Indonesia</option>
-        <option value="us">United States</option>
-        <option value="jp">Japan</option>
-        <option value="fr">France</option>
-        <option value="kr">South Korea</option>
-      </select> -->
     </div>
-    <div class="info-footer"></div>
+    <div class="box-title2">Select Period
+      <input type="text" class="form-control" id="fldashperiod" name="fldashperiod">
+    </div>
     
+
+    <div class="info-footer"></div>
 </div>
 
 
