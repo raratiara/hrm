@@ -368,6 +368,46 @@ class Data_karyawan_menu_model extends MY_Model
 			echo $upload_emp_sign['error_warning']; exit;
 		}
 
+		$upload_foto_ktp = $this->upload_file('1', 'foto_ktp', FALSE, '', TRUE, '');
+		$foto_ktp = '';
+		if($upload_foto_ktp['status']){
+			$foto_ktp = $upload_foto_ktp['upload_file'];
+		} else if(isset($upload_foto_ktp['error_warning'])){
+			echo $upload_foto_ktp['error_warning']; exit;
+		}
+
+		$upload_foto_npwp = $this->upload_file('1', 'foto_npwp', FALSE, '', TRUE, '');
+		$foto_npwp = '';
+		if($upload_foto_npwp['status']){
+			$foto_npwp = $upload_foto_npwp['upload_file'];
+		} else if(isset($upload_foto_npwp['error_warning'])){
+			echo $upload_foto_npwp['error_warning']; exit;
+		}
+
+		$upload_foto_bpjs = $this->upload_file('1', 'foto_bpjs', FALSE, '', TRUE, '');
+		$foto_bpjs = '';
+		if($upload_foto_bpjs['status']){
+			$foto_bpjs = $upload_foto_bpjs['upload_file'];
+		} else if(isset($upload_foto_bpjs['error_warning'])){
+			echo $upload_foto_bpjs['error_warning']; exit;
+		}
+
+		$upload_foto_sima = $this->upload_file('1', 'foto_sima', FALSE, '', TRUE, '');
+		$foto_sima = '';
+		if($upload_foto_sima['status']){
+			$foto_sima = $upload_foto_sima['upload_file'];
+		} else if(isset($upload_foto_sima['error_warning'])){
+			echo $upload_foto_sima['error_warning']; exit;
+		}
+
+		$upload_foto_simc = $this->upload_file('1', 'foto_simc', FALSE, '', TRUE, '');
+		$foto_simc = '';
+		if($upload_foto_simc['status']){
+			$foto_simc = $upload_foto_simc['upload_file'];
+		} else if(isset($upload_foto_simc['error_warning'])){
+			echo $upload_foto_simc['error_warning']; exit;
+		}
+
 
 
 		$data = [
@@ -431,7 +471,15 @@ class Data_karyawan_menu_model extends MY_Model
 			'division_id' 					=> trim($post['division']),
 			'branch_id' 					=> trim($post['branch']),
 			'section_id' 					=> trim($post['section']),
-			'gender' 						=> trim($post['gender'])
+			'gender' 						=> trim($post['gender']),
+			'status_id' 					=> trim($post['status']),
+			'job_level_id' 					=> trim($post['job_level']),
+			'grade_id' 						=> trim($post['grade']),
+			'foto_ktp' 						=> $foto_ktp,
+			'foto_npwp' 					=> $foto_npwp,
+			'foto_bpjs' 					=> $foto_bpjs,
+			'foto_sima' 					=> $foto_sima,
+			'foto_simc' 					=> $foto_simc
 		];
 
 		$rs = $this->db->insert($this->table_name, $data);
@@ -596,6 +644,12 @@ class Data_karyawan_menu_model extends MY_Model
 			$date_resign_active = trim($post['date_resign_active']);
 			$hdnempsign 		= trim($post['hdnempsign']);
 			$hdnempphoto 		= trim($post['hdnempphoto']);
+
+			$hdnfotoktp 		= trim($post['hdnfotoktp']);
+			$hdnfotonpwp 		= trim($post['hdnfotonpwp']);
+			$hdnfotobpjs 		= trim($post['hdnfotobpjs']);
+			$hdnfotosima 		= trim($post['hdnfotosima']);
+			$hdnfotosimc 		= trim($post['hdnfotosimc']);
 			
 
 			$upload_emp_photo = $this->upload_file('1', 'emp_photo', FALSE, '', TRUE, '');
@@ -614,11 +668,66 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_emp_sign['error_warning']; exit;
 			}
 
+			$upload_foto_ktp = $this->upload_file('1', 'foto_ktp', FALSE, '', TRUE, '');
+			$foto_ktp = '';
+			if($upload_foto_ktp['status']){
+				$foto_ktp = $upload_foto_ktp['upload_file'];
+			} else if(isset($upload_foto_ktp['error_warning'])){
+				echo $upload_foto_ktp['error_warning']; exit;
+			}
+
+			$upload_foto_npwp = $this->upload_file('1', 'foto_npwp', FALSE, '', TRUE, '');
+			$foto_npwp = '';
+			if($upload_foto_npwp['status']){
+				$foto_npwp = $upload_foto_npwp['upload_file'];
+			} else if(isset($upload_foto_npwp['error_warning'])){
+				echo $upload_foto_npwp['error_warning']; exit;
+			}
+
+			$upload_foto_bpjs = $this->upload_file('1', 'foto_bpjs', FALSE, '', TRUE, '');
+			$foto_bpjs = '';
+			if($upload_foto_bpjs['status']){
+				$foto_bpjs = $upload_foto_bpjs['upload_file'];
+			} else if(isset($upload_foto_bpjs['error_warning'])){
+				echo $upload_foto_bpjs['error_warning']; exit;
+			}
+
+			$upload_foto_sima = $this->upload_file('1', 'foto_sima', FALSE, '', TRUE, '');
+			$foto_sima = '';
+			if($upload_foto_sima['status']){
+				$foto_sima = $upload_foto_sima['upload_file'];
+			} else if(isset($upload_foto_sima['error_warning'])){
+				echo $upload_foto_sima['error_warning']; exit;
+			}
+
+			$upload_foto_simc = $this->upload_file('1', 'foto_simc', FALSE, '', TRUE, '');
+			$foto_simc = '';
+			if($upload_foto_simc['status']){
+				$foto_simc = $upload_foto_simc['upload_file'];
+			} else if(isset($upload_foto_simc['error_warning'])){
+				echo $upload_foto_simc['error_warning']; exit;
+			}
+
 			if($emp_photo == '' && $hdnempphoto != ''){
 				$emp_photo = $hdnempphoto;
 			}
 			if($emp_signature == '' && $hdnempsign != ''){
 				$emp_signature = $hdnempsign;
+			}
+			if($foto_ktp == '' && $hdnfotoktp != ''){
+				$foto_ktp = $hdnfotoktp;
+			}
+			if($foto_npwp == '' && $hdnfotonpwp != ''){
+				$foto_npwp = $hdnfotonpwp;
+			}
+			if($foto_bpjs == '' && $hdnfotobpjs != ''){
+				$foto_bpjs = $hdnfotobpjs;
+			}
+			if($foto_sima == '' && $hdnfotosima != ''){
+				$foto_sima = $hdnfotosima;
+			}
+			if($foto_simc == '' && $hdnfotosimc != ''){
+				$foto_simc = $hdnfotosimc;
 			}
 
 
@@ -683,7 +792,15 @@ class Data_karyawan_menu_model extends MY_Model
 				'division_id' 					=> trim($post['division']),
 				'branch_id' 					=> trim($post['branch']),
 				'section_id' 					=> trim($post['section']),
-				'gender' 						=> trim($post['gender'])
+				'gender' 						=> trim($post['gender']),
+				'status_id' 					=> trim($post['status']),
+				'job_level_id' 					=> trim($post['job_level']),
+				'grade_id' 						=> trim($post['grade']),
+				'foto_ktp' 						=> $foto_ktp,
+				'foto_npwp' 					=> $foto_npwp,
+				'foto_bpjs' 					=> $foto_bpjs,
+				'foto_sima' 					=> $foto_sima,
+				'foto_simc' 					=> $foto_simc
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -912,7 +1029,14 @@ class Data_karyawan_menu_model extends MY_Model
 					    n.name AS district_name_ktp,
                         n2.name AS district_name_residen,
 					    o.name AS job_title_name,
-					    p.full_name AS direct_name
+					    p.full_name AS direct_name,
+					    (case when a.gender = "M" then "Male"
+					    when a.gender = "F" then "Female"
+					    else ""
+					    end) as gender_name,
+					    if(a.status_id = "1","Active","Not Active") as status_name,
+					    q.name as job_level_name,
+					    r.name as grade_name
 					FROM
 					    employees a
 					        LEFT JOIN
@@ -951,6 +1075,8 @@ class Data_karyawan_menu_model extends MY_Model
 					    master_job_title o ON o.id = a.job_title_id
 					        LEFT JOIN
 					    employees p ON p.id = a.direct_id
+					    left join master_job_level q on q.id = a.job_level_id
+					    left join master_grade r on r.id = a.grade_id
 
 			)dt';
 

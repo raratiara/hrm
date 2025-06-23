@@ -69,68 +69,118 @@
 
       	<div class="col-md-6 col-sm-12">
 	       	<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Place of Birth</label>
-						<div class="col-md-8">
-							<?=$txtplaceofbirth;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Nationality</label>
-						<div class="col-md-8">
-							<?=$txtnationality;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">No KTP </label>
-						<div class="col-md-8">
-							<?=$txtnoktp;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">No NPWP</label>
-						<div class="col-md-8">
-							<?=$txtnonpwp;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">SIM A</label>
-						<div class="col-md-8">
-							<?=$txtsima;?>
-						</div>
-					</div>
+				<label class="col-md-4 control-label no-padding-right">Place of Birth</label>
+				<div class="col-md-8">
+					<?=$txtplaceofbirth;?>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">Nationality</label>
+				<div class="col-md-8">
+					<?=$txtnationality;?>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No KTP </label>
+				<div class="col-md-5">
+					<?=$txtnoktp;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotoktp;?>
+					<input type="hidden" id="hdnfotoktp" name="hdnfotoktp"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_ktp" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_ktp"></span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No NPWP</label>
+				<div class="col-md-5">
+					<?=$txtnonpwp;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotonpwp;?>
+					<input type="hidden" id="hdnfotonpwp" name="hdnfotonpwp"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_npwp" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_npwp"></span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">SIM A</label>
+				<div class="col-md-5">
+					<?=$txtsima;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotosima;?>
+					<input type="hidden" id="hdnfotosima" name="hdnfotosima"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_sima" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_sima"></span>
+				</div>
+			</div>
 	      </div>
 
 	      <div class="col-md-6 col-sm-12">
 	      	<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Date of Birth </label>
-						<div class="col-md-8">
-							<?=$txtdateofbirth;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Ethnic </label>
-						<div class="col-md-8">
-							<?=$txtethnic;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Marital Status </label>
-						<div class="col-md-8">
-							<?=$selmaritalstatus;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">No BPJS </label>
-						<div class="col-md-8">
-							<?=$txtnobpjs;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">SIM C </label>
-						<div class="col-md-8">
-							<?=$txtsimc;?>
-						</div>
-					</div>
+				<label class="col-md-4 control-label no-padding-right">Date of Birth </label>
+				<div class="col-md-8">
+					<?=$txtdateofbirth;?>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">Ethnic </label>
+				<div class="col-md-8">
+					<?=$txtethnic;?>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">Marital Status </label>
+				<div class="col-md-8">
+					<?=$selmaritalstatus;?>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No BPJS </label>
+				<div class="col-md-5">
+					<?=$txtnobpjs;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotobpjs;?>
+					<input type="hidden" id="hdnfotobpjs" name="hdnfotobpjs"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_bpjs" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_bpjs"></span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">SIM C </label>
+				<div class="col-md-5">
+					<?=$txtsimc;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotosimc;?>
+					<input type="hidden" id="hdnfotosimc" name="hdnfotosimc"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_simc" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_simc"></span>
+				</div>
+			</div>
 	      </div>
 
       </div>
@@ -164,6 +214,12 @@
 						<label class="col-md-4 control-label no-padding-right">Direct </label>
 						<div class="col-md-8">
 							<?=$seldirect;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Job level </label>
+						<div class="col-md-8">
+							<?=$seljoblevel;?>
 						</div>
 					</div>
 					<div class="form-group">
@@ -219,6 +275,12 @@
 						<label class="col-md-4 control-label no-padding-right">Indirect </label>
 						<div class="col-md-8">
 							<?=$selindirect;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Grade </label>
+						<div class="col-md-8">
+							<?=$selgrade;?>
 						</div>
 					</div>
 					<div class="form-group">
@@ -609,38 +671,44 @@
 
         	<div class="col-md-6 col-sm-12">
         		<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Resign Category </label>
-							<div class="col-md-8">
-								<?=$txtresigncategory;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Date Resign Active </label>
-							<div class="col-md-8">
-								<?=$txtdateresignactive;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Resign Reason</label>
-							<div class="col-md-8">
-								<?=$txtresignreason;?>
-							</div>
-						</div>
+					<label class="col-md-4 control-label no-padding-right">Resign Category </label>
+					<div class="col-md-8">
+						<?=$txtresigncategory;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Date Resign Active </label>
+					<div class="col-md-8">
+						<?=$txtdateresignactive;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Resign Reason</label>
+					<div class="col-md-8">
+						<?=$txtresignreason;?>
+					</div>
+				</div>
         	</div>
 
         	<div class="col-md-6 col-sm-12">
         		<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Date Resign Letter </label>
-							<div class="col-md-8">
-								<?=$txtdateresignletter;?>
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-md-4 control-label no-padding-right">Resign Exit Interview Feedback</label>
-							<div class="col-md-8">
-								<?=$txtresignexitfeedback;?>
-							</div>
-						</div>
+					<label class="col-md-4 control-label no-padding-right">Date Resign Letter </label>
+					<div class="col-md-8">
+						<?=$txtdateresignletter;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Resign Exit Interview Feedback</label>
+					<div class="col-md-8">
+						<?=$txtresignexitfeedback;?>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Status</label>
+					<div class="col-md-8">
+						<?=$txtstatus;?>
+					</div>
+				</div>
         	</div>
 
         </div>

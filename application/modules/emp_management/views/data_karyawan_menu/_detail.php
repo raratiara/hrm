@@ -13,7 +13,7 @@
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gender</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="emp_code"></span>
+				: <span class="gender"></span>
 			</div>
 		</div>
 	</div>
@@ -85,20 +85,38 @@
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No KTP</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
+					<div class="col-md-5 col-sm-5 col-xs-5">
 						: <span class="no_ktp"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_ktp" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_ktp"></span>
 					</div>
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No NPWP</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
+					<div class="col-md-5 col-sm-5 col-xs-5">
 						: <span class="no_npwp"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_npwp" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_npwp"></span>
 					</div>
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">SIM A</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
+					<div class="col-md-5 col-sm-5 col-xs-5">
 						: <span class="sim_a"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_sima" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_sima"></span>
 					</div>
 				</div>
 			</div>
@@ -124,14 +142,26 @@
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
+					<div class="col-md-5 col-sm-5 col-xs-5">
 						: <span class="no_bpjs"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_bpjs" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_bpjs"></span>
 					</div>
 				</div>
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">SIM C</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
+					<div class="col-md-5 col-sm-5 col-xs-5">
 						: <span class="sim_c"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_simc" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_simc"></span>
 					</div>
 				</div>
 			</div>
@@ -167,6 +197,12 @@
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Direct</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="direct"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Job Level</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="job_level"></span>
 					</div>
 				</div>
 				<div class="row">
@@ -218,6 +254,12 @@
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Indirect</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="indirect"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Grade</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="grade"></span>
 					</div>
 				</div>
 				<div class="row">
@@ -623,6 +665,12 @@
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Resign Exit Interview Feedback</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="resign_exit_feedback"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Status</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="status"></span>
 					</div>
 				</div>
 			</div>
