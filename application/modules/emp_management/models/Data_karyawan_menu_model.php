@@ -9,7 +9,7 @@ class Data_karyawan_menu_model extends MY_Model
  	protected $primary_key 				= "id";
 
  	/* upload */
- 	protected $attachment_folder	= "./uploads/employee";
+ 	/*protected $attachment_folder	= "./uploads/employee";*/
 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
@@ -287,7 +287,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 	// Upload file
-	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+	public function upload_file($attachment_folder, $id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
 		$data = array();
 		$data['status'] = FALSE; 
 		if(!empty($id) && !empty($fieldname)){ 
@@ -313,7 +313,8 @@ class Data_karyawan_menu_model extends MY_Model
 				if($replace){
 					$this->remove_file($id, $oldfilename);
 				}*/
-				$config['upload_path']   = $this->attachment_folder;
+				/*$config['upload_path']   = $this->attachment_folder;*/
+				$config['upload_path']   = $attachment_folder;
 				$config['allowed_types'] = $this->allow_type;
 				$config['max_size'] 	 = $this->allow_size;
 				
@@ -339,6 +340,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
+		
 		$lettercode 	= ('GDI'); 
 		$runningnumber 	= $this->getNextNumber(); // next count number
 		$genEmpCode 	= $lettercode.$runningnumber;
@@ -352,7 +354,16 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 
-		$upload_emp_photo = $this->upload_file('1', 'emp_photo', FALSE, '', TRUE, '');
+		$upload_dir = './uploads/'.$genEmpCode.'/'; // nama folder
+		// Cek apakah folder sudah ada
+		if (!is_dir($upload_dir)) {
+		    // Jika belum ada, buat folder
+		    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+		}
+
+
+
+		$upload_emp_photo = $this->upload_file($upload_dir, '1', 'emp_photo', FALSE, '', TRUE, '');
 		$emp_photo = '';
 		if($upload_emp_photo['status']){
 			$emp_photo = $upload_emp_photo['upload_file'];
@@ -360,7 +371,7 @@ class Data_karyawan_menu_model extends MY_Model
 			echo $upload_emp_photo['error_warning']; exit;
 		}
 
-		$upload_emp_sign = $this->upload_file('1', 'emp_signature', FALSE, '', TRUE, '');
+		$upload_emp_sign = $this->upload_file($upload_dir, '1', 'emp_signature', FALSE, '', TRUE, '');
 		$emp_signature = '';
 		if($upload_emp_sign['status']){
 			$emp_signature = $upload_emp_sign['upload_file'];
@@ -368,7 +379,7 @@ class Data_karyawan_menu_model extends MY_Model
 			echo $upload_emp_sign['error_warning']; exit;
 		}
 
-		$upload_foto_ktp = $this->upload_file('1', 'foto_ktp', FALSE, '', TRUE, '');
+		$upload_foto_ktp = $this->upload_file($upload_dir, '1', 'foto_ktp', FALSE, '', TRUE, '');
 		$foto_ktp = '';
 		if($upload_foto_ktp['status']){
 			$foto_ktp = $upload_foto_ktp['upload_file'];
@@ -376,7 +387,7 @@ class Data_karyawan_menu_model extends MY_Model
 			echo $upload_foto_ktp['error_warning']; exit;
 		}
 
-		$upload_foto_npwp = $this->upload_file('1', 'foto_npwp', FALSE, '', TRUE, '');
+		$upload_foto_npwp = $this->upload_file($upload_dir, '1', 'foto_npwp', FALSE, '', TRUE, '');
 		$foto_npwp = '';
 		if($upload_foto_npwp['status']){
 			$foto_npwp = $upload_foto_npwp['upload_file'];
@@ -384,7 +395,7 @@ class Data_karyawan_menu_model extends MY_Model
 			echo $upload_foto_npwp['error_warning']; exit;
 		}
 
-		$upload_foto_bpjs = $this->upload_file('1', 'foto_bpjs', FALSE, '', TRUE, '');
+		$upload_foto_bpjs = $this->upload_file($upload_dir, '1', 'foto_bpjs', FALSE, '', TRUE, '');
 		$foto_bpjs = '';
 		if($upload_foto_bpjs['status']){
 			$foto_bpjs = $upload_foto_bpjs['upload_file'];
@@ -392,7 +403,7 @@ class Data_karyawan_menu_model extends MY_Model
 			echo $upload_foto_bpjs['error_warning']; exit;
 		}
 
-		$upload_foto_sima = $this->upload_file('1', 'foto_sima', FALSE, '', TRUE, '');
+		$upload_foto_sima = $this->upload_file($upload_dir, '1', 'foto_sima', FALSE, '', TRUE, '');
 		$foto_sima = '';
 		if($upload_foto_sima['status']){
 			$foto_sima = $upload_foto_sima['upload_file'];
@@ -400,7 +411,7 @@ class Data_karyawan_menu_model extends MY_Model
 			echo $upload_foto_sima['error_warning']; exit;
 		}
 
-		$upload_foto_simc = $this->upload_file('1', 'foto_simc', FALSE, '', TRUE, '');
+		$upload_foto_simc = $this->upload_file($upload_dir, '1', 'foto_simc', FALSE, '', TRUE, '');
 		$foto_simc = '';
 		if($upload_foto_simc['status']){
 			$foto_simc = $upload_foto_simc['upload_file'];
@@ -633,6 +644,12 @@ class Data_karyawan_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
+		$upload_dir = './uploads/'.$post['emp_code'].'/'; // nama folder
+		// Cek apakah folder sudah ada
+		if (!is_dir($upload_dir)) {
+		    // Jika belum ada, buat folder
+		    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+		}
 
 
 		if(!empty($post['id'])){ 
@@ -652,7 +669,7 @@ class Data_karyawan_menu_model extends MY_Model
 			$hdnfotosimc 		= trim($post['hdnfotosimc']);
 			
 
-			$upload_emp_photo = $this->upload_file('1', 'emp_photo', FALSE, '', TRUE, '');
+			$upload_emp_photo = $this->upload_file($upload_dir, '1', 'emp_photo', FALSE, '', TRUE, '');
 			$emp_photo = '';
 			if($upload_emp_photo['status']){
 				$emp_photo = $upload_emp_photo['upload_file'];
@@ -660,7 +677,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_emp_photo['error_warning']; exit;
 			}
 
-			$upload_emp_sign = $this->upload_file('1', 'emp_signature', FALSE, '', TRUE, '');
+			$upload_emp_sign = $this->upload_file($upload_dir, '1', 'emp_signature', FALSE, '', TRUE, '');
 			$emp_signature = '';
 			if($upload_emp_sign['status']){
 				$emp_signature = $upload_emp_sign['upload_file'];
@@ -668,7 +685,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_emp_sign['error_warning']; exit;
 			}
 
-			$upload_foto_ktp = $this->upload_file('1', 'foto_ktp', FALSE, '', TRUE, '');
+			$upload_foto_ktp = $this->upload_file($upload_dir, '1', 'foto_ktp', FALSE, '', TRUE, '');
 			$foto_ktp = '';
 			if($upload_foto_ktp['status']){
 				$foto_ktp = $upload_foto_ktp['upload_file'];
@@ -676,7 +693,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_ktp['error_warning']; exit;
 			}
 
-			$upload_foto_npwp = $this->upload_file('1', 'foto_npwp', FALSE, '', TRUE, '');
+			$upload_foto_npwp = $this->upload_file($upload_dir, '1', 'foto_npwp', FALSE, '', TRUE, '');
 			$foto_npwp = '';
 			if($upload_foto_npwp['status']){
 				$foto_npwp = $upload_foto_npwp['upload_file'];
@@ -684,7 +701,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_npwp['error_warning']; exit;
 			}
 
-			$upload_foto_bpjs = $this->upload_file('1', 'foto_bpjs', FALSE, '', TRUE, '');
+			$upload_foto_bpjs = $this->upload_file($upload_dir, '1', 'foto_bpjs', FALSE, '', TRUE, '');
 			$foto_bpjs = '';
 			if($upload_foto_bpjs['status']){
 				$foto_bpjs = $upload_foto_bpjs['upload_file'];
@@ -692,7 +709,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_bpjs['error_warning']; exit;
 			}
 
-			$upload_foto_sima = $this->upload_file('1', 'foto_sima', FALSE, '', TRUE, '');
+			$upload_foto_sima = $this->upload_file($upload_dir, '1', 'foto_sima', FALSE, '', TRUE, '');
 			$foto_sima = '';
 			if($upload_foto_sima['status']){
 				$foto_sima = $upload_foto_sima['upload_file'];
@@ -700,7 +717,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_sima['error_warning']; exit;
 			}
 
-			$upload_foto_simc = $this->upload_file('1', 'foto_simc', FALSE, '', TRUE, '');
+			$upload_foto_simc = $this->upload_file($upload_dir, '1', 'foto_simc', FALSE, '', TRUE, '');
 			$foto_simc = '';
 			if($upload_foto_simc['status']){
 				$foto_simc = $upload_foto_simc['upload_file'];
@@ -731,7 +748,6 @@ class Data_karyawan_menu_model extends MY_Model
 			}
 
 
-			
 
 			$data = [
 				'full_name' 					=> trim($post['full_name']),
