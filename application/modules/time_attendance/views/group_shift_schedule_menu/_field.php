@@ -120,7 +120,7 @@
 </label>
 
 <input type="hidden" name="selectedshift" id="selectedshift">
-<input type="text" name="hdnjadwalTersimpan" id="hdnjadwalTersimpan">
+<input type="hidden" name="hdnjadwalTersimpan" id="hdnjadwalTersimpan">
 
 
 <div>
