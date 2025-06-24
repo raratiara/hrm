@@ -15,12 +15,12 @@ class Tasklist_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date"];
+	public $tabel_header 			= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date","Solve Date"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date"];
-	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date"];
+	public $colnames 				= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date", "Solve Date"];
+	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date","solve_date"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -30,6 +30,7 @@ class Tasklist_menu extends MY_Controller
 		$field['txttask'] 		= $this->self_model->return_build_txt('','task','task');
 		$field['txtprogress'] 	= $this->self_model->return_build_txt('','progress','progress');
 		$field['txtduedate'] 	= $this->self_model->return_build_txt('','due_date','due_date');
+		$field['txtsolvedate'] 	= $this->self_model->return_build_txt('','solve_date','solve_date','','','readonly');
 
 		$msstatus 				= $this->db->query("select * from master_tasklist_status")->result(); 
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');

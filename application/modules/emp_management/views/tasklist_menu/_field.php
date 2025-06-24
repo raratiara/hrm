@@ -21,7 +21,15 @@
 				<?=$txtprogress;?>
 			</div>
 		</div>
+
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Solve Date</label>
+			<div class="col-md-8">
+				<?=$txtsolvedate;?>
+			</div>
+		</div>
 	</div>
+
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Status</label>

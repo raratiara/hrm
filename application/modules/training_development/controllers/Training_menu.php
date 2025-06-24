@@ -15,7 +15,7 @@ class Training_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Training Name","Training Date","Location","Trainer","Notes","Status"];
+	public $tabel_header 			= ["ID","Employee Name","Training Name","Training Date","Location","Trainer","Notes","Status","Sertifikat"];
 
 	
 	/* Export */
@@ -32,7 +32,7 @@ class Training_menu extends MY_Controller
 		$field['txttrainer'] 		= $this->self_model->return_build_txt('','trainer','trainer');
 		$field['txttrainingname'] 	= $this->self_model->return_build_txt('','training_name','training_name');
 		$field['txtlocation'] 		= $this->self_model->return_build_txt('','location','location');
-		
+		$field['txtdocsertifikat'] 	= $this->self_model->return_build_fileinput('doc_sertifikat','doc_sertifikat');
 		
 		$msemp 					= $this->db->query("select * from employees")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');

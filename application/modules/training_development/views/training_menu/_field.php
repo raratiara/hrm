@@ -21,6 +21,17 @@
 			</div>
 		</div>
 		
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Sertifikat</label>
+			<div class="col-md-4">
+				<?=$txtdocsertifikat;?>
+				<input type="hidden" id="hdndoc_sertifikat" name="hdndoc_sertifikat"/>
+			</div>
+			<div class="col-md-4">
+				<span class="file_sertifikat"></span>
+			</div>
+		</div>
+		
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">

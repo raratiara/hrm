@@ -546,12 +546,21 @@ class Data_karyawan_menu_model extends MY_Model
 			if($item_num_training>0){
 				for($i=$item_len_min_training;$i<=$item_len_training;$i++) 
 				{
+					$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'file_sertifikat'.$i.'', FALSE, '', TRUE, $i);
+					$file_sertifikat = '';
+					if($upload_file_sertifikat['status']){ 
+						$file_sertifikat = $upload_file_sertifikat['upload_file'];
+					} else if(isset($upload_file_sertifikat['error_warning'])){ 
+						echo $upload_file_sertifikat['error_warning']; exit;
+					}
+
 					if(isset($post['training_name'][$i])){
 						$itemData_training = [
-							'employee_id' 	=> $lastId,
-							'training_name' => trim($post['training_name'][$i]),
-							'city' 			=> trim($post['city_training'][$i]),
-							'year' 			=> trim($post['year_training'][$i])
+							'employee_id' 		=> $lastId,
+							'training_name' 	=> trim($post['training_name'][$i]),
+							'city' 				=> trim($post['city_training'][$i]),
+							'year' 				=> trim($post['year_training'][$i]),
+							'file_sertifikat' 	=> $file_sertifikat
 						];
 
 						$this->db->insert('training_detail', $itemData_training);
@@ -916,25 +925,46 @@ class Data_karyawan_menu_model extends MY_Model
 						$hdnid_training = trim($post['hdnid_training'][$i]);
 
 						if(!empty($hdnid_training)){ //update
+							$hdnfile_sertifikat = trim($post['hdnfile_sertifikat'.$i]);
+							$file_sertifikat = '';
+							$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'file_sertifikat'.$i.'', FALSE, '', TRUE, $i);
+							if($upload_file_sertifikat['status']){ 
+								$file_sertifikat = $upload_file_sertifikat['upload_file'];
+							} else if(isset($upload_file_sertifikat['error_warning'])){ 
+								echo $upload_file_sertifikat['error_warning']; exit;
+							}
+
+							if($file_sertifikat == '' && $hdnfile_sertifikat != ''){
+								$file_sertifikat = $hdnfile_sertifikat;
+							}
 
 							if(isset($post['training_name'][$i])){
 								$itemData_training = [
-									'training_name' => trim($post['training_name'][$i]),
-									'city' 			=> trim($post['city_training'][$i]),
-									'year' 			=> trim($post['year_training'][$i])
+									'training_name' 	=> trim($post['training_name'][$i]),
+									'city' 				=> trim($post['city_training'][$i]),
+									'year' 				=> trim($post['year_training'][$i]),
+									'file_sertifikat' 	=> $file_sertifikat
 								];
 
 								$this->db->update("training_detail", $itemData_training, "id = '".$hdnid_training."'");
 							}
 
 						}else{ //insert
+							$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'file_sertifikat'.$i.'', FALSE, '', TRUE, $i);
+							$file_sertifikat = '';
+							if($upload_file_sertifikat['status']){ 
+								$file_sertifikat = $upload_file_sertifikat['upload_file'];
+							} else if(isset($upload_file_sertifikat['error_warning'])){ 
+								echo $upload_file_sertifikat['error_warning']; exit;
+							}
 
 							if(isset($post['training_name'][$i])){
 								$itemData_training = [
-									'employee_id' 	=> $post['id'],
-									'training_name' => trim($post['training_name'][$i]),
-									'city' 			=> trim($post['city_training'][$i]),
-									'year' 			=> trim($post['year_training'][$i])
+									'employee_id' 		=> $post['id'],
+									'training_name' 	=> trim($post['training_name'][$i]),
+									'city' 				=> trim($post['city_training'][$i]),
+									'year' 				=> trim($post['year_training'][$i]),
+									'file_sertifikat' 	=> $file_sertifikat
 								];
 
 								$this->db->insert('training_detail', $itemData_training);
@@ -1276,6 +1306,7 @@ class Data_karyawan_menu_model extends MY_Model
 			$data 	.= '<td>'.$this->return_build_txt('','training_name['.$row.']','','training_name','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','city_training['.$row.']','','city_training','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','year_training['.$row.']','','year_training','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_fileinput('file_sertifikat'.$row.'','','','file_sertifikat','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 			$hdnid='';
 			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del-training(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
@@ -1289,7 +1320,7 @@ class Data_karyawan_menu_model extends MY_Model
 		
 		$dt = ''; 
 		
-		$rs = $this->db->query("select * from training_detail where employee_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select a.*, b.emp_code from training_detail a left join employees b on b.id = a.employee_id where a.employee_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
@@ -1307,6 +1338,10 @@ class Data_karyawan_menu_model extends MY_Model
 				$no = $row+1;
 				
 				if(!$view){ 
+					$viewdoc = '';
+					if($f->file_sertifikat != ''){
+						$viewdoc = '<a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_sertifikat.'" target="_blank">View</a>';
+					}
 
 					$dt .= '<tr>';
 
@@ -1315,6 +1350,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($f->city,'city_training['.$row.']','','city_training','text-align: right;','data-id="'.$row.'" ').'</td>';
 					$dt .= '<td>'.$this->return_build_txt($f->year,'year_training['.$row.']','','year_training','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_fileinput('file_sertifikat'.$row.'','','','file_sertifikat','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdnfile_sertifikat'.$row.'" name="hdnfile_sertifikat'.$row.'" value="'.$f->file_sertifikat.'"/></td>';
 					
 					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del-training(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
@@ -1337,6 +1373,7 @@ class Data_karyawan_menu_model extends MY_Model
 					$dt .= '<td>'.$f->training_name.'</td>';
 					$dt .= '<td>'.$f->city.'</td>';
 					$dt .= '<td>'.$f->year.'</td>';
+					$dt .= '<td><a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_sertifikat.'" target="_blank">View</a></td>';
 					$dt .= '</tr>';
 
 					

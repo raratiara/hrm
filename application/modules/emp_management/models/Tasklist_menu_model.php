@@ -25,7 +25,8 @@ class Tasklist_menu_model extends MY_Model
 			'dt.parent_name',
 			'dt.status_name',
 			'dt.progress_percentage',
-			'dt.due_date'
+			'dt.due_date',
+			'dt.solve_date'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -190,6 +191,10 @@ class Tasklist_menu_model extends MY_Model
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
+			$solve_date ="";
+			if($row->solve_date != '' && $row->solve_date != '0000-00-00'){
+				$solve_date = $row->solve_date;
+			}
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -204,7 +209,8 @@ class Tasklist_menu_model extends MY_Model
 				$row->parent_name,
 				$row->status_name,
 				$row->progress_percentage,
-				$row->due_date
+				$row->due_date,
+				$solve_date
 
 
 			));
@@ -265,6 +271,11 @@ class Tasklist_menu_model extends MY_Model
 
 		
   		if(!empty($post['task'])){ 
+  			$solve_date="";
+  			if($post['progress'] == 100){
+  				$solve_date = date("Y-m-d H:i:s");
+  			}
+
   			$data = [
 				'employee_id' 			=> trim($post['employee']),
 				'task' 					=> trim($post['task']),
@@ -272,7 +283,8 @@ class Tasklist_menu_model extends MY_Model
 				'parent_id' 			=> trim($post['task_parent']),
 				'due_date' 				=> $f_due_date,
 				'status_id' 			=> trim($post['status']),
-				'created_at'			=> date("Y-m-d H:i:s")
+				'created_at'			=> date("Y-m-d H:i:s"),
+				'solve_date' 			=> $solve_date
 			];
 			return $rs = $this->db->insert($this->table_name, $data);
   		}else return null;
@@ -286,6 +298,10 @@ class Tasklist_menu_model extends MY_Model
 
 
 		if(!empty($post['id'])){ 
+			$solve_date="";
+  			if($post['progress'] == 100){
+  				$solve_date = date("Y-m-d H:i:s");
+  			}
 		
 			$data = [
 				'employee_id' 			=> trim($post['employee']),
@@ -294,7 +310,8 @@ class Tasklist_menu_model extends MY_Model
 				'parent_id' 			=> trim($post['task_parent']),
 				'due_date' 				=> $f_due_date,
 				'status_id' 			=> trim($post['status']),
-				'updated_at'			=> date("Y-m-d H:i:s")
+				'updated_at'			=> date("Y-m-d H:i:s"),
+				'solve_date' 			=> $solve_date
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -328,8 +345,8 @@ class Tasklist_menu_model extends MY_Model
 				'progress_percentage' 	=> $v["D"],
 				'parent_id' 			=> $v["E"],
 				'due_date' 				=> $v["F"],
-				'status_id' 			=> $v["G"]
-				
+				'status_id' 			=> $v["G"],
+				'solve_date' 			=> $v["H"]
 			];
 
 			$rs = $this->db->insert($this->table_name, $data);
@@ -341,7 +358,7 @@ class Tasklist_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date   
+		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date  
 			from tasklist a left join employees b on b.id = a.employee_id
 			left join tasklist c on c.id = a.parent_id
 			left join master_tasklist_status d on d.id = a.status_id order by a.id asc
