@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Bypass extends MY_Controller
+class Bypass extends CI_Controller
 {
 	/* Module */
  	//private $model_name				= "bypass_model";
@@ -11,6 +11,11 @@ class Bypass extends MY_Controller
       	parent::__construct();
 
 		//$this->load->model($this->model_name);
+   	}
+
+
+   	public function tes(){
+   		echo 'tes'; die();
    	}
 	
 
