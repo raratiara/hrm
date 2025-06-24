@@ -349,6 +349,7 @@
 										<th scope="col">Institusi</th>
 										<th scope="col">Kota</th>
 										<th scope="col">Tahun</th>
+										<th scope="col">File Ijazah</th>
 										<th scope="col"></th>
 									</tr>
 								</thead>

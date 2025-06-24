@@ -1,10 +1,21 @@
+
+
+
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Bypass extends CI_Controller
 {
 	/* Module */
- 	//private $model_name				= "bypass_model";
+ 	//private $model_name				= "api_model";
+
+
+ 	/* upload */
+ 	//di LOCAL ->//protected $attachment_folder	= "./uploads/absensi"; 
+ 	/*protected $attachment_folder	= "hrm.sandboxxplore.com/uploads/absensi"; 
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0";*/ // 0 for limit by default php conf (in Kb)
+
 
    	public function __construct()
 	{
@@ -13,11 +24,24 @@ class Bypass extends CI_Controller
 		//$this->load->model($this->model_name);
    	}
 
+    public function index()
+    {
+        $response = [
+            'message' => 'Access denied',
+            "error" => 'Not allowed root access.'
+            ];
 
-   	public function tes(){
-   		echo 'tes'; die();
-   	}
-	
+		$this->render_json($response, 400);
+		exit;
+	}
+
+
+	public function tes(){
+
+		echo 'tesss'; die();
+
+	}
+
 
 	// cron jalan setiap hari di jam 08.00 pagi
 	public function generate_jatah_cuti(){
@@ -240,6 +264,10 @@ class Bypass extends CI_Controller
 
 
 	}
+	
+	
+	
+
 
 
 }
