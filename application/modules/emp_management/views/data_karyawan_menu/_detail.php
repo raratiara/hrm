@@ -324,6 +324,7 @@
 										<th scope="col">Institution</th>
 										<th scope="col">City</th>
 										<th scope="col">Year</th>
+										<th scope="col">File Ijazah</th>
 									</tr>
 								</thead>
 								<tbody>

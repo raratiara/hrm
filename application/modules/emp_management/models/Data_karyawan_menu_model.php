@@ -510,13 +510,22 @@ class Data_karyawan_menu_model extends MY_Model
 			if($item_num>0){
 				for($i=$item_len_min;$i<=$item_len;$i++) 
 				{
+					$upload_file_ijazah = $this->upload_file($upload_dir, '1', 'file_ijazah'.$i.'', FALSE, '', TRUE, $i);
+					$file_ijazah = '';
+					if($upload_file_ijazah['status']){ 
+						$file_ijazah = $upload_file_ijazah['upload_file'];
+					} else if(isset($upload_file_ijazah['error_warning'])){ 
+						echo $upload_file_ijazah['error_warning']; exit;
+					}
+
 					if(isset($post['education'][$i])){
 						$itemData = [
 							'employee_id' 	=> $lastId,
 							'education_id' 	=> trim($post['education'][$i]),
 							'institution' 	=> trim($post['institution'][$i]),
 							'city' 			=> trim($post['city'][$i]),
-							'year' 			=> trim($post['year'][$i])
+							'year' 			=> trim($post['year'][$i]),
+							'file_ijazah' 	=> $file_ijazah
 						];
 
 						$this->db->insert('education_detail', $itemData);
@@ -838,18 +847,39 @@ class Data_karyawan_menu_model extends MY_Model
 
 						if(!empty($hdnid)){ //update
 
+							$hdnfile_ijazah = trim($post['hdnfile_ijazah'.$i]);
+							$file_ijazah = '';
+							$upload_file_ijazah = $this->upload_file($upload_dir, '1', 'file_ijazah'.$i.'', FALSE, '', TRUE, $i);
+							if($upload_file_ijazah['status']){ 
+								$file_ijazah = $upload_file_ijazah['upload_file'];
+							} else if(isset($upload_file_ijazah['error_warning'])){ 
+								echo $upload_file_ijazah['error_warning']; exit;
+							}
+
+							if($file_ijazah == '' && $hdnfile_ijazah != ''){
+								$file_ijazah = $hdnfile_ijazah;
+							}
+
 							if(isset($post['education'][$i])){
 								$itemData = [
 									'education_id' 	=> trim($post['education'][$i]),
 									'institution' 	=> trim($post['institution'][$i]),
 									'city' 			=> trim($post['city'][$i]),
-									'year' 			=> trim($post['year'][$i])
+									'year' 			=> trim($post['year'][$i]),
+									'file_ijazah' 	=> $file_ijazah
 								];
 
 								$this->db->update("education_detail", $itemData, "id = '".$hdnid."'");
 							}
 
 						}else{ //insert
+							$upload_file_ijazah = $this->upload_file($upload_dir, '1', 'file_ijazah'.$i.'', FALSE, '', TRUE, $i);
+							$file_ijazah = '';
+							if($upload_file_ijazah['status']){ 
+								$file_ijazah = $upload_file_ijazah['upload_file'];
+							} else if(isset($upload_file_ijazah['error_warning'])){ 
+								echo $upload_file_ijazah['error_warning']; exit;
+							}
 
 							if(isset($post['education'][$i])){
 								$itemData = [
@@ -857,7 +887,8 @@ class Data_karyawan_menu_model extends MY_Model
 									'education_id' 	=> trim($post['education'][$i]),
 									'institution' 	=> trim($post['institution'][$i]),
 									'city' 			=> trim($post['city'][$i]),
-									'year' 			=> trim($post['year'][$i])
+									'year' 			=> trim($post['year'][$i]),
+									'file_ijazah' 	=> $file_ijazah
 								];
 
 								$this->db->insert('education_detail', $itemData);
@@ -1148,6 +1179,8 @@ class Data_karyawan_menu_model extends MY_Model
 			$data 	.= '<td>'.$this->return_build_txt('','institution['.$row.']','','institution','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','city['.$row.']','','city','text-align: right;','data-id="'.$row.'" ').'</td>';
 			$data 	.= '<td>'.$this->return_build_txt('','year['.$row.']','','year','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_fileinput('file_ijazah'.$row.'','','','file_ijazah','text-align: right;','data-id="'.$row.'" ').'</td>';
+
 
 			$hdnid='';
 			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
@@ -1161,7 +1194,7 @@ class Data_karyawan_menu_model extends MY_Model
 		
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.*, b.name as education_name from education_detail a left join master_education b on b.id = a.education_id where a.employee_id = '".$id."' ")->result(); 
+		$rs = $this->db->query("select a.*, b.name as education_name, c.emp_code from education_detail a left join master_education b on b.id = a.education_id left join employees c on c.id = a.employee_id where a.employee_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
@@ -1180,6 +1213,10 @@ class Data_karyawan_menu_model extends MY_Model
 				$msEdu = $this->db->query("select * from master_education")->result(); 
 
 				if(!$view){ 
+					$viewdoc = '';
+					if($f->file_ijazah != ''){
+						$viewdoc = '<a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_ijazah.'" target="_blank">View</a>';
+					}
 
 					$dt .= '<tr>';
 
@@ -1189,6 +1226,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($f->city,'city['.$row.']','','city','text-align: right;','data-id="'.$row.'" ').'</td>';
 					$dt .= '<td>'.$this->return_build_txt($f->year,'year['.$row.']','','year','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_fileinput('file_ijazah'.$row.'','','','file_ijazah','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdnfile_ijazah'.$row.'" name="hdnfile_ijazah'.$row.'" value="'.$f->file_ijazah.'"/></td>';
 					
 					$dt .= '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';
 					$dt .= '</tr>';
@@ -1212,6 +1250,7 @@ class Data_karyawan_menu_model extends MY_Model
 					$dt .= '<td>'.$f->institution.'</td>';
 					$dt .= '<td>'.$f->city.'</td>';
 					$dt .= '<td>'.$f->year.'</td>';
+					$dt .= '<td><a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_ijazah.'" target="_blank">View</a></td>';
 					$dt .= '</tr>';
 
 					
