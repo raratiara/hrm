@@ -164,7 +164,7 @@ class Bypass extends CI_Controller
 		$holID = $Holidays[0]->id;
 
 		if(!empty($Holidays)){
-			$rowEmp = $this->db->query("select * from employees")->result();
+			$rowEmp = $this->db->query("select * from employees where status_id = 1")->result();
 
 			if(!empty($rowEmp)){ 
 				foreach($rowEmp as $row){
@@ -208,7 +208,7 @@ class Bypass extends CI_Controller
 
 
 
-		$emp = $this->db->query("select * from employees")->result();
+		$emp = $this->db->query("select * from employees where status_id = 1")->result();
 
 		foreach($emp as $row_emp){
 			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
