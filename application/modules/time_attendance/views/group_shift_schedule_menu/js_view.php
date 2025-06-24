@@ -145,7 +145,10 @@ let selectedShift = [];
 
 const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-
+document.getElementById("btnAddData").addEventListener("click", function() {
+    let currentWeek = 0;
+		renderSchedule(currentWeek);
+});
 
 
 function load_data()
@@ -193,7 +196,7 @@ function load_data()
 					
 					let currentWeek=0;
 					/*renderFormJadwal(karyawanList, jadwalTersimpan,jadwalData,tanggalList);*/
-					renderSchedule(currentWeek, data, jadwalData, tanggalList);
+					renderSchedule(currentWeek, jadwalData, tanggalList);
 
 					
 
@@ -201,8 +204,8 @@ function load_data()
 					if(save_method == 'update'){ 
 
 							document.getElementById("btnpilihshift").style.display = "block";
-							document.getElementById("submit-data").style.display = "block";
-							document.getElementById("btnReset").style.display = "block";
+							document.getElementById("submit-data").style.display = "";
+							document.getElementById("btnReset").style.display = "";
 
 							$.uniform.update();
 							$('#mfdata').text('Update');
@@ -622,17 +625,17 @@ function formatDateLocal(date) {
 }
 
 
-function renderSchedule(currentWeek, jadwalTersimpan='',jadwalData='',tanggalList=''){
+function renderSchedule(currentWeek, jadwalData='',tanggalList=''){
 
 	
-	let hdnjadwalTersimpana = $("#hdnjadwalTersimpan").val(); console.log(hdnjadwalTersimpana);
+	let hdnjadwalTersimpana = $("#hdnjadwalTersimpan").val(); 
 	if(hdnjadwalTersimpana != ''){ 
 		//let hdnjadwalTersimpan = JSON.parse(hdnjadwalTersimpana);
 		jadwalTersimpan = JSON.parse(hdnjadwalTersimpana);
 	}else{ 
 		jadwalTersimpan=[];
 	}
-	
+	console.log(jadwalTersimpan);
 
 	let month = document.getElementById('bulan').value; 
 	let year = document.getElementById('tahun').value; 
@@ -681,58 +684,55 @@ function renderSchedule(currentWeek, jadwalTersimpan='',jadwalData='',tanggalLis
 			  }*/
 
 			  /*for (let i = 0; i < 7; i++) {
-  let tgl = new Date(startDate);
-  tgl.setDate(startDate.getDate() + i);
+				  let tgl = new Date(startDate);
+				  tgl.setDate(startDate.getDate() + i);
 
-  let id = "tgl" + (i + 1);
-  let el = document.getElementById(id);
-console.log(tgl);
-  if (isValidDate(tgl)) {
-    // Ambil nama hari sesuai tanggalnya secara dinamis (lokal Indonesia)
-    let namaHari = tgl.toLocaleDateString('id-ID', { weekday: 'long' });
-    let tanggalStr = tgl.toISOString().slice(0, 10);
-    
-    el.innerHTML = `${namaHari}<br>${tanggalStr}`;
-    el.dataset.tgl = tanggalStr;
-  } else {
-    el.textContent = 'Tanggal tidak valid';
-  }
-}*/
+				  let id = "tgl" + (i + 1);
+				  let el = document.getElementById(id);
+				console.log(tgl);
+				  if (isValidDate(tgl)) {
+				    // Ambil nama hari sesuai tanggalnya secara dinamis (lokal Indonesia)
+				    let namaHari = tgl.toLocaleDateString('id-ID', { weekday: 'long' });
+				    let tanggalStr = tgl.toISOString().slice(0, 10);
+				    
+				    el.innerHTML = `${namaHari}<br>${tanggalStr}`;
+				    el.dataset.tgl = tanggalStr;
+				  } else {
+				    el.textContent = 'Tanggal tidak valid';
+				  }
+				}*/
 
 
 				
 			  let startDate = new Date(year, month, 1 + currentWeek * 7);
 
-for (let i = 0; i < 7; i++) {
-  let tgl = new Date(year, month, 1 + currentWeek * 7 + i); // 👍 LEBIH AMAN
-  
-  let id = "tgl" + (i + 1);
-  let el = document.getElementById(id);
+				for (let i = 0; i < 7; i++) {
+				  let tgl = new Date(year, month, 1 + currentWeek * 7 + i); // 👍 LEBIH AMAN
+				  
+				  let id = "tgl" + (i + 1);
+				  let el = document.getElementById(id);
 
-  
+				  
 
-  if (isValidDate(tgl)) {
-    let namaHari = tgl.toLocaleDateString('id-ID', { weekday: 'long' });
-    /*let tanggalStr = tgl.toISOString().slice(0, 10);*/
-    let tanggalStr = formatDateLocal(tgl);
+				  if (isValidDate(tgl)) {
+				    /*let namaHari = tgl.toLocaleDateString('id-ID', { weekday: 'long' });*/
+				    let namaHari = tgl.toLocaleDateString('en-US', { weekday: 'long' });
+				    /*let tanggalStr = tgl.toISOString().slice(0, 10);*/
+				    let tanggalStr = formatDateLocal(tgl);
 
+				    let namaTgl = tgl.toLocaleDateString('en-US', {
+					    year: 'numeric',
+					    month: 'short',
+					    day: 'numeric'
+					  });
+				    
+				    el.innerHTML = `${namaHari}<br>${namaTgl}`;
+				    el.dataset.tgl = tanggalStr;
+				  } else {
+				    el.textContent = 'Tanggal tidak valid';
+				  }
+				}
 
-
-
-    
-    el.innerHTML = `${namaHari}<br>${tanggalStr}`;
-    el.dataset.tgl = tanggalStr;
-  } else {
-    el.textContent = 'Tanggal tidak valid';
-  }
-}
-
-
-
-
-
-
-			 
 
 
 
@@ -777,7 +777,7 @@ for (let i = 0; i < 7; i++) {
 			        // Push ke jadwalData juga
 		          var id = emp.id;
 					  	var empname = emp.full_name;
-					    jadwalData.push({ id, empname, tgl, shiftName });
+					    jadwalData.push({ id, empname, tgl, shift: shiftName });
 
 
 			      }
@@ -1065,13 +1065,24 @@ function deleteShift(el, nama, tanggal) {
 
 
 
-function resetToBulanTahun() { 
+/*function resetToBulanTahun() { 
   month = parseInt(document.getElementById('bulan').value); 
   year = parseInt(document.getElementById('tahun').value);
   
   currentWeek = 0;
   renderSchedule(currentWeek);
-}
+}*/
+
+
+$('#bulan').on('change', function () { 
+ 	currentWeek = 0;
+  renderSchedule(currentWeek);
+});
+
+$('#tahun').on('change', function () { 
+ 	currentWeek = 0;
+  renderSchedule(currentWeek);
+});
 
 
 function isValidDate(d) {

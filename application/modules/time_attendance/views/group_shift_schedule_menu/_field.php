@@ -73,7 +73,7 @@
 <div id="shiftModal" class="custom-modal">
   <div class="custom-modal-content">
     <span class="custom-close" onclick="closeShiftModal()">&times;</span>
-    <h3 style="font-size: 14px;">Drag Shift</h3>
+    <h3 style="font-size: 14px;"><b>Drag Shift</b></h3>
 
     <!-- Tombol Shift -->
     <div class="shift-options">
@@ -96,23 +96,25 @@
 
 
 
-<label>Bulan:
-  <select id="bulan" name="bulan" onchange="resetToBulanTahun()">
-  	<!-- <select id="bulan" name="bulan" > -->
+<label>Month:
+  <!-- <select id="bulan" name="bulan" onchange="resetToBulanTahun()"> -->
+  	<select id="bulan" name="bulan" class="form-control">
     <script>
       for (let i = 0; i < 12; i++) {
-        document.write(`<option value="${i}">${new Date(0, i).toLocaleString('id', { month: 'long' })}</option>`);
+        /*document.write(`<option value="${i}">${new Date(0, i).toLocaleString('id', { month: 'long' })}</option>`);*/
+        const monthName = new Date(0, i).toLocaleString('en-US', { month: 'long' });
+        document.write(`<option value="${i}">${monthName}</option>`);
       }
     </script>
   </select>
 </label>
 
-<label>Tahun:
-  <select id="tahun" name="tahun" onchange="resetToBulanTahun()">
-  	<!-- <select id="tahun" name="tahun" > -->
+<label>Year:
+  <!-- <select id="tahun" name="tahun" onchange="resetToBulanTahun()"> -->
+  	<select id="tahun" name="tahun" class="form-control">
     <script>
       const now = new Date().getFullYear();
-      for (let y = now - 2; y <= now + 2; y++) {
+      for (let y = now - 1; y <= now + 1; y++) {
         document.write(`<option value="${y}" ${y === now ? 'selected' : ''}>${y}</option>`);
       }
     </script>
@@ -124,7 +126,7 @@
 
 
 <div>
-	  <button type="button" class="btnpilihshift" id="btnpilihshift" onclick="pilihShift();"> Pilih Shift</button>
+	  <button type="button" class="btnpilihshift" id="btnpilihshift" onclick="pilihShift();"> Select Shift</button>
 </div>
 
 <!-- Shift drag -->
@@ -135,10 +137,10 @@
 </div> -->
 
 <!-- Tabel -->
-<table>
+<table class="tblShift">
   <thead>
     <tr>
-      <th>Karyawan</th>
+      <th>Employee</th>
       <th class="date-header" id="tgl1"></th>
       <th class="date-header" id="tgl2"></th>
       <th class="date-header" id="tgl3"></th>
@@ -155,8 +157,8 @@
 
 <!-- Tombol navigasi minggu -->
 <div>
-  <button type="button" class="btnweek" onclick="changeWeek(-1)">⏪ Minggu Sebelumnya</button>
-  <button type="button" class="btnweek" onclick="changeWeek(1)">Minggu Berikutnya ⏩</button>
+  <button type="button" class="btnweek" onclick="changeWeek(-1)">⏪ Previous Week</button>
+  <button type="button" class="btnweek" onclick="changeWeek(1)">Next Week ⏩</button>
 </div>
 
 

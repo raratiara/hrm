@@ -144,6 +144,12 @@ th, td {
   text-align: center;
   min-width: 80px;
 }
+
+.tblShift th {
+  background-color: #e1e5e8;
+}
+
+
 .date-header { font-size: 12px; }
 .drop-cell { min-height: 40px; position: relative; }
 .shift-btn {
