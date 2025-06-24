@@ -184,6 +184,13 @@ jQuery(function($) {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 function load_data()
 {
+	var getUrl = window.location;
+	//local=> 
+	//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
+
+
     $.ajax({
 		type: "POST",
         url : module_path+'/get_detail_data',
@@ -202,6 +209,13 @@ function load_data()
 					$('[name="location"]').val(data.location);
 					$('[name="trainer"]').val(data.trainer);
 					$('[name="notes"]').val(data.notes);
+
+					$('[name="hdndoc_sertifikat"]').val(data.file_sertifikat);
+					if(data.file_sertifikat != '' && data.file_sertifikat != null){
+						$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
+					}else{
+						$('span.file_sertifikat').html('');
+					}
 					
 					
 					$.uniform.update();
@@ -215,6 +229,12 @@ function load_data()
 					$('span.location').html(data.location);
 					$('span.trainer').html(data.trainer);
 					$('span.notes').html(data.notes);
+
+					if(data.file_sertifikat != '' && data.file_sertifikat != null){
+						$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
+					}else{
+						$('span.file_sertifikat').html('');
+					}
 
 					
 					$('#modal-view-data').modal('show');

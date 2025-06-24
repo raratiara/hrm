@@ -8,7 +8,11 @@ class Training_menu_model extends MY_Model
  	protected $table_name 				= _PREFIX_TABLE."employee_training";
  	protected $primary_key 				= "id";
 
- 
+ 	
+ 	/* upload */
+ 	/*protected $attachment_folder	= "./uploads/employee";*/
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
 
 	function __construct()
@@ -30,7 +34,9 @@ class Training_menu_model extends MY_Model
 			'dt.trainer',
 			'dt.notes',
 			'dt.status_name',
-			'dt.direct_id'
+			'dt.direct_id',
+			'dt.file_sertifikat',
+			'dt.emp_code'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -38,7 +44,7 @@ class Training_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name, b.direct_id,
+		$sTable = '(select a.*, b.full_name, b.direct_id, b.emp_code,
 					(case
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
@@ -210,6 +216,12 @@ class Training_menu_model extends MY_Model
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
 			}
 
+			$file_sertifikat ="";
+			if($row->file_sertifikat != ''){
+				$file_sertifikat = '<a href="'.base_url().'uploads/'.$row->emp_code.'/'.$row->file_sertifikat.'" target="_blank">View</a>';
+			}
+			
+
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
@@ -225,8 +237,8 @@ class Training_menu_model extends MY_Model
 				$row->location,
 				$row->trainer,
 				$row->notes,
-				$row->status_name
-
+				$row->status_name,
+				$file_sertifikat
 
 			));
 		}
@@ -279,6 +291,59 @@ class Training_menu_model extends MY_Model
 	}  
 
 
+	// Upload file
+	public function upload_file($attachment_folder, $id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+		$data = array();
+		$data['status'] = FALSE; 
+		if(!empty($id) && !empty($fieldname)){ 
+			// handling multiple upload (as array field)
+
+			if($array){ 
+				// Define new $_FILES array - $_FILES['file']
+				$_FILES['file']['name'] = $_FILES[$fieldname]['name'];
+				$_FILES['file']['type'] = $_FILES[$fieldname]['type'];
+				$_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
+				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
+				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
+				// override field
+
+			}
+			// handling regular upload (as one field)
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			{ 
+				/*$dir = $this->attachment_folder.'/'.$id;
+				if(!is_dir($dir)) {
+					mkdir($dir);
+				}
+				if($replace){
+					$this->remove_file($id, $oldfilename);
+				}*/
+				/*$config['upload_path']   = $this->attachment_folder;*/
+				$config['upload_path']   = $attachment_folder;
+				$config['allowed_types'] = $this->allow_type;
+				$config['max_size'] 	 = $this->allow_size;
+				
+				$this->load->library('upload', $config); 
+				
+				if(!$this->upload->do_upload($fieldname)){  
+					$err_msg = $this->upload->display_errors(); 
+					$data['error_warning'] = strip_tags($err_msg);				
+					$data['status'] = FALSE;
+				} else {
+					$fileData = $this->upload->data();
+					$data['upload_file'] = $fileData['file_name'];
+					$data['status'] = TRUE;
+				}
+			}
+		}
+
+		
+		
+		return $data;
+	}
+
+
+
 	public function add_data($post) { 
 
 		$training_date 		= date_create($post['training_date']); 
@@ -287,6 +352,26 @@ class Training_menu_model extends MY_Model
 		
 		
   		if(!empty($post['employee'])){ 
+  			$dataemp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result();
+
+  			$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
+			// Cek apakah folder sudah ada
+			if (!is_dir($upload_dir)) {
+			    // Jika belum ada, buat folder
+			    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+			}
+
+
+			$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'doc_sertifikat', FALSE, '', TRUE, '');
+			$file_sertifikat = '';
+			if($upload_file_sertifikat['status']){
+				$file_sertifikat = $upload_file_sertifikat['upload_file'];
+			} else if(isset($upload_file_sertifikat['error_warning'])){
+				echo $upload_file_sertifikat['error_warning']; exit;
+			}
+
+
+
   			$data = [
 				'employee_id' 			=> trim($post['employee']),
 				'training_name' 		=> trim($post['training_name']),
@@ -295,7 +380,8 @@ class Training_menu_model extends MY_Model
 				'trainer' 				=> trim($post['trainer']),
 				'notes' 				=> trim($post['notes']),
 				'status_id' 			=> 1, //waiting approval
-				'created_at'			=> date("Y-m-d H:i:s")
+				'created_at'			=> date("Y-m-d H:i:s"),
+				'file_sertifikat' 		=> $file_sertifikat
 				
 			];
 			$rs = $this->db->insert($this->table_name, $data);
@@ -310,6 +396,32 @@ class Training_menu_model extends MY_Model
 
 
 		if(!empty($post['id'])){ 
+
+			$dataemp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result();
+
+  			$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
+			// Cek apakah folder sudah ada
+			if (!is_dir($upload_dir)) {
+			    // Jika belum ada, buat folder
+			    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+			}
+
+			$hdndoc_sertifikat 		= trim($post['hdndoc_sertifikat']);
+			$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'doc_sertifikat', FALSE, '', TRUE, '');
+			$file_sertifikat = '';
+			if($upload_file_sertifikat['status']){
+				$file_sertifikat = $upload_file_sertifikat['upload_file'];
+			} else if(isset($upload_file_sertifikat['error_warning'])){
+				echo $upload_file_sertifikat['error_warning']; exit;
+			}
+
+			if($file_sertifikat == '' && $hdndoc_sertifikat != ''){
+				$file_sertifikat = $hdndoc_sertifikat;
+			}
+
+
+
+
 			$data = [
 				'employee_id' 			=> trim($post['employee']),
 				'training_name' 		=> trim($post['training_name']),
@@ -317,16 +429,20 @@ class Training_menu_model extends MY_Model
 				'location' 				=> trim($post['location']),
 				'trainer' 				=> trim($post['trainer']),
 				'notes' 				=> trim($post['notes']),
-				'updated_at'			=> date("Y-m-d H:i:s")
+				'updated_at'			=> date("Y-m-d H:i:s"),
+				'file_sertifikat' 		=> $file_sertifikat
 				
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+
+			return $rs;
 
 		} else return null;
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name, 
+		$mTable = '(select a.*, b.full_name, b.emp_code,
 					(case
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"

@@ -529,6 +529,7 @@
 										<th scope="col">Training Name</th>
 										<th scope="col">City</th>
 										<th scope="col">Year</th>
+										<th scope="col">Sertifikat</th>
 									</tr>
 								</thead>
 								<tbody>
