@@ -105,7 +105,7 @@
   	<div class="dashboard-grid">
 
 	  	<div class="box box-1"> 
-	  		<div class="box-title">Select Date</div>
+	  		<div class="box-title">Select Datee</div>
 	      	<div class="box-value">
 	      		<!-- <input type="text" style="width: 150px; height:20px; font-size: 10px;" class="form-control" id="fldashdateperiod" name="fldashdateperiod"> -->
 	      		<input type="month" style="width: 150px; height:20px; font-size: 10px;" id="fldashdateperiod" name="fldashdateperiod" class="form-control">
