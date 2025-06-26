@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 class Data_karyawan_menu extends MY_Controller
 {
 	/* Module */
@@ -334,6 +336,54 @@ class Data_karyawan_menu extends MY_Controller
 
 		echo json_encode($rs);
 	}
+
+
+
+
+	 public function fungsi_upload_excel() {
+	 	
+
+        if ($_FILES['fileexcel']['name']) { 
+            $file = $_FILES['fileexcel'];
+            $path = FCPATH . 'uploads/' . $file['name']; 
+            move_uploaded_file($file['tmp_name'], $path);
+            
+
+            try { 
+            	/*error_reporting(E_ALL);
+				ini_set('display_errors', 1);
+				echo 'Path: ' . $path . '<br>';
+				echo 'File exists? ' . (file_exists($path) ? 'yes' : 'no') . '<br>';
+				echo 'Size: ' . filesize($path) . ' bytes<br>';*/
+
+
+                $spreadsheet = IOFactory::load($path); 
+                $sheetData = $spreadsheet->getActiveSheet()->toArray();
+
+                // Lewati header (baris ke-0)
+                for ($i = 1; $i < count($sheetData); $i++) {
+                    $row = $sheetData[$i];
+                    $data[] = [
+                        'employee_id' => $row[0],
+                        'task' => $row[1],
+                        /*'task' => (int)$row[1]*/
+                    ];
+                }
+
+                // Insert ke database
+                if (!empty($data)) { 
+                	/*$rs = $this->db->insert($this->table_name, $data);*/
+                    $this->db->insert_batch('tasklist', $data);
+                    $this->session->set_flashdata('sukses', 'Data berhasil diimport!');
+                }
+
+            } catch (Exception $e) {
+                $this->session->set_flashdata('gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            }
+
+            redirect('emp_management/data_karyawan_menu');
+        }
+    }
 
 
 

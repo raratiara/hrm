@@ -19,10 +19,28 @@
 
 								<div class="modal-footer no-margin-top" id="mdlFooter">
 									<span class="act-container-btn">
-										<button class="btn btn-info" id="submit-data" onclick="save()">
-											<i class="fa fa-check"></i>
-											Save
-										</button>
+										<?php
+                                    	if($this->module_name == 'request_recruitment_menu'){
+                                    		?>
+                                    		<a class="btn btn-warning" id="btnDraft" onclick="save('draft')">
+												Save as Draft
+											</a> 
+
+											<button class="btn btn-info" id="submit-data" onclick="save('waiting_approval')">
+												<i class="fa fa-check"></i>
+												Submit
+											</button>
+                                    		<?php
+                                    	}else{
+                                    		?>
+                                    		<button class="btn btn-info" id="submit-data" onclick="save()">
+												<i class="fa fa-check"></i>
+												Save
+											</button>
+                                    		<?php
+                                    	}
+                                    	?> 
+										
 										<button class="btn" onclick="reset()" id="btnReset">
 											<i class="fa fa-undo"></i>
 											Reset
