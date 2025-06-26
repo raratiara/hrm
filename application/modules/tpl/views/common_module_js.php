@@ -19,6 +19,11 @@ function expire()
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1") { ?>
 /* open add form modal */
 $( "#btnAddData" ).on('click', function(){
+	var module_name = '<?=$this->module_name?>'; 
+	if(module_name == 'request_recruitment_menu'){
+		document.getElementById("btnDraft").style.display = "";
+	}
+
 	$("#employee ").prop('disabled', false);
 	expire();
 	save_method = 'add'; 
@@ -129,8 +134,13 @@ $( "#btnImportData" ).on('click', function(){
 <?php } ?>
 
 /* processing action */
-function save()
+function save(status='')
 {
+	if(status != ''){
+		$('[name="status"]').val(status);
+	}
+	
+
 	expire();
     var title;
     var send_url;

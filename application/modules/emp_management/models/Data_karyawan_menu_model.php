@@ -1164,22 +1164,57 @@ class Data_karyawan_menu_model extends MY_Model
 		return $rs;
 	} 
 
-	public function import_data($list_data)
-	{
+
+
+	public function import_data($list_data){
+
+		if (isset($list_data[0][0]) && is_array($list_data[0][0])) {
+		    $list_data[0] = $list_data[0][0];
+		}
+
+		// Lewati header (baris ke-0)
+		for ($i = 1; $i < count($list_data); $i++) {
+            $row = $list_data[$i];
+            $data = [
+                'full_name' => $row[0],
+                'nick_name' => $row[1],
+                /*'task' => (int)$row[1]*/
+            ];
+
+            $rs = $this->db->insert($this->table_name, $data);
+			if (!$rs) $error .=",baris ". $row[0];
+        }
+
+
+		/*Array ( 
+[0] => Array ( [0] => employee id [1] => task ) 
+[1] => Array ( [0] => 2 [1] => b2 ) 
+[2] => Array ( [0] => 12 [1] => b3 ) 
+[3] => Array ( [0] => 13 [1] => b4 ) 
+[4] => Array ( [0] => 8 [1] => b5 ) )*/
+
+
+		return $error;
+
+	}
+
+	public function import_data_old($list_data)
+	{  
 		$i = 0;
 
 		foreach ($list_data as $k => $v) {
 			$i += 1;
 
 			$data = [
-				'code' 	=> $v["B"],
-				'name' 	=> $v["C"]
+				'full_name' 	=> $v["B"],
+				'nick_name' 	=> $v["C"]
 				
 			];
 
 			$rs = $this->db->insert($this->table_name, $data);
 			if (!$rs) $error .=",baris ". $v["A"];
 		}
+
 
 		return $error;
 	}

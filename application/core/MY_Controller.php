@@ -1,5 +1,7 @@
 <?php (defined('BASEPATH')) OR exit('No direct script access allowed');
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 // controller without save & print ability
 class MY_Controller extends CI_Controller {
 	
@@ -195,8 +197,45 @@ class MY_Controller extends CI_Controller {
 		}
 	}
 
+	public function import(){ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_IMPORT == "1") {
+
+			if ($_FILES['userfile']['name']) { 
+	            $file = $_FILES['userfile'];
+	            $path = FCPATH . 'uploads/' . $file['name']; 
+	            move_uploaded_file($file['tmp_name'], $path);
+	            
+
+	            try { 
+	            
+	                $spreadsheet = IOFactory::load($path); 
+	                $sheetData = $spreadsheet->getActiveSheet()->toArray();
+
+	                $rs = $this->self_model->import_data($sheetData);
+
+	                if ($rs == "") {
+						$data['msg'] = $this->label_sukses_diimport;
+						$data['status'] = TRUE;
+					} else {
+						$data['msg'] = $this->label_gagal_diimport. $rs;
+						$data['status'] = FALSE;
+					}
+	                
+	            } catch (Exception $e) {
+	            	$rs=null;
+	                $data['msg'] = $this->label_gagal_diimport. $rs;
+					$data['status'] = FALSE;
+	            }
+
+	        }
+
+		}else {
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
 	// Import Data
-	public function import()
+	public function import_old()
 	{
 		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_IMPORT == "1") {
 			$config['upload_path'] = './tmp';
