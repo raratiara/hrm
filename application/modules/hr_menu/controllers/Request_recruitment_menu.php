@@ -36,6 +36,7 @@ class Request_recruitment_menu extends MY_Controller
 		$field['txtheadcount']		= $this->self_model->return_build_txt('','headcount','headcount');
 		$field['txtjustification']	= $this->self_model->return_build_txtarea('','justification','justification');
 		$field['txtstatus']		= $this->self_model->return_build_txt('','status','status');
+		$field['txtrejectreason']	= $this->self_model->return_build_txtarea('','reject_reason','reject_reason');
 
 		$mssection 				= $this->db->query("select * from sections order by name asc")->result(); 
 		$field['selsection'] 	= $this->self_model->return_build_select2me($mssection,'','','','section','section','','','id','name',' ','','','',1,'-');
@@ -149,6 +150,58 @@ class Request_recruitment_menu extends MY_Controller
 		{ 
 			$this->load->view('errors/html/error_hacks_401');
 		}
+	}
+
+
+	public function reject(){
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+		$reason = $post['reason'];
+
+		if($id != ''){
+
+			$data = [
+				'status' 		=> 'rejected',
+				'reject_reason' => $reason,
+				'approved_date'	=> date("Y-m-d H:i:s"),
+				'approved_by' 	=> $karyawan_id
+			];
+			$rs = $this->db->update('request_recruitment', $data, "id = '".$id."'");
+
+			return $rs;
+			
+		}else return null;
+
+		echo json_encode($rs);
+
+	}
+
+
+	public function approve(){
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+
+		if($id != ''){
+
+			$data = [
+				'status' 		=> 'approved',
+				'approved_date'	=> date("Y-m-d H:i:s"),
+				'approved_by' 	=> $karyawan_id
+			];
+			$rs = $this->db->update('request_recruitment', $data, "id = '".$id."'");
+
+			return $rs;
+			
+		}else return null;
+
+		echo json_encode($rs);
+
 	}
 
 

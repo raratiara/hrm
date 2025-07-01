@@ -1172,26 +1172,87 @@ class Data_karyawan_menu_model extends MY_Model
 		    $list_data[0] = $list_data[0][0];
 		}
 
-		// Lewati header (baris ke-0)
-		for ($i = 1; $i < count($list_data); $i++) {
+		// Lewati header (baris ke-0 dan ke-1)
+		for ($i = 2; $i < count($list_data); $i++) {
             $row = $list_data[$i];
-            $data = [
-                'full_name' => $row[0],
-                'nick_name' => $row[1],
-                /*'task' => (int)$row[1]*/
-            ];
+            $baris = $i+1;
+            if($row[0] != ''){
 
-            $rs = $this->db->insert($this->table_name, $data);
-			if (!$rs) $error .=",baris ". $row[0];
+            	$lettercode 	= ('GDI'); 
+				$runningnumber 	= $this->getNextNumber(); // next count number
+				$genEmpCode 	= $lettercode.$runningnumber;
+
+            	$data = [
+            		'emp_code' 			=> $genEmpCode,
+	                'full_name' 		=> $row[0],
+	                'nick_name' 		=> $row[1],
+	                'personal_email'	=> $row[2],
+	                'personal_phone' 	=> $row[3],
+	                'gender' 			=> $row[4],
+	                'ethnic' 			=> $row[5],
+	                'nationality' 		=> $row[6],
+	                'marital_status_id' => (int)$row[7],
+	                'tanggungan' 		=> $row[8],
+	                'no_ktp' 			=> $row[9],
+	                'sim_a' 			=> $row[10],
+	                'sim_c' 			=> $row[11],
+	                'no_npwp' 			=> $row[12],
+	                'no_bpjs' 			=> $row[13],
+	                'place_of_birth' 	=> $row[14],
+	                'date_of_birth'  	=> $row[15],
+	                'address_ktp' 		=> $row[16],
+	                'postal_code_ktp' 	=> $row[17],
+	                'province_id_ktp' 	=> (int)$row[18],
+	                'regency_id_ktp' 	=> (int)$row[19],
+	                'district_id_ktp' 	=> (int)$row[20],
+	                'village_id_ktp' 	=> (int)$row[21],
+	                'address_residen' 	=> $row[22],
+	                'postal_code_residen' 	=> $row[23],
+	                'province_id_residen' 	=> (int)$row[24],
+	                'regency_id_residen' 	=> (int)$row[25],
+	                'district_id_residen' 	=> (int)$row[26],
+	                'village_id_residen' 	=> (int)$row[27],
+	                'job_level_id' 		=> (int)$row[28],
+	                'job_title_id' 		=> (int)$row[29],
+	                'division_id' 		=> (int)$row[30],
+	                'department_id' 	=> (int)$row[31], 
+	                'section_id' 		=> (int)$row[32],
+	                'date_of_hire' 		=> $row[33],
+	                'date_end_probation' 	=> $row[34],
+	                'date_permanent' 		=> $row[35],
+	                'employment_status_id' 	=> (int)$row[36],
+	                'branch_id' 		=> (int)$row[37],
+	                'grade_id' 			=> (int)$row[38],
+	                'status_id' 		=> (int)$row[39],
+	                'shift_type' 		=> $row[40],
+	                'work_location' 	=> $row[41],
+	                'direct_id' 		=> (int)$row[42],
+	                'indirect_id' 		=> (int)$row[43],
+	                'emergency_contact_name' 		=> $row[44],
+	                'emergency_contact_phone' 		=> $row[45],
+	                'emergency_contact_email' 		=> $row[46],
+	                'emergency_contact_relation' 	=> $row[47],
+	                'bank_name' 	=> $row[48],
+	                'bank_address' 	=> $row[49],
+	                'bank_acc_name' => $row[50],
+	                'bank_acc_no' 	=> $row[51],
+	                'date_resign_letter' 	=> $row[52],
+	                'date_resign_active' 	=> $row[53],
+	                'resign_category' 		=> $row[54],
+	                'resign_reason' 		=> $row[55],
+	                'resign_exit_interview_feedback' => $row[56],
+	                'company_id' 	=> $row[57]
+	            ];
+
+	            $rs = $this->db->insert($this->table_name, $data);
+	            
+	           
+				if (!$rs) $error .=",baris ". $baris;
+            }else{ 
+            	$error .=",baris ". $baris;
+            }
+            
         }
-
-
-		/*Array ( 
-[0] => Array ( [0] => employee id [1] => task ) 
-[1] => Array ( [0] => 2 [1] => b2 ) 
-[2] => Array ( [0] => 12 [1] => b3 ) 
-[3] => Array ( [0] => 13 [1] => b4 ) 
-[4] => Array ( [0] => 8 [1] => b5 ) )*/
 
 
 		return $error;

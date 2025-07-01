@@ -213,20 +213,21 @@ class MY_Controller extends CI_Controller {
 
 	                $rs = $this->self_model->import_data($sheetData);
 
-	                if ($rs == "") {
-						$data['msg'] = $this->label_sukses_diimport;
+	                if ($rs == "") { 
+						$data['msg'] = $this->label_sukses_disimpan; //$this->label_sukses_diimport;
 						$data['status'] = TRUE;
-					} else {
-						$data['msg'] = $this->label_gagal_diimport. $rs;
+					} else { 
+						$data['msg'] = $this->label_gagal_disimpan. $rs; //$this->label_gagal_diimport. $rs;
 						$data['status'] = FALSE;
 					}
 	                
 	            } catch (Exception $e) {
 	            	$rs=null;
-	                $data['msg'] = $this->label_gagal_diimport. $rs;
+	                $data['msg'] = $this->label_gagal_disimpan. $rs; //$this->label_gagal_diimport. $rs;
 					$data['status'] = FALSE;
 	            }
 
+	            echo json_encode($data);
 	        }
 
 		}else {

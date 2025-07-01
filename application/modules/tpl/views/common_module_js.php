@@ -22,6 +22,13 @@ $( "#btnAddData" ).on('click', function(){
 	var module_name = '<?=$this->module_name?>'; 
 	if(module_name == 'request_recruitment_menu'){
 		document.getElementById("btnDraft").style.display = "";
+		document.getElementById("submit-data").style.display = "";
+
+		var modalFooter =  document.getElementById('mdlFooter');
+		var existingReject = modalFooter.querySelector('.btnReject');
+	 	if (existingReject) {
+	 		document.getElementById("btn-reject").style.display = "none";
+	 	}
 	}
 
 	$("#employee ").prop('disabled', false);
