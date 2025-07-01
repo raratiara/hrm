@@ -17,7 +17,7 @@
 								</div>
 								</form>
 
-								<div class="modal-footer no-margin-top" id="mdlFooter">
+								<!-- <div class="modal-footer no-margin-top" id="mdlFooter">
 									<span class="act-container-btn">
 										<?php
                                     	if($this->module_name == 'request_recruitment_menu'){
@@ -46,11 +46,39 @@
 											Reset
 										</button>
 									</span>
-									<button class="btn blue" data-dismiss="modal">
+									<button class="btn" data-dismiss="modal">
 										<i class="fa fa-times"></i>
 										Close
 									</button>
+								</div> -->
+
+								<div class="modal-footer d-flex justify-content-between flex-wrap no-margin-top" id="mdlFooter">
+								    <span class="act-container-btn d-flex flex-wrap gap-2">
+								        <?php if ($this->module_name == 'request_recruitment_menu'): ?>
+								            <a class="btn btn-warning" id="btnDraft" onclick="save('draft')">Save as Draft</a> 
+								            <button class="btn btn-info" id="submit-data" onclick="save('waiting_approval')">
+								                <i class="fa fa-check"></i> Submit
+								            </button>
+								        <?php else: ?>
+								            <button class="btn btn-info" id="submit-data" onclick="save()">
+								                <i class="fa fa-check"></i> Save
+								            </button>
+								        <?php endif; ?>
+								    </span>
+
+								    <!-- Container untuk tombol tetap di kanan -->
+								    <span class="d-flex gap-2 ms-auto">
+								        <button class="btn" onclick="reset()" id="btnReset">
+								            <i class="fa fa-undo"></i> Reset
+								        </button>
+								        <button class="btn" data-dismiss="modal">
+								            <i class="fa fa-times"></i> Close
+								        </button>
+								    </span>
 								</div>
+
+
+
 							</div>
 						</div>
 						</div>

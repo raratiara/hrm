@@ -1,3 +1,89 @@
+
+<!-- Modal Reject Data -->
+<div id="modal-approve-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-approve-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px; margin-left:0px">
+			<form class="form-horizontal" id="frmApproveData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Approval 
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Are you sure to approve this Data?</p>
+				<input type="hidden" name="id" id="id" value="">
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-approve-data" onclick="save_approve()">
+					<i class="fa fa-check"></i>
+					Ok
+				</button>
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Cancel
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+
+<!-- Modal Reject Data -->
+<div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true" style="padding-left: 600px">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px; margin-left:0px">
+			<form class="form-horizontal" id="frmRejectData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Reject 
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Are you sure to reject this Data?</p>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Reason</label>
+					<div class="col-md-8">
+						<?=$txtrejectreason;?>
+						<input type="hidden" name="id" id="id" value="">
+					</div>
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-reject-data" onclick="save_reject()">
+					<i class="fa fa-check"></i>
+					Ok
+				</button>
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Cancel
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -21,22 +107,19 @@ $(document).ready(function() {
        	$('input[name="request_date"]').datepicker();
        	$('input[name="required_date"]').datepicker();
 
+				const acc2 = document.querySelector('#accordion_requirement');
+				const panel2 = document.querySelector('#tabrequirement');
+		  	acc2.addEventListener('click', function() {
+			    acc2.classList.toggle('active');
+			    panel2.classList.toggle('show');
+		  	});
 
-		const acc2 = document.querySelector('#accordion_requirement');
-		const panel2 = document.querySelector('#tabrequirement');
-	  	acc2.addEventListener('click', function() {
-		    acc2.classList.toggle('active');
-		    panel2.classList.toggle('show');
-	  	});
-
-
-	  	const acc3 = document.querySelector('#accordion_job');
-		const panel3 = document.querySelector('#tabjob');
-	  	acc3.addEventListener('click', function() {
-		    acc3.classList.toggle('active');
-		    panel3.classList.toggle('show');
-	  	});
-
+	  		const acc3 = document.querySelector('#accordion_job');
+				const panel3 = document.querySelector('#tabjob');
+		  	acc3.addEventListener('click', function() {
+			    acc3.classList.toggle('active');
+			    panel3.classList.toggle('show');
+		  	});
 
 		
    	});
@@ -134,135 +217,206 @@ jQuery(function($) {
 function load_data()
 {
     $.ajax({
-		type: "POST",
-        url : module_path+'/get_detail_data',
-		data: { id: idx },
-		cache: false,		
+				type: "POST",
+		    url : module_path+'/get_detail_data',
+				data: { id: idx },
+				cache: false,		
         dataType: "JSON",
         success: function(data)
         {
-			if(data != false){
-				if(save_method == 'update'){ 
-					$('[name="id"]').val(data.id);
-					$('[name="req_number"]').val(data.request_number);
-					$('[name="subject"]').val(data.subject);
-					var request_date = dateFormat(data.request_date);
-					$('[name="request_date"]').datepicker('setDate', request_date);
-					var required_date = dateFormat(data.required_date);
-					$('[name="required_date"]').datepicker('setDate', required_date);
-					$('[name="headcount"]').val(data.headcount);
-					$('[name="justification"]').val(data.justification);
-					var status_emp = ucwords(data.status_emp);
-					$('select#empstatus').val(status_emp).trigger('change.select2');
-					$('select#section').val(data.section_id).trigger('change.select2');
-					$('select#joblevel').val(data.job_level_id).trigger('change.select2');
-					$('select#request_by').val(data.requested_by).trigger('change.select2');
+					if(data != false){ 
+						if(save_method == 'update'){
+
+							if(data.rowdata.status == 'draft'){
+								document.getElementById("submit-data").style.display = "";
+							} else{
+								document.getElementById("submit-data").style.display = "none";
+							}
+
+							if(data.rowdata.status == 'waiting_approval' && data.isdirect == 1){
+
+								//var modalFooter =  document.getElementById('mdlFooter');
+
+								// Cek apakah tombol Reject sudah ada
+    						// var existingReject = modalFooter.querySelector('.btnReject');
+  						 	// if (!existingReject) {
+  						 	// 	// Create a new button
+								// 	var rejectButton = document.createElement('button');
+								// 	rejectButton.innerText = 'Reject';
+								// 	rejectButton.id = 'btn-reject'; 
+								// 	rejectButton.className = 'btn btn-danger btnReject';
+								// 	rejectButton.style.marginLeft = '8px';
+
+								// 	// Append the button to the footer
+								// 	modalFooter.appendChild(rejectButton);
+
+								// 	rejectButton.addEventListener('click', function() {
+								// 		$('#modal-reject-data').modal('show');
+								// 		$('[name="id"]').val(data.rowdata.id);
+								// 	});
+  						 	// }
+
+  						 	var container = document.querySelector('.act-container-btn');
+
+								if (!document.getElementById('btn-reject')) { 
+										//button Approve
+										var ApproveButton = document.createElement('button');
+								    ApproveButton.id = 'btn-approve';
+								    ApproveButton.className = 'btn btn-success btnApprove';
+								    ApproveButton.innerHTML = 'Approve';
+								    ApproveButton.style.marginLeft = '8px';
+
+								    // Tambahkan ke sisi kiri bersama tombol-tombol utama
+								    container.appendChild(ApproveButton);
+
+								    ApproveButton.addEventListener('click', function () {
+								        $('#modal-approve-data').modal('show');
+								        $('[name="id"]').val(data.rowdata.id);
+								    });
 
 
-					$.ajax({type: 'post',url: module_path+'/genreqrow',data: { id:data.id },success: function (response) {
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
+										//button Reject									
+								    var rejectButton = document.createElement('button');
+								    rejectButton.id = 'btn-reject';
+								    rejectButton.className = 'btn btn-danger btnReject';
+								    rejectButton.innerHTML = 'Reject';
+								    rejectButton.style.marginLeft = '8px';
+
+								    // Tambahkan ke sisi kiri bersama tombol-tombol utama
+								    container.appendChild(rejectButton);
+
+								    rejectButton.addEventListener('click', function () {
+								        $('#modal-reject-data').modal('show');
+								        $('[name="id"]').val(data.rowdata.id);
+								    });
+								}else{
+									document.getElementById("btn-reject").style.display = "";
+								}
+
+								
+							}
+
+
+							$('[name="id"]').val(data.rowdata.id);
+							$('[name="req_number"]').val(data.rowdata.request_number);
+							$('[name="subject"]').val(data.rowdata.subject);
+							var request_date = dateFormat(data.rowdata.request_date);
+							$('[name="request_date"]').datepicker('setDate', request_date);
+							var required_date = dateFormat(data.rowdata.required_date);
+							$('[name="required_date"]').datepicker('setDate', required_date);
+							$('[name="headcount"]').val(data.rowdata.headcount);
+							$('[name="justification"]').val(data.rowdata.justification);
+							var status_emp = ucwords(data.rowdata.status_emp);
+							$('select#empstatus').val(status_emp).trigger('change.select2');
+							$('select#section').val(data.rowdata.section_id).trigger('change.select2');
+							$('select#joblevel').val(data.rowdata.job_level_id).trigger('change.select2');
+							$('select#request_by').val(data.rowdata.requested_by).trigger('change.select2');
+
+
+							$.ajax({type: 'post',url: module_path+'/genreqrow',data: { id:data.rowdata.id },success: function (response) {
+									var obj = JSON.parse(response);
+									$(locate+' tbody').html(obj[0]);
+									
+									wcount=obj[1];
+								}
+							}).done(function() {
+								
+								tSawBclear(locate);
+								
+							});
+
+							$.ajax({type: 'post',url: module_path+'/genjobrow',data: { id:data.rowdata.id },success: function (response) {
+									var obj = JSON.parse(response);
+									$(locate2+' tbody').html(obj[0]);
+									
+									wcount2=obj[1];
+								}
+							}).done(function() {
+								
+								tSawBclear(locate2);
+								
+							});
+						
+						
+							if(data.rowdata.status == 'draft'){
+								document.getElementById("btnDraft").style.display = "";
+							}else{
+								document.getElementById("btnDraft").style.display = "none";
+							}
+						
+						
+							$.uniform.update();
+							$('#mfdata').text('Update');
+							$('#modal-form-data').modal('show');
 						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
+						if(save_method == 'detail'){ 
+							$('span.request_number').html(data.rowdata.request_number);
+							$('span.subject').html(data.rowdata.subject);
+							$('span.request_date').html(data.rowdata.request_date);
+							$('span.required_date').html(data.rowdata.required_date);
+							$('span.section').html(data.rowdata.section_name);
+							$('span.headcount').html(data.rowdata.headcount);
+							$('span.job_level').html(data.rowdata.job_level_name);
+							var status_emp = ucwords(data.rowdata.status_emp);
+							$('span.emp_status').html(status_emp);
+							$('span.justification').html(data.rowdata.justification);
+							$('span.request_by').html(data.rowdata.requested_by_name);
 
-					$.ajax({type: 'post',url: module_path+'/genjobrow',data: { id:data.id },success: function (response) {
-							var obj = JSON.parse(response);
-							$(locate2+' tbody').html(obj[0]);
+
+							$.ajax({type: 'post',url: module_path+'/genreqrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
+									var obj = JSON.parse(response);
+									$(locate+' tbody').html(obj[0]);
+									
+									wcount=obj[1];
+								}
+							}).done(function() {
+								//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+								tSawBclear(locate);
+								///expenseviewadjust(lstatus);
+							});
+
+
+							$.ajax({type: 'post',url: module_path+'/genjobrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
+									var obj = JSON.parse(response);
+									$(locate2+' tbody').html(obj[0]);
+									
+									wcount2=obj[1];
+								}
+							}).done(function() {
+								//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+								tSawBclear(locate2);
+								///expenseviewadjust(lstatus);
+							});
 							
-							wcount2=obj[1];
+							
+							$('#modal-view-data').modal('show');
 						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate2);
-						///expenseviewadjust(lstatus);
-					});
-					
-					
-					if(data.status == 'draft'){
-						document.getElementById("btnDraft").style.display = "";
-					}else{
-						document.getElementById("btnDraft").style.display = "none";
+					} else {
+						title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+						btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+						msg = '<p>Gagal peroleh data.</p>';
+						var dialog = bootbox.dialog({
+							message: title+'<center>'+msg+btn+'</center>'
+						});
+						if(response.status){
+							setTimeout(function(){
+								dialog.modal('hide');
+							}, 1500);
+						}
 					}
-					
-					
-					$.uniform.update();
-					$('#mfdata').text('Update');
-					$('#modal-form-data').modal('show');
-				}
-				if(save_method == 'detail'){ 
-					$('span.request_number').html(data.request_number);
-					$('span.subject').html(data.subject);
-					$('span.request_date').html(data.request_date);
-					$('span.required_date').html(data.required_date);
-					$('span.section').html(data.section_name);
-					$('span.headcount').html(data.headcount);
-					$('span.job_level').html(data.job_level_name);
-					var status_emp = ucwords(data.status_emp);
-					$('span.emp_status').html(status_emp);
-					$('span.justification').html(data.justification);
-					$('span.request_by').html(data.requested_by_name);
-
-
-					$.ajax({type: 'post',url: module_path+'/genreqrow',data: { id:data.id, view:true },success: function (response) { 
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
-
-
-					$.ajax({type: 'post',url: module_path+'/genjobrow',data: { id:data.id, view:true },success: function (response) { 
-							var obj = JSON.parse(response);
-							$(locate2+' tbody').html(obj[0]);
-							
-							wcount2=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate2);
-						///expenseviewadjust(lstatus);
-					});
-					
-					
-					$('#modal-view-data').modal('show');
-				}
-			} else {
-				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
-				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
-				msg = '<p>Gagal peroleh data.</p>';
-				var dialog = bootbox.dialog({
-					message: title+'<center>'+msg+btn+'</center>'
-				});
-				if(response.status){
-					setTimeout(function(){
-						dialog.modal('hide');
-					}, 1500);
-				}
-			}
-        },
+      	},
         error: function (jqXHR, textStatus, errorThrown)
         {
-			var dialog = bootbox.dialog({
-				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-				message: jqXHR.responseText,
-				buttons: {
-					confirm: {
-						label: 'Ok',
-						className: 'btn blue'
-					}
-				}
-			});
+					var dialog = bootbox.dialog({
+						title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+						message: jqXHR.responseText,
+						buttons: {
+							confirm: {
+								label: 'Ok',
+								className: 'btn blue'
+							}
+						}
+					});
         }
     });
 }
@@ -353,6 +507,97 @@ function delJob(idx,hdnid){
 	var table = document.getElementById("tblDetailJob");
 	table.deleteRow(idx);
 	
+}
+
+
+
+function save_reject(){
+	var id 			= $("#id").val();
+	var reason 	= $("#reject_reason").val();
+
+	$('#modal-reject-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
+			type: "POST",
+      url : module_path+'/reject',
+			data: { id: id, reason:reason },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+						if(data != false){ 	
+							alert("The data has been successfully reject.");
+						} else { 
+							alert("Failed to reject the data!");
+						}
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+						var dialog = bootbox.dialog({
+							title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+							message: jqXHR.responseText,
+							buttons: {
+								confirm: {
+									label: 'Ok',
+									className: 'btn blue'
+								}
+							}
+						});
+	        }
+    });
+	}else{
+		alert("Data not found!");
+	}
+
+	location.reload();
+
+
+}
+
+
+
+function save_approve(){
+	var id 			= $("#id").val();
+	
+	$('#modal-approve-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
+			type: "POST",
+      url : module_path+'/approve',
+			data: { id: id },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+						if(data != false){ 	
+							alert("The data has been successfully approve.");
+						} else { 
+							alert("Failed to approve the data!");
+						}
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+						var dialog = bootbox.dialog({
+							title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+							message: jqXHR.responseText,
+							buttons: {
+								confirm: {
+									label: 'Ok',
+									className: 'btn blue'
+								}
+							}
+						});
+	        }
+    });
+	}else{
+		alert("Data not found!");
+	}
+
+	location.reload();
+
+
 }
 
 

@@ -40,7 +40,7 @@ class Request_recruitment_menu_model extends MY_Model
 		
 
 		$sTable = '(select a.*, b.name as section_name, c.name as job_level_name, 
-					e.full_name as requested_by_name,
+					e.full_name as requested_by_name, e.direct_id,
 					(case when a.status = "waiting_approval" then "Waiting Approval" else a.status end) as status_name 
 					from request_recruitment a 
 					left join sections b on b.id = a.section_id
@@ -507,7 +507,7 @@ class Request_recruitment_menu_model extends MY_Model
 
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.name as section_name, c.name as job_level_name, 
-					e.full_name as requested_by_name,
+					e.full_name as requested_by_name, e.direct_id,
 					(case when a.status = "waiting_approval" then "Waiting Approval" else a.status end) as status_name 
 					from request_recruitment a 
 					left join sections b on b.id = a.section_id
@@ -517,9 +517,21 @@ class Request_recruitment_menu_model extends MY_Model
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
+		$isdirect = 0;
+		if($rs->direct_id == $karyawan_id){
+			$isdirect = 1;
+		}
 		
+		$data = array(
+			'rowdata' 	=> $rs,
+			'isdirect' 	=> $isdirect
+		);
 		
-		return $rs;
+		return $data;
 	} 
 
 	public function import_data($list_data)
