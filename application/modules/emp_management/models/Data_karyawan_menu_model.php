@@ -1228,7 +1228,7 @@ class Data_karyawan_menu_model extends MY_Model
 						$runningnumber 	= $this->getNextNumber($code); // next count number
 						$genEmpCode 	= $lettercode.$YMdateofHired.$runningnumber;
 
-
+echo $genEmpCode; die();
 
 		            	$data = [
 		            		'emp_code' 			=> $genEmpCode,
