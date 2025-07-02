@@ -1300,7 +1300,7 @@ class Data_karyawan_menu_model extends MY_Model
 							$pwd = '112233';
 							$password = md5($pwd);
 
-							$name = $post['full_name'];
+							$name = $row[0];
 							$username = strtolower($name);
 
 							if ($username == trim($username) && strpos($username, ' ') !== false) {
