@@ -50,7 +50,7 @@ class Settlement_menu extends MY_Controller
 		$field['txtbank'] 				= $this->self_model->return_build_txt('','bank','bank');
 		$field['txtnamarekening'] 		= $this->self_model->return_build_txt('','nama_rekening','nama_rekening');
 
-		$msemp 						= $this->db->query("select * from employees")->result(); 
+		$msemp 						= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['txtrequestedby'] 	= $this->self_model->return_build_select2me($msemp,'','','','requested_by','requested_by','','','id','full_name',' ','','','',3,'-');
 
 		$msca 	= $this->db->query("select * from cash_advance where status_id in ('2','5') and id not in (select cash_advance_id from settlement)")->result(); 

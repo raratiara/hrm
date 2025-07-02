@@ -27,7 +27,7 @@ class Lembur_menu extends MY_Controller
 	{
 		$field = [];
 		
-		$msemp 					= $this->db->query("select * from employees")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 		
 		$field['txtdate']			= $this->self_model->return_build_txt('','date','date');

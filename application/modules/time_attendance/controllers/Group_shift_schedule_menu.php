@@ -116,7 +116,7 @@ class Group_shift_schedule_menu extends MY_Controller
 		/*$empid 	= $post['empid'];*/
 
 
-		$data =  $this->db->query("select id, full_name from employees where status_id = 1 order by full_name asc")->result();
+		$data =  $this->db->query("select id, full_name from employees where status_id = 1 and shift_type = 'Shift' order by full_name asc")->result();
 
 
 		echo json_encode($data);

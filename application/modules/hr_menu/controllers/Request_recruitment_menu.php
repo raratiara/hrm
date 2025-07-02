@@ -47,7 +47,7 @@ class Request_recruitment_menu extends MY_Controller
 		$msempstatus 			= $this->db->query("select * from master_emp_status where name in ('Contract','Freelance','Permanent') order by name asc")->result();
 		$field['selempstatus'] 	= $this->self_model->return_build_select2me($msempstatus,'','','','empstatus','empstatus','','','name','name',' ','','','',1,'-');
 
-		$msemp 				= $this->db->query("select * from employees order by full_name asc")->result(); 
+		$msemp 				= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['selrequestby'] 	= $this->self_model->return_build_select2me($msemp,'','','','request_by','request_by','','','id','full_name',' ','','','',3,'-');
 
 

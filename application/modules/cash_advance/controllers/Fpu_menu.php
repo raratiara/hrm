@@ -43,7 +43,7 @@ class Fpu_menu extends MY_Controller
 		$field['rfu_reason']	= $this->self_model->return_build_txtarea('','rfu_reason','rfu_reason');
 		$field['reject_reason']	= $this->self_model->return_build_txtarea('','reject_reason','reject_reason');
 
-		$msemp 					= $this->db->query("select * from employees")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['txtrequestedby'] 	= $this->self_model->return_build_select2me($msemp,'','','','requested_by','requested_by','','','id','full_name',' ','','','',3,'-');
 		
 
