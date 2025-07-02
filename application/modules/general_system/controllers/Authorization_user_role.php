@@ -1,36 +1,39 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/*error_reporting(E_ALL);
+ini_set('display_errors', 1);*/
+
 class Authorization_user_role extends CI_Controller
 {
 	/* Module */
- 	private $folder_name			= "general_system/authorization_user_role";
- 	private $module_name			= "general_system_authorization_user_role";
- 	private $table_name 			= _PREFIX_TABLE."user_group";
- 	private $primary_key 			= "id";
- 	private $model_name				= "authorization_user_role_model";
+ 	public $folder_name			= "general_system/authorization_user_role";
+ 	public $module_name			= "general_system_authorization_user_role";
+ 	public $table_name 			= _PREFIX_TABLE."user_group";
+ 	public $primary_key 			= "id";
+ 	public $model_name				= "authorization_user_role_model";
 	/* Navigation */
- 	private $parent_menu			= "general_system";
- 	private $subparent_menu			= "general_system_authorization";
- 	private $sub_menu 				= "general_system_authorization_user_role";
+ 	public $parent_menu			= "general_system";
+ 	public $subparent_menu			= "general_system_authorization";
+ 	public $sub_menu 				= "general_system_authorization_user_role";
 	/* Label */
- 	private $label_parent_modul		= "General System";
- 	private $label_subparent_modul	= "Authorization";
- 	private $label_modul			= "User Role";
- 	private $label_list_data		= "Daftar Data User Role";
- 	private $label_add_data			= "Tambah Data User Role";
- 	private $label_update_data		= "Edit Data User Role";
- 	private $label_sukses_disimpan 	= "Data berhasil disimpan";
- 	private $label_gagal_disimpan 	= "Data gagal disimpan";
- 	private $label_delete_data		= "Hapus Data User Role";
- 	private $label_sukses_dihapus 	= "Data berhasil dihapus";
- 	private $label_gagal_dihapus 	= "Data gagal dihapus";
- 	private $label_detail_data		= "Detail Data User Role";
- 	private $label_import_data		= "Import Data User Role";
- 	private $label_sukses_diimport 	= "Data berhasil diimport";
- 	private $label_gagal_diimport 	= "Import data di baris : ";
- 	private $label_export_data		= "Export";
- 	private $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
+ 	public $label_parent_modul		= "General System";
+ 	public $label_subparent_modul	= "Authorization";
+ 	public $label_modul			= "User Role";
+ 	public $label_list_data		= "Daftar Data User Role";
+ 	public $label_add_data			= "Tambah Data User Role";
+ 	public $label_update_data		= "Edit Data User Role";
+ 	public $label_sukses_disimpan 	= "Data berhasil disimpan";
+ 	public $label_gagal_disimpan 	= "Data gagal disimpan";
+ 	public $label_delete_data		= "Hapus Data User Role";
+ 	public $label_sukses_dihapus 	= "Data berhasil dihapus";
+ 	public $label_gagal_dihapus 	= "Data gagal dihapus";
+ 	public $label_detail_data		= "Detail Data User Role";
+ 	public $label_import_data		= "Import Data User Role";
+ 	public $label_sukses_diimport 	= "Data berhasil diimport";
+ 	public $label_gagal_diimport 	= "Import data di baris : ";
+ 	public $label_export_data		= "Export";
+ 	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
    	public function __construct()
 	{
