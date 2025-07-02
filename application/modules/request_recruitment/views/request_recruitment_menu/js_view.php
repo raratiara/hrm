@@ -92,7 +92,7 @@ var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
 //in LOCAL  var modloc = '/_hrm/performance_management/performance_appraisal_menu/';
-var modloc = '/hr_menu/request_recruitment_menu/';
+var modloc = '/request_recruitment/request_recruitment_menu/';
 var opsForm = 'form#frmInputData';
 var locate = 'table.requirement-list';
 var locate2 = 'table.job-list';

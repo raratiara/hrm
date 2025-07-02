@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Request_recruitment_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "hr_menu/request_recruitment_menu";
+ 	protected $folder_name				= "request_recruitment/request_recruitment_menu";
  	protected $table_name 				= _PREFIX_TABLE."request_recruitment";
  	protected $primary_key 				= "id";
 
