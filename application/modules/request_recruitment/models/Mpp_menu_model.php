@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Mpp_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "hr_menu/mpp_menu";
+ 	protected $folder_name				= "request_recruitment/mpp_menu";
  	protected $table_name 				= _PREFIX_TABLE."mpp";
  	protected $primary_key 				= "headcount_id";
 

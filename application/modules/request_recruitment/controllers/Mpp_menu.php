@@ -6,9 +6,9 @@ class Mpp_menu extends MY_Controller
 	/* Module */
  	const  LABELMODULE				= "mpp_menu"; // identify menu
  	const  LABELMASTER				= "Menu MPP";
- 	const  LABELFOLDER				= "hr_menu"; // module folder
+ 	const  LABELFOLDER				= "request_recruitment"; // module folder
  	const  LABELPATH				= "mpp_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "hr_menu"; // adjusted 1st sub parent segment
+ 	const  LABELNAVSEG1				= "request_recruitment"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
