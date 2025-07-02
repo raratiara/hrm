@@ -30,10 +30,10 @@ class Dashboard_menu extends MY_Controller
 		$field = [];
 
 
-		$msemp 				= $this->db->query("select * from employees")->result(); 
+		$msemp 				= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','fldashemp','fldashemp','','','id','full_name',' ','','','',3,'-');
 
-		$field['master_emp'] = $this->db->query("select * from employees order by full_name asc")->result(); 
+		$field['master_emp'] = $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		
 		return $field;
 	}
@@ -95,7 +95,7 @@ class Dashboard_menu extends MY_Controller
 		$employee 	= $post['employee'];
 
 		
-		$ttl_emp = $this->db->query("select count(id) as ttl from employees")->result(); 
+		$ttl_emp = $this->db->query("select count(id) as ttl from employees where status_id = 1")->result(); 
 		$ttl_projects = $this->db->query("select count(id) as ttl from tasklist ")->result(); 
 		$ttl_attendance = $this->db->query("select count(id) as ttl from time_attendances ")->result(); 
 		$ttl_reimbursement = $this->db->query("select sum(nominal_reimburse) as ttl from medicalreimbursements ")->result(); 
@@ -126,7 +126,7 @@ class Dashboard_menu extends MY_Controller
 		$employee 	= $post['employee'];
 
 
-		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees")->result(); 
+		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees where status_id = 1")->result(); 
 
 		$boomer=0; 		$gen_x=0; 		$gen_z=0;
 		$gen_mill=0; 	$gen_alpha=0; 	$unkgen=0;
@@ -181,6 +181,7 @@ class Dashboard_menu extends MY_Controller
 				FROM
 				    employees a
 				    left join departments b on b.id = a.department_id
+				where a.status_id = 1
 				GROUP BY
 				    a.department_id ")->result(); 
 
