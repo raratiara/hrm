@@ -197,7 +197,7 @@ class MY_Controller extends CI_Controller {
 		}
 	}
 
-	public function import(){ 
+	public function import(){ echo 'tesss'; die();
 		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_IMPORT == "1") {
 
 			if ($_FILES['userfile']['name']) { 
