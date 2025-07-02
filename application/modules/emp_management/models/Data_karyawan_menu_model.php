@@ -1190,7 +1190,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 
-	public function import_data($list_data){  echo "tes"; die();
+	public function import_data($list_data){  
 
 		if (isset($list_data[0][0]) && is_array($list_data[0][0])) {
 		    $list_data[0] = $list_data[0][0];
@@ -1228,7 +1228,7 @@ class Data_karyawan_menu_model extends MY_Model
 						$runningnumber 	= $this->getNextNumber($code); // next count number
 						$genEmpCode 	= $lettercode.$YMdateofHired.$runningnumber;
 
-echo $genEmpCode; die();
+
 
 		            	$data = [
 		            		'emp_code' 			=> $genEmpCode,
