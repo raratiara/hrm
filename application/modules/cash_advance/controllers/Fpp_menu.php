@@ -49,7 +49,7 @@ class Fpp_menu extends MY_Controller
 		$field['txtinvoicedate'] = $this->self_model->return_build_txt('','invoice_date','invoice_date');
 
 
-		$msemp 					= $this->db->query("select * from employees")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['txtrequestedby'] 	= $this->self_model->return_build_select2me($msemp,'','','','requested_by','requested_by','','','id','full_name',' ','','','',3,'-');
 
 		$field['txttype'] 		= $this->self_model->return_build_radio('', [['Personal','Personal'],['Company','Company']], 'fpp_type', '', 'inline');

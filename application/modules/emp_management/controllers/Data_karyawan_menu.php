@@ -17,12 +17,12 @@ class Data_karyawan_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title"];
+	public $tabel_header 			= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title", "Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title"];
-	public $colfields 				= ["id","id","id","id","id","id","id","id","id"];
+	public $colnames 				= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title", "Status"];
+	public $colfields 				= ["id","emp_code","full_name","nick_name","personal_email","gender_name","personal_phone","date_of_birth","job_title_name","status_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

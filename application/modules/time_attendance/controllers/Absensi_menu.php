@@ -29,7 +29,7 @@ class Absensi_menu extends MY_Controller
 
 		$field = [];
 		$field['txtdateattendance']		= $this->self_model->return_build_txt('','date_attendance','date_attendance');
-		$msemp 							= $this->db->query("select * from employees")->result(); 
+		$msemp 							= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['selemployee'] 			= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 		$field['txtimein'] 				= $this->self_model->return_build_txt('','time_in','time_in','','','readonly');
 		$field['txtattendancein'] 		= $this->self_model->return_build_txt('','attendance_in','attendance_in');

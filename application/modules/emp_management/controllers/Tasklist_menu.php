@@ -36,7 +36,7 @@ class Tasklist_menu extends MY_Controller
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
 		$mstask 				= $this->db->query("select * from tasklist")->result(); 
 		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
-		$msemp 					= $this->db->query("select * from employees")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
 

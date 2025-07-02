@@ -32,7 +32,7 @@ class Perjalanan_dinas_menu extends MY_Controller
 		$field['txtstartdate'] 		= $this->self_model->return_build_txt('','start_date','start_date');
 		$field['txtenddate'] 		= $this->self_model->return_build_txt('','end_date','end_date');
 		
-		$msemp 					= $this->db->query("select * from employees")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
 
