@@ -1204,7 +1204,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 
             //// UPDATE DATA 
-            if($row[58] != '' && $list_data[0][58] == 'Employee Code'){ 
+            if($row[58] != '' && $list_data[0][58] == 'Employee Code'){ echo "aa"; die();
             	$getID = = $this->db->query("select id, full_name, branch_id, personal_email from employees where emp_code = '".$row[58]."'")->result();
             	$employee_id = $getID[0]->id;
 
@@ -1299,7 +1299,7 @@ class Data_karyawan_menu_model extends MY_Model
             	} 
 
             }else{ //// INSERT DATA
-
+echo "bb"; die();
             	if($row[0] != ''){ //full name tidak kosong
 	            	$employee = $this->db->query("select * from employees where full_name = '".$row[0]."'")->result(); 
 

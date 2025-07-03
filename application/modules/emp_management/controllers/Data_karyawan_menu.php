@@ -2,6 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 class Data_karyawan_menu extends MY_Controller
 {
@@ -153,7 +155,7 @@ class Data_karyawan_menu extends MY_Controller
 	//========================== Considering Already Fixed =======================//
  	/* Construct */
 	public function __construct() {
-        parent::__construct();
+        parent::__construct(); echo 'fff'; die();
 		# akses level
 		$akses = $this->self_model->user_akses($this->module_name);
 		define('_USER_ACCESS_LEVEL_VIEW',$akses["view"]);
