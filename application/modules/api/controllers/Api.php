@@ -227,17 +227,13 @@ class Api extends API_Controller
     	$cek_url = $this->api->query_db($nama_db, $username_db, $password_db, $sql); 
     
     	if(!empty($cek_url)){ 
-    		/*$nama_db 			= $cek_url[0]->nama_db;
-    		$username_db 		= $cek_url[0]->username_db;
-    		$password_db 		= $cek_url[0]->password_db;*/
-    		$logo 				= $cek_url['logo'];
-    		$nama_perusahaan 	= $cek_url['name'];
     		$url_app 			= $cek_url['url_app'];
     		
-
     		$cek_login = $this->api->cek_login($username, $password);
     	
     		if(!empty($cek_login)){ 
+    			$logo 				= $cek_login->logo;
+    			$nama_perusahaan 	= $cek_login->name;
     			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
 
 				$version 	= $getversion[0]->version;
@@ -247,7 +243,7 @@ class Api extends API_Controller
 					"nama_perusahaan" => $nama_perusahaan,
 					"logo_perusahaan" => $urllogo,
 					"version" => $version,
-					"url_app" => "https://hrm.sandboxxplore.com"  //$url_app
+					"url_app" => $url_app
 				);
 	 
 				$response = [
@@ -263,7 +259,7 @@ class Api extends API_Controller
 				];
     		}
     		
-    	}else{
+    	}else{ 
     		$response = [
 				'status' 	=> 401,
 				'message' 	=> 'Failed',

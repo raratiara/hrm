@@ -45,8 +45,15 @@ class Api_model extends MY_Model
 
 
     public function cek_login($username, $password)
-    {
-        $sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
+    { 
+        /*$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";*/
+
+        $sql = "select a.*, b.emp_code, c.logo, c.name
+                from user a left join employees b on b.id = a.id_karyawan
+                left join companies c on c.id = b.company_id
+                where (a.username = '".$username."' or b.emp_code = '".$username."') AND a.passwd = '".md5($password)."'
+                AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1";
+
         $user = $this->db->query($sql)->row();
 
         if($user){
