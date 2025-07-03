@@ -32,6 +32,10 @@ class Ijin_menu_model extends MY_Model
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
 		
 
 		$sIndexColumn = $this->primary_key;
@@ -43,7 +47,7 @@ class Ijin_menu_model extends MY_Model
 						 end) as status, b.direct_id
 					from leave_absences a left join employees b on b.id = a.employee_id
 					left join master_leaves c on c.id = a.masterleave_id
-					where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'"
+					'.$whr.'
 				)dt';
 		
 

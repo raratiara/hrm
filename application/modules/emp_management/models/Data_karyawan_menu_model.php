@@ -37,12 +37,17 @@ class Data_karyawan_menu_model extends MY_Model
 			'dt.status_name'
 		];
 		
-		
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'" ';
+		}
 
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name
-			from employees a
-			LEFT JOIN master_job_title o ON o.id = a.job_title_id)dt';
+			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id
+			'.$whr.' )dt';
 		
 
 		/* Paging */
@@ -193,9 +198,48 @@ class Data_karyawan_menu_model extends MY_Model
 			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
+
+
+				array_push($output["aaData"],array(
+					$delete_bulk,
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+						'.$delete.'
+					</div>',
+					$row->id,
+					$row->emp_code,
+					$row->full_name,
+					$row->nick_name,
+					$row->personal_email,
+					$row->personal_phone,
+					$row->gender_name,
+					$row->date_of_birth,
+					$row->job_title_name,
+					$row->status_name
+
+				));
+			}else{
+				array_push($output["aaData"],array(
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+					</div>',
+					$row->id,
+					$row->emp_code,
+					$row->full_name,
+					$row->nick_name,
+					$row->personal_email,
+					$row->personal_phone,
+					$row->gender_name,
+					$row->date_of_birth,
+					$row->job_title_name,
+					$row->status_name
+
+				));
 			}
 
-			array_push($output["aaData"],array(
+			/*array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
 					'.$detail.'
@@ -213,7 +257,7 @@ class Data_karyawan_menu_model extends MY_Model
 				$row->job_title_name,
 				$row->status_name
 
-			));
+			));*/
 		}
 
 		echo json_encode($output);

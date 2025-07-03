@@ -31,6 +31,10 @@ class Tasklist_menu_model extends MY_Model
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
 
 
 		$sIndexColumn = $this->primary_key;
@@ -38,7 +42,7 @@ class Tasklist_menu_model extends MY_Model
 					from tasklist a left join employees b on b.id = a.employee_id
 					left join tasklist c on c.id = a.parent_id
 					left join master_tasklist_status d on d.id = a.status_id
-					where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'"
+					'.$whr.'
 				)dt';
 		
 

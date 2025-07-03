@@ -33,6 +33,10 @@ class Performance_appraisal_menu_model extends MY_Model
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
 		
 
 		$sIndexColumn = $this->primary_key;
@@ -45,7 +49,7 @@ class Performance_appraisal_menu_model extends MY_Model
 					else ""
 					 end) as status_name
 					from performance_appraisal a left join employees b on b.id = a.employee_id
-					where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'"
+					'.$whr.'
 				)dt';
 
 		
@@ -213,6 +217,7 @@ class Performance_appraisal_menu_model extends MY_Model
 				'<div class="action-buttons">
 					'.$detail.'
 					'.$edit.'
+					'.$delete.'
 				</div>',
 				$row->id,
 				$row->full_name,
