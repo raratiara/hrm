@@ -2,8 +2,6 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 class Data_karyawan_menu extends MY_Controller
 {
@@ -19,12 +17,12 @@ class Data_karyawan_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title", "Statuss"];
+	public $tabel_header 			= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title", "Status"];
-	public $colfields 				= ["id","emp_code","full_name","nick_name","personal_email","gender_name","personal_phone","date_of_birth","job_title_name","status_name"];
+	public $colnames 				= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title","Status"];
+	public $colfields 				= ["id","id","id","id","id","id","id","id","id","id"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -155,7 +153,7 @@ class Data_karyawan_menu extends MY_Controller
 	//========================== Considering Already Fixed =======================//
  	/* Construct */
 	public function __construct() {
-        parent::__construct(); 
+        parent::__construct();
 		# akses level
 		$akses = $this->self_model->user_akses($this->module_name);
 		define('_USER_ACCESS_LEVEL_VIEW',$akses["view"]);
