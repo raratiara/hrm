@@ -155,7 +155,7 @@ class Data_karyawan_menu extends MY_Controller
 	//========================== Considering Already Fixed =======================//
  	/* Construct */
 	public function __construct() {
-        parent::__construct(); echo 'fff'; die();
+        parent::__construct(); 
 		# akses level
 		$akses = $this->self_model->user_akses($this->module_name);
 		define('_USER_ACCESS_LEVEL_VIEW',$akses["view"]);
