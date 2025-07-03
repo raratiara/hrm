@@ -180,14 +180,14 @@ function load_data()
 					
 					$('[name="hdnempphoto"]').val(data.emp_photo);
 					if(data.emp_photo != '' && data.emp_photo != null){
-						$('span.file_emp_photo').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.emp_photo+'" width="150" height="150" >');
+						$('span.file_emp_photo').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.emp_photo+'" width="150" height="150" >');
 					}else{
 						$('span.file_emp_photo').html('');
 					}
 
 					$('[name="hdnempsign"]').val(data.emp_signature);
 					if(data.emp_signature != '' && data.emp_signature != null){
-						$('span.file_emp_sign').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.emp_signature+'" width="150" height="150" >');
+						$('span.file_emp_sign').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.emp_signature+'" width="150" height="150" >');
 					}else{
 						$('span.file_emp_sign').html('');
 					}
@@ -195,7 +195,7 @@ function load_data()
 					$('[name="hdnfotoktp"]').val(data.foto_ktp);
 					if(data.foto_ktp != '' && data.foto_ktp != null){
 						document.getElementById("form_file_ktp").style.display = "";
-						$('span.file_ktp').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_ktp+'" width="150" height="150" >');
+						$('span.file_ktp').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_ktp+'" width="150" height="150" >');
 					}else{
 						document.getElementById("form_file_ktp").style.display = "none";
 						$('span.file_ktp').html('');
@@ -204,7 +204,7 @@ function load_data()
 					$('[name="hdnfotonpwp"]').val(data.foto_npwp);
 					if(data.foto_npwp != '' && data.foto_npwp != null){
 						document.getElementById("form_file_npwp").style.display = "";
-						$('span.file_npwp').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_npwp+'" width="150" height="150" >');
+						$('span.file_npwp').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_npwp+'" width="150" height="150" >');
 					}else{
 						document.getElementById("form_file_npwp").style.display = "none";
 						$('span.file_npwp').html('');
@@ -213,7 +213,7 @@ function load_data()
 					$('[name="hdnfotobpjs"]').val(data.foto_bpjs);
 					if(data.foto_bpjs != '' && data.foto_bpjs != null){
 						document.getElementById("form_file_bpjs").style.display = "";
-						$('span.file_bpjs').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_bpjs+'" width="150" height="150" >');
+						$('span.file_bpjs').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs+'" width="150" height="150" >');
 					}else{
 						document.getElementById("form_file_bpjs").style.display = "none";
 						$('span.file_bpjs').html('');
@@ -222,7 +222,7 @@ function load_data()
 					$('[name="hdnfotosima"]').val(data.foto_sima);
 					if(data.foto_sima != '' && data.foto_sima != null){
 						document.getElementById("form_file_sima").style.display = "";
-						$('span.file_sima').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_sima+'" width="150" height="150" >');
+						$('span.file_sima').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_sima+'" width="150" height="150" >');
 					}else{
 						document.getElementById("form_file_sima").style.display = "none";
 						$('span.file_sima').html('');
@@ -231,7 +231,7 @@ function load_data()
 					$('[name="hdnfotosimc"]').val(data.foto_simc);
 					if(data.foto_simc != '' && data.foto_simc != null){
 						document.getElementById("form_file_simc").style.display = "";
-						$('span.file_simc').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_simc+'" width="150" height="150" >');
+						$('span.file_simc').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_simc+'" width="150" height="150" >');
 					}else{
 						document.getElementById("form_file_simc").style.display = "none";
 						$('span.file_simc').html('');
@@ -398,13 +398,13 @@ function load_data()
 
 
 					if(data.emp_photo != '' && data.emp_photo != null){
-						$('span.emp_photo').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.emp_photo+'" width="150" height="150" >');
+						$('span.emp_photo').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.emp_photo+'" width="150" height="150" >');
 					}else{
 						$('span.emp_photo').html('');
 					}
 
 					if(data.emp_signature != '' && data.emp_signature != null){
-						$('span.emp_signature').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.emp_signature+'" width="150" height="150" >');
+						$('span.emp_signature').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.emp_signature+'" width="150" height="150" >');
 					}else{
 						$('span.emp_signature').html('');
 					}
@@ -412,7 +412,7 @@ function load_data()
 					
 					if(data.foto_ktp != '' && data.foto_ktp != null){
 						document.getElementById("view_foto_ktp").style.display = "";
-						$('span.foto_ktp').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_ktp+'" width="150" height="150" >');
+						$('span.foto_ktp').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_ktp+'" width="150" height="150" >');
 					}else{
 						document.getElementById("view_foto_ktp").style.display = "none";
 						$('span.foto_ktp').html('');
@@ -421,7 +421,7 @@ function load_data()
 					
 					if(data.foto_npwp != '' && data.foto_npwp != null){
 						document.getElementById("view_foto_npwp").style.display = "";
-						$('span.foto_npwp').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_npwp+'" width="150" height="150" >');
+						$('span.foto_npwp').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_npwp+'" width="150" height="150" >');
 					}else{
 						document.getElementById("view_foto_npwp").style.display = "none";
 						$('span.foto_npwp').html('');
@@ -430,16 +430,16 @@ function load_data()
 					
 					if(data.foto_bpjs != '' && data.foto_bpjs != null){
 						document.getElementById("view_foto_bpjs").style.display = "";
-						$('span.foto_bpjs').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_bpjs+'" width="150" height="150" >');
+						$('span.foto_bpjs').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs+'" width="150" height="150" >');
 					}else{
 						document.getElementById("view_foto_bpjs").style.display = "none";
 						$('span.foto_bpjs').html('');
 					}
 
-					
+						
 					if(data.foto_sima != '' && data.foto_sima != null){
 						document.getElementById("view_foto_sima").style.display = "";
-						$('span.foto_sima').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_sima+'" width="150" height="150" >');
+						$('span.foto_sima').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_sima+'" width="150" height="150" >');
 					}else{
 						document.getElementById("view_foto_sima").style.display = "none";
 						$('span.foto_sima').html('');
@@ -448,7 +448,7 @@ function load_data()
 					
 					if(data.foto_simc != '' && data.foto_simc != null){
 						document.getElementById("view_foto_simc").style.display = "";
-						$('span.foto_simc').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.foto_simc+'" width="150" height="150" >');
+						$('span.foto_simc').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_simc+'" width="150" height="150" >');
 					}else{
 						document.getElementById("view_foto_simc").style.display = "none";
 						$('span.foto_simc').html('');

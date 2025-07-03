@@ -374,7 +374,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 
-			$upload_dir = './uploads/'.$genEmpCode.'/'; // nama folder
+			$upload_dir = './uploads/employee/'.$genEmpCode.'/'; // nama folder
 			// Cek apakah folder sudah ada
 			if (!is_dir($upload_dir)) {
 			    // Jika belum ada, buat folder
@@ -652,10 +652,15 @@ class Data_karyawan_menu_model extends MY_Model
 				$password = md5($pwd);
 
 				$name = $post['full_name'];
-				$username = strtolower($name);
+				$username = strtolower(trim($name));
 
-				if ($username == trim($username) && strpos($username, ' ') !== false) {
+				/*if ($username == trim($username) && strpos($username, ' ') !== false) {
 				    $username = str_replace(" ","_",$username);
+				}*/
+
+				$words = explode(' ', $username);
+				if (count($words) > 1) {
+					$username = str_replace(" ","_",$username);
 				}
 				
 
@@ -686,7 +691,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
-		$upload_dir = './uploads/'.$post['emp_code'].'/'; // nama folder
+		$upload_dir = './uploads/employee/'.$post['emp_code'].'/'; // nama folder
 		// Cek apakah folder sudah ada
 		if (!is_dir($upload_dir)) {
 		    // Jika belum ada, buat folder
@@ -1200,142 +1205,262 @@ class Data_karyawan_menu_model extends MY_Model
 		for ($i = 2; $i < count($list_data); $i++) {
             $row = $list_data[$i];
             $baris = $i+1;
-            if($row[0] != ''){ //full name tidak kosong
-            	$employee = $this->db->query("select * from employees where full_name = '".$row[0]."'")->result(); 
 
-            	if(empty($employee)){
-            		if($row[33] != ''){
-            			$dateofHired = $row[33];
-            			$YMdateofHired = date('ym', strtotime($dateofHired));
-            		}else{
-            			$yearcode = date("y");
-						$monthcode = date("m");
-						$YMdateofHired = $yearcode.$monthcode;
-            		}
-            		
+         	if($row[58] != '' && $list_data[0][58] == 'Employee Code')
+         	{
+         		$getID = $this->db->query("select id, full_name, branch_id, personal_email from employees where emp_code = '".$row[58]."'")->result();
+            	$employee_id = $getID[0]->id;
+
+         		if($employee_id != ''){
+            		$data = [
+		                'full_name' 		=> trim($row[0]),
+		                'nick_name' 		=> trim($row[1]),
+		                'personal_email'	=> trim($row[2]),
+		                'personal_phone' 	=> trim($row[3]),
+		                'gender' 			=> trim($row[4]),
+		                'ethnic' 			=> trim($row[5]),
+		                'nationality' 		=> trim($row[6]),
+		                'marital_status_id' => trim((int)$row[7]),
+		                'tanggungan' 		=> trim($row[8]),
+		                'no_ktp' 			=> trim($row[9]),
+		                'sim_a' 			=> trim($row[10]),
+		                'sim_c' 			=> trim($row[11]),
+		                'no_npwp' 			=> trim($row[12]),
+		                'no_bpjs' 			=> trim($row[13]),
+		                'place_of_birth' 	=> trim($row[14]),
+		                'date_of_birth'  	=> trim($row[15]),
+		                'address_ktp' 		=> trim($row[16]),
+		                'postal_code_ktp' 	=> trim($row[17]),
+		                'province_id_ktp' 	=> trim((int)$row[18]),
+		                'regency_id_ktp' 	=> trim((int)$row[19]),
+		                'district_id_ktp' 	=> trim((int)$row[20]),
+		                'village_id_ktp' 	=> trim((int)$row[21]),
+		                'address_residen' 	=> trim($row[22]),
+		                'postal_code_residen' 	=> trim($row[23]),
+		                'province_id_residen' 	=> trim((int)$row[24]),
+		                'regency_id_residen' 	=> trim((int)$row[25]),
+		                'district_id_residen' 	=> trim((int)$row[26]),
+		                'village_id_residen' 	=> trim((int)$row[27]),
+		                'job_level_id' 		=> trim((int)$row[28]),
+		                'job_title_id' 		=> trim((int)$row[29]),
+		                'division_id' 		=> trim((int)$row[30]),
+		                'department_id' 	=> trim((int)$row[31]), 
+		                'section_id' 		=> trim((int)$row[32]),
+		                'date_of_hire' 		=> trim($row[33]),
+		                'date_end_probation' 	=> trim($row[34]),
+		                'date_permanent' 		=> trim($row[35]),
+		                'employment_status_id' 	=> trim((int)$row[36]),
+		                'branch_id' 		=> trim((int)$row[37]),
+		                'grade_id' 			=> trim((int)$row[38]),
+		                'status_id' 		=> trim((int)$row[39]),
+		                'shift_type' 		=> trim($row[40]),
+		                'work_location' 	=> trim($row[41]),
+		                'direct_id' 		=> trim((int)$row[42]),
+		                'indirect_id' 		=> trim((int)$row[43]),
+		                'emergency_contact_name' 		=> trim($row[44]),
+		                'emergency_contact_phone' 		=> trim($row[45]),
+		                'emergency_contact_email' 		=> trim($row[46]),
+		                'emergency_contact_relation' 	=> trim($row[47]),
+		                'bank_name' 	=> trim($row[48]),
+		                'bank_address' 	=> trim($row[49]),
+		                'bank_acc_name' => trim($row[50]),
+		                'bank_acc_no' 	=> trim($row[51]),
+		                'date_resign_letter' 	=> trim($row[52]),
+		                'date_resign_active' 	=> trim($row[53]),
+		                'resign_category' 		=> trim($row[54]),
+		                'resign_reason' 		=> trim($row[55]),
+		                'resign_exit_interview_feedback' => trim($row[56]),
+		                'company_id' 	=> trim($row[57])
+		            ];
+
+		            $rs = $this->db->update($this->table_name, $data, [$this->primary_key => $employee_id]);
 
 
-            		if($row[57] != ''){ //company harus diisi, karna pengaruh dlm pembentukan emp code
-            			if($row[57] == '2'){ //NBID
-							$lettercode 	= ('NBI'); 
-						}else if ($row[57] == '1'){
-							$lettercode 	= ('GDI'); 
-						}else{ //selain 1 atau 2, value tidak diketahui
-							$lettercode 	= ('NNN'); 
+		            if($row[0] != $getID[0]->full_name || $row[2] != $getID[0]->personal_email || $row[37] != $getID[0]->branch_id){
+		            	//update tbl user
+		            	$name = $row[0];
+						$username = strtolower(trim($name));
+
+						/*if ($username == trim($username) && strpos($username, ' ') !== false) {
+						    $username = str_replace(" ","_",$username);
+						}*/
+
+						$words = explode(' ', $username);
+						if (count($words) > 1) {
+							$username = str_replace(" ","_",$username);
 						}
-						
-						$code = $lettercode.$YMdateofHired; 
-						$runningnumber 	= $this->getNextNumber($code); // next count number
-						$genEmpCode 	= $lettercode.$YMdateofHired.$runningnumber;
 
 
+		            	$data2 = [
+							'name' 			=> trim($name),
+							'email' 		=> trim($row[2]),
+							'username'		=> trim($username),
+							'id_branch'		=> trim($row[37])
+						];
+						$this->db->update("user", $data2, "id_karyawan = '".$employee_id."'");
+	            		//end update tbl user
+		            }
 
-		            	$data = [
-		            		'emp_code' 			=> $genEmpCode,
-			                'full_name' 		=> $row[0],
-			                'nick_name' 		=> $row[1],
-			                'personal_email'	=> $row[2],
-			                'personal_phone' 	=> $row[3],
-			                'gender' 			=> $row[4],
-			                'ethnic' 			=> $row[5],
-			                'nationality' 		=> $row[6],
-			                'marital_status_id' => (int)$row[7],
-			                'tanggungan' 		=> $row[8],
-			                'no_ktp' 			=> $row[9],
-			                'sim_a' 			=> $row[10],
-			                'sim_c' 			=> $row[11],
-			                'no_npwp' 			=> $row[12],
-			                'no_bpjs' 			=> $row[13],
-			                'place_of_birth' 	=> $row[14],
-			                'date_of_birth'  	=> $row[15],
-			                'address_ktp' 		=> $row[16],
-			                'postal_code_ktp' 	=> $row[17],
-			                'province_id_ktp' 	=> (int)$row[18],
-			                'regency_id_ktp' 	=> (int)$row[19],
-			                'district_id_ktp' 	=> (int)$row[20],
-			                'village_id_ktp' 	=> (int)$row[21],
-			                'address_residen' 	=> $row[22],
-			                'postal_code_residen' 	=> $row[23],
-			                'province_id_residen' 	=> (int)$row[24],
-			                'regency_id_residen' 	=> (int)$row[25],
-			                'district_id_residen' 	=> (int)$row[26],
-			                'village_id_residen' 	=> (int)$row[27],
-			                'job_level_id' 		=> (int)$row[28],
-			                'job_title_id' 		=> (int)$row[29],
-			                'division_id' 		=> (int)$row[30],
-			                'department_id' 	=> (int)$row[31], 
-			                'section_id' 		=> (int)$row[32],
-			                'date_of_hire' 		=> $row[33],
-			                'date_end_probation' 	=> $row[34],
-			                'date_permanent' 		=> $row[35],
-			                'employment_status_id' 	=> (int)$row[36],
-			                'branch_id' 		=> (int)$row[37],
-			                'grade_id' 			=> (int)$row[38],
-			                'status_id' 		=> (int)$row[39],
-			                'shift_type' 		=> $row[40],
-			                'work_location' 	=> $row[41],
-			                'direct_id' 		=> (int)$row[42],
-			                'indirect_id' 		=> (int)$row[43],
-			                'emergency_contact_name' 		=> $row[44],
-			                'emergency_contact_phone' 		=> $row[45],
-			                'emergency_contact_email' 		=> $row[46],
-			                'emergency_contact_relation' 	=> $row[47],
-			                'bank_name' 	=> $row[48],
-			                'bank_address' 	=> $row[49],
-			                'bank_acc_name' => $row[50],
-			                'bank_acc_no' 	=> $row[51],
-			                'date_resign_letter' 	=> $row[52],
-			                'date_resign_active' 	=> $row[53],
-			                'resign_category' 		=> $row[54],
-			                'resign_reason' 		=> $row[55],
-			                'resign_exit_interview_feedback' => $row[56],
-			                'company_id' 	=> $row[57]
-			            ];
-
-			            $rs = $this->db->insert($this->table_name, $data);
-			            $lastId = $this->db->insert_id();
-
-			            if($rs){
-			            	// add ke table user //
-							$pwd = '112233';
-							$password = md5($pwd);
-
-							$name = $row[0];
-							$username = strtolower($name);
-
-							if ($username == trim($username) && strpos($username, ' ') !== false) {
-							    $username = str_replace(" ","_",$username);
-							}
-							
-
-							$data2 = [
-								'name' 			=> $row[0],
-								'email' 		=> $row[2],
-								'username'		=> $username,
-								'passwd' 		=> $password,
-								'id_karyawan'	=> $lastId,
-								'id_groups' 	=> 3, //user
-								'base_menu'		=> 'role',
-								'id_branch'		=> $row[37],
-								'isaktif' 		=> 2,
-								'date_insert' 	=> date("Y-m-d H:i:s")
-							];
-							$this->db->insert('user', $data2);
-							// end add ke table user //
-			            }
-			            
-			           
-						if (!$rs) $error .=",baris ". $baris;
-            		}else{
-            			$error .=",baris ". $baris;
-            		}
+		            if (!$rs) $error .=",baris ". $baris;
+		           	
             	}else{
             		$error .=",baris ". $baris;
-            	}
-            }else{ 
-            	$error .=",baris ". $baris;
-            }
-            
+            	} 
+
+         	}else{ 
+         		if($row[0] != ''){ //full name tidak kosong
+	            	$employee = $this->db->query("select * from employees where full_name = '".$row[0]."'")->result(); 
+
+	            	if(empty($employee)){
+	            		if($row[33] != ''){
+	            			$dateofHired = $row[33];
+	            			$YMdateofHired = date('ym', strtotime($dateofHired));
+	            		}else{
+	            			$yearcode = date("y");
+							$monthcode = date("m");
+							$YMdateofHired = $yearcode.$monthcode;
+	            		}
+	            		
+
+
+	            		if($row[57] != ''){ //company harus diisi, karna pengaruh dlm pembentukan emp code
+	            			if($row[57] == '2'){ //NBID
+								$lettercode 	= ('NBI'); 
+							}else if ($row[57] == '1'){
+								$lettercode 	= ('GDI'); 
+							}else{ //selain 1 atau 2, value tidak diketahui
+								$lettercode 	= ('NNN'); 
+							}
+							
+							$code = $lettercode.$YMdateofHired; 
+							$runningnumber 	= $this->getNextNumber($code); // next count number
+							$genEmpCode 	= $lettercode.$YMdateofHired.$runningnumber;
+
+
+
+			            	$data = [
+			            		'emp_code' 			=> $genEmpCode,
+				                'full_name' 		=> trim($row[0]),
+				                'nick_name' 		=> trim($row[1]),
+				                'personal_email'	=> trim($row[2]),
+				                'personal_phone' 	=> trim($row[3]),
+				                'gender' 			=> trim($row[4]),
+				                'ethnic' 			=> trim($row[5]),
+				                'nationality' 		=> trim($row[6]),
+				                'marital_status_id' => trim((int)$row[7]),
+				                'tanggungan' 		=> trim($row[8]),
+				                'no_ktp' 			=> trim($row[9]),
+				                'sim_a' 			=> trim($row[10]),
+				                'sim_c' 			=> trim($row[11]),
+				                'no_npwp' 			=> trim($row[12]),
+				                'no_bpjs' 			=> trim($row[13]),
+				                'place_of_birth' 	=> trim($row[14]),
+				                'date_of_birth'  	=> trim($row[15]),
+				                'address_ktp' 		=> trim($row[16]),
+				                'postal_code_ktp' 	=> trim($row[17]),
+				                'province_id_ktp' 	=> trim((int)$row[18]),
+				                'regency_id_ktp' 	=> trim((int)$row[19]),
+				                'district_id_ktp' 	=> trim((int)$row[20]),
+				                'village_id_ktp' 	=> trim((int)$row[21]),
+				                'address_residen' 	=> trim($row[22]),
+				                'postal_code_residen' 	=> trim($row[23]),
+				                'province_id_residen' 	=> trim((int)$row[24]),
+				                'regency_id_residen' 	=> trim((int)$row[25]),
+				                'district_id_residen' 	=> trim((int)$row[26]),
+				                'village_id_residen' 	=> trim((int)$row[27]),
+				                'job_level_id' 		=> trim((int)$row[28]),
+				                'job_title_id' 		=> trim((int)$row[29]),
+				                'division_id' 		=> trim((int)$row[30]),
+				                'department_id' 	=> trim((int)$row[31]), 
+				                'section_id' 		=> trim((int)$row[32]),
+				                'date_of_hire' 		=> trim($row[33]),
+				                'date_end_probation' 	=> trim($row[34]),
+				                'date_permanent' 		=> trim($row[35]),
+				                'employment_status_id' 	=> trim((int)$row[36]),
+				                'branch_id' 		=> trim((int)$row[37]),
+				                'grade_id' 			=> trim((int)$row[38]),
+				                'status_id' 		=> trim((int)$row[39]),
+				                'shift_type' 		=> trim($row[40]),
+				                'work_location' 	=> trim($row[41]),
+				                'direct_id' 		=> trim((int)$row[42]),
+				                'indirect_id' 		=> trim((int)$row[43]),
+				                'emergency_contact_name' 		=> trim($row[44]),
+				                'emergency_contact_phone' 		=> trim($row[45]),
+				                'emergency_contact_email' 		=> trim($row[46]),
+				                'emergency_contact_relation' 	=> trim($row[47]),
+				                'bank_name' 	=> trim($row[48]),
+				                'bank_address' 	=> trim($row[49]),
+				                'bank_acc_name' => trim($row[50]),
+				                'bank_acc_no' 	=> trim($row[51]),
+				                'date_resign_letter' 	=> trim($row[52]),
+				                'date_resign_active' 	=> trim($row[53]),
+				                'resign_category' 		=> trim($row[54]),
+				                'resign_reason' 		=> trim($row[55]),
+				                'resign_exit_interview_feedback' => trim($row[56]),
+				                'company_id' 	=> trim($row[57])
+				            ];
+
+				            $rs = $this->db->insert($this->table_name, $data);
+				            $lastId = $this->db->insert_id();
+
+				            if($rs){
+				            	// add ke table user //
+								$pwd = '112233';
+								$password = md5($pwd);
+
+								$name = $row[0];
+								$username = strtolower(trim($name));
+
+								/*if ($username == trim($username) && strpos($username, ' ') !== false) {
+								    $username = str_replace(" ","_",$username);
+								}*/
+
+								$words = explode(' ', $username);
+								if (count($words) > 1) {
+									$username = str_replace(" ","_",$username);
+								}
+								
+
+								$data2 = [
+									'name' 			=> trim($row[0]),
+									'email' 		=> trim($row[2]),
+									'username'		=> trim($username),
+									'passwd' 		=> trim($password),
+									'id_karyawan'	=> $lastId,
+									'id_groups' 	=> 3, //user
+									'base_menu'		=> 'role',
+									'id_branch'		=> trim($row[37]),
+									'isaktif' 		=> 2,
+									'date_insert' 	=> date("Y-m-d H:i:s")
+								];
+								$this->db->insert('user', $data2);
+								// end add ke table user //
+
+
+								//START add folder upload 
+								$upload_dir = './uploads/employee/'.$genEmpCode.'/'; // nama folder
+								// Cek apakah folder sudah ada
+								if (!is_dir($upload_dir)) {
+								    // Jika belum ada, buat folder
+								    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+								}
+								//END add folder upload 
+
+				            }
+				            
+				           
+							if (!$rs) $error .=",baris ". $baris;
+	            		}else{
+	            			$error .=",baris ". $baris;
+	            		}
+	            	}else{
+	            		$error .=",baris ". $baris;
+	            	}
+	            }else{ 
+	            	$error .=",baris ". $baris;
+	            }
+         	}
+
         }
 
 
@@ -1427,7 +1552,7 @@ class Data_karyawan_menu_model extends MY_Model
 				if(!$view){ 
 					$viewdoc = '';
 					if($f->file_ijazah != ''){
-						$viewdoc = '<a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_ijazah.'" target="_blank">View</a>';
+						$viewdoc = '<a href="'.base_url().'uploads/employee/'.$f->emp_code.'/'.$f->file_ijazah.'" target="_blank">View</a>';
 					}
 
 					$dt .= '<tr>';
@@ -1462,7 +1587,7 @@ class Data_karyawan_menu_model extends MY_Model
 					$dt .= '<td>'.$f->institution.'</td>';
 					$dt .= '<td>'.$f->city.'</td>';
 					$dt .= '<td>'.$f->year.'</td>';
-					$dt .= '<td><a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_ijazah.'" target="_blank">View</a></td>';
+					$dt .= '<td><a href="'.base_url().'uploads/employee/'.$f->emp_code.'/'.$f->file_ijazah.'" target="_blank">View</a></td>';
 					$dt .= '</tr>';
 
 					
@@ -1522,7 +1647,7 @@ class Data_karyawan_menu_model extends MY_Model
 				if(!$view){ 
 					$viewdoc = '';
 					if($f->file_sertifikat != ''){
-						$viewdoc = '<a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_sertifikat.'" target="_blank">View</a>';
+						$viewdoc = '<a href="'.base_url().'uploads/employee/'.$f->emp_code.'/'.$f->file_sertifikat.'" target="_blank">View</a>';
 					}
 
 					$dt .= '<tr>';
@@ -1555,7 +1680,7 @@ class Data_karyawan_menu_model extends MY_Model
 					$dt .= '<td>'.$f->training_name.'</td>';
 					$dt .= '<td>'.$f->city.'</td>';
 					$dt .= '<td>'.$f->year.'</td>';
-					$dt .= '<td><a href="'.base_url().'uploads/'.$f->emp_code.'/'.$f->file_sertifikat.'" target="_blank">View</a></td>';
+					$dt .= '<td><a href="'.base_url().'uploads/employee/'.$f->emp_code.'/'.$f->file_sertifikat.'" target="_blank">View</a></td>';
 					$dt .= '</tr>';
 
 					
