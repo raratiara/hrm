@@ -25,6 +25,15 @@ class Tasklist_menu extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
 		$field = [];
 		
 		$field['txttask'] 		= $this->self_model->return_build_txt('','task','task');
@@ -36,7 +45,7 @@ class Tasklist_menu extends MY_Controller
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
 		$mstask 				= $this->db->query("select * from tasklist")->result(); 
 		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
-		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
 
