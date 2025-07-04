@@ -1250,7 +1250,9 @@ class Data_karyawan_menu_model extends MY_Model
             $row = $list_data[$i];
             $baris = $i+1;
 
-         	if($row[58] != '' && $list_data[0][58] == 'Employee Code')
+
+            /// UPDATE DATA
+         	if($row[58] != '' && $list_data[0][58] == 'Employee Code') 
          	{
          		$getID = $this->db->query("select id, full_name, branch_id, personal_email from employees where emp_code = '".$row[58]."'")->result();
             	$employee_id = $getID[0]->id;
@@ -1344,6 +1346,18 @@ class Data_karyawan_menu_model extends MY_Model
 						$this->db->update("user", $data2, "id_karyawan = '".$employee_id."'");
 	            		//end update tbl user
 		            }
+		            
+
+		            //START add folder upload 
+					$upload_dir = './uploads/employee/'.$row[58].'/'; // nama folder
+					// Cek apakah folder sudah ada
+					if (!is_dir($upload_dir)) {
+					    // Jika belum ada, buat folder
+					    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+					}
+					//END add folder upload 
+
+
 
 		            if (!$rs) $error .=",baris ". $baris;
 		           	
@@ -1351,7 +1365,7 @@ class Data_karyawan_menu_model extends MY_Model
             		$error .=",baris ". $baris;
             	} 
 
-         	}else{ 
+         	}else{ /// INSERT DATA
          		if($row[0] != ''){ //full name tidak kosong
 	            	$employee = $this->db->query("select * from employees where full_name = '".$row[0]."'")->result(); 
 
