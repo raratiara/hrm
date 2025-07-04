@@ -202,7 +202,16 @@ class MY_Controller extends CI_Controller {
 
 			if ($_FILES['userfile']['name']) { 
 	            $file = $_FILES['userfile'];
-	            $path = FCPATH . 'uploads/' . $file['name']; 
+
+	            // Ambil ekstensi file
+    			$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    			// Buat nama file dengan format tanggal dan jam
+			    $timestamp = date('ymd_His'); // contoh: 20250704_103045
+			    $newFileName = 'importDataKaryawan_' . $timestamp . '.' . $ext;
+			    // Tentukan path penyimpanan
+    			$path = FCPATH . 'uploads/' . $newFileName;
+
+	            //$path = FCPATH . 'uploads/' . $file['name']; 
 	            move_uploaded_file($file['tmp_name'], $path);
 	            
 
