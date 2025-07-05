@@ -39,6 +39,10 @@ class Reimbursement_menu_model extends MY_Model
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
 		
 
 		$sIndexColumn = $this->primary_key;
@@ -51,7 +55,7 @@ class Reimbursement_menu_model extends MY_Model
 					end) as status_name, b.direct_id
 					from medicalreimbursements a left join employees b on b.id = a.employee_id
 					left join master_reimbursfor_type c on c.id = a.reimburse_for
-					where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'"
+					'.$whr.'
 				)dt';
 		
 
@@ -574,11 +578,26 @@ class Reimbursement_menu_model extends MY_Model
 	}
 
 	public function eksport_data()
-	{
-		$sql = "select a.id, a.date_reimbursment, b.full_name as employee_name, c.name as reimburse_for_name, a.atas_nama, a.diagnosa, a.nominal_billing, a.nominal_reimburse
-			from medicalreimbursements a left join employees b on b.id = a.employee_id
-			left join master_reimbursfor_type c on c.id = a.reimburse_for order by a.id asc
+	{ 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
 
+
+
+		$sql = "select a.id, a.date_reimbursment, b.full_name as employee_name, c.name as reimburse_for_name, a.atas_nama, a.diagnosa, a.nominal_billing, a.nominal_reimburse,
+			(case 
+				when a.status_id = 1 then 'Waiting Approval'
+			    when a.status_id = 2 then 'Approved'
+			    when a.status_id = 3 then 'Rejected'
+			    else ''
+			end) as status_name
+			from medicalreimbursements a left join employees b on b.id = a.employee_id 
+			left join master_reimbursfor_type c on c.id = a.reimburse_for 
+			".$whr." order by a.id asc
 		";
 
 		$res = $this->db->query($sql);

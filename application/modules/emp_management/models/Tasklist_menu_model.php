@@ -362,10 +362,21 @@ class Tasklist_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
 		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date  
 			from tasklist a left join employees b on b.id = a.employee_id
 			left join tasklist c on c.id = a.parent_id
-			left join master_tasklist_status d on d.id = a.status_id order by a.id asc
+			left join master_tasklist_status d on d.id = a.status_id 
+			".$whr."
+			order by a.id asc
 		";
 
 		$res = $this->db->query($sql);

@@ -20,7 +20,7 @@ class Ijin_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Employee Name","Date Leave Start","Date Leave End","Leave Type","Description","Total Leave", "Status"];
-	public $colfields 				= ["id","id","id","id","id","id","id","id"];
+	public $colfields 				= ["id","full_name","date_leave_start","date_leave_end","leave_name","reason","total_leave","status"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

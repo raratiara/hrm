@@ -20,7 +20,7 @@ class Performance_appraisal_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Employee Name","Year","Status","RFU Reason"];
-	public $colfields 				= ["id","id","id","id","id"];
+	public $colfields 				= ["id","full_name","year","status_name","rfu_reason"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

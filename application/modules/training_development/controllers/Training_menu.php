@@ -20,11 +20,20 @@ class Training_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Employee Name","Training Name","Training Date","Location","Trainer","Notes","Status"];
-	public $colfields 				= ["id","id","id","id","id","id","id","id"];
+	public $colfields 				= ["id","full_name","training_name","training_date","location","trainer","notes","status_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
 		$field = [];
 		
 		$field['txttrainingdate']	= $this->self_model->return_build_txt('','training_date','training_date');
@@ -34,7 +43,7 @@ class Training_menu extends MY_Controller
 		$field['txtlocation'] 		= $this->self_model->return_build_txt('','location','location');
 		$field['txtdocsertifikat'] 	= $this->self_model->return_build_fileinput('doc_sertifikat','doc_sertifikat');
 		
-		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
 

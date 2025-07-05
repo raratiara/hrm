@@ -20,13 +20,22 @@ class Settlement_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Settlement Number","FPU/FPP Number","Request Date","Prepared By","Requested By","Settlement Amount","Status"];
-	public $colfields 				= ["id","settlement_number","ca_number","request_date","prepared_by_name","requested_by_name","settlement_amount","status_name"];
+	public $colfields 				= ["id","settlement_number","ca_number","settlement_date","prepared_by_name","requested_by_name","settlement_amount","status_name"];
 
 
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' AND (id = "'.$karyawan_id.'" OR id = (SELECT direct_id FROM employees WHERE id = "'.$karyawan_id.'" ))';
+		}
+
+
+
 		$field = [];
 
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -50,7 +59,7 @@ class Settlement_menu extends MY_Controller
 		$field['txtbank'] 				= $this->self_model->return_build_txt('','bank','bank');
 		$field['txtnamarekening'] 		= $this->self_model->return_build_txt('','nama_rekening','nama_rekening');
 
-		$msemp 						= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp 						= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['txtrequestedby'] 	= $this->self_model->return_build_select2me($msemp,'','','','requested_by','requested_by','','','id','full_name',' ','','','',3,'-');
 
 		$msca 	= $this->db->query("select * from cash_advance where status_id in ('2','5') and id not in (select cash_advance_id from settlement)")->result(); 

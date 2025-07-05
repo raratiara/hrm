@@ -38,15 +38,22 @@ class Settlement_menu_model extends MY_Model
 			'dt.requested_by'
 		];
 		
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or d.direct_id = "'.$karyawan_id.'") ';
+		}
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, d.direct_id, e.name as status_name
+		$sTable = '(select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, e.name as status_name, d.direct_id
 					from settlement a 
 					left join cash_advance b on b.id = a.cash_advance_id
 					left join employees c on c.id = a.prepared_by
 					left join employees d on d.id = a.requested_by
 					left join master_status_cashadvance e on e.id = a.status_id
+					'.$whr.'
 				)dt';
 		
 
@@ -648,13 +655,22 @@ class Settlement_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or d.direct_id = "'.$karyawan_id.'") ';
+		}
+
+
 		$sql = "select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, d.direct_id, e.name as status_name
-						from settlement a 
-						left join cash_advance b on b.id = a.cash_advance_id
-						left join employees c on c.id = a.prepared_by
-						left join employees d on d.id = a.requested_by
-						left join master_status_cashadvance e on e.id = a.status_id
-					order by a.id asc
+				from settlement a 
+				left join cash_advance b on b.id = a.cash_advance_id
+				left join employees c on c.id = a.prepared_by
+				left join employees d on d.id = a.requested_by
+				left join master_status_cashadvance e on e.id = a.status_id
+				".$whr."
+				order by a.id asc
 
 		";
 

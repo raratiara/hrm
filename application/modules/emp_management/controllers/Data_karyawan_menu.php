@@ -22,7 +22,7 @@ class Data_karyawan_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title","Status"];
-	public $colfields 				= ["id","id","id","id","id","id","id","id","id","id"];
+	public $colfields 				= ["id","emp_code","full_name","nick_name","personal_email","personal_phone","gender_name", "date_of_birth","job_title_name","status_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

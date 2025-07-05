@@ -651,9 +651,27 @@ class Ijin_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select id, code, name from mother_vessel
-	   		ORDER BY id ASC
-		";
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
+
+		$sql = 'select a.*, b.full_name, c.name as leave_name,
+					(case
+						when a.status_approval = 1 then "Waiting Approval"
+						when a.status_approval = 2 then "Approved"
+						when a.status_approval = 3 then "Rejected"
+						 end) as status, b.direct_id
+					from leave_absences a left join employees b on b.id = a.employee_id
+					left join master_leaves c on c.id = a.masterleave_id
+					'.$whr.'
+	   			ORDER BY id ASC
+		';
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();

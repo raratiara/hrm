@@ -20,7 +20,7 @@ class Lembur_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Date","Employee Name","Date Time Start","Date Time End","Num of Hour","Amount","Reason","Status"];
-	public $colfields 				= ["id","id","id","id","id","id","id","id","id"];
+	public $colfields 				= ["id","date_overtime","full_name","datetime_start","datetime_end","num_of_hour","amount","reason","status_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

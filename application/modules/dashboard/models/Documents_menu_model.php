@@ -190,19 +190,36 @@ class Documents_menu_model extends MY_Model
 
 			$doc = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="downloadFile('."'".$row->file."'".')" role="button"><i class="fa fa-download"></i></a>';
 
-			array_push($output["aaData"],array(
-				$delete_bulk,
-				'<div class="action-buttons">
-					'.$detail.'
-					'.$edit.'
-					'.$delete.'
-				</div>',
-				$row->id,
-				$row->name,
-				$doc
-				/*<button onclick="downloadFile('example.pdf')">Download File</button>*/
 
-			));
+			if($delete_bulk == ""){
+				array_push($output["aaData"],array(
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+						'.$delete.'
+					</div>',
+					$row->id,
+					$row->name,
+					$doc
+					
+
+				));
+			}else{
+				array_push($output["aaData"],array(
+					$delete_bulk,
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+						'.$delete.'
+					</div>',
+					$row->id,
+					$row->name,
+					$doc
+					
+
+				));
+			}
+			
 		}
 
 		echo json_encode($output);
