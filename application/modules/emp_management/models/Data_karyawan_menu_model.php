@@ -1549,9 +1549,17 @@ class Data_karyawan_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'" ';
+		}
+
+		
 		$sql = 'select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name
-			from employees a
-			LEFT JOIN master_job_title o ON o.id = a.job_title_id
+			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id
+			'.$whr.'
 	   		ORDER BY a.full_name ASC
 		';
 

@@ -430,9 +430,26 @@ class Absensi_menu_model extends MY_Model
 	}
 
 	public function eksport_data()
-	{
-		$sql = "select id, code, name from mother_vessel
-	   		ORDER BY id ASC
+	{ 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
+		$sql = "select a.*, b.full_name, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
+					(case 
+					when a.leave_type != '' then concat('(',c.name,')') 
+					when a.is_leaving_office_early = 'Y' then 'Leaving Office Early'
+					else ''
+					end) as is_leaving_office_early_desc
+					from time_attendances a left join employees b on b.id = a.employee_id
+					left join master_leaves c on c.id = a.leave_type
+					".$whr."
+	   			ORDER BY a.id ASC
 		";
 
 		$res = $this->db->query($sql);

@@ -256,7 +256,8 @@ class Mpp_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
-
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		
   		if(!empty($post['year'])){ 
   			$data = [
@@ -266,7 +267,8 @@ class Mpp_menu_model extends MY_Model
 				'mpp' 			=> trim($post['headcount']),
 				/*'completed' 	=> '',*/
 				'notes' 		=> trim($post['notes']),
-				'created_at'	=> date("Y-m-d H:i:s")
+				'created_at'	=> date("Y-m-d H:i:s"),
+				'created_by' 	=> $karyawan_id
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 
@@ -278,6 +280,9 @@ class Mpp_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
 		
 		if(!empty($post['id'])){
 		
@@ -288,7 +293,8 @@ class Mpp_menu_model extends MY_Model
 				'mpp' 			=> trim($post['headcount']),
 				/*'completed' 	=> '',*/
 				'notes' 		=> trim($post['notes']),
-				'updated_at'	=> date("Y-m-d H:i:s")
+				'updated_at'	=> date("Y-m-d H:i:s"),
+				'updated_by' 	=>  $karyawan_id
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);

@@ -20,7 +20,7 @@ class Absensi_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
-	public $colfields 				= ["id","id","id","id","id","id","id","id","id","id","id"];
+	public $colfields 				= ["id","date_attendance","full_name","attendance_type","time_in","time_out","date_attendance_in","date_attendance_out","is_late_desc","is_leaving_office_early_desc","num_of_working_hours"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

@@ -20,11 +20,20 @@ class Perjalanan_dinas_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Employee Name","Destination","Start Date","End Date","Reason","Status"];
-	public $colfields 				= ["id","id","id","id","id","id","id"];
+	public $colfields 				= ["id","full_name","destination","start_date","end_date","reason","status_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
 		$field = [];
 		
 		$field['txtdestination']	= $this->self_model->return_build_txt('','destination','destination');
@@ -32,7 +41,7 @@ class Perjalanan_dinas_menu extends MY_Controller
 		$field['txtstartdate'] 		= $this->self_model->return_build_txt('','start_date','start_date');
 		$field['txtenddate'] 		= $this->self_model->return_build_txt('','end_date','end_date');
 		
-		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
 

@@ -36,6 +36,13 @@ class Fpu_menu_model extends MY_Model
 			'dt.prepared_by',
 			'dt.requested_by'
 		];
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';
+		}
 		
 
 
@@ -45,6 +52,8 @@ class Fpu_menu_model extends MY_Model
 					from cash_advance a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
+					where a.ca_type = 1
+					'.$whr.'
 				)dt';
 		
 
@@ -602,15 +611,25 @@ class Fpu_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id   
-					from cash_advance a left join employees b on b.id = a.prepared_by
-					left join employees c on c.id = a.requested_by
-					left join master_status_cashadvance d on d.id = a.status_id
-					where a.ca_type = '1'
-					order by a.id asc
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';
+		}
 
-		";
+
+
+		$sql = 'select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+				, d.name as status_name, c.direct_id   
+				from cash_advance a left join employees b on b.id = a.prepared_by
+				left join employees c on c.id = a.requested_by
+				left join master_status_cashadvance d on d.id = a.status_id
+				where a.ca_type = 1
+				'.$whr.'
+				order by a.id asc
+
+		';
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();

@@ -27,6 +27,15 @@ class Fpu_menu extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' AND (id = "'.$karyawan_id.'" OR id = (SELECT direct_id FROM employees WHERE id = "'.$karyawan_id.'" ))';
+		}
+
+
+
 		$field = [];
 
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -43,7 +52,7 @@ class Fpu_menu extends MY_Controller
 		$field['rfu_reason']	= $this->self_model->return_build_txtarea('','rfu_reason','rfu_reason');
 		$field['reject_reason']	= $this->self_model->return_build_txtarea('','reject_reason','reject_reason');
 
-		$msemp 					= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['txtrequestedby'] 	= $this->self_model->return_build_select2me($msemp,'','','','requested_by','requested_by','','','id','full_name',' ','','','',3,'-');
 		
 

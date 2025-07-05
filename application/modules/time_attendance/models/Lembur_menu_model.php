@@ -422,6 +422,15 @@ class Lembur_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
 		$sql = 'select a.id, a.date_overtime, b.full_name, a.datetime_start, a.datetime_end, a.num_of_hour, a.amount,a.reason, 
 				(case 
 				when a.status_id = 1 then "Waiting Approval"
@@ -430,6 +439,7 @@ class Lembur_menu_model extends MY_Model
 				else ""
 				end) as status_name 
 				from overtimes a left join employees b on b.id = a.employee_id
+				'.$whr.'
 				order by a.id asc
 		';
 
