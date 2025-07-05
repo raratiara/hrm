@@ -141,7 +141,7 @@
         </div>
     </div>
 
-    <?php if ($this->session->flashdata('msg')) : ?>
+    <!-- <?php if ($this->session->flashdata('msg')) : ?>
 
     <div id="_info_" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
@@ -171,7 +171,7 @@
         </div>
     </div>
 
-    <?php endif; ?>
+    <?php endif; ?> -->
 
     <?php $this->load->view(_TEMPLATE_PATH . "footer"); ?>
     <!--[if lt IE 9]>
