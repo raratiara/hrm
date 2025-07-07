@@ -1,60 +1,36 @@
-<div class="row">
-	
-	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Group</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">	
-				: <span class="group"></span>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Period</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="period"></span>
-			</div>
-		</div>
-	</div>
+<label>Month:
+  <input type="text" readonly id="bulanViewName" name="bulanViewName" class="form-control" />
+  <input type="hidden" id="bulanView" name="bulanView" class="form-control" />
+</label>
 
-</div>
+<label>Year:
+  <input type="text" readonly id="tahunView" name="tahunView" class="form-control" />
+</label>
+
+<input type="hidden" name="selectedshiftView" id="selectedshiftView">
+<input type="hidden" name="hdnjadwalTersimpanView" id="hdnjadwalTersimpanView">
 
 
-<div class="calendar-header">
-  <h2 id="monthYear_view"></h2>
-</div>
+<table class="tblShiftView">
+  <thead>
+    <tr>
+      <th>Employee</th>
+      <th class="date-header" id="tglview1"></th>
+      <th class="date-header" id="tglview2"></th>
+      <th class="date-header" id="tglview3"></th>
+      <th class="date-header" id="tglview4"></th>
+      <th class="date-header" id="tglview5"></th>
+      <th class="date-header" id="tglview6"></th>
+      <th class="date-header" id="tglview7"></th>
+    </tr>
+  </thead>
+  <tbody id="jadwal-bodyView">
+    <!-- Karyawan diisi dari JS -->
+  </tbody>
+</table>
 
-<div class="calendar-grid" id="calendar_view">
- 
-</div>
-
-
-
-
-<div class="row ca" style="margin-top: 20px;">
-    <div class="col-md-12">
-		<div class="portlet box grey">
-			<div class="portlet-title">
-				<div class="caption">Employee List </div>
-				<div class="tools">
-					
-				</div>
-			</div>
-			<div class="portlet-body">
-				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover emp-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblEmpList">
-					<thead>
-						<tr>
-							<th scope="col">No</th>
-							<th scope="col">Employee</th>
-						</tr>
-					</thead>
-					<tbody>
-						
-					</tbody>
-					<tfoot>
-					</tfoot>
-				</table>
-				</div>
-			</div>
-		</div>
-	</div>
+<!-- Tombol navigasi minggu -->
+<div>
+  <button type="button" class="btnweekView" onclick="changeWeekView(-1)">⏪ Previous Week</button>
+  <button type="button" class="btnweekView" onclick="changeWeekView(1)">Next Week ⏩</button>
 </div>
