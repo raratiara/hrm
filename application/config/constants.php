@@ -122,9 +122,13 @@ defined('_CUT_OFF_LOGO')        			OR define('_CUT_OFF_LOGO', $mk_cutofflogo);
 /*defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/nbid_logo.png");  
 defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/nbid_new_logo.png");  
 defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/nbid_new_logo_inside.png");  */
-defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.PNG");  
+/*defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.PNG");  
 defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.PNG");  
-defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gerbangdata.PNG");  
+defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gerbangdata.PNG");*/
+defined('_ASSET_ILUSTRASI_LOGIN') OR define('_ASSET_ILUSTRASI_LOGIN', _ASSET_IMG . "login/ilustrasi.png");
+defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.jpg");  
+defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.jpg");  
+defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gerbangdata.jpg");   
 defined('_ASSET_LOGO_2022_SURAT')     OR define('_ASSET_LOGO_2022_SURAT',_ASSET_IMG."logo/nbid_new_logo_surat.png");  
 if($mk_currenttime > $mk_cutofflogo){
 	defined('_ASSET_LOGO_FRONT')        	OR define('_ASSET_LOGO_FRONT',_ASSET_LOGO_2022);  
