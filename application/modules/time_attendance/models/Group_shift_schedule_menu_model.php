@@ -194,19 +194,36 @@ class Group_shift_schedule_menu_model extends MY_Model
 			}
 			
 
-			array_push($output["aaData"],array(
-				$delete_bulk,
-				'<div class="action-buttons">
-					'.$detail.'
-					'.$edit.'
-					'.$reject.'
-					'.$approve.'
-				</div>',
-				$row->id,
-				$row->period,
-				$row->created_at
+			if($delete_bulk == ""){
+				array_push($output["aaData"],array(
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+						'.$reject.'
+						'.$approve.'
+					</div>',
+					$row->id,
+					$row->period,
+					$row->created_at
 
-			));
+				));
+			}else{
+				array_push($output["aaData"],array(
+					$delete_bulk,
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+						'.$reject.'
+						'.$approve.'
+					</div>',
+					$row->id,
+					$row->period,
+					$row->created_at
+
+				));
+			}
+
+			
 		}
 
 		echo json_encode($output);
