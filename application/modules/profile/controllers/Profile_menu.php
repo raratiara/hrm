@@ -108,7 +108,7 @@ class Profile_menu extends MY_Controller
 
     	$rs = $this->db->query("select
 			    DATE_FORMAT(date_attendance, '%m') as bln,
-				SUM(CASE WHEN date_attendance_in is not null and date_attendance_in != '' and  is_late != 'Y' and leave_absences_id is null THEN 1 ELSE 0 END) AS total_ontime,
+				SUM(CASE WHEN date_attendance_in is not null and is_late != 'Y' and leave_absences_id is null THEN 1 ELSE 0 END) AS total_ontime,
 				SUM(CASE WHEN is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
 				SUM(CASE WHEN is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS total_leaving_early,
 				SUM(CASE WHEN date_attendance_in is null and date_attendance_out is null and leave_absences_id is null  THEN 1 ELSE 0 END) as total_noattendance,
@@ -119,7 +119,7 @@ class Profile_menu extends MY_Controller
 			GROUP BY
 			DATE_FORMAT(date_attendance, '%m')
 			ORDER BY
-				bln ")->result(); 
+				bln")->result(); 
 
 		
 		// Inisialisasi semua bulan 1 sampai 12 dengan nilai 0
