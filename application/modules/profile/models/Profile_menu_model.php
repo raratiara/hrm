@@ -246,18 +246,121 @@ class Profile_menu_model extends MY_Model
 	
 
 	public function getRowData($id) { 
-		$mTable = '(select * from employees)dt';
+		$yearMonth = ///date("Y-m");
+
+
+		$mTable = '(SELECT 
+					    a.*,
+					    b.name AS company_name,
+					    c.name AS division_name,
+					    d.name AS section_name,
+					    f.name AS regency_name_ktp,
+                        f2.name AS regency_name_residen,
+					    g.name AS village_name_ktp,
+                        g2.name AS village_name_residen,
+					    h.name AS department_name,
+					    i.name AS emp_status_name,
+					    j.full_name AS indirect_name,
+					    k.name AS branch_name,
+					    l.name AS marital_status_name,
+					    m.name AS province_name_ktp,
+						m2.name AS province_name_residen,
+					    n.name AS district_name_ktp,
+                        n2.name AS district_name_residen,
+					    o.name AS job_title_name,
+					    p.full_name AS direct_name,
+					    (case when a.gender = "M" then "Male"
+					    when a.gender = "F" then "Female"
+					    else ""
+					    end) as gender_name,
+					    if(a.status_id = "1","Active","Not Active") as status_name,
+					    q.name as job_level_name,
+					    r.name as grade_name
+					FROM
+					    employees a
+					        LEFT JOIN
+					    companies b ON b.id = a.company_id
+					        LEFT JOIN
+					    divisions c ON c.id = a.division_id
+					        LEFT JOIN
+					    sections d ON d.id = a.section_id
+					        LEFT JOIN
+					    regencies f ON f.id = a.regency_id_ktp
+                        LEFT JOIN
+					    regencies f2 ON f2.id = a.regency_id_residen
+					        LEFT JOIN
+					    villages g ON g.id = a.village_id_ktp
+                        LEFT JOIN
+					    villages g2 ON g2.id = a.village_id_residen
+					        LEFT JOIN
+					    departments h ON h.id = a.department_id
+					        LEFT JOIN
+					    master_emp_status i ON i.id = a.employment_status_id
+					        LEFT JOIN
+					    employees j ON j.id = a.indirect_id
+					        LEFT JOIN
+					    branches k ON k.id = a.branch_id
+					        LEFT JOIN
+					    master_marital_status l ON l.id = a.marital_status_id
+					        LEFT JOIN
+					    provinces m ON m.id = a.province_id_ktp
+                        LEFT JOIN
+					    provinces m2 ON m2.id = a.province_id_residen
+					        LEFT JOIN
+					    districts n ON n.id = a.district_id_ktp
+                        LEFT JOIN
+					    districts n2 ON n2.id = a.district_id_residen
+					        LEFT JOIN
+					    master_job_title o ON o.id = a.job_title_id
+					        LEFT JOIN
+					    employees p ON p.id = a.direct_id
+					    left join master_job_level q on q.id = a.job_level_id
+					    left join master_grade r on r.id = a.grade_id)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
+		$leave = $this->db->query("select a.*, b.status_approval from time_attendances a left join leave_absences b on b.id = a.leave_absences_id
+			where a.employee_id = '".$id."'
+			and (a.leave_absences_id is not null or a.leave_absences_id != '') 
+			and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$yearMonth."')
+			and b.status_approval = 2")->result(); //yg udh di approve
+
+		$workhours = $this->db->query("select sum(a.num_of_working_hours) as ttl_workhours #a.*, b.status_approval 
+					from time_attendances a left join leave_absences b on b.id = a.leave_absences_id
+					where a.employee_id = 2 and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$yearMonth."')")->result();
+
+		$tasklist = $this->db->query("select a.status_id, b.name as status_name, COUNT(*) AS total
+					FROM tasklist a left join master_tasklist_status b on b.id = a.status_id
+					WHERE a.employee_id = '".$id."' GROUP BY a.status_id")->result();
+		$statusTotals = [];
+		foreach ($tasklist as $item) {
+		    $statusName = strtolower($item->status_name); // biar konsisten huruf kecil semua (opsional)
+		    $statusTotals[$statusName] = $item->total;
+		}
+		$ttl_tasklist_open = isset($statusTotals['open']) ? $statusTotals['open'] : 0;
+		$ttl_tasklist_inprogress = isset($statusTotals['progress']) ? $statusTotals['progress'] : 0;
+		$ttl_tasklist_closed = isset($statusTotals['closed']) ? $statusTotals['closed'] : 0;
+
+
+		$ttl_leave=0; $ttl_workhours=0;
+		if(!empty($leave)){
+			$ttl_leave = count($leave);
+		}
+		if(!empty($workhours)){
+			$ttl_workhours = $workhours[0]->ttl_workhours;
+		}
 		
-		/*if(!empty($rs->provinsi_id)){
-			$ri = $this->db->select('name as parent_title')->where([$this->primary_key => $rs->provinsi_id])->get($this->table_name)->row();
-			$rs = (object) array_merge((array) $rs, (array) $ri);
-		} else {
-			$rs = (object) array_merge((array) $rs, ['parent_title'=>'-']);
-		}*/
 		
-		return $rs;
+		$dataX = array(
+			'dtEmp' 					=> $rs,
+			'ttl_leave' 				=> $ttl_leave,
+			'ttl_workhours' 			=> $workhours,
+			'ttl_tasklist_open' 		=> $ttl_tasklist_open,
+			'ttl_tasklist_inprogress' 	=> $ttl_tasklist_inprogress,
+			'ttl_tasklist_closed' 		=> $ttl_tasklist_closed
+			
+		);
+
+		return $dataX;
 	} 
 
 	
