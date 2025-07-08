@@ -43,14 +43,41 @@ class Group_shift_schedule_menu extends MY_Controller
 	public function __construct() {
         parent::__construct();
 		# akses level
-		$akses = $this->self_model->user_akses($this->module_name);
-		define('_USER_ACCESS_LEVEL_VIEW',$akses["view"]);
-		define('_USER_ACCESS_LEVEL_ADD',$akses["add"]);
-		define('_USER_ACCESS_LEVEL_UPDATE',$akses["edit"]);
-		define('_USER_ACCESS_LEVEL_DELETE',$akses["del"]);
-		define('_USER_ACCESS_LEVEL_DETAIL',$akses["detail"]);
-		define('_USER_ACCESS_LEVEL_IMPORT',$akses["import"]);
-		define('_USER_ACCESS_LEVEL_EKSPORT',$akses["eksport"]);
+		$akses = $this->self_model->user_akses($this->module_name); 
+		
+		$getdata = $this->db->query("select a.*, b.shift_type from user a left join employees b on b.id = a.id_karyawan where a.user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$shift_type = $getdata[0]->shift_type; 
+		if($akses['role_id'] == '3'){ //user biasa
+			if($shift_type == 'Shift'){ //karyawan shift
+				
+				define('_USER_ACCESS_LEVEL_VIEW',1);
+				define('_USER_ACCESS_LEVEL_ADD',0);
+				define('_USER_ACCESS_LEVEL_UPDATE',0);
+				define('_USER_ACCESS_LEVEL_DELETE',0);
+				define('_USER_ACCESS_LEVEL_DETAIL',1);
+				define('_USER_ACCESS_LEVEL_IMPORT',0);
+				define('_USER_ACCESS_LEVEL_EKSPORT',1);
+			}else{
+				define('_USER_ACCESS_LEVEL_VIEW',0);
+				define('_USER_ACCESS_LEVEL_ADD',0);
+				define('_USER_ACCESS_LEVEL_UPDATE',0);
+				define('_USER_ACCESS_LEVEL_DELETE',0);
+				define('_USER_ACCESS_LEVEL_DETAIL',0);
+				define('_USER_ACCESS_LEVEL_IMPORT',0);
+				define('_USER_ACCESS_LEVEL_EKSPORT',0);
+			}
+		}else{
+			define('_USER_ACCESS_LEVEL_VIEW',$akses["view"]);
+			define('_USER_ACCESS_LEVEL_ADD',$akses["add"]);
+			define('_USER_ACCESS_LEVEL_UPDATE',$akses["edit"]);
+			define('_USER_ACCESS_LEVEL_DELETE',$akses["del"]);
+			define('_USER_ACCESS_LEVEL_DETAIL',$akses["detail"]);
+			define('_USER_ACCESS_LEVEL_IMPORT',$akses["import"]);
+			define('_USER_ACCESS_LEVEL_EKSPORT',$akses["eksport"]);
+		}
+
+
     }
 
 	/* Module */

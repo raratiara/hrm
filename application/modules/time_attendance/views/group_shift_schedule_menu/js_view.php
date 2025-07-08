@@ -145,11 +145,19 @@ let selectedShift = [];
 
 const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-document.getElementById("btnAddData").addEventListener("click", function() {
+const btnAdd = document.getElementById("btnAddData");
+
+if (btnAdd) {
+    btnAdd.addEventListener("click", function () {
+        let currentWeek = 0;
+        renderSchedule(currentWeek);
+    });
+}
+/*document.getElementById("btnAddData").addEventListener("click", function() {
     let currentWeek = 0;
 		renderSchedule(currentWeek);
 });
-
+*/
 
 function load_data()
 { 
@@ -163,6 +171,7 @@ function load_data()
     { 
 			if(data != false){ 
 
+				if(save_method == 'update'){ 	
 					
 					$('[name="id"]').val(idx);
 					document.getElementById("hdnjadwalTersimpan").value = JSON.stringify(data);
@@ -198,10 +207,56 @@ function load_data()
 					/*renderFormJadwal(karyawanList, jadwalTersimpan,jadwalData,tanggalList);*/
 					renderSchedule(currentWeek, jadwalData, tanggalList);
 
+
+
+					document.getElementById("btnpilihshift").style.display = "block";
+					document.getElementById("submit-data").style.display = "";
+					document.getElementById("btnReset").style.display = "";
+
+					$.uniform.update();
+					$('#mfdata').text('Update');
+					$('#modal-form-data').modal('show');
+				}	
+				else if(save_method == 'detail'){
+						$('[name="id"]').val(idx);
+						document.getElementById("hdnjadwalTersimpanView").value = JSON.stringify(data);
+						document.getElementById("selectedshiftView").value = JSON.stringify(data);
+
+						/*let jadwalData = [];*/ // penampung sementara semua shift yang di-drag
+					  // Buat baris per karyawan
+					  data.forEach(emp => {
+					  	var id = emp.employee_id;
+					  	var empname = emp.employee_name;
+					  	var tgl = emp.tanggal;
+					  	var shift = emp.shift;
+					    jadwalData.push({ id, empname, tgl, shift });
+					    $('[name="selectedshiftView"]').val(JSON.stringify(jadwalData)); 
+			 			});
+
+			 			const namaBulan = [
+						    "January", "February", "March", "April", "May", "June",
+    						"July", "August", "September", "October", "November", "December"
+						];
+
+			 			var periode = data[0].period;
+						var myArray = periode.split("-");
+						var tahun = myArray[0];
+						var bulan = parseInt(myArray[1]-1);
+						$('#bulanViewName').val(namaBulan[bulan]);
+						$('#bulanView').val(bulan);
+						$('#tahunView').val(tahun);
+
+						var tanggalList = generateTanggalMingguanView(); // misalnya minggu ini
+						var currentWeek=0;
+						renderScheduleView(currentWeek, jadwalData, tanggalList);
+
+
 					
+						$('#modal-view-data').modal('show');
 
+				}
 
-					if(save_method == 'update'){ 
+					/*if(save_method == 'update'){ 
 
 							document.getElementById("btnpilihshift").style.display = "block";
 							document.getElementById("submit-data").style.display = "";
@@ -221,7 +276,7 @@ function load_data()
 							$.uniform.update();
 							$('#mfdata').text('	view');
 							$('#modal-form-data').modal('show');
-					}
+					}*/
 
 				
 			} else {
@@ -276,6 +331,34 @@ function generateTanggalMingguan() {
   const start = new Date(year, month, 1 + currentWeek * 7);
 
   for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    result.push(d.toISOString().slice(0, 10));
+  }
+
+  return result;
+}
+
+function generateTanggalMingguanView() {
+
+	var month = document.getElementById('bulanView').value;
+	var year = document.getElementById('tahunView').value;
+  var currentWeek = 0;
+
+	if(month == '' && year == ''){ 
+		var month = new Date().getMonth(); 
+		var year = new Date().getFullYear();
+	}
+
+
+
+	/*let startDate = new Date(year, month, 1 + currentWeek * 7);*/ //awal bulan
+  const result = [];
+  const today = new Date();
+  /*const start = new Date(today.setDate(today.getDate() - today.getDay()));*/ // minggu ini
+  const start = new Date(year, month, 1 + currentWeek * 7);
+
+  for (var i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
     result.push(d.toISOString().slice(0, 10));
@@ -856,6 +939,172 @@ function renderSchedule(currentWeek, jadwalData='',tanggalList=''){
 
 
 
+function renderScheduleView(currentWeek, jadwalData='',tanggalList=''){
+
+	
+	let hdnjadwalTersimpana = $("#hdnjadwalTersimpanView").val(); 
+	if(hdnjadwalTersimpana != ''){ 
+		//let hdnjadwalTersimpan = JSON.parse(hdnjadwalTersimpana);
+		jadwalTersimpan = JSON.parse(hdnjadwalTersimpana);
+	}else{ 
+		jadwalTersimpan=[];
+	}
+	console.log(jadwalTersimpan);
+
+	let month = document.getElementById('bulanView').value; 
+	let year = document.getElementById('tahunView').value; 
+	if(month == '' && year == ''){ 
+		let month = new Date().getMonth(); 
+		let year = new Date().getFullYear(); 
+	}
+
+
+
+ 	$.ajax({
+		type: "POST",
+    url : module_path+'/get_shift',
+		data: { },
+		cache: false,		
+    dataType: "JSON",
+    success: function(data)
+    {
+			if(data != false){ 
+
+				let karyawanList = data;
+			  let tbody = document.getElementById('jadwal-bodyView');
+			  tbody.innerHTML = "";
+
+			  var perioddate = year+'-'+month;
+
+			
+			  let startDate = new Date(year, month, 1 + currentWeek * 7);
+
+				for (let i = 0; i < 7; i++) {
+				  let tgl = new Date(year, month, 1 + currentWeek * 7 + i); 
+				  
+				  let id = "tglview" + (i + 1);
+				  let el = document.getElementById(id);
+
+				  
+
+				  if (isValidDate(tgl)) {
+				    /*let namaHari = tgl.toLocaleDateString('id-ID', { weekday: 'long' });*/
+				    let namaHari = tgl.toLocaleDateString('en-US', { weekday: 'long' });
+				    /*let tanggalStr = tgl.toISOString().slice(0, 10);*/
+				    let tanggalStr = formatDateLocal(tgl);
+
+				    let namaTgl = tgl.toLocaleDateString('en-US', {
+					    year: 'numeric',
+					    month: 'short',
+					    day: 'numeric'
+					  });
+				    
+				    el.innerHTML = `${namaHari}<br>${namaTgl}`;
+				    el.dataset.tgl = tanggalStr;
+				  } else {
+				    el.textContent = 'Tanggal tidak valid';
+				  }
+				}
+
+
+			  let jadwalData = []; // penampung sementara semua shift yang di-drag
+			  // Buat baris per karyawan
+			  karyawanList.forEach(emp => {
+			    let tr = document.createElement('tr');
+			    tr.innerHTML = `<td><strong>${emp.full_name}</strong></td>`;
+
+			    for (let i = 0; i < 7; i++) {
+			      let tgl = document.getElementById("tglview" + (i + 1)).dataset.tgl;
+			      let td = document.createElement('td');
+			      td.className = 'drop-cell';
+			      td.dataset.karyawan = emp.full_name;
+			      td.dataset.tanggal = tgl;
+
+			      const spltgl = tgl.split("-");
+						let tglX = spltgl[2];
+
+			      // Cek apakah ada shift yang disimpan sebelumnya
+			      const jadwal = jadwalTersimpan.find(j => j.employee_name === emp.full_name && j.tanggal === tgl);
+			   
+			      if (jadwal) { 
+			      	
+			        const shiftClass = jadwal.shift.toLowerCase().replace(/\s+/g, '');
+			        const shiftName = jadwal.shift;
+			        td.innerHTML = `
+			          <div class="assigned ${shiftClass}" >
+			            ${shiftName}
+			          </div>`;
+			        
+			        // Push ke jadwalData juga
+		          var id = emp.id;
+					  	var empname = emp.full_name;
+					    jadwalData.push({ id, empname, tgl, shift: shiftName });
+
+			      }
+
+
+			      /*td.addEventListener('dragover', e => e.preventDefault());
+			      td.addEventListener('drop', e => {
+			        e.preventDefault();
+			        let shift = e.dataTransfer.getData('text/plain');
+			        td.innerHTML = `<div class="assigned ${shift.toLowerCase().replace(/\s+/g, '')}" onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${shift}</div>`;
+
+			     
+			        const existing = jadwalData.find(item => item.nama === emp.full_name && item.tgl === tgl);
+						  if (existing) {
+						    existing.shift = shift;
+						  } else {
+						  	var id = emp.id;
+						  	var empname = emp.full_name;
+						    jadwalData.push({ id, empname, tgl, shift });
+						    $('[name="selectedshift"]').val(JSON.stringify(jadwalData)); 
+						  }
+
+			      });*/
+
+			      tr.appendChild(td);
+			    }
+
+			    tbody.appendChild(tr);
+			  });
+
+
+
+				
+			} else {
+				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+				msg = '<p>Gagal peroleh data.</p>';
+				var dialog = bootbox.dialog({
+					message: title+'<center>'+msg+btn+'</center>'
+				});
+				if(response.status){
+					setTimeout(function(){
+						dialog.modal('hide');
+					}, 1500);
+				}
+			}
+    },
+    error: function (jqXHR, textStatus, errorThrown)
+    {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+    }
+  });
+
+
+}
+
+
+
 function renderSchedule_old(currentWeek, jadwalTersimpan='',jadwalData='',tanggalList=''){
 
 	let month = document.getElementById('bulan').value;
@@ -1022,6 +1271,27 @@ function changeWeek(delta) {
   if (nextStart.getMonth() == month) {    // hanya izinkan jika masih dalam bulan yang sama
     currentWeek += delta; 
     renderSchedule(currentWeek);
+  }
+}
+
+
+function changeWeekView(delta) { 
+	/*let currentWeek = 0;*/ // minggu ke-0 = awal bulan
+	let month = document.getElementById('bulanView').value;
+	let year = document.getElementById('tahunView').value;
+
+	
+
+	if(month == '' && year == ''){
+		let month 	= new Date().getMonth();
+		let year 		= new Date().getFullYear();
+	}
+
+
+  const nextStart = new Date(year, month, 1 + (currentWeek + delta) * 7); 
+  if (nextStart.getMonth() == month) {    // hanya izinkan jika masih dalam bulan yang sama
+    currentWeek += delta; 
+    renderScheduleView(currentWeek);
   }
 }
 

@@ -40,7 +40,7 @@ class Data_karyawan_menu_model extends MY_Model
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
 			$whr=' where a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'" ';
 		}
 
@@ -1552,7 +1552,7 @@ class Data_karyawan_menu_model extends MY_Model
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
 			$whr=' where a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'" ';
 		}
 

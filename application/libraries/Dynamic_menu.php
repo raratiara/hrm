@@ -27,21 +27,44 @@ class Dynamic_menu {
 			$di = $this->ci->session->userdata("id");
 			$dr = $this->ci->session->userdata("role");
 			$db = $this->ci->session->userdata("base_menu");
-			if($dr == 'custom'){
+			if($dr == 'custom'){ 
 				$rs	= $this->ci->db->query("SELECT * FROM ".$this->user_akses_tabel." WHERE user_id='".$di."'");
-			} else {
+			} else { 
 				$rs	= $this->ci->db->query("SELECT * FROM ".$this->user_akses_role_tabel." WHERE role_id='".$dr."'");
 			}
 
+            $dtEmp = $this->ci->db->query("select a.*, b.shift_type, b.job_level_id from user a left join employees b on b.id = a.id_karyawan where a.user_id = '".$this->ci->session->userdata("id")."' ");
+            $datax = $dtEmp->result_object();
+            if(!empty($datax)){ 
+                $this->user_shiftype = $datax[0]->shift_type;
+                $this->user_joblevel = $datax[0]->job_level_id;
+            }
+
             if (count($rs->result()) > 0) {
                foreach ($rs->result() as $r) {
-                    $dt[$r->user_menu_id]["view"] 	= $r->view;
-                    $dt[$r->user_menu_id]["add"] 	= $r->add;
-                    $dt[$r->user_menu_id]["edit"] 	= $r->edit;
-                    $dt[$r->user_menu_id]["del"] 	= $r->del;
+                    
+                    if($r->user_menu_id == '41' && $dr == '3' && $this->user_shiftype == 'Shift'){ //menu shift schedule & role user biasa & karyawan shift
+                        $dt[$r->user_menu_id]["view"]   = 1;
+                        $dt[$r->user_menu_id]["add"]    = 0;
+                        $dt[$r->user_menu_id]["edit"]   = 0;
+                        $dt[$r->user_menu_id]["del"]    = 0;
+                    }
+                    else if(($r->user_menu_id == '50' || $r->user_menu_id == '51' || $r->user_menu_id == '52') && $dr == '3' && $this->user_joblevel <= '5' && $this->user_joblevel != 0){ // menu Request Recruitment, MPP & user biasa & level manager ke atas
+                        $dt[$r->user_menu_id]["view"]   = 1;
+                        $dt[$r->user_menu_id]["add"]    = 1;
+                        $dt[$r->user_menu_id]["edit"]   = 1;
+                        $dt[$r->user_menu_id]["del"]    = 1;
+                    }
+                    else{
+                        $dt[$r->user_menu_id]["view"]   = $r->view;
+                        $dt[$r->user_menu_id]["add"]    = $r->add;
+                        $dt[$r->user_menu_id]["edit"]   = $r->edit;
+                        $dt[$r->user_menu_id]["del"]    = $r->del;
+                    }
                 }
             }
             $this->user_akses	= $dt;
+
         }
     }
     // --------------------------------------------------------------------
