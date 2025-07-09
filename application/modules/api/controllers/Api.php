@@ -37,11 +37,22 @@ class Api extends API_Controller
 
 
 	public function tes(){
-		$j=28;
-		$field = sprintf("%02d", $j);
+		$id = 2;
+		$tasklist = $this->db->query("select a.status_id, b.name as status_name, COUNT(*) AS total
+					FROM tasklist a left join master_tasklist_status b on b.id = a.status_id
+					WHERE a.employee_id = '".$id."' GROUP BY a.status_id")->result();
+		$statusTotals = [];
 
+		foreach ($tasklist as $item) {
+		    $statusName = strtolower($item->status_name); // biar konsisten huruf kecil semua (opsional)
+		    $statusTotals[$statusName] = $item->total;
+		}
+		$open = isset($statusTotals['open']) ? $statusTotals['open'] : 0;
+		$progress = isset($statusTotals['progress']) ? $statusTotals['progress'] : 0;
+		$closed = isset($statusTotals['closed']) ? $statusTotals['closed'] : 0;
 
-		echo $field; die();
+		echo $closed; die();
+		//print_r($tasklist); die();
 
 
 	}
