@@ -58,7 +58,7 @@
 					if(data.dtEmp.emp_photo != '' && data.dtEmp.emp_photo != null){
 						$('span.emp_photo').html('<img src="'+baseUrl+'/uploads/employee/'+data.dtEmp.emp_code+'/'+data.dtEmp.emp_photo+'" width="200" height="200" >');
 					}else{
-						$('span.emp_photo').html('');
+						$('span.emp_photo').html('<img src="'+baseUrl+'/public/assets/images/user.jpg" width="200" height="200" >');
 					}
 						
 				} else {

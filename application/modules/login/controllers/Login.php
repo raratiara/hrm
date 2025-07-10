@@ -22,21 +22,28 @@ class Login extends CI_Controller {
 
 	// For user/password auth
 	public function auth()
-	{
+	{ 
 		// tidak perlu dilakukan validasi karena sudah di lakukan di client side
 
 		// xss filter = true
 		$post = $this->input->post(null, true);
 		
-		if(!empty($post)){
+		if(!empty($post)){ 
+			
 			// jangan khawatir. sudah di escape
 			// tidak perlu pake model. KIS = keep it simple
-			$sql1 = "SELECT * FROM ".$this->user_tabel." WHERE username = ? AND isaktif = 1 ORDER BY date_insert DESC LIMIT 1"; // cek new user
+			/*$sql1 = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = ? or b.emp_code = ?) AND a.isaktif = 1 ORDER BY a.date_insert DESC LIMIT 1";*/ // cek new user
+
+			$sql1 = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = '".$post['username']."' or b.emp_code = '".$post['username']."') AND a.isaktif = 1 ORDER BY a.date_insert DESC LIMIT 1"; // cek new user
+
 			$nuser = $this->db->query($sql1, [ $post['username'] ])->num_rows();
 
-			$sql2 = "SELECT * FROM ".$this->user_tabel." WHERE username = ? AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1"; // cek aktif user
+			/*$sql2 = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = ? or b.emp_code = ?) AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1";*/ // cek aktif user
+
+			$sql2 = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = '".$post['username']."' or b.emp_code = '".$post['username']."') AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1"; // cek aktif user
+
 			$auser = $this->db->query($sql2, [ $post['username'] ])->num_rows();
-			if($nuser > 0 && $auser < 1){
+			if($nuser > 0 && $auser < 1){ 
 				$nuser = $this->db->query($sql1, [ $post['username'] ])->row();
 				$hours = $this->login_model->timetocurr($nuser->keygen);
 				$time_limit = _NEW_ACCOUNT_EXPIRE;
@@ -51,7 +58,7 @@ class Login extends CI_Controller {
 					echo '<button class="close" data-close="alert"></button>
 								<span><center>Account not found.<br/>Please contact Administrator.</center></span>';
 				}
-			} else {
+			} else { 
 				if($auser < 1){
 					/*
 					echo '<button class="close" data-close="alert"></button>
@@ -60,7 +67,10 @@ class Login extends CI_Controller {
 					echo '<button class="close" data-close="alert"></button>
 								<span><center>Account not found.<br/>Please contact Administrator.</center></span>';
 				} else {
-					$sql = "SELECT * FROM ".$this->user_tabel." WHERE username = ? AND passwd = ? AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";
+					/*$sql = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = ? or b.emp_code = ?) AND a.passwd = ? AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1";*/
+
+					$sql = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = '".$post['username']."' or b.emp_code = '".$post['username']."') AND a.passwd = '".md5($post['userpasswd'])."' AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1";
+
 					// username & password harus case sensitive untuk keamanan. jadi tidak perlu di strtolowercase
 					$user = $this->db->query($sql, [ $post['username'], md5($post['userpasswd']) ])->row();
 					//var_dump($user); exit;
