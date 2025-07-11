@@ -1,17 +1,18 @@
 <div class="row">
-	<div class="col-md-12 col-sm-12">
+	
+	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-2 control-label no-padding-right">Date Attendance </label>
-			<div class="col-md-4">
+			<label class="col-md-4 control-label no-padding-right">Date Attendance</label>
+			<div class="col-md-8">
 				<?=$txtdateattendance;?>
 			</div>
 		</div>
-	</div>
-	<div class="col-md-6 col-sm-12">
+
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Employee Name</label>
 			<div class="col-md-8">
 				<?=$selemployee;?>
+				<input type="hidden" id="hdnempid" name="hdnempid" value="<?=$empid?>" />
 			</div>
 		</div>
 		
@@ -27,6 +28,12 @@
 				<?=$txtattendancein;?>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Description</label>
+			<div class="col-md-8">
+				<?=$txtdesc;?>
+			</div>
+		</div>
 		<!-- <div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Late</label>
 			<div class="col-md-8">
@@ -36,7 +43,14 @@
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Employee Type</label>
+			<label class="col-md-4 control-label no-padding-right">Location</label>
+			<div class="col-md-8">
+				<?=$selloc;?>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Absence Type</label>
 			<div class="col-md-8">
 				<?=$txtemptype;?>
 			</div>

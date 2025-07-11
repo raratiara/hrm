@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
+/*error_reporting(E_ALL);
+ini_set('display_errors', 1);*/
 class Absensi_menu_model extends MY_Model
 {
 	/* Module */
@@ -185,44 +186,103 @@ class Absensi_menu_model extends MY_Model
 			"aaData" => array()
 		);
 
+		$dateNow = date("Y-m-d");
+		$dateTomorrow = date("Y-m-d", strtotime($dateNow . " +1 day"));
+
 		foreach($rResult as $row)
 		{
+			$date_attendance_tomorrow = date("Y-m-d", strtotime($row->date_attendance . " +1 day"));
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
+			$isupdate="0"; $isdelete="0";
+			if($row->attendance_type != '' && $row->attendance_type != null){
+				if(($row->attendance_type == 'Reguler' && $row->date_attendance == $dateNow) || ($row->attendance_type == 'Shift 1' && $row->date_attendance == $dateNow) || ($row->attendance_type == 'Shift 2' && $dateNow <= $date_attendance_tomorrow) || ($row->attendance_type == 'Shift 3' && $row->date_attendance == $dateNow)){
+					$isupdate="1"; $isdelete="1";
+				}
+				if($row->attendance_type == 'Shift 3' && $row->date_attendance == $dateTomorrow){
+					$isdelete="1";
+				}
+			}
+			
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $isupdate == "1" )  {
 				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
+
 			$delete_bulk = "";
 			$delete = "";
 			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
-				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
-				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
+				//$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
+				if($isdelete == "1"){
+					$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
+				}
 			}
 
-			array_push($output["aaData"],array(
-				$delete_bulk,
-				'<div class="action-buttons">
-					'.$detail.'
-					'.$edit.'
-					'.$delete.'
-				</div>',
-				$row->id,
-				$row->date_attendance,
-				$row->full_name,
-				$row->attendance_type,
-				$row->time_in,
-				$row->time_out,
-				$row->date_attendance_in,
-				$row->date_attendance_out,
-				$row->is_late_desc,
-				$row->is_leaving_office_early_desc,
-				$row->num_of_working_hours
+			$date_attendance_in = $row->date_attendance_in; 
+			if($row->date_attendance_in == '0000-00-00 00:00:00'){
+				$date_attendance_in='';
+			}
+			$date_attendance_out = $row->date_attendance_out; 
+			if($row->date_attendance_out == '0000-00-00 00:00:00'){
+				$date_attendance_out='';
+			}
+			$num_of_working_hours = $row->num_of_working_hours;
+			if($row->num_of_working_hours == '0.00'){
+				$num_of_working_hours='';
+			}
+
+			$dayName = date('l', strtotime($row->date_attendance));
+
+			if($delete_bulk == ""){
+				array_push($output["aaData"],array(
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+						'.$delete.'
+					</div>',
+					$row->id,
+					$dayName,
+					$row->date_attendance,
+					$row->full_name,
+					$row->attendance_type,
+					$row->time_in,
+					$row->time_out,
+					$date_attendance_in,
+					$date_attendance_out,
+					$row->is_late_desc,
+					$row->is_leaving_office_early_desc,
+					$num_of_working_hours
 
 
-			));
+				));
+			}else{
+				array_push($output["aaData"],array(
+					$delete_bulk,
+					'<div class="action-buttons">
+						'.$detail.'
+						'.$edit.'
+						'.$delete.'
+					</div>',
+					$row->id,
+					$dayName,
+					$row->date_attendance,
+					$row->full_name,
+					$row->attendance_type,
+					$row->time_in,
+					$row->time_out,
+					$date_attendance_in,
+					$date_attendance_out,
+					$row->is_late_desc,
+					$row->is_leaving_office_early_desc,
+					$num_of_working_hours
+
+
+				));
+			}
+			
 		}
 
 		echo json_encode($output);
@@ -275,27 +335,34 @@ class Absensi_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$date_attendance 	= date_create($post['date_attendance']); 
-		$post_timein 		= strtotime($post['time_in']);
-		$post_timeout 		= strtotime($post['time_out']);
+		/*$date_attendance 	= date_create($post['date_attendance']);*/
+		$date_attendance 	= $post['date_attendance']; 
+		/*$post_timein 		= strtotime($post['time_in']);
+		$post_timeout 		= strtotime($post['time_out']);*/
 
-		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
+		$is_late=''; //$is_leaving_office_early = ''; $num_of_working_hours='';
 
 		$f_datetime_in='';
-		if(!empty($post['attendance_in'])){
-			$datetime_in 		= date_create($post['attendance_in']);
+		if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00'){
+			/*$datetime_in 		= date_create($post['attendance_in']);
 			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
 			$f_time_in 			= date_format($datetime_in,"H:i:s");
 			$timestamp_timein 	= strtotime($f_time_in); 
-			$timestamp1 		= strtotime($f_datetime_in); 
+			$timestamp1 		= strtotime($f_datetime_in); */
 
+			$f_datetime_in 		= $post['attendance_in'];
+			$f_time_in 			= date("H:i:s", strtotime($post['attendance_in']));
+			$timestamp_timein 	= strtotime($post['attendance_in']); 
+			$schedule 			= $date_attendance.' '.$post['time_in'];
+			$post_timein 		= strtotime($schedule); 
+			
 			if($timestamp_timein > $post_timein){
 				$is_late='Y';
 			}
 		}
 
-		$f_datetime_out='';
-		if(!empty($post['attendance_out'])){
+		/*$f_datetime_out='';
+		if(!empty($post['attendance_out']) && $post['attendance_out'] != '0000-00-00 00:00:00'){
 			$datetime_out 		= date_create($post['attendance_out']);
 			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
 			$f_time_out 		= date_format($datetime_out,"H:i:s");
@@ -307,28 +374,32 @@ class Absensi_menu_model extends MY_Model
 			}
 		}
 
-		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
+		if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00' && !empty($post['attendance_out']) && $post['attendance_out'] != '0000-00-00 00:00:00'){
 			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
-		}
+		}*/
 
 		
 		
 
-  		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".date_format($date_attendance,"Y-m-d")."' and employee_id = '".$post['employee']."'")->result(); 
+  		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$post['date_attendance']."' and employee_id = '".$post['hdnempid']."'")->result(); 
 
   		if(empty($data_attendances)){ 
   			$data = [
-				'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
-				'employee_id' 				=> trim($post['employee']),
+				//'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
+				// 'employee_id' 			=> trim($post['employee']),
+				'date_attendance' 			=> $post['date_attendance'],
+				'employee_id' 				=> trim($post['hdnempid']),
 				'attendance_type' 			=> trim($post['emp_type']),
 				'time_in' 					=> trim($post['time_in']),
 				'time_out' 					=> trim($post['time_out']),
 				'date_attendance_in' 		=> $f_datetime_in,
-				'date_attendance_out'		=> $f_datetime_out,
+				//'date_attendance_out'		=> $f_datetime_out,
 				'is_late'					=> $is_late,
-				'is_leaving_office_early'	=> $is_leaving_office_early,
-				'num_of_working_hours'		=> $num_of_working_hours,
-				'created_at'				=> date("Y-m-d H:i:s")
+				//'is_leaving_office_early'	=> $is_leaving_office_early,
+				//'num_of_working_hours'		=> $num_of_working_hours,
+				'created_at'				=> date("Y-m-d H:i:s"),
+				'notes' 					=> trim($post['description']),
+				'work_location' 			=> trim($post['location'])
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 
@@ -340,14 +411,16 @@ class Absensi_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
+		
 		$date_attendance 	= date_create($post['date_attendance']); 
 		$post_timein 		= strtotime($post['time_in']);
 		$post_timeout 		= strtotime($post['time_out']);
 
-		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
+		//$is_late=''; 
+		$is_leaving_office_early = ''; $num_of_working_hours='';
 
-		$f_datetime_in='';
-		if(!empty($post['attendance_in'])){
+		/*$f_datetime_in='';
+		if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00'){
 			$datetime_in 		= date_create($post['attendance_in']);
 			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
 			$f_time_in 			= date_format($datetime_in,"H:i:s");
@@ -357,22 +430,51 @@ class Absensi_menu_model extends MY_Model
 			if($timestamp_timein > $post_timein){
 				$is_late='Y';
 			}
+		}*/
+
+		$f_datetime_in 		= $post['attendance_in'];
+		$timestamp1 		= strtotime($f_datetime_in); 
+
+		$cek_emp = $this->db->query("select * from time_attendances where id = '".$post['id']."' ")->result(); 
+		if($cek_emp[0]->attendance_type == 'Reguler'){ 
+
+			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+			$datetime_out = $cek_emp[0]->date_attendance.' '.$dt[0]->time_out;
+
+		}else if($cek_emp[0]->attendance_type == 'Shift 1' || $cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){ 
+			$tgl 	= date("d", strtotime($cek_emp[0]->date_attendance));
+			$period = date("Y-m", strtotime($cek_emp[0]->date_attendance));
+
+			$dt = $this->db->query("select a.*, b.periode
+					, b.`".$tgl."` as 'shift' 
+					, c.time_in, c.time_out, c.name 
+					from shift_schedule a
+					left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					where b.employee_id = '".$cek_emp[0]->employee_id."' and a.period = '".$period."' ")->result(); 
+			
+			$datetime_out = $cek_emp[0]->date_attendance.' '.$dt[0]->time_out;
 		}
 
 		$f_datetime_out='';
-		if(!empty($post['attendance_out'])){
-			$datetime_out 		= date_create($post['attendance_out']);
+		if(!empty($post['attendance_out']) && $post['attendance_out'] != '0000-00-00 00:00:00'){
+			/*$datetime_out 		= date_create($post['attendance_out']);
 			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
 			$f_time_out 		= date_format($datetime_out,"H:i:s");
 			$timestamp_timeout 	= strtotime($f_time_out);
+			$timestamp2 		= strtotime($f_datetime_out);*/
+
+			$f_datetime_out 	= $post['attendance_out'];
 			$timestamp2 		= strtotime($f_datetime_out);
+			$timestamp_timeout 	= strtotime($f_datetime_out);
+			$post_timeout 		= strtotime($datetime_out);
 
 			if($timestamp_timeout < $post_timeout){
 				$is_leaving_office_early = 'Y';
 			}
 		}
 
-		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
+		if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00' && !empty($post['attendance_out']) && $post['attendance_out'] != '0000-00-00 00:00:00'){
 			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
 		}
 		
@@ -386,12 +488,13 @@ class Absensi_menu_model extends MY_Model
 				'attendance_type' 			=> trim($post['emp_type']),
 				'time_in' 					=> trim($post['time_in']),
 				'time_out' 					=> trim($post['time_out']),*/
-				'date_attendance_in' 		=> $f_datetime_in,
+				//'date_attendance_in' 		=> $f_datetime_in,
 				'date_attendance_out'		=> $f_datetime_out,
-				'is_late'					=> $is_late,
+				//'is_late'					=> $is_late,
 				'is_leaving_office_early'	=> $is_leaving_office_early,
 				'num_of_working_hours'		=> $num_of_working_hours,
-				'updated_at'				=> date("Y-m-d H:i:s")
+				'updated_at'				=> date("Y-m-d H:i:s"),
+				'notes' 					=> trim($post['description'])
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);

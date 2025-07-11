@@ -9,17 +9,6 @@
 									</div>
                                     <div class="actions">
 
-                                    	<!-- <?php
-                                    	if($this->module_name == 'absensi_menu'){
-                                    		?>
-                                    		<a class="btn btn-danger btn-circle" id="btnAbsen">
-												ABSEN
-											</a> 
-                                    		<?php
-                                    	}
-                                    	?> -->
-                                    	
-
 										<?php if  (defined('_REPORT') && _REPORT == "1") { ?>
 											<a class="btn btn-default btn-sm btn-circle" id="btnReportData">
 												<i class="fa fa-file"></i>
@@ -53,10 +42,17 @@
 											
 											<a class="btn btn-default btn-sm btn-circle" id="btnAddData">
 												<i class="fa fa-floppy-o"></i>
-												Add Data
+												<?php 
+												if($this->module_name == 'absensi_menu'){
+													?>Check-IN<?php
+												}else{
+													?>Add Data<?php
+												}
+												?>
+												
 											</a> 
 										<?php } ?>
-										<?php if  (_USER_ACCESS_LEVEL_DELETE == "1") { ?>
+										<?php if  (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
 											
 											<a class="btn btn-default btn-sm btn-circle" id="btnBulkData">
 												<i class="fa fa-times"></i>
@@ -70,7 +66,7 @@
 												<table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed" style="width:100%">
 													<thead>
 														<tr>
-<?php if (_USER_ACCESS_LEVEL_DELETE == "1"){ ?>
+<?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu"){ ?>
 															<th width="15px"><input type="checkbox" id="check-all"></th>
 <?php } ?>
 															<th width="120px">Action</th>

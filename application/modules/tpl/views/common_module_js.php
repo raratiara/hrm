@@ -31,11 +31,17 @@ $( "#btnAddData" ).on('click', function(){
 	 	}
 	}
 
+
 	$("#employee ").prop('disabled', false);
 	expire();
 	save_method = 'add'; 
 	reset();
 	$('#mfdata').text('Add');
+	if(module_name == 'absensi_menu'){
+		$("#location ").prop('disabled', false);
+		$('#mfdata').text('Form Check-IN');
+		document.getElementById("submit-data").innerText = "Check In";
+	}
 	$('#modal-form-data').modal('show');
 });
 <?php } ?>
