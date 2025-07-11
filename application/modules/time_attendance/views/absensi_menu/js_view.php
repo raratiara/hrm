@@ -11,9 +11,9 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#date_attendance" ).datepicker();
-        $( "#attendance_in" ).datetimepicker();
-        $( "#attendance_out" ).datetimepicker();
+        /*$( "#date_attendance" ).datepicker();*/
+        /*$( "#attendance_in" ).datetimepicker();
+        $( "#attendance_out" ).datetimepicker();*/
         
 		
    	});
@@ -119,19 +119,31 @@ function load_data()
         success: function(data)
         {
 			if(data != false){
-				if(save_method == 'update'){ 
+				if(save_method == 'update'){  
+					var date_attendance_out = getFormattedDateTime();
+					/*if(data.date_attendance_out != null && data.date_attendance_out != '0000-00-00 00:00:00'){
+						var date_attendance_out = data.date_attendance_out;
+					}*/
+
 					$('[name="id"]').val(data.id);
 					$('[name="date_attendance"]').val(data.date_attendance);
-					$('select#employee').val(data.employee_id).trigger('change.select2');
+					$('[name="hdnempid"]').val(data.employee_id);
+					$('[name="employee"]').val(data.employee_name);
+					/*$('select#employee').val(data.employee_id).trigger('change.select2');*/
 					$('[name="emp_type"]').val(data.attendance_type);
 					$('[name="time_in"]').val(data.time_in);
 					$('[name="time_out"]').val(data.time_out);
 					$('[name="attendance_in"]').val(data.date_attendance_in);
-					$('[name="attendance_out"]').val(data.date_attendance_out);
-				
+					$('[name="attendance_out"]').val(date_attendance_out);
+					$('[name="description"]').val(data.notes);
+					$('select#location').val(data.work_location).trigger('change.select2');
+					document.getElementById('location').disabled = true;
+
 					
 					$.uniform.update();
-					$('#mfdata').text('Update');
+					$('#mfdata').text('Form Check-OUT');
+					document.getElementById("submit-data").innerText = "Check Out";
+
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
@@ -225,6 +237,24 @@ $('#employee').on('change', function () {
  	}
 
 });
+
+
+function getFormattedDateTime() {
+  const now = new Date();
+
+  const pad = (n) => n.toString().padStart(2, '0');
+
+  const year = now.getFullYear();
+  const month = pad(now.getMonth() + 1);     // bulan dimulai dari 0
+  const day = pad(now.getDate());
+  const hours = pad(now.getHours());
+  const minutes = pad(now.getMinutes());
+  const seconds = pad(now.getSeconds());
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+
 
 
 </script>

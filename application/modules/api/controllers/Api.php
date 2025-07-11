@@ -45,6 +45,87 @@ class Api extends API_Controller
 
 
 	}
+
+
+	public function tesemail()
+	{
+		
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
+
+	    /*$email = \Config\Services::email();
+
+	    $email->setTo('tiarasanir@gmail.com');
+	    $email->setSubject('Email dengan Lampiran - CI4');
+	    $email->setMessage('<p>Email ini dikirim dari CodeIgniter 4 dengan lampiran.</p>');
+
+	    // Lampirkan file
+	    $path = WRITEPATH . 'uploads/user_manual_billing.docx'; // contoh path di CI4
+	    $email->attach($path);
+
+	    if ($email->send()) {
+	        echo 'Email berhasil dikirim.';
+	    } else {
+	        echo $email->printDebugger(['headers']);
+	    }*/
+
+	    $key = random_string('alnum', _ACCOUNT_KEYLENGTH);
+		$mail = array();
+		$mail['subject'] = 'Tes Email CI';
+		$mail['preheader'] = '';
+		$mail['from_name'] = _MAIL_SYSTEM_NAME;
+		$mail['from_email'] = _MAIL_SYSTEM_EMAIL;
+		$mail['to_name'] = 'Rawrrrr';
+		$mail['to_email'] = 'tiarasanir@gmail.com';
+		$mail['template'] = 'account-confirmation';
+		$mail['key'] = $key;
+	    $output = $this->sendmail($mail);
+			if($output){
+				echo 'sukses email'; die();
+			}else{
+				echo 'gagal email'; die();
+			}
+
+
+	}
+
+
+	// For sending email
+	private function sendmail($mail)
+	{
+		//Load email library 
+		$this->load->library('email');
+
+		$data = array();
+		$data['preheader'] = $mail['preheader'];
+		$data['corp'] = _COMPANY_NAME;
+		$data['account_title'] = _ACCOUNT_TITLE;
+		$data['link_site'] = _URL;
+		$data['link_logo'] = _ASSET_LOGO_FRONT;
+		if($mail['template'] == 'account-confirmation'){
+			$data['link_confirm'] = _URL.'activation?from='.$mail['to_email'].'&auth='.$mail['key'];
+			$data['hour_confirm_expire'] = _NEW_ACCOUNT_EXPIRE;
+		}
+		if($mail['template'] == 'password-reset'){
+			$data['link_reset'] = _URL.'reset?from='.$mail['to_email'].'&auth='.$mail['key'];
+			$data['hour_reset_expire'] = _RESET_ACCOUNT_PASSWORD_EXPIRE;
+		}
+
+		$message = $this->load->view(_TEMPLATE_EMAIL.$mail['template'],$data,TRUE); // load email message using view template
+
+		$this->email->from($mail['from_email'], $mail['from_name']); 
+		$this->email->to($mail['to_email'], $mail['to_name']);
+		$this->email->subject($mail['subject']); 
+		$this->email->message($message); 
+	   
+		 //Send mail 
+		 if($this->email->send()) {
+			return true; 
+		 } else {
+			return false; 
+			//show_error($this->email->print_debugger());
+		 }
+	}
 	
 	
 	// register basic example
@@ -625,28 +706,47 @@ class Api extends API_Controller
 			if($cek_emp['shift_type'] != '')
 			{
 				$emp_shift_type=1;
-				if($cek_emp['shift_type'] == 'Reguler'){
+				if($cek_emp['shift_type'] == 'Reguler'){ 
 					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 					
-				}else if($cek_emp['shift_type'] == 'Shift'){
+				}else if($cek_emp['shift_type'] == 'Shift'){ 
 					/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
 					left join master_shift_time b on b.id = a.master_shift_time_id
 					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+
+					$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
+					//jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
+					if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
+
+						$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
+						$period  = date('Y-m', strtotime($dateTomorrow));
+						$tgl = date('d', strtotime($dateTomorrow));
+					}
 
 					$dt = $this->db->query("select a.*, b.periode
 							, b.`".$tgl."` as 'shift' 
 							, c.time_in, c.time_out, c.name 
 							from shift_schedule a
-							left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
-							left join master_shift_time c on c.id = b.`".$tgl."`
-							where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
+							left join group_shift_schedule b on b.shift_schedule_id = a.id
+							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+
+					if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
+						//$emp_shift_type=0;
+						$period = date("Y-m", strtotime($date)); 
+						$tgl = date("d", strtotime($date));
+						$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+							from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
+					}
 
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
 				} 
 
 
-				if($emp_shift_type == 1){
+				if($emp_shift_type == 1){ 
 					$attendance_type 	= $dt[0]->name;
 					$time_in 			= $dt[0]->time_in;
 					$time_out 			= $dt[0]->time_out;
@@ -670,11 +770,12 @@ class Api extends API_Controller
 							'error' 	=> 'Cannot double checkin'
 						];
 					}else{ //insert
-						$error=0;
-						if($cek_emp['shift_type'] == 'Shift'){
-							if(!empty($cek_data)){
+						$error=0; 
+						if($cek_emp['shift_type'] == 'Shift'){ 
+							if(!empty($cek_data)){  
 								$cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
-								if(!empty($cek_data_shift)){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok
+								if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
+							
 									$date = date("Y-m-d", strtotime($date . " +1 day"));
 
 									$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
@@ -688,9 +789,9 @@ class Api extends API_Controller
 												, b.`".$tgl."` as 'shift' 
 												, c.time_in, c.time_out, c.name 
 												from shift_schedule a
-												left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
-												left join master_shift_time c on c.id = b.`".$tgl."`
-												where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
+												left join group_shift_schedule b on b.shift_schedule_id = a.id 
+												left join master_shift_time c on c.shift_id = b.`".$tgl."`
+												where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
 										if(empty($dt)){
 											$error='Checkin Date not valid';
@@ -710,16 +811,17 @@ class Api extends API_Controller
 									}
 
 								}else{ 
-									$error='Checkin Date not valid';
+									/*$error='Checkin Date not valid';*/
+									$error='Cannot double checkin';
 								}
-							}else{
+							}else{ 
 								$dt = $this->db->query("select a.*, b.periode
 										, b.`".$tgl."` as 'shift' 
 										, c.time_in, c.time_out, c.name 
 										from shift_schedule a
-										left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
-										left join master_shift_time c on c.id = b.`".$tgl."`
-										where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
+										left join group_shift_schedule b on b.shift_schedule_id = a.id 
+										left join master_shift_time c on c.shift_id = b.`".$tgl."`
+										where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 								if(empty($dt)){
 									$error='Checkin Date not valid';
 								}
@@ -846,9 +948,9 @@ class Api extends API_Controller
 							, b.`".$tgl."` as 'shift' 
 							, c.time_in, c.time_out, c.name 
 							from shift_schedule a
-							left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
-							left join master_shift_time c on c.id = b.`".$tgl."`
-							where a.employee_id = '".$employee."' and b.periode = '".$period."' ")->result(); 
+							left join group_shift_schedule b on b.shift_schedule_id = a.id 
+							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 					
 					$datetime_out = $dt[0]->date.' '.$dt[0]->time_out;
 				}else{ //tidak ada shift type
@@ -875,10 +977,12 @@ class Api extends API_Controller
 					if(empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){ 
 						$err_checkout = 'Please CheckIn first';
 					}else if($cek_emp['shift_type'] == 'Shift'){ 
-						if(empty($cek_data)){
+						if(empty($cek_data)){ 
 							$previousDay = date("Y-m-d", strtotime($date . " -1 day")); 
-							$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' and (date_attendance_out is null or date_attendance_out = '0000-00-00') ")->result();
-						}else{
+							
+							/*$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' and (date_attendance_out is null or date_attendance_out = '0000-00-00') ")->result();*/
+							$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' ")->result();
+						}else{ 
 							$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
 							if(empty($cek_data)){
 								$err_checkout='Checkout Date not valid';
@@ -977,7 +1081,7 @@ class Api extends API_Controller
 							$response = [
 								'status' 	=> 400, // Bad Request
 								'message' 	=>'Failed',
-								'error' 	=> 'Require not satisfied'
+								'error' 	=> 'Require not satisfied a'
 							];
 						}
 					}else{ //insert
@@ -1007,7 +1111,7 @@ class Api extends API_Controller
 			$response = [
 				'status' 	=> 400, // Bad Request
 				'message' 	=>'Failed',
-				'error' 	=> 'Require not satisfied'
+				'error' 	=> 'Require not satisfied b'
 			];
 		}
 		
