@@ -227,12 +227,12 @@
 
 
 					const rawData = [
-						{ label: 'On Work Time', data: data.total_on_work_time, backgroundColor: '#38406F', borderRadius: 3 },
+						{ label: 'On Work Time', data: data.total_on_work_time, backgroundColor: '#74DCE0', borderRadius: 3 },
 						{ label: 'Overtime', data: data.total_overtime, backgroundColor: '#FED24B', borderRadius: 3 },
 						{ label: 'Leave', data: data.total_leave, backgroundColor: '#D9CAAA', borderRadius: 3 },
 						{ label: 'Late', data: data.total_late, backgroundColor: '#D48331', borderRadius: 3 },
 						{ label: 'Leaving Early', data: data.total_leaving_early, backgroundColor: '#B8E7EC', borderRadius: 3 },
-						{ label: 'Absent', data: data.total_absent, backgroundColor: '#74DCE0', borderRadius: 3 },
+						{ label: 'Absent', data: data.total_absent, backgroundColor: '#38406F', borderRadius: 3 },
 					];
 
 					// Convert data to 100% scale per group
@@ -583,10 +583,12 @@
 							labels: ['Attendance rate', 'Absent rate'],
 							datasets: [{
 								data: [data[0].persen_hadir, data[0].persen_tidak_hadir],
-								backgroundColor: ['#74DCE0', '#B8E7EC'],
+								backgroundColor: ['#38406F', '#D0D4EE'],
 								borderWidth: 2,
 								borderColor: '#fff',
-								hoverOffset: 8
+								hoverOffset: 8,
+								borderRadius: 5
+								
 							}]
 						},
 						options: {
@@ -682,7 +684,8 @@
 								backgroundColor: ['#FFC000', '#FFDD74'],
 								borderWidth: 2,
 								borderColor: '#fff',
-								hoverOffset: 8
+								hoverOffset: 8,
+								borderRadius: 5
 							}]
 						},
 						options: {
