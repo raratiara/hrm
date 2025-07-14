@@ -246,7 +246,8 @@ class Profile_menu_model extends MY_Model
 	
 
 	public function getRowData($id) { 
-		$yearMonth = ///date("Y-m");
+		$yearMonth 	= ///date("Y-m");
+		$datenow 	= date("Y-m-d");
 
 
 		$mTable = '(SELECT 
@@ -348,15 +349,44 @@ class Profile_menu_model extends MY_Model
 		if(!empty($workhours)){
 			$ttl_workhours = $workhours[0]->ttl_workhours;
 		}
+
+		$ttl_sisa_cuti=0;
+		$sisaCuti = $this->db->query("select sum(sisa_cuti) as ttl_sisa_cuti from total_cuti_karyawan where employee_id = '".$id."' and status = 1")->result(); 
+		if(!empty($sisaCuti)){
+			$ttl_sisa_cuti = $sisaCuti[0]->ttl_sisa_cuti;
+		}
+		$ttl_plafon_reimburs = '-';
+
+		$listBday = $this->db->query("select a.full_name as name, a.emp_code, a.emp_photo, if(b.name = '' or  b.name is null,'-',b.name) as divname
+					FROM employees a left join divisions b on b.id = a.division_id
+					WHERE DATE_FORMAT(a.date_of_birth, '%m-%d') = '".date("m-d")."' and a.status_id = 1
+					")->result(); 
+
+		$listInfo = $this->db->query("select * from office_info
+					where (show_date_start is not null and show_date_start != '0000-00-00' and show_date_end is not null and show_date_end != '0000-00-00' and ('".$datenow."' between show_date_start and show_date_end))
+					or
+					((show_date_start is not null and show_date_start != '0000-00-00') and (show_date_end is null or show_date_end = '0000-00-00') and ('".$datenow."' >= show_date_start))
+					or 
+					((show_date_end is not null and show_date_end != '0000-00-00') and (show_date_start is null or show_date_start = '0000-00-00') and ('".$datenow."' <= show_date_end))
+					")->result(); 
+
+		/*$listInfo = $this->db->query("select * from office_info
+					where id='180' 
+					")->result(); */
+
 		
 		
 		$dataX = array(
 			'dtEmp' 					=> $rs,
-			'ttl_leave' 				=> $ttl_leave,
-			'ttl_workhours' 			=> $workhours,
+			/*'ttl_leave' 				=> $ttl_leave,
+			'ttl_workhours' 			=> $workhours,*/
 			'ttl_tasklist_open' 		=> $ttl_tasklist_open,
 			'ttl_tasklist_inprogress' 	=> $ttl_tasklist_inprogress,
-			'ttl_tasklist_closed' 		=> $ttl_tasklist_closed
+			'ttl_tasklist_closed' 		=> $ttl_tasklist_closed,
+			'ttl_sisa_cuti' 			=> $ttl_sisa_cuti,
+			'ttl_plafon_reimburs' 		=> $ttl_plafon_reimburs,
+			'birthdays' 				=> $listBday,
+			'events' 					=> $listInfo
 			
 		);
 
