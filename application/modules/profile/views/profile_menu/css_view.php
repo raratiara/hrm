@@ -76,7 +76,11 @@
   .profile-image {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
+    border-radius: 50% !important;
+  }
+
+  .profile-name {
+    margin-top: 5px;
   }
 
   .profile-card h3 {
@@ -91,6 +95,7 @@
 
   .profile-details {
     color: #414141;
+
   }
 
   .info-grid {
@@ -99,7 +104,7 @@
     gap: 15px;
   }
 
-  .info-grid span{
+  .info-grid span {
     font-size: 14px;
   }
 
@@ -194,6 +199,24 @@
   }
 
 
+
+  .scroll-area {
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 5px;
+  }
+
+  .events-box {
+    width: 280px;
+    background-color: white !important;
+    padding: 15px;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 280px;
+  }
+
+
+
   .birthday-title {
     margin-top: 0px;
     font-weight: 600;
@@ -204,13 +227,14 @@
   .birthday-content {
     display: flex;
     align-items: center;
+    margin-top: 15px;
 
   }
 
   .birthday-image {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    border-radius: 50% !important;
     object-fit: cover;
     margin-right: 5px;
   }
@@ -327,7 +351,7 @@
     display: flex;
     gap: 4px;
     align-items: center;
-    
+
   }
 
 
@@ -346,5 +370,56 @@
     border-radius: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex: 1;
+  }
+
+  .event {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .date-box {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem !important;
+    color: black;
+    text-align: center;
+    font-size: 0.8rem;
+    width: 110px;
+    height: auto;
+  }
+
+  .today {
+    background: #e6ecf7;
+  }
+
+  .yellow {
+    background: #fcefb5;
+  }
+
+  .orange {
+    background: #fde0bb;
+  }
+
+  .grey {
+    background: #d2d2d2;
+  }
+
+
+  .time {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .info h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  .info p {
+    margin: 0.2rem 0 0 0;
+    color: #555;
+    font-size: 0.9rem;
   }
 </style>

@@ -142,14 +142,14 @@
     <div class="profile-section">
         <div class="profile-card">
             <img src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture" class="profile-image">
-            <div>
+            <div class="profile-name">
                 <span class="name" style="font-weight: bold;">
             </div>
 
 
             <div class="profile-details">
 
-                <div style="margin-top: 5px; color: #888888;">
+                <div style="color: #888888;">
                     <span class="job_title_department">
                         <?php
                         $job = !empty($job_title) ? $job_title : 'Web Developer';
@@ -292,14 +292,15 @@
         <div class="birthday-box">
             <h4 class="birthday-title">Today’s Birthdays</h4>
             <div class="birthday-content">
-                <img src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture" class="birthday-image">
+                <img id="birthday-image" src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture"
+                    class="birthday-image">
                 <div class="birthday-info">
-                    <div class="birthday-name">Diana Putri</div>
-                    <div class="birthday-job">Web Developer</div>
+                    <div id="birthday-name" class="birthday-name"></div>
+                    <div id="birthday-job" class="birthday-job"></div>
                 </div>
                 <div class="birthday-arrow">
-                    <i class="fa fa-caret-up"></i>
-                    <i class="fa fa-caret-down"></i>
+                    <i class="fa fa-caret-up" onclick="showPrevious()"></i>
+                    <i class="fa fa-caret-down" onclick="showNext()"></i>
                 </div>
             </div>
         </div>
@@ -318,10 +319,15 @@
         </div>
 
 
-
-        <div class="birthday-box">
-
-
+        <div class="events-box">
+            <div class="scroll-area" id="event-list"></div>
         </div>
 
+
     </div>
+
+</div>
+
+
+
+
