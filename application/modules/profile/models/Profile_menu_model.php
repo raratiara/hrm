@@ -248,7 +248,7 @@ class Profile_menu_model extends MY_Model
 	public function getRowData($id) { 
 		$yearMonth 	= date("Y-m");
 		$datenow 	= date("Y-m-d");
-
+echo 'tes'; die();
 
 		$mTable = '(SELECT 
 					    a.*,
@@ -327,7 +327,7 @@ class Profile_menu_model extends MY_Model
 
 		$workhours = $this->db->query("select sum(a.num_of_working_hours) as ttl_workhours #a.*, b.status_approval 
 					from time_attendances a left join leave_absences b on b.id = a.leave_absences_id
-					where a.employee_id = 2 and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$yearMonth."')")->result();
+					where a.employee_id = '".$id."' and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$yearMonth."')")->result();
 
 		$tasklist = $this->db->query("select a.status_id, b.name as status_name, COUNT(*) AS total
 					FROM tasklist a left join master_tasklist_status b on b.id = a.status_id
