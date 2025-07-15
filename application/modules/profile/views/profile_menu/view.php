@@ -143,9 +143,9 @@
 
                 <div class="title">Tasklist</div>
                 <div class="tasklist-line">
-                    <div><strong>2</strong> <br>Open</div>
-                    <div><strong>1</strong> <br>In Progress</div>
-                    <div><strong>5</strong> <br>Done</div>
+                    <div><strong><span class="ttl_tasklist_open"></span></strong> Open</div>
+                    <div><strong><span class="ttl_tasklist_inprogress"></span></strong> In Progress</div>
+                    <div><strong><span class="ttl_tasklist_closed"></span></strong> Done</div>
                 </div>
 
             </div>
