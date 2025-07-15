@@ -165,6 +165,40 @@ class Dashboard_menu extends MY_Controller
 
 
 
+ 	public function get_data_workLoc(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+
+		$data_att = $this->db->query("select * from time_attendances")->result(); 
+
+		$wfo=0; 		
+		$wfh=0; 
+		$unkloc=0;	
+
+		foreach($data_att as $row){
+			$loc = $row->work_location;
+
+			if ($loc == 'wfo') {
+		        $wfo += 1;
+		    } elseif ($loc == 'wfh') {
+		        $wfh += 1;
+		    } else {
+		        $unkloc += 1;
+		    }
+		}
+
+		
+		$rs = array(
+			'ttl_wfo' 		=> $wfo,
+			'ttl_wfh' 		=> $wfh,
+			'ttl_unkloc'	=> $unkloc
+		);
+		
+		echo json_encode($rs);
+
+ 	}
 
 
  	public function get_data_empbyDeptGender(){

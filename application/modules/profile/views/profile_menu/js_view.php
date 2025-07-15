@@ -46,7 +46,7 @@
 							var department_name = '[Department]';
 						}
 						var job_title_department = job_title_name+' - '+department_name;
-						var emp_status_name = data.dtEmp.department_name;
+						var emp_status_name = data.dtEmp.emp_status_name;
 						if(data.dtEmp.emp_status_name == '' || data.dtEmp.emp_status_name == null){
 							var emp_status_name = '-';
 						}

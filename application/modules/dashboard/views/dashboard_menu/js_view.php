@@ -20,7 +20,8 @@
 			monthlyAttSumm();
 			attStatistic();
 			empbyDeptGender();
-			empbyGen();
+			/*empbyGen();*/
+			workLoc();
 			attPercentage();
 			workhrsPercentage();
 			dataTotal();
@@ -560,6 +561,99 @@
 	}
 
 
+	function workLoc() {
+
+		var dateperiod = "";
+		var employee = "";
+
+
+		$.ajax({
+			type: "POST",
+			url: module_path + '/get_data_workLoc',
+			data: { dateperiod: dateperiod, employee: employee },
+			cache: false,
+			dataType: "JSON",
+			success: function (data) {
+				if (data != false) {
+
+					const ctx = document.getElementById('workLocation').getContext('2d');
+
+					new Chart(ctx, {
+						type: 'pie',
+						data: {
+							labels: ['WFO', 'WFH'],
+							datasets: [{
+								label: 'Work Location',
+								data: [data.ttl_wfo, data.ttl_wfh],
+								backgroundColor: [
+									'#38406F',
+									'#74DCE0'
+								],
+								borderWidth: 2,
+								borderColor: '#fff',
+								hoverOffset: 10
+							}]
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							plugins: {
+								legend: {
+									labels: {
+										font: {
+											size: 6  // kecilkan ukuran legend text
+										},
+										boxWidth: 8,        // kecilkan ukuran kotak warna
+										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4,     // ubah jadi bulat (opsional)
+										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
+									},
+									position: 'bottom'
+								},
+								tooltip: {
+									callbacks: {
+										label: function (context) {
+											let label = context.label || '';
+											let value = context.parsed;
+											/*return `${label}: ${value}%`;*/
+											return `${label}: ${value}`;
+										}
+									}
+								},
+								title: {
+									display: false
+								}
+							}
+						}
+					});
+
+
+
+				} else {
+
+
+
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
+
+
+
+	}
+
+
 	function attPercentage() {
 
 		var dateperiod = "";
@@ -678,7 +772,8 @@
 					new Chart(ctx, {
 						type: 'doughnut',
 						data: {
-							labels: ['Working hours', 'Idle hours'],
+							/*labels: ['Working hours', 'Idle hours'],*/
+							labels: ['Working hours'],
 							datasets: [{
 								data: [data[0].persen_worked, data[0].persen_idle],
 								backgroundColor: ['#FFC000', '#FFDD74'],

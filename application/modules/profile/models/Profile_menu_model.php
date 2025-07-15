@@ -246,7 +246,7 @@ class Profile_menu_model extends MY_Model
 	
 
 	public function getRowData($id) { 
-		$yearMonth 	= ///date("Y-m");
+		$yearMonth 	= date("Y-m");
 		$datenow 	= date("Y-m-d");
 
 

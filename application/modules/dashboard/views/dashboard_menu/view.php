@@ -142,30 +142,33 @@
 		<div class="summary-card yellow">
 			<div class="card-content">
 				<div>
-					<div class="title">Projects</div>
-					<div class="value"><span id="ttl_projects"></span></div>
+					<div class="title">Absences Days</div>
+					<div class="value"><span id="ttl_attendance"></span></div>
 				</div>
-				<i class="icon fas fa-chart-line"></i>
+				<i class="icon fas fa-calendar-alt"></i>
+				
 			</div>
 		</div>
 
 		<div class="summary-card beige">
 			<div class="card-content">
 				<div>
-					<div class="title">Attendance</div>
-					<div class="value"><span id="ttl_attendance"></span></div>
+					<div class="title">Early vs Late Logins</div>
+					<div class="value"><span id="ttl_projects"></span></div>
 				</div>
-				<i class="icon fas fa-calendar-alt"></i>
+				<i class="icon fas fa-chart-line"></i>
 			</div>
 		</div>
 
 		<div class="summary-card white">
 			<div class="card-content">
 				<div>
-					<div class="title">Reimbursement Amount</div>
-					<div class="value"><span id="ttl_reimbursement"></span></div>
+					<div class="title">Leave Taken</div>
+					<div class="value"><span id="ttl_leave"></span></div>
 				</div>
-				<i class="icon fas fa-money-bill-transfer"></i>
+				<div class="icon-2">
+					<i class="fas fa-user"></i><i class="fas fa-arrow-down" style="font-size: 15px;"></i>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -194,7 +197,7 @@
 				</div>
 			</div>
 			<div class="box">
-				<div class="box-title">Worked Hours Percentage</div>
+				<div class="box-title">Average working hours</div>
 				<div class="box-value">
 					<canvas id="workhrs_percentage"></canvas>
 				</div>
@@ -228,9 +231,9 @@
 	<div class="employee-container">
 
 		<div class="box chart-box">
-			<div class="box-title">Employees by Generation</div>
+			<div class="box-title">Working Location</div>
 			<div class="box-value">
-				<canvas id="empby_gen"></canvas>
+				<canvas id="workLocation"></canvas>
 			</div>
 		</div>
 
