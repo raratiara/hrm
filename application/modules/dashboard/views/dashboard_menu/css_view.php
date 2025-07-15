@@ -572,103 +572,19 @@
   }
 
 
+  .earlylogin-line {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    gap: 10px;
+  }
 
+  .earlylogin-line span {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
 
-  /*.dashboard-flex {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 16px;
-  height: 500px; 
-  width: 1000px;
-  flex: 0 0 calc((100% - 64px) / 5); 
-}*/
-
-  /*.column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}*/
-
-  /*.box {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
-  margin-top: 10px;
-  padding: 16px;
-  text-align: center;
-  font-weight: bold;
-}
-
-
-.box-1 {
-  height: 70px;
-  width: 350px;
-}
-.box-2 {
-  height: 70px;
-  
-}
-.box-3 {
-  height: 70px;
-  width: 200px;
-}
-.box-4 {
-  height: 70px;
-  width: 200px;
-}
-.box-5 {
-  height: 120px;
-  width: 200px;
-}
-
-.box-6 {
-  
-  height: 170px;
-
-  flex: 0 0 190.4px;
-}
-.box-7 {
-  height: 70px;
- 
-}
-.box-8 {
-  height: 70px;
-  
-}
-.box-9 {
-  height: 70px;
- 
-}
-.box-10 {
-  height: 120px;
-  
-}
-.box-11 {
-  
-  height: 170px;
- 
-}
-.box-12 {
-  height: 70px;
-  
-}
-.box-13 {
-  height: 70px;
- 
-}
-.box-14 {
-  height: 70px;
-  
-}
-.box-15 {
-  flex-grow: 1;
-
-}
-.box-16 {
-  height: 170px;
-
-  flex: 0 0 390.4px;
-}*/
 </style>

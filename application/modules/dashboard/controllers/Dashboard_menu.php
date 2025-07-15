@@ -96,22 +96,38 @@ class Dashboard_menu extends MY_Controller
 
 		
 		$ttl_emp = $this->db->query("select count(id) as ttl from employees where status_id = 1")->result(); 
-		$ttl_projects = $this->db->query("select count(id) as ttl from tasklist ")->result(); 
-		$ttl_attendance = $this->db->query("select count(id) as ttl from time_attendances ")->result(); 
-		$ttl_reimbursement = $this->db->query("select sum(nominal_reimburse) as ttl from medicalreimbursements ")->result(); 
-		$ttl_leaves = $this->db->query("select sum(total_leave) as ttl from leave_absences ")->result(); 
-		$ttl_overtimes = $this->db->query("select sum(num_of_hour) as ttl from overtimes ")->result(); 
-
+		$ttl_attendance = $this->db->query("select count(distinct(date_attendance)) as ttl_absences_days from time_attendances ")->result(); 
+		$ttl_latelogin = $this->db->query("select count(id) as ttl from time_attendances where is_late = 'Y' ")->result(); 
+		$ttl_earlylogin = $this->db->query("select count(id) as ttl from time_attendances where is_late != 'Y' or is_late = '' or is_late is null ")->result(); 
+		$ttl_leaves = $this->db->query("select sum(total_leave) as ttl from leave_absences where status_approval = 2")->result();
+		$ttl_overtimes = $this->db->query("select count(id) as ttl FROM overtimes where status_id = 2 ")->result(); 
+		$ttl_holidays = $this->db->query("select count(id) as ttl from master_holidays where day not in ('Sabtu','Minggu') and (DATE_FORMAT(date, '%Y')) = '".date("Y")."' ")->result();
+		$topEmp = $this->db->query("select a.employee_id, b.full_name, b.personal_email, c.name as divname, b.emp_photo, b.emp_code,
+						  SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
+						  SUM(a.num_of_working_hours) AS total_jam_kerja,
+						  (
+						    SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END)
+						    - SUM(a.num_of_working_hours)
+						  ) AS disiplin_score
+						FROM time_attendances a left join employees b on b.id = a.employee_id
+						left join divisions c on c.id = b.division_id
+						WHERE a.date_attendance_in IS NOT NULL 
+						  AND a.date_attendance_out IS NOT NULL and b.status_id = 1
+						GROUP BY a.employee_id
+						ORDER BY disiplin_score ASC limit 5
+					")->result();
 		
 
 
 		$rs = array(
 			'ttl_emp' 			=> $ttl_emp[0]->ttl,
-			'ttl_projects' 		=> $ttl_projects[0]->ttl,
-			'ttl_attendance'	=> $ttl_attendance[0]->ttl,
-			'ttl_reimbursement'	=> 'Rp. '.$ttl_reimbursement[0]->ttl,
+			'ttl_attendance'	=> $ttl_attendance[0]->ttl_absences_days,
+			'ttl_latelogin' 	=> $ttl_latelogin[0]->ttl,
+			'ttl_earlylogin' 	=> $ttl_earlylogin[0]->ttl,
 			'ttl_leaves'		=> $ttl_leaves[0]->ttl,
-			'ttl_overtimes' 	=> $ttl_overtimes[0]->ttl.' hrs'
+			'ttl_overtimes' 	=> $ttl_overtimes[0]->ttl,
+			'ttl_holidays' 		=> $ttl_holidays[0]->ttl,
+			'topEmp' 			=> $topEmp
 		);
 
 
@@ -304,10 +320,10 @@ class Dashboard_menu extends MY_Controller
 				    DATE(date_attendance) AS hari,
 				    SUM(CASE WHEN is_late != 'Y' and is_leaving_office_early != 'Y' and leave_absences_id is null THEN 1 ELSE 0 END) AS total_on_work_time,
 				    SUM(CASE WHEN is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
-				    SUM(CASE WHEN num_of_working_hours > '8' THEN 1 ELSE 0 END) AS total_overtime,
+				    (select count(x.id) as ttl from overtimes x where x.date_overtime = date_attendance) as total_overtime,
 				    SUM(CASE WHEN is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS total_leaving_early,
 				    SUM(CASE WHEN leave_absences_id != '' or leave_absences_id is not null THEN 1 ELSE 0 END) AS total_leave,
-				    SUM(CASE WHEN (date_attendance_in is null or date_attendance_out is null) and leave_absences_id is null  THEN 1 ELSE 0 END) as total_absent,
+				    SUM(CASE WHEN (date_attendance_in is null and date_attendance_out is null) and leave_absences_id is null  THEN 1 ELSE 0 END) as total_absent,
 				    count(id) as total_absensi
 				FROM
 				    time_attendances
@@ -356,10 +372,10 @@ class Dashboard_menu extends MY_Controller
 
     	$rs = $this->db->query("select
 				    COUNT(*) AS total_absen,
-				    SUM(CASE WHEN date_attendance_in is not null and date_attendance_out is not null and leave_absences_id is null THEN 1 ELSE 0 END) AS total_hadir,
-				    SUM(CASE WHEN date_attendance_in is null or date_attendance_out is null or leave_absences_id is not null THEN 1 ELSE 0 END) AS total_tidak_hadir,
-				    ROUND(SUM(CASE WHEN date_attendance_in is not null and date_attendance_out is not null and leave_absences_id is null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_hadir,
-				    ROUND(SUM(CASE WHEN date_attendance_in is null or date_attendance_out is null or leave_absences_id is not null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_tidak_hadir
+				    SUM(CASE WHEN (date_attendance_in is not null or date_attendance_out is not null) and leave_absences_id is null THEN 1 ELSE 0 END) AS total_hadir,
+				    SUM(CASE WHEN (date_attendance_in is null and date_attendance_out is null) or leave_absences_id is not null THEN 1 ELSE 0 END) AS total_tidak_hadir,
+				    ROUND(SUM(CASE WHEN (date_attendance_in is not null or date_attendance_out is not null) and leave_absences_id is null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_hadir,
+				    ROUND(SUM(CASE WHEN (date_attendance_in is null and date_attendance_out is null) or leave_absences_id is not null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_tidak_hadir
 				FROM time_attendances;
 				 ")->result(); 
 
@@ -377,7 +393,7 @@ class Dashboard_menu extends MY_Controller
 		$employee 	= $post['employee'];
 
 
-    	$rs = $this->db->query("select
+    	/*$rs = $this->db->query("select
 					    ROUND(SUM(TIMESTAMPDIFF(MINUTE, date_attendance_in, date_attendance_out)) / 60, 2) AS total_worked_hours,
 					    COUNT(*) * 8 AS total_standar_hours,
 					    ROUND(SUM(TIMESTAMPDIFF(MINUTE, date_attendance_in, date_attendance_out)) / 60 / (COUNT(*) * 8) * 100, 2) AS persen_worked,
@@ -387,7 +403,13 @@ class Dashboard_menu extends MY_Controller
 					WHERE
 					    date_attendance_in IS NOT NULL AND date_attendance_out IS NOT NULL;
 
-				 ")->result(); 
+				 ")->result(); */
+
+		$rs = $this->db->query("select 
+								   ROUND(AVG(num_of_working_hours), 2) AS avg_jam_kerja,
+								   8-(ROUND(AVG(num_of_working_hours), 2)) as sisa
+								FROM time_attendances;
+				 			")->result(); 
 
 
     	echo json_encode($rs);
