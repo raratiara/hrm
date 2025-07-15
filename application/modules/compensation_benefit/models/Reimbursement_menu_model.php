@@ -338,6 +338,8 @@ class Reimbursement_menu_model extends MY_Model
 	}
 
 	public function get_sisa_plafon($emp_id, $type_id){
+		$year = date("Y");
+
 		$getplafon = $this->db->query("select a.id, b.nominal_plafon, b.reimburs_type_id 
 				from employees a left join master_plafon b on b.grade_id = a.grade_id and b.reimburs_type_id = '".$type_id."' where a.id = '".$emp_id."' ")->result(); 
 		$plafon=0;
@@ -345,7 +347,7 @@ class Reimbursement_menu_model extends MY_Model
 			$plafon = $getplafon[0]->nominal_plafon;
 		}
 
-		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' ")->result(); 
+		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' and (DATE_FORMAT(date_reimbursment, '%Y')) = '".$year."' ")->result(); 
 		$pemakaian=0;
 		if($getpemakaian != ''){
 			$pemakaian = $getpemakaian[0]->total_pemakaian;

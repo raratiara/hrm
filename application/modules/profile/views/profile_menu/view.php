@@ -153,7 +153,8 @@
             <div class="summary-item time">
                 <div>
                     <h4>Remaining Reimbursement Limit</h4>
-                    <div class="total"><span class="ttl_plafon_reimburs"></span></div>
+                    <div class="total"><span class="sisa_plafon_all"></span></div>
+
                 </div>
 <!--                 <div class="icon">
                     <i class="fas fa-clock"></i>
