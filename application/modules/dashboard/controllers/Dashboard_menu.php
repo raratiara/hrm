@@ -103,7 +103,7 @@ class Dashboard_menu extends MY_Controller
 		$ttl_overtimes = $this->db->query("select count(id) as ttl FROM overtimes where status_id = 2 ")->result(); 
 		$ttl_holidays = $this->db->query("select count(id) as ttl from master_holidays where day not in ('Sabtu','Minggu') and (DATE_FORMAT(date, '%Y')) = '".date("Y")."' ")->result();
 		$topEmp = $this->db->query("select dt.* from (SELECT 
-						  a.employee_id, b.full_name, b.personal_email, c.name as divname, b.emp_photo,
+						  a.employee_id, b.full_name, b.personal_email, c.name as divname, b.emp_photo, b.emp_code,
 						  SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
 						  SUM(a.num_of_working_hours) AS total_jam_kerja,
 						  (
