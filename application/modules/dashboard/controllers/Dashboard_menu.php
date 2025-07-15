@@ -102,7 +102,8 @@ class Dashboard_menu extends MY_Controller
 		$ttl_leaves = $this->db->query("select sum(total_leave) as ttl from leave_absences where status_approval = 2")->result();
 		$ttl_overtimes = $this->db->query("select count(id) as ttl FROM overtimes where status_id = 2 ")->result(); 
 		$ttl_holidays = $this->db->query("select count(id) as ttl from master_holidays where day not in ('Sabtu','Minggu') and (DATE_FORMAT(date, '%Y')) = '".date("Y")."' ")->result();
-		$topEmp = $this->db->query("select a.employee_id, b.full_name, b.personal_email, c.name as divname, b.emp_photo, b.emp_code,
+		$topEmp = $this->db->query("select dt.* from (SELECT 
+						  a.employee_id, b.full_name, b.personal_email, c.name as divname, b.emp_photo,
 						  SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
 						  SUM(a.num_of_working_hours) AS total_jam_kerja,
 						  (
@@ -114,7 +115,9 @@ class Dashboard_menu extends MY_Controller
 						WHERE a.date_attendance_in IS NOT NULL 
 						  AND a.date_attendance_out IS NOT NULL and b.status_id = 1
 						GROUP BY a.employee_id
-						ORDER BY disiplin_score ASC limit 5
+						ORDER BY disiplin_score ASC) dt
+						where dt.total_jam_kerja != '0.00'
+						limit 5
 					")->result();
 		
 
@@ -317,21 +320,37 @@ class Dashboard_menu extends MY_Controller
 
 
     	$rs = $this->db->query("select
-				    DATE(date_attendance) AS hari,
-				    SUM(CASE WHEN is_late != 'Y' and is_leaving_office_early != 'Y' and leave_absences_id is null THEN 1 ELSE 0 END) AS total_on_work_time,
-				    SUM(CASE WHEN is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
-				    (select count(x.id) as ttl from overtimes x where x.date_overtime = date_attendance) as total_overtime,
-				    SUM(CASE WHEN is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS total_leaving_early,
-				    SUM(CASE WHEN leave_absences_id != '' or leave_absences_id is not null THEN 1 ELSE 0 END) AS total_leave,
-				    SUM(CASE WHEN (date_attendance_in is null and date_attendance_out is null) and leave_absences_id is null  THEN 1 ELSE 0 END) as total_absent,
-				    count(id) as total_absensi
-				FROM
-				    time_attendances
-				where 1=1 ".$where_date.$where_emp."
-				GROUP BY
-				    DATE(date_attendance)
-				ORDER BY
-				    hari ")->result(); 
+						    ta.hari,
+						    ta.total_on_work_time,
+						    ta.total_late,
+						    IFNULL(ot.total_overtime, 0) AS total_overtime,
+						    ta.total_leaving_early,
+						    ta.total_leave,
+						    ta.total_absent,
+						    ta.total_absensi
+						FROM
+						(
+						    SELECT
+						        DATE(date_attendance) AS hari,
+						        SUM(CASE WHEN is_late != 'Y' AND is_leaving_office_early != 'Y' AND leave_absences_id IS NULL THEN 1 ELSE 0 END) AS total_on_work_time,
+						        SUM(CASE WHEN is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
+						        SUM(CASE WHEN is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS total_leaving_early,
+						        SUM(CASE WHEN leave_absences_id != '' OR leave_absences_id IS NOT NULL THEN 1 ELSE 0 END) AS total_leave,
+						        SUM(CASE WHEN (date_attendance_in IS NULL AND date_attendance_out IS NULL) AND leave_absences_id IS NULL THEN 1 ELSE 0 END) AS total_absent,
+						        COUNT(id) AS total_absensi
+						    FROM time_attendances
+						    WHERE date_attendance IS NOT NULL
+						    GROUP BY DATE(date_attendance)
+						) AS ta
+						LEFT JOIN (
+						    SELECT
+						        date_overtime,
+						        COUNT(id) AS total_overtime
+						    FROM overtimes
+						    GROUP BY date_overtime
+						) AS ot ON ta.hari = ot.date_overtime
+						ORDER BY ta.hari
+						 ")->result(); 
 
 		$hari=[]; $total_on_work_time=[]; $total_late=[]; $total_overtime=[]; 
 		$total_leave=[]; $total_absent=[]; $total_leaving_early=[];
