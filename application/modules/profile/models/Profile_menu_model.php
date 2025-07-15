@@ -248,7 +248,7 @@ class Profile_menu_model extends MY_Model
 	public function getRowData($id) { 
 		$yearMonth 	= date("Y-m");
 		$datenow 	= date("Y-m-d");
-echo 'tes'; die();
+
 
 		$mTable = '(SELECT 
 					    a.*,
@@ -362,12 +362,19 @@ echo 'tes'; die();
 					WHERE DATE_FORMAT(a.date_of_birth, '%m-%d') = '".date("m-d")."' and a.status_id = 1
 					")->result(); 
 
-		$listInfo = $this->db->query("select * from office_info
+		/*$listInfo = $this->db->query("select * from office_info
 					where (show_date_start is not null and show_date_start != '0000-00-00' and show_date_end is not null and show_date_end != '0000-00-00' and ('".$datenow."' between show_date_start and show_date_end))
 					or
 					((show_date_start is not null and show_date_start != '0000-00-00') and (show_date_end is null or show_date_end = '0000-00-00') and ('".$datenow."' >= show_date_start))
 					or 
 					((show_date_end is not null and show_date_end != '0000-00-00') and (show_date_start is null or show_date_start = '0000-00-00') and ('".$datenow."' <= show_date_end))
+					")->result(); */
+		$listInfo = $this->db->query("select * from office_info
+					where (show_date_start is not null and show_date_end is not null and ('".$datenow."' between show_date_start and show_date_end))
+					or
+					((show_date_start is not null) and (show_date_end is null) and ('".$datenow."' >= show_date_start))
+					or 
+					((show_date_end is not null) and (show_date_start is null) and ('".$datenow."' <= show_date_end))
 					")->result(); 
 
 		/*$listInfo = $this->db->query("select * from office_info
