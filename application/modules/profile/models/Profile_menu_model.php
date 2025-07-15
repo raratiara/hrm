@@ -383,7 +383,7 @@ class Profile_menu_model extends MY_Model
 						GROUP BY a.id, a.grade_id;
 					")->result(); 
 		
-		$getpemakaian = $this->db->query("select a.*, b.name as type_name, sum(a.nominal_reimburse) as total_pemakaian from medicalreimbursements a left join master_reimburs_type b on b.id = a.reimburs_type_id where a.employee_id = '".$id."' and (DATE_FORMAT(a.date_reimbursment, '%Y')) = '".date("Y")."' group by a.reimburs_type_id ")->result(); 
+		$getpemakaian = $this->db->query("select b.name as type_name, sum(a.nominal_reimburse) as total_pemakaian from medicalreimbursements a left join master_reimburs_type b on b.id = a.reimburs_type_id where a.employee_id = '".$id."' and (DATE_FORMAT(a.date_reimbursment, '%Y')) = '".date("Y")."' group by a.reimburs_type_id, b.name ")->result(); 
 		$pemakaian_rawatjalan=0; $pemakaian_rawatinap=0; $pemakaian_kacamata=0; $pemakaian_persalinan=0;
 		if(!empty($getpemakaian)){
 			if($getpemakaian[0]->type_name == 'Rawat Jalan'){
