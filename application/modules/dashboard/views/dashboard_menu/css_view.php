@@ -111,6 +111,12 @@
     height: 180px;
   }
 
+  #workLocation {
+    width: 200px;
+    height: 180px;
+  }
+
+
   #att_percentage {
     width: 100px;
     height: 100px;
