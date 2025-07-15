@@ -154,7 +154,11 @@
 			<div class="card-content">
 				<div>
 					<div class="title">Early vs Late Logins</div>
-					<div class="value"><span id="ttl_projects"></span></div>
+					<!-- <div class="value"><span id="ttl_projects"></span></div> -->
+				 	<div class="earlylogin-line">
+	                    <div><strong><span class="ttl_earlylogin"></span></strong> Early</div>
+	                    <div><strong><span class="ttl_latelogin"></span></strong> Late</div>
+	                </div>
 				</div>
 				<i class="icon fas fa-chart-line"></i>
 			</div>
@@ -208,21 +212,21 @@
 			<div class="summary-card grey">
 				<div class="card-content">
 					<div>
-						<div class="title">Leave Taken</div>
-						<div class="value"><span id="ttl_leave"></span></div>
+						<div class="title">Overtimes</div>
+						<div class="value"><span id="ttl_overtime"></span></div>
 					</div>
-					<div class="icon-2">
-						<i class="fas fa-user"></i><i class="fas fa-arrow-down" style="font-size: 15px;"></i>
-					</div>
+					<i class="icon-2 fas fa-clock"></i>
 				</div>
 			</div>
 			<div class="summary-card grey">
 				<div class="card-content">
 					<div>
-						<div class="title">Overtime</div>
-						<div class="value"><span id="ttl_overtime"></span></div>
+						<div class="title">Public Holidays</div>
+						<div class="value"><span id="ttl_holidays"></span></div>
 					</div>
-					<i class="icon-2 fas fa-clock"></i>
+					<div class="icon-2">
+						<i class="fa fa-calendar-check-o"></i>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -244,8 +248,8 @@
 					<thead>
 						<tr>
 							<th style="width: 40%;">Full Name & Email</th>
-							<th style="width: 25%;">Department</th>
-							<th style="width: 15%;">Present</th>
+							<th style="width: 25%;">Division</th>
+							<th style="width: 15%;">Work Hours</th>
 							<th style="width: 10%;">Late</th>
 						</tr>
 					</thead>

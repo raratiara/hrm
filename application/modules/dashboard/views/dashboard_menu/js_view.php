@@ -19,7 +19,7 @@
 
 			monthlyAttSumm();
 			attStatistic();
-			empbyDeptGender();
+			/*empbyDeptGender();*/
 			/*empbyGen();*/
 			workLoc();
 			attPercentage();
@@ -59,21 +59,78 @@
 				if (data != false) {
 
 					$('span#ttl_employee').html(data.ttl_emp);
-					$('span#ttl_projects').html(data.ttl_projects);
 					$('span#ttl_attendance').html(data.ttl_attendance);
-					$('span#ttl_reimbursement').html(data.ttl_reimbursement);
+					$('span.ttl_earlylogin').html(data.ttl_earlylogin);
+					$('span.ttl_latelogin').html(data.ttl_latelogin);
 					$('span#ttl_leave').html(data.ttl_leaves);
 					$('span#ttl_overtime').html(data.ttl_overtimes);
+					$('span#ttl_holidays').html(data.ttl_holidays);
 
+
+					/*const employees = [
+						{
+							name: "Diana Putri",
+							email: "dianaputri@gmail.com",
+							department: "Web Developer",
+							present: "100%",
+							late: 0,
+							img: "https://i.pravatar.cc/40?img=1"
+						},
+						{
+							name: "Budi Santoso",
+							email: "budi@gmail.com",
+							department: "UI Designer",
+							present: "98%",
+							late: 1,
+							img: "https://i.pravatar.cc/40?img=2"
+						}
+						
+					];*/
+
+					var getUrl = window.location;
+					//local=> 
+					//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+					var baseUrl = getUrl.protocol + "//" + getUrl.host;
+
+					const tbody = document.getElementById("employeeBody");
+
+					data.topEmp.forEach(emp => {
+						const row = document.createElement("tr");
+
+						if (emp.emp_photo != '' && emp.emp_photo != null) {
+							var photo = baseUrl + '/uploads/employee/' + emp.emp_code + '/' + emp.emp_photo;
+						} else {
+							var photo = baseUrl + '/public/assets/images/user.jpg';
+						}
+
+						row.innerHTML = `
+										<td class="user">
+										  <img src="${photo}" alt="profile" />
+										  <div>
+											<strong>${emp.full_name}</strong><br>
+											<span>${emp.personal_email}</span>
+										  </div>
+										</td>
+										<td>${emp.divname}</td>
+										<td>${emp.total_jam_kerja}</td>
+										<td>${emp.total_late}</td>
+									  `;
+
+						tbody.appendChild(row);
+					});
+
+
+					
 
 				} else {
-
-					$('span#ttl_employee').html('0');
-					$('span#ttl_projects').html('0');
-					$('span#ttl_attendance').html('0');
-					$('span#ttl_reimbursement').html('0');
-					$('span#ttl_leave').html('0');
-					$('span#ttl_overtime').html('0');
+					var valnull = 0;
+					$('span#ttl_employee').html(valnull);
+					$('span#ttl_attendance').html(valnull);
+					$('span.ttl_earlylogin').html(valnull);
+					$('span.ttl_latelogin').html(valnull);
+					$('span#ttl_leave').html(valnull);
+					$('span#ttl_overtime').html(valnull);
+					$('span#ttl_holidays').html(valnull);
 
 				}
 			},
@@ -229,11 +286,11 @@
 
 					const rawData = [
 						{ label: 'On Work Time', data: data.total_on_work_time, backgroundColor: '#74DCE0', borderRadius: 3 },
-						{ label: 'Overtime', data: data.total_overtime, backgroundColor: '#FED24B', borderRadius: 3 },
+						{ label: 'Late', data: data.total_late, backgroundColor: '#FED24B', borderRadius: 3 },
 						{ label: 'Leave', data: data.total_leave, backgroundColor: '#D9CAAA', borderRadius: 3 },
-						{ label: 'Late', data: data.total_late, backgroundColor: '#D48331', borderRadius: 3 },
+						{ label: 'Overtime', data: data.total_overtime, backgroundColor: '#D48331', borderRadius: 3 },
 						{ label: 'Leaving Early', data: data.total_leaving_early, backgroundColor: '#B8E7EC', borderRadius: 3 },
-						{ label: 'Absent', data: data.total_absent, backgroundColor: '#38406F', borderRadius: 3 },
+						{ label: 'No Attendance', data: data.total_absent, backgroundColor: '#38406F', borderRadius: 3 },
 					];
 
 					// Convert data to 100% scale per group
@@ -674,7 +731,7 @@
 					new Chart(ctx, {
 						type: 'doughnut',
 						data: {
-							labels: ['Attendance rate', 'Absent rate'],
+							labels: ['Submit Attendance', 'No Attendance'],
 							datasets: [{
 								data: [data[0].persen_hadir, data[0].persen_tidak_hadir],
 								backgroundColor: ['#38406F', '#D0D4EE'],
@@ -775,7 +832,7 @@
 							/*labels: ['Working hours', 'Idle hours'],*/
 							labels: ['Working hours'],
 							datasets: [{
-								data: [data[0].persen_worked, data[0].persen_idle],
+								data: [data[0].avg_jam_kerja, data[0].sisa],
 								backgroundColor: ['#FFC000', '#FFDD74'],
 								borderWidth: 2,
 								borderColor: '#fff',
@@ -867,68 +924,6 @@
 </script>
 
 <script>
-	const employees = [
-		{
-			name: "Diana Putri",
-			email: "dianaputri@gmail.com",
-			department: "Web Developer",
-			present: "100%",
-			late: 0,
-			img: "https://i.pravatar.cc/40?img=1"
-		},
-		{
-			name: "Budi Santoso",
-			email: "budi@gmail.com",
-			department: "UI Designer",
-			present: "98%",
-			late: 1,
-			img: "https://i.pravatar.cc/40?img=2"
-		},
-		{
-			name: "Sari Lestari",
-			email: "sari@gmail.com",
-			department: "QA Engineer",
-			present: "97%",
-			late: 2,
-			img: "https://i.pravatar.cc/40?img=3"
-		},
-		{
-			name: "Andi Saputra",
-			email: "andi@gmail.com",
-			department: "Backend Developer",
-			present: "100%",
-			late: 0,
-			img: "https://i.pravatar.cc/40?img=4"
-		},
-		{
-			name: "Rina Wulandari",
-			email: "rina@gmail.com",
-			department: "Product Manager",
-			present: "95%",
-			late: 3,
-			img: "https://i.pravatar.cc/40?img=5"
-		}
-	];
-
-	const tbody = document.getElementById("employeeBody");
-
-	employees.forEach(emp => {
-		const row = document.createElement("tr");
-
-		row.innerHTML = `
-	<td class="user">
-	  <img src="${emp.img}" alt="profile" />
-	  <div>
-		<strong>${emp.name}</strong><br>
-		<span>${emp.email}</span>
-	  </div>
-	</td>
-	<td>${emp.department}</td>
-	<td>${emp.present}</td>
-	<td>${emp.late}</td>
-  `;
-
-		tbody.appendChild(row);
-	});
+	
 
 </script>
