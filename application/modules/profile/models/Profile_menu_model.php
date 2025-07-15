@@ -355,20 +355,12 @@ class Profile_menu_model extends MY_Model
 		if(!empty($sisaCuti)){
 			$ttl_sisa_cuti = $sisaCuti[0]->ttl_sisa_cuti;
 		}
-		$ttl_plafon_reimburs = '-';
 
 		$listBday = $this->db->query("select a.full_name as name, a.emp_code, a.emp_photo, if(b.name = '' or  b.name is null,'-',b.name) as divname
 					FROM employees a left join divisions b on b.id = a.division_id
 					WHERE DATE_FORMAT(a.date_of_birth, '%m-%d') = '".date("m-d")."' and a.status_id = 1
 					")->result(); 
 
-		/*$listInfo = $this->db->query("select * from office_info
-					where (show_date_start is not null and show_date_start != '0000-00-00' and show_date_end is not null and show_date_end != '0000-00-00' and ('".$datenow."' between show_date_start and show_date_end))
-					or
-					((show_date_start is not null and show_date_start != '0000-00-00') and (show_date_end is null or show_date_end = '0000-00-00') and ('".$datenow."' >= show_date_start))
-					or 
-					((show_date_end is not null and show_date_end != '0000-00-00') and (show_date_start is null or show_date_start = '0000-00-00') and ('".$datenow."' <= show_date_end))
-					")->result(); */
 		$listInfo = $this->db->query("select * from office_info
 					where (show_date_start is not null and show_date_end is not null and ('".$datenow."' between show_date_start and show_date_end))
 					or
@@ -377,9 +369,53 @@ class Profile_menu_model extends MY_Model
 					((show_date_end is not null) and (show_date_start is null) and ('".$datenow."' <= show_date_end))
 					")->result(); 
 
-		/*$listInfo = $this->db->query("select * from office_info
-					where id='180' 
-					")->result(); */
+
+		/// SISA PLAFON REIMBURS
+		$getplafon = $this->db->query("select a.id, a.grade_id,
+						  MAX(CASE WHEN b.reimburs_type_id = 1 THEN b.nominal_plafon END) AS rawat_jalan,
+						  MAX(CASE WHEN b.reimburs_type_id = 2 THEN b.nominal_plafon END) AS rawat_inap,
+						  MAX(CASE WHEN b.reimburs_type_id = 3 THEN b.nominal_plafon END) AS kacamata,
+						  MAX(CASE WHEN b.reimburs_type_id = 4 THEN b.nominal_plafon END) AS persalinan
+						FROM employees a
+						LEFT JOIN master_plafon b ON b.grade_id = a.grade_id
+						LEFT JOIN master_reimburs_type c ON b.reimburs_type_id = c.id
+						WHERE a.id = '".$id."'
+						GROUP BY a.id, a.grade_id;
+					")->result(); 
+		
+		$getpemakaian = $this->db->query("select a.*, b.name as type_name, sum(a.nominal_reimburse) as total_pemakaian from medicalreimbursements a left join master_reimburs_type b on b.id = a.reimburs_type_id where a.employee_id = '".$id."' and (DATE_FORMAT(a.date_reimbursment, '%Y')) = '".date("Y")."' group by a.reimburs_type_id ")->result(); 
+		$pemakaian_rawatjalan=0; $pemakaian_rawatinap=0; $pemakaian_kacamata=0; $pemakaian_persalinan=0;
+		if(!empty($getpemakaian)){
+			if($getpemakaian[0]->type_name == 'Rawat Jalan'){
+				$pemakaian_rawatjalan = $getpemakaian[0]->total_pemakaian;
+			}else if($getpemakaian[0]->type_name == 'Rawat Inap'){
+				$pemakaian_rawatinap = $getpemakaian[0]->total_pemakaian;
+			}else if($getpemakaian[0]->type_name == 'Kacamata'){
+				$pemakaian_kacamata = $getpemakaian[0]->total_pemakaian;
+			}else if($getpemakaian[0]->type_name == 'Persalinan'){
+				$pemakaian_persalinan = $getpemakaian[0]->total_pemakaian;
+			}
+		}
+
+		$sisaplafon_rawatjalan = $getplafon[0]->rawat_jalan-$pemakaian_rawatjalan;
+		if($sisaplafon_rawatjalan <= 0){
+			$sisaplafon_rawatjalan=0;
+		} 
+		$sisaplafon_rawatinap = $getplafon[0]->rawat_inap-$pemakaian_rawatinap;
+		if($sisaplafon_rawatinap <= 0){
+			$sisaplafon_rawatinap=0;
+		} 
+		$sisaplafon_kacamata = $getplafon[0]->kacamata-$pemakaian_kacamata;
+		if($sisaplafon_kacamata <= 0){
+			$sisaplafon_kacamata=0;
+		} 
+		$sisaplafon_persalinan = $getplafon[0]->persalinan-$pemakaian_persalinan;
+		if($sisaplafon_persalinan <= 0){
+			$sisaplafon_persalinan=0;
+		} 
+		//$sisa_plafon_all = $sisaplafon_rawatjalan+$sisaplafon_rawatinap+$sisaplafon_kacamata+$sisaplafon_persalinan;
+		$sisa_plafon_all = $sisaplafon_rawatjalan;
+		$sisa_plafon_all = 'Rp ' . number_format($sisa_plafon_all, 0, ',', '.');
 
 		
 		
@@ -391,10 +427,13 @@ class Profile_menu_model extends MY_Model
 			'ttl_tasklist_inprogress' 	=> $ttl_tasklist_inprogress,
 			'ttl_tasklist_closed' 		=> $ttl_tasklist_closed,
 			'ttl_sisa_cuti' 			=> $ttl_sisa_cuti,
-			'ttl_plafon_reimburs' 		=> $ttl_plafon_reimburs,
 			'birthdays' 				=> $listBday,
-			'events' 					=> $listInfo
-			
+			'events' 					=> $listInfo,
+			'sisaplafon_rawatjalan' 	=> $sisaplafon_rawatjalan,
+			'sisaplafon_rawatinap' 		=> $sisaplafon_rawatinap,
+			'sisaplafon_kacamata' 		=> $sisaplafon_kacamata,
+			'sisaplafon_persalinan' 	=> $sisaplafon_persalinan,
+			'sisa_plafon_all' 			=> $sisa_plafon_all
 		);
 
 		return $dataX;
