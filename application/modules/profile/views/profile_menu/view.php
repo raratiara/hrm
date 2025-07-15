@@ -72,7 +72,7 @@
 
                 <!-- Kolom 3 -->
                 <div class="column">
-                    <div><strong>Job Levell</strong><span class="job_level"></div>
+                    <div><strong>Job Level</strong><span class="job_level"></div>
                 </div>
             </div>
         </div>
