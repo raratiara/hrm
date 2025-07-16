@@ -936,6 +936,10 @@
 
 		monthlyAttSumm();
 		attStatistic();
+		dataTotal();
+		workLoc();
+		attPercentage();
+		workhrsPercentage();
 
 	});
 
