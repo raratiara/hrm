@@ -46,8 +46,9 @@
 
 	function dataTotal() {
 
-		var dateperiod = "";
-		var employee = "";
+		var dateperiod = $("#fldashdateperiod").val();
+		var employee = $("#fldashemp option:selected").val();
+		//alert(dateperiod); 
 
 		$.ajax({
 			type: "POST",
@@ -93,6 +94,7 @@
 					var baseUrl = getUrl.protocol + "//" + getUrl.host;
 
 					const tbody = document.getElementById("employeeBody");
+					tbody.innerHTML = ""; // Ini akan menghapus semua baris sebelumnya
 
 					data.topEmp.forEach(emp => {
 						const row = document.createElement("tr");
@@ -617,11 +619,11 @@
 
 	}
 
-
+	let workLocationChart; // deklarasi di luar fungsi atau global scope
 	function workLoc() {
 
-		var dateperiod = "";
-		var employee = "";
+		var dateperiod = $("#fldashdateperiod").val();
+		var employee = $("#fldashemp option:selected").val();
 
 
 		$.ajax({
@@ -635,7 +637,11 @@
 
 					const ctx = document.getElementById('workLocation').getContext('2d');
 
-					new Chart(ctx, {
+					if (workLocationChart) {
+						workLocationChart.destroy();
+					}
+
+					workLocationChart = new Chart(ctx, {
 						type: 'pie',
 						data: {
 							labels: ['WFO', 'WFH'],
@@ -710,11 +716,11 @@
 
 	}
 
-
+	let attPercentageChart; // deklarasi di luar fungsi atau global scope
 	function attPercentage() {
 
-		var dateperiod = "";
-		var employee = "";
+		var dateperiod = $("#fldashdateperiod").val();
+		var employee = $("#fldashemp option:selected").val();
 
 
 		$.ajax({
@@ -725,10 +731,14 @@
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
-					console.log(data[0].persen_hadir);
+					
 					const ctx = document.getElementById('att_percentage').getContext('2d');
+					// Hapus chart sebelumnya jika sudah ada
+					if (attPercentageChart) {
+						attPercentageChart.destroy();
+					}
 
-					new Chart(ctx, {
+					attPercentageChart = new Chart(ctx, {
 						type: 'doughnut',
 						data: {
 							labels: ['Submit Attendance', 'No Attendance'],
@@ -809,10 +819,11 @@
 	}
 
 
+	let workhrsPercentageChart; // deklarasi di luar fungsi atau global scope
 	function workhrsPercentage() {
 
-		var dateperiod = "";
-		var employee = "";
+		var dateperiod = $("#fldashdateperiod").val();
+		var employee = $("#fldashemp option:selected").val();
 
 
 		$.ajax({
@@ -825,8 +836,12 @@
 				if (data != false) {
 
 					const ctx = document.getElementById('workhrs_percentage').getContext('2d');
+					// Hapus chart sebelumnya jika sudah ada
+					if (workhrsPercentageChart) {
+						workhrsPercentageChart.destroy();
+					}
 
-					new Chart(ctx, {
+					workhrsPercentageChart = new Chart(ctx, {
 						type: 'doughnut',
 						data: {
 							/*labels: ['Working hours', 'Idle hours'],*/
@@ -909,6 +924,10 @@
 
 		monthlyAttSumm();
 		attStatistic();
+		dataTotal();
+		workLoc();
+		attPercentage();
+		workhrsPercentage();
 
 	}
 
