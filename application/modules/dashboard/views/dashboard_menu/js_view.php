@@ -7,6 +7,9 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"> -->
 
 
@@ -207,6 +210,19 @@
 							responsive: true,
 							maintainAspectRatio: false,
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';
+			                            /*return percentage + '\n' + value;*/
+			                            return value;
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 12,
+			                        }
+			                    },
 								legend: {
 									display: false
 								},
@@ -240,6 +256,7 @@
 								}
 							}
 						}
+						,plugins: [ChartDataLabels]
 					});
 
 				} else {
@@ -661,6 +678,19 @@
 							responsive: true,
 							maintainAspectRatio: false,
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';
+			                            /*return percentage + '\n' + value;*/
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 12,
+			                        }
+			                    },
 								legend: {
 									labels: {
 										font: {
@@ -687,7 +717,8 @@
 									display: false
 								}
 							}
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 
@@ -758,6 +789,19 @@
 							rotation: -90,       // Mulai dari atas (setengah lingkaran)
 							circumference: 180,  // Hanya setengah lingkaran
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 12,
+			                        }
+			                    },
 								legend: {
 									labels: {
 										font: {
@@ -790,7 +834,8 @@
 								display: false
 							  }
 							}*/
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 
@@ -861,6 +906,19 @@
 							rotation: -90,       // Mulai dari atas (setengah lingkaran)
 							circumference: 180,  // Hanya setengah lingkaran
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';
+			                            /*return percentage + '\n' + value;*/
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 12,
+			                        }
+			                    },
 								legend: {
 									labels: {
 										font: {
@@ -893,7 +951,8 @@
 								display: false
 							  }
 							}*/
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 				} else {
