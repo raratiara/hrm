@@ -1,4 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <input type="hidden" id="list_birthdays" name="list_birthdays">
 <input type="hidden" id="currentIndex" name="currentIndex">
@@ -264,6 +266,24 @@
 							responsive: true,
 							maintainAspectRatio: false,
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            
+
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+								        return parseInt(value); // tampilkan tanpa desimal
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 12,
+			                        }
+			                    },
 								tooltip: {
 									callbacks: {
 										label: function (context) {
@@ -311,7 +331,8 @@
 									grid: { color: '#eee' }
 								}
 							}
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 				} else {
