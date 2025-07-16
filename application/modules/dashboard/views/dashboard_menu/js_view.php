@@ -212,10 +212,13 @@
 							plugins: {
 								datalabels: {
 			                        formatter: (value, context) => {
-			                            let percentage = (value / context.chart._metasets
+			                            /*let percentage = (value / context.chart._metasets
 			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';
+			                                .toFixed(2) + '%';*/
 			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
 			                            return value;
 			                        },
 			                        color: '#fff',
@@ -680,10 +683,13 @@
 							plugins: {
 								datalabels: {
 			                        formatter: (value, context) => {
-			                            let percentage = (value / context.chart._metasets
+			                            /*let percentage = (value / context.chart._metasets
 			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';
+			                                .toFixed(2) + '%';*/
 			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
 			                            return parseInt(value);
 			                        },
 			                        color: '#fff',
@@ -795,6 +801,9 @@
 			                            [context.datasetIndex].total * 100)
 			                                .toFixed(2) + '%';*/
 			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
 			                            return parseInt(value);
 			                        },
 			                        color: '#fff',
@@ -908,10 +917,13 @@
 							plugins: {
 								datalabels: {
 			                        formatter: (value, context) => {
-			                            let percentage = (value / context.chart._metasets
+			                            /*let percentage = (value / context.chart._metasets
 			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';
+			                                .toFixed(2) + '%';*/
 			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
 			                            return parseInt(value);
 			                        },
 			                        color: '#fff',
