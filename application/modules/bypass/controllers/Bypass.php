@@ -117,7 +117,7 @@ class Bypass extends API_Controller
 
 	/// download report absensi stiap tgl 25 jam 8 pagi
 	public function downloadAbsenceReport(){
-echo 'tes'; die();
+
 		$dateNow = date('Y-m-d'); //'2025-07-25';
 
 		$timestamp = strtotime($dateNow);
@@ -152,7 +152,7 @@ echo 'tes'; die();
 		/*$zipFilename = FCPATH . 'uploads/report_absensi_bulanan/export_absensi_' . date('Ymd_His') . '.zip';*/
 		$zipFilename = FCPATH . 'uploads/report_absensi_bulanan/export_absensi_' . date('Y-m') . '.zip';
 		$zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
+echo 'ok'; die();
 
 		foreach ($groupedByDivision as $divisionId => $employeeIds) {
 			// CLEAR/RESET DATA SEBELUM MENGISI UNTUK DIVISI BERIKUTNYA
