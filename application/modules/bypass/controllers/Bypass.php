@@ -46,8 +46,8 @@ class Bypass extends API_Controller
 	public function sendmail_reportabsensi()
 	{
 		
-		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
 
 	    //$key = random_string('alnum', _ACCOUNT_KEYLENGTH);
 	    //$baseurl = 'http://localhost/_hrm';
@@ -78,6 +78,10 @@ class Bypass extends API_Controller
 	// For sending email
 	private function sendmail($mail)
 	{
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
+
+		
 		//Load email library 
 		$this->load->library('email');
 
@@ -101,9 +105,9 @@ class Bypass extends API_Controller
 		$this->email->attach($mail['attach'],'attachment'); 
 	   
 		 //Send mail 
-		 if($this->email->send()) {
+		 if($this->email->send()) { echo 'sukses'; die();
 			return true; 
-		 } else {
+		 } else { echo 'gagal'; die();
 			return false; 
 			//show_error($this->email->print_debugger());
 		 }
