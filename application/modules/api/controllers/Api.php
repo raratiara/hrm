@@ -46,87 +46,8 @@ class Api extends API_Controller
 
 	}
 
-
-	public function tesemail()
-	{
-		
-		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
-
-	    /*$email = \Config\Services::email();
-
-	    $email->setTo('tiarasanir@gmail.com');
-	    $email->setSubject('Email dengan Lampiran - CI4');
-	    $email->setMessage('<p>Email ini dikirim dari CodeIgniter 4 dengan lampiran.</p>');
-
-	    // Lampirkan file
-	    $path = WRITEPATH . 'uploads/user_manual_billing.docx'; // contoh path di CI4
-	    $email->attach($path);
-
-	    if ($email->send()) {
-	        echo 'Email berhasil dikirim.';
-	    } else {
-	        echo $email->printDebugger(['headers']);
-	    }*/
-
-	    $key = random_string('alnum', _ACCOUNT_KEYLENGTH);
-		$mail = array();
-		$mail['subject'] = 'Tes Email CI';
-		$mail['preheader'] = '';
-		$mail['from_name'] = _MAIL_SYSTEM_NAME;
-		$mail['from_email'] = _MAIL_SYSTEM_EMAIL;
-		$mail['to_name'] = 'Rawrrrr';
-		$mail['to_email'] = 'tiarasanir@gmail.com';
-		$mail['template'] = 'account-confirmation';
-		$mail['key'] = $key;
-	    $output = $this->sendmail($mail);
-			if($output){
-				echo 'sukses email'; die();
-			}else{
-				echo 'gagal email'; die();
-			}
-
-
-	}
-
-
-	// For sending email
-	private function sendmail($mail)
-	{
-		//Load email library 
-		$this->load->library('email');
-
-		$data = array();
-		$data['preheader'] = $mail['preheader'];
-		$data['corp'] = _COMPANY_NAME;
-		$data['account_title'] = _ACCOUNT_TITLE;
-		$data['link_site'] = _URL;
-		$data['link_logo'] = _ASSET_LOGO_FRONT;
-		if($mail['template'] == 'account-confirmation'){
-			$data['link_confirm'] = _URL.'activation?from='.$mail['to_email'].'&auth='.$mail['key'];
-			$data['hour_confirm_expire'] = _NEW_ACCOUNT_EXPIRE;
-		}
-		if($mail['template'] == 'password-reset'){
-			$data['link_reset'] = _URL.'reset?from='.$mail['to_email'].'&auth='.$mail['key'];
-			$data['hour_reset_expire'] = _RESET_ACCOUNT_PASSWORD_EXPIRE;
-		}
-
-		$message = $this->load->view(_TEMPLATE_EMAIL.$mail['template'],$data,TRUE); // load email message using view template
-
-		$this->email->from($mail['from_email'], $mail['from_name']); 
-		$this->email->to($mail['to_email'], $mail['to_name']);
-		$this->email->subject($mail['subject']); 
-		$this->email->message($message); 
-	   
-		 //Send mail 
-		 if($this->email->send()) {
-			return true; 
-		 } else {
-			return false; 
-			//show_error($this->email->print_debugger());
-		 }
-	}
 	
+
 	
 	// register basic example
     public function register()

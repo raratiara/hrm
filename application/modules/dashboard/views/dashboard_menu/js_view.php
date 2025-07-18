@@ -19,6 +19,12 @@
 	$(document).ready(function () {
 		$(function () {
 
+			/*$('#fldashemp').select2({
+		        width: 'resolve', // atau bisa diganti 'style' atau '100%'
+		        placeholder: "Select Employee",
+		        allowClear: true
+		    });*/
+
 
 			monthlyAttSumm();
 			attStatistic();

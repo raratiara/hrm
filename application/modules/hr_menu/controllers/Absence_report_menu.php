@@ -109,6 +109,297 @@ class Absence_report_menu extends MY_Controller
 
 	public function getAbsenceReport(){
 
+		$dateNow = date("Y-m-d");
+
+		$where_date=" and a.date_attendance = '".$dateNow."' ";
+		$filter_periode =$dateNow;
+		if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+			$where_date = " and a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+			$filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
+		}
+
+		$where_emp=""; 
+		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
+		}
+
+
+		$groupedByDivision = [];
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+		foreach ($emp_absen as $rowemp_absen) {
+		    $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
+		}
+
+		$zip = new ZipArchive();
+		$zipFilename = FCPATH . 'uploads/export_absensi_' . date('Ymd_His') . '.zip';
+		$zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+
+		foreach ($groupedByDivision as $divisionId => $employeeIds) {
+			// CLEAR/RESET DATA SEBELUM MENGISI UNTUK DIVISI BERIKUTNYA
+    		unset($valSummary, $valrows, $valfooter, $dataSheets);
+
+		    ob_start(); // mulai buffer output
+
+		    header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment; filename=\"absence_report.xls\"");
+
+			echo '<?xml version="1.0"?>
+			<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+			 xmlns:o="urn:schemas-microsoft-com:office:office"
+			 xmlns:x="urn:schemas-microsoft-com:office:excel"
+			 xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+			 <Styles>
+			   <Style ss:ID="TitleStyle">
+			     <Font ss:Bold="1" ss:Size="14"/>
+			   </Style>
+			   <Style ss:ID="SubTextStyle">
+			     
+			   </Style>
+			   <Style ss:ID="HeaderStyle">
+			     <Font ss:Bold="1"/>
+			     <Interior ss:Color="#D3D3D3" ss:Pattern="Solid"/>
+			   </Style>
+			 </Styles>';
+
+
+			$dataSheets = [];
+
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
+			if(count($emp_absen) != 0){ 
+				$no=1;
+				
+				foreach($emp_absen as $rowemp_absen){
+					
+					$sql = 'select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
+								(case 
+								when a.leave_type != "" then concat("(",c.name,")") 
+								when a.is_leaving_office_early = "Y" then "Leaving Office Early"
+								else ""
+								end) as is_leaving_office_early_desc
+								, d.name as branch_name, e.full_name as direct_name
+								,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
+								, "" as piket
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
+								, a.notes as keterangan
+								from time_attendances a left join employees b on b.id = a.employee_id
+								left join master_leaves c on c.id = a.leave_type
+								left join branches d on d.id = b.branch_id
+								left join employees e on e.id = b.direct_id
+								where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
+				   			ORDER BY id ASC
+					';
+
+					$res = $this->db->query($sql);
+					$data = $res->result();
+
+					
+					$ttl_cuti=0; $ttl_masuk=0; $ttl_piket=0; $ttl_wfh=0;
+					$valrows=[]; $valfooter=[];
+					foreach($data as $rowdata){ 
+						
+						$valrows[] = [
+							$rowdata->date_attendance,
+							$rowdata->cuti,
+							$rowdata->masuk,
+							$rowdata->piket,
+							$rowdata->wfh,
+							$rowdata->keterangan
+						];
+
+
+						if($rowdata->cuti != ''){
+							$ttl_cuti += $rowdata->cuti;
+						}
+						if($rowdata->masuk != ''){
+							$ttl_masuk += $rowdata->masuk;
+						}
+						if($rowdata->piket != ''){
+							$ttl_piket += $rowdata->piket;
+						}
+						if($rowdata->wfh != ''){
+							$ttl_wfh += $rowdata->wfh;
+						}
+
+					}
+
+					$valSummary[] = [
+						$no,
+						$data[0]->full_name,
+						$ttl_cuti,
+						$ttl_masuk,
+						$ttl_piket,
+						$ttl_wfh
+					];
+
+					$valfooter[] = [
+						'Total',
+						$ttl_cuti,
+						$ttl_masuk,
+						$ttl_piket,
+						$ttl_wfh
+					];
+					
+
+					$dataSheets[$data[0]->full_name] = [
+				        'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+				        'headers' => ['Tanggal', 'Cuti', 'Masuk', 'Piket', 'WFH', 'Keterangan'],
+				        'rows' => $valrows, /*[
+				            ['2025-06-12', '1', '4', '1', '7', ''],
+				            ['2025-06-12', '3', '2', '0', '2', ''],
+				        ],*/
+				        'subtitle' => [
+				        	['Nama', $data[0]->full_name],
+				            ['Area', $data[0]->branch_name],
+				            ['Leader', $data[0]->direct_name],
+				            ['Periode', $filter_periode],
+				        ],
+				        'footer' => $valfooter
+				    ];
+
+				    $no++;
+				}
+
+
+				if($where_emp==""){ //ada sheet summary
+					$dataSheets['Summary'] = [
+				        'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+				        'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+				        'rows' => $valSummary, 
+				        'subtitle' => [
+				        	['Division', $rowemp_absen->division_name],
+				            ['Area', 'All'],
+				            ['Leader', 'All'],
+				            ['Periode', $filter_periode],
+				        ],
+				        'footer' => []	    
+					];
+				}
+				
+				if($where_emp==""){ //ada sheet summary, tampikan di paling depan
+					// Ambil sheet terakhir
+					$lastKey = array_key_last($dataSheets);
+					$lastSheet = [$lastKey => $dataSheets[$lastKey]];
+
+					// Hapus dari array asli
+					unset($dataSheets[$lastKey]);
+
+					// Gabungkan ulang: sheet terakhir jadi pertama
+					$dataSheets = $lastSheet + $dataSheets;
+				}
+
+			}else{ //tidak ada data
+				$dataSheets['Summary'] = [
+			        'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+			        'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+			        'rows' => [
+				            ['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data']
+				        ], 
+			        'subtitle' => [
+			            ['Area', 'All'],
+			            ['Leader', 'All'],
+			            ['Periode', $filter_periode],
+			        ],
+			        'footer' => []	    
+				];
+			}
+
+			
+
+			foreach ($dataSheets as $sheetName => $sheetData) {
+			    echo '<Worksheet ss:Name="' . htmlspecialchars($sheetName) . '">';
+			    echo '<Table>';
+
+			    // Tambahkan kata-kata di atas (judul)
+			    echo '<Row>';
+			    echo '<Cell ss:MergeAcross="' . (count($sheetData['headers']) - 1) . '" ss:StyleID="TitleStyle">';
+			    echo '<Data ss:Type="String">' . htmlspecialchars($sheetData['title']) . '</Data>';
+			    echo '</Cell>';
+			    echo '</Row>';
+
+			    // Kosongkan 1 baris (opsional)
+			    echo '<Row></Row><Row></Row>';
+
+
+				foreach ($sheetData['subtitle'] as $row_S) {
+					echo '<Row>';
+			        foreach ($row_S as $cell_S) {
+			            $type_S = is_numeric($cell_S) ? 'Number' : 'String';
+			            echo '<Cell ss:StyleID="SubTextStyle"><Data ss:Type="' . $type_S . '">' . htmlspecialchars($cell_S) . '</Data></Cell>';
+			        }
+			        echo '</Row>';
+				}
+
+
+				echo '<Row></Row><Row></Row>';
+
+
+			    // Header
+			    echo '<Row>';
+			    foreach ($sheetData['headers'] as $headerCell) {
+			        echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . htmlspecialchars($headerCell) . '</Data></Cell>';
+			    }
+			    echo '</Row>';
+
+			    // Data rows
+			    foreach ($sheetData['rows'] as $row) {
+			        echo '<Row>';
+			        foreach ($row as $cell) {
+			            $type = is_numeric($cell) ? 'Number' : 'String';
+			            echo '<Cell><Data ss:Type="' . $type . '">' . htmlspecialchars($cell) . '</Data></Cell>';
+			        }
+			        echo '</Row>';
+			    }
+
+			    echo '<Row></Row>';
+			    foreach ($sheetData['footer'] as $row_F) {
+					echo '<Row>';
+			        foreach ($row_F as $cell_F) {
+			            $type_F = is_numeric($cell_F) ? 'Number' : 'String';
+			            echo '<Cell ss:StyleID="SubTextStyle"><Data ss:Type="' . $type_F . '">' . htmlspecialchars($cell_F) . '</Data></Cell>';
+			        }
+			        echo '</Row>';
+				}
+
+
+			    echo '</Table>';
+			    echo '</Worksheet>';
+			}
+
+			echo '</Workbook>';
+
+
+			$divname = strtolower(trim($rowemp_absen->division_name));
+			$words = explode(' ', $divname);
+			if (count($words) > 1) {
+				$divname = str_replace(" ","_",$divname);
+			}
+
+		    // Di akhir:
+		    $content = ob_get_clean(); // ambil isi output
+		    $filename = "absensi_division_" . $divname . ".xls";
+		    $zip->addFromString($filename, $content);
+		}
+
+		$zip->close();
+
+
+		header('Content-Type: application/zip');
+		header('Content-disposition: attachment; filename=' . basename($zipFilename));
+		header('Content-Length: ' . filesize($zipFilename));
+		readfile($zipFilename);
+		unlink($zipFilename); // hapus file zip setelah diunduh (opsional)
+		exit;
+
+
+
+	}
+
+
+
+	public function getAbsenceReport_old(){
+
 		
 		header("Content-Type: application/vnd.ms-excel");
 		header("Content-Disposition: attachment; filename=\"absence_report.xls\"");
@@ -135,22 +426,22 @@ class Absence_report_menu extends MY_Controller
 
 	 	$dateNow = date("Y-m-d");
 
-		$where_date=" and date_attendance = '".$dateNow."' ";
+		$where_date=" and a.date_attendance = '".$dateNow."' ";
 		$filter_periode =$dateNow;
 		if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " and date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+			$where_date = " and a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
 			$filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
 		}
 
 		$where_emp=""; 
 		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
-			$where_emp = " and employee_id = '".$_GET['flemployee']."' ";
+			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
 		}
 
 		
 		$dataSheets = [];
 
-		$emp_absen = $this->db->query("select distinct(employee_id) from time_attendances where 1=1 ".$where_emp.$where_date." ")->result(); 
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result(); 
 		if(count($emp_absen) != 0){ 
 			$no=1;
 			
@@ -164,9 +455,9 @@ class Absence_report_menu extends MY_Controller
 							end) as is_leaving_office_early_desc
 							, d.name as branch_name, e.full_name as direct_name
 							,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
-							,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.date_attendance_out is not null and a.work_location = "wfo" then "1" else "" end) as masuk 
+							,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
 							, "" as piket
-							,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.date_attendance_out is not null and a.work_location = "wfh" then "1" else "" end) as wfh
+							,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
 							, a.notes as keterangan
 							from time_attendances a left join employees b on b.id = a.employee_id
 							left join master_leaves c on c.id = a.leave_type
@@ -253,6 +544,7 @@ class Absence_report_menu extends MY_Controller
 			        'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
 			        'rows' => $valSummary, 
 			        'subtitle' => [
+			        	['Division', 'All'],
 			            ['Area', 'All'],
 			            ['Leader', 'All'],
 			            ['Periode', $filter_periode],
@@ -361,99 +653,307 @@ class Absence_report_menu extends MY_Controller
 	}
 
 
-	public function getAbsenceReport_old(){
-		
-		$dateNow = date("Y-m-d");
+	/// download report absensi stiap tgl 25 jam 8 pagi
+	public function downloadAbsenceReport(){
 
-		$where_date=" where a.date_attendance = '".$dateNow."' ";
-		$filter_periode ="";
-		if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " where a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+		$dateNow = date('Y-m-d'); //'2025-07-25';
+
+		$timestamp = strtotime($dateNow);
+		$yearPrev = date("Y", strtotime("-1 month", $timestamp));
+		$monthPrev = date("m", strtotime("-1 month", $timestamp));
+		$dateFrom = $yearPrev . '-' . $monthPrev . '-24';
+		$dateTo = date('Y-m-24', strtotime($dateNow));
+
+		//tgl 24 bln kemarin SAMPAI tgl 24 bulan ini
+
+
+		$where_date=" and (a.date_attendance between '".$dateFrom."' and '".$dateTo."') ";
+		$filter_periode = $dateNow;
+		/*if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+			$where_date = " and a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
 			$filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
-		}
+		}*/
 
-		$where_emp=""; $filter_employee = "All"; $filter_area=""; $filter_direct="";
-		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+		$where_emp=""; 
+		/*if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
 			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
+		}*/
 
-			$emp = $this->db->query("select a.*, b.name as branch_name, c.full_name as direct_name 
-					from employees a left join branches b on b.id = a.branch_id
-					left join employees c on c.id = a.direct_id where a.id = '".$_GET['flemployee']."'")->result(); 
-			$filter_employee	= $emp[0]->full_name;
-			$filter_area 		= $emp[0]->branch_name;
-			$filter_direct 		= $emp[0]->direct_name;
+
+		$groupedByDivision = [];
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+		foreach ($emp_absen as $rowemp_absen) {
+		    $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 		}
 
+		$zip = new ZipArchive();
+		/*$zipFilename = FCPATH . 'uploads/report_absensi_bulanan/export_absensi_' . date('Ymd_His') . '.zip';*/
+		$zipFilename = FCPATH . 'uploads/report_absensi_bulanan/export_absensi_' . date('Y-m') . '.zip';
+		$zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
 
-		$colnames = ["Tanggal","Cuti","Masuk","Piket","WFH","Keterangan"];
-		$colfields 	= ["date_attendance","cuti","masuk","piket","wfh","keterangan"];
+		foreach ($groupedByDivision as $divisionId => $employeeIds) {
+			// CLEAR/RESET DATA SEBELUM MENGISI UNTUK DIVISI BERIKUTNYA
+    		unset($valSummary, $valrows, $valfooter, $dataSheets);
 
-		$sql = 'select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
-					(case 
-					when a.leave_type != "" then concat("(",c.name,")") 
-					when a.is_leaving_office_early = "Y" then "Leaving Office Early"
-					else ""
-					end) as is_leaving_office_early_desc
-					,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
-					,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.date_attendance_out is not null and a.work_location = "wfo" then "1" else "" end) as masuk 
-					, "" as piket
-					,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.date_attendance_out is not null and a.work_location = "wfh" then "1" else "" end) as wfh
-					, a.notes as keterangan
-					from time_attendances a left join employees b on b.id = a.employee_id
-					left join master_leaves c on c.id = a.leave_type
-					'.$where_date.$where_emp.'
-	   			ORDER BY id ASC
-		';
+		    ob_start(); // mulai buffer output
 
-		$res = $this->db->query($sql);
-		$data = $res->result_array();
-		$data_length = count($data);
-		
-		
+		    header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment; filename=\"absence_report.xls\"");
 
-		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
-			$header	= "DATA ABSENSI/ACTIVITY KARYAWAN"."\n\n"
-			."Nama"."\t".$filter_employee."\n"
-			."Area"."\t".$filter_area."\n"
-			."Leader"."\t".$filter_direct."\n"
-			."Periode"."\t".$filter_periode."\n";
+			echo '<?xml version="1.0"?>
+			<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+			 xmlns:o="urn:schemas-microsoft-com:office:office"
+			 xmlns:x="urn:schemas-microsoft-com:office:excel"
+			 xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+			 <Styles>
+			   <Style ss:ID="TitleStyle">
+			     <Font ss:Bold="1" ss:Size="14"/>
+			   </Style>
+			   <Style ss:ID="SubTextStyle">
+			     
+			   </Style>
+			   <Style ss:ID="HeaderStyle">
+			     <Font ss:Bold="1"/>
+			     <Interior ss:Color="#D3D3D3" ss:Pattern="Solid"/>
+			   </Style>
+			 </Styles>';
 
-			$ttl_cuti='0'; $ttl_masuk='0'; $ttl_piket='0'; $ttl_wfh='0';
-			if($data_length != 0){ 
 
-				foreach($data as $rowdata){ 
-					if($rowdata['cuti'] != ''){
-						$ttl_cuti += $rowdata['cuti'];
-					}
-					if($rowdata['masuk'] != ''){
-						$ttl_masuk += $rowdata['masuk'];
-					}
-					if($rowdata['piket'] != ''){
-						$ttl_piket += $rowdata['piket'];
-					}
-					if($rowdata['wfh'] != ''){
-						$ttl_wfh += $rowdata['wfh'];
-					}
+			$dataSheets = [];
+
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
+			if(count($emp_absen) != 0){ 
+				$no=1;
+				
+				foreach($emp_absen as $rowemp_absen){
 					
+					$sql = 'select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
+								(case 
+								when a.leave_type != "" then concat("(",c.name,")") 
+								when a.is_leaving_office_early = "Y" then "Leaving Office Early"
+								else ""
+								end) as is_leaving_office_early_desc
+								, d.name as branch_name, e.full_name as direct_name
+								,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
+								, "" as piket
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
+								, a.notes as keterangan
+								from time_attendances a left join employees b on b.id = a.employee_id
+								left join master_leaves c on c.id = a.leave_type
+								left join branches d on d.id = b.branch_id
+								left join employees e on e.id = b.direct_id
+								where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
+				   			ORDER BY id ASC
+					';
+
+					$res = $this->db->query($sql);
+					$data = $res->result();
+
+					
+					$ttl_cuti=0; $ttl_masuk=0; $ttl_piket=0; $ttl_wfh=0;
+					$valrows=[]; $valfooter=[];
+					foreach($data as $rowdata){ 
+						
+						$valrows[] = [
+							$rowdata->date_attendance,
+							$rowdata->cuti,
+							$rowdata->masuk,
+							$rowdata->piket,
+							$rowdata->wfh,
+							$rowdata->keterangan
+						];
+
+
+						if($rowdata->cuti != ''){
+							$ttl_cuti += $rowdata->cuti;
+						}
+						if($rowdata->masuk != ''){
+							$ttl_masuk += $rowdata->masuk;
+						}
+						if($rowdata->piket != ''){
+							$ttl_piket += $rowdata->piket;
+						}
+						if($rowdata->wfh != ''){
+							$ttl_wfh += $rowdata->wfh;
+						}
+
+					}
+
+					$valSummary[] = [
+						$no,
+						$data[0]->full_name,
+						$ttl_cuti,
+						$ttl_masuk,
+						$ttl_piket,
+						$ttl_wfh
+					];
+
+					$valfooter[] = [
+						'Total',
+						$ttl_cuti,
+						$ttl_masuk,
+						$ttl_piket,
+						$ttl_wfh
+					];
+					
+
+					$dataSheets[$data[0]->full_name] = [
+				        'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+				        'headers' => ['Tanggal', 'Cuti', 'Masuk', 'Piket', 'WFH', 'Keterangan'],
+				        'rows' => $valrows, /*[
+				            ['2025-06-12', '1', '4', '1', '7', ''],
+				            ['2025-06-12', '3', '2', '0', '2', ''],
+				        ],*/
+				        'subtitle' => [
+				        	['Nama', $data[0]->full_name],
+				            ['Area', $data[0]->branch_name],
+				            ['Leader', $data[0]->direct_name],
+				            ['Periode', $filter_periode],
+				        ],
+				        'footer' => $valfooter
+				    ];
+
+				    $no++;
 				}
+
+
+				if($where_emp==""){ //ada sheet summary
+					$dataSheets['Summary'] = [
+				        'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+				        'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+				        'rows' => $valSummary, 
+				        'subtitle' => [
+				        	['Division', $rowemp_absen->division_name],
+				            ['Area', 'All'],
+				            ['Leader', 'All'],
+				            ['Periode', $filter_periode],
+				        ],
+				        'footer' => []	    
+					];
+				}
+				
+				if($where_emp==""){ //ada sheet summary, tampikan di paling depan
+					// Ambil sheet terakhir
+					$lastKey = array_key_last($dataSheets);
+					$lastSheet = [$lastKey => $dataSheets[$lastKey]];
+
+					// Hapus dari array asli
+					unset($dataSheets[$lastKey]);
+
+					// Gabungkan ulang: sheet terakhir jadi pertama
+					$dataSheets = $lastSheet + $dataSheets;
+				}
+
+			}else{ //tidak ada data
+				$dataSheets['Summary'] = [
+			        'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+			        'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+			        'rows' => [
+				            ['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data']
+				        ], 
+			        'subtitle' => [
+			            ['Area', 'All'],
+			            ['Leader', 'All'],
+			            ['Periode', $filter_periode],
+			        ],
+			        'footer' => []	    
+				];
 			}
 
 			
-			$footer	= "Total"."\t".$ttl_cuti."\t".$ttl_masuk."\t".$ttl_piket."\t".$ttl_wfh."\n";
 
-			
-			$this->self_model->export_to_excel($colnames,$colfields, $data, $header ,"absence_report",$footer);
-		} else {
-			$this->load->view('errors/html/error_hacks_401');
+			foreach ($dataSheets as $sheetName => $sheetData) {
+			    echo '<Worksheet ss:Name="' . htmlspecialchars($sheetName) . '">';
+			    echo '<Table>';
+
+			    // Tambahkan kata-kata di atas (judul)
+			    echo '<Row>';
+			    echo '<Cell ss:MergeAcross="' . (count($sheetData['headers']) - 1) . '" ss:StyleID="TitleStyle">';
+			    echo '<Data ss:Type="String">' . htmlspecialchars($sheetData['title']) . '</Data>';
+			    echo '</Cell>';
+			    echo '</Row>';
+
+			    // Kosongkan 1 baris (opsional)
+			    echo '<Row></Row><Row></Row>';
+
+
+				foreach ($sheetData['subtitle'] as $row_S) {
+					echo '<Row>';
+			        foreach ($row_S as $cell_S) {
+			            $type_S = is_numeric($cell_S) ? 'Number' : 'String';
+			            echo '<Cell ss:StyleID="SubTextStyle"><Data ss:Type="' . $type_S . '">' . htmlspecialchars($cell_S) . '</Data></Cell>';
+			        }
+			        echo '</Row>';
+				}
+
+
+				echo '<Row></Row><Row></Row>';
+
+
+			    // Header
+			    echo '<Row>';
+			    foreach ($sheetData['headers'] as $headerCell) {
+			        echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . htmlspecialchars($headerCell) . '</Data></Cell>';
+			    }
+			    echo '</Row>';
+
+			    // Data rows
+			    foreach ($sheetData['rows'] as $row) {
+			        echo '<Row>';
+			        foreach ($row as $cell) {
+			            $type = is_numeric($cell) ? 'Number' : 'String';
+			            echo '<Cell><Data ss:Type="' . $type . '">' . htmlspecialchars($cell) . '</Data></Cell>';
+			        }
+			        echo '</Row>';
+			    }
+
+			    echo '<Row></Row>';
+			    foreach ($sheetData['footer'] as $row_F) {
+					echo '<Row>';
+			        foreach ($row_F as $cell_F) {
+			            $type_F = is_numeric($cell_F) ? 'Number' : 'String';
+			            echo '<Cell ss:StyleID="SubTextStyle"><Data ss:Type="' . $type_F . '">' . htmlspecialchars($cell_F) . '</Data></Cell>';
+			        }
+			        echo '</Row>';
+				}
+
+
+			    echo '</Table>';
+			    echo '</Worksheet>';
+			}
+
+			echo '</Workbook>';
+
+
+			$divname = strtolower(trim($rowemp_absen->division_name));
+			$words = explode(' ', $divname);
+			if (count($words) > 1) {
+				$divname = str_replace(" ","_",$divname);
+			}
+
+		    // Di akhir:
+		    $content = ob_get_clean(); // ambil isi output
+		    $filename = "absensi_division_" . $divname . ".xls";
+		    $zip->addFromString($filename, $content);
 		}
-		
+
+		$zip->close();
+
+
+		header('Content-Type: application/zip');
+		header('Content-disposition: attachment; filename=' . basename($zipFilename));
+		header('Content-Length: ' . filesize($zipFilename));
+		readfile($zipFilename);
+		//unlink($zipFilename); // hapus file zip setelah diunduh (opsional)
+		exit;
+
 
 
 	}
 
 
-
-
+	
 
 }
