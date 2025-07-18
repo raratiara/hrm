@@ -46,8 +46,8 @@ class Bypass extends API_Controller
 	public function sendmail_reportabsensi()
 	{
 		
-		/*error_reporting(E_ALL);
-		ini_set('display_errors', 1);*/
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
 
 	    //$key = random_string('alnum', _ACCOUNT_KEYLENGTH);
 	    //$baseurl = 'http://localhost/_hrm';
