@@ -45,7 +45,7 @@ class Bypass extends API_Controller
 
 	public function sendmail_reportabsensi()
 	{
-		echo 'tesss'; die();
+		
 		/*error_reporting(E_ALL);
 		ini_set('display_errors', 1);*/
 
