@@ -45,7 +45,7 @@ class Bypass extends API_Controller
 
 	public function sendmail_reportabsensi()
 	{
-		
+		echo 'tesss'; die();
 		/*error_reporting(E_ALL);
 		ini_set('display_errors', 1);*/
 
@@ -152,7 +152,7 @@ class Bypass extends API_Controller
 		/*$zipFilename = FCPATH . 'uploads/report_absensi_bulanan/export_absensi_' . date('Ymd_His') . '.zip';*/
 		$zipFilename = FCPATH . 'uploads/report_absensi_bulanan/export_absensi_' . date('Y-m') . '.zip';
 		$zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-echo 'ok'; die();
+
 
 		foreach ($groupedByDivision as $divisionId => $employeeIds) {
 			// CLEAR/RESET DATA SEBELUM MENGISI UNTUK DIVISI BERIKUTNYA
