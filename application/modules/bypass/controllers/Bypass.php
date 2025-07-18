@@ -120,7 +120,7 @@ class Bypass extends API_Controller
 		error_reporting(E_ALL);
 		ini_set('display_errors', 1);
 
-		
+
 		$dateNow = date('Y-m-d'); //'2025-07-25';
 
 		$timestamp = strtotime($dateNow);
@@ -187,7 +187,7 @@ class Bypass extends API_Controller
 
 			$dataSheets = [];
 
-			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name, b.full_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
 			if(count($emp_absen) != 0){ 
 				$no=1;
 				
