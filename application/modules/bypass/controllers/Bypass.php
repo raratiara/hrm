@@ -106,7 +106,7 @@ class Bypass extends API_Controller
 		$this->email->attach($mail['attach'],'attachment'); 
 	   
 		 //Send mail 
-		 if($this->email->send()) { echo 'sukses'; die();
+		 if($this->email->send()) { echo 'sukses email'; die();
 			return true; 
 		 } else { echo 'gagal'; die();
 			return false; 
@@ -118,8 +118,8 @@ class Bypass extends API_Controller
 
 	/// download report absensi stiap tgl 25 jam 8 pagi
 	public function downloadAbsenceReport(){
-		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
 
 
 		$dateNow = date('Y-m-d'); //'2025-07-25';
