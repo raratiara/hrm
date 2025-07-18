@@ -81,7 +81,7 @@ class Bypass extends API_Controller
 		/*error_reporting(E_ALL);
 		ini_set('display_errors', 1);*/
 
-		
+
 		//Load email library 
 		$this->load->library('email');
 
@@ -117,7 +117,7 @@ class Bypass extends API_Controller
 
 	/// download report absensi stiap tgl 25 jam 8 pagi
 	public function downloadAbsenceReport(){
-
+echo 'tes'; die();
 		$dateNow = date('Y-m-d'); //'2025-07-25';
 
 		$timestamp = strtotime($dateNow);
