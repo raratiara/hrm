@@ -92,7 +92,8 @@ class Bypass extends API_Controller
 		$data['corp'] = _COMPANY_NAME;
 		$data['account_title'] = _ACCOUNT_TITLE;
 		$data['link_site'] = _URL;
-		$data['link_logo'] = _ASSET_LOGO; //'http://localhost/_hrm/public/assets/images/logo/gerbangdata.jpg';//_ASSET_LOGO;//_ASSET_LOGO_FRONT;
+		$data['link_logo'] = _URL.'public/assets/images/logo/gerbangdata.PNG';
+		//_ASSET_LOGO; //'http://localhost/_hrm/public/assets/images/logo/gerbangdata.jpg';//_ASSET_LOGO;//_ASSET_LOGO_FRONT;
 		
 
 		$message = $this->load->view(_TEMPLATE_EMAIL.$mail['template'],$data,TRUE); // load email message using view template
