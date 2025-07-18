@@ -15,12 +15,20 @@
     width: 100% !important;
   }
 
+  .select2-container {
+      width: 150px !important;
+  }
+
+  .select2-dropdown {
+      width: 150px !important;
+  }
 
 
-  #fldashemp {
+  /*#fldashemp {
     width: 120px;
     height: 20px;
-  }
+    font-size: 12px;
+  }*/
 
 
   .dashboard-container {
@@ -315,7 +323,7 @@
 
   .employee-select-wrapper {
     position: relative;
-    width: 180px;
+    width: 200px;
     height: 36px;
     border: 1px solid #ccc;
     border-radius: 20px !important;

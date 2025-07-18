@@ -116,12 +116,13 @@
 
 		<div class="employee-select-wrapper">
 			<span class="employee-icon"><i class="fas fa-user"></i></span>
-			<select id="fldashemp" name="fldashemp" class="dropdown-select" required>
+			<!-- <select id="fldashemp" name="fldashemp" class="dropdown-select" required>
 				<option value="">Select Employee</option>
 				<?php foreach ($master_emp as $row): ?>
 					<option value="<?= $row->id ?>"><?= $row->full_name ?></option>
 				<?php endforeach; ?>
-			</select>
+			</select> -->
+			<?=$selemp?>
 		</div>
 	</div>
 
