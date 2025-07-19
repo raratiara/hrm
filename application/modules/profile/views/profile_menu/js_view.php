@@ -264,7 +264,7 @@
 						},
 						options: {
 							responsive: true,
-							maintainAspectRatio: false,
+							maintainAspectRatio: true,
 							plugins: {
 								datalabels: {
 			                        formatter: (value, context) => {
