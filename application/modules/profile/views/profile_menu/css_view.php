@@ -373,19 +373,19 @@
 
 
   .tasklist-line {
-    margin-top: 8px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    gap: 10px;
+    justify-content: space-around;
   }
 
-  .tasklist-line span {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+  .task-item p:first-child {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
 
+  .task-item p:last-child {
+    font-size: 12px;
+    margin: 0;
   }
 
 

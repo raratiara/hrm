@@ -140,9 +140,20 @@
 
                 <div class="title">Tasklist</div>
                 <div class="tasklist-line">
-                    <div><strong><span class="ttl_tasklist_open"></span></strong> Open</div>
-                    <div><strong><span class="ttl_tasklist_inprogress"></span></strong> In Progress</div>
-                    <div><strong><span class="ttl_tasklist_closed"></span></strong> Done</div>
+                    <div class="task-item">
+                        <p class="ttl_tasklist_open"></p>
+                        <p>Open</p>
+                    </div>
+
+                    <div class="task-item">
+                        <p class="ttl_tasklist_inprogress"></p>
+                        <p>In Progress</p>
+                    </div>
+
+                    <div class="task-item">
+                        <p class="ttl_tasklist_closed"></p>
+                        <p>Done</p>
+                    </div>
                 </div>
 
             </div>
@@ -216,9 +227,10 @@
                 <div class="scroll-area" id="event-list"></div>
             </div>
 
-            
+
         </div>
 
     </div>
 
 </div>
+
