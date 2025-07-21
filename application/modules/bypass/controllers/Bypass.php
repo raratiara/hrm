@@ -541,7 +541,7 @@ class Bypass extends API_Controller
 
 
 	public function generate_jatah_cuti_karyawan_all(){
-echo 'oke'; die();
+
 		$dataEmp = $this->db->query("select * from employees where status_id = 1")->result(); 
 
 		foreach($dataEmp as $rowdataEmp){
