@@ -1,5 +1,5 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<meta content="width=device-width, initial-scale=1" name="viewport" />
+
 
 <style>
   body {
@@ -70,6 +70,9 @@
 
   .profile-card {
     width: 300px;
+    /*width: 360px;*/
+    /*flex: 1;*/
+
     text-align: center;
   }
 
@@ -214,6 +217,7 @@
 
   .events-box {
     width: 280px;
+    /*width: 360px;*/
     background-color: white !important;
     padding: 15px;
     border-radius: 15px !important;
@@ -345,7 +349,7 @@
   }
 
 
-  .reimbursement-grid {
+  /*.reimbursement-grid {
     font-size: 12px;
     display: grid;
     grid-template-columns: repeat(2, auto);
@@ -354,38 +358,74 @@
     margin-top: 16px;
   }
 
+  .title_reim {
+    display: flex;
+    justify-content: space-between;
+    min-width: 100px;
+    display: block;
+  }
+
   .item {
     display: flex;
     justify-content: space-between;
-    min-width: 180px;
+    min-width: 100px;
   }
 
   .amount {
     font-weight: bold;
-  }
+    display: block;
+
+  }*/
+
+  .reimbursement-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.item {
+    text-align: center;
+    background-color: rgba(255,255,255,0.2); /* optional styling */
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.title_reim {
+   /* font-weight: bold;*/
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.amount {
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}
+
 
   .summary-item.yellow {
     background-color: #FED24B;
     align-items: center !important;
     color: #38406F;
-
+    
   }
 
 
   .tasklist-line {
-    margin-top: 8px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    gap: 10px;
+    justify-content: space-around;
   }
 
-  .tasklist-line span {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+  .task-item p:first-child {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
 
+  .task-item p:last-child {
+    font-size: 12px;
+    margin: 0;
   }
 
 
@@ -457,4 +497,23 @@
     color: #555;
     font-size: 0.9rem;
   }
+
+
+
+  @media (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .profile-section,
+  .summary-box,
+  .chart-section {
+    flex-direction: column;
+  }
+
+  .right-section {
+    margin-top: 20px;
+  }
+}
+
 </style>

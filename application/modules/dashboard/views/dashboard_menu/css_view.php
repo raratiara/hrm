@@ -16,12 +16,44 @@
   }
 
   .select2-container {
-      width: 150px !important;
+    width: 200px !important;
+
   }
 
   .select2-dropdown {
-      width: 150px !important;
+    width: 200px !important;
   }
+
+
+
+
+  /* Select2 container menyesuaikan wrapper */
+
+
+  /* Override placeholder text */
+  .select2-selection__placeholder {
+    visibility: hidden;
+    /* sembunyikan teks default */
+    position: relative;
+    border: none !important;
+    background: #0000 !important;
+  }
+
+  .select2-selection__placeholder::after {
+    content: "Select Employee";
+    /* teks baru */
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    color: #999;
+  }
+
+  .select2-container--bootstrap .select2-selection {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
 
 
   /*#fldashemp {
@@ -29,6 +61,8 @@
     height: 20px;
     font-size: 12px;
   }*/
+
+
 
 
   .dashboard-container {
@@ -339,7 +373,11 @@
     left: 10px;
     color: #666;
     font-size: 16px;
+    pointer-events: none;
   }
+
+
+
 
 
   .date-picker-wrapper {
@@ -594,5 +632,4 @@
     gap: 4px;
     align-items: center;
   }
-
 </style>
