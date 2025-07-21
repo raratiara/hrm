@@ -383,6 +383,38 @@ class Data_karyawan_menu_model extends MY_Model
 	}
 
 
+	public function generate_jatah_cuti_karyawan_baru($employee_id, $period_start){
+		/*$employee_id 	= $_GET['empid'];
+		$period_start 	= $_GET['datestart'];*/
+
+		if(!empty($employee_id) && !empty($period_start)){
+			$rs = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee_id."' ")->result(); 
+
+			if(empty($rs)){
+				$period_end = date('Y-m-d', strtotime('+1 year', strtotime($period_start)) );
+				$data = [
+						'employee_id' 	=> $employee_id,
+						'period_start' 	=> $period_start,
+						'period_end' 	=> $period_end,
+						'sisa_cuti' 	=> 12,
+						'status' 		=> 1,
+						'created_date'	=> date("Y-m-d H:i:s")
+					];
+
+				$exec = $this->db->insert('total_cuti_karyawan', $data);
+				//echo 'Sukses Generate [Employee ID: '.$employee_id.']'; die();
+			}
+			/*else{
+				echo 'Gagal Generate'; die();
+			}*/
+		}
+		/*else{
+			echo 'Gagal Generate. Data sudah ada'; die();
+		}*/
+
+	}
+
+
 	public function add_data($post) { 
 		$date_of_birth 		= trim($post['date_of_birth']);
 		$date_of_hire 		= trim($post['date_of_hire']);
@@ -722,6 +754,12 @@ class Data_karyawan_menu_model extends MY_Model
 				];
 				$this->db->insert('user', $data2);
 				// end add ke table user //
+
+
+				//add jatah cuti
+				$this->generate_jatah_cuti_karyawan_baru($lastId,$dateofHired);
+				//end add jatah cuti
+
 			}
 
 
@@ -732,6 +770,7 @@ class Data_karyawan_menu_model extends MY_Model
 		}
 		
 	}  
+
 
 	public function edit_data($post) { 
 
