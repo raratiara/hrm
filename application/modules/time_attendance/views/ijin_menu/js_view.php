@@ -111,11 +111,11 @@ $(document).ready(function() {
    	$(function() {
    		
         $( "#date_start" ).datepicker({
-        	startDate: '+1d'
+        	startDate: '+0d'
         });
 
         $( "#date_end" ).datepicker({
-        	startDate: '+1d'
+        	startDate: '+0d'
     	});
 		
    	});
