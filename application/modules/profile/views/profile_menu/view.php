@@ -69,7 +69,7 @@
 
                 <!-- Kolom 3 -->
                 <div class="column">
-                    <div><strong>Job Level</strong><span class="job_level"></div>
+                    <div><strong>Job Levell</strong><span class="job_level"></div>
                 </div>
             </div>
         </div>
@@ -167,7 +167,7 @@
                         <span class="amount" id="amount_persalinan"></span>
                     </div>
                 </div>
-                
+
 
 
                 <!--                 <div class="icon">
