@@ -433,12 +433,12 @@ class Bypass extends API_Controller
 		$dateYesterday = date('Y-m-d', strtotime('-1 day', strtotime($dateNow)) );
 
 
-		$rs = $this->db->query("select * from total_cuti_karyawan where period_end = '".$dateYesterday."' ")->result(); 
+		$rs = $this->db->query("select a.* from total_cuti_karyawan a left join employees b on b.id = a.employee_id where b.status_id = 1 and a.period_end = '".$dateYesterday."' ")->result(); 
 
 		if(!empty($rs)){
 			$data_generate = array();
 			foreach ($rs as $row) {
-				$cek = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$row->employee_id."' and period_start = '".$dateNow."' ")->result(); 
+				$cek = $this->db->query("select a.* from total_cuti_karyawan a left join employees b on b.id = a.employee_id where b.status_id = 1 and a.employee_id = '".$row->employee_id."' and a.period_start = '".$dateNow."' ")->result(); 
 				if(empty($cek)){
 					$period_end = date('Y-m-d', strtotime('+1 year', strtotime($dateNow)) );
 					$data = [
@@ -536,44 +536,6 @@ class Bypass extends API_Controller
 		else{
 			echo 'Gagal Generate. Data sudah ada'; die();
 		}
-
-	}
-
-
-	public function generate_jatah_cuti_karyawan_all(){
-
-		$dataEmp = $this->db->query("select * from employees where status_id = 1")->result(); 
-
-		foreach($dataEmp as $rowdataEmp){
-			$employee_id 	= $rowdataEmp->id;
-			$period_start 	= $rowdataEmp->date_of_hire;
-
-			if(!empty($employee_id) && !empty($period_start)){
-				$rs = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee_id."' ")->result(); 
-
-				if(empty($rs)){
-					$period_end = date('Y-m-d', strtotime('+1 year', strtotime($period_start)) );
-					$data = [
-						'employee_id' 	=> $employee_id,
-						'period_start' 	=> $period_start,
-						'period_end' 	=> $period_end,
-						'sisa_cuti' 	=> 12,
-						'status' 		=> 1,
-						'created_date'	=> date("Y-m-d H:i:s")
-					];
-
-					$exec = $this->db->insert('total_cuti_karyawan', $data);
-					//echo 'Sukses Generate [Employee ID: '.$employee_id.']'; die();
-				}
-				/*else{
-					echo 'Gagal Generate'; die();
-				}*/
-			}
-			/*else{
-				echo 'Gagal Generate. Data sudah ada'; die();
-			}*/
-		}
-
 
 	}
 
