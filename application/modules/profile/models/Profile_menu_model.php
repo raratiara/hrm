@@ -429,10 +429,10 @@ class Profile_menu_model extends MY_Model
 			'ttl_sisa_cuti' 			=> $ttl_sisa_cuti,
 			'birthdays' 				=> $listBday,
 			'events' 					=> $listInfo,
-			'sisaplafon_rawatjalan' 	=> $sisaplafon_rawatjalan,
-			'sisaplafon_rawatinap' 		=> $sisaplafon_rawatinap,
-			'sisaplafon_kacamata' 		=> $sisaplafon_kacamata,
-			'sisaplafon_persalinan' 	=> $sisaplafon_persalinan,
+			'sisaplafon_rawatjalan' 	=> 'Rp ' . number_format($sisaplafon_rawatjalan, 0, ',', '.'),
+			'sisaplafon_rawatinap' 		=> 'Rp ' . number_format($sisaplafon_rawatinap, 0, ',', '.'),
+			'sisaplafon_kacamata' 		=> 'Rp ' . number_format($sisaplafon_kacamata, 0, ',', '.'),
+			'sisaplafon_persalinan' 	=> 'Rp ' . number_format($sisaplafon_persalinan, 0, ',', '.'),
 			'sisa_plafon_all' 			=> $sisa_plafon_all
 		);
 

@@ -101,9 +101,11 @@
 						$('span.sisaplafon_rawatinap').html(data.sisaplafon_rawatinap);
 						$('span.sisaplafon_kacamata').html(data.sisaplafon_kacamata);
 						$('span.sisaplafon_persalinan').html(data.sisaplafon_persalinan);*/
-						$('span.sisa_plafon_all').html(data.sisa_plafon_all);
-						
-						
+						/*$('span.sisa_plafon_all').html(data.sisa_plafon_all);*/
+						$('span#amount_rawatjalan').html(data.sisaplafon_rawatjalan);
+						$('span#amount_rawatinap').html(data.sisaplafon_rawatinap);
+						$('span#amount_kacamata').html(data.sisaplafon_kacamata);
+						$('span#amount_persalinan').html(data.sisaplafon_persalinan);
 						
 
 						//emp_photo
@@ -264,7 +266,7 @@
 						},
 						options: {
 							responsive: true,
-							maintainAspectRatio: false,
+							maintainAspectRatio: true,
 							plugins: {
 								datalabels: {
 			                        formatter: (value, context) => {

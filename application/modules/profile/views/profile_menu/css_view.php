@@ -147,6 +147,13 @@
     flex-wrap: wrap;
   }
 
+  .right-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+  }
+
   .download-icon {
     display: inline-flex;
     align-items: center;
@@ -191,17 +198,16 @@
 
 
   .birthday-box {
-    width: 280px;
     background-color: white !important;
     padding: 15px;
-    border-radius: 20px !important;
+    border-radius: 15px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
 
 
   .scroll-area {
-    max-height: 250px;
+    max-height: 220px;
     overflow-y: auto;
     padding-right: 5px;
   }
@@ -210,9 +216,18 @@
     width: 280px;
     background-color: white !important;
     padding: 15px;
-    border-radius: 20px !important;
+    border-radius: 15px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-height: 280px;
+  }
+
+  .event-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+  }
+
+  .event-item:last-child {
+    border-bottom: none;
   }
 
 
@@ -292,7 +307,7 @@
   .summary-item h4 {
     margin: 0;
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
   }
 
   .summary-item .total {
@@ -322,12 +337,31 @@
     text-align: left !important;
   }
 
-  .summary-item.time {
-    background-color: #9E9E9E;
+  .summary-item.reimbursement {
+    background-color: #E85F40;
     color: white;
-    display: flex !important;
     align-items: center !important;
-    text-align: left !important;
+    text-align: center !important;
+  }
+
+
+  .reimbursement-grid {
+    font-size: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 15px 15px;
+    text-align: left;
+    margin-top: 16px;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    min-width: 180px;
+  }
+
+  .amount {
+    font-weight: bold;
   }
 
   .summary-item.yellow {
@@ -364,12 +398,13 @@
   }
 
   .chart-box {
-    height: 280px;
     background-color: white !important;
     padding: 15px;
     border-radius: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    flex: 1;
+    flex: 2;
+    display: flex;
+    flex-direction: column;
   }
 
   .event {
