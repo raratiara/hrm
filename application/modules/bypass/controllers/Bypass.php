@@ -540,6 +540,44 @@ class Bypass extends API_Controller
 	}
 
 
+	public function generate_jatah_cuti_karyawan_all(){
+echo 'oke'; die();
+		$dataEmp = $this->db->query("select * from employees where status_id = 1")->result(); 
+
+		foreach($dataEmp as $rowdataEmp){
+			$employee_id 	= $rowdataEmp->id;
+			$period_start 	= $rowdataEmp->date_of_hire;
+
+			if(!empty($employee_id) && !empty($period_start)){
+				$rs = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee_id."' ")->result(); 
+
+				if(empty($rs)){
+					$period_end = date('Y-m-d', strtotime('+1 year', strtotime($period_start)) );
+					$data = [
+						'employee_id' 	=> $employee_id,
+						'period_start' 	=> $period_start,
+						'period_end' 	=> $period_end,
+						'sisa_cuti' 	=> 12,
+						'status' 		=> 1,
+						'created_date'	=> date("Y-m-d H:i:s")
+					];
+
+					$exec = $this->db->insert('total_cuti_karyawan', $data);
+					//echo 'Sukses Generate [Employee ID: '.$employee_id.']'; die();
+				}
+				/*else{
+					echo 'Gagal Generate'; die();
+				}*/
+			}
+			/*else{
+				echo 'Gagal Generate. Data sudah ada'; die();
+			}*/
+		}
+
+
+	}
+
+
 	public function submit_absen_holiday(){ //jalanin setiap hari jam 8 pagi
 
 		$Holidays = $this->db->query("select * from master_holidays where date = '".date("Y-m-d")."'")->result();
