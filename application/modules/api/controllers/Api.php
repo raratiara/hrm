@@ -838,6 +838,7 @@ class Api extends API_Controller
     	$photo		= $_FILES['photo'];
     	$latitude	= $_POST['latitude'];
     	$longitude	= $_POST['longitude'];
+    	$work_location	= $_POST['work_location'];
 
 
 		if($employee != '' && $datetime != ''){
@@ -966,7 +967,8 @@ class Api extends API_Controller
 									'notes' 					=> $notes,
 									'photo' 					=> $document,
 									'lat_checkout' 				=> $latitude,
-									'long_checkout' 			=> $longitude
+									'long_checkout' 			=> $longitude,
+									'work_location' 			=> $work_location
 								];
 								$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
 

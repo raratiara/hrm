@@ -494,7 +494,8 @@ class Absensi_menu_model extends MY_Model
 				'is_leaving_office_early'	=> $is_leaving_office_early,
 				'num_of_working_hours'		=> $num_of_working_hours,
 				'updated_at'				=> date("Y-m-d H:i:s"),
-				'notes' 					=> trim($post['description'])
+				'notes' 					=> trim($post['description']),
+				'work_location' 			=> trim($post['location'])
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
