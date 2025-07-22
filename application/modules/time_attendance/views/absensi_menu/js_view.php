@@ -137,7 +137,7 @@ function load_data()
 					$('[name="attendance_out"]').val(date_attendance_out);
 					$('[name="description"]').val(data.notes);
 					$('select#location').val(data.work_location).trigger('change.select2');
-					document.getElementById('location').disabled = true;
+					//document.getElementById('location').disabled = true;
 
 					
 					$.uniform.update();
