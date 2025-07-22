@@ -107,7 +107,8 @@ class Absensi_menu extends MY_Controller
 
 		$raw = [
 		    ['id' => 'wfo', 'name' => 'WFO'],
-		    ['id' => 'wfh', 'name' => 'WFH']
+		    ['id' => 'wfh', 'name' => 'WFH'],
+		    ['id' => 'onsite', 'name' => 'On Site']
 		];
 		$msLoc = [];
 		foreach ($raw as $row_raw) {

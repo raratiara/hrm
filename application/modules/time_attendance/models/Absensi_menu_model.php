@@ -502,7 +502,7 @@ class Absensi_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(SELECT a.*, b.full_name as employee_name FROM time_attendances a left join employees b on b.id = a.employee_id
+		$mTable = '(SELECT a.*, b.full_name as employee_name, (case when a.work_location = "wfo" then "WFO" when a.work_location = "wfh" then "WFH" when a.work_location = "onsite" then "On Site" else "" end) as work_location_name FROM time_attendances a left join employees b on b.id = a.employee_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
