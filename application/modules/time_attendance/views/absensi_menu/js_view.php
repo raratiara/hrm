@@ -154,6 +154,8 @@ function load_data()
 					$('span.time_out').html(data.time_out);
 					$('span.attendance_in').html(data.date_attendance_in);
 					$('span.attendance_out').html(data.date_attendance_out);
+					$('span.work_loc').html(data.work_location_name);
+					$('span.description').html(data.notes);
 				
 					
 					$('#modal-view-data').modal('show');

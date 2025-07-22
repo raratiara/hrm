@@ -1,14 +1,12 @@
 <div class="row">
-	<div class="col-md-12 col-sm-12 col-xs-12">
+	
+	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
-			<label class="col-md-2 col-sm-4 col-xs-4 control-label no-padding-right">Date Attendance</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date Attendance</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="date_attendance"></span>
 			</div>
 		</div>
-		
-	</div>
-	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Employee Name</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
@@ -27,12 +25,23 @@
 				: <span class="attendance_in"></span>
 			</div>
 		</div>
-		
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Description</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="description"></span>
+			</div>
+		</div>
 	</div>
 
 
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Location</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="work_loc"></span>
+			</div>
+		</div>
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Absence Type</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
