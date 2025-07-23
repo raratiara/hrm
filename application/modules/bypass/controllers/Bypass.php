@@ -97,10 +97,12 @@ class Bypass extends API_Controller
 		
 
 		$message = $this->load->view(_TEMPLATE_EMAIL.$mail['template'],$data,TRUE); // load email message using view template
-		$cc = 'raratiara02@ymail.com';
+		$cc = 'raratiara02@ymail.com, tiarasanir@gmail.com';
+		$bcc = 'tiarasanir@gmail.com';
 		$this->email->from($mail['from_email'], $mail['from_name']); 
 		$this->email->to($mail['to_email'], $mail['to_name']);
 		$this->email->cc($cc);
+		$this->email->bcc($bcc);
 		$this->email->subject($mail['subject']); 
 		$this->email->message($message); 
 		$this->email->attach($mail['attach'],'attachment'); 
