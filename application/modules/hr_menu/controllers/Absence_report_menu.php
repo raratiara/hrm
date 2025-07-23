@@ -180,7 +180,7 @@ class Absence_report_menu extends MY_Controller
 								, d.name as branch_name, e.full_name as direct_name
 								,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
-								, "" as piket
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
 								, a.notes as keterangan
 								from time_attendances a left join employees b on b.id = a.employee_id
@@ -456,7 +456,7 @@ class Absence_report_menu extends MY_Controller
 							, d.name as branch_name, e.full_name as direct_name
 							,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
 							,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
-							, "" as piket
+							,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket
 							,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
 							, a.notes as keterangan
 							from time_attendances a left join employees b on b.id = a.employee_id
@@ -737,7 +737,7 @@ class Absence_report_menu extends MY_Controller
 								, d.name as branch_name, e.full_name as direct_name
 								,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
-								, "" as piket
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
 								, a.notes as keterangan
 								from time_attendances a left join employees b on b.id = a.employee_id

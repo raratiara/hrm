@@ -131,10 +131,13 @@ class Bypass extends API_Controller
 		$dateTo = date('Y-m-24', strtotime($dateNow));
 
 		//tgl 24 bln kemarin SAMPAI tgl 24 bulan ini
+		$bln = date('F'); // July
+		$thn = date('Y'); // 2025
+		$periode = $bln.' '.$thn;
 
 
 		$where_date=" and (a.date_attendance between '".$dateFrom."' and '".$dateTo."') ";
-		$filter_periode = $dateNow;
+		//$filter_periode = $dateNow;
 		/*if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
 			$where_date = " and a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
 			$filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
@@ -203,7 +206,7 @@ class Bypass extends API_Controller
 								, d.name as branch_name, e.full_name as direct_name
 								,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
-								, "" as piket
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
 								, a.notes as keterangan
 								from time_attendances a left join employees b on b.id = a.employee_id
@@ -276,7 +279,7 @@ class Bypass extends API_Controller
 				        	['Nama', $data[0]->full_name],
 				            ['Area', $data[0]->branch_name],
 				            ['Leader', $data[0]->direct_name],
-				            ['Periode', $filter_periode],
+				            ['Periode', $periode],
 				        ],
 				        'footer' => $valfooter
 				    ];
@@ -294,7 +297,7 @@ class Bypass extends API_Controller
 				        	['Division', $rowemp_absen->division_name],
 				            ['Area', ''],
 				            ['Leader', ''],
-				            ['Periode', $filter_periode],
+				            ['Periode', $periode],
 				        ],
 				        'footer' => []	    
 					];
@@ -322,7 +325,7 @@ class Bypass extends API_Controller
 			        'subtitle' => [
 			            ['Area', ''],
 			            ['Leader', ''],
-			            ['Periode', $filter_periode],
+			            ['Periode', $periode],
 			        ],
 			        'footer' => []	    
 				];
