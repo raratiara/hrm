@@ -11,7 +11,8 @@ class Documents_menu_model extends MY_Model
 
  	/* upload */
  	protected $attachment_folder	= "./uploads/documents";
-	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	/*protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt|apk";*/
+	protected $allow_type			= "*";
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
 
@@ -348,6 +349,10 @@ class Documents_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
+				
+
 		$name = trim($post['name']); 
 
 
