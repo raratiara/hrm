@@ -349,7 +349,7 @@ class Documents_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { echo 'oke'; die();
-		error_reporting(E_ALL);
+		/*error_reporting(E_ALL);
 		ini_set('display_errors', 1);
 				
 
@@ -379,7 +379,7 @@ echo 'tes'; die();
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+		} else return null;*/
 	}
 	
 
