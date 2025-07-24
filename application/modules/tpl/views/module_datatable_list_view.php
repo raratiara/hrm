@@ -1,10 +1,10 @@
 <style>
 	#dynamic-table th:nth-child(2),
 	#dynamic-table td:nth-child(2) {
-		width: 100px !important;
-		min-width: 100px !important;
-		max-width: 100px !important;
-		white-space: nowrap;
+		
+		min-width: none !important;
+		max-width: none !important;
+		white-space: nowrap !important;
 		/* Agar konten tidak turun baris */
 	}
 </style>
