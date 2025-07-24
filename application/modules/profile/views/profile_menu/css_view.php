@@ -338,7 +338,7 @@
   }
 
   .summary-item.reimbursement {
-    background-color: #E85F40;
+    background-color: #9cb4deff;
     color: white;
     align-items: center !important;
     text-align: center !important;

@@ -1,12 +1,21 @@
 <style>
 	#dynamic-table th:nth-child(2),
 	#dynamic-table td:nth-child(2) {
-		
 		min-width: none !important;
 		max-width: none !important;
 		white-space: nowrap !important;
 		/* Agar konten tidak turun baris */
 	}
+
+	#dynamic-table th:nth-child(1),
+	#dynamic-table td:nth-child(1) {
+		min-width: none !important;
+		max-width: none !important;
+		white-space: nowrap !important;
+		/* Agar konten tidak turun baris */
+	}
+
+	
 </style>
 
 
