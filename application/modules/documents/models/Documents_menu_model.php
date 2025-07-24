@@ -349,8 +349,8 @@ class Documents_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		/*error_reporting(E_ALL);
-		ini_set('display_errors', 1);*/
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
 				
 
 		$name = trim($post['name']); 
