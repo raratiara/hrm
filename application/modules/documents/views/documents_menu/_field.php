@@ -1,5 +1,5 @@
 <div class="form-group">
-	<label class="col-md-3 control-label no-padding-right">Name <span class="required">*</span></label>
+	<label class="col-md-3 control-label no-padding-right">Nameee <span class="required">*</span></label>
 	<div class="col-md-9">
 		<?=$txtname;?>
 	</div>
