@@ -355,7 +355,7 @@ class Documents_menu_model extends MY_Model
 
 		$name = trim($post['name']); 
 
-
+echo 'tes'; die();
 		if(!empty($post['id'])){ 
 
 			$hdnfile 		= trim($post['hdnfile']);
