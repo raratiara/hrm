@@ -348,7 +348,7 @@ class Documents_menu_model extends MY_Model
 
 	}  
 
-	public function edit_data($post) { 
+	public function edit_data($post) { echo 'oke'; die();
 		error_reporting(E_ALL);
 		ini_set('display_errors', 1);
 				
