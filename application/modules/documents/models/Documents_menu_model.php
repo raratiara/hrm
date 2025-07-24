@@ -322,7 +322,7 @@ class Documents_menu_model extends MY_Model
 	}
 
 
-	public function add_data($post) { echo 'add ya'; die();
+	public function add_data($post) { 
 
 		$name = trim($post['name']); 
 		
@@ -348,14 +348,13 @@ class Documents_menu_model extends MY_Model
 
 	}  
 
-	public function edit_data($post) { print_r($_FILES); die();
+	public function edit_data($post) { 
 		/*error_reporting(E_ALL);
-		ini_set('display_errors', 1);
+		ini_set('display_errors', 1);*/
 				
 
 		$name = trim($post['name']); 
 
-echo 'tes'; die();
 		if(!empty($post['id'])){ 
 
 			$hdnfile 		= trim($post['hdnfile']);
@@ -379,7 +378,7 @@ echo 'tes'; die();
 			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;*/
+		} else return null;
 	}
 	
 
