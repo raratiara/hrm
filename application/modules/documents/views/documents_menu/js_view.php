@@ -133,6 +133,9 @@ function load_data()
 					const fileName = data.file; // ini bisa dari PHP atau hasil upload
 				    const fileUrl = baseUrl+"/uploads/documents/" + fileName;
 
+				    // CLEAR link sebelumnya
+					document.getElementById("file-link").innerHTML = '';
+
 				    const link = document.createElement('a');
 				    link.href = fileUrl;
 				    link.textContent = "Download " + fileName;
