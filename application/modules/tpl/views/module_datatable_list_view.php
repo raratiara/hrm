@@ -1,15 +1,40 @@
 <style>
     #dynamic-table th:nth-child(2),
     #dynamic-table td:nth-child(2) {
-        /*width: 100px !important;
-        min-width: 100px !important;
-        max-width: 100px !important;
-        white-space: nowrap;*/
-        /* Agar konten tidak turun baris */
-
         min-width: none !important;
         max-width: none !important;
         white-space: nowrap !important;
+        /* Agar konten tidak turun baris */
+    }
+
+    #dynamic-table th:nth-child(1),
+    #dynamic-table td:nth-child(1) {
+        min-width: none !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        /* Agar konten tidak turun baris */
+    }
+
+    .box {
+        background-color: #343851 !important;
+        border: 1px solid #6B6B6B !important;
+    }
+
+
+    .portlet.box .portlet-title .caption i {
+        color: #ffffff !important;
+    }
+
+    .btn.btn-default {
+        border: none !important;
+        background-color: #dde0f3ff;
+    }
+
+    .btn.btn-default:hover {
+        background-color: #979797ff !important;
+        /* warna hover lebih gelap sedikit */
+        border-color: #979797ff !important;
+        color: #000 !important;
     }
 </style>
 
@@ -18,12 +43,12 @@
 <div class="row">
     <div class="col-md-12">
         <!-- BEGIN TABLE PORTLET-->
-        <div class="portlet box blue">
+        <div class="portlet box">
             <div class="portlet-title">
                 <div class="caption">
                     <?php if (isset($icon) && $icon <> "")
                         echo '<i class="fa ' . $icon . '"></i>'; ?><?php if (isset($title) && $title <> "")
-                             echo $title; ?>
+                                  echo $title; ?>
                 </div>
                 <div class="actions">
 
@@ -40,14 +65,14 @@
                                 <i class="fa fa-download"></i>
                                 Report
                             </a>
-                        <?php
+                            <?php
                         } else {
                             ?>
                             <a class="btn btn-default btn-sm btn-circle" id="btnEksportData">
                                 <i class="fa fa-download"></i>
                                 Eksport
                             </a>
-                        <?php
+                            <?php
                         }
                     } ?>
                     <?php if (_USER_ACCESS_LEVEL_IMPORT == "1") { ?>
