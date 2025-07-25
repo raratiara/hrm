@@ -65,7 +65,7 @@
 								                <i class="fa fa-check"></i> Submit
 								            </button>
 								        <?php else: ?>
-								            <button class="btn btn-info" id="submit-data" onclick="save()">
+								            <button class="btn btn-info" style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;" id="submit-data" onclick="save()">
 								                <i class="fa fa-check"></i> Save
 								            </button>
 								        <?php endif; ?>
@@ -73,10 +73,10 @@
 
 								    <!-- Container untuk tombol tetap di kanan -->
 								    <span class="d-flex gap-2 ms-auto">
-								        <button class="btn" onclick="reset()" id="btnReset">
+								        <button class="btn" style="background-color: #343851; color: white; border-radius: 4px !important;" onclick="reset()" id="btnReset">
 								            <i class="fa fa-undo"></i> Reset
 								        </button>
-								        <button class="btn" data-dismiss="modal">
+								        <button class="btn" style="background-color: #343851; color: white; border-radius: 4px !important;" data-dismiss="modal">
 								            <i class="fa fa-times"></i> Close
 								        </button>
 								    </span>

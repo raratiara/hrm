@@ -513,14 +513,20 @@ class Performance_plan_menu_model extends MY_Model
 			$data = '';
 			$no = $row+1;
 			
-			$data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			// $data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
+			$data .= '<td><div style="height: 54px; display: flex; align-items: center;">'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></div></td>';
+
 			
-			$data 	.= '<td>'.$this->return_build_txt('','hardskill['.$row.']','','hardskill','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txtarea('','notes['.$row.']','','notes','text-align: right;','data-id="'.$row.'" ').'</td>';
-			$data 	.= '<td>'.$this->return_build_txt('','weight['.$row.']','','weight','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$inputStyle = 'height: 54px; width: 100%; box-sizing: border-box;';
+
+			$data 	.= '<td>'.$this->return_build_txt('','hardskill['.$row.']','','hardskill',$inputStyle,'data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txtarea('','notes['.$row.']','','notes',$inputStyle,'data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','weight['.$row.']','','weight',$inputStyle,'data-id="'.$row.'" ').'</td>';
 			
 			$hdnid='';
-			$data 	.= '<td><input type="button" class="ibtnDel btn btn-md btn-danger " onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+			// $data 	.= '<td><input type="button" class="ibtnDel btn btn-md" style="background-color: #BA1E2A; color: white; border-radius: 3px !important;" onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+			$data .= '<td><div style="height: 54px; display: flex; align-items: center;"><input type="button" class="ibtnDel btn btn-md" style="background-color: #BA1E2A; color: white; border-radius: 3px !important;" onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></div></td>';
+
 		}
 
 		return $data;

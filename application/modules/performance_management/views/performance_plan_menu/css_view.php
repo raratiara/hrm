@@ -1,3 +1,5 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style type="text/css">
   [class*="col-"] .chosen-container {
     width: 98% !important;
@@ -15,8 +17,11 @@
 
   .modal-content {
     width: 1100px;
-    margin-left: -250px
+    margin-left: -250px;
+    background: #EAEDF5 !important;
+    border: none !important;
   }
+
 
   #modal-rfu-data {
     padding-left: 600px
@@ -53,24 +58,85 @@
     padding: 50px;
   }
 
+  .modal-body {
+    background: #EAEDF5;
+  }
+
+ 
+
+  .modal-header {
+    background: #343851 !important;
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .btn-addrow {
+    background: #343851 !important;
+    border-radius: 999px !important;
+    color: #ffffff !important;
+    padding: 8px 16px !important;
+
+  }
+
+  .tools {
+    display: flex;
+    justify-content: end;
+    margin-bottom: 20px;
+  }
+
+  .thead-style {
+    border-bottom: 1px solid #6B6B6B !important;
+  }
+
+  .select2-container {
+    width: 200px !important;
+    
+
+  }
+
+  .select2-container--bootstrap .select2-selection {
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+    border-radius: 999px !important;
+  }
+
+  .select2-selection__placeholder {
+    visibility: hidden;
+    /* sembunyikan teks default */
+    position: relative;
+    border: none !important;
+    background: #0000 !important;
+    font-size: 13px !important;
+  }
+
+  .select2-selection__placeholder::after {
+    content: "Select Employee";
+    /* teks baru */
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    color: #38406F;
+  }
+  
 
   .accordion {
-    /*background: linear-gradient(135deg, #6a11cb, #2575fc);*/
-    background: linear-gradient(135deg, #07171f, #309dcd);
-    color: white;
+    background: #b6c5dfff;
+    color: #404144;
     cursor: pointer;
-    padding: 16px 24px;
+    padding: 10px 20px;
     width: 100%;
     border: none;
     outline: none;
     transition: background 0.3s ease, transform 0.2s ease;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    font-size: 18px;
+    border-radius: 999px !important;
+    font-size: 14px;
+    font-weight: 600;
     text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 15px;
   }
 
 
@@ -95,7 +161,7 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
-    background: white;
+    background: transparent !important;
     padding: 0 24px;
     border-radius: 0 0 10px 10px;
   }
@@ -107,13 +173,13 @@
 
   .panel.show {
     max-height: 800px;
-    padding: 16px 24px;
+    padding: 16px 0px;
   }
 
   .row {
     display: flex;
-    padding: 0px 20px;
+    padding: 0px 10px;
+    margin-bottom: 8px;
+    gap: 8px !important;
   }
-
-  
 </style>
