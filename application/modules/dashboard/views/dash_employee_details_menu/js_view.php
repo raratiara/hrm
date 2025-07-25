@@ -119,11 +119,11 @@
 								label: 'Employee',
 								data: data.total,
 								backgroundColor: [
-									'#74DCE0',
-									'#74DCE0',
-									'#74DCE0',
-									'#74DCE0',
-									'#74DCE0'
+									'#9EE06F',
+									'#9EE06F',
+									'#9EE06F',
+									'#9EE06F',
+									'#9EE06F'
 								],
 								borderRadius: 3
 							}]
@@ -145,7 +145,7 @@
 			                        },
 			                        color: '#fff',
 			                        font: {
-			                            size: 12,
+			                            size: 10,
 			                        }
 			                    },
 								legend: {
@@ -257,6 +257,22 @@
 							responsive: true,
 							maintainAspectRatio: false,
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
 								tooltip: {
 									callbacks: {
 										label: function (context) {
@@ -304,7 +320,8 @@
 									grid: { color: '#eee' }
 								}
 							}
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 				} else {
@@ -358,7 +375,7 @@
 									type: 'bar',
 									data: data.total_male,
 									borderColor: '#3381fc',
-									backgroundColor: '#3381fc',
+									backgroundColor: '#3F51B5', /*'#3381fc',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -369,7 +386,7 @@
 									type: 'bar',
 									data: data.total_female,
 									borderColor: '#fc3381',
-									backgroundColor: '#fc3381',
+									backgroundColor: '#FF4081',/*'#fc3381',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -386,6 +403,22 @@
 							},
 							stacked: false,
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
 								legend: {
 									labels: {
 										font: {
@@ -439,7 +472,8 @@
 								}
 							  }
 						}*/
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 				} else {
@@ -506,6 +540,22 @@
 							responsive: true,
 							maintainAspectRatio: false,
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
 								legend: {
 									labels: {
 										font: {
@@ -532,7 +582,8 @@
 									display: false
 								}
 							}
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 
@@ -607,6 +658,22 @@
 							responsive: true,
 							maintainAspectRatio: false,
 							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
 								legend: {
 									labels: {
 										font: {
@@ -633,7 +700,8 @@
 									display: false
 								}
 							}
-						}
+						},
+						plugins: [ChartDataLabels]
 					});
 
 

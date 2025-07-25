@@ -68,7 +68,7 @@
   }
 
    .summary-item.yellow {
-    background-color: #FED24B;
+    background-color: #D9F103; /*#FED24B;*/
     align-items: center !important;
     color: #38406F;
     
@@ -572,7 +572,7 @@
 
   /* Color variants */
   .navy {
-    background-color: #38406F;
+    background-color: #00B4CC; /*#FFB2F7;*/ /*#38406F;*/
     color: white;
   }
 
@@ -583,11 +583,11 @@
   }
 
   .yellow {
-    background-color: #FED24B;
+    background-color: #EEF660;/*#E3FC87;*/ /*#FED24B;*/
   }
 
   .beige {
-    background-color: #F8F1E1;
+    background-color: #FF77AD;/*#C0E0FF;*/ /*#F8F1E1;*/
   }
 
   .white {
