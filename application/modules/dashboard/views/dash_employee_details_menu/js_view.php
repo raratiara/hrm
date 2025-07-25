@@ -104,7 +104,7 @@
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
-
+console.log(data);
 					const ctx = document.getElementById('empby_status').getContext('2d');
 
 					var chartExist = Chart.getChart("empby_status"); // <canvas> id

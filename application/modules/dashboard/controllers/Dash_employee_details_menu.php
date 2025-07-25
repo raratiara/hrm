@@ -299,7 +299,7 @@ class Dash_employee_details_menu extends MY_Controller
 								FROM master_emp_status b
 								LEFT JOIN employees a 
 								  ON a.employment_status_id = b.id 
-								  AND a.status_id = 1 where 1=1 ".$whereDiv."
+								  AND a.status_id = 1 ".$whereDiv."
 								GROUP BY b.id, b.name
 								ORDER BY status")->result(); 
 
@@ -343,8 +343,7 @@ class Dash_employee_details_menu extends MY_Controller
 								    SUM(CASE WHEN a.status_id = 3 THEN 1 ELSE 0 END) AS total_closed
 								FROM divisions c
 								LEFT JOIN employees b ON b.division_id = c.id
-								LEFT JOIN tasklist a ON a.employee_id = b.id and a.status_id != ''
-								where 1=1 ".$whereDiv."
+								LEFT JOIN tasklist a ON a.employee_id = b.id and a.status_id != '' ".$whereDiv."
 								GROUP BY c.id, c.name
 
 						 ")->result(); 
