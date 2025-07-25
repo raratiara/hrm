@@ -292,14 +292,16 @@ class Dash_employee_details_menu extends MY_Controller
 		}
 
 
-    	$rs = $this->db->query("select a.employment_status_id AS status, b.name as status_name,
-					COUNT(*) AS total
-				FROM
-					employees a left join master_emp_status b on b.id = a.employment_status_id where a.status_id = 1 ".$whereDiv."
-				GROUP BY
-					a.employment_status_id
-				ORDER BY
-					status  ")->result(); 
+    	$rs = $this->db->query("select 
+								  b.id AS status,
+								  b.name AS status_name,
+								  COUNT(a.id) AS total
+								FROM master_emp_status b
+								LEFT JOIN employees a 
+								  ON a.employment_status_id = b.id 
+								  AND a.status_id = 1 where 1=1 ".$whereDiv."
+								GROUP BY b.id, b.name
+								ORDER BY status")->result(); 
 
 		$status=[]; $total=[]; 
 		foreach($rs as $row){
