@@ -1561,13 +1561,13 @@ class Data_karyawan_menu_model extends MY_Model
 				           
 							if (!$rs) $error .=",baris ". $baris;
 	            		}else{
-	            			$error .=",baris ". $baris;
+	            			$error .=", company kosong baris ". $baris;
 	            		}
 	            	}else{
-	            		$error .=",baris ". $baris;
+	            		$error .=",nama employee sudah ada baris ". $baris;
 	            	}
 	            }else{ 
-	            	$error .=",baris ". $baris;
+	            	$error .=",nama kosong baris ". $baris;
 	            }
          	}
 
