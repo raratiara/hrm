@@ -52,7 +52,7 @@
                 <!-- Kolom 1 -->
                 <div class="column">
 
-                    <div><strong>NIK</strong><span class="nik"></span></div>
+                    <div><strong>NIKKK</strong><span class="nik"></span></div>
                     <div><strong>Date of Birth</strong><span class="date_of_birth"><span></div>
                     <div><strong>Gender</strong><span class="gender"></span></div>
                     <div><strong>Address</strong><span class="address"></span></div>
