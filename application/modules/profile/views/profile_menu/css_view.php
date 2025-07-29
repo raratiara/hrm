@@ -60,6 +60,66 @@
   }
 
 
+  @media (max-width: 768px) {
+    .profile-section {
+      flex-direction: column;
+    }
+
+    .info-grid span {
+      font-size: 11px !important;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr) !important;
+      justify-content: center !important;
+
+
+    }
+
+    .summary-box {
+      flex-direction: column;
+      width: 100% !important;
+
+    }
+
+    .columnlevel>div {
+      margin-top: -10px !important;
+    }
+
+    .reimbursement-grid .item {
+      flex-direction: column !important;
+      min-width: 120px;
+      text-align: center;
+
+    }
+
+    .reimbursement-grid {
+      font-size: 10px !important;
+      margin-top: 10px !important;
+      gap: 10px !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      flex-wrap: wrap !important;
+    }
+
+    .chart-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      /* Jarak antar kotak */
+      align-items: stretch;
+      /* Biar tingginya otomatis sama */
+    }
+
+    .events-box {
+      width: 100% !important;
+    }
+
+
+  }
+
+
   .profile-card,
   .profile-info {
     background-color: #ffffff;
@@ -69,12 +129,9 @@
   }
 
   .profile-card {
-    width: 300px;
-    /*width: 360px;*/
-    /*flex: 1;*/
-
     text-align: center;
   }
+
 
   .profile-image {
     width: 100px;
@@ -113,6 +170,14 @@
 
 
   .column>div {
+    min-height: 40px;
+    /* Paksa semua baris minimal tinggi yang sama */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .columnlevel>div {
     min-height: 40px;
     /* Paksa semua baris minimal tinggi yang sama */
     display: flex;
@@ -217,7 +282,6 @@
 
   .events-box {
     width: 280px;
-    /*width: 360px;*/
     background-color: white !important;
     padding: 15px;
     border-radius: 15px !important;
@@ -291,6 +355,7 @@
     border-radius: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex: 1;
+    width: 100%;
   }
 
   .summary-item {
@@ -342,14 +407,15 @@
   }
 
   .summary-item.reimbursement {
-    background-color: #9cb4deff; /*#E85F40;*/
+    background-color: #9cb4deff;
     color: white;
     align-items: center !important;
     text-align: center !important;
+    width: 100% !important;
   }
 
 
-  /*.reimbursement-grid {
+  .reimbursement-grid {
     font-size: 12px;
     display: grid;
     grid-template-columns: repeat(2, auto);
@@ -358,57 +424,21 @@
     margin-top: 16px;
   }
 
-  .title_reim {
-    display: flex;
-    justify-content: space-between;
-    min-width: 100px;
-    display: block;
-  }
-
   .item {
     display: flex;
     justify-content: space-between;
-    min-width: 100px;
+    min-width: 180px;
   }
 
   .amount {
     font-weight: bold;
-    display: block;
-
-  }*/
-
-  .reimbursement-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    padding: 10px 0;
-}
-
-.item {
-    text-align: center;
-    background-color: rgba(255,255,255,0.2); /* optional styling */
-    padding: 10px;
-    border-radius: 8px;
-}
-
-.title_reim {
-   /* font-weight: bold;*/
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.amount {
-    font-size: 12px;
-    font-weight: bold;
-    color: #fff;
-}
-
+  }
 
   .summary-item.yellow {
     background-color: #FED24B;
     align-items: center !important;
     color: #38406F;
-    
+
   }
 
 
@@ -497,23 +527,4 @@
     color: #555;
     font-size: 0.9rem;
   }
-
-
-
-  @media (max-width: 768px) {
-  .dashboard-container {
-    padding: 10px;
-  }
-
-  .profile-section,
-  .summary-box,
-  .chart-section {
-    flex-direction: column;
-  }
-
-  .right-section {
-    margin-top: 20px;
-  }
-}
-
 </style>

@@ -40,7 +40,7 @@
   }
 
   .select2-selection__placeholder::after {
-    content: "Select Employee";
+    content: "Select Division";
     /* teks baru */
     visibility: visible;
     position: absolute;
@@ -62,12 +62,50 @@
     font-size: 12px;
   }*/
 
+  .summary-card.beige {
+    width: 100px;
+    
+  }
+
+   .summary-item.yellow {
+    background-color: #D9F103; /*#FED24B;*/
+    align-items: center !important;
+    color: #38406F;
+    
+  }
+
+   .tasklist-line {
+    /*display: flex;
+    justify-content: space-around;*/
+
+    display: flex;
+    gap: 20px; /* spasi antar grade */
+    margin-top: 10px;
+    flex-wrap: wrap; /* jika sempit, bisa turun ke bawah */
+  }
+
+  .task-item {
+    text-align: center;
+    min-width: 60px; /* opsional, untuk menjaga lebar */
+  }
+
+  .task-item p:first-child {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+
+  .task-item p:last-child {
+    font-size: 12px;
+    margin: 0;
+  }
+
 
 
 
   .dashboard-container {
     font-family: 'Poppins', sans-serif;
-    width: 100% !important;
+    max-width: 1000px;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -92,7 +130,7 @@
     height: 250px;
   }
 
-  #empby_dept_gender {
+  #empby_div_gender {
     width: 330px;
     height: 250px;
   }
@@ -148,26 +186,14 @@
   }
 
 
-  #empby_gen {
+  #open_bydiv {
+    width: 300px;
+    height: 280px;
+  }
+
+  #empby_maritalStatus {
     width: 200px;
     height: 180px;
-  }
-
-  #workLocation {
-    width: 200px;
-    height: 180px;
-  }
-
-
-  #att_percentage {
-    width: 100px;
-    height: 100px;
-  }
-
-
-  #workhrs_percentage {
-    width: 100px;
-    height: 100px;
   }
 
 
@@ -192,6 +218,7 @@
     color: #333;
     text-align: center;
     padding: 16px;
+
     position: relative;
     /* diperlukan jika pakai absolute di dalam */
 
@@ -230,7 +257,6 @@
     justify-content: space-between;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     flex: 1;
-    width: 100% !important;
   }
 
   .title {
@@ -315,7 +341,7 @@
   .box.chart-box {
     flex: 1;
     min-width: 280px;
-    max-width: 315px;
+    max-width: 320px;
   }
 
   .box.table-box {
@@ -329,97 +355,6 @@
     gap: 10px;
     color: #38406F;
     margin-top: 10px;
-  }
-
-  @media (max-width: 768px) {
-    .top-bar {
-      display: flex;
-      justify-content: flex-start;
-      gap: 5px;
-      color: #38406F;
-      margin-top: 10px;
-    }
-
-    .date-picker-wrapper {
-      width: 40% !important;
-      height: auto !important;
-      background-color: #fff;
-      margin-top: 10px;
-    }
-
-    .date-icon {
-      position: absolute;
-      left: 10px;
-      color: #38406F;
-      font-size: 10px !important;
-    }
-
-    .employee-select-wrapper {
-      position: relative;
-      width: 40% !important;
-      padding-left: 18px !important;
-      ym
-    }
-
-    .employee-icon {
-      position: absolute;
-      left: 10px;
-      color: #666;
-      font-size: 12px !important;
-      pointer-events: none;
-    }
-
-    .select2-selection__placeholder {
-      font-size: 11px !important;
-    }
-
-    .select2-selection {
-      width: 100% !important;
-      height: 28px !important;
-    }
-
-
-    .summary-container {
-      gap: 10px !important;
-    }
-
-    .summary-card {
-      min-width: none !important;
-      max-width: none !important;
-    }
-
-    .chart-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .chart-row {
-      margin-top: 0px;
-      flex-direction: column;
-    }
-
-    .box-title {
-      font-size: 10px !important;
-      color: #977575ff;
-      font-weight: 600;
-    }
-
-    .employee-container {
-      display: flex;
-      flex-direction: column;
-      flex-wrap: wrap;
-    }
-
-    .box.chart-box {
-      flex: 1;
-      min-width: none !important;
-      max-width: none !important;
-    }
-
-
-
-
   }
 
 
@@ -508,6 +443,11 @@
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
+  }
+
+  .summary-card.beige {
+    flex: 1 1 100%; /* atau misalnya 300px */
+    max-width: 400px; /* atur sesuai kebutuhan */
   }
 
   .chart-container {
@@ -632,7 +572,7 @@
 
   /* Color variants */
   .navy {
-    background-color: #38406F;
+    background-color: #00B4CC; /*#FFB2F7;*/ /*#38406F;*/
     color: white;
   }
 
@@ -643,11 +583,11 @@
   }
 
   .yellow {
-    background-color: #FED24B;
+    background-color: #EEF660;/*#E3FC87;*/ /*#FED24B;*/
   }
 
   .beige {
-    background-color: #F8F1E1;
+    background-color: #FF77AD;/*#C0E0FF;*/ /*#F8F1E1;*/
   }
 
   .white {

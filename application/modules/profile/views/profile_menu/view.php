@@ -68,7 +68,7 @@
                 </div>
 
                 <!-- Kolom 3 -->
-                <div class="column">
+                <div class="columnlevel">
                     <div><strong>Job Level</strong><span class="job_level"></span></div>
                 </div>
             </div>
@@ -160,7 +160,7 @@
 
             <div class="summary-item reimbursement">
                 <h4>Remaining Reimbursement Limit</h4>
-                <!-- <div class="reimbursement-grid">
+                <div class="reimbursement-grid">
                     <div class="item">
                         <span class="title_reim">Rawat jalan</span>
                         <span class="amount" id="amount_rawatjalan"></span>
@@ -177,26 +177,26 @@
                         <span class="title_reim">Persalinan</span>
                         <span class="amount" id="amount_persalinan"></span>
                     </div>
-                </div> -->
+                </div>
 
-                <div class="reimbursement-grid">
+                <!-- <div class="reimbursement-grid">
                     <div class="item">
                         <div class="title_reim">Rawat jalan</div>
-                        <div class="amount" id="amount_rawatjalan">Rp 15.000.000</div>
+                        <div class="amount" id="amount_rawatjalan"></div>
                     </div>
                     <div class="item">
                         <div class="title_reim">Kacamata</div>
-                        <div class="amount" id="amount_kacamata">Rp 2.000.000</div>
+                        <div class="amount" id="amount_kacamata"></div>
                     </div>
                     <div class="item">
                         <div class="title_reim">Rawat Inap</div>
-                        <div class="amount" id="amount_rawatinap">Rp 15.000.000</div>
+                        <div class="amount" id="amount_rawatinap"></div>
                     </div>
                     <div class="item">
                         <div class="title_reim">Persalinan</div>
-                        <div class="amount" id="amount_persalinan">Rp 25.000.000</div>
+                        <div class="amount" id="amount_persalinan"></div>
                     </div>
-                </div>
+                </div> -->
 
 
 

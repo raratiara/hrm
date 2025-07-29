@@ -153,7 +153,7 @@
             position: fixed !important;
             /* Tetap di tempatnya, tidak ikut scroll */
             overflow-y: auto;
-
+            z-index: 9999 !important;
 
 
         }
