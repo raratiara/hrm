@@ -417,8 +417,8 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
-		/*error_reporting(E_ALL);
-		ini_set('display_errors', 1);*/
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
 
 
 		$date_of_birth 		= trim($post['date_of_birth']);
@@ -601,7 +601,7 @@ class Data_karyawan_menu_model extends MY_Model
 				'foto_sima' 					=> $foto_sima,
 				'foto_simc' 					=> $foto_simc
 			];
-
+ 
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
 
