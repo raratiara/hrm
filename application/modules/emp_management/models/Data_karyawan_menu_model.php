@@ -520,7 +520,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_simc['error_warning']; exit;
 			}
 
-echo "tes"; die();
+
 
 			$data = [
 				'emp_code' 						=> $genEmpCode,
@@ -593,7 +593,7 @@ echo "tes"; die();
 				'foto_sima' 					=> $foto_sima,
 				'foto_simc' 					=> $foto_simc
 			];
-
+echo 'oke'; die();
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
 
@@ -771,7 +771,8 @@ echo "tes"; die();
 
 			return $rs;
 		}else{
-			return null;
+			//return null;
+			echo 'Please fill the Company'; die();
 		}
 		
 	}  
