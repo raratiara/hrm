@@ -430,11 +430,11 @@ class Data_karyawan_menu_model extends MY_Model
 
 		$dateofHired = date("Y-m-d", strtotime($date_of_hire));
 
-		if($post['gender'] == ''){
+		if (!isset($post['gender'])) {
 			echo "Please fill the Gender"; die();
-		}else if($post['company'] == ''){
+		}else if(!isset($post['company'])){
 			echo "Please fill the Company"; die();
-		}else if($post['shift_type'] == ''){
+		}else if(!isset($post['shift_type'])){
 			echo "Please fill the Shift Type"; die();
 		}else{
 			
