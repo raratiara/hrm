@@ -520,7 +520,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_simc['error_warning']; exit;
 			}
 
-
+print_r($post); die();
 
 			$data = [
 				'emp_code' 						=> $genEmpCode,
