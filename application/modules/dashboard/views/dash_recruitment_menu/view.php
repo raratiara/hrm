@@ -117,7 +117,7 @@
     <div class="box chart-box">
       <div class="box-title">Status Employee</div>
       <div class="box-value">
-        <canvas id="project_summary"></canvas>
+        <canvas id="byStatusEmployee"></canvas>
       </div>
     </div>
 

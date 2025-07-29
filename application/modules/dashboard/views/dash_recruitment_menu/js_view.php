@@ -28,6 +28,7 @@
 		    openPostionByDiv();
 		    byJobLevel();
 		    byStatusPengajuan();
+		    byStatusEmployee();
 
 
 			empbyDivGender();
@@ -121,11 +122,11 @@
 								label: 'Employee',
 								data: data.total,
 								backgroundColor: [
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F'
+									'#B26CC4',
+									'#B26CC4',
+									'#B26CC4',
+									'#B26CC4',
+									'#B26CC4'
 								],
 								borderRadius: 3
 							}]
@@ -530,10 +531,14 @@
 								/*data: [data.ttl_gen_x, data.ttl_gen_mill, data.ttl_gen_z, data.ttl_boomer],*/
 								data: data.values,
 								backgroundColor: [
-									'#FED24B',
-									'#38406F',
-									'#74DCE0',
-									'#D9CAAA'
+									'#B99DD9',
+									'#F83F98',
+									'#00BDC9',
+									'#FFC226',
+									'#FF6E53',
+									'#4378C6',
+									'#75D2C1',
+									'#FFED76'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',
@@ -630,7 +635,7 @@
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
-console.log(data);
+
 					const ctx = document.getElementById('byStatusPengajuan').getContext('2d');
 					var chartExist = Chart.getChart("byStatusPengajuan"); // <canvas> id
 					if (chartExist != undefined)
@@ -646,10 +651,128 @@ console.log(data);
 								/*data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],*/
 								data: data.values,
 								backgroundColor: [
-									'#99B7F5',
-									'#267F53',
-									'#F5793B',
-									'#F296BD'/*,
+									'#CDB4DB',
+									'#FFC8DD',
+									'#FFAFCC',
+									'#BDE0FE',
+									'#A2D2FF',
+									'#5784E6'
+								],
+								borderWidth: 2,
+								borderColor: '#fff',
+								hoverOffset: 10
+							}]
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
+								legend: {
+									labels: {
+										font: {
+											size: 8  // kecilkan ukuran legend text
+										},
+										boxWidth: 12,        // kecilkan ukuran kotak warna
+										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4,     // ubah jadi bulat (opsional)
+										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
+									},
+									position: 'bottom'
+								},
+								tooltip: {
+									callbacks: {
+										label: function (context) {
+											let label = context.label || '';
+											let value = context.parsed;
+											/*return `${label}: ${value}%`;*/
+											return `${label}: ${value}`;
+										}
+									}
+								},
+								title: {
+									display: false
+								}
+							}
+						},
+						plugins: [ChartDataLabels]
+					});
+
+
+
+				} else {
+
+
+
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
+
+
+
+	}
+
+
+	function byStatusEmployee() {
+
+		var fldiv = $("#fldiv option:selected").val();
+
+
+		$.ajax({
+			type: "POST",
+			url: module_path + '/get_data_byStatusEmployee',
+			data: { fldiv: fldiv},
+			cache: false,
+			dataType: "JSON",
+			success: function (data) {
+				if (data != false) {
+
+					const ctx = document.getElementById('byStatusEmployee').getContext('2d');
+					var chartExist = Chart.getChart("byStatusEmployee"); // <canvas> id
+					if (chartExist != undefined)
+						chartExist.destroy();
+
+					new Chart(ctx, {
+						type: 'pie',
+						data: {
+							/*labels: ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'],*/
+							labels: data.labels,
+							datasets: [{
+								label: 'Generation',
+								/*data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],*/
+								data: data.values,
+								backgroundColor: [
+									'#F8D152',
+									'#F7AB3E',
+									'#5E6CB3',
+									'#91ABDA'/*,
 									'#FCCA59',
 									'#B9D440',
 									'#BC9BF3',
