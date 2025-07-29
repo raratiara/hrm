@@ -1,7 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+
 				
 class Data_karyawan_menu_model extends MY_Model
 {
@@ -418,6 +417,10 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
+
+
 		$date_of_birth 		= trim($post['date_of_birth']);
 		$date_of_hire 		= trim($post['date_of_hire']);
 		$date_end_prob 		= trim($post['date_end_prob']);
@@ -517,7 +520,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_simc['error_warning']; exit;
 			}
 
-
+echo "tess"; die();
 
 			$data = [
 				'emp_code' 						=> $genEmpCode,
