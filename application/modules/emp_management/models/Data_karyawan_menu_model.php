@@ -425,7 +425,7 @@ class Data_karyawan_menu_model extends MY_Model
 		$date_of_hire 		= trim($post['date_of_hire']);
 		$date_end_prob 		= trim($post['date_end_prob']);
 		$date_permanent 	= trim($post['date_permanent']);
-		$date_resign_letter = trim($post['datte_resign_letter']);
+		$date_resign_letter = trim($post['date_resign_letter']);
 		$date_resign_active = trim($post['date_resign_active']);
 
 		$dateofHired = date("Y-m-d", strtotime($date_of_hire));
