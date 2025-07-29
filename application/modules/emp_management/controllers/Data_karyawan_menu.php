@@ -73,6 +73,9 @@ class Data_karyawan_menu extends MY_Controller
 		$msmaritalstatus 				= $this->db->query("select * from master_marital_status")->result(); 
 		$field['selmaritalstatus'] 		= $this->self_model->return_build_select2me($msmaritalstatus,'','','','marital_status','marital_status','','','id','name',' ','','','',3,'-');
 
+		$msworkloc 						= $this->db->query("select * from master_work_location")->result(); 
+		$field['selworkloc'] 			= $this->self_model->return_build_select2me($msworkloc,'','','','work_loc','work_loc','','','id','name',' ','','','',3,'-');
+
 		$mseducation 					= $this->db->query("select * from master_education")->result(); 
 		$field['seleducation'] 			= $this->self_model->return_build_select2me($mseducation,'','','','last_education','last_education','','','id','name',' ','','','',3,'-');
 
