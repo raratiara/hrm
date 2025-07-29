@@ -191,9 +191,15 @@
     height: 280px;
   }
 
-  #empby_maritalStatus {
-    width: 200px;
-    height: 180px;
+  #byStatusPengajuan {
+    width: 300px;
+    height: 280px;
+  }
+
+
+  #byStatusEmployee {
+    width: 300px;
+    height: 280px;
   }
 
 

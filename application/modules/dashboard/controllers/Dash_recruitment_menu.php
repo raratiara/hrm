@@ -263,6 +263,51 @@ class Dash_recruitment_menu extends MY_Controller
  	}
 
 
+ 	public function get_data_byStatusEmployee(){
+ 		$post = $this->input->post(null, true);
+ 		$fldiv 	= $post['fldiv'];
+
+
+		$whereDiv="";
+		if(!empty($fldiv)){ 
+			$whereDiv=" and division_id = '".$fldiv."'";
+		}
+
+
+		
+		$masterStatus = ['freelance','contract','permanent'];
+		$status_counts = [];
+		foreach ($masterStatus as $rowStatus) {
+		    $status_counts[$rowStatus] = 0;
+		}
+		$status_counts['Unknown'] = 0; // fallback untuk data tanpa divisi
+
+		$data = $this->db->query("
+		    select status_emp as status_name
+			FROM request_recruitment 
+		")->result();
+
+		foreach ($data as $row) {
+		    $name = $row->status_name ?? 'Unknown';
+
+		    if (!isset($status_counts[$name])) {
+		        $status_counts[$name] = 0; // in case master tidak ada
+		    }
+
+		    $status_counts[$name]++;
+		}
+
+
+		$result = [
+		    'labels' => array_keys($status_counts),
+		    'values' => array_values($status_counts)
+		];
+
+		echo json_encode($result);
+
+ 	}
+
+
  	public function get_data_empbyDivGender(){
  		$post = $this->input->post(null, true);
  		$fldiv 	= $post['fldiv'];
