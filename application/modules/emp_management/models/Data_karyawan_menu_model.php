@@ -432,10 +432,12 @@ class Data_karyawan_menu_model extends MY_Model
 
 		if (!isset($post['gender'])) {
 			echo "Please fill the Gender"; die();
-		}else if(!isset($post['company'])){
+		}else if($post['company'] == ''){
 			echo "Please fill the Company"; die();
 		}else if(!isset($post['shift_type'])){
 			echo "Please fill the Shift Type"; die();
+		}else if(!isset($post['status'])){
+			echo "Please choose Status"; die();
 		}else{
 			
 			//NBI[2DIGITTAHUNBLN][4DIGITNOURUT]
