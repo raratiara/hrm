@@ -425,12 +425,19 @@ class Data_karyawan_menu_model extends MY_Model
 		$date_of_hire 		= trim($post['date_of_hire']);
 		$date_end_prob 		= trim($post['date_end_prob']);
 		$date_permanent 	= trim($post['date_permanent']);
-		$date_resign_letter = trim($post['date_resign_letter']);
+		$date_resign_letter = trim($post['datte_resign_letter']);
 		$date_resign_active = trim($post['date_resign_active']);
 
 		$dateofHired = date("Y-m-d", strtotime($date_of_hire));
 
-		if($post['company'] != ''){
+		if($post['gender'] == ''){
+			echo "Please fill the Gender"; die();
+		}else if($post['company'] == ''){
+			echo "Please fill the Company"; die();
+		}else if($post['shift_type'] == ''){
+			echo "Please fill the Shift Type"; die();
+		}else{
+			
 			//NBI[2DIGITTAHUNBLN][4DIGITNOURUT]
 
 			if($dateofHired != ''){
@@ -520,7 +527,7 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_simc['error_warning']; exit;
 			}
 
-print_r($post); die();
+
 
 			$data = [
 				'emp_code' 						=> $genEmpCode,
@@ -533,7 +540,7 @@ print_r($post); die();
 				'nationality' 					=> trim($post['nationality']),
 				//'last_education_id' 			=> trim($post['last_education']),
 				'marital_status_id' 			=> trim($post['marital_status']),
-				'tanggungan' 					=> trim($post['tanggungan']),
+				/*'tanggungan' 					=> trim($post['tanggungan']),*/
 				'no_ktp' 						=> trim($post['no_ktp']),
 				'sim_a' 						=> trim($post['sim_a']),
 				'sim_c' 						=> trim($post['sim_c']),
@@ -583,7 +590,6 @@ print_r($post); die();
 				'division_id' 					=> trim($post['division']),
 				'branch_id' 					=> trim($post['branch']),
 				'section_id' 					=> trim($post['section']),
-				'gender' 						=> trim($post['gender']),
 				'status_id' 					=> trim($post['status']),
 				'job_level_id' 					=> trim($post['job_level']),
 				'grade_id' 						=> trim($post['grade']),
@@ -770,11 +776,10 @@ echo 'oke'; die();
 
 
 			return $rs;
-		}else{
-			//return null;
-			echo 'Please fill the Company'; die();
-		}
 		
+		}
+
+
 	}  
 
 
