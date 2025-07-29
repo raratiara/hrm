@@ -417,8 +417,8 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
-		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
 
 
 		$date_of_birth 		= trim($post['date_of_birth']);
