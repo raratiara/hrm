@@ -11,7 +11,7 @@
             <!-- <img src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture" class="profile-image"> -->
             <span class="emp_photo"></span>
             <div class="profile-name">
-                <span class="name" style="font-weight: bold;">
+                <span class="name" style="font-weight: bold;"> TIARA FEBRIYANTI
             </div>
 
 
@@ -36,12 +36,12 @@
 
                 <div style="margin-top: 5px;">
                     <i class="fa fa-envelope" style="margin-right: 5px;"></i>
-                    <span class="email">
+                    <span class="email"> TIARAFEBRYANTI@astacala.org
                 </div>
 
                 <div style="margin-top: 5px;">
                     <i class="fa fa-phone" style="margin-right: 5px;"></i>
-                    <span class="phone">
+                    <span class="phone"> 081224244263
                 </div>
             </div>
 
@@ -52,24 +52,24 @@
                 <!-- Kolom 1 -->
                 <div class="column">
 
-                    <div><strong>NIK</strong><span class="nik"></div>
-                    <div><strong>Date of Birth</strong><span class="date_of_birth"></div>
-                    <div><strong>Gender</strong><span class="gender"></div>
-                    <div><strong>Address</strong><span class="address"></div>
+                    <div><strong>NIK</strong><span class="nik">3213135702020006</div>
+                    <div><strong>Date of Birth</strong><span class="date_of_birth">17 FEBRUARY 2002</div>
+                    <div><strong>Gender</strong><span class="gender">WOMEN</div>
+                    <div><strong>Address</strong><span class="address">JL.RAYA BLANAKAN DUSUN MEKAR SARI KEC BLANAKAN KAB SUBANG</div>
 
                 </div>
 
                 <!-- Kolom 2 -->
                 <div class="column">
-                    <div><strong>Date of Hired</strong><span class="date_of_hired"></div>
-                    <div><strong>Status</strong><span class="status"></div>
-                    <div><strong>Shift Type</strong><span class="shift_type"></div>
-                    <div><strong>Direct</strong><span class="direct"></div>
+                    <div><strong>Date of Hired</strong><span class="date_of_hired">17 FEBRUARI 2025</div>
+                    <div><strong>Status</strong><span class="status">EMPLOYEE</div>
+                    <div><strong>Shift Type</strong><span class="shift_type">REGULAR</div>
+                    <div><strong>Direct</strong><span class="direct">DWI KUSWARNO</div>
                 </div>
 
                 <!-- Kolom 3 -->
-                <div class="column">
-                    <div><strong>Job Level</strong><span class="job_level"></div>
+                <div class="columnlevel">
+                    <div><strong>Job Level</strong><span class="job_level">LEVEL</div>
                 </div>
             </div>
         </div>

@@ -67,7 +67,7 @@
 
   .dashboard-container {
     font-family: 'Poppins', sans-serif;
-    max-width: 1000px;
+    width: 100% !important;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -192,7 +192,6 @@
     color: #333;
     text-align: center;
     padding: 16px;
-
     position: relative;
     /* diperlukan jika pakai absolute di dalam */
 
@@ -231,6 +230,7 @@
     justify-content: space-between;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     flex: 1;
+    width: 100% !important;
   }
 
   .title {
@@ -329,6 +329,97 @@
     gap: 10px;
     color: #38406F;
     margin-top: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .top-bar {
+      display: flex;
+      justify-content: flex-start;
+      gap: 5px;
+      color: #38406F;
+      margin-top: 10px;
+    }
+
+    .date-picker-wrapper {
+      width: 40% !important;
+      height: auto !important;
+      background-color: #fff;
+      margin-top: 10px;
+    }
+
+    .date-icon {
+      position: absolute;
+      left: 10px;
+      color: #38406F;
+      font-size: 10px !important;
+    }
+
+    .employee-select-wrapper {
+      position: relative;
+      width: 40% !important;
+      padding-left: 18px !important;
+      ym
+    }
+
+    .employee-icon {
+      position: absolute;
+      left: 10px;
+      color: #666;
+      font-size: 12px !important;
+      pointer-events: none;
+    }
+
+    .select2-selection__placeholder {
+      font-size: 11px !important;
+    }
+
+    .select2-selection {
+      width: 100% !important;
+      height: 28px !important;
+    }
+
+
+    .summary-container {
+      gap: 10px !important;
+    }
+
+    .summary-card {
+      min-width: none !important;
+      max-width: none !important;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .chart-row {
+      margin-top: 0px;
+      flex-direction: column;
+    }
+
+    .box-title {
+      font-size: 10px !important;
+      color: #977575ff;
+      font-weight: 600;
+    }
+
+    .employee-container {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+    }
+
+    .box.chart-box {
+      flex: 1;
+      min-width: none !important;
+      max-width: none !important;
+    }
+
+
+
+
   }
 
 
