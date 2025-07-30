@@ -103,7 +103,7 @@
       <div class="box-title">Total Request</div>
       <div class="box-value">
         <!-- <canvas id="empby_gen" style="margin-top: 15px;"></canvas> -->
-        5
+        <span class="ttlrequest"></span>
       </div>
     </div>
 

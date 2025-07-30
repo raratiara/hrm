@@ -99,32 +99,17 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and division_id = '".$fldiv."'";
+			$whereDiv=" and b.division_id = '".$fldiv."'";
 		}
 
 		
-		$shiftType = $this->db->query("select SUM(CASE WHEN shift_type = 'Reguler' THEN 1 ELSE 0 END) AS total_reguler, SUM(CASE WHEN shift_type = 'Shift' THEN 1 ELSE 0 END) AS total_shift
- 			from employees where status_id = 1 ".$whereDiv."")->result(); 
-		$joLevel = $this->db->query("select SUM(CASE WHEN job_level_id <= 5 THEN 1 ELSE 0 END) AS total_managerial,
- 					SUM(CASE WHEN job_level_id > 5 THEN 1 ELSE 0 END) AS total_nonmanagerial
- 					from employees where status_id = 1 ".$whereDiv."")->result(); 
-		$grade = $this->db->query("select SUM(CASE WHEN grade_id = 1 THEN 1 ELSE 0 END) AS total_grade_a,
-								 	SUM(CASE WHEN grade_id = 2 THEN 1 ELSE 0 END) AS total_grade_b,
-								  	SUM(CASE WHEN grade_id = 3 THEN 1 ELSE 0 END) AS total_grade_c,
-								   	SUM(CASE WHEN grade_id = 4 THEN 1 ELSE 0 END) AS total_grade_d
-								from employees where status_id = 1 ".$whereDiv." ")->result(); 
+		$request = $this->db->query("select count(a.id) as ttl from request_recruitment a 
+									left join sections b ON b.id = a.section_id ".$whereDiv."")->result(); 
 		
 
 
 		$rs = array(
-			'total_reguler' 		=> $shiftType[0]->total_reguler,
-			'total_shift'			=> $shiftType[0]->total_shift,
-			'total_managerial'		=> $joLevel[0]->total_managerial,
-			'total_nonmanagerial'	=> $joLevel[0]->total_nonmanagerial,
-			'total_grade_a'			=> $grade[0]->total_grade_a,
-			'total_grade_b'			=> $grade[0]->total_grade_b,
-			'total_grade_c'			=> $grade[0]->total_grade_c,
-			'total_grade_d'			=> $grade[0]->total_grade_d
+			'ttl_request' 	=> $request[0]->ttl
 		);
 
 
@@ -140,7 +125,7 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and division_id = '".$fldiv."'";
+			$whereDiv=" and b.division_id = '".$fldiv."'";
 		}
 
 
@@ -155,7 +140,7 @@ class Dash_recruitment_menu extends MY_Controller
 		    select c.name as division_name
 		    FROM request_recruitment a
 		    LEFT JOIN sections b ON b.id = a.section_id
-		    LEFT JOIN divisions c ON c.id = b.division_id
+		    LEFT JOIN divisions c ON c.id = b.division_id ".$whereDiv."
 		")->result();
 
 		foreach ($data as $row) {
@@ -177,43 +162,6 @@ class Dash_recruitment_menu extends MY_Controller
 		echo json_encode($result);
 
 
-
-
-		/*$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees where status_id = 1 ".$whereDiv."")->result(); 
-
-		$boomer=0; 		$gen_x=0; 		$gen_z=0;
-		$gen_mill=0; 	$gen_alpha=0; 	$unkgen=0;
-
-		foreach($data_emp as $row){
-			$birthYear = $row->year_of_birth;
-
-			if ($birthYear >= 1946 && $birthYear <= 1964) {
-		        $boomer += 1;
-		    } elseif ($birthYear >= 1965 && $birthYear <= 1980) {
-		        $gen_x += 1;
-		    } elseif ($birthYear >= 1981 && $birthYear <= 1996) {
-		        $gen_mill += 1;
-		    } elseif ($birthYear >= 1997 && $birthYear <= 2012) {
-		        $gen_z += 1;
-		    } elseif ($birthYear >= 2013) {
-	         	$gen_alpha += 1;
-		    } else {
-		        $unkgen += 1;
-		    }
-		}
-
-		
-		$rs = array(
-			'ttl_boomer' 	=> $boomer,
-			'ttl_gen_x' 	=> $gen_x,
-			'ttl_gen_mill'	=> $gen_mill,
-			'ttl_gen_z'		=> $gen_z,
-			'ttl_gen_alpha'	=> $gen_alpha,
-			'ttl_unkgen' 	=> $unkgen
-		);
-		
-		echo json_encode($rs);*/
-
  	}
 
  	public function get_data_byStatusPengajuan(){
@@ -223,7 +171,7 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and division_id = '".$fldiv."'";
+			$whereDiv=" and b.division_id = '".$fldiv."'";
 		}
 
 
@@ -238,8 +186,8 @@ class Dash_recruitment_menu extends MY_Controller
 		$status_counts['Unknown'] = 0; // fallback untuk data tanpa divisi
 
 		$data = $this->db->query("
-		    select status as status_name
-			FROM request_recruitment 
+		    select a.status as status_name
+			FROM request_recruitment a left join sections b ON b.id = a.section_id ".$whereDiv."
 		")->result();
 
 		foreach ($data as $row) {
@@ -270,7 +218,7 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and division_id = '".$fldiv."'";
+			$whereDiv=" and b.division_id = '".$fldiv."'";
 		}
 
 
@@ -283,8 +231,8 @@ class Dash_recruitment_menu extends MY_Controller
 		$status_counts['Unknown'] = 0; // fallback untuk data tanpa divisi
 
 		$data = $this->db->query("
-		    select status_emp as status_name
-			FROM request_recruitment 
+		    select a.status_emp as status_name
+			FROM request_recruitment a left join sections b ON b.id = a.section_id ".$whereDiv."
 		")->result();
 
 		foreach ($data as $row) {
