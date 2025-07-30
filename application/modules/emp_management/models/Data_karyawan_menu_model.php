@@ -1292,6 +1292,8 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 	public function import_data($list_data){  
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
 
 		if (isset($list_data[0][0]) && is_array($list_data[0][0])) {
 		    $list_data[0] = $list_data[0][0];
@@ -1305,7 +1307,7 @@ class Data_karyawan_menu_model extends MY_Model
 
             /// UPDATE DATA
          	if($row[58] != '' && $list_data[0][58] == 'Employee Code') 
-         	{
+         	{ echo 'tes 1'; die();
          		$getID = $this->db->query("select id, full_name, branch_id, personal_email from employees where emp_code = '".$row[58]."'")->result();
             	$employee_id = $getID[0]->id;
 
@@ -1417,7 +1419,7 @@ class Data_karyawan_menu_model extends MY_Model
             		$error .=",baris ". $baris;
             	} 
 
-         	}else{ /// INSERT DATA
+         	}else{ echo 'tes 2'; die(); /// INSERT DATA
          		if($row[0] != ''){ //full name tidak kosong
 	            	$employee = $this->db->query("select * from employees where full_name = '".$row[0]."'")->result(); 
 

@@ -53,26 +53,11 @@
 			success: function (data) {
 				if (data != false) {
 
-					$('span.ttl_reguler').html(data.total_reguler);
-					$('span.ttl_shift').html(data.total_shift);
-					$('span.ttl_managerial').html(data.total_managerial);
-					$('span.ttl_nonmanagerial').html(data.total_nonmanagerial);
-					$('p.ttl_grade_a').html(data.total_grade_a);
-					$('p.ttl_grade_b').html(data.total_grade_b);
-					$('p.ttl_grade_c').html(data.total_grade_c);
-					$('p.ttl_grade_d').html(data.total_grade_d);
-
+					$('span.ttlrequest').html(data.ttl_request);
 					
 				} else {
 					var valnull = 0;
-					$('span.ttl_reguler').html(valnull);
-					$('span.ttl_shift').html(valnull);
-					$('span.ttl_managerial').html(valnull);
-					$('span.ttl_nonmanagerial').html(valnull);
-					$('p.ttl_grade_a').html(valnull);
-					$('p.ttl_grade_b').html(valnull);
-					$('p.ttl_grade_c').html(valnull);
-					$('p.ttl_grade_d').html(valnull);
+					$('span#ttlrequest').html(valnull);
 
 				}
 			},
