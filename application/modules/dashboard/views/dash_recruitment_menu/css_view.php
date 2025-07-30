@@ -62,17 +62,17 @@
     font-size: 12px;
   }*/
 
-  .summary-card.beige {
+  /*.summary-card.beige {
     width: 100px;
     
-  }
+  }*/
 
-   .summary-item.yellow {
-    background-color: #D9F103; /*#FED24B;*/
+   /*.summary-item.yellow {
+    background-color: #D9F103; 
     align-items: center !important;
     color: #38406F;
     
-  }
+  }*/
 
    .tasklist-line {
     /*display: flex;
@@ -213,7 +213,7 @@
     background-color: #f4f6f9;
   }
 
-  .box {
+  /*.box {
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -226,134 +226,38 @@
     padding: 16px;
 
     position: relative;
-    /* diperlukan jika pakai absolute di dalam */
+   
+  }*/
 
-  }
-
-  .box-title {
-    /*font-weight: bold;*/
+  /*.box-title {
     font-size: 10px;
     color: #888;
     position: absolute;
     top: 6px;
     left: 8px;
-    /*background: white;*/
+   
     padding: 2px 8px;
     border-radius: 4px;
     margin-bottom: 8px;
-    /*font-size: 12px;
-  color: #888;
-  margin-bottom: 8px;*/
-  }
+   
+  }*/
 
-  .box-value {
+ /* .box-value {
     margin-top: 12px;
     font-size: 14px;
     font-weight: bold;
     color: #333;
-  }
+  }*/
 
 
 
   /* Ukuran tinggi dan lebar khusus */
-
-  .box-1 {
-    border-radius: 12px !important;
-    padding: 10px;
-    justify-content: space-between;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    flex: 1;
-  }
 
   .title {
     font-size: 14px;
     font-weight: 600;
   }
 
-
-
-
-  .box-2 {
-    height: 70px;
-  }
-
-  .box-3 {
-    height: 70px;
-  }
-
-  .box-4 {
-    height: 70px;
-  }
-
-  .box-5 {
-    /*height: 70px;*/
-    grid-row: span 2;
-  }
-
-  .box-6 {
-    /*height: 70px;*/
-    /*height: 160px;*/
-    grid-column: span 2;
-    grid-row: span 3;
-  }
-
-  .box-7 {
-    height: 70px;
-  }
-
-  .box-8 {
-    height: 70px;
-  }
-
-  .box-9 {
-    height: 70px;
-  }
-
-  .box-10 {
-    height: 70px;
-  }
-
-  .box-11 {
-    /*height: 70px; */
-    grid-row: span 2;
-  }
-
-  .box-12 {
-    height: 70px;
-
-  }
-
-  .box-13 {
-    height: 70px;
-  }
-
-  .box-14 {
-    /* height: 70px; */
-    grid-column: span 2;
-    grid-row: span 3;
-  }
-
-  .box-15 {
-    /*height: 70px; */
-    grid-column: span 2;
-    grid-row: span 3;
-  }
-
-  .box-16 {
-    /*height: 70px; */
-    grid-row: span 3;
-  }
-
-  .box.chart-box {
-    flex: 1;
-    min-width: 280px;
-    max-width: 320px;
-  }
-
-  .box.table-box {
-    flex: 2;
-    min-width: 500px;
-  }
 
   .top-bar {
     display: flex;
@@ -444,32 +348,131 @@
     color: #333;
   }
 
+  /* ADD NEW */
 
-  .summary-container {
+  /* Struktur grid utama */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Kolom kiri dan kanan */
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Box umum */
+.box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tinggi canvas agar stabil dan tidak kependekan */
+.bydiv canvas,
+.chart-box canvas {
+  width: 100% !important;
+  height: 250px !important;
+}
+
+.bylevel canvas {
+  width: 100% !important;
+  height: 300px !important; /* Lebih tinggi untuk Job Level */
+}
+
+/* Summary card */
+.summary-card.navy {
+  background-color: #00bcd4;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-content .title {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.card-content .value {
+  font-size: 2rem;
+}
+
+.card-content .icon {
+  font-size: 2rem;
+}
+
+/* Optional: responsive layout */
+@media (max-width: 992px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .left-column,
+  .right-column {
+    width: 100%;
+  }
+}
+
+
+/*.bylevel {
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}*/
+
+
+
+  /* END ADD*/
+
+
+  /*.summary-container {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
-  }
+  }*/
 
-  .summary-card.beige {
-    flex: 1 1 100%; /* atau misalnya 300px */
-    max-width: 400px; /* atur sesuai kebutuhan */
-  }
+  /*.summary-card.beige {
+    flex: 1 1 100%; 
+    max-width: 400px; 
+  }*/
 
-  .chart-container {
+  /*.chart-container {
     display: flex;
     gap: 20px;
-  }
+  }*/
 
 
-  .right-container .box {
+  /*.summary-card.navy {
+    height: 140px;
+  }*/
+
+
+
+  /*.right-container .box {
     margin-bottom: 16px;
-    /* atau 20px sesuai kebutuhan */
+    
     padding: 16px;
     border-radius: 8px;
-  }
+  }*/
 
-  .summary-card {
+  /*.summary-card {
     display: flex;
     align-items: center;
     border-radius: 12px !important;
@@ -479,7 +482,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     flex: 1;
     max-width: 280px;
-  }
+  }*/
 
   .card-content {
     display: flex;
@@ -510,7 +513,7 @@
   }
 
 
-  .box {
+  /*.box {
     display: flex;
     border-radius: 12px !important;
     padding: 10px;
@@ -518,16 +521,16 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     flex: 1;
 
-  }
+  }*/
 
 
 
-  .box-title {
+  /*.box-title {
     font-size: 14px;
     color: #303030;
     font-weight: 600;
 
-  }
+  }*/
 
   .box-value {
     font-size: 15px;
@@ -536,7 +539,19 @@
 
   }
 
+   .box-value-ttlrequest {
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
 
+
+    font-size: 20px;
+    font-weight: bold;
+    color: #2b2b2b;
+  }
+
+/*
 
   .summary-card .title {
     font-size: 13px;
@@ -549,7 +564,7 @@
     font-size: 20px;
     font-weight: bold;
     color: #2b2b2b;
-  }
+  }*/
 
   .icon {
     font-size: 30px;
@@ -604,11 +619,11 @@
     font-size: 12px;
   }
 
-  .employee-container {
+ /* .employee-container {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
-  }
+  }*/
 
 
   table {

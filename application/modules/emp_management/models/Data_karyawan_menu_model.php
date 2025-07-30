@@ -1307,11 +1307,11 @@ class Data_karyawan_menu_model extends MY_Model
 
             /// UPDATE DATA
          	if($row[58] != '' && $list_data[0][58] == 'Employee Code') 
-         	{ echo 'tes 1'; die();
+         	{ 
          		$getID = $this->db->query("select id, full_name, branch_id, personal_email from employees where emp_code = '".$row[58]."'")->result();
             	$employee_id = $getID[0]->id;
 
-         		if($employee_id != ''){
+         		if($employee_id != ''){ echo 'tes 11'; die();
             		$data = [
 		                'full_name' 		=> trim($row[0]),
 		                'nick_name' 		=> trim($row[1]),
@@ -1415,11 +1415,11 @@ class Data_karyawan_menu_model extends MY_Model
 
 		            if (!$rs) $error .=",baris ". $baris;
 		           	
-            	}else{
+            	}else{ echo 'tes 22'; die();
             		$error .=",baris ". $baris;
             	} 
 
-         	}else{ echo 'tes 2'; die(); /// INSERT DATA
+         	}else{  /// INSERT DATA
          		if($row[0] != ''){ //full name tidak kosong
 	            	$employee = $this->db->query("select * from employees where full_name = '".$row[0]."'")->result(); 
 

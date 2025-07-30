@@ -99,7 +99,7 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and b.division_id = '".$fldiv."'";
+			$whereDiv=" where b.division_id = '".$fldiv."'";
 		}
 
 		
@@ -125,7 +125,7 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and b.division_id = '".$fldiv."'";
+			$whereDiv=" where b.division_id = '".$fldiv."'";
 		}
 
 
@@ -171,7 +171,7 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and b.division_id = '".$fldiv."'";
+			$whereDiv=" where b.division_id = '".$fldiv."'";
 		}
 
 
@@ -218,7 +218,7 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and b.division_id = '".$fldiv."'";
+			$whereDiv=" where b.division_id = '".$fldiv."'";
 		}
 
 
@@ -256,48 +256,6 @@ class Dash_recruitment_menu extends MY_Controller
  	}
 
 
- 	public function get_data_empbyDivGender(){
- 		$post = $this->input->post(null, true);
- 		$fldiv 	= $post['fldiv'];
-
-
-		$whereDiv="";
-		if(!empty($fldiv)){ 
-			$whereDiv=" and a.division_id = '".$fldiv."'";
-		}
-
-		
-		$rs = $this->db->query("select
-				    a.division_id, b.name as division_name,
-				    SUM(CASE WHEN a.gender = 'M' THEN 1 ELSE 0 END) AS total_laki_laki,
-				    SUM(CASE WHEN a.gender = 'F' THEN 1 ELSE 0 END) AS total_perempuan,
-				    COUNT(*) AS total_karyawan
-				FROM
-				    employees a
-				    left join divisions b on b.id = a.division_id
-				where a.status_id = 1 and a.division_id != 0 ".$whereDiv."
-				GROUP BY
-				    a.division_id ")->result(); 
-
-		$divisions=[]; $total_male=[]; $total_female=[];
-		foreach($rs as $row){
-			$divisions[] 	= $row->division_name;
-			$total_male[] 	= $row->total_laki_laki;
-			$total_female[]	= $row->total_perempuan;
-		}
-
-
-		$data = array(
-			'divisions' 	=> $divisions,
-			'total_male' 	=> $total_male,
-			'total_female' 	=> $total_female
-		);
-
-
-		echo json_encode($data);
- 	}
-
-
  	public function get_data_byJobLevel(){
  		$post = $this->input->post(null, true);
  		$fldiv 	= $post['fldiv'];
@@ -305,14 +263,14 @@ class Dash_recruitment_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and a.division_id = '".$fldiv."'";
+			$whereDiv=" where b.division_id = '".$fldiv."'";
 		}
 
 
     	$rs = $this->db->query("select 
-								  status AS status_name,
-								  COUNT(id) AS total
-								from request_recruitment 
+								  a.status AS status_name,
+								  COUNT(a.id) AS total
+								from request_recruitment a left join sections b ON b.id = a.section_id ".$whereDiv."
 								GROUP BY status
 								ORDER BY status")->result(); 
 
@@ -332,54 +290,6 @@ class Dash_recruitment_menu extends MY_Controller
 
 		echo json_encode($data);
 
-
- 	}
-
-
-
- 	public function get_data_projectSummary(){
- 		$post = $this->input->post(null, true);
- 		$fldiv 	= $post['fldiv'];
-
-
-		$whereDiv="";
-		if(!empty($fldiv)){ 
-			$whereDiv=" and b.division_id = '".$fldiv."'";
-		}
-
-
-    	$rs = $this->db->query("select 
-								    c.id AS division_id,
-								    c.name AS division_name,
-								    SUM(CASE WHEN a.status_id = 1 THEN 1 ELSE 0 END) AS total_open,
-								    SUM(CASE WHEN a.status_id = 2 THEN 1 ELSE 0 END) AS total_inprogress,
-								    SUM(CASE WHEN a.status_id = 3 THEN 1 ELSE 0 END) AS total_closed
-								FROM divisions c
-								LEFT JOIN employees b ON b.division_id = c.id
-								LEFT JOIN tasklist a ON a.employee_id = b.id and a.status_id != '' ".$whereDiv."
-								GROUP BY c.id, c.name
-
-						 ")->result(); 
-
-		$division_name=[]; $total_open=[]; $total_inprogress=[]; $total_closed=[]; 
-		foreach($rs as $row){
-			$division_name[] 		= $row->division_name;
-			$total_open[] 			= $row->total_open;
-			$total_inprogress[] 	= $row->total_inprogress;
-			$total_closed[] 		= $row->total_closed;
-			
-		}
-
-
-		$data = array(
-			'division_name' 	=> $division_name,
-			'total_open'		=> $total_open,
-			'total_inprogress' 	=> $total_inprogress,
-			'total_closed' 		=> $total_closed
-		);
-
-
-		echo json_encode($data);
 
  	}
 
