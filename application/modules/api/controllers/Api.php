@@ -649,7 +649,7 @@ class Api extends API_Controller
 							, c.time_in, c.time_out, c.name 
 							from shift_schedule a
 							left join group_shift_schedule b on b.shift_schedule_id = a.id
-							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							left join master_shift_time c on c.id = b.`".$tgl."`
 							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
 					if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
@@ -658,7 +658,7 @@ class Api extends API_Controller
 						$tgl = date("d", strtotime($date));
 						$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
 							from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							left join master_shift_time c on c.id = b.`".$tgl."`
 							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
 					}
 
@@ -711,7 +711,7 @@ class Api extends API_Controller
 												, c.time_in, c.time_out, c.name 
 												from shift_schedule a
 												left join group_shift_schedule b on b.shift_schedule_id = a.id 
-												left join master_shift_time c on c.shift_id = b.`".$tgl."`
+												left join master_shift_time c on c.id = b.`".$tgl."`
 												where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
 										if(empty($dt)){
@@ -741,7 +741,7 @@ class Api extends API_Controller
 										, c.time_in, c.time_out, c.name 
 										from shift_schedule a
 										left join group_shift_schedule b on b.shift_schedule_id = a.id 
-										left join master_shift_time c on c.shift_id = b.`".$tgl."`
+										left join master_shift_time c on c.id = b.`".$tgl."`
 										where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 								if(empty($dt)){
 									$error='Checkin Date not valid';
@@ -871,7 +871,7 @@ class Api extends API_Controller
 							, c.time_in, c.time_out, c.name 
 							from shift_schedule a
 							left join group_shift_schedule b on b.shift_schedule_id = a.id 
-							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							left join master_shift_time c on c.id = b.`".$tgl."`
 							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 					
 					$datetime_out = $dt[0]->date.' '.$dt[0]->time_out;
