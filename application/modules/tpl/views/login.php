@@ -58,6 +58,18 @@
       height: 100vh;
     }
 
+    @media screen and (max-width: 767px) {
+      body {
+        flex-direction: column;
+      }
+
+      .left-side {
+        padding: 1rem !important;
+        
+      }
+
+    }
+
     .left-side {
       background-color: #343851;
       color: white;
@@ -237,7 +249,7 @@
   <!-- BEGIN LOGO -->
   <div class="left-side">
     <a href="/">
-      <img width="100" src="<?php echo _ASSET_LOGO_FRONT; ?>" alt="<?php echo _COMPANY_NAME; ?>" /> </a>
+      <img width="100" class="logo-default" src="<?php echo _ASSET_LOGO_FRONT; ?>" alt="<?php echo _COMPANY_NAME; ?>" /> </a>
     <h2>Hello! Welcome to</h2>
     <h2 style="margin-top: 0rem;">HR System</h2>
     <img width="500" src="<?php echo _ASSET_ILUSTRASI_LOGIN; ?>" alt="Illustration" class="illustration">
