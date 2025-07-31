@@ -42,7 +42,7 @@ class Settlement_menu_model extends MY_Model
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
 		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or d.direct_id = "'.$karyawan_id.'") ';
+			$whr=' where (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or d.direct_id = "'.$karyawan_id.'") ';
 		}
 
 
