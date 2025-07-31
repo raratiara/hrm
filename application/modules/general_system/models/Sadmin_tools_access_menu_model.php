@@ -185,15 +185,15 @@ class Sadmin_tools_access_menu_model extends MY_Model
 		{
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" href="'.base_url($this->folder_name.'/detail/' . $row->user_id).'"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851; href="'.base_url($this->folder_name.'/detail/' . $row->user_id).'"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" href="'.base_url($this->folder_name.'/edit/' . $row->user_id).'"><i class="fa fa-pencil"></i></a>';
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500; href="'.base_url($this->folder_name.'/edit/' . $row->user_id).'"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete = "";
 			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
-				$delete = '<a class="btn btn-xs btn-danger" href="'.base_url($this->folder_name.'/delete/' . $row->user_id).'" role="button"  data-toggle="modal" data-confirm="Apakah anda yakin ingin menghapus data ID : '.$row->user_id.'?"><i class="fa fa-trash"></i></a>';
+				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="'.base_url($this->folder_name.'/delete/' . $row->user_id).'" role="button"  data-toggle="modal" data-confirm="Apakah anda yakin ingin menghapus data ID : '.$row->user_id.'?"><i class="fa fa-trash"></i></a>';
 			}
 
 			array_push($output["aaData"],array(

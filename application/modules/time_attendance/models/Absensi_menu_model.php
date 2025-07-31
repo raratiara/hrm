@@ -195,7 +195,9 @@ class Absensi_menu_model extends MY_Model
 
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				/*$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';*/
+
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851; href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$isupdate="0"; $isdelete="0";
 			if($row->attendance_type != '' && $row->attendance_type != null){
@@ -209,7 +211,9 @@ class Absensi_menu_model extends MY_Model
 			
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $isupdate == "1" )  {
-				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				/*$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';*/
+
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500; href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 
 			$delete_bulk = "";
@@ -217,7 +221,9 @@ class Absensi_menu_model extends MY_Model
 			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
 				//$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				if($isdelete == "1"){
-					$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
+					/*$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';*/
+
+					$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 				}
 			}
 
@@ -450,7 +456,7 @@ class Absensi_menu_model extends MY_Model
 					, c.time_in, c.time_out, c.name 
 					from shift_schedule a
 					left join group_shift_schedule b on b.shift_schedule_id = a.id 
-					left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					left join master_shift_time c on c.id = b.`".$tgl."`
 					where b.employee_id = '".$cek_emp[0]->employee_id."' and a.period = '".$period."' ")->result(); 
 			
 			$datetime_out = $cek_emp[0]->date_attendance.' '.$dt[0]->time_out;
