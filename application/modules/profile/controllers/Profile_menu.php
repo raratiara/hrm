@@ -148,7 +148,7 @@ class Profile_menu extends MY_Controller
 			'bln' 					=> $bln,
 			'total_ontime'			=> $total_ontime,
 			'total_late' 			=> $total_late,
-			'total_overtime' 		=> $total_overtime,
+			/*'total_overtime' 		=> $total_overtime,*/
 			'total_leaving_early' 	=> $total_leaving_early,
 			'total_noattendance' 	=> $total_noattendance
 		);

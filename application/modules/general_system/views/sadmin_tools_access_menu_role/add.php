@@ -1,8 +1,20 @@
-                    <h3 class="page-title"></h3>
+<style>
+	.box {
+		background-color: #343851 !important;
+		border: 1px solid #6B6B6B !important;
+	}
+
+
+	.portlet.box .portlet-title .caption i {
+		color: #ffffff !important;
+	}
+</style>                    
+					
+					<h3 class="page-title"></h3>
                      <div class="row">
                         <div class="col-md-12">
                             <!-- BEGIN TABLE PORTLET-->
-                            <div class="portlet box blue">
+                            <div class="portlet box">
                                 <div class="portlet-title">
                                     <div class="caption">
                                         <i class="fa fa-cogs"></i><?php if (isset($title) && $title<>"") echo $title;?>

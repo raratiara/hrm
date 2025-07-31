@@ -11,9 +11,8 @@ class Documents_menu_model extends MY_Model
 
  	/* upload */
  	protected $attachment_folder	= "./uploads/documents";
-	/*protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt|apk";*/
-	protected $allow_type			= "*";
-	protected $allow_size			= "100000"; // dalam KB (100MB) // 0 for limit by default php conf (in Kb)
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
 
 
@@ -176,17 +175,17 @@ class Documents_menu_model extends MY_Model
 		{
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851; href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500; href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
 			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
-				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
+				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
 			$doc = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="downloadFile('."'".$row->file."'".')" role="button"><i class="fa fa-download"></i></a>';
@@ -349,11 +348,8 @@ class Documents_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		/*error_reporting(E_ALL);
-		ini_set('display_errors', 1);*/
-				
-
 		$name = trim($post['name']); 
+
 
 		if(!empty($post['id'])){ 
 

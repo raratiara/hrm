@@ -1,22 +1,22 @@
 <!-- <div class="row">
-	
-	<div class="col-md-4 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Group</label>
-			<div class="col-md-8">
-				<?=$selgroup;?>
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Period</label>
-			<div class="col-md-8">
-				<input type="month" id="monthPicker" name="period" class="form-control">
-			</div>
-		</div>
-		
-	</div>
-		
-	
+  
+  <div class="col-md-4 col-sm-12">
+    <div class="form-group">
+      <label class="col-md-4 control-label no-padding-right">Group</label>
+      <div class="col-md-8">
+        <?= $selgroup; ?>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-md-4 control-label no-padding-right">Period</label>
+      <div class="col-md-8">
+        <input type="month" id="monthPicker" name="period" class="form-control">
+      </div>
+    </div>
+    
+  </div>
+    
+  
 </div>
 
 
@@ -33,38 +33,38 @@
 <button href="#tabemplist" data-toggle="tab" id="btnAccordion" class="accordion">Employee List</button>
 
 <div class="panel" id="tabemplist">
-	<div class="row emplist">
-	    <div class="col-md-12">
-			<div class="portlet box">
-				<div class="portlet-title">
-					<div class="caption"> </div>
-					<div class="tools">
-						<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addemplist" value="Add Row" />
-					</div>
-				</div>
-				<div class="portlet-body">
-					<div class="table-scrollable tablesaw-cont"> 
-					<table class="table table-striped table-bordered table-hover emp-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailEmpList">
-						<thead>
-							<tr>
-								<th scope="col">No</th>
-								<th scope="col">Employee</th>
-								<th scope="col"></th>
-							</tr>
-						</thead>
-						<tbody>
-							
-						</tbody>
+  <div class="row emplist">
+      <div class="col-md-12">
+      <div class="portlet box">
+        <div class="portlet-title">
+          <div class="caption"> </div>
+          <div class="tools">
+            <input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addemplist" value="Add Row" />
+          </div>
+        </div>
+        <div class="portlet-body">
+          <div class="table-scrollable tablesaw-cont"> 
+          <table class="table table-striped table-bordered table-hover emp-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailEmpList">
+            <thead>
+              <tr>
+                <th scope="col">No</th>
+                <th scope="col">Employee</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            </tbody>
 
-						<tfoot>
-						</tfoot>
-					</table>
-					
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+            <tfoot>
+            </tfoot>
+          </table>
+          
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div> -->
 
 
@@ -98,7 +98,7 @@
 
 <label>Month:
   <!-- <select id="bulan" name="bulan" onchange="resetToBulanTahun()"> -->
-  	<select id="bulan" name="bulan" class="form-control">
+  <select id="bulan" name="bulan" class="form-control">
     <script>
       for (let i = 0; i < 12; i++) {
         /*document.write(`<option value="${i}">${new Date(0, i).toLocaleString('id', { month: 'long' })}</option>`);*/
@@ -111,7 +111,7 @@
 
 <label>Year:
   <!-- <select id="tahun" name="tahun" onchange="resetToBulanTahun()"> -->
-  	<select id="tahun" name="tahun" class="form-control">
+  <select id="tahun" name="tahun" class="form-control">
     <script>
       const now = new Date().getFullYear();
       for (let y = now - 1; y <= now + 1; y++) {
@@ -126,7 +126,7 @@
 
 
 <div>
-	  <button type="button" class="btnpilihshift" id="btnpilihshift" onclick="pilihShift();"> Select Shift</button>
+  <button type="button" class="btnpilihshift" id="btnpilihshift" onclick="pilihShift();"> Select Shift</button>
 </div>
 
 <!-- Shift drag -->
@@ -137,23 +137,25 @@
 </div> -->
 
 <!-- Tabel -->
-<table class="tblShift">
-  <thead>
-    <tr>
-      <th>Employee</th>
-      <th class="date-header" id="tgl1"></th>
-      <th class="date-header" id="tgl2"></th>
-      <th class="date-header" id="tgl3"></th>
-      <th class="date-header" id="tgl4"></th>
-      <th class="date-header" id="tgl5"></th>
-      <th class="date-header" id="tgl6"></th>
-      <th class="date-header" id="tgl7"></th>
-    </tr>
-  </thead>
-  <tbody id="jadwal-body">
-    <!-- Karyawan diisi dari JS -->
-  </tbody>
-</table>
+<div style="overflow-x: auto; width: 100%;">
+  <table class="tblShift">
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th class="date-header" id="tgl1"></th>
+        <th class="date-header" id="tgl2"></th>
+        <th class="date-header" id="tgl3"></th>
+        <th class="date-header" id="tgl4"></th>
+        <th class="date-header" id="tgl5"></th>
+        <th class="date-header" id="tgl6"></th>
+        <th class="date-header" id="tgl7"></th>
+      </tr>
+    </thead>
+    <tbody id="jadwal-body">
+      <!-- Karyawan diisi dari JS -->
+    </tbody>
+  </table>
+</div>
 
 <!-- Tombol navigasi minggu -->
 <div>
@@ -174,28 +176,28 @@ var year = new Date().getFullYear();*/
  
 function pilihShift(){
 
-	var bln = document.getElementById('bulan').value;
-	var thn = document.getElementById('tahun').value;
+  var bln = document.getElementById('bulan').value;
+  var thn = document.getElementById('tahun').value;
 
-	if(bln != '' && thn != ''){
-		document.getElementById('shiftModal').style.display = 'block';
-	}else{
-		alert('Silahkan pilih bulan & tahun');
-	}
+  if(bln != '' && thn != ''){
+    document.getElementById('shiftModal').style.display = 'block';
+  }else{
+    alert('Silahkan pilih bulan & tahun');
+  }
 
-	
+  
 }
 
 // Inisialisasi jadwal
 function renderSchedule() {
-	/*let month = 5; 
-	let year = 2025;*/
+  /*let month = 5; 
+  let year = 2025;*/
 
-	/*var month = new Date().getMonth();
-	var year = new Date().getFullYear();*/
+  /*var month = new Date().getMonth();
+  var year = new Date().getFullYear();*/
 
-	document.getElementById('bulan').value = month;
-	document.getElementById('tahun').value = year;
+  document.getElementById('bulan').value = month;
+  document.getElementById('tahun').value = year;
 
 
   let tbody = document.getElementById('jadwal-body');
@@ -344,4 +346,3 @@ function confirmDeleteShift() {
 
 
 </script> -->
-
