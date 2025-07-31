@@ -186,7 +186,7 @@ class Api_model extends MY_Model
         $user   = "root";
         $pass   = "";*/
 
-        $host   = "172.30.5.202";
+        $host   = "localhost";
         $dbname = $nama_db;
         $user   = $username_db;
         $pass   = $password_db;

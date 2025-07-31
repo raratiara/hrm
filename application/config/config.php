@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 date_default_timezone_set('Asia/Jakarta');
-$config['base_url'] = 'http://localhost/_hrm';  # live
+$config['base_url'] = 'https://hrm.nathabuana.com/';  # live
 #$config['base_url'] = 'http://nerp';  # localhost
 
 /*

@@ -222,15 +222,15 @@ class Api extends API_Controller
     	$username	= $_REQUEST['username'];
     	$password 	= $_REQUEST['password'];
 
-
     	//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
     	$sql = "select * from companies where website = '".$url."'";
-    	$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
+    	$nama_db="u1647144_hrm"; $username_db="u1647144_hrm"; $password_db="HRM_NBID@2025!";
     	$cek_url = $this->api->query_db($nama_db, $username_db, $password_db, $sql); 
     
+	//echo "test";die();
     	if(!empty($cek_url)){ 
     		$url_app 			= $cek_url['url_app'];
-    		
+    		// echo($url_app);die();
     		$cek_login = $this->api->cek_login($username, $password);
     	
     		if(!empty($cek_login)){ 
