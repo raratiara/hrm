@@ -594,7 +594,7 @@ class Absensi_menu_model extends MY_Model
 					, b.`".$tgl."` as 'shift' 
 					, c.time_in, c.time_out, c.name 
 					from shift_schedule a
-					left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+					left join group_shift_schedule b on b.shift_schedule_id = a.id  
 					left join master_shift_time c on c.id = b.`".$tgl."`
 					where a.employee_id = '".$empid."' and b.periode = '".$period."' ")->result(); 
 
