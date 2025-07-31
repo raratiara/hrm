@@ -1,16 +1,16 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Authorization_user_account_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name			= "general_system/authorization_user_account";
- 	protected $table_name 			= _PREFIX_TABLE."user";
- 	protected $table_role 			= _PREFIX_TABLE."user_group";
- 	protected $table_karyawan 		= _PREFIX_TABLE."employees";
- 	protected $table_jabatan 		= _PREFIX_TABLE."master_job_title";
- 	protected $primary_key 			= "user_id";
- 	protected $general_key 			= "id";
+	protected $folder_name = "general_system/authorization_user_account";
+	protected $table_name = _PREFIX_TABLE . "user";
+	protected $table_role = _PREFIX_TABLE . "user_group";
+	protected $table_karyawan = _PREFIX_TABLE . "employees";
+	protected $table_jabatan = _PREFIX_TABLE . "master_job_title";
+	protected $primary_key = "user_id";
+	protected $general_key = "id";
 
 	function __construct()
 	{
@@ -39,40 +39,40 @@ class Authorization_user_account_model extends MY_Model
 				END) as is_aktif'
 		];
 
-		$sIndexColumn = 'a.'.$this->primary_key;
-		$sTable = ' '.$this->table_name.' a 
-					LEFT JOIN '._PREFIX_TABLE.'user_group b ON b.id=a.id_groups
+		$sIndexColumn = 'a.' . $this->primary_key;
+		$sTable = ' ' . $this->table_name . ' a 
+					LEFT JOIN ' . _PREFIX_TABLE . 'user_group b ON b.id=a.id_groups
 					';
 
 		/* Paging */
 		$sLimit = "";
-		if(isset($_GET['iDisplayStart']) && $_GET['iDisplayLength'] != '-1'){
-			$sLimit = "LIMIT ".($_GET['iDisplayStart']).", ".
-			($_GET['iDisplayLength']);
+		if (isset($_GET['iDisplayStart']) && $_GET['iDisplayLength'] != '-1') {
+			$sLimit = "LIMIT " . ($_GET['iDisplayStart']) . ", " .
+				($_GET['iDisplayLength']);
 		}
 
 		/* Ordering */
 		$sOrder = "";
-		if(isset($_GET['iSortCol_0'])) {
+		if (isset($_GET['iSortCol_0'])) {
 			$sOrder = "ORDER BY  ";
-			for ($i=0 ; $i<intval($_GET['iSortingCols']) ; $i++){
-				if($_GET['bSortable_'.intval($_GET['iSortCol_'.$i])] == "true"){
-					$srcCol = $aColumns[ intval($_GET['iSortCol_'.$i])];
-					$findme   = ' as ';
+			for ($i = 0; $i < intval($_GET['iSortingCols']); $i++) {
+				if ($_GET['bSortable_' . intval($_GET['iSortCol_' . $i])] == "true") {
+					$srcCol = $aColumns[intval($_GET['iSortCol_' . $i])];
+					$findme = ' as ';
 					$pos = strpos($srcCol, $findme);
 					if ($pos !== false) {
 						$pieces = explode($findme, trim($srcCol));
-						$sOrder .= trim($pieces[0])."
-						".($_GET['sSortDir_'.$i]) .", ";
+						$sOrder .= trim($pieces[0]) . "
+						" . ($_GET['sSortDir_' . $i]) . ", ";
 					} else {
-						$sOrder .= $aColumns[ intval($_GET['iSortCol_'.$i])]."
-						".($_GET['sSortDir_'.$i]) .", ";
+						$sOrder .= $aColumns[intval($_GET['iSortCol_' . $i])] . "
+						" . ($_GET['sSortDir_' . $i]) . ", ";
 					}
 				}
 			}
 
 			$sOrder = substr_replace($sOrder, "", -2);
-			if($sOrder == "ORDER BY"){
+			if ($sOrder == "ORDER BY") {
 				$sOrder = "";
 			}
 		}
@@ -80,67 +80,68 @@ class Authorization_user_account_model extends MY_Model
 		/* Filtering */
 		$sRole = $this->session->userdata('role');
 		$sTrict = "";
-		if($sRole > '1') $sTrict = " AND id_groups > 1"; // filtering role not include superadmin
-		$sWhere = " WHERE 1 = 1".$sTrict." ";
-		if(isset($_GET['sSearch']) && $_GET['sSearch'] != ""){
+		if ($sRole > '1')
+			$sTrict = " AND id_groups > 1"; // filtering role not include superadmin
+		$sWhere = " WHERE 1 = 1" . $sTrict . " ";
+		if (isset($_GET['sSearch']) && $_GET['sSearch'] != "") {
 			$sWhere .= "AND (";
 			foreach ($aColumns as $c) {
-				if($c !== NULL){
+				if ($c !== NULL) {
 					$srcCol = $c;
-					$findme   = ' as ';
+					$findme = ' as ';
 					$pos = strpos($srcCol, $findme);
 					if ($pos !== false) {
 						$pieces = explode($findme, trim($srcCol));
-						$sWhere .= trim($pieces[0])." LIKE '%".($_GET['sSearch'])."%' OR ";
+						$sWhere .= trim($pieces[0]) . " LIKE '%" . ($_GET['sSearch']) . "%' OR ";
 					} else {
-						$sWhere .= $c." LIKE '%".($_GET['sSearch'])."%' OR ";
+						$sWhere .= $c . " LIKE '%" . ($_GET['sSearch']) . "%' OR ";
 					}
 				}
 			}
 
-			$sWhere = substr_replace( $sWhere, "", -3);
+			$sWhere = substr_replace($sWhere, "", -3);
 			$sWhere .= ')';
 		}
 
 		/* Individual column filtering */
-		for($i=0 ; $i<count($aColumns) ; $i++) {
-			if(isset($_GET['bSearchable_'.$i]) && $_GET['bSearchable_'.$i] == "true" && isset($_GET['sSearch_'.$i]) && $_GET['sSearch_'.$i] != ''){
-				if($sWhere == ""){
+		for ($i = 0; $i < count($aColumns); $i++) {
+			if (isset($_GET['bSearchable_' . $i]) && $_GET['bSearchable_' . $i] == "true" && isset($_GET['sSearch_' . $i]) && $_GET['sSearch_' . $i] != '') {
+				if ($sWhere == "") {
 					$sWhere = "WHERE ";
 				} else {
 					$sWhere .= " AND ";
 				}
-				$srcString = $_GET['sSearch_'.$i];
-				$findme   = '|';
+				$srcString = $_GET['sSearch_' . $i];
+				$findme = '|';
 				$pos = strpos($srcString, $findme);
 				if ($pos !== false) {
 					$srcKey = "";
 					$pieces = explode($findme, trim($srcString));
 					foreach ($pieces as $value) {
-						if(!empty($srcKey)){
+						if (!empty($srcKey)) {
 							$srcKey .= ",";
 						}
-						$srcKey .= "'".$value."'";
+						$srcKey .= "'" . $value . "'";
 					}
-					
+
 					$srcCol = $aColumns[$i];
-					$findme   = ' as ';
+					$findme = ' as ';
 					$pos = strpos($srcCol, $findme);
 					if ($pos !== false) {
 						$pieces = explode($findme, trim($srcCol));
-						$sWhere .= trim($pieces[0])." IN (".$srcKey.") ";
+						$sWhere .= trim($pieces[0]) . " IN (" . $srcKey . ") ";
 					} else {
-						$sWhere .= $aColumns[$i]." IN (".$srcKey.") ";
+						$sWhere .= $aColumns[$i] . " IN (" . $srcKey . ") ";
 					}
 				} else {
 					$srcCol = $aColumns[$i];
-					$findme   = ' as ';
+					$findme = ' as ';
 					$pos = strpos($srcCol, $findme);
 					if ($pos !== false) {
 						$pieces = explode($findme, trim($srcCol));
-						$sWhere .= trim($pieces[0])." LIKE '%".($srcString)."%' ";
+						$sWhere .= trim($pieces[0]) . " LIKE '%" . ($srcString) . "%' ";
 					} else {
-						$sWhere .= $aColumns[$i]." LIKE '%".($srcString)."%' ";
+						$sWhere .= $aColumns[$i] . " LIKE '%" . ($srcString) . "%' ";
 					}
 				}
 			}
@@ -149,7 +150,7 @@ class Authorization_user_account_model extends MY_Model
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
 		$sQuery = "
-		SELECT  SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $filtered_cols))."
+		SELECT  SQL_CALC_FOUND_ROWS " . str_replace(" , ", " ", implode(", ", $filtered_cols)) . "
 		FROM $sTable
 		$sWhere
 		$sOrder
@@ -167,7 +168,7 @@ class Authorization_user_account_model extends MY_Model
 
 		/* Total data set length */
 		$sQuery = "
-			SELECT COUNT(".$sIndexColumn.") AS total
+			SELECT COUNT(" . $sIndexColumn . ") AS total
 			FROM $sTable
 		";
 		$aResultTotal = $this->db->query($sQuery)->row();
@@ -180,29 +181,28 @@ class Authorization_user_account_model extends MY_Model
 			"aaData" => array()
 		);
 
-		foreach($rResult as $row)
-		{
+		foreach ($rResult as $row) {
 			$detail = "";
-			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->user_id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+			if (_USER_ACCESS_LEVEL_DETAIL == "1") {
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851; href="javascript:void(0);" onclick="detail(' . "'" . $row->user_id . "'" . ')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->user_id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+			if (_USER_ACCESS_LEVEL_UPDATE == "1") {
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500; href="javascript:void(0);" onclick="edit(' . "'" . $row->user_id . "'" . ')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
-				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->user_id.'">';
-				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->user_id."'".')" role="button"><i class="fa fa-trash"></i></a>';
+			if (_USER_ACCESS_LEVEL_DELETE == "1") {
+				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="' . $row->user_id . '">';
+				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting(' . "'" . $row->user_id . "'" . ')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
-			array_push($output["aaData"],array(
+			array_push($output["aaData"], array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					'.$detail.'
-					'.$edit.'
-					'.$delete.'
+					' . $detail . '
+					' . $edit . '
+					' . $delete . '
 				</div>',
 				$row->user_id,
 				$row->name,
@@ -218,12 +218,14 @@ class Authorization_user_account_model extends MY_Model
 	}
 
 	// filltering null value from array
-	public function is_not_null($val){
+	public function is_not_null($val)
+	{
 		return !is_null($val);
-	}		
+	}
 
 	// delete item action
-	public function delete($id= "") {
+	public function delete($id = "")
+	{
 		if (isset($id) && $id <> "") {
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
@@ -231,11 +233,13 @@ class Authorization_user_account_model extends MY_Model
 			$this->db->trans_complete();
 
 			return $rs = $this->db->trans_status();
-		} else return null;
-	}  
+		} else
+			return null;
+	}
 
 	// delete multi items action
-	public function bulk($id= "") {
+	public function bulk($id = "")
+	{
 		if (is_array($id) && count($id)) {
 			$err = '';
 			foreach ($id as $pid) {
@@ -244,113 +248,120 @@ class Authorization_user_account_model extends MY_Model
 				$this->db->where([$this->primary_key => $pid])->delete($this->table_name);
 				$this->db->trans_complete();
 				$deleted = $this->db->trans_status();
-                if ($deleted == false) {
-					if(!empty($err)) $err .= ", ";
-                    $err .= $pid;
-                }
+				if ($deleted == false) {
+					if (!empty($err))
+						$err .= ", ";
+					$err .= $pid;
+				}
 			}
-			
+
 			$data = array();
-			if(empty($err)){
+			if (empty($err)) {
 				$data['status'] = TRUE;
 			} else {
 				$data['status'] = FALSE;
-				$data['err'] = '<br/>ID : '.$err;
+				$data['err'] = '<br/>ID : ' . $err;
 			}
-			
+
 			return $data;
-		} else return null;
-	}  
+		} else
+			return null;
+	}
 
 	// adding data
-	public function add_data($post) {
-		$id_karyawan = (isset($post['id_karyawan']) && !empty($post['id_karyawan']))? trim($post['id_karyawan']):NULL;
-		$bmenu = (isset($post['base_menu']) && !empty($post['base_menu']))? trim($post['base_menu']):'role';
-		$isaktif = (isset($post['isaktif']) && !empty($post['isaktif']))? trim($post['isaktif']):'2';
+	public function add_data($post)
+	{
+		$id_karyawan = (isset($post['id_karyawan']) && !empty($post['id_karyawan'])) ? trim($post['id_karyawan']) : NULL;
+		$bmenu = (isset($post['base_menu']) && !empty($post['base_menu'])) ? trim($post['base_menu']) : 'role';
+		$isaktif = (isset($post['isaktif']) && !empty($post['isaktif'])) ? trim($post['isaktif']) : '2';
 		$data = [
-			'name' 				=> trim($post['name']),
-			'username' 			=> strtolower(trim($post['username'])),
-			'id_karyawan' 		=> $id_karyawan,
-			'email' 			=> trim($post['email']),
-			'id_groups' 		=> trim($post['id_groups']),
-			'base_menu' 		=> $bmenu,
-			'isaktif' 			=> $isaktif,
-			'insert_by'			=> $_SESSION["username"]
+			'name' => trim($post['name']),
+			'username' => strtolower(trim($post['username'])),
+			'id_karyawan' => $id_karyawan,
+			'email' => trim($post['email']),
+			'id_groups' => trim($post['id_groups']),
+			'base_menu' => $bmenu,
+			'isaktif' => $isaktif,
+			'insert_by' => $_SESSION["username"]
 		];
-		
-		if(!empty(trim($post['passwd'])) && (trim($post['passwd']) == trim($post['repasswd']))){
+
+		if (!empty(trim($post['passwd'])) && (trim($post['passwd']) == trim($post['repasswd']))) {
 			$data['passwd'] = md5($this->db->escape_str(strtolower(trim($post['passwd']))));
 		}
 
 		return $rs = $this->db->insert($this->table_name, $data);
-	}  
+	}
 
 	// update data
-	public function edit_data($post) { 
-		if(!empty($post['id'])){
-			$id_karyawan = (isset($post['id_karyawan']) && !empty($post['id_karyawan']))? trim($post['id_karyawan']):NULL;
-			$bmenu = (isset($post['base_menu']) && !empty($post['base_menu']))? trim($post['base_menu']):'role';
-			$isaktif = (isset($post['isaktif']) && !empty($post['isaktif']))? trim($post['isaktif']):'2';
+	public function edit_data($post)
+	{
+		if (!empty($post['id'])) {
+			$id_karyawan = (isset($post['id_karyawan']) && !empty($post['id_karyawan'])) ? trim($post['id_karyawan']) : NULL;
+			$bmenu = (isset($post['base_menu']) && !empty($post['base_menu'])) ? trim($post['base_menu']) : 'role';
+			$isaktif = (isset($post['isaktif']) && !empty($post['isaktif'])) ? trim($post['isaktif']) : '2';
 			$data = [
-				'name' 				=> trim($post['name']),
+				'name' => trim($post['name']),
 				//'username' 			=> strtolower(trim($post['username'])),
-				'id_karyawan' 		=> $id_karyawan,
-				'email' 			=> trim($post['email']),
-				'id_groups' 		=> trim($post['id_groups']),
-				'base_menu' 		=> $bmenu,
-				'isaktif' 			=> $isaktif,
-				'update_by'			=> $_SESSION["username"]
+				'id_karyawan' => $id_karyawan,
+				'email' => trim($post['email']),
+				'id_groups' => trim($post['id_groups']),
+				'base_menu' => $bmenu,
+				'isaktif' => $isaktif,
+				'update_by' => $_SESSION["username"]
 			];
-		
-			if(!empty(trim($post['passwd'])) && (trim($post['passwd']) == trim($post['repasswd']))){
+
+			if (!empty(trim($post['passwd'])) && (trim($post['passwd']) == trim($post['repasswd']))) {
 				$data['passwd'] = md5($this->db->escape_str(strtolower(trim($post['passwd']))));
 			}
 
 			return $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
-	}  
+		} else
+			return null;
+	}
 
 	// getting row data for update / detail view
-	public function getRowData($id) { 
+	public function getRowData($id)
+	{
 		$rs = $this->db->select('user_id,name,username,id_karyawan,email,id_groups,base_menu,(CASE WHEN base_menu="custom" THEN "User" WHEN base_menu="role" THEN "Role" ELSE "Default" END) as bmenu,isaktif')->where([$this->primary_key => $id])->get($this->table_name)->row();
-		if(!empty($rs->id_karyawan)){
-			$rd = $this->db->select('CONCAT(a.full_name," - ",b.name) as link')->join($this->table_jabatan.' b','b.id=a.job_title_id','left')->where(['a.'.$this->general_key => $rs->id_karyawan])->get($this->table_karyawan.' a')->row();
+		if (!empty($rs->id_karyawan)) {
+			$rd = $this->db->select('CONCAT(a.full_name," - ",b.name) as link')->join($this->table_jabatan . ' b', 'b.id=a.job_title_id', 'left')->where(['a.' . $this->general_key => $rs->id_karyawan])->get($this->table_karyawan . ' a')->row();
 			$rs = (object) array_merge((array) $rs, (array) $rd);
 		}
-		if(!empty($rs->id_groups)){
+		if (!empty($rs->id_groups)) {
 			$rd = $this->db->select('description as role')->where([$this->general_key => $rs->id_groups])->get($this->table_role)->row();
 			$rs = (object) array_merge((array) $rs, (array) $rd);
 		}
-		
+
 		return $rs;
-	} 
+	}
 
 	// importing data
 	public function import_data($list_data)
 	{
 		$i = 0;
 		$error = '';
-		
+
 		foreach ($list_data as $k => $v) {
 			$i += 1;
 
-			$id_karyawan = (isset($v["D"]) && !empty($v["D"]))? trim($v["D"]):NULL;
-			$bmenu = (isset($v["G"]) && !empty($v["G"]))? trim($v["G"]):'role';
-			$isaktif = (isset($v["I"]) && !empty($v["I"]))? trim($v["I"]):'2';
+			$id_karyawan = (isset($v["D"]) && !empty($v["D"])) ? trim($v["D"]) : NULL;
+			$bmenu = (isset($v["G"]) && !empty($v["G"])) ? trim($v["G"]) : 'role';
+			$isaktif = (isset($v["I"]) && !empty($v["I"])) ? trim($v["I"]) : '2';
 			$data = [
-				'name' 				=> $v["B"],
-				'username' 			=> $v["C"],
-				'id_karyawan' 		=> $id_karyawan,
-				'email' 			=> $v["E"],
-				'id_groups' 		=> $v["F"],
-				'base_menu' 		=> $bmenu,
-				'passwd' 			=> md5($this->db->escape_str(strtolower(trim($v["H"])))),
-				'isaktif' 			=> $isaktif,
-				'insert_by'			=> $_SESSION["username"]
+				'name' => $v["B"],
+				'username' => $v["C"],
+				'id_karyawan' => $id_karyawan,
+				'email' => $v["E"],
+				'id_groups' => $v["F"],
+				'base_menu' => $bmenu,
+				'passwd' => md5($this->db->escape_str(strtolower(trim($v["H"])))),
+				'isaktif' => $isaktif,
+				'insert_by' => $_SESSION["username"]
 			];
 
 			$rs = $this->db->insert($this->table_name, $data);
-			if (!$rs) $error .=",baris ". $v["A"];
+			if (!$rs)
+				$error .= ",baris " . $v["A"];
 		}
 
 		return $error;
@@ -376,13 +387,13 @@ class Authorization_user_account_model extends MY_Model
 							ELSE 'Suspended'
 						END) as is_aktif
 			FROM
-	   	 		".$this->table_name." a
+	   	 		" . $this->table_name . " a
 			LEFT JOIN 
-				"._PREFIX_TABLE."user_group b 
+				" . _PREFIX_TABLE . "user_group b 
 			ON 
 				b.id=a.id_groups
 	   		ORDER BY
-	   			a.".$this->primary_key." ASC
+	   			a." . $this->primary_key . " ASC
 		";
 
 		$res = $this->db->query($sql);

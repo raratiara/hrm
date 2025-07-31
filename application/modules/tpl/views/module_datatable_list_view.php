@@ -1,4 +1,33 @@
 <style>
+	/* Pastikan tabel tidak pecah layout */
+
+
+	/* Responsif untuk mobile */
+	@media screen and (max-width: 767px) {
+
+
+		#dynamic-table th,
+		#dynamic-table td {
+			font-size: 12px !important;
+			padding: 6px !important;
+			white-space: nowrap !important;
+		}
+
+		.btn.btn-default {
+			font-size: 12px !important;
+			padding: 4px 6px !important;
+		}
+
+		.portlet.box {
+			width: 98% !important;
+			white-space: nowrap !important;
+		}
+
+
+
+
+	}
+
 	#dynamic-table th:nth-child(2),
 	#dynamic-table td:nth-child(2) {
 		min-width: none !important;
@@ -25,6 +54,12 @@
 		color: #ffffff !important;
 	}
 
+	.input-sm.input-small.input-inline {
+		font-size: 10px;
+		padding: 2px 4px;
+		width: 100% !important;
+	}
+
 	.btn.btn-default {
 		border: none !important;
 		background-color: #dde0f3ff;
@@ -35,6 +70,12 @@
 		/* warna hover lebih gelap sedikit */
 		border-color: #979797ff !important;
 		color: #000 !important;
+	}
+
+	.pagination>li.active>a {
+		background-color: #343851 !important;
+		border-color: #343851 !important;
+		color: #fff !important;
 	}
 </style>
 
@@ -106,31 +147,34 @@
 			</div>
 			<div class="portlet-body">
 				<form name="frmListData" id="frmListData">
-					<table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed"
-						style="width:100%">
-						<thead>
-							<tr>
-								<?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
-									<th width="15px"><input type="checkbox" id="check-all"></th>
-								<?php } ?>
-								<th width="120px">Action</th>
-								<?php
-								if (isset($thData) && $thData <> "") {
-									foreach ($thData as $th) {
-										if (!is_array($th)) {
-											echo '<th>' . $th . '</th>';
-										} else {
-											echo '<th ' . $th[1] . '>' . $th[0] . '</th>';
+					<div style="overflow-x: auto; width: 100%;">
+						<table id="dynamic-table"
+							class="table table-striped table-bordered table-hover table-header-fixed"
+							style="width:100%; white-space: nowrap;">
+							<thead>
+								<tr>
+									<?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
+										<th width="15px"><input type="checkbox" id="check-all"></th>
+									<?php } ?>
+									<th width="120px">Action</th>
+									<?php
+									if (isset($thData) && $thData <> "") {
+										foreach ($thData as $th) {
+											if (!is_array($th)) {
+												echo '<th>' . $th . '</th>';
+											} else {
+												echo '<th ' . $th[1] . '>' . $th[0] . '</th>';
+											}
 										}
 									}
-								}
-								?>
-							</tr>
-						</thead>
+									?>
+								</tr>
+							</thead>
 
-						<tbody>
-						</tbody>
-					</table>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
 				</form>
 			</div>
 		</div>

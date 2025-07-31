@@ -44,7 +44,7 @@ class Mylib {
     { 
         $output = '';
         $output .= '<div style="position:relative;">
-							<a class="btn btn-sm blue" href="javascript:;">
+							<a class="btn btn-sm btn-default " href="javascript:;">
 								Choose File...
 								<input type="file" name="'.$var_name.'" id="'.$var_name.'" style="position:absolute;z-index:2;top:0;left:0;filter: alpha(opacity=0);-ms-filter:\'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\';opacity:0;background-color:transparent;color:transparent;" size="40"  onchange="$(\'#upload-file-info\').html(this.files[0].name);">
 							</a>

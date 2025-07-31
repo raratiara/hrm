@@ -96,8 +96,8 @@
             border-radius: 10px !important;
             margin-left: 6px !important;
             margin-right: 6px !important;
-            font-size: 13px;
-
+            font-size: 12px;
+            margin-bottom: 15px !important;
         }
 
         .page-sidebar-closed .page-sidebar .page-sidebar-menu>li>a {
@@ -147,15 +147,41 @@
         .page-sidebar .page-sidebar-menu {
             background-color: #343851 !important;
             width: 235px !important;
-            height: 100vh !important;
+            height: 93vh !important;
             /* Tinggi full layar */
-            min-height: 100vh !important;
+            min-height: 93vh !important;
             position: fixed !important;
             /* Tetap di tempatnya, tidak ikut scroll */
-            overflow-y: auto;
+            overflow-y: auto !important;
             z-index: 9999 !important;
 
+        }
 
+        .clearfix {
+            background-color: #ffffff !important;
+            color: #ffffff !important;
+        }
+
+        .dropdown-toggle {
+            color: #ffffff !important;
+            background-color: #343851 !important;
+            border-bottom-left-radius: 5px !important;
+            border-bottom-right-radius: 5px !important;
+            height: auto !important;
+            top: -1px !important;
+        }
+
+
+
+        @media (max-width: 768px) {
+
+            .page-sidebar .page-sidebar-menu {
+                left: auto !important;
+                right: 0 !important;
+                top: 45px !important;
+                border-bottom-left-radius: 20px !important;
+                border-bottom-right-radius: 20px !important;
+            }
 
         }
 
