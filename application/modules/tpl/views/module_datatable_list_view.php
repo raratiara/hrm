@@ -1,4 +1,98 @@
 <style>
+    /* Pastikan tabel tidak pecah layout */
+
+
+    .table-container {
+        width: 100%;
+
+
+    }
+
+    .portlet-body {
+        width: 100% !important;
+    }
+
+    .table-scroll-wrapper {
+        width: 100% !important;
+
+    }
+
+
+    /* Responsif untuk mobile */
+    @media screen and (max-width: 767px) {
+
+
+
+
+        #dynamic-table {
+
+            /* Atau sesuai kebutuhan kolom */
+            overflow-x: auto !important;
+            white-space: nowrap !important;
+            display: block !important;
+
+
+        }
+
+
+        #dynamic-table th,
+        #dynamic-table td {
+            display: table-cell !important;
+            font-size: 12px !important;
+            padding: 6px !important;
+            white-space: nowrap !important;
+            vertical-align: middle !important;
+        }
+
+    }
+
+    #dynamic-table th,
+    #dynamic-table td {
+        display: table-cell !important;
+        font-size: 12px !important;
+        padding: 6px !important;
+        white-space: nowrap !important;
+        vertical-align: middle !important;
+    }
+
+
+    #dynamic-table thead {
+        display: table-header-group !important;
+    }
+
+    #dynamic-table tbody {
+        display: table-row-group !important;
+    }
+
+    #dynamic-table tr {
+        display: table-row !important;
+    }
+
+    .btn.btn-default {
+        font-size: 12px !important;
+        padding: 4px 6px !important;
+    }
+
+    .pagination>li>a,
+    .pagination>li>span {
+        font-size: 10px !important;
+        padding: 3px 6px !important;
+    }
+
+    .pagination {
+        margin: 5px 0 !important;
+    }
+
+
+    .dataTables_filter {
+
+        margin-left: -10px !important;
+    }
+
+
+
+
+
     #dynamic-table th:nth-child(2),
     #dynamic-table td:nth-child(2) {
         min-width: none !important;
@@ -25,6 +119,8 @@
         color: #ffffff !important;
     }
 
+
+
     .btn.btn-default {
         border: none !important;
         background-color: #dde0f3ff;
@@ -36,12 +132,25 @@
         border-color: #979797ff !important;
         color: #000 !important;
     }
+
+
+
+    .pagination>li.active>a {
+        background-color: #343851 !important;
+        border-color: #343851 !important;
+        color: #fff !important;
+    }
+
+    .pagination>li>a,
+    .pagination>li>span {
+        color: #343851 !important;
+    }
 </style>
 
 
 <h3 class="page-title"></h3>
-<div class="row">
-    <div class="col-md-12">
+<div>
+    <div>
         <!-- BEGIN TABLE PORTLET-->
         <div class="portlet box">
             <div class="portlet-title">
@@ -106,31 +215,36 @@
             </div>
             <div class="portlet-body">
                 <form name="frmListData" id="frmListData">
-                    <table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed"
-                        style="width:100%">
-                        <thead>
-                            <tr>
-                                <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
-                                    <th width="15px"><input type="checkbox" id="check-all"></th>
-                                <?php } ?>
-                                <th width="120px">Action</th>
-                                <?php
-                                if (isset($thData) && $thData <> "") {
-                                    foreach ($thData as $th) {
-                                        if (!is_array($th)) {
-                                            echo '<th>' . $th . '</th>';
-                                        } else {
-                                            echo '<th ' . $th[1] . '>' . $th[0] . '</th>';
+                    <div class="table-container">
+                        <div class="table-scroll-wrapper">
+                            <table id="dynamic-table"
+                                class="table table-striped table-bordered table-hover table-header-fixed"
+                                style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
+                                            <th width="15px"><input type="checkbox" id="check-all"></th>
+                                        <?php } ?>
+                                        <th width="120px">Action</th>
+                                        <?php
+                                        if (isset($thData) && $thData <> "") {
+                                            foreach ($thData as $th) {
+                                                if (!is_array($th)) {
+                                                    echo '<th>' . $th . '</th>';
+                                                } else {
+                                                    echo '<th ' . $th[1] . '>' . $th[0] . '</th>';
+                                                }
+                                            }
                                         }
-                                    }
-                                }
-                                ?>
-                            </tr>
-                        </thead>
+                                        ?>
+                                    </tr>
+                                </thead>
 
-                        <tbody>
-                        </tbody>
-                    </table>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
