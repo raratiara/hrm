@@ -194,13 +194,13 @@ class Group_shift_schedule_menu_model extends MY_Model
 
 			$reject=""; 
 			$approve="";
-			if($row->status_name == 'Waiting Approval' && $row->direct_id == $direct_karyawan_id){
+			//if($row->status_name == 'Waiting Approval' && $row->direct_id == $direct_karyawan_id){
 				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';*/
 
-				$reject = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+			/*	$reject = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" style="background-color: #2c9e1fff; border-color: #2c9e1fff;"  href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
-			}
+			}*/
 			
 
 			if($delete_bulk == ""){
