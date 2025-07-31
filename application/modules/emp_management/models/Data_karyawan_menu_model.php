@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+				
 class Data_karyawan_menu_model extends MY_Model
 {
 	/* Module */
@@ -416,6 +417,10 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
+
+
 		$date_of_birth 		= trim($post['date_of_birth']);
 		$date_of_hire 		= trim($post['date_of_hire']);
 		$date_end_prob 		= trim($post['date_end_prob']);
@@ -425,7 +430,16 @@ class Data_karyawan_menu_model extends MY_Model
 
 		$dateofHired = date("Y-m-d", strtotime($date_of_hire));
 
-		if($post['company'] != ''){
+		if (!isset($post['gender'])) {
+			echo "Please fill the Gender"; die();
+		}else if($post['company'] == ''){
+			echo "Please fill the Company"; die();
+		}else if(!isset($post['shift_type'])){
+			echo "Please fill the Shift Type"; die();
+		}else if(!isset($post['status'])){
+			echo "Please choose Status"; die();
+		}else{
+			
 			//NBI[2DIGITTAHUNBLN][4DIGITNOURUT]
 
 			if($dateofHired != ''){
@@ -528,7 +542,7 @@ class Data_karyawan_menu_model extends MY_Model
 				'nationality' 					=> trim($post['nationality']),
 				//'last_education_id' 			=> trim($post['last_education']),
 				'marital_status_id' 			=> trim($post['marital_status']),
-				'tanggungan' 					=> trim($post['tanggungan']),
+				/*'tanggungan' 					=> trim($post['tanggungan']),*/
 				'no_ktp' 						=> trim($post['no_ktp']),
 				'sim_a' 						=> trim($post['sim_a']),
 				'sim_c' 						=> trim($post['sim_c']),
@@ -578,7 +592,6 @@ class Data_karyawan_menu_model extends MY_Model
 				'division_id' 					=> trim($post['division']),
 				'branch_id' 					=> trim($post['branch']),
 				'section_id' 					=> trim($post['section']),
-				'gender' 						=> trim($post['gender']),
 				'status_id' 					=> trim($post['status']),
 				'job_level_id' 					=> trim($post['job_level']),
 				'grade_id' 						=> trim($post['grade']),
@@ -588,7 +601,7 @@ class Data_karyawan_menu_model extends MY_Model
 				'foto_sima' 					=> $foto_sima,
 				'foto_simc' 					=> $foto_simc
 			];
-
+ 
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
 
@@ -765,10 +778,10 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 			return $rs;
-		}else{
-			return null;
-		}
 		
+		}
+
+
 	}  
 
 
@@ -1279,6 +1292,8 @@ class Data_karyawan_menu_model extends MY_Model
 
 
 	public function import_data($list_data){  
+		error_reporting(E_ALL);
+		ini_set('display_errors', 1);
 
 		if (isset($list_data[0][0]) && is_array($list_data[0][0])) {
 		    $list_data[0] = $list_data[0][0];
@@ -1292,11 +1307,11 @@ class Data_karyawan_menu_model extends MY_Model
 
             /// UPDATE DATA
          	if($row[58] != '' && $list_data[0][58] == 'Employee Code') 
-         	{
+         	{ 
          		$getID = $this->db->query("select id, full_name, branch_id, personal_email from employees where emp_code = '".$row[58]."'")->result();
             	$employee_id = $getID[0]->id;
 
-         		if($employee_id != ''){
+         		if($employee_id != ''){ echo 'tes 11'; die();
             		$data = [
 		                'full_name' 		=> trim($row[0]),
 		                'nick_name' 		=> trim($row[1]),
@@ -1400,11 +1415,11 @@ class Data_karyawan_menu_model extends MY_Model
 
 		            if (!$rs) $error .=",baris ". $baris;
 		           	
-            	}else{
+            	}else{ echo 'tes 22'; die();
             		$error .=",baris ". $baris;
             	} 
 
-         	}else{ /// INSERT DATA
+         	}else{  /// INSERT DATA
          		if($row[0] != ''){ //full name tidak kosong
 	            	$employee = $this->db->query("select * from employees where full_name = '".$row[0]."'")->result(); 
 
@@ -1548,13 +1563,13 @@ class Data_karyawan_menu_model extends MY_Model
 				           
 							if (!$rs) $error .=",baris ". $baris;
 	            		}else{
-	            			$error .=",baris ". $baris;
+	            			$error .=", company kosong baris ". $baris;
 	            		}
 	            	}else{
-	            		$error .=",baris ". $baris;
+	            		$error .=",nama employee sudah ada baris ". $baris;
 	            	}
 	            }else{ 
-	            	$error .=",baris ". $baris;
+	            	$error .=",nama kosong baris ". $baris;
 	            }
          	}
 
