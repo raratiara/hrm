@@ -274,12 +274,62 @@ class Dash_recruitment_menu extends MY_Controller
 								GROUP BY status
 								ORDER BY status")->result(); 
 
-		$status=[]; $total=[]; 
+		/*$status=[]; $total=[]; 
 		foreach($rs as $row){
 			$status[] 	= $row->status_name;
 			$total[] 	= $row->total;
 			
+		}*/
+
+		/*$statusList = ['draft', 'waiting_approval', 'approved', 'rejected', 'cancelled'];
+
+		foreach ($statusList as $statusName) {
+		    $found = false;
+		    foreach ($rs as $row) {
+		        if ($row->status_name == $statusName) {
+		            $status[] = $row->status_name;
+		            $total[] = $row->total;
+		            $found = true;
+		            break;
+		        }
+		    }
+		    if (!$found) {
+		        $status[] = $statusName;
+		        $total[] = 0;
+		    }
+		}*/
+
+
+		$statusList = [
+		    ['id' => 'draft', 'name' => 'Draft'],
+		    ['id' => 'waiting_approval', 'name' => 'Waiting Approval'],
+		    ['id' => 'approved', 'name' => 'Approved'],
+		    ['id' => 'rejected', 'name' => 'Rejected'],
+		    ['id' => 'cancelled', 'name' => 'Cancelled']
+		];
+
+
+		$status = [];
+		$total  = [];
+
+		foreach ($statusList as $item) {
+		    $found = false;
+		    foreach ($rs as $row) {
+		        if ($row->status_name == $item['id']) {
+		            $status[] = $item['name'];
+		            $total[]  = $row->total;
+		            $found = true;
+		            break;
+		        }
+		    }
+
+		    if (!$found) {
+		        $status[] = $item['name'];
+		        $total[]  = 0;
+		    }
 		}
+
+
 
 
 		$data = array(
