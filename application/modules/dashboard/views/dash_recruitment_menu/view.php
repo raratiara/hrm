@@ -24,14 +24,14 @@
       <div class="box bydiv">
         <div class="box-title">Open Position by Division</div>
         <div class="box-value">
-          <canvas id="open_bydiv"></canvas>
+          <canvas id="open_bydiv" style="margin-top: 15px;"></canvas>
         </div>
       </div>
 
       <div class="box bylevel">
         <div class="box-title">Job Level</div>
         <div class="box-value">
-          <canvas id="byJobLevel"></canvas>
+          <canvas id="byJobLevel" style="margin-top: 15px;"></canvas>
         </div>
       </div>
     </div>
@@ -50,14 +50,14 @@
       <div class="box chart-box">
         <div class="box-title">Status Pengajuan</div>
         <div class="box-value">
-          <canvas id="byStatusPengajuan"></canvas>
+          <canvas id="byStatusPengajuan" style="margin-top: 15px;"></canvas>
         </div>
       </div>
 
       <div class="box chart-box">
         <div class="box-title">Status Employee</div>
         <div class="box-value">
-          <canvas id="byStatusEmployee"></canvas>
+          <canvas id="byStatusEmployee" style="margin-top: 15px;"></canvas>
         </div>
       </div>
     </div>

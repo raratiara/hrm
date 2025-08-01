@@ -281,7 +281,7 @@ class Dash_recruitment_menu extends MY_Controller
 			
 		}*/
 
-		$statusList = ['open', 'close', 'hold', 'rejected'];
+		/*$statusList = ['draft', 'waiting_approval', 'approved', 'rejected', 'cancelled'];
 
 		foreach ($statusList as $statusName) {
 		    $found = false;
@@ -297,7 +297,38 @@ class Dash_recruitment_menu extends MY_Controller
 		        $status[] = $statusName;
 		        $total[] = 0;
 		    }
+		}*/
+
+
+		$statusList = [
+		    ['id' => 'draft', 'name' => 'Draft'],
+		    ['id' => 'waiting_approval', 'name' => 'Waiting Approval'],
+		    ['id' => 'approved', 'name' => 'Approved'],
+		    ['id' => 'rejected', 'name' => 'Rejected'],
+		    ['id' => 'cancelled', 'name' => 'Cancelled']
+		];
+
+
+		$status = [];
+		$total  = [];
+
+		foreach ($statusList as $item) {
+		    $found = false;
+		    foreach ($rs as $row) {
+		        if ($row->status_name == $item['id']) {
+		            $status[] = $item['name'];
+		            $total[]  = $row->total;
+		            $found = true;
+		            break;
+		        }
+		    }
+
+		    if (!$found) {
+		        $status[] = $item['name'];
+		        $total[]  = 0;
+		    }
 		}
+
 
 
 
