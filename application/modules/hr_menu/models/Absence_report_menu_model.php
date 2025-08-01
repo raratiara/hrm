@@ -40,12 +40,12 @@ class Absence_report_menu_model extends MY_Model
 		$dateNow = date("Y-m-d");
 
 		$where_date=" where a.date_attendance = '".$dateNow."' ";
-		if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
 			$where_date = " where a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
 		}
 
 		$where_emp="";
-		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
 			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
 		}
 
@@ -445,12 +445,12 @@ class Absence_report_menu_model extends MY_Model
 		$dateNow = date("Y-m-d");
 
 		$where_date=" where a.date_attendance = '".$dateNow."' ";
-		if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
 			$where_date = " where a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
 		}
 
 		$where_emp="";
-		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
 			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
 		}
 
