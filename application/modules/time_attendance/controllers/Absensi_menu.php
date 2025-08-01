@@ -56,7 +56,7 @@ class Absensi_menu extends MY_Controller
 
 			$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
 					from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-					left join master_shift_time c on c.id = b.`".$tgl."`
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
 					where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result(); 
 			
 			if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
@@ -65,7 +65,7 @@ class Absensi_menu extends MY_Controller
 				$tgl = date("d");
 				$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
 					from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-					left join master_shift_time c on c.id = b.`".$tgl."`
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
 					where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result();
 
 			}else{

@@ -456,7 +456,7 @@ class Absensi_menu_model extends MY_Model
 					, c.time_in, c.time_out, c.name 
 					from shift_schedule a
 					left join group_shift_schedule b on b.shift_schedule_id = a.id 
-					left join master_shift_time c on c.id = b.`".$tgl."`
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
 					where b.employee_id = '".$cek_emp[0]->employee_id."' and a.period = '".$period."' ")->result(); 
 			
 			$datetime_out = $cek_emp[0]->date_attendance.' '.$dt[0]->time_out;
@@ -595,7 +595,7 @@ class Absensi_menu_model extends MY_Model
 					, c.time_in, c.time_out, c.name 
 					from shift_schedule a
 					left join group_shift_schedule b on b.shift_schedule_id = a.id  
-					left join master_shift_time c on c.id = b.`".$tgl."`
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
 					where a.employee_id = '".$empid."' and b.periode = '".$period."' ")->result(); 
 
 		}else{ //tidak ada shift type
