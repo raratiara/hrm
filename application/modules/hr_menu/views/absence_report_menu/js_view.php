@@ -209,7 +209,8 @@ jQuery(function($) {
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
-		"sAjaxSource": module_path+"/get_data?flemployee=12",
+		/*"sAjaxSource": module_path+"/get_data?flemployee=12",*/
+		"sAjaxSource": module_path+"/get_data",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",

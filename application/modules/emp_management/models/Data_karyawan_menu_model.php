@@ -907,7 +907,7 @@ class Data_karyawan_menu_model extends MY_Model
 				'ethnic' 						=> trim($post['ethnic']),
 				'nationality' 					=> trim($post['nationality']),
 				'marital_status_id' 			=> trim($post['marital_status']),
-				'tanggungan' 					=> trim($post['tanggungan']),
+				/*'tanggungan' 					=> trim($post['tanggungan']),*/
 				'no_ktp' 						=> trim($post['no_ktp']),
 				'sim_a' 						=> trim($post['sim_a']),
 				'sim_c' 						=> trim($post['sim_c']),
