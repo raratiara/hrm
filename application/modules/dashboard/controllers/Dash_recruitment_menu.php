@@ -274,12 +274,31 @@ class Dash_recruitment_menu extends MY_Controller
 								GROUP BY status
 								ORDER BY status")->result(); 
 
-		$status=[]; $total=[]; 
+		/*$status=[]; $total=[]; 
 		foreach($rs as $row){
 			$status[] 	= $row->status_name;
 			$total[] 	= $row->total;
 			
+		}*/
+
+		$statusList = ['open', 'close', 'hold', 'rejected'];
+
+		foreach ($statusList as $statusName) {
+		    $found = false;
+		    foreach ($rs as $row) {
+		        if ($row->status_name == $statusName) {
+		            $status[] = $row->status_name;
+		            $total[] = $row->total;
+		            $found = true;
+		            break;
+		        }
+		    }
+		    if (!$found) {
+		        $status[] = $statusName;
+		        $total[] = 0;
+		    }
 		}
+
 
 
 		$data = array(
