@@ -30,8 +30,6 @@
 			overflow-x: auto !important;
 			white-space: nowrap !important;
 			display: block !important;
-
-
 		}
 
 
