@@ -31,6 +31,12 @@
 				: <span class="description"></span>
 			</div>
 		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Photo</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="photo"></span>
+			</div>
+		</div>
 	</div>
 
 
@@ -60,6 +66,17 @@
 				: <span class="attendance_out"></span>
 			</div>
 		</div>
-		
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Latitude</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="latitude"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Longitude</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="longitude"></span>
+			</div>
+		</div>
 	</div>
 </div>
