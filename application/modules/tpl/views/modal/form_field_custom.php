@@ -16,6 +16,25 @@
 
     }
 
+
+    @media (min-width: 320px) and (max-width: 400px) {
+
+
+         .modal-dialog {
+            width: 100% !important;
+            margin-left: 310px !important;
+        }
+
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 80% !important;
+        }
+
+    }
+
+    
+
     .modal-header {
         background-color: #343851 !important;
         color: #fff !important;
