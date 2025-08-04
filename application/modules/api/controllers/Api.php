@@ -607,6 +607,8 @@ class Api extends API_Controller
     	$latitude	= $_POST['latitude'];
     	$longitude	= $_POST['longitude'];
     	$work_location	= $_POST['work_location'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['photo'];
     	
 
 
@@ -751,6 +753,42 @@ class Api extends API_Controller
 						}
 
 						if($error==0){
+
+							//upload 
+							$dataU = array();
+	        				$dataU['status'] = FALSE; 
+							$fieldname='photo';
+							if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+				            { 
+				               
+				                
+				            	$config['upload_path']   = "uploads/absensi/";
+				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+				                $config['max_size']      = "0"; 
+				                
+				                $this->load->library('upload', $config); 
+				                
+				                if(!$this->upload->do_upload($fieldname)){ 
+				                    $err_msg = $this->upload->display_errors(); 
+				                    $dataU['error_warning'] = strip_tags($err_msg);              
+				                    $dataU['status'] = FALSE;
+				                } else { 
+				                    $fileData = $this->upload->data();
+				                    $dataU['upload_file'] = $fileData['file_name'];
+				                    $dataU['status'] = TRUE;
+				                }
+				            }
+				            $document = '';
+							if($dataU['status']){ 
+								$document = $dataU['upload_file'];
+							} else if(isset($dataU['error_warning'])){ 
+								//echo $dataU['error_warning']; exit;
+
+								$document = 'ERROR : '.$dataU['error_warning'];
+							}
+				            //end upload
+
+
 							$data = [
 								'date_attendance' 			=> $date,
 								'employee_id' 				=> $employee,
@@ -762,7 +800,9 @@ class Api extends API_Controller
 								'created_at'				=> date("Y-m-d H:i:s"),
 								'lat_checkin' 				=> $latitude,
 								'long_checkin' 				=> $longitude,
-								'work_location' 			=> $work_location
+								'work_location' 			=> $work_location,
+								'notes' 					=> $notes,
+								'photo' 					=> $document
 							];
 
 							$rs = $this->db->insert("time_attendances", $data);
@@ -958,6 +998,13 @@ class Api extends API_Controller
 				            //end upload
 
 				            $cektime = $this->db->query("select * from time_attendances where id = '".$cek_data[0]->id."'")->result();
+				            if($notes == '' && $cektime[0]->notes != ''){
+				            	$notes = $cektime[0]->notes;
+				            }
+				            if($document == '' && $cektime[0]->photo != ''){
+				            	$document = $cektime[0]->photo;
+				            }
+
 				            if($cektime[0]->date_attendance_in < $datetime){
 				            	$data = [
 									'date_attendance_out' 		=> $datetime,
@@ -1004,7 +1051,7 @@ class Api extends API_Controller
 							$response = [
 								'status' 	=> 400, // Bad Request
 								'message' 	=>'Failed',
-								'error' 	=> 'Require not satisfied a'
+								'error' 	=> 'Require not satisfied'
 							];
 						}
 					}else{ //insert
@@ -1034,7 +1081,7 @@ class Api extends API_Controller
 			$response = [
 				'status' 	=> 400, // Bad Request
 				'message' 	=>'Failed',
-				'error' 	=> 'Require not satisfied b'
+				'error' 	=> 'Require not satisfied'
 			];
 		}
 		

@@ -120,7 +120,32 @@ class Tracker_menu extends MY_Controller
 
 
 			if($empid == '' && $period == ''){
-				$rs =  $this->db->query("select id, full_name as nama, last_lat as lat, last_long as lng from employees where (last_lat is not null or last_lat != '') and (last_long is not null or last_long != '')")->result();
+				/*$rs =  $this->db->query("select id, full_name as nama, last_lat as lat, last_long as lng from employees where (last_lat is not null or last_lat != '') and (last_long is not null or last_long != '')")->result();*/
+
+				$rs =  $this->db->query("select 
+						    a.id,
+						    a.full_name AS nama,
+						    a.last_lat AS lat,
+						    a.last_long AS lng,
+						    ta_latest.date_attendance
+						FROM employees a
+						JOIN (
+						    SELECT t.employee_id, t.date_attendance, t.lat_checkin, t.long_checkin
+						    FROM time_attendances t
+						    INNER JOIN (
+						        SELECT employee_id, MAX(date_attendance) AS max_date
+						        FROM time_attendances 
+						        where ((lat_checkin is not null and long_checkin is not null)or (lat_checkout is not null and long_checkout is not null))
+						        GROUP BY employee_id
+						    ) tm ON t.employee_id = tm.employee_id AND t.date_attendance = tm.max_date
+						) ta_latest
+						    ON ta_latest.employee_id = a.id
+						   
+						WHERE 
+						    a.last_lat IS NOT NULL AND a.last_lat != ''
+						    AND a.last_long IS NOT NULL AND a.last_long != ''
+						")->result();
+
 			}else{
 				$whr_emp=""; $whr_period="";
 				if($empid != ''){
