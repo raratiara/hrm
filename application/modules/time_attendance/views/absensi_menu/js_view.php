@@ -110,6 +110,12 @@ jQuery(function($) {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 function load_data()
 {
+	var getUrl = window.location;
+	//local=> 
+	var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	//var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
+
     $.ajax({
 		type: "POST",
         url : module_path+'/get_detail_data',
@@ -138,6 +144,24 @@ function load_data()
 					$('[name="description"]').val(data.notes);
 					$('select#location').val(data.work_location).trigger('change.select2');
 					//document.getElementById('location').disabled = true;
+					var latitude=''; var longitude='';
+					if(data.lat_checkout != null && data.long_checkout != null){
+						var latitude = data.lat_checkout;
+						var longitude = data.long_checkout;
+					}
+					else if(data.lat_checkin != null && data.long_checkin != null){
+						var latitude = data.lat_checkin;
+						var longitude = data.long_checkin;
+					}
+					$('[name="latitude"]').val(latitude);
+					$('[name="longitude"]').val(longitude);
+
+					if(data.photo != '' && data.photo != null){
+						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
+					}else{
+						$('span.photo').html('');
+					}
+					
 
 					
 					$.uniform.update();
@@ -156,6 +180,24 @@ function load_data()
 					$('span.attendance_out').html(data.date_attendance_out);
 					$('span.work_loc').html(data.work_location_name);
 					$('span.description').html(data.notes);
+
+					var latitude=''; var longitude='';
+					if(data.lat_checkout != null && data.long_checkout != null){
+						var latitude = data.lat_checkout;
+						var longitude = data.long_checkout;
+					}
+					else if(data.lat_checkin != null && data.long_checkin != null){
+						var latitude = data.lat_checkin;
+						var longitude = data.long_checkin;
+					}
+					$('span.latitude').html(latitude);
+					$('span.longitude').html(longitude);
+
+					if(data.photo != '' && data.photo != null){
+						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
+					}else{
+						$('span.photo').html('');
+					}
 				
 					
 					$('#modal-view-data').modal('show');
