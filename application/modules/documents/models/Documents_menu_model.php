@@ -11,7 +11,7 @@ class Documents_menu_model extends MY_Model
 
  	/* upload */
  	protected $attachment_folder	= "./uploads/documents";
-	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt|apk";
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
 
