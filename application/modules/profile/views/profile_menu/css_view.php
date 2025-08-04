@@ -5,13 +5,13 @@
   body {
     background-color: #f3f5fc;
     margin: 0;
-    padding: 30px;
+    /*padding: 30px;*/
 
   }
 
   .dashboard-container {
     font-family: 'Poppins', sans-serif;
-    max-width: 1000px;
+    /*max-width: 1000px;*/
     margin: auto;
     display: flex;
     flex-direction: column;
