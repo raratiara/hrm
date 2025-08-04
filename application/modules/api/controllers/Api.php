@@ -1723,24 +1723,47 @@ class Api extends API_Controller
     	$_REQUEST = $data;
 
     	$employee	= $_REQUEST['employee'];
+    	$date 		= date("Y-m-d");
+    	$period 	= date("Y-m", strtotime($date));
+		$tgl 		= date("d", strtotime($date));
 
     	
-    	if($employee == null || $employee == ''){
-    		$where=''; 
+    	$empType = $this->db->query("select shift_type from employees where id = '".$employee."' ")->result(); 
+    	if($empType[0]->shift_type == 'Reguler'){
+    		if($employee == null || $employee == ''){
+	    		$where=''; 
+	    	}else{
+	    		$where = " where a.id = '".$employee."' ";
+	    	}
 
-    	}else{
-    		$where = " where a.id = '".$employee."' ";
-    	}
+    		$dataemp = $this->db->query("select a.id, a.full_name, b.name as division_name, a.shift_type, 					c.time_in, c.time_out 
+						,(select sum(total_leave) from leave_absences where employee_id = a.id) as ttl_ijin
+						,(select count(id) from time_attendances where employee_id = a.id and leave_type is null) as ttl_hadir
+						,a.direct_id
+						from employees a
+						left join divisions b on b.id = a.division_id
+						left join master_shift_time c on c.shift_type = a.shift_type
+                    	".$where." ")->result();  
+    	}else if($empType[0]->shift_type == 'Shift'){
+    		if($employee == null || $employee == ''){
+	    		$where=''; 
+	    	}else{
+	    		$where = " where b.employee_id = '".$employee."' and a.period = '".$period."' ";
+	    	}
+
+    		$dataemp = $this->db->query("select d.id, d.full_name, e.name as division_name,d.shift_type, c.time_in, c.time_out, d.direct_id
+				,(select sum(total_leave) from leave_absences where employee_id = d.id) as ttl_ijin
+				,(select count(id) from time_attendances where employee_id = d.id and leave_type is null) as ttl_hadir
+				from shift_schedule a
+				left join group_shift_schedule b on b.shift_schedule_id = a.id
+				left join master_shift_time c on c.shift_id = b.`".$tgl."`
+				left join employees d on d.id = b.employee_id
+				left join divisions e on e.id = d.division_id
+				".$where." ")->result();  
+    	} 
     	
 
-    	$dataemp = $this->db->query("select a.id, a.full_name, b.name as division_name, a.shift_type, c.time_in, c.time_out 
-			,(select sum(total_leave) from leave_absences where employee_id = a.id) as ttl_ijin
-			,(select count(id) from time_attendances where employee_id = a.id and leave_type is null) as ttl_hadir
-			,a.direct_id
-			from employees a
-			left join divisions b on b.id = a.division_id
-			left join master_shift_time c on c.shift_type = a.shift_type
-                    ".$where." ")->result();  
+    	
 
     	$response = [
     		'status' 	=> 200,
