@@ -281,12 +281,12 @@ class Tasklist_menu_model extends MY_Model
   			}
 
   			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
+				'employee_id' 			=> trim($post['employee'] ?? ''),
+				'task' 					=> trim($post['task'] ?? ''),
+				'progress_percentage'	=> trim($post['progress'] ?? ''),
+				'parent_id' 			=> trim($post['task_parent'] ?? ''),
 				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
+				'status_id' 			=> trim($post['status'] ?? ''),
 				'created_at'			=> date("Y-m-d H:i:s"),
 				'solve_date' 			=> $solve_date
 			];
@@ -308,12 +308,12 @@ class Tasklist_menu_model extends MY_Model
   			}
 		
 			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'task' 					=> trim($post['task']),
-				'progress_percentage'	=> trim($post['progress']),
-				'parent_id' 			=> trim($post['task_parent']),
+				'employee_id' 			=> trim($post['employee'] ?? ''),
+				'task' 					=> trim($post['task'] ?? ''),
+				'progress_percentage'	=> trim($post['progress'] ?? ''),
+				'parent_id' 			=> trim($post['task_parent'] ?? ''),
 				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status']),
+				'status_id' 			=> trim($post['status'] ?? ''),
 				'updated_at'			=> date("Y-m-d H:i:s"),
 				'solve_date' 			=> $solve_date
 			];
