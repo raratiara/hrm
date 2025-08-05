@@ -452,17 +452,16 @@
 
   .chart-container {
     display: flex;
-    /*width: 100%;*/
     gap: 20px;
   }
 
-  /*.box.monthlySumm {
-    width: 60%;
+  .chart-container .monthlySumm {
+    flex: 6;
   }
 
-  .box.byDiv {
-    width: 30%;
-  }*/
+  .chart-container .byDiv {
+    flex: 4;
+  }
 
 
   .right-container .box {
@@ -610,7 +609,15 @@
   .employee-container {
     display: flex;
     gap: 20px;
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
+  }
+
+  .employee-container .reimbursfor {
+    flex: 3;
+  }
+
+  .employee-container .typeSubtype {
+    flex: 7;
   }
 
 

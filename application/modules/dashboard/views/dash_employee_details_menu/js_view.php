@@ -119,11 +119,11 @@ console.log(data);
 								label: 'Employee',
 								data: data.total,
 								backgroundColor: [
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F'
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B'
 								],
 								borderRadius: 3
 							}]
@@ -228,9 +228,9 @@ console.log(data);
 
 
 					const rawData = [
-						{ label: 'Open', data: data.total_open, backgroundColor: '#D9F103', borderRadius: 3 },
-						{ label: 'In Progress', data: data.total_inprogress, backgroundColor: '#FF99DC', borderRadius: 3 },
-						{ label: 'Done', data: data.total_closed, backgroundColor: '#D2C7FF', borderRadius: 3 },
+						{ label: 'Open', data: data.total_open, backgroundColor: '#38406F', borderRadius: 3 },
+						{ label: 'In Progress', data: data.total_inprogress, backgroundColor: '#FED24B', borderRadius: 3 },
+						{ label: 'Done', data: data.total_closed, backgroundColor: '#D9CAAA', borderRadius: 3 },
 				
 					];
 
@@ -374,8 +374,8 @@ console.log(data);
 									label: 'Male',
 									type: 'bar',
 									data: data.total_male,
-									borderColor: '#3381fc',
-									backgroundColor: '#3F51B5', /*'#3381fc',*/
+									borderColor: '#343851',
+									backgroundColor: '#343851', /*'#3381fc',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -385,8 +385,8 @@ console.log(data);
 									label: 'Female',
 									type: 'bar',
 									data: data.total_female,
-									borderColor: '#fc3381',
-									backgroundColor: '#FF4081',/*'#fc3381',*/
+									borderColor: '#FED24B',
+									backgroundColor: '#FED24B',/*'#fc3381',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -640,14 +640,14 @@ console.log(data);
 								label: 'Generation',
 								data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],
 								backgroundColor: [
-									'#99B7F5',
-									'#267F53',
-									'#F5793B',
-									'#F296BD',
-									'#FCCA59',
-									'#B9D440',
+									'#FED24B',
+									'#736DF9',
 									'#BC9BF3',
-									'#736DF9'
+									'#D9CAAA',
+									'#D48331',
+									'#B9D440',
+									'#74DCE0',
+									'#38406F'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',

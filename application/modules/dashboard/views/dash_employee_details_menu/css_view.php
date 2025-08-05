@@ -62,35 +62,35 @@
     font-size: 12px;
   }*/
 
-  .summary-card.beige {
-    width: 100px;
-    
-  }
 
-   .summary-item.yellow {
-    background-color: #D9F103; /*#FED24B;*/
+  .summary-item.yellow {
+    background-color: #D9F103;
+    /*#FED24B;*/
     align-items: center !important;
     color: #38406F;
-    
+
   }
 
-   .tasklist-line {
+  .tasklist-line {
     /*display: flex;
     justify-content: space-around;*/
 
     display: flex;
-    gap: 20px; /* spasi antar grade */
-    margin-top: 10px;
-    flex-wrap: wrap; /* jika sempit, bisa turun ke bawah */
+    gap: 2px;
+    /* spasi antar grade */
+    margin-top: 0px;
+    flex-wrap: wrap;
+    /* jika sempit, bisa turun ke bawah */
   }
 
   .task-item {
     text-align: center;
-    min-width: 60px; /* opsional, untuk menjaga lebar */
+    min-width: 60px;
+    /* opsional, untuk menjaga lebar */
   }
 
   .task-item p:first-child {
-    font-size: 15px;
+    font-size: 12px;
     font-weight: bold;
     margin-bottom: 2px;
   }
@@ -105,11 +105,13 @@
 
   .dashboard-container {
     font-family: 'Poppins', sans-serif;
-    max-width: 1000px;
+    width: 100% !important;
     margin: auto;
     display: flex;
     flex-direction: column;
     gap: 20px;
+
+
   }
 
   h2 {
@@ -137,7 +139,6 @@
 
 
   .dashboard {
-    width: 1000px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     /*gap: 10px;*/
@@ -338,11 +339,6 @@
     grid-row: span 3;
   }
 
-  .box.chart-box {
-    flex: 1;
-    min-width: 280px;
-    max-width: 320px;
-  }
 
   .box.table-box {
     flex: 2;
@@ -351,7 +347,7 @@
 
   .top-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
     color: #38406F;
     margin-top: 10px;
@@ -441,18 +437,16 @@
 
   .summary-container {
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 10px;
+    
   }
 
-  .summary-card.beige {
-    flex: 1 1 100%; /* atau misalnya 300px */
-    max-width: 400px; /* atur sesuai kebutuhan */
-  }
+
 
   .chart-container {
     display: flex;
     gap: 20px;
+    max-width: 100% ! important;
   }
 
 
@@ -468,11 +462,9 @@
     align-items: center;
     border-radius: 12px !important;
     padding: 20px;
-    min-width: 220px;
     justify-content: space-between;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     flex: 1;
-    max-width: 280px;
   }
 
   .card-content {
@@ -495,6 +487,7 @@
     gap: 20px;
     flex: 2;
   }
+
 
   /* Kanan: box kecil */
   .right-container {
@@ -572,7 +565,9 @@
 
   /* Color variants */
   .navy {
-    background-color: #00B4CC; /*#FFB2F7;*/ /*#38406F;*/
+    background-color: #38406F;
+    /*#FFB2F7;*/
+    /*#38406F;*/
     color: white;
   }
 
@@ -583,11 +578,15 @@
   }
 
   .yellow {
-    background-color: #EEF660;/*#E3FC87;*/ /*#FED24B;*/
+    background-color: #FED24B;
+    /*#E3FC87;*/
+    /*#FED24B;*/
   }
 
   .beige {
-    background-color: #FF77AD;/*#C0E0FF;*/ /*#F8F1E1;*/
+    background-color: #F8F1E1;
+    /*#C0E0FF;*/
+    /*#F8F1E1;*/
   }
 
   .white {
@@ -602,6 +601,8 @@
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
+    
+    
   }
 
 
@@ -662,5 +663,27 @@
     display: flex;
     gap: 4px;
     align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    .summary-container {
+      flex-direction: column !important;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .employee-container {
+      display: flex;
+      flex-direction: column;
+
+    }
+
+    .box.chart-box {
+      min-width: none !important;
+      max-width: none !important;
+    }
   }
 </style>
