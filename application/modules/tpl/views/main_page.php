@@ -81,10 +81,10 @@
 
     <style type="text/css">
         /* Ubah warna background sidebar */
-        .page-sidebar-wrapper {
+        /* .page-sidebar-wrapper {
             background-color: #343851 !important;
-            /* Warna sidebar yang kamu minta */
-        }
+            
+        } */
 
         /* Warna teks menu sidebar */
         .page-sidebar .page-sidebar-menu>li>a {
@@ -106,6 +106,7 @@
         }
 
 
+
         /* Warna teks menu saat dihover */
         .page-sidebar .page-sidebar-menu>li>a:hover {
             background-color: #FED24B !important;
@@ -115,7 +116,11 @@
 
         .page-sidebar .page-sidebar-menu>li>a:hover>i {
             /*color: #343851 !important;*/
-            color: #343834385151 !important;
+            color: #343851 !important;
+        }
+
+        .page-sidebar-closed .page-sidebar .page-sidebar-menu>li>a>i {
+            margin-left: 3px !important;
         }
 
 
@@ -126,13 +131,14 @@
             background-color: #FED24B !important;
             /* Warna menu aktif (biru tua) */
             color: #343851 !important;
-            font-weight: 600;
+            font-size: 12px !important;
         }
 
         /* Icon menu aktif jadi hitam */
         .page-sidebar .page-sidebar-menu>li.active>a>i,
         .page-sidebar .page-sidebar-menu>li.start>a>i {
             color: #343851 !important;
+            font-size: 12px !important;
         }
 
         /* Warna ikon menu sidebar */
@@ -140,6 +146,8 @@
             color: #ffffff !important;
             border-bottom: none !important;
             border: none !important;
+            font-size: 12px !important;
+
         }
 
 
@@ -157,7 +165,7 @@
             overflow-y: auto !important;
             z-index: 9999 !important;
             scrollbar-width: none !important;
-
+            transition: width 0.1s ease !important;
         }
 
         .clearfix {
@@ -210,6 +218,7 @@
         .page-sidebar .page-sidebar-menu .sub-menu>li>a {
             background-color: transparent !important;
             color: #ffffff !important;
+            font-size: 12px !important;
             /* Warna teks submenu normal */
         }
 
@@ -218,6 +227,7 @@
             background-color: #D9D9D9 !important;
             /* Background kuning */
             color: #000000 !important;
+            font-size: 12px !important;
             /* Teks submenu saat hover */
         }
 
@@ -225,6 +235,17 @@
         .page-sidebar .page-sidebar-menu .sub-menu>li.active>a {
             background-color: #D9D9D9 !important;
             color: #000000 !important;
+            font-size: 12px !important;
+        }
+
+        .page-sidebar .page-sidebar-menu li.open>a {
+            font-size: 12px !important;
+
+        }
+
+        .page-sidebar .page-sidebar-menu li.open .sub-menu>li>a {
+            font-size: 12px !important;
+
         }
 
         /*.page-sidebar-wrapper h2 {
@@ -447,5 +468,10 @@
         </script>
     <?php endif; ?>
 </body>
+
+
+
+
+
 
 </html>

@@ -117,7 +117,7 @@ class Dynamic_menu {
 					}
                     if (isset($this->user_akses[$id]["view"]) && $this->user_akses[$id]["view"] == 1) {
 						$html_out .= '<li class="nav-item '.$active.'">
-							<a href="javascript:;" class="nav-link nav-toggle">
+							<a href="javascript:;" class="nav-link nav-toggle" title="'.$title.'">
 								<i class="menu-icon fa '.$um_class.'"></i>
 								<span class="title">'.$title.'</span>';
 						if($mactive == 'open') $html_out .= '<span class="selected"></span>';
@@ -130,7 +130,7 @@ class Dynamic_menu {
 					if ($module_name == $check_menu["sub_menu"]) $active = "active open";
                     if (isset($this->user_akses[$id]["view"]) && $this->user_akses[$id]["view"] == 1) {
 						$html_out .= '<li class="nav-item '.$active.'">
-									<a href="'.base_url($url).'" class="nav-link ">
+									<a href="'.base_url($url).'" class="nav-link " title="'.$title.'">
 									<i class="menu-icon fa '.$um_class.'"></i>
 									<span class="title">'.$title.'</span>
 									</a>';
