@@ -1,1 +1,17 @@
-/* here you can put your own css to customize and override the theme */
+/* Untuk semua item menu */
+.page-sidebar-menu li > a,
+.page-sidebar-menu li > a > span.title,
+.page-sidebar-menu li > a > i {
+	font-size: 12px !important;
+}
+
+/* Untuk item aktif juga */
+.page-sidebar-menu > li.active > a,
+.page-sidebar-menu > li.active > a > span.title {
+	font-size: 12px !important;
+}
+
+.page-sidebar-closed .page-sidebar .page-sidebar-menu > li > a > span.title {
+    display: none !important;
+}
+
