@@ -206,8 +206,9 @@ function load_data()
 {
 
 	var getUrl = window.location;
-	/*local=>*/ var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-	//var baseUrl = getUrl .protocol + "//" + getUrl.host;
+	/*local=>*/ 
+	/*var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];*/
+	var baseUrl = getUrl .protocol + "//" + getUrl.host;
 
 
     $.ajax({
