@@ -114,6 +114,7 @@
         }
 
         .page-sidebar .page-sidebar-menu>li>a:hover>i {
+            /*color: #343851 !important;*/
             color: #343834385151 !important;
         }
 
@@ -147,6 +148,7 @@
         .page-sidebar .page-sidebar-menu {
             background-color: #343851 !important;
             width: 235px !important;
+            /*height: 93vh !important;*/
             height: 94vh !important;
             /* Tinggi full layar */
             min-height: 93vh !important;
@@ -154,7 +156,7 @@
             /* Tetap di tempatnya, tidak ikut scroll */
             overflow-y: auto !important;
             z-index: 9999 !important;
-            scrollbar-width: none !important; 
+            scrollbar-width: none !important;
 
         }
 

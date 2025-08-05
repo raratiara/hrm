@@ -58,6 +58,7 @@
       height: 100vh;
     }
 
+
     @media screen and (max-width: 767px) {
       body {
         flex-direction: column;
@@ -69,6 +70,7 @@
       }
 
     }
+    
 
     .left-side {
       background-color: #343851;
@@ -240,7 +242,41 @@
             .login-btn:hover {
               background: #5b78e0;
             }*/
+
+
+      @media (max-width: 768px) {
+          body {
+            flex-direction: column;
+          }
+
+          .left-side, .right-side {
+            flex: 1 1 100%;
+            width: 100%;
+            padding: 1.5rem;
+          }
+
+          .left-side img.illustration {
+            max-width: 100%;
+            height: auto;
+          }
+
+          .form-group {
+            min-width: auto;
+            width: 100%;
+          }
+
+          .checkbox {
+            margin-left: 0;
+            text-align: left;
+          }
+      }
+
+
+
   </style>
+
+
+
 
 </head>
 <!-- END HEAD -->

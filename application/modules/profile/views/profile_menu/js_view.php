@@ -93,17 +93,19 @@
 						$('span.shift_type').html(shift_type);
 						$('span.direct').html(direct_name);
 						$('span.ttl_sisa_cuti').html(data.ttl_sisa_cuti);
-						$('span.ttl_tasklist_open').html(data.ttl_tasklist_open);
-						$('span.ttl_tasklist_inprogress').html(data.ttl_tasklist_inprogress);
-						$('span.ttl_tasklist_closed').html(data.ttl_tasklist_closed);
-						$('span.job_title_department').html(job_title_department);
+						$('p.ttl_tasklist_open').html(data.ttl_tasklist_open);
+						$('p.ttl_tasklist_inprogress').html(data.ttl_tasklist_inprogress);
+						$('p.ttl_tasklist_closed').html(data.ttl_tasklist_closed);
+						$('p.job_title_department').html(job_title_department);
 						/*$('span.sisaplafon_rawatjalan').html(data.sisaplafon_rawatjalan);
 						$('span.sisaplafon_rawatinap').html(data.sisaplafon_rawatinap);
 						$('span.sisaplafon_kacamata').html(data.sisaplafon_kacamata);
 						$('span.sisaplafon_persalinan').html(data.sisaplafon_persalinan);*/
-						$('span.sisa_plafon_all').html(data.sisa_plafon_all);
-						
-						
+						/*$('span.sisa_plafon_all').html(data.sisa_plafon_all);*/
+						$('span#amount_rawatjalan').html(data.sisaplafon_rawatjalan);
+						$('span#amount_rawatinap').html(data.sisaplafon_rawatinap);
+						$('span#amount_kacamata').html(data.sisaplafon_kacamata);
+						$('span#amount_persalinan').html(data.sisaplafon_persalinan);
 						
 
 						//emp_photo

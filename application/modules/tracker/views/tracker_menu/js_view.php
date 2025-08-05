@@ -83,11 +83,23 @@ function getMaps(empid = '',period='') {
         // Tambah marker baru
         data.forEach(function (titik) {
           var marker = L.marker([titik.lat, titik.lng])
-            .addTo(map)
-            /*.bindPopup("<b>" + titik.nama + "</b>");*/
-            .bindTooltip(titik.nama, { permanent: true, direction: "top" })
-  			.openTooltip();
-          markers.push(marker);
+          .addTo(map)
+          /*.bindPopup("<b>" + titik.date_attendance + "</b>")*/
+          .bindPopup(
+					    "<div>" +
+					        "<strong>" + titik.nama + "</strong><br>" +
+					        "<b>Tanggal:</b> " + titik.date_attendance + "<br>" +
+					        /*"<b>Jam:</b> " + titik.jam + "<br>" +*/
+					        "<b>Lokasi:</b> " + titik.lat + ", " + titik.lng +
+					    "</div>"
+					)
+          .bindTooltip(titik.nama, { permanent: true, direction: "top" })
+					.openTooltip();
+        	markers.push(marker);
+
+
+ 
+
         });
 
       } else {

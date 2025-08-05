@@ -111,11 +111,11 @@ $(document).ready(function() {
    	$(function() {
    		
         $( "#date_start" ).datepicker({
-        	startDate: '+1d'
+        	startDate: '+0d'
         });
 
         $( "#date_end" ).datepicker({
-        	startDate: '+1d'
+        	startDate: '+0d'
     	});
 		
    	});
@@ -213,8 +213,9 @@ jQuery(function($) {
 function load_data()
 {
 	var getUrl = window.location;
-	//local=> //var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-	var baseUrl = getUrl .protocol + "//" + getUrl.host;
+	//local=> 
+	var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	//var baseUrl = getUrl .protocol + "//" + getUrl.host;
 
 
 

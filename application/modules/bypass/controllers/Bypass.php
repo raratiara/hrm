@@ -57,7 +57,7 @@ class Bypass extends API_Controller
 		$mail['from_name'] = 'HR System';//_MAIL_SYSTEM_NAME;
 		$mail['from_email'] = 'noreply-billing@huma.net.id';//_MAIL_SYSTEM_EMAIL;
 		$mail['to_name'] = 'HR Team';
-		$mail['to_email'] = 'tiarasanir@gmail.com';
+		$mail['to_email'] = 'niar@nathabuana.id';
 		$mail['template'] = 'report-absensi';
 		/*$path = WRITEPATH . 'uploads/user_manual_billing.docx';*/
 		$path = _URL.'uploads/report_absensi_bulanan/export_absensi_' . date('Y-m') . '.zip'; 
@@ -92,20 +92,23 @@ class Bypass extends API_Controller
 		$data['corp'] = _COMPANY_NAME;
 		$data['account_title'] = _ACCOUNT_TITLE;
 		$data['link_site'] = _URL;
-		$data['link_logo'] = _ASSET_LOGO; //'http://localhost/_hrm/public/assets/images/logo/gerbangdata.jpg';//_ASSET_LOGO;//_ASSET_LOGO_FRONT;
+		$data['link_logo'] = _URL.'public/assets/images/logo/gerbangdata.PNG';
+		//_ASSET_LOGO; //'http://localhost/_hrm/public/assets/images/logo/gerbangdata.jpg';//_ASSET_LOGO;//_ASSET_LOGO_FRONT;
 		
 
 		$message = $this->load->view(_TEMPLATE_EMAIL.$mail['template'],$data,TRUE); // load email message using view template
-		$cc = 'raratiara02@ymail.com';
+		$cc = 'kuswarno@nathabuana.id';
+		$bcc = 'tiarasanir@gmail.com';
 		$this->email->from($mail['from_email'], $mail['from_name']); 
 		$this->email->to($mail['to_email'], $mail['to_name']);
 		$this->email->cc($cc);
+		$this->email->bcc($bcc);
 		$this->email->subject($mail['subject']); 
 		$this->email->message($message); 
 		$this->email->attach($mail['attach'],'attachment'); 
 	   
 		 //Send mail 
-		 if($this->email->send()) { echo 'sukses'; die();
+		 if($this->email->send()) { echo 'sukses email'; die();
 			return true; 
 		 } else { echo 'gagal'; die();
 			return false; 
@@ -117,8 +120,8 @@ class Bypass extends API_Controller
 
 	/// download report absensi stiap tgl 25 jam 8 pagi
 	public function downloadAbsenceReport(){
-		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
 
 
 		$dateNow = date('Y-m-d'); //'2025-07-25';
@@ -130,10 +133,13 @@ class Bypass extends API_Controller
 		$dateTo = date('Y-m-24', strtotime($dateNow));
 
 		//tgl 24 bln kemarin SAMPAI tgl 24 bulan ini
+		$bln = date('F'); // July
+		$thn = date('Y'); // 2025
+		$periode = $bln.' '.$thn;
 
 
 		$where_date=" and (a.date_attendance between '".$dateFrom."' and '".$dateTo."') ";
-		$filter_periode = $dateNow;
+		//$filter_periode = $dateNow;
 		/*if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
 			$where_date = " and a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
 			$filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
@@ -202,7 +208,7 @@ class Bypass extends API_Controller
 								, d.name as branch_name, e.full_name as direct_name
 								,(case when a.leave_absences_id is not null then "1" else "" end) as cuti 
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk 
-								, "" as piket
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh
 								, a.notes as keterangan
 								from time_attendances a left join employees b on b.id = a.employee_id
@@ -275,7 +281,7 @@ class Bypass extends API_Controller
 				        	['Nama', $data[0]->full_name],
 				            ['Area', $data[0]->branch_name],
 				            ['Leader', $data[0]->direct_name],
-				            ['Periode', $filter_periode],
+				            ['Periode', $periode],
 				        ],
 				        'footer' => $valfooter
 				    ];
@@ -293,7 +299,7 @@ class Bypass extends API_Controller
 				        	['Division', $rowemp_absen->division_name],
 				            ['Area', ''],
 				            ['Leader', ''],
-				            ['Periode', $filter_periode],
+				            ['Periode', $periode],
 				        ],
 				        'footer' => []	    
 					];
@@ -321,7 +327,7 @@ class Bypass extends API_Controller
 			        'subtitle' => [
 			            ['Area', ''],
 			            ['Leader', ''],
-			            ['Periode', $filter_periode],
+			            ['Periode', $periode],
 			        ],
 			        'footer' => []	    
 				];
@@ -432,12 +438,12 @@ class Bypass extends API_Controller
 		$dateYesterday = date('Y-m-d', strtotime('-1 day', strtotime($dateNow)) );
 
 
-		$rs = $this->db->query("select * from total_cuti_karyawan where period_end = '".$dateYesterday."' ")->result(); 
+		$rs = $this->db->query("select a.* from total_cuti_karyawan a left join employees b on b.id = a.employee_id where b.status_id = 1 and a.period_end = '".$dateYesterday."' ")->result(); 
 
 		if(!empty($rs)){
 			$data_generate = array();
 			foreach ($rs as $row) {
-				$cek = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$row->employee_id."' and period_start = '".$dateNow."' ")->result(); 
+				$cek = $this->db->query("select a.* from total_cuti_karyawan a left join employees b on b.id = a.employee_id where b.status_id = 1 and a.employee_id = '".$row->employee_id."' and a.period_start = '".$dateNow."' ")->result(); 
 				if(empty($cek)){
 					$period_end = date('Y-m-d', strtotime('+1 year', strtotime($dateNow)) );
 					$data = [

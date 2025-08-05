@@ -155,7 +155,7 @@ function load_data()
 					$('[name="address2"]').val(data.address_residen);
 					$('[name="postal_code1"]').val(data.postal_code_ktp);
 					$('[name="postal_code2"]').val(data.postal_code_residen);
-					$('[name="work_loc"]').val(data.work_location);
+					/*$('[name="work_loc"]').val(data.work_location);*/
 					$('[name="emergency_phone"]').val(data.emergency_contact_phone);
 					$('[name="bank_address"]').val(data.bank_address);
 					$('[name="bank_acc_no"]').val(data.bank_acc_no);
@@ -261,6 +261,7 @@ function load_data()
 					$('select#section').val(data.section_id).trigger('change.select2');
 					$('select#job_level').val(data.job_level_id).trigger('change.select2');
 					$('select#grade').val(data.grade_id).trigger('change.select2');
+					$('select#work_loc').val(data.work_location).trigger('change.select2');
 
 					getRegency(data.province_id_ktp,'1','selected',data.regency_id_ktp);
 					getDistrict(data.regency_id_ktp,data.province_id_ktp,'1','selected',data.district_id_ktp);

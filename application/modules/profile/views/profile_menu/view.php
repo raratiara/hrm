@@ -11,7 +11,7 @@
             <!-- <img src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture" class="profile-image"> -->
             <span class="emp_photo"></span>
             <div class="profile-name">
-                <span class="name" style="font-weight: bold;">
+                <span class="name" style="font-weight: bold;"></span>
             </div>
 
 
@@ -30,18 +30,18 @@
 
 
                 <div style="margin-top: 5px;">
-                    <span class="division">
+                    <span class="division"></span>
                 </div>
 
 
                 <div style="margin-top: 5px;">
                     <i class="fa fa-envelope" style="margin-right: 5px;"></i>
-                    <span class="email">
+                    <span class="email"></span>
                 </div>
 
                 <div style="margin-top: 5px;">
                     <i class="fa fa-phone" style="margin-right: 5px;"></i>
-                    <span class="phone">
+                    <span class="phone"></span>
                 </div>
             </div>
 
@@ -52,24 +52,24 @@
                 <!-- Kolom 1 -->
                 <div class="column">
 
-                    <div><strong>NIK</strong><span class="nik"></div>
-                    <div><strong>Date of Birth</strong><span class="date_of_birth"></div>
-                    <div><strong>Gender</strong><span class="gender"></div>
-                    <div><strong>Address</strong><span class="address"></div>
+                    <div><strong>NIK</strong><span class="nik"></span></div>
+                    <div><strong>Date of Birth</strong><span class="date_of_birth"><span></div>
+                    <div><strong>Gender</strong><span class="gender"></span></div>
+                    <div><strong>Address</strong><span class="address"></span></div>
 
                 </div>
 
                 <!-- Kolom 2 -->
                 <div class="column">
-                    <div><strong>Date of Hired</strong><span class="date_of_hired"></div>
-                    <div><strong>Status</strong><span class="status"></div>
-                    <div><strong>Shift Type</strong><span class="shift_type"></div>
-                    <div><strong>Direct</strong><span class="direct"></div>
+                    <div><strong>Date of Hired</strong><span class="date_of_hired"></span></div>
+                    <div><strong>Status</strong><span class="status"></span></div>
+                    <div><strong>Shift Type</strong><span class="shift_type"></span></div>
+                    <div><strong>Direct</strong><span class="direct"></span></div>
                 </div>
 
                 <!-- Kolom 3 -->
                 <div class="columnlevel">
-                    <div><strong>Job Level</strong><span class="job_level"></div>
+                    <div><strong>Job Level</strong><span class="job_level"></span></div>
                 </div>
             </div>
         </div>
@@ -125,7 +125,7 @@
 
     <div class="summary-section">
         <div class="summary-box">
-            <div class="summary-item highlight">
+             <div class="summary-item highlight">
                 <div>
                     <h4>Remaining Leave</h4>
                     <div class="total"><span class="ttl_sisa_cuti"></span></div>
@@ -138,7 +138,7 @@
 
             <div class="summary-item yellow">
 
-                <div class="title">Tasklist</div>
+                <div class="title" style="margin-top: 20px;">Tasklist</div>
                 <div class="tasklist-line">
                     <div class="task-item">
                         <p class="ttl_tasklist_open"></p>
@@ -162,28 +162,46 @@
                 <h4>Remaining Reimbursement Limit</h4>
                 <div class="reimbursement-grid">
                     <div class="item">
-                        <span>Rawat jalan</span>
-                        <span class="amount">Rp. 1.000.000</span>
+                        <span class="title_reim">Rawat jalan</span>
+                        <span class="amount" id="amount_rawatjalan"></span>
                     </div>
                     <div class="item">
-                        <span>Kacamata</span>
-                        <span class="amount">Rp. 1.000.000</span>
+                        <span class="title_reim">Kacamata</span>
+                        <span class="amount" id="amount_kacamata"></span>
                     </div>
                     <div class="item">
-                        <span>Rawat Inap</span>
-                        <span class="amount">Rp. 1.000.000</span>
+                        <span class="title_reim">Rawat Inap</span>
+                        <span class="amount" id="amount_rawatinap"></span>
                     </div>
                     <div class="item">
-                        <span>Persalinan</span>
-                        <span class="amount">Rp. 1.000.000</span>
+                        <span class="title_reim">Persalinan</span>
+                        <span class="amount" id="amount_persalinan"></span>
                     </div>
                 </div>
 
-
-                <!--                 <div class="icon">
-                    <i class="fas fa-clock"></i>
+                <!-- <div class="reimbursement-grid">
+                    <div class="item">
+                        <div class="title_reim">Rawat jalan</div>
+                        <div class="amount" id="amount_rawatjalan"></div>
+                    </div>
+                    <div class="item">
+                        <div class="title_reim">Kacamata</div>
+                        <div class="amount" id="amount_kacamata"></div>
+                    </div>
+                    <div class="item">
+                        <div class="title_reim">Rawat Inap</div>
+                        <div class="amount" id="amount_rawatinap"></div>
+                    </div>
+                    <div class="item">
+                        <div class="title_reim">Persalinan</div>
+                        <div class="amount" id="amount_persalinan"></div>
+                    </div>
                 </div> -->
-            </div>
+
+
+
+                
+            </div> 
         </div>
 
         <!--  <span class="dataBday"> -->
@@ -233,4 +251,3 @@
     </div>
 
 </div>
-
