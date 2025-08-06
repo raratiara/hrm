@@ -100,17 +100,18 @@
 
 	<div class="employee-container">
 
-		<div class="box chart-box">
-			<div class="box-title">Reimbursement For</div>
-			<div class="box-value">
-				<canvas id="empby_gen" style="margin-top: 15px;"></canvas>
-			</div>
-		</div>
-
-		<div class="box chart-box">
+		<div class="box typeSubtype">
 			<div class="box-title">Reimbursement Type & Subtype</div>
 			<div class="box-value">
 				<canvas id="empby_maritalStatus" style="margin-top: 15px;"></canvas>
+			</div>
+		</div>
+
+
+		<div class="box reimbursfor">
+			<div class="box-title">Reimbursement For</div>
+			<div class="box-value">
+				<canvas id="empby_gen" style="margin-top: 15px;"></canvas>
 			</div>
 		</div>
 

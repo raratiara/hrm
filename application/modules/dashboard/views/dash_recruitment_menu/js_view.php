@@ -20,15 +20,15 @@
 		$(function () {
 
 			/*$('#fldashemp').select2({
-		        width: 'resolve', // atau bisa diganti 'style' atau '100%'
-		        placeholder: "Select Employee",
-		        allowClear: true
-		    });*/
+				width: 'resolve', // atau bisa diganti 'style' atau '100%'
+				placeholder: "Select Employee",
+				allowClear: true
+			});*/
 
-		    openPostionByDiv();
-		    byJobLevel();
-		    byStatusPengajuan();
-		    byStatusEmployee();
+			openPostionByDiv();
+			byJobLevel();
+			byStatusPengajuan();
+			byStatusEmployee();
 			dataTotal();
 
 		});
@@ -38,19 +38,19 @@
 	function dataTotal() {
 
 		var fldiv = $("#fldiv option:selected").val();
-		
+
 
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_total',
-			data: { fldiv: fldiv},
+			data: { fldiv: fldiv },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
 
 					$('span#ttlrequest').html(data.ttl_request);
-					
+
 				} else {
 					var valnull = 0;
 					$('span#ttlrequest').html(valnull);
@@ -83,7 +83,7 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_byJobLevel',
-			data: { fldiv: fldiv},
+			data: { fldiv: fldiv },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
@@ -94,7 +94,7 @@
 					var chartExist = Chart.getChart("byJobLevel"); // <canvas> id
 					if (chartExist != undefined)
 						chartExist.destroy();
-									
+
 					const barChart = new Chart(ctx, {
 						type: 'bar',
 						data: {
@@ -103,11 +103,11 @@
 								label: 'Employee',
 								data: data.total,
 								backgroundColor: [
-									'#B26CC4',
-									'#B26CC4',
-									'#B26CC4',
-									'#B26CC4',
-									'#B26CC4'
+									'#74DCE0',
+									'#74DCE0',
+									'#74DCE0',
+									'#74DCE0',
+									'#74DCE0'
 								],
 								borderRadius: 3
 							}]
@@ -117,21 +117,21 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return value;
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+											.toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return value;
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									display: false
 								},
@@ -165,7 +165,7 @@
 								}
 							}
 						}
-						,plugins: [ChartDataLabels]
+						, plugins: [ChartDataLabels]
 					});
 
 				} else {
@@ -199,7 +199,7 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_openByDiv',
-			data: { fldiv: fldiv},
+			data: { fldiv: fldiv },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
@@ -220,14 +220,14 @@
 								/*data: [data.ttl_gen_x, data.ttl_gen_mill, data.ttl_gen_z, data.ttl_boomer],*/
 								data: data.values,
 								backgroundColor: [
-									'#B99DD9',
-									'#F83F98',
-									'#00BDC9',
-									'#FFC226',
-									'#FF6E53',
-									'#4378C6',
-									'#75D2C1',
-									'#FFED76'
+									'#FED24B',
+									'#38406F',
+									'#BC9BF3',
+									'#D9CAAA',
+									'#D48331',
+									'#B9D440',
+									'#74DCE0',
+									'#736DF9'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',
@@ -239,21 +239,21 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+											.toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return parseInt(value);
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									labels: {
 										font: {
@@ -319,7 +319,7 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_byStatusPengajuan',
-			data: { fldiv: fldiv},
+			data: { fldiv: fldiv },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
@@ -340,12 +340,12 @@
 								/*data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],*/
 								data: data.values,
 								backgroundColor: [
-									'#CDB4DB',
-									'#FFC8DD',
-									'#FFAFCC',
-									'#BDE0FE',
-									'#A2D2FF',
-									'#5784E6'
+									'#FED24B',
+									'#BC9BF3',
+									'#D9CAAA',
+									'#D48331',
+									'#74DCE0',
+									'#38406F'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',
@@ -357,21 +357,21 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+											.toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return parseInt(value);
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									labels: {
 										font: {
@@ -437,7 +437,7 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_byStatusEmployee',
-			data: { fldiv: fldiv},
+			data: { fldiv: fldiv },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
@@ -458,14 +458,18 @@
 								/*data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],*/
 								data: data.values,
 								backgroundColor: [
-									'#F8D152',
-									'#F7AB3E',
-									'#5E6CB3',
-									'#91ABDA'/*,
+									'#FED24B',
+									'#D48331',
+									'#38406F',
+									'#D9CAAA'/*,
 									'#FCCA59',
 									'#B9D440',
 									'#BC9BF3',
 									'#736DF9'*/
+
+									
+									
+									
 								],
 								borderWidth: 2,
 								borderColor: '#fff',
@@ -477,21 +481,21 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+											.toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return parseInt(value);
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									labels: {
 										font: {
@@ -552,20 +556,20 @@
 	function setFilter() {
 
 		openPostionByDiv();
-	    byJobLevel();
-	    byStatusPengajuan();
-	    byStatusEmployee();
+		byJobLevel();
+		byStatusPengajuan();
+		byStatusEmployee();
 		dataTotal();
-		
+
 	}
 
 
 	$('#fldiv').on('change', function () {
 
 		openPostionByDiv();
-	    byJobLevel();
-	    byStatusPengajuan();
-	    byStatusEmployee();
+		byJobLevel();
+		byStatusPengajuan();
+		byStatusEmployee();
 		dataTotal();
 
 	});
@@ -574,6 +578,6 @@
 </script>
 
 <script>
-	
+
 
 </script>

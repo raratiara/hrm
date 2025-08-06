@@ -99,7 +99,6 @@
 
 
   .dashboard {
-    width: 1000px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     /*gap: 10px;*/
@@ -231,6 +230,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     flex: 1;
     width: 100% !important;
+    background-color: white;
   }
 
   .title {
@@ -325,7 +325,7 @@
 
   .top-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
     color: #38406F;
     margin-top: 10px;
@@ -381,6 +381,7 @@
 
     .summary-container {
       gap: 10px !important;
+      flex-direction: column !important;
     }
 
     .summary-card {
@@ -507,7 +508,7 @@
   .summary-container {
     display: flex;
     gap: 20px;
-    flex-wrap: wrap;
+    
   }
 
   .chart-container {
@@ -528,11 +529,9 @@
     align-items: center;
     border-radius: 12px !important;
     padding: 20px;
-    min-width: 220px;
     justify-content: space-between;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    flex: 1;
-    max-width: 280px;
+    width: 100% ! important;
   }
 
   .card-content {
@@ -616,7 +615,7 @@
   }
 
   .grey {
-    backgroundColor: white;
+    background-color: white;
     color: #38406F;
   }
 
