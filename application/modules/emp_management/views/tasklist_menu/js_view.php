@@ -126,6 +126,7 @@ function load_data()
 					$('[name="progress"]').val(data.progress_percentage);
 					$('[name="due_date"]').val(data.due_date);
 					$('[name="solve_date"]').val(data.solve_date);
+					$('select#project').val(data.project_id).trigger('change.select2');
 
 					
 					$.uniform.update();
@@ -140,6 +141,7 @@ function load_data()
 					$('span.task_parent').html(data.parent_name);
 					$('span.due_date').html(data.due_date);
 					$('span.solve_date').html(data.solve_date);
+					$('span.project').html(data.project_name);
 					
 					
 					$('#modal-view-data').modal('show');
