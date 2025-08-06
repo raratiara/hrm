@@ -294,7 +294,20 @@ class Tasklist_menu_model extends MY_Model
 				'solve_date' 			=> $solve_date,
 				'project_id' 			=> trim($post['project'] ?? '')
 			];
-			return $rs = $this->db->insert($this->table_name, $data);
+			$rs = $this->db->insert($this->table_name, $data);
+			$lastId = $this->db->insert_id();
+			if($rs){
+				$data2 = [
+					'tasklist_id' 			=> $lastId,
+					'progress_percentage'	=> trim($post['progress'] ?? ''),
+					'submit_at'				=> date("Y-m-d H:i:s")
+				];
+				$this->db->insert("history_progress_tasklist", $data2);
+
+
+				return $rs;
+			}else return null;
+
   		}else return null;
 
 	}  
@@ -323,7 +336,18 @@ class Tasklist_menu_model extends MY_Model
 				'project_id' 			=> trim($post['project'] ?? '')
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			if($rs){
+				$data2 = [
+					'tasklist_id' 			=> $post['id'],
+					'progress_percentage'	=> trim($post['progress'] ?? ''),
+					'submit_at'				=> date("Y-m-d H:i:s")
+				];
+				$this->db->insert("history_progress_tasklist", $data2);
+
+				return $rs;
+
+			}else return null;
 		} else return null;
 	}  
 

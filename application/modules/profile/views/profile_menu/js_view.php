@@ -13,6 +13,7 @@
 
 			load_data();
 			monthlyAttSumm();
+			dailyTasklist();
 
 		});
 	});
@@ -531,4 +532,158 @@
 
 		displayBirthday(currentIndex);
 	};*/
+
+
+	function dailyTasklist() {
+
+		var fldiv = $("#fldiv option:selected").val();
+
+
+		$.ajax({
+			type: "POST",
+			url: module_path + '/get_data_dailyTasklist',
+			data: { fldiv: fldiv},
+			cache: false,
+			dataType: "JSON",
+			success: function (data) {
+				if (data != false) {
+
+					const ctx = document.getElementById('daily_tasklist').getContext('2d');
+					var chartExist = Chart.getChart("daily_tasklist"); // <canvas> id
+					if (chartExist != undefined)
+						chartExist.destroy();
+
+					new Chart(ctx, {
+						type: 'bar',
+						data: {
+							labels: data.divisions, /*['HRGA', 'IT', 'Marketing'],*/
+							datasets: [
+								{
+									label: 'Male',
+									type: 'bar',
+									data: data.total_male,
+									borderColor: '#343851',
+									backgroundColor: '#343851', /*'#3381fc',*/
+									fill: false,
+									tension: 0.4,
+									yAxisID: 'y1',
+									borderRadius: 3
+								},
+								{
+									label: 'Female',
+									type: 'bar',
+									data: data.total_female,
+									borderColor: '#FED24B',
+									backgroundColor: '#FED24B',/*'#fc3381',*/
+									fill: false,
+									tension: 0.4,
+									yAxisID: 'y1',
+									borderRadius: 3
+								}
+							]
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							interaction: {
+								mode: 'index',
+								intersect: false
+							},
+							stacked: false,
+							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+			                            return parseInt(value);
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
+								legend: {
+									labels: {
+										font: {
+											size: 8  // kecilkan ukuran legend text
+										},
+										boxWidth: 12,        // kecilkan ukuran kotak warna
+										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4,     // ubah jadi bulat (opsional)
+										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
+									},
+									position: 'bottom'
+								},
+								tooltip: {
+									callbacks: {
+										label: function (context) {
+											return context.dataset.label + ': ' + context.formattedValue +
+												(context.dataset.label.includes('%') ? '%' : '');
+										}
+									}
+								}
+							}/*,
+						scales: {
+							  y: {
+								type: 'linear',
+								position: 'left',
+								title: {
+								  display: true,
+								  text: 'Male',
+								  color: '#3381fc'
+								},
+								ticks: {
+								  color: '#3381fc'
+								},
+								grid: {
+								  drawOnChartArea: true
+								}
+							  },
+							y1: {
+								type: 'linear',
+								position: 'right',
+								title: {
+								  display: true,
+								  text: 'Female',
+								  color: '#fc3381'
+								},
+								ticks: {
+								  color: '#fc3381'
+								},
+								grid: {
+								  drawOnChartArea: false
+								}
+							  }
+						}*/
+						},
+						plugins: [ChartDataLabels]
+					});
+
+				} else {
+
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
+
+
+
+	}
+
 </script>
