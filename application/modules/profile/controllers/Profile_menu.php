@@ -183,5 +183,41 @@ class Profile_menu extends MY_Controller
  	}
 
 
+ 	public function get_data_dailyTasklist(){
+ 		$post = $this->input->post(null, true);
+ 		
+
+		
+		$rs = $this->db->query("select
+				    a.division_id, b.name as division_name,
+				    SUM(CASE WHEN a.gender = 'M' THEN 1 ELSE 0 END) AS total_laki_laki,
+				    SUM(CASE WHEN a.gender = 'F' THEN 1 ELSE 0 END) AS total_perempuan,
+				    COUNT(*) AS total_karyawan
+				FROM
+				    employees a
+				    left join divisions b on b.id = a.division_id
+				where a.status_id = 1 and a.division_id != 0 
+				GROUP BY
+				    a.division_id ")->result(); 
+
+		$divisions=[]; $total_male=[]; $total_female=[];
+		foreach($rs as $row){
+			$divisions[] 	= $row->division_name;
+			$total_male[] 	= $row->total_laki_laki;
+			$total_female[]	= $row->total_perempuan;
+		}
+
+
+		$data = array(
+			'divisions' 	=> $divisions,
+			'total_male' 	=> $total_male,
+			'total_female' 	=> $total_female
+		);
+
+
+		echo json_encode($data);
+ 	}
+
+
 
 }

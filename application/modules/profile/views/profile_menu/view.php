@@ -250,4 +250,41 @@
 
     </div>
 
+
+    <div class="chart-section2">
+
+        <div class="chart-box2">
+            <strong>Daily Tasklist Statistics</strong>
+            <canvas id="daily_tasklist" style="margin-top: 20px;"></canvas>
+            <!-- <canvas id="empby_div_gender" style="margin-top: 15px;"></canvas> -->
+        </div>
+
+        <div class="right-section">
+            <div class="birthday-box">
+                <h4 class="birthday-title">Today’s Birthdays</h4>
+                <div class="birthday-content">
+                   
+                    <img id="birthday-image" alt="Profile Picture" class="birthday-image">
+                    <div class="birthday-info">
+                        <div id="birthday-name" class="birthday-name"></div>
+                        <div id="birthday-job" class="birthday-job"></div>
+                    </div>
+                    <div class="birthday-arrow" id="birthday-arrow">
+                        <i class="fa fa-caret-up" onclick="showPrevious()"></i>
+                        <i class="fa fa-caret-down" onclick="showNext()"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="events-box">
+                <h4 class="birthday-title">This Week's Highlights</h4>
+                <span class="clnoevents" style="font-size: 14px; color: #555;"></span>
+                <div class="scroll-area" id="event-list"></div>
+            </div>
+
+
+        </div>
+
+    </div>
+
 </div>
