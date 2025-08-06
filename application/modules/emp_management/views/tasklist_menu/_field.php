@@ -49,6 +49,12 @@
 				<?=$txtduedate;?>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Project </label>
+			<div class="col-md-8">
+				<?=$selproject;?>
+			</div>
+		</div>
 		
 	</div>
 </div>
