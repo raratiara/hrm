@@ -263,13 +263,14 @@ class Sadmin_tools_app_menu_model extends MY_Model
 	}
 
 	public function add_data($post)
-	{
+	{ 
+
 		$data = [
 			'title' => trim($post['title']),
 			'link_type' => trim($post['link_type']),
 			'module_name' => trim($post['module_name']),
 			'url' => trim($post['url']),
-			'parent_id' => (isset($post['parent_id'])) ? trim($post['parent_id']) : '0',
+			'parent_id' => (isset($post['parent_id']) && $post['parent_id'] != '') ? trim($post['parent_id']) : '0',
 			'is_parent' => trim($post['is_parent']),
 			'show_menu' => trim($post['show_menu']),
 			'um_class' => (isset($post['um_class'])) ? trim($post['um_class']) : '',
@@ -288,7 +289,7 @@ class Sadmin_tools_app_menu_model extends MY_Model
 				'link_type' => trim($post['link_type']),
 				'module_name' => trim($post['module_name']),
 				'url' => trim($post['url']),
-				'parent_id' => (isset($post['parent_id'])) ? trim($post['parent_id']) : '0',
+				'parent_id' => (isset($post['parent_id']) && $post['parent_id'] != '') ? trim($post['parent_id']) : '0',
 				'is_parent' => trim($post['is_parent']),
 				'show_menu' => trim($post['show_menu']),
 				'um_class' => (isset($post['um_class'])) ? trim($post['um_class']) : '',
