@@ -112,6 +112,15 @@
       /* Biar tingginya otomatis sama */
     }
 
+    .chart-section2 {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      /* Jarak antar kotak */
+      align-items: stretch;
+      /* Biar tingginya otomatis sama */
+    }
+
     .events-box {
       width: 100% !important;
     }
@@ -467,6 +476,14 @@
     /* Biar tingginya otomatis sama */
   }
 
+  .chart-section2 {
+    display: flex;
+    gap: 20px;
+    /* Jarak antar kotak */
+    align-items: stretch;
+    /* Biar tingginya otomatis sama */
+  }
+
   .chart-box {
     background-color: white !important;
     padding: 15px;
@@ -475,6 +492,17 @@
     flex: 2;
     display: flex;
     flex-direction: column;
+  }
+
+  .chart-box2 {
+    background-color: white !important;
+    padding: 15px;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    height: 400px;
   }
 
   .event {
@@ -527,4 +555,11 @@
     color: #555;
     font-size: 0.9rem;
   }
+
+  #daily_tasklist {
+    width: 330px;
+    height: 250px;
+  }
+
+
 </style>

@@ -8,10 +8,14 @@ var ldx; //for save list index string
 
 
 
+
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#due_date" ).datepicker();
+        $( "#date_plan_start" ).datepicker();
+        $( "#date_plan_finish" ).datepicker();
+        $( "#date_actual_start" ).datepicker();
+        $( "#date_actual_finish" ).datepicker();
 		
    	});
 });
@@ -107,6 +111,13 @@ jQuery(function($) {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 function load_data()
 {
+	var getUrl = window.location;
+	//local=> 
+	//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
+
+
     $.ajax({
 		type: "POST",
         url : module_path+'/get_detail_data',
@@ -118,31 +129,47 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
+					$('[name="project"]').val(data.project);
+					$('[name="title"]').val(data.title);
+					$('select#id_customer').val(data.id_customer).trigger('change.select2');
+					$('[name="id_spk"]').val(data.id_spk); 
+					$('[name="nilai_project"]').val(data.nilai_project); 
+					$('[name="estimasi_cost"]').val(data.estimasi_cost); 
+					$('[name="date_plan_start"]').val(data.dpstart);
+					$('[name="date_plan_finish"]').val(data.dpfinish);
+					$('[name="date_actual_start"]').val(data.dastart);
+					$('[name="date_actual_finish"]').val(data.dafinish); 
+					$('select#id_pic').val(data.id_pic).trigger('change.select2');
+					$('select#id_pm').val(data.id_pm).trigger('change.select2'); 
+					$('[name="type"][value="'+data.type+'"]').prop('checked', true);
+					$('select#id_status').val(data.id_status).trigger('change.select2');
 					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#status').val(data.status_id).trigger('change.select2');
-					$('[name="task"]').val(data.task);
-					$('select#task_parent').val(data.parent_id).trigger('change.select2');
-					$('[name="progress"]').val(data.progress_percentage);
-					$('[name="due_date"]').val(data.due_date);
-					$('[name="solve_date"]').val(data.solve_date);
-					$('select#project').val(data.project_id).trigger('change.select2');
-
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
-					$('span.solve_date').html(data.solve_date);
-					$('span.project').html(data.project_name);
-					
+					$('[name="id"]').val(data.id);
+					$('span.project').html(data.project);
+					$('span.title').html(data.title);
+					$('span.ccustomer').html(data.ccustomer);
+					$('span.id_spk').html(data.id_spk);
+					$('span.dpstart').html(data.dpstart);
+					$('span.dastart').html(data.dastart);
+					$('span.dpfinish').html(data.dpfinish);
+					$('span.dafinish').html(data.dafinish);
+					$('span.estimasi_cost').html(data.estimasi_cost);
+					$('span.nilai_project').html(data.nilai_project);
+					$('span.pic').html(data.pic);
+					$('span.pm').html(data.pm);  
+					var tipe = 'Internal';
+					if(data.type == 1){
+						tipe = 'External';
+					}
+					$('span.tipe').html(tipe);
+					$('span.status').html(data.status);
+
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -175,10 +202,6 @@ function load_data()
         }
     });
 }
-<?php } ?>
-
-
-
-
+<?php } ?> 
 
 </script>

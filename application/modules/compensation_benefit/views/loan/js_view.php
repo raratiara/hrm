@@ -8,10 +8,14 @@ var ldx; //for save list index string
 
 
 
+
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#due_date" ).datepicker();
+        $( "#date_pengajuan" ).datepicker();
+        $( "#date_persetujuan" ).datepicker();
+        $( "#date_pencairan" ).datepicker();
+        $( "#date_start_cicilan" ).datepicker();
 		
    	});
 });
@@ -107,6 +111,13 @@ jQuery(function($) {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 function load_data()
 {
+	var getUrl = window.location;
+	//local=> 
+	//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
+
+
     $.ajax({
 		type: "POST",
         url : module_path+'/get_detail_data',
@@ -114,35 +125,40 @@ function load_data()
 		cache: false,		
         dataType: "JSON",
         success: function(data)
-        {
+        { 
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
+					$('select#id_employee').val(data.id_employee).trigger('change.select2');
+					$('[name="nominal_pinjaman"]').val(data.nominal_pinjaman);
+					$('[name="tenor"]').val(data.tenor); 
+					$('[name="sisa_tenor"]').val(data.sisa_tenor); 
+					$('[name="bunga_per_bulan"]').val(data.bunga_per_bulan); 
+					$('[name="nominal_cicilan_per_bulan"]').val(data.nominal_cicilan_per_bulan); 
+					$('[name="date_pengajuan"]').val(data.date_pengajuan);
+					$('[name="date_persetujuan"]').val(data.date_persetujuan);
+					$('[name="date_pencairan"]').val(data.date_pencairan);
+					$('[name="date_start_cicilan"]').val(data.date_start_cicilan);  
 					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#status').val(data.status_id).trigger('change.select2');
-					$('[name="task"]').val(data.task);
-					$('select#task_parent').val(data.parent_id).trigger('change.select2');
-					$('[name="progress"]').val(data.progress_percentage);
-					$('[name="due_date"]').val(data.due_date);
-					$('[name="solve_date"]').val(data.solve_date);
-					$('select#project').val(data.project_id).trigger('change.select2');
-
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
-				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
-					$('span.solve_date').html(data.solve_date);
-					$('span.project').html(data.project_name);
-					
+				if(save_method == 'detail'){  
+					$('[name="id"]').val(data.id);
+					$('span.id_employee').html(data.full_name);
+					$('span.nominal_pinjaman').html(data.nominal_pinjaman);
+					$('span.tenor').html(data.tenor); 
+					$('span.sisa_tenor').html(data.sisa_tenor); 
+					$('span.bunga_per_bulan').html(data.bunga_per_bulan); 
+					$('span.nominal_cicilan_per_bulan').html(data.nominal_cicilan_per_bulan); 
+					$('span.date_pengajuan').html(data.date_pengajuan);
+					$('span.date_persetujuan').html(data.date_persetujuan);
+					$('span.date_pencairan').html(data.date_pencairan);
+					$('span.date_start_cicilan').html(data.date_start_cicilan);  
+					 
+
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -175,10 +191,6 @@ function load_data()
         }
     });
 }
-<?php } ?>
-
-
-
-
+<?php } ?> 
 
 </script>

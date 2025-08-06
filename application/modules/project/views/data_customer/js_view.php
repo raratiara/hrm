@@ -4,18 +4,7 @@ var myTable;
 var validator;
 var save_method; //for save method string
 var idx; //for save index string
-var ldx; //for save list index string
-
-
-
-$(document).ready(function() {
-   	$(function() {
-   		
-        $( "#due_date" ).datepicker();
-		
-   	});
-});
-
+var ldx; //for save list index string 
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
 jQuery(function($) {
@@ -49,13 +38,31 @@ jQuery(function($) {
 		focusInvalid: false, // do not focus the last invalid input
 		ignore: "", // validate all fields including form hidden input
 		rules: {
-			title: {
+			code: {
 				required: true
 			},
-			module_name: {
+			name: {
 				required: true
 			},
-			url: {
+			contact_name: {
+				required: true
+			},
+			contact_phone: {
+				required: true
+			},
+			contact_email: {
+				required: true
+			},
+			pic_name: {
+				required: true
+			},
+			pic_phone: {
+				required: true
+			},
+			pic_email: {
+				required: true
+			},
+			id_status: {
 				required: true
 			}
 		},
@@ -91,6 +98,17 @@ jQuery(function($) {
 				.closest('.form-group').removeClass('has-error'); // set success class to the control group
 		}
 	});
+
+	//initialize datepicker
+	$('.date-picker').datepicker({
+		rtl: App.isRTL(),
+		autoclose: true,
+		clearBtn: true,
+		todayHighlight: true
+	});
+	$('.date-picker .form-control').change(function() {
+		$("#frmInputData").validate().element($(this)); //revalidate the chosen dropdown value and show error or success message for the input 
+	})
 	<?php } ?>
 
 	<?php if  (_USER_ACCESS_LEVEL_DELETE == "1") { ?>
@@ -114,36 +132,30 @@ function load_data()
 		cache: false,		
         dataType: "JSON",
         success: function(data)
-        {
+        { 
 			if(data != false){
-				if(save_method == 'update'){ 
+				if(save_method == 'update'){
 					$('[name="id"]').val(data.id);
-					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#status').val(data.status_id).trigger('change.select2');
-					$('[name="task"]').val(data.task);
-					$('select#task_parent').val(data.parent_id).trigger('change.select2');
-					$('[name="progress"]').val(data.progress_percentage);
-					$('[name="due_date"]').val(data.due_date);
-					$('[name="solve_date"]').val(data.solve_date);
-					$('select#project').val(data.project_id).trigger('change.select2');
-
-					
+					$('[name="code"]').val(data.code);
+					$('[name="name"]').val(data.name);
+					$('[name="address"]').val(data.address); 
+					$('[name="contact_name"]').val(data.contact_name); 
+					$('[name="contact_phone"]').val(data.contact_phone);
+					$('[name="contact_email"]').val(data.contact_email);  
+					$('[name="id_status"]').val(data.id_status).trigger('change.select2');
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
-				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
-					$('span.solve_date').html(data.solve_date);
-					$('span.project').html(data.project_name);
-					
-					
+				if(save_method == 'detail'){
+					$('span.code').html(data.code);
+					$('span.name').html(data.name);
+					$('span.address').html(data.address);
+					$('span.contact_name').html(data.contact_name); 
+					$('span.contact_phone').html(data.contact_phone);
+					$('span.contact_email').html(data.contact_email);
+					 
+					$('span.status').html(data.status);
 					$('#modal-view-data').modal('show');
 				}
 			} else {
@@ -177,8 +189,5 @@ function load_data()
 }
 <?php } ?>
 
-
-
-
-
+ 
 </script>

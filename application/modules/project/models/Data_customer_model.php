@@ -1,52 +1,96 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tasklist_menu_model extends MY_Model
+class Data_customer_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "emp_management/tasklist_menu";
- 	protected $table_name 				= _PREFIX_TABLE."tasklist";
- 	protected $primary_key 				= "id";
+ 	protected $folder_name			= "project/data_customer";
+ 	protected $table_name 			= _PREFIX_TABLE."data_customer";
+ 	//protected $table_industrial 	= _PREFIX_TABLE."option_industrial_type";
+ 	//protected $table_bank 			= _PREFIX_TABLE."option_bank";
+ 	protected $table_status 		= _PREFIX_TABLE."option_general_status";
+ 	//protected $table_document 		= _PREFIX_TABLE."option_doc_attachment";
+ 	protected $primary_key 			= "id";
+	/* upload */
+ 	protected $attachment_folder	= "./uploads/data/customer";
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
 
 	function __construct()
 	{
 		parent::__construct();
 	}
 
-	// fix
+	// Get Document Need 
+	public function getAttachData() { 
+		$rs	= $this->db->select('id,description')->order_by('idx_seq', 'ASC')->where("active='1'")->get($this->table_document)->result();
+
+		return $rs;
+	} 
+
+	// Remove file
+	public function remove_file($id = "", $filename= "") {
+		if(!empty($id) && !empty($filename)){
+			$filepath = $this->attachment_folder.'/'.$id.'/'.$filename;
+			if(is_file($filepath)) {
+				unlink($filepath);
+			}
+		}
+	}
+	
+	// Upload file
+	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "") {
+		$data = array();
+		$data['status'] = FALSE;
+		if(!empty($id) && !empty($fieldname)){
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			{
+				$dir = $this->attachment_folder.'/'.$id;
+				if(!is_dir($dir)) {
+					mkdir($dir);
+				}
+				if($replace){
+					$this->remove_file($id, $oldfilename);
+				}
+				$config['upload_path']   = $dir.'/';
+				$config['allowed_types'] = $this->allow_type;
+				$config['max_size'] 	 = $this->allow_size;
+				$this->load->library('upload', $config);
+				if(!$this->upload->do_upload($fieldname)){
+					$err_msg = $this->upload->display_errors();
+					$data['error_warning'] = strip_tags($err_msg);				
+					$data['status'] = FALSE;
+				} else {
+					$fileData = $this->upload->data();
+					$data['upload_file'] = $fileData['file_name'];
+					$data['status'] = TRUE;
+				}
+			}
+		}
+		
+		return $data;
+	}
+
+	// Generate item list
 	public function get_list_data()
 	{
 		$aColumns = [
 			NULL,
 			NULL,
-			'dt.id',
-			'dt.employee_name',
-			'dt.task',
-			'dt.parent_name',
-			'dt.status_name',
-			'dt.progress_percentage',
-			'dt.due_date',
-			'dt.solve_date',
-			'dt.project_name'
+			'a.id',
+			'a.code',
+			'a.name',
+			'a.address',
+			'a.contact_name',
+			'a.contact_phone',
+			'a.contact_email',
+			'b.description as status',
 		];
-		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
-		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
-		}
 
-
-		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id
-					left join data_project e on e.id = a.project_id
-					'.$whr.'
-				)dt';
-		
+		$sIndexColumn = 'a.'.$this->primary_key;
+		$sTable = ' '.$this->table_name.' a
+					LEFT JOIN '.$this->table_status.' b ON b.id=a.id_status
+					';
 
 		/* Paging */
 		$sLimit = "";
@@ -185,21 +229,17 @@ class Tasklist_menu_model extends MY_Model
 		{
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851; href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500; href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				$edit = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
 			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
-				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
-			}
-			$solve_date ="";
-			if($row->solve_date != '' && $row->solve_date != '0000-00-00'){
-				$solve_date = $row->solve_date;
+				$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
 			array_push($output["aaData"],array(
@@ -210,16 +250,13 @@ class Tasklist_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->employee_name,
-				$row->task,
-				$row->parent_name,
-				$row->status_name,
-				$row->progress_percentage,
-				$row->due_date,
-				$solve_date,
-				$row->project_name
-
-
+				$row->code,
+				$row->name,
+				substr($row->address,0,30).' ...',
+				$row->contact_name,
+				$row->contact_phone,
+				$row->contact_email,
+				$row->status
 			));
 		}
 
@@ -231,8 +268,9 @@ class Tasklist_menu_model extends MY_Model
 		return !is_null($val);
 	}		
 
+	// delete item action
 	public function delete($id= "") {
-		if (isset($id) && $id <> "") {
+		if (isset($id) && $id <> "") {  
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
 			$this->db->where([$this->primary_key => $id])->delete($this->table_name);
@@ -246,7 +284,7 @@ class Tasklist_menu_model extends MY_Model
 	public function bulk($id= "") {
 		if (is_array($id) && count($id)) {
 			$err = '';
-			foreach ($id as $pid) {
+			foreach ($id as $pid) { 
 				//$this->db->trans_off(); // Disable transaction
 				$this->db->trans_start(); // set "True" for query will be rolled back
 				$this->db->where([$this->primary_key => $pid])->delete($this->table_name);
@@ -270,117 +308,96 @@ class Tasklist_menu_model extends MY_Model
 		} else return null;
 	}  
 
-
+	// adding data
 	public function add_data($post) { 
+		$id_status = (isset($post['id_status']) && !empty($post['id_status']))? trim($post['id_status']):NULL;
+		$data = [
+			'code' 				=> trim($post['code']),
+			'name' 				=> trim($post['name']),
+			'address' 			=> trim($post['address']),
+			'contact_name' 		=> trim($post['contact_name']),
+			'contact_phone' 	=> trim($post['contact_phone']),
+			'contact_email' 	=> trim($post['contact_email']), 
+			'id_status' 		=> $id_status,
+			'insert_by'			=> $_SESSION["username"]
+		];
 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		//$this->db->trans_off(); // Disable transaction
+		$this->db->trans_start(); // set "True" for query will be rolled back
+		$this->db->insert($this->table_name, $data);
+		$lastId = $this->db->insert_id(); 
+ 
+		$this->db->trans_complete();
 
-		
-  		if(!empty($post['task'])){ 
-  			$solve_date="";
-  			if($post['progress'] == 100){
-  				$solve_date = date("Y-m-d H:i:s");
-  			}
-
-  			$data = [
-				'employee_id' 			=> trim($post['employee'] ?? ''),
-				'task' 					=> trim($post['task'] ?? ''),
-				'progress_percentage'	=> trim($post['progress'] ?? ''),
-				'parent_id' 			=> trim($post['task_parent'] ?? ''),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status'] ?? ''),
-				'created_at'			=> date("Y-m-d H:i:s"),
-				'solve_date' 			=> $solve_date,
-				'project_id' 			=> trim($post['project'] ?? '')
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-			$lastId = $this->db->insert_id();
-			if($rs){
-				$data2 = [
-					'tasklist_id' 			=> $lastId,
-					'progress_percentage'	=> trim($post['progress'] ?? ''),
-					'submit_at'				=> date("Y-m-d H:i:s")
-				];
-				$this->db->insert("history_progress_tasklist", $data2);
-
-
-				return $rs;
-			}else return null;
-
-  		}else return null;
-
+		return $rs = $this->db->trans_status();
 	}  
 
+	// update data
 	public function edit_data($post) { 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
-		
-
-
-		if(!empty($post['id'])){ 
-			$solve_date="";
-  			if($post['progress'] == 100){
-  				$solve_date = date("Y-m-d H:i:s");
-  			}
-		
+		if(!empty($post['id'])){
+			$uid = trim($post['id']); 
+			$id_status = (isset($post['id_status']) && !empty($post['id_status']))? trim($post['id_status']):NULL;
 			$data = [
-				'employee_id' 			=> trim($post['employee'] ?? ''),
-				'task' 					=> trim($post['task'] ?? ''),
-				'progress_percentage'	=> trim($post['progress'] ?? ''),
-				'parent_id' 			=> trim($post['task_parent'] ?? ''),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status'] ?? ''),
-				'updated_at'			=> date("Y-m-d H:i:s"),
-				'solve_date' 			=> $solve_date,
-				'project_id' 			=> trim($post['project'] ?? '')
+				'code' 				=> trim($post['code']),
+				'name' 				=> trim($post['name']),
+				'address' 			=> trim($post['address']),
+				'contact_name' 		=> trim($post['contact_name']),
+				'contact_phone' 	=> trim($post['contact_phone']),
+				'contact_email' 	=> trim($post['contact_email']), 
+				'id_status' 		=> $id_status,
+				'update_by'			=> $_SESSION["username"]
 			];
 
-			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-			if($rs){
-				$data2 = [
-					'tasklist_id' 			=> $post['id'],
-					'progress_percentage'	=> trim($post['progress'] ?? ''),
-					'submit_at'				=> date("Y-m-d H:i:s")
-				];
-				$this->db->insert("history_progress_tasklist", $data2);
+			//$this->db->trans_off(); // Disable transaction
+			$this->db->trans_start(); // set "True" for query will be rolled back
+			$this->db->update($this->table_name, $data, [$this->primary_key => $uid]);
+			 
+			$this->db->trans_complete();
 
-				return $rs;
-
-			}else return null;
+			return $rs = $this->db->trans_status();			
 		} else return null;
 	}  
 
+	// getting row data for update / detail view
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
-					from tasklist a left join employees b on b.id = a.employee_id
-					left join tasklist c on c.id = a.parent_id
-					left join master_tasklist_status d on d.id = a.status_id
-					left join data_project e on e.id = a.project_id
-			)dt';
-
-		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
-		
-		
+		$rs = $this->db->where([$this->primary_key => $id])->get($this->table_name)->row();
+		 
+		if(!empty($rs->id_status)){
+			$rd = $this->db->select('description as status')->where([$this->primary_key => $rs->id_status])->get($this->table_status)->row();
+			$rs = (object) array_merge((array) $rs, (array) $rd);
+		} else {
+			$rs = (object) array_merge((array) $rs, ['status'=>'']);
+		}
+		unset($rs->date_insert);
+		unset($rs->insert_by);
+		unset($rs->date_update);
+		unset($rs->update_by);
 		
 		return $rs;
 	} 
+	
+	 
 
+	// importing data
 	public function import_data($list_data)
 	{
 		$i = 0;
-
+		$error = '';
+		
 		foreach ($list_data as $k => $v) {
 			$i += 1;
-
+ 
+			$id_status = trim($v["H"]);
+			if(empty($id_status)) $id_status = NULL;
 			$data = [
-				'employee_id' 			=> $v["B"],
-				'task' 					=> $v["C"],
-				'progress_percentage' 	=> $v["D"],
-				'parent_id' 			=> $v["E"],
-				'due_date' 				=> $v["F"],
-				'status_id' 			=> $v["G"],
-				'solve_date' 			=> $v["H"]
+				'code' 				=> trim($v["B"]),
+				'name' 				=> trim($v["C"]),
+				'address' 			=> trim($v["D"]),
+				'contact_name' 		=> trim($v["E"]),
+				'contact_phone' 	=> trim($v["F"]),
+				'contact_email' 	=> trim($v["G"]), 
+				'id_status' 		=> $id_status,
+				'insert_by'			=> $_SESSION["username"]
 			];
 
 			$rs = $this->db->insert($this->table_name, $data);
@@ -390,30 +407,29 @@ class Tasklist_menu_model extends MY_Model
 		return $error;
 	}
 
+	// export data
+	// Need use GET for accept parameter
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
-		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
-		}
-
-
-
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date, e.title as project_name   
-			from tasklist a left join employees b on b.id = a.employee_id
-			left join tasklist c on c.id = a.parent_id
-			left join master_tasklist_status d on d.id = a.status_id 
-			left join data_project e on e.id = a.project_id
-			".$whr."
-			order by a.id asc
+		$sql = "SELECT
+					a.id,
+					a.code,
+					a.name, 
+					a.contact_name,
+					a.contact_phone,
+					a.contact_email, 
+					c.description as status
+			FROM
+	   	 		".$this->table_name." a  
+			LEFT JOIN 
+				".$this->table_status." c ON a.id_status = c.id 
+	   		ORDER BY
+	   			".$this->primary_key." ASC
 		";
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
 	}
-
 
 }

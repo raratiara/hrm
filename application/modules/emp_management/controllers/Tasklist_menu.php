@@ -15,12 +15,12 @@ class Tasklist_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date","Solve Date"];
+	public $tabel_header 			= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date","Solve Date","Project"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date", "Solve Date"];
-	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date","solve_date"];
+	public $colnames 				= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date", "Solve Date","Project"];
+	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date","solve_date","project_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -47,6 +47,9 @@ class Tasklist_menu extends MY_Controller
 		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
+
+		$msproject 				= $this->db->query("select * from data_project")->result(); 
+		$field['selproject'] 	= $this->self_model->return_build_select2me($msproject,'','','','project','project','','','id','title',' ','','','',3,'-');
 
 
 
