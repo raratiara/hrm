@@ -13,7 +13,7 @@
 
 			load_data();
 			monthlyAttSumm();
-			dailyTasklist();
+			//dailyTasklist();
 
 		});
 	});
@@ -534,7 +534,52 @@
 	};*/
 
 
-	function dailyTasklist() {
+	function dailyTasklist(){
+		$.ajax({
+		    type: "POST",
+		    url: module_path + '/get_data_dailyTasklist',
+		    dataType: "JSON",
+		    success: function (data) {
+		        const ctx = document.getElementById('daily_tasklist').getContext('2d');
+		        var chartExist = Chart.getChart("daily_tasklist");
+		        if (chartExist != undefined) chartExist.destroy();
+
+		        new Chart(ctx, {
+		            type: 'bar',
+		            data: {
+		                labels: data.dates,
+		                datasets: data.datasets
+		            },
+		            options: {
+		                responsive: true,
+		                maintainAspectRatio: false,
+		                plugins: {
+		                    legend: {
+		                        position: 'bottom',
+		                        labels: {
+		                            font: { size: 8 }
+		                        }
+		                    },
+		                    datalabels: {
+		                        formatter: function(value) {
+		                            return value > 0 ? value : '';
+		                        },
+		                        font: {
+		                            size: 9
+		                        },
+		                        color: '#fff'
+		                    }
+		                }
+		            },
+		            plugins: [ChartDataLabels]
+		        });
+		    }
+		});
+
+	}
+
+
+	function dailyTasklist_x() {
 
 		var fldiv = $("#fldiv option:selected").val();
 
