@@ -278,6 +278,10 @@ class Tasklist_menu_model extends MY_Model
 
 		$due_date 		= trim($post['due_date'] ?? '');
 		$f_due_date 	= date("Y-m-d", strtotime($due_date));
+		if($f_due_date == '1970-01-01'){
+			$f_due_date='';
+		}
+
 		
   		if(!empty($post['task'])){ 
   			$solve_date="";
@@ -321,7 +325,9 @@ class Tasklist_menu_model extends MY_Model
 
 		$due_date 		= trim($post['due_date'] ?? '');
 		$f_due_date 	= date("Y-m-d", strtotime($due_date));
-
+		if($f_due_date == '1970-01-01'){
+			$f_due_date='';
+		}
 
 		if(!empty($post['id'])){ 
 			$solve_date="";

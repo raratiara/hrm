@@ -198,6 +198,9 @@ class Profile_menu extends MY_Controller
  		$post = $this->input->post(null, true);
  		
 
+ 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
 		
 		$query = $this->db->query("
 	        select  
@@ -206,6 +209,7 @@ class Profile_menu extends MY_Controller
 	            ROUND(AVG(a.progress_percentage), 2) AS avg_progress
 	        FROM history_progress_tasklist a
 	        LEFT JOIN tasklist b ON b.id = a.tasklist_id
+	        where b.employee_id = '".$karyawan_id."'
 	        GROUP BY DATE(a.submit_at), b.task
 	        ORDER BY submit_date ASC
 	    ");
@@ -228,7 +232,7 @@ class Profile_menu extends MY_Controller
 	    }
 
 	    // Buat dataset per task
-	    $datasets = [];
+	    /*$datasets = [];
 	    foreach ($tasks as $task) {
 	        $progressList = [];
 	        foreach ($dates as $date) {
@@ -241,9 +245,44 @@ class Profile_menu extends MY_Controller
 	            'type' => 'bar',
 	            'borderWidth' => 1,
 	            'borderRadius' => 4,
-	            'backgroundColor' => $this->randomColor($task) // fungsi tambahan
+	            'backgroundColor' => $this->randomColor($task) 
 	        ];
-	    }
+	    }*/
+
+	    $datasets = [];
+		foreach ($tasks as $task) {
+		    $progressList = [];
+		    $reached100 = false;
+
+		    foreach ($dates as $date) {
+		        if (isset($dataMap[$task][$date])) {
+		            $progress = floatval($dataMap[$task][$date]);
+		            $progressList[] = $progress;
+
+		            // Tandai jika sudah pernah mencapai 100
+		            if ($progress >= 100) {
+		                $reached100 = true;
+		            }
+		        } else {
+		            // Kalau tidak ada data dan sudah pernah 100, kosongkan
+		            if ($reached100) {
+		                $progressList[] = null; // null agar tidak tampil
+		            } else {
+		                $progressList[] = 0;
+		            }
+		        }
+		    }
+
+		    $datasets[] = [
+		        'label' => $task,
+		        'data' => $progressList,
+		        'type' => 'bar',
+		        'borderWidth' => 1,
+		        'borderRadius' => 4,
+		        'backgroundColor' => $this->randomColor($task)
+		    ];
+		}
+
 
 
 
