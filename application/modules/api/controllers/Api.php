@@ -1118,7 +1118,8 @@ class Api extends API_Controller
     	$reason		= $_POST['reason'];
     	$method_type	= $_POST['method_type']; //insert or update
     	$id 		= $_POST['id'];
-    	$photo 		= $_FILES['photo'];
+    	/*$photo 		= $_FILES['photo'];*/
+    	$photo 		= isset($_FILES['photo']) ? $_FILES['photo'] : null;
 
     	//$method_type = 'update';
 

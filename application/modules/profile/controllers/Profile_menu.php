@@ -182,40 +182,76 @@ class Profile_menu extends MY_Controller
 
  	}
 
+ 	public function randomColor($taskName)
+	{
+	    /*$colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+	    return $colors[array_rand($colors)];*/
+
+	     // Contoh warna acak tapi tetap (berdasarkan hash nama task)
+	    $colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#00aaff', '#aaff00'];
+	    $index = crc32($taskName) % count($colors);
+	    return $colors[$index];
+	}
+
 
  	public function get_data_dailyTasklist(){
  		$post = $this->input->post(null, true);
  		
 
 		
-		$rs = $this->db->query("select
-				    a.division_id, b.name as division_name,
-				    SUM(CASE WHEN a.gender = 'M' THEN 1 ELSE 0 END) AS total_laki_laki,
-				    SUM(CASE WHEN a.gender = 'F' THEN 1 ELSE 0 END) AS total_perempuan,
-				    COUNT(*) AS total_karyawan
-				FROM
-				    employees a
-				    left join divisions b on b.id = a.division_id
-				where a.status_id = 1 and a.division_id != 0 
-				GROUP BY
-				    a.division_id ")->result(); 
+		$query = $this->db->query("
+	        select  
+	            DATE(a.submit_at) AS submit_date,
+	            b.task,
+	            ROUND(AVG(a.progress_percentage), 2) AS avg_progress
+	        FROM history_progress_tasklist a
+	        LEFT JOIN tasklist b ON b.id = a.tasklist_id
+	        GROUP BY DATE(a.submit_at), b.task
+	        ORDER BY submit_date ASC
+	    ");
 
-		$divisions=[]; $total_male=[]; $total_female=[];
-		foreach($rs as $row){
-			$divisions[] 	= $row->division_name;
-			$total_male[] 	= $row->total_laki_laki;
-			$total_female[]	= $row->total_perempuan;
-		}
+	    $results = $query->result();
+
+	    $dates = [];
+	    $tasks = [];
+	    $dataMap = [];
+
+	    // Kumpulkan semua tanggal & task
+	    foreach ($results as $row) {
+	        if (!in_array($row->submit_date, $dates)) {
+	            $dates[] = $row->submit_date;
+	        }
+	        if (!in_array($row->task, $tasks)) {
+	            $tasks[] = $row->task;
+	        }
+	        $dataMap[$row->task][$row->submit_date] = $row->avg_progress;
+	    }
+
+	    // Buat dataset per task
+	    $datasets = [];
+	    foreach ($tasks as $task) {
+	        $progressList = [];
+	        foreach ($dates as $date) {
+	            $progressList[] = isset($dataMap[$task][$date]) ? floatval($dataMap[$task][$date]) : 0;
+	        }
+
+	        $datasets[] = [
+	            'label' => $task,
+	            'data' => $progressList,
+	            'type' => 'bar',
+	            'borderWidth' => 1,
+	            'borderRadius' => 4,
+	            'backgroundColor' => $this->randomColor($task) // fungsi tambahan
+	        ];
+	    }
 
 
-		$data = array(
-			'divisions' 	=> $divisions,
-			'total_male' 	=> $total_male,
-			'total_female' 	=> $total_female
-		);
 
+	    echo json_encode([
+	        'dates' => $dates,
+	        'datasets' => $datasets
+	    ]);
 
-		echo json_encode($data);
  	}
 
 

@@ -251,12 +251,12 @@
     </div>
 
 
-    <div class="chart-section2">
+   <!--  <div class="chart-section2">
 
         <div class="chart-box2">
             <strong>Daily Tasklist Statistics</strong>
             <canvas id="daily_tasklist" style="margin-top: 20px;"></canvas>
-            <!-- <canvas id="empby_div_gender" style="margin-top: 15px;"></canvas> -->
+            
         </div>
 
         <div class="right-section">
@@ -285,6 +285,6 @@
 
         </div>
 
-    </div>
+    </div> -->
 
 </div>

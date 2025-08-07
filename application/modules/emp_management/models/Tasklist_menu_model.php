@@ -273,9 +273,11 @@ class Tasklist_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		/*$due_date 		= date_create($post['due_date']); 
+		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");*/
 
+		$due_date 		= trim($post['due_date'] ?? '');
+		$f_due_date 	= date("Y-m-d", strtotime($due_date));
 		
   		if(!empty($post['task'])){ 
   			$solve_date="";
@@ -313,9 +315,12 @@ class Tasklist_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		/*$due_date 		= date_create($post['due_date']); 
+		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");*/
 		
+
+		$due_date 		= trim($post['due_date'] ?? '');
+		$f_due_date 	= date("Y-m-d", strtotime($due_date));
 
 
 		if(!empty($post['id'])){ 
