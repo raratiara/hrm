@@ -585,7 +585,7 @@
 
   .table-container {
     overflow-y: auto;
-    max-height: 220px;
+    max-height: 310px;
   }
 
   .title_tasklist {

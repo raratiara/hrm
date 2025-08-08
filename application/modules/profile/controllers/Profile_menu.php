@@ -182,16 +182,55 @@ class Profile_menu extends MY_Controller
 
  	}
 
- 	public function randomColor($taskName)
+ 	public function randomColor_old($taskName)
 	{
 	    /*$colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
 	    return $colors[array_rand($colors)];*/
 
 	     // Contoh warna acak tapi tetap (berdasarkan hash nama task)
-	    $colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#00aaff', '#aaff00'];
+	    /*$colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#00aaff', '#aaff00'];*/
+	    $colors = [
+		  '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+		  '#00aaff', '#aaff00', '#ff00ff', '#00ffaa', '#aa00ff', '#ff5500',
+		  '#0055ff', '#ffaa00', '#00ff55', '#ff0055', '#55ff00', '#ffcc00',
+		  '#0099ff', '#cc00ff', '#ff0099', '#99ff00', '#0033ff', '#ff3300'
+		];
+
 	    $index = crc32($taskName) % count($colors);
 	    return $colors[$index];
 	}
+
+
+	private $taskColorMap = [];
+
+	public function randomColor($taskName)
+	{
+	    $colors = [
+	        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+	        '#00aaff', '#aaff00', '#ff00ff', '#00ffaa', '#aa00ff', '#ff5500',
+	        '#0055ff', '#ffaa00', '#00ff55', '#ff0055', '#55ff00', '#ffcc00',
+	        '#0099ff', '#cc00ff', '#ff0099', '#99ff00', '#0033ff', '#ff3300'
+	    ];
+
+	    // Jika sudah pernah dikasih warna, pakai yang itu
+	    if (isset($this->taskColorMap[$taskName])) {
+	        return $this->taskColorMap[$taskName];
+	    }
+
+	    // Hitung jumlah yang sudah terpakai
+	    $usedCount = count($this->taskColorMap);
+
+	    // Kalau sudah lebih banyak task dari warna tersedia, pakai fallback
+	    if ($usedCount >= count($colors)) {
+	        $this->taskColorMap[$taskName] = '#cccccc'; // fallback abu
+	        return '#cccccc';
+	    }
+
+	    // Assign warna dari daftar sesuai urutan
+	    $this->taskColorMap[$taskName] = $colors[$usedCount];
+	    return $colors[$usedCount];
+	}
+
 
 
  	public function get_data_dailyTasklist(){
@@ -210,6 +249,11 @@ class Profile_menu extends MY_Controller
 	        FROM history_progress_tasklist a
 	        LEFT JOIN tasklist b ON b.id = a.tasklist_id
 	        where b.employee_id = '".$karyawan_id."'
+	        AND NOT EXISTS (
+			      SELECT 1
+			      FROM tasklist c
+			      WHERE c.parent_id = b.id
+			  )
 	        GROUP BY DATE(a.submit_at), b.task
 	        ORDER BY submit_date ASC
 	    ");
