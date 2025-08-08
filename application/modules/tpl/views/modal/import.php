@@ -5,7 +5,7 @@
 		<div class="modal-dialog vertical-align-center">
 			<div class="modal-content">
 				<form class="form-horizontal" id="frmImportData" enctype="multipart/form-data">
-					<div class="modal-header bg-blue bg-font-blue no-padding">
+					<div class="modal-header no-padding">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 						<div class="table-header">
 							Import <?php echo $smodul; ?>

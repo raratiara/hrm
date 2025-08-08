@@ -56,7 +56,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <form class="form-horizontal" id="frmInputData" enctype="multipart/form-data">
-                    <div class="modal-header bg-blue bg-font-blue no-padding">
+                    <div class="modal-header no-padding">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
                         <div class="table-header">
                             <span id="mfdata"></span> <!-- <?php echo $smodul; ?>  -->

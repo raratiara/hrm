@@ -27,3 +27,7 @@
 	font-size: 15px !important;
 }
 
+.modal-header {
+	background: #343851 !important;
+	color: #ffffff !important;
+}

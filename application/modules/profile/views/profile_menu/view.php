@@ -6,8 +6,13 @@
     table tbody td {
         font-size: 12px;
         border-bottom: 1px solid #e2e3e4ff;
+        background-color: #ffffff !important;
     }
 
+    table thead th {
+        font-size: 12px;
+        border-bottom: 1px solid #e2e3e4ff;
+    }
 </style>
 
 <div class="dashboard-container">
@@ -277,9 +282,9 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 40%; text-align: left;">Task</th>
-                                <th style="width: 25%; text-align: center;">Progress (%)</th>
-                                <th style="width: 35%;">Due Date</th>
+                                <th style="text-align: left;">Task</th>
+                                <th style="width: 100px; text-align: center;">Progress (%)</th>
+                                <th>Due Date</th>
                             </tr>
                         </thead>
                         <tbody id="tasklistBody">
