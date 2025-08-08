@@ -1,6 +1,3 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-
 <div class="dashboard-container">
 
     <!-- Profile Box -->
@@ -131,14 +128,15 @@
                     <div class="total"><span class="ttl_sisa_cuti"></span></div>
                 </div>
                 <div class="icon">
-                    <i class="fas fa-user"></i><i class="fas fa-arrow-down" style="font-size: 15px;"></i>
+                    <i class="menu-icon fa fa fa-user"></i><i class="fa fa fa-arrow-down" style="font-size: 15px;"></i>
+                    <!-- <i class="fas fa-user"></i><i class="fas fa-arrow-down" style="font-size: 15px;"></i> -->
                 </div>
 
             </div>
 
             <div class="summary-item yellow">
 
-                <div class="title" style="margin-top: 20px;">Tasklist</div>
+                <div class="title">Tasklist</div>
                 <div class="tasklist-line">
                     <div class="task-item">
                         <p class="ttl_tasklist_open"></p>

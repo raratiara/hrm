@@ -1,21 +1,24 @@
 /* Untuk semua item menu */
+
 .page-sidebar-menu li > a,
 .page-sidebar-menu li > a > span.title,
 .page-sidebar-menu li > a > i {
-	font-size: 12px !important;
+	font-size: 11px !important;
+	font-weight: 300 !important;
 }
 
 /* Untuk item aktif juga */
 .page-sidebar-menu > li.active > a,
 .page-sidebar-menu > li.active > a > span.title {
-	font-size: 12px !important;
+	font-size: 11px !important;
+	font-weight: 300 !important;
 }
 
+
 .page-sidebar-closed .page-sidebar .page-sidebar-menu > li > a > span.title {
-    display: none !important;
+	display: none !important;
 }
 
 .page-content {
-	background-color: #EAEDF5 !important;
+	background-color: #eaedf5 !important;
 }
-

@@ -14,13 +14,14 @@
             width: fit-content !important;
         }
 
+
     }
 
 
     @media (min-width: 320px) and (max-width: 400px) {
 
 
-         .modal-dialog {
+        .modal-dialog {
             width: 100% !important;
             margin-left: 310px !important;
         }
@@ -33,7 +34,12 @@
 
     }
 
-    
+    .modal-body {
+        overflow-y: auto !important;
+        max-height: 70vh !important;
+    }
+
+
 
     .modal-header {
         background-color: #343851 !important;
@@ -62,7 +68,7 @@
                         </div>
                     </div>
 
-                    <div class="modal-body" style="min-height:100px; margin:10px">
+                    <div class="modal-body">
                         <input type="hidden" name="id" value="">
                         <?php $this->load->view("_field"); ?>
                     </div>

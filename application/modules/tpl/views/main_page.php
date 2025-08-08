@@ -10,6 +10,7 @@
     <meta content="" name="author" />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet"
         type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/font-awesome/css/font-awesome.min.css"
         rel="stylesheet" type="text/css" />
     <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/simple-line-icons/simple-line-icons.min.css"
@@ -79,6 +80,7 @@
     <link rel="shortcut icon" href="favicon.ico" />
 
 
+
     <style type="text/css">
         /* Ubah warna background sidebar */
         /* .page-sidebar-wrapper {
@@ -87,6 +89,12 @@
         } */
 
         /* Warna teks menu sidebar */
+
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+
         .page-sidebar .page-sidebar-menu>li>a {
             color: #ffffff !important;
             /* Warna teks putih */
@@ -218,7 +226,7 @@
         .page-sidebar .page-sidebar-menu .sub-menu>li>a {
             background-color: transparent !important;
             color: #ffffff !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
             /* Warna teks submenu normal */
         }
 
@@ -227,7 +235,7 @@
             background-color: #D9D9D9 !important;
             /* Background kuning */
             color: #000000 !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
             /* Teks submenu saat hover */
         }
 
@@ -235,8 +243,10 @@
         .page-sidebar .page-sidebar-menu .sub-menu>li.active>a {
             background-color: #D9D9D9 !important;
             color: #000000 !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
         }
+
+
 
         .page-sidebar .page-sidebar-menu li.open>a {
             font-size: 12px !important;
@@ -244,7 +254,7 @@
         }
 
         .page-sidebar .page-sidebar-menu li.open .sub-menu>li>a {
-            font-size: 12px !important;
+            font-size: 11px !important;
 
         }
 

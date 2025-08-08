@@ -741,7 +741,7 @@ class Performance_appraisal_menu_model extends MY_Model
 
 			$tblsoftskill = '<div class="row">
 			    <div class="col-md-12">
-					<div class="portlet box grey">
+					<div class="portlet box">
 						<div class="portlet-title">
 							<div class="caption">Softskill </div>
 							<div class="tools">
@@ -898,7 +898,7 @@ class Performance_appraisal_menu_model extends MY_Model
 
 				$tblsoftskill = '<div class="row">
 				    <div class="col-md-12">
-						<div class="portlet box grey">
+						<div class="portlet box">
 							<div class="portlet-title">
 								<div class="caption">Softskill </div>
 								<div class="tools">
