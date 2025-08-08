@@ -2,7 +2,7 @@
     @media (max-width: 768px) {
 
         .modal-dialog {
-            width: 30% !important;
+            width: 100% !important;
             margin-left: 270px !important;
 
 
@@ -11,7 +11,7 @@
         .modal-content {
             max-height: 80vh;
             overflow-y: auto;
-            width: fit-content !important;
+            width: 90% !important;
         }
 
     }

@@ -14,7 +14,6 @@
 	font-weight: 300 !important;
 }
 
-
 .page-sidebar-closed .page-sidebar .page-sidebar-menu > li > a > span.title {
 	display: none !important;
 }
@@ -22,3 +21,9 @@
 .page-content {
 	background-color: #eaedf5 !important;
 }
+
+.portlet.box .portlet-title .caption,
+.portlet.box .portlet-title .caption i {
+	font-size: 15px !important;
+}
+

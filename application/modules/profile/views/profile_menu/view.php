@@ -1,3 +1,15 @@
+<style>
+    table tbody td:nth-child(2) {
+        text-align: center;
+    }
+
+    table tbody td {
+        font-size: 12px;
+        border-bottom: 1px solid #e2e3e4ff;
+    }
+
+</style>
+
 <div class="dashboard-container">
 
     <!-- Profile Box -->
@@ -122,7 +134,7 @@
 
     <div class="summary-section">
         <div class="summary-box">
-             <div class="summary-item highlight">
+            <div class="summary-item highlight">
                 <div>
                     <h4>Remaining Leave</h4>
                     <div class="total"><span class="ttl_sisa_cuti"></span></div>
@@ -198,8 +210,8 @@
 
 
 
-                
-            </div> 
+
+            </div>
         </div>
 
         <!--  <span class="dataBday"> -->
@@ -254,26 +266,25 @@
         <div class="chart-box2">
             <strong>Daily Tasklist Statistics</strong>
             <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
-            
+
         </div>
 
 
         <div class="right-section">
-             <div class="box-1 table-box">
+            <div class="box-1 table-box">
                 <div class="title_tasklist">Tasklist Progress</div>
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 40%;">Task</th>
-                                <th style="width: 25%;">Progress (%)</th>
+                                <th style="width: 40%; text-align: left;">Task</th>
+                                <th style="width: 25%; text-align: center;">Progress (%)</th>
                             </tr>
                         </thead>
                         <tbody id="tasklistBody">
                             <!-- Data will be injected here by JS -->
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>

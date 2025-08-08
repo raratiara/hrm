@@ -2,10 +2,12 @@
 <div class="row">
     <div class="col-md-12">
         <!-- BEGIN TABLE PORTLET-->
-        <div class="portlet box blue">
+        <div class="portlet box">
             <div class="portlet-title">
                 <div class="caption">
-                    <?php if (isset($icon) && $icon <> "") echo '<i class="fa ' . $icon . '"></i>'; ?><?php if (isset($title) && $title <> "") echo $title; ?>
+                    <?php if (isset($icon) && $icon <> "")
+                        echo '<i class="fa ' . $icon . '"></i>'; ?><?php if (isset($title) && $title <> "")
+                                  echo $title; ?>
                 </div>
                 <div class="actions">
                     <?php if (defined('_REPORT') && _REPORT == "1") { ?>
@@ -78,9 +80,10 @@
                         </div>
                     </div> -->
                 </form>
-                
+
                 <form name="frmListData" id="frmListData">
-                    <table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed" style="width:100%">
+                    <table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed"
+                        style="width:100%">
                         <thead>
                             <tr>
                                 <?php if (_USER_ACCESS_LEVEL_DELETE == "1") { ?>

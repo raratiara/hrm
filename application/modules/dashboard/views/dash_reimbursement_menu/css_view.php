@@ -62,41 +62,40 @@
     font-size: 12px;
   }*/
 
-  .summary-card.beige {
-    width: 100px;
-    
-  }
 
-   .summary-item.yellow {
-    background-color: #D9F103; /*#FED24B;*/
+  .summary-item.yellow {
+    background-color: #D9F103;
+    /*#FED24B;*/
     align-items: center !important;
     color: #38406F;
-    
+
   }
 
-   .tasklist-line {
+  .summary-card.beige {
+    flex: 1.3 !important;
+  }
+
+  .tasklist-line {
     /*display: flex;
     justify-content: space-around;*/
-
     display: flex;
-    gap: 20px; /* spasi antar grade */
-    margin-top: 10px;
-    flex-wrap: wrap; /* jika sempit, bisa turun ke bawah */
+    gap: 10px;
+    /* spasi antar grade */
   }
 
   .task-item {
     text-align: center;
-    min-width: 60px; /* opsional, untuk menjaga lebar */
+    /* opsional, untuk menjaga lebar */
   }
 
   .task-item p:first-child {
-    font-size: 15px;
+    font-size: 11px;
     font-weight: bold;
     margin-bottom: 2px;
   }
 
   .task-item p:last-child {
-    font-size: 12px;
+    font-size: 11px;
     margin: 0;
   }
 
@@ -351,7 +350,7 @@
 
   .top-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
     color: #38406F;
     margin-top: 10px;
@@ -441,14 +440,10 @@
 
   .summary-container {
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
   }
 
-  .summary-card.beige {
-    flex: 1 1 100%; /* atau misalnya 300px */
-    max-width: 400px; /* atur sesuai kebutuhan */
-  }
 
   .chart-container {
     display: flex;
@@ -476,11 +471,10 @@
     align-items: center;
     border-radius: 12px !important;
     padding: 20px;
-    min-width: 220px;
     justify-content: space-between;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    width: 100% ! important;
     flex: 1;
-    max-width: 280px;
   }
 
   .card-content {
@@ -580,7 +574,9 @@
 
   /* Color variants */
   .navy {
-    background-color: #081F5C; /*#FFB2F7;*/ /*#38406F;*/
+    background-color: #081F5C;
+    /*#FFB2F7;*/
+    /*#38406F;*/
     color: white;
   }
 
@@ -591,11 +587,15 @@
   }
 
   .yellow {
-    background-color: #D0E3FF;/*#E3FC87;*/ /*#FED24B;*/
+    background-color: #D0E3FF;
+    /*#E3FC87;*/
+    /*#FED24B;*/
   }
 
   .beige {
-    background-color: #F7F2EB;/*#C0E0FF;*/ /*#F8F1E1;*/
+    background-color: #F7F2EB;
+    /*#C0E0FF;*/
+    /*#F8F1E1;*/
   }
 
   .white {
@@ -678,5 +678,26 @@
     display: flex;
     gap: 4px;
     align-items: center;
+  }
+
+  @media screen and (max-width: 768px) {
+    .summary-container {
+      gap: 10px !important;
+      flex-direction: column !important;
+    }
+
+    .summary-card .beige {
+      width: 100% !important;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .employee-container {
+      display: flex;
+      flex-direction: column;
+    }
   }
 </style>

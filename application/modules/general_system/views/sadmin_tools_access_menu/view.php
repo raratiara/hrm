@@ -24,6 +24,36 @@
 		border-color: #979797ff !important;
 		color: #000 !important;
 	}
+
+	.pagination>li.active>a {
+		background-color: #343851 !important;
+		border-color: #343851 !important;
+		color: #fff !important;
+	}
+
+	.pagination>li>a,
+	.pagination>li>span {
+		color: #343851 !important;
+	}
+
+	.modal-header {
+		background-color: #343851 !important;
+		color: #fff !important;
+	}
+
+	@media screen and (max-width: 768px) {
+
+		.pagination>li>a,
+		.pagination>li>span {
+			font-size: 10px !important;
+			padding: 3px 6px !important;
+		}
+
+		.pagination {
+			margin: 5px 0 !important;
+		}
+
+	}
 </style>
 
 <h3 class="page-title"></h3>
@@ -59,7 +89,8 @@
 				</div>
 			</div>
 			<div class="portlet-body">
-				<form action="<?php echo base_url($sfolder . '/truncate'); ?>" method="post" name="frmData" id="frmData">
+				<form action="<?php echo base_url($sfolder . '/truncate'); ?>" method="post" name="frmData"
+					id="frmData">
 					<table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed"
 						style="width:100%">
 						<thead>
@@ -84,7 +115,7 @@
 <div id="modal-table" class="modal fade" tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
+			<div class="modal-header no-padding">
 				<div class="table-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
 						<span class="white">&times;</span>
@@ -98,7 +129,7 @@
 			</div>
 
 			<div class="modal-footer no-margin-top">
-				<button class="btn btn-sm btn-danger pull-left" data-dismiss="modal">
+				<button class="btn btn-sm btn-danger pull-left" style="background-color: #A01818; color: white; border-radius: 2px !important" data-dismiss="modal">
 					<i class="fa fa-times"></i>
 					Close
 				</button>
@@ -115,7 +146,7 @@
 		<div class="modal-content">
 			<form class="form-horizontal" method="POST" id="frmImportData" enctype="multipart/form-data"
 				action="<?php echo base_url($sfolder . '/import_action'); ?>">
-				<div class="modal-header bg-blue bg-font-blue no-padding">
+				<div class="modal-header no-padding">
 					<div class="table-header " id="title_materi_paket_sesi">
 						Import <?php echo $smodul; ?>
 					</div>
@@ -127,11 +158,11 @@
 				</div>
 
 				<div class="modal-footer no-margin-top">
-					<button class="btn btn-sm blue pull-left" data-dismiss="modal">
+					<button class="btn btn-sm pull-left" style="background-color: #A01818; color: white; border-radius: 2px !important" data-dismiss="modal">
 						<i class="fa fa-times"></i>
 						Tutup
 					</button>
-					<button class="btn btn-sm blue pull-right" id="submit-import-data">
+					<button class="btn btn-sm  pull-right" style="background-color: #343851; color: white; border-radius: 2px !important" id="submit-import-data">
 						<i class="fa fa-times"></i>
 						Import
 					</button>
@@ -145,18 +176,18 @@
 		<div class="modal-content">
 			<form class="form-horizontal" method="POST" id="frmEksportData" enctype="multipart/form-data"
 				action="<?php echo base_url($sfolder . '/eksport_action'); ?>">
-				<div class="modal-header bg-blue bg-font-blue no-padding">
+				<div class="modal-header no-padding">
 					<div class="table-header " id="title_materi_paket_sesi">
 						Eksport <?php echo $smodul; ?>
 					</div>
 				</div>
 
 				<div class="modal-footer no-margin-top">
-					<button class="btn btn-sm blue pull-left" data-dismiss="modal">
+					<button class="btn btn-sm pull-left" style="background-color: #A01818; color:white; border-radius:2px !important" data-dismiss="modal">
 						<i class="fa fa-times"></i>
 						Tutup
 					</button>
-					<button class="btn btn-sm blue pull-right" id="submit-eksport-data">
+					<button class="btn btn-sm pull-right" style="background-color: #343851; color:white; border-radius:2px !important" id="submit-eksport-data">
 						<i class="fa fa-times"></i>
 						Eksport
 					</button>

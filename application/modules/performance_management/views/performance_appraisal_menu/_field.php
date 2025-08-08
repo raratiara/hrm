@@ -39,6 +39,30 @@
 	.year-input-wrapper .year-input::placeholder {
 		color: #2d3667;
 	}
+
+	#tblDetailHardskill input,
+	#tblDetailHardskill textarea,
+	#tabsoftskill input,
+	#tabsoftskill textarea {
+		width: 100%;
+		/* isi penuh kolom */
+		height: 38px;
+		/* tinggi seragam */
+		box-sizing: border-box;
+		padding: 5px 8px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+
+	/* Matikan resize textarea */
+	#tblDetailHardskill textarea,
+	#tabsoftskill textarea {
+		resize: none;
+	}
+
+
+
+	
 </style>
 
 <div class="row">

@@ -1,3 +1,4 @@
+
 					<!-- Modal Delete Data -->
 					<div id="modal-delete-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-delete-data" aria-hidden="true">
 						<div class="vertical-alignment-helper">
@@ -19,11 +20,11 @@
 
 								<div class="modal-footer no-margin-top">
 									<center>
-									<button class="btn blue" id="submit-delete-data" onclick="save()">
+									<button class="btn" style="background-color:#343851; color:white" id="submit-delete-data" onclick="save()">
 										<i class="fa fa-check"></i>
 										Ok
 									</button>
-									<button class="btn blue" data-dismiss="modal">
+									<button class="btn" style="background-color:#A01818; color:white" data-dismiss="modal">
 										<i class="fa fa-times"></i>
 										Cancel
 									</button>

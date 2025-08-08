@@ -3,7 +3,7 @@
 
         .modal-dialog {
             width: 100% !important;
-            margin-left: 110px !important;
+            margin-left: 65px !important;
 
 
         }
@@ -11,7 +11,7 @@
         .modal-content {
             max-height: 80vh;
             overflow-y: auto;
-            width: fit-content !important;
+            width: 90% !important;
         }
 
     }
