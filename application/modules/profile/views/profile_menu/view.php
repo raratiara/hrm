@@ -61,7 +61,7 @@
                 <!-- Kolom 1 -->
                 <div class="column">
 
-                    <div><strong>NIKK</strong><span class="nik"></span></div>
+                    <div><strong>NIK</strong><span class="nik"></span></div>
                     <div><strong>Date of Birth</strong><span class="date_of_birth"><span></div>
                     <div><strong>Gender</strong><span class="gender"></span></div>
                     <div><strong>Address</strong><span class="address"></span></div>
@@ -273,12 +273,13 @@
         <div class="right-section">
             <div class="box-1 table-box">
                 <div class="title_tasklist">Tasklist Progress</div>
-                <div class="table-container">
+                <div class="table-container" style="margin-top: 10px;">
                     <table>
                         <thead>
                             <tr>
                                 <th style="width: 40%; text-align: left;">Task</th>
                                 <th style="width: 25%; text-align: center;">Progress (%)</th>
+                                <th style="width: 35%;">Due Date</th>
                             </tr>
                         </thead>
                         <tbody id="tasklistBody">
