@@ -369,8 +369,12 @@ class Profile_menu_model extends MY_Model
 					((show_date_end is not null) and (show_date_start is null) and ('".$datenow."' <= show_date_end))
 					")->result(); 
 
-		$data_tasklist = $this->db->query("select * from tasklist where employee_id = '".$id."'
-					")->result(); 
+		$data_tasklist = $this->db->query("select * from tasklist t1 where employee_id = '".$id."' AND NOT EXISTS (
+						      SELECT 1
+						      FROM tasklist t2
+						      WHERE t2.parent_id = t1.id
+						  )
+						")->result(); 
 
 
 		/// SISA PLAFON REIMBURS
