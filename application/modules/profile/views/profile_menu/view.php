@@ -267,8 +267,9 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 40%;">Task</th>
-                                <th style="width: 25%;">Progress (%)</th>
+                                <th style="width: 40%; font-size:12px">Task</th>
+                                <th style="width: 25%; font-size:12px">Progress (%)</th>
+                                <th style="width: 35%; font-size:12px">Due Date</th>
                             </tr>
                         </thead>
                         <tbody id="tasklistBody">
