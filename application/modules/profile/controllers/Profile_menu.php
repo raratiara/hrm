@@ -182,6 +182,117 @@ class Profile_menu extends MY_Controller
 
  	}
 
+ 	public function randomColor($taskName)
+	{
+	    /*$colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+	    return $colors[array_rand($colors)];*/
+
+	     // Contoh warna acak tapi tetap (berdasarkan hash nama task)
+	    $colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#00aaff', '#aaff00'];
+	    $index = crc32($taskName) % count($colors);
+	    return $colors[$index];
+	}
+
+
+ 	public function get_data_dailyTasklist(){
+ 		$post = $this->input->post(null, true);
+ 		
+
+ 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+		
+		$query = $this->db->query("
+	        select  
+	            DATE(a.submit_at) AS submit_date,
+	            b.task,
+	            ROUND(AVG(a.progress_percentage), 2) AS avg_progress
+	        FROM history_progress_tasklist a
+	        LEFT JOIN tasklist b ON b.id = a.tasklist_id
+	        where b.employee_id = '".$karyawan_id."'
+	        GROUP BY DATE(a.submit_at), b.task
+	        ORDER BY submit_date ASC
+	    ");
+
+	    $results = $query->result();
+
+	    $dates = [];
+	    $tasks = [];
+	    $dataMap = [];
+
+	    // Kumpulkan semua tanggal & task
+	    foreach ($results as $row) {
+	        if (!in_array($row->submit_date, $dates)) {
+	            $dates[] = $row->submit_date;
+	        }
+	        if (!in_array($row->task, $tasks)) {
+	            $tasks[] = $row->task;
+	        }
+	        $dataMap[$row->task][$row->submit_date] = $row->avg_progress;
+	    }
+
+	    // Buat dataset per task
+	    /*$datasets = [];
+	    foreach ($tasks as $task) {
+	        $progressList = [];
+	        foreach ($dates as $date) {
+	            $progressList[] = isset($dataMap[$task][$date]) ? floatval($dataMap[$task][$date]) : 0;
+	        }
+
+	        $datasets[] = [
+	            'label' => $task,
+	            'data' => $progressList,
+	            'type' => 'bar',
+	            'borderWidth' => 1,
+	            'borderRadius' => 4,
+	            'backgroundColor' => $this->randomColor($task) 
+	        ];
+	    }*/
+
+	    $datasets = [];
+		foreach ($tasks as $task) {
+		    $progressList = [];
+		    $reached100 = false;
+
+		    foreach ($dates as $date) {
+		        if (isset($dataMap[$task][$date])) {
+		            $progress = floatval($dataMap[$task][$date]);
+		            $progressList[] = $progress;
+
+		            // Tandai jika sudah pernah mencapai 100
+		            if ($progress >= 100) {
+		                $reached100 = true;
+		            }
+		        } else {
+		            // Kalau tidak ada data dan sudah pernah 100, kosongkan
+		            if ($reached100) {
+		                $progressList[] = null; // null agar tidak tampil
+		            } else {
+		                $progressList[] = 0;
+		            }
+		        }
+		    }
+
+		    $datasets[] = [
+		        'label' => $task,
+		        'data' => $progressList,
+		        'type' => 'bar',
+		        'borderWidth' => 1,
+		        'borderRadius' => 4,
+		        'backgroundColor' => $this->randomColor($task)
+		    ];
+		}
+
+
+
+
+	    echo json_encode([
+	        'dates' => $dates,
+	        'datasets' => $datasets
+	    ]);
+
+ 	}
+
 
 
 }

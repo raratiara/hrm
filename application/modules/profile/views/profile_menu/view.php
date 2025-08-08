@@ -49,7 +49,7 @@
                 <!-- Kolom 1 -->
                 <div class="column">
 
-                    <div><strong>NIK</strong><span class="nik"></span></div>
+                    <div><strong>NIKK</strong><span class="nik"></span></div>
                     <div><strong>Date of Birth</strong><span class="date_of_birth"><span></div>
                     <div><strong>Gender</strong><span class="gender"></span></div>
                     <div><strong>Address</strong><span class="address"></span></div>
@@ -247,5 +247,42 @@
         </div>
 
     </div>
+
+
+    <div class="chart-section2">
+
+        <div class="chart-box2">
+            <strong>Daily Tasklist Statistics</strong>
+            <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
+            
+        </div>
+
+
+        <div class="right-section">
+             <div class="box-1 table-box">
+                <div class="title_tasklist">Tasklist Progress</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;">Task</th>
+                                <th style="width: 25%;">Progress (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasklistBody">
+                            <!-- Data will be injected here by JS -->
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
 
 </div>

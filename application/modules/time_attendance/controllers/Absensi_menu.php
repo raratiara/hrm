@@ -30,6 +30,7 @@ class Absensi_menu extends MY_Controller
 		$period = date("Y-m");
 		$tgl = date("d");
 		$date_attendance = $dateNow;
+		$dateTomorrow='';
 
 
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 

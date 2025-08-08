@@ -13,6 +13,7 @@
 
 			load_data();
 			monthlyAttSumm();
+			dailyTasklist();
 
 		});
 	});
@@ -185,6 +186,22 @@
 								container.appendChild(div);
 							});
 						}
+
+
+						//data tasklist progress
+						const tbody = document.getElementById("tasklistBody");
+						tbody.innerHTML = ""; // Ini akan menghapus semua baris sebelumnya
+
+						data.taskList.forEach(taskrow => {
+							const row = document.createElement("tr");
+
+							row.innerHTML = `
+											<td>${taskrow.task}</td>
+											<td>${taskrow.progress_percentage}</td>
+										  `;
+
+							tbody.appendChild(row);
+						});
 						
 
 					} else {
@@ -531,4 +548,182 @@
 
 		displayBirthday(currentIndex);
 	};*/
+
+
+	function removeRepeated100(dataArray) {
+	    let found100 = false;
+	    return dataArray.map(value => {
+	        if (value === 100 && !found100) {
+	            found100 = true;
+	            return 100;
+	        } else if (found100) {
+	            return null; // kosongkan setelah sudah pernah 100
+	        } else {
+	            return value;
+	        }
+	    });
+	}
+
+
+
+	// Fungsi untuk mengisi nilai kosong dengan nilai terakhir
+	function fillMissingWithLastValue(dataArray) {
+	    let lastValue = null;
+	    return dataArray.map(value => {
+	        if (value != null && value !== 0) {
+	            lastValue = value;
+	            return value;
+	        } else {
+	            return lastValue !== null ? lastValue : 0;
+	        }
+	    });
+	}
+
+
+
+	function dailyTasklist() {
+	    $.ajax({
+	        type: "POST",
+	        url: module_path + '/get_data_dailyTasklist',
+	        dataType: "JSON",
+	        success: function (data) {
+	            const ctx = document.getElementById('daily_tasklist').getContext('2d');
+	            const chartExist = Chart.getChart("daily_tasklist");
+	            if (chartExist !== undefined) chartExist.destroy();
+
+	            const updatedDatasets = data.datasets.map(ds => ({
+	                ...ds,
+	                /*data: fillMissingWithLastValue(ds.data),*/ // <--- isi otomatis nilai kosong
+	                data: removeRepeated100(fillMissingWithLastValue(ds.data)),
+	                type: 'line',
+	                fill: false,
+	                borderColor: ds.backgroundColor, // ambil dari controller
+	                backgroundColor: ds.backgroundColor, // opsional, untuk titik
+	                tension: 0.3,
+	                pointRadius: 3,
+	                pointHoverRadius: 5,
+	                borderWidth: 2 //tambahkan ketebalan garis di sini
+
+	            }));
+
+	            new Chart(ctx, {
+	                type: 'line',
+	                data: {
+	                    labels: data.dates,
+	                    datasets: updatedDatasets
+	                },
+	                options: {
+	                    responsive: true,
+	                    maintainAspectRatio: false,
+	                    scales: {
+	                        y: {
+	                            min: 0,
+	                            max: 100,
+	                            ticks: {
+	                                stepSize: 10
+	                            },
+	                            title: {
+	                                display: true,
+	                                text: 'Progress (%)'
+	                            }
+	                        },
+	                        x: {
+	                            title: {
+	                                display: true,
+	                                text: ''
+	                            }
+	                        }
+	                    },
+	                    plugins: {
+	                        legend: {
+	                            position: 'bottom',
+	                            labels: {
+	                                font: { size: 8 }
+	                            }
+	                        },
+	                        datalabels: {
+	                            formatter: function(value) {
+	                                return value > 0 ? value : '';
+	                            },
+	                            font: {
+	                                size: 9
+	                            },
+	                            color: '#000'
+	                        }
+	                    }
+	                },
+	                plugins: [ChartDataLabels]
+	            });
+	        }
+	    });
+	}
+
+
+	function dailyTasklist_witarea() {
+	    $.ajax({
+	        type: "POST",
+	        url: module_path + '/get_data_dailyTasklist',
+	        dataType: "JSON",
+	        success: function (data) {
+	            const ctx = document.getElementById('daily_tasklist').getContext('2d');
+	            const chartExist = Chart.getChart("daily_tasklist");
+	            if (chartExist !== undefined) chartExist.destroy();
+
+	            const updatedDatasets = data.datasets.map(ds => {
+	                // Ubah hex color ke rgba dengan transparansi
+	                const hex = ds.backgroundColor.replace('#', '');
+	                const r = parseInt(hex.substring(0, 2), 16);
+	                const g = parseInt(hex.substring(2, 4), 16);
+	                const b = parseInt(hex.substring(4, 6), 16);
+	                const transparentBg = `rgba(${r}, ${g}, ${b}, 0.2)`; // transparan 20%
+
+	                return {
+	                    ...ds,
+	                    type: 'line',
+	                    fill: true, // ✅ Aktifkan area chart
+	                    borderColor: ds.backgroundColor,
+	                    backgroundColor: transparentBg, // ✅ Area transparan
+	                    tension: 0.3,
+	                    pointRadius: 3,
+	                    pointHoverRadius: 5,
+	                    borderWidth: 2
+	                };
+	            });
+
+	            new Chart(ctx, {
+	                type: 'line',
+	                data: {
+	                    labels: data.dates,
+	                    datasets: updatedDatasets
+	                },
+	                options: {
+	                    responsive: true,
+	                    maintainAspectRatio: false,
+	                    plugins: {
+	                        legend: {
+	                            position: 'bottom',
+	                            labels: {
+	                                font: { size: 8 }
+	                            }
+	                        },
+	                        datalabels: {
+	                            formatter: function(value) {
+	                                return value > 0 ? value : '';
+	                            },
+	                            font: {
+	                                size: 9
+	                            },
+	                            color: '#000'
+	                        }
+	                    }
+	                },
+	                plugins: [ChartDataLabels]
+	            });
+	        }
+	    });
+	}
+
+
+
+
 </script>

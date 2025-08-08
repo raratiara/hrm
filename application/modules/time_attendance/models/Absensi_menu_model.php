@@ -392,38 +392,38 @@ class Absensi_menu_model extends MY_Model
 			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
 		}*/
 
+		
+		if($post['date_attendance'] == ''){
+			echo 'Date Attendance is not valid'; die();
+		}else{
+			$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$post['date_attendance']."' and employee_id = '".$post['hdnempid']."'")->result(); 
 
+	  		if(empty($data_attendances)){ 
+	  			$data = [
+					//'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
+					// 'employee_id' 			=> trim($post['employee']),
+					'date_attendance' 			=> $post['date_attendance'],
+					'employee_id' 				=> trim($post['hdnempid']),
+					'attendance_type' 			=> trim($post['emp_type']),
+					'time_in' 					=> trim($post['time_in']),
+					'time_out' 					=> trim($post['time_out']),
+					'date_attendance_in' 		=> $f_datetime_in,
+					//'date_attendance_out'		=> $f_datetime_out,
+					'is_late'					=> $is_late,
+					//'is_leaving_office_early'	=> $is_leaving_office_early,
+					//'num_of_working_hours'		=> $num_of_working_hours,
+					'created_at'				=> date("Y-m-d H:i:s"),
+					'notes' 					=> trim($post['description']),
+					'work_location' 			=> trim($post['location'])
+				];
+				$rs = $this->db->insert($this->table_name, $data);
 
+				return $rs;
 
-		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '" . $post['date_attendance'] . "' and employee_id = '" . $post['hdnempid'] . "'")->result();
-
-		if (empty($data_attendances)) {
-			$data = [
-				//'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
-				// 'employee_id' 			=> trim($post['employee']),
-				'date_attendance' => $post['date_attendance'],
-				'employee_id' => trim($post['hdnempid']),
-				'attendance_type' => trim($post['emp_type']),
-				'time_in' => trim($post['time_in']),
-				'time_out' => trim($post['time_out']),
-				'date_attendance_in' => $f_datetime_in,
-				//'date_attendance_out'		=> $f_datetime_out,
-				'is_late' => $is_late,
-				//'is_leaving_office_early'	=> $is_leaving_office_early,
-				//'num_of_working_hours'		=> $num_of_working_hours,
-				'created_at' => date("Y-m-d H:i:s"),
-				'notes' => trim($post['description']),
-				'work_location' => trim($post['location'])
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-
-			return $rs;
-
-		} else
-			return null;
-
-
-	}
+	  		}else return null;
+		}
+		
+	}  
 
 	public function edit_data($post)
 	{

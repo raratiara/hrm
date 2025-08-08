@@ -26,7 +26,8 @@ class Tasklist_menu_model extends MY_Model
 			'dt.status_name',
 			'dt.progress_percentage',
 			'dt.due_date',
-			'dt.solve_date'
+			'dt.solve_date',
+			'dt.project_name'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -38,10 +39,11 @@ class Tasklist_menu_model extends MY_Model
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
+		$sTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
 					from tasklist a left join employees b on b.id = a.employee_id
 					left join tasklist c on c.id = a.parent_id
 					left join master_tasklist_status d on d.id = a.status_id
+					left join data_project e on e.id = a.project_id
 					'.$whr.'
 				)dt';
 		
@@ -214,7 +216,8 @@ class Tasklist_menu_model extends MY_Model
 				$row->status_name,
 				$row->progress_percentage,
 				$row->due_date,
-				$solve_date
+				$solve_date,
+				$row->project_name
 
 
 			));
@@ -270,8 +273,14 @@ class Tasklist_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		/*$due_date 		= date_create($post['due_date']); 
+		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");*/
+
+		$due_date 		= trim($post['due_date'] ?? '');
+		$f_due_date 	= date("Y-m-d", strtotime($due_date));
+		if($f_due_date == '1970-01-01'){
+			$f_due_date='';
+		}
 
 		
   		if(!empty($post['task'])){ 
@@ -288,18 +297,37 @@ class Tasklist_menu_model extends MY_Model
 				'due_date' 				=> $f_due_date,
 				'status_id' 			=> trim($post['status'] ?? ''),
 				'created_at'			=> date("Y-m-d H:i:s"),
-				'solve_date' 			=> $solve_date
+				'solve_date' 			=> $solve_date,
+				'project_id' 			=> trim($post['project'] ?? '')
 			];
-			return $rs = $this->db->insert($this->table_name, $data);
+			$rs = $this->db->insert($this->table_name, $data);
+			$lastId = $this->db->insert_id();
+			if($rs){
+				$data2 = [
+					'tasklist_id' 			=> $lastId,
+					'progress_percentage'	=> trim($post['progress'] ?? ''),
+					'submit_at'				=> date("Y-m-d H:i:s")
+				];
+				$this->db->insert("history_progress_tasklist", $data2);
+
+
+				return $rs;
+			}else return null;
+
   		}else return null;
 
 	}  
 
 	public function edit_data($post) { 
-		$due_date 		= date_create($post['due_date']); 
-		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");
+		/*$due_date 		= date_create($post['due_date']); 
+		$f_due_date 	= date_format($due_date,"Y-m-d H:i:s");*/
 		
 
+		$due_date 		= trim($post['due_date'] ?? '');
+		$f_due_date 	= date("Y-m-d", strtotime($due_date));
+		if($f_due_date == '1970-01-01'){
+			$f_due_date='';
+		}
 
 		if(!empty($post['id'])){ 
 			$solve_date="";
@@ -315,18 +343,31 @@ class Tasklist_menu_model extends MY_Model
 				'due_date' 				=> $f_due_date,
 				'status_id' 			=> trim($post['status'] ?? ''),
 				'updated_at'			=> date("Y-m-d H:i:s"),
-				'solve_date' 			=> $solve_date
+				'solve_date' 			=> $solve_date,
+				'project_id' 			=> trim($post['project'] ?? '')
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			if($rs){
+				$data2 = [
+					'tasklist_id' 			=> $post['id'],
+					'progress_percentage'	=> trim($post['progress'] ?? ''),
+					'submit_at'				=> date("Y-m-d H:i:s")
+				];
+				$this->db->insert("history_progress_tasklist", $data2);
+
+				return $rs;
+
+			}else return null;
 		} else return null;
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name 
+		$mTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
 					from tasklist a left join employees b on b.id = a.employee_id
 					left join tasklist c on c.id = a.parent_id
 					left join master_tasklist_status d on d.id = a.status_id
+					left join data_project e on e.id = a.project_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -371,10 +412,11 @@ class Tasklist_menu_model extends MY_Model
 
 
 
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date  
+		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date, e.title as project_name   
 			from tasklist a left join employees b on b.id = a.employee_id
 			left join tasklist c on c.id = a.parent_id
 			left join master_tasklist_status d on d.id = a.status_id 
+			left join data_project e on e.id = a.project_id
 			".$whr."
 			order by a.id asc
 		";

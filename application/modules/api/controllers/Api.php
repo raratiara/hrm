@@ -1118,7 +1118,8 @@ class Api extends API_Controller
     	$reason		= $_POST['reason'];
     	$method_type	= $_POST['method_type']; //insert or update
     	$id 		= $_POST['id'];
-    	$photo 		= $_FILES['photo'];
+    	/*$photo 		= $_FILES['photo'];*/
+    	$photo 		= isset($_FILES['photo']) ? $_FILES['photo'] : null;
 
     	//$method_type = 'update';
 
@@ -1858,8 +1859,16 @@ class Api extends API_Controller
 				'created_at'			=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->insert("tasklist", $data);
+			$lastId = $this->db->insert_id();
 
 			if($rs){
+				$data2 = [
+					'tasklist_id' 			=> $lastId,
+					'progress_percentage'	=> $progress,
+					'submit_at'				=> date("Y-m-d H:i:s")
+				];
+				$this->db->insert("history_progress_tasklist", $data2);
+
 				$response = [
 		    		'status' 	=> 200,
 					'message' 	=> 'Success'
@@ -1885,6 +1894,15 @@ class Api extends API_Controller
 				];
 				$rs = $this->db->update("tasklist", $data, "id = '".$id."'");
 				if($rs){
+
+					$data2 = [
+						'tasklist_id' 			=> $id,
+						'progress_percentage'	=> $progress,
+						'submit_at'				=> date("Y-m-d H:i:s")
+					];
+					$this->db->insert("history_progress_tasklist", $data2);
+
+
 					$response = [
 			    		'status' 	=> 200,
 						'message' 	=> 'Success'

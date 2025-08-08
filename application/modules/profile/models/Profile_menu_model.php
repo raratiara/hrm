@@ -369,6 +369,9 @@ class Profile_menu_model extends MY_Model
 					((show_date_end is not null) and (show_date_start is null) and ('".$datenow."' <= show_date_end))
 					")->result(); 
 
+		$data_tasklist = $this->db->query("select * from tasklist where employee_id = '".$id."'
+					")->result(); 
+
 
 		/// SISA PLAFON REIMBURS
 		$getplafon = $this->db->query("select a.id, a.grade_id,
@@ -433,7 +436,8 @@ class Profile_menu_model extends MY_Model
 			'sisaplafon_rawatinap' 		=> 'Rp ' . number_format($sisaplafon_rawatinap, 0, ',', '.'),
 			'sisaplafon_kacamata' 		=> 'Rp ' . number_format($sisaplafon_kacamata, 0, ',', '.'),
 			'sisaplafon_persalinan' 	=> 'Rp ' . number_format($sisaplafon_persalinan, 0, ',', '.'),
-			'sisa_plafon_all' 			=> $sisa_plafon_all
+			'sisa_plafon_all' 			=> $sisa_plafon_all,
+			'taskList' 					=> $data_tasklist
 		);
 
 		return $dataX;

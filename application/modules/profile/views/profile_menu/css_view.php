@@ -112,6 +112,15 @@
       /* Biar tingginya otomatis sama */
     }
 
+    .chart-section2 {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      /* Jarak antar kotak */
+      align-items: stretch;
+      /* Biar tingginya otomatis sama */
+    }
+
     .events-box {
       width: 100% !important;
     }
@@ -467,6 +476,14 @@
     /* Biar tingginya otomatis sama */
   }
 
+  .chart-section2 {
+    display: flex;
+    gap: 20px;
+    /* Jarak antar kotak */
+    align-items: stretch;
+    /* Biar tingginya otomatis sama */
+  }
+
   .chart-box {
     background-color: white !important;
     padding: 15px;
@@ -475,6 +492,23 @@
     flex: 2;
     display: flex;
     flex-direction: column;
+  }
+
+  .chart-box2 {
+    background-color: white !important;
+    padding: 15px;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+   
+  }
+
+  .right-section {
+    
+    width: 300px;
   }
 
   .event {
@@ -527,4 +561,59 @@
     color: #555;
     font-size: 0.9rem;
   }
+
+  #daily_tasklist {
+    width: 330px;
+    height: 250px;
+  }
+
+
+  .box-1 {
+    border-radius: 12px !important;
+    padding: 10px;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    flex: 1;
+    width: 100% !important;
+    background-color: white;
+  }
+
+  .box.table-box {
+    flex: 2;
+    min-width: 500px;
+  }
+
+  .table-container {
+    overflow-y: auto;
+    max-height: 220px;
+  }
+
+  .title_tasklist {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  thead th {
+    text-align: left;
+    background: #f3f4f6;
+    padding: 10px;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  tbody td {
+    padding: 10px;
+    vertical-align: middle;
+  }
+
+
 </style>
