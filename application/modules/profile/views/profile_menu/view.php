@@ -267,8 +267,26 @@
 
         <div class="chart-box2">
             <strong>Daily Tasklist Statistics</strong>
+
+            <div class="top-bar">
+                <div class="date-picker-wrapper">
+                    <span class="date-icon"><i class="fas fa-calendar-alt"></i></span>
+                    <input type="text" id="fltasklistperiod" name="fltasklistperiod" placeholder="Select Date"
+                        class="date-input" />
+                </div>
+
+
+                <div class="employee-select-wrapper">
+                    <span class="employee-icon"><i class="fas fa-user"></i></span>
+                   
+                    <?=$selstatus?>
+                </div>
+            </div>
+
+
             <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
-            
+
+
         </div>
 
 
