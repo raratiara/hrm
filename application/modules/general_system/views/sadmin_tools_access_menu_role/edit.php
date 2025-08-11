@@ -189,6 +189,7 @@
 												<div class="clearfix form-actions">
 													<div class="col-md-offset-5 col-md-7">
 														<?php if  (_USER_ACCESS_LEVEL_UPDATE == "1") { ?>
+														<!-- <button class="btn btn-info" type="submit" id="SubmitData"> -->
 														<button class="btn btn-info" style="background-color: green; color: white; border-radius: 2px !important;" type="submit" id="SubmitData">
 															<i class="fa fa-check bigger-110"></i>
 															Submit

@@ -15,17 +15,15 @@
 					<?php $this->load->view("_detail"); ?>
 				</div>
 
-				<div class="modal-footer no-margin-top">
-					<center>
-						<button class="btn"
-							style="background-color: #A01818; color: white; border-radius: 2px !important"
-							data-dismiss="modal">
-							<i class="fa fa-times"></i>
-							Close
-						</button>
-					</center>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+								<div class="modal-footer no-margin-top">
+									<center>
+									<button class="btn" style="background-color: #A01818; color: white; border-radius: 2px !important" data-dismiss="modal">
+										<i class="fa fa-times"></i>
+										Close
+									</button>
+									</center>
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>

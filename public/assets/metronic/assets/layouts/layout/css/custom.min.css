@@ -31,3 +31,8 @@
 	background: #343851 !important;
 	color: #ffffff !important;
 }
+
+.portlet.box .portlet-title .caption,
+.portlet.box .portlet-title .caption i {
+	font-size: 15px !important;
+}

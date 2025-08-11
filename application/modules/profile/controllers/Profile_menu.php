@@ -33,10 +33,10 @@ class Profile_menu extends MY_Controller
 		$field = [];
 
 
-		/*$msemp 				= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
-		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','fldashemp','fldashemp','','','id','full_name',' ','','','',3,'-');
+		$msstatus 				= $this->db->query("select * from master_tasklist_status order by id asc")->result(); 
+		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','flstatus','flstatus','','','id','name',' ','','','',3,'-');
 
-		$field['master_emp'] = $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); */
+		/*$field['master_emp'] = $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); */
 		
 		return $field;
 	}
@@ -235,6 +235,21 @@ class Profile_menu extends MY_Controller
 
  	public function get_data_dailyTasklist(){
  		$post = $this->input->post(null, true);
+ 		$fltasklistperiod 	= $post['fltasklistperiod'];
+ 		$flstatus 			= $post['flstatus'];
+
+ 		$whrDate="";
+ 		if($fltasklistperiod != ''){
+ 			$dataeperiod = explode(" - ",$fltasklistperiod);
+ 			$fromDate = $dataeperiod[0];
+ 			$toDate = $dataeperiod[1];
+
+ 			$whrDate = " and (DATE(a.submit_at) >= '".$fromDate."' and DATE(a.submit_at) <= '".$toDate."' )";
+ 		}
+ 		$whrStatus="";
+ 		if($flstatus != ''){
+ 			$whrStatus = " and b.status_id = '".$flstatus."'";
+ 		}
  		
 
  		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -248,7 +263,7 @@ class Profile_menu extends MY_Controller
 	            ROUND(AVG(a.progress_percentage), 2) AS avg_progress
 	        FROM history_progress_tasklist a
 	        LEFT JOIN tasklist b ON b.id = a.tasklist_id
-	        where b.employee_id = '".$karyawan_id."'
+	        where b.employee_id = '".$karyawan_id."' ".$whrDate.$whrStatus."
 	        AND NOT EXISTS (
 			      SELECT 1
 			      FROM tasklist c

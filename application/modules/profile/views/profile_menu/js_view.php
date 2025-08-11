@@ -4,12 +4,36 @@
 
 <input type="hidden" id="list_birthdays" name="list_birthdays">
 <input type="hidden" id="currentIndex" name="currentIndex">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>  
 
 <script type="text/javascript">
 	var module_path = "<?php echo base_url($folder_name); ?>";
 
 	$(document).ready(function () {
 		$(function () {
+
+			$('#fltasklistperiod').daterangepicker({
+		        locale: {
+		            format: 'YYYY-MM-DD', // format tanggal
+		            applyLabel: "Apply",
+		            cancelLabel: "Cancel"
+		        },
+		        autoUpdateInput: false, // biar kosong dulu
+		    });
+
+		    // Saat user pilih tanggal
+		    $('#fltasklistperiod').on('apply.daterangepicker', function(ev, picker) {
+		        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+		    });
+
+		    // Saat user cancel
+		    $('#fltasklistperiod').on('cancel.daterangepicker', function(ev, picker) {
+		        $(this).val('');
+		    });
+
 
 			load_data();
 			monthlyAttSumm();
@@ -685,11 +709,42 @@
 	}
 
 
+	$('#fltasklistperiod').on('apply.daterangepicker', function(ev, picker) {
+	    let fromDate = picker.startDate.format('YYYY-MM-DD');
+	    let toDate = picker.endDate.format('YYYY-MM-DD');
+		// set value ke input
+		$(this).val(fromDate + ' - ' + toDate);
+	   
+	    dailyTasklist();
+
+	});
+
+
+	$('#fltasklistperiod').on('cancel.daterangepicker', function(ev, picker) {
+	    $(this).val(''); // kosongkan input
+
+	    dailyTasklist();
+	});
+
+
+	$('#flstatus').on('change', function () {
+		dailyTasklist();
+	});
+
+
 
 	function dailyTasklist() {
+
+		var fltasklistperiod = document.getElementById("fltasklistperiod").value;
+		var flstatus = $("#flstatus option:selected").val();
+
+
+		
 	    $.ajax({
 	        type: "POST",
 	        url: module_path + '/get_data_dailyTasklist',
+	        data: { fltasklistperiod: fltasklistperiod, flstatus: flstatus },
+	        cache: false,
 	        dataType: "JSON",
 	        success: function (data) {
 	            const ctx = document.getElementById('daily_tasklist').getContext('2d');

@@ -82,8 +82,7 @@
                 </form>
 
                 <form name="frmListData" id="frmListData">
-                    <table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed"
-                        style="width:100%">
+                     <table id="dynamic-table" class="table table-striped table-bordered table-hover table-header-fixed" style="width:100%">
                         <thead>
                             <tr>
                                 <?php if (_USER_ACCESS_LEVEL_DELETE == "1") { ?>
