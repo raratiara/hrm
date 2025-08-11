@@ -4,12 +4,36 @@
 
 <input type="hidden" id="list_birthdays" name="list_birthdays">
 <input type="hidden" id="currentIndex" name="currentIndex">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>  
 
 <script type="text/javascript">
 	var module_path = "<?php echo base_url($folder_name); ?>";
 
 	$(document).ready(function () {
 		$(function () {
+
+			$('#fltasklistperiod').daterangepicker({
+		        locale: {
+		            format: 'YYYY-MM-DD', // format tanggal
+		            applyLabel: "Apply",
+		            cancelLabel: "Cancel"
+		        },
+		        autoUpdateInput: false, // biar kosong dulu
+		    });
+
+		    // Saat user pilih tanggal
+		    $('#fltasklistperiod').on('apply.daterangepicker', function(ev, picker) {
+		        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+		    });
+
+		    // Saat user cancel
+		    $('#fltasklistperiod').on('cancel.daterangepicker', function(ev, picker) {
+		        $(this).val('');
+		    });
+
 
 			load_data();
 			monthlyAttSumm();
@@ -189,20 +213,125 @@
 
 
 						//data tasklist progress
-						const tbody = document.getElementById("tasklistBody");
-						tbody.innerHTML = ""; // Ini akan menghapus semua baris sebelumnya
-
-						data.taskList.forEach(taskrow => {
-							const row = document.createElement("tr");
-
-							row.innerHTML = `
-											<td>${taskrow.task}</td>
-											<td>${taskrow.progress_percentage}</td>
-										  `;
-
-							tbody.appendChild(row);
-						});
 						
+				
+						/*const tbody = document.getElementById("tasklistBody");
+						tbody.innerHTML = "";
+
+						let previousGroupId = null; // Digunakan untuk mendeteksi perpindahan kelompok utama
+						let previousTaskType = null;
+
+						data.taskList.forEach((taskrow, index) => {
+						    let due_date = taskrow.due_date ?? '-';
+						    let tr = document.createElement("tr");
+
+						    let currentGroupId = taskrow.project_id ?? `parent-${index}`; // Kalau bukan bagian project, buat id sendiri
+
+						    // Tentukan apakah perlu garis
+						    const isNotFirst = index > 0;
+						    const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
+						    const isDifferentGroup = currentGroupId !== previousGroupId;
+
+						    if (
+						        isNotFirst &&
+						        isParentOrProject && // hanya jika sedang masuk task utama baru
+						        isDifferentGroup &&
+						        previousTaskType !== 'project' // JANGAN kasih garis kalau sebelumnya sudah dalam satu project
+						    ) {
+						        const hrRow = document.createElement("tr");
+						        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+						        tbody.appendChild(hrRow);
+						    }
+
+						    // Baris Project
+						    if (taskrow.task_type === 'project') {
+						        tr.innerHTML = `
+						            <td colspan="3" style="font-weight: bold; font-size:10px; background:#eef;">📁 ${taskrow.task}</td>
+						        `;
+						    } else {
+						        let indent = '';
+						        if (taskrow.task_type === 'child') {
+						            indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
+						        } else if (taskrow.task_type === 'parent') {
+						            indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
+						        }
+
+						        tr.innerHTML = `
+						            <td style="font-size:10px">${indent}${taskrow.task}</td>
+						            <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
+						            <td style="font-size:10px">${due_date}</td>
+						        `;
+						    }
+
+						    previousGroupId = currentGroupId;
+						    previousTaskType = taskrow.task_type;
+						    tbody.appendChild(tr);
+						});*/
+
+
+						const tbody = document.getElementById("tasklistBody");
+						tbody.innerHTML = "";
+
+						let previousGroupId = null;
+						let previousTaskType = null;
+
+						data.taskList.forEach((taskrow, index) => {
+						    let due_date = taskrow.due_date ?? '-';
+						    let tr = document.createElement("tr");
+
+						    let currentGroupId = taskrow.project_id ?? `parent-${index}`; // Grouping
+
+						    const isNotFirst = index > 0;
+						    const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
+						    const isDifferentGroup = currentGroupId !== previousGroupId;
+
+						    // 1. Jika task_type adalah 'standalone', selalu beri garis
+						    if (taskrow.task_type === 'standalone') {
+						        const hrRow = document.createElement("tr");
+						        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+						        tbody.appendChild(hrRow);
+						    }
+
+						    // 2. Garis pemisah antar grup (bukan 'project → parent/child' dalam satu project)
+						    else if (
+						        isNotFirst &&
+						        isParentOrProject &&
+						        isDifferentGroup &&
+						        previousTaskType !== 'project' &&
+						        previousTaskType !== 'standalone' // jangan beri garis kalau sebelumnya standalone
+						    ) {
+						        const hrRow = document.createElement("tr");
+						        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+						        tbody.appendChild(hrRow);
+						    }
+
+						    // Baris Project
+						    if (taskrow.task_type === 'project') {
+						        tr.innerHTML = `
+						            <td colspan="3" style="font-weight: bold; font-size:10px; background:#eef;">📁 ${taskrow.task}</td>
+						        `;
+						    } else {
+						        let indent = '';
+						        if (taskrow.task_type === 'child') {
+						            indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
+						        } else if (taskrow.task_type === 'parent') {
+						            indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
+						        }
+
+						        tr.innerHTML = `
+						            <td style="font-size:10px">${indent}${taskrow.task}</td>
+						            <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
+						            <td style="font-size:10px">${due_date}</td>
+						        `;
+						    }
+
+						    previousGroupId = currentGroupId;
+						    previousTaskType = taskrow.task_type;
+						    tbody.appendChild(tr);
+						});
+
+
+
 
 					} else {
 						title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
@@ -580,11 +709,42 @@
 	}
 
 
+	$('#fltasklistperiod').on('apply.daterangepicker', function(ev, picker) {
+	    let fromDate = picker.startDate.format('YYYY-MM-DD');
+	    let toDate = picker.endDate.format('YYYY-MM-DD');
+		// set value ke input
+		$(this).val(fromDate + ' - ' + toDate);
+	   
+	    dailyTasklist();
+
+	});
+
+
+	$('#fltasklistperiod').on('cancel.daterangepicker', function(ev, picker) {
+	    $(this).val(''); // kosongkan input
+
+	    dailyTasklist();
+	});
+
+
+	$('#flstatus').on('change', function () {
+		dailyTasklist();
+	});
+
+
 
 	function dailyTasklist() {
+
+		var fltasklistperiod = document.getElementById("fltasklistperiod").value;
+		var flstatus = $("#flstatus option:selected").val();
+
+
+		
 	    $.ajax({
 	        type: "POST",
 	        url: module_path + '/get_data_dailyTasklist',
+	        data: { fltasklistperiod: fltasklistperiod, flstatus: flstatus },
+	        cache: false,
 	        dataType: "JSON",
 	        success: function (data) {
 	            const ctx = document.getElementById('daily_tasklist').getContext('2d');
@@ -595,7 +755,8 @@
 	                ...ds,
 	                /*data: fillMissingWithLastValue(ds.data),*/ // <--- isi otomatis nilai kosong
 	                data: removeRepeated100(fillMissingWithLastValue(ds.data)),
-	                type: 'line',
+	                /*type: 'line',*/
+	                type: 'bar',
 	                fill: false,
 	                borderColor: ds.backgroundColor, // ambil dari controller
 	                backgroundColor: ds.backgroundColor, // opsional, untuk titik
@@ -607,14 +768,15 @@
 	            }));
 
 	            new Chart(ctx, {
-	                type: 'line',
+	            	/*type: 'line',*/
+	                type: 'bar',
 	                data: {
 	                    labels: data.dates,
 	                    datasets: updatedDatasets
 	                },
 	                options: {
 	                    responsive: true,
-	                    maintainAspectRatio: false,
+	                    maintainAspectRatio: true,
 	                    scales: {
 	                        y: {
 	                            min: 0,

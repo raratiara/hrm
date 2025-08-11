@@ -16,7 +16,7 @@
 
 								<div class="modal-footer no-margin-top">
 									<center>
-									<button class="btn blue" data-dismiss="modal">
+									<button class="btn" style="background-color: #A01818; color: white; border-radius: 2px !important" data-dismiss="modal">
 										<i class="fa fa-times"></i>
 										Close
 									</button>

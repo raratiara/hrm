@@ -423,7 +423,7 @@
   }
 
   /* Optional: responsive layout */
-  @media (max-width: 992px) {
+  @media (max-width: 768px) {
     .dashboard-layout {
       grid-template-columns: 1fr;
     }

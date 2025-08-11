@@ -175,11 +175,11 @@ class Documents_menu_model extends MY_Model
 		{
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851; href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500; href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";

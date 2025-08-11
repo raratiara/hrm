@@ -1,5 +1,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<style>
+    table tbody td:nth-child(2) {
+        text-align: center;
+    }
+
+    table tbody td {
+        font-size: 12px;
+        border-bottom: 1px solid #e2e3e4ff;
+    }
+
+</style>
+
 
 <div class="dashboard-container">
 
@@ -255,8 +267,26 @@
 
         <div class="chart-box2">
             <strong>Daily Tasklist Statistics</strong>
+
+            <div class="top-bar">
+                <div class="date-picker-wrapper">
+                    <span class="date-icon"><i class="fas fa-calendar-alt"></i></span>
+                    <input type="text" id="fltasklistperiod" name="fltasklistperiod" placeholder="Select Date"
+                        class="date-input" />
+                </div>
+
+
+                <div class="employee-select-wrapper">
+                    <span class="employee-icon"><i class="fas fa-user"></i></span>
+                   
+                    <?=$selstatus?>
+                </div>
+            </div>
+
+
             <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
-            
+
+
         </div>
 
 
@@ -267,8 +297,9 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 40%;">Task</th>
-                                <th style="width: 25%;">Progress (%)</th>
+                                <th style="width: 40%; font-size:12px">Task</th>
+                                <th style="width: 25%; font-size:12px">Progress (%)</th>
+                                <th style="width: 35%; font-size:12px">Due Date</th>
                             </tr>
                         </thead>
                         <tbody id="tasklistBody">
