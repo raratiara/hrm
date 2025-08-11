@@ -1,5 +1,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<style>
+    table tbody td:nth-child(2) {
+        text-align: center;
+    }
+
+    table tbody td {
+        font-size: 12px;
+        border-bottom: 1px solid #e2e3e4ff;
+    }
+
+</style>
+
 
 <div class="dashboard-container">
 

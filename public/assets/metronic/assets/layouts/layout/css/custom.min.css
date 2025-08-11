@@ -18,3 +18,8 @@
 .page-content {
 	background-color: #EAEDF5 !important;
 }
+
+.portlet.box .portlet-title .caption,
+.portlet.box .portlet-title .caption i {
+	font-size: 15px !important;
+}

@@ -43,7 +43,7 @@
 
 <div class="row ca">
     <div class="col-md-12">
-		<div class="portlet box green">
+		<div class="portlet box">
 			<div class="portlet-title">
 				<div class="caption">Detail Business Trip </div>
 				<div class="tools">

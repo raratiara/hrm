@@ -219,7 +219,7 @@
         .page-sidebar .page-sidebar-menu .sub-menu>li>a {
             background-color: transparent !important;
             color: #ffffff !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
             /* Warna teks submenu normal */
         }
 
@@ -228,7 +228,7 @@
             background-color: #D9D9D9 !important;
             /* Background kuning */
             color: #000000 !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
             /* Teks submenu saat hover */
         }
 
@@ -236,7 +236,7 @@
         .page-sidebar .page-sidebar-menu .sub-menu>li.active>a {
             background-color: #D9D9D9 !important;
             color: #000000 !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
         }
 
         .page-sidebar .page-sidebar-menu li.open>a {
@@ -245,7 +245,7 @@
         }
 
         .page-sidebar .page-sidebar-menu li.open .sub-menu>li>a {
-            font-size: 12px !important;
+            font-size: 11px !important;
 
         }
 

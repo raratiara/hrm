@@ -22,11 +22,13 @@
 
 			<div class="modal-footer no-margin-top">
 				<center>
-				<button class="btn blue" id="submit-report-data" onclick="downloadReport()">
+				
+				<button class="btn" style="background-color: green; color: white; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReport()">
 					<i class="fa fa-download"></i>
 					Download Report
 				</button>
-				<button class="btn blue" data-dismiss="modal">
+				
+				<button class="btn" style="background-color: #A01818; color: white; border-radius: 2px !important;" data-dismiss="modal">
 					<i class="fa fa-times"></i>
 					Close
 				</button>
