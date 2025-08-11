@@ -10,9 +10,4 @@
 [class*="col-"] .chosen-container .chosen-drop {
     width: 100%!important;
 }
-
-.modal-content{
-    width:700px;
-    margin-left:-50px
-}
 </style>

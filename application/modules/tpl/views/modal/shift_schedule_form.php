@@ -3,18 +3,25 @@
 
         .modal-dialog {
             width: 100% !important;
-            margin-left: 425px !important;
         }
 
         .modal-content {
-            max-height: 80vh;
-            overflow-y: auto;
             width: 90% !important;
         }
 
-        
 
-        
+        .vertical-alignment-helper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vertical-align-center {
+            width: 100%;
+        }
+
+
+
 
     }
 

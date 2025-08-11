@@ -14,6 +14,18 @@
             width: fit-content !important;
         }
 
+        
+        .vertical-alignment-helper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vertical-align-center {
+            width: 100%;
+        }
+
+
 
     }
 
@@ -23,7 +35,7 @@
 
         .modal-dialog {
             width: 100% !important;
-            margin-left: 310px !important;
+            margin-left: auto !important;
         }
 
         .modal-content {
