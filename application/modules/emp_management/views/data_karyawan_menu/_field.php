@@ -334,7 +334,7 @@
 
         	<div class="row ca">
 			    <div class="col-md-12">
-					<div class="portlet box green">
+					<div class="portlet box">
 						<div class="portlet-title">
 							<div class="caption">Detail Education </div>
 							<div class="tools">
@@ -546,7 +546,7 @@
 
         	<div class="row ca">
 			    <div class="col-md-12">
-					<div class="portlet box green">
+					<div class="portlet box">
 						<div class="portlet-title">
 							<div class="caption">Detail Training </div>
 							<div class="tools">
@@ -589,7 +589,7 @@
 
         	<div class="row ca">
 			    <div class="col-md-12">
-					<div class="portlet box green">
+					<div class="portlet box">
 						<div class="portlet-title">
 							<div class="caption">Detail Organization </div>
 							<div class="tools">
@@ -632,7 +632,7 @@
 
         	<div class="row ca">
 			    <div class="col-md-12">
-					<div class="portlet box green">
+					<div class="portlet box">
 						<div class="portlet-title">
 							<div class="caption">Detail Work Experience </div>
 							<div class="tools">

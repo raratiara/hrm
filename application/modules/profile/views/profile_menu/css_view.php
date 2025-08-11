@@ -65,6 +65,11 @@
       flex-direction: column;
     }
 
+    .right-section {
+      width: 100% !important;
+
+    }
+
     .info-grid span {
       font-size: 11px !important;
     }
@@ -121,9 +126,16 @@
       /* Biar tingginya otomatis sama */
     }
 
+    #daily_tasklist {
+      height: 220px;
+      /* lebih kecil */
+    }
+
     .events-box {
       width: 100% !important;
     }
+
+
 
 
   }
@@ -228,6 +240,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 300px;
 
   }
 
@@ -290,7 +303,6 @@
   }
 
   .events-box {
-    width: 280px;
     background-color: white !important;
     padding: 15px;
     border-radius: 15px !important;
@@ -337,12 +349,12 @@
 
   .birthday-name {
     font-weight: bold;
-    font-size: 16px;
+    font-size: 14px;
     color: #000;
   }
 
   .birthday-job {
-    font-size: 14px;
+    font-size: 12px;
     color: #555;
   }
 
@@ -484,14 +496,14 @@
     /* Biar tingginya otomatis sama */
   }
 
+
   .chart-box {
     background-color: white !important;
     padding: 15px;
     border-radius: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex: 2;
-    display: flex;
-    flex-direction: column;
+
   }
 
   .chart-box2 {
@@ -500,16 +512,8 @@
     border-radius: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex: 2;
-    display: flex;
-    flex-direction: column;
-    height: 400px;
-   
   }
 
-  .right-section {
-    
-    width: 300px;
-  }
 
   .event {
     display: flex;
@@ -585,7 +589,7 @@
 
   .table-container {
     overflow-y: auto;
-    max-height: 310px;
+    max-height: 320px;
   }
 
   .title_tasklist {
@@ -614,6 +618,4 @@
     padding: 10px;
     vertical-align: middle;
   }
-
-
 </style>

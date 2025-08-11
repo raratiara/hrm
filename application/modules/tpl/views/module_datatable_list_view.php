@@ -18,8 +18,19 @@
     }
 
 
+
     /* Responsif untuk mobile */
     @media screen and (max-width: 767px) {
+
+        .pagination>li>a,
+        .pagination>li>span {
+            font-size: 10px !important;
+            padding: 3px 6px !important;
+        }
+
+        .pagination {
+            margin: 5px 0 !important;
+        }
 
 
 
@@ -73,17 +84,6 @@
         padding: 4px 6px !important;
     }
 
-    .pagination>li>a,
-    .pagination>li>span {
-        font-size: 10px !important;
-        padding: 3px 6px !important;
-    }
-
-    .pagination {
-        margin: 5px 0 !important;
-    }
-
-
     .dataTables_filter {
 
         margin-left: -10px !important;
@@ -103,11 +103,13 @@
 
     #dynamic-table th:nth-child(1),
     #dynamic-table td:nth-child(1) {
-        min-width: none !important;
+        min-width: 60px !important;
         max-width: none !important;
         white-space: nowrap !important;
         /* Agar konten tidak turun baris */
     }
+
+
 
     .box {
         background-color: #343851 !important;

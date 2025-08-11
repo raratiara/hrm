@@ -1,8 +1,24 @@
+<style>
+	
+.box {
+	background-color: #343851 !important;
+	border: 1px solid #6b6b6b !important;
+}
+
+.portlet.box .portlet-title .caption i {
+	color: #ffffff !important;
+}
+
+.portlet.box .portlet-title .caption i {
+	color: #ffffff !important;
+}
+</style>
+
 <h3 class="page-title"></h3>
 <div class="row">
 	<div class="col-md-12">
 		<!-- BEGIN TABLE PORTLET-->
-		<div class="portlet box blue">
+		<div class="portlet box">
 			<div class="portlet-title">
 				<div class="caption">
 					<i class="fa fa-cogs"></i><?php if (isset($title) && $title <> "")
@@ -235,12 +251,12 @@
 					<div class="clearfix form-actions">
 						<div class="col-md-offset-5 col-md-7">
 							<?php if (_USER_ACCESS_LEVEL_ADD == "1") { ?>
-								<button class="btn btn-info" type="submit" id="SubmitData">
+								<button class="btn btn-info" style="background-color: green; color: white; border-radius: 2px !important;" type="submit" id="SubmitData">
 									<i class="fa fa-check bigger-110"></i>
 									Submit
 								</button>
 							<?php } ?>
-							<button class="btn" type="reset">
+							<button class="btn" style="background-color: #A01818; color: white; border-radius: 2px !important;" type="reset">
 								<i class="fa fa-undo bigger-110"></i>
 								Reset
 							</button>
