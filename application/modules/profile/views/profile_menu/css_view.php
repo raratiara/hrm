@@ -74,7 +74,7 @@
     }
 
     .select2-selection__placeholder {
-      font-size: 11px !important;
+      font-size: 8px !important;
     }
 
     .select2-selection {

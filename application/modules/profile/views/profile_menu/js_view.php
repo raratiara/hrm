@@ -5,9 +5,9 @@
 <input type="hidden" id="list_birthdays" name="list_birthdays">
 <input type="hidden" id="currentIndex" name="currentIndex">
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>  
 
 <script type="text/javascript">
 	var module_path = "<?php echo base_url($folder_name); ?>";
@@ -733,7 +733,7 @@
 
 
 
-	function dailyTasklist(fromDate='', toDate='', status='') {
+	function dailyTasklist() {
 
 		var fltasklistperiod = document.getElementById("fltasklistperiod").value;
 		var flstatus = $("#flstatus option:selected").val();
