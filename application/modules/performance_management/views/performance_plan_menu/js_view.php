@@ -87,7 +87,7 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-/*in LOCAL   var modloc = '/_hrm/performance_management/performance_plan_menu/';*/
+/*in LOCAL*/  /*var modloc = '/_hrm/performance_management/performance_plan_menu/';*/
 var modloc = '/performance_management/performance_plan_menu/';
 var opsForm = 'form#frmInputData';
 var locate = 'table.performance-plan-list';

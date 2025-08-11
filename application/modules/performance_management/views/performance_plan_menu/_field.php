@@ -1,5 +1,5 @@
 <!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
 <style>
 	#tblDetailHardskill_plan.table-hover tbody tr:hover {
@@ -83,8 +83,8 @@
 
 
 
-<button href="#tabhardskill_plan" data-toggle="tab" class="accordion" style="font-family: 'Poppins', sans-serif;">Job
-	Details</button>
+<!-- <button href="#tabhardskill_plan" data-toggle="tab" class="accordion" style="font-family: 'Poppins', sans-serif;">Job
+	Details</button> -->
 
 <div class="panel show active" style="font-family: 'Poppins', sans-serif;" id="tabhardskill_plan">
 	<div class="row ca">
