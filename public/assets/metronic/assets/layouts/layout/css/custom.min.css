@@ -27,12 +27,16 @@
 	font-size: 15px !important;
 }
 
+.portlet.box .portlet-title .caption,
+.portlet.box .portlet-title .caption i {
+	font-size: 15px !important;
+}
+
 .modal-header {
 	background: #343851 !important;
 	color: #ffffff !important;
 }
 
-.portlet.box .portlet-title .caption,
-.portlet.box .portlet-title .caption i {
-	font-size: 15px !important;
+.modal-dialog {
+	width: 95% !important;
 }

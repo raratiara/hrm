@@ -4,8 +4,6 @@
         .modal-dialog {
             width: 25% !important;
             margin-left: 308px !important;
-
-
         }
 
         .modal-content {
@@ -57,6 +55,9 @@
         background-color: #343851 !important;
         color: #fff !important;
     }
+
+
+
 </style>
 
 

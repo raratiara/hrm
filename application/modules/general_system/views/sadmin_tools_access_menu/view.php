@@ -53,6 +53,19 @@
 			margin: 5px 0 !important;
 		}
 
+		.dataTables_info {
+			font-size: 11px !important;
+		}
+
+		#dynamic-table th,
+		#dynamic-table td {
+			display: table-cell !important;
+			font-size: 12px !important;
+			padding: 6px !important;
+			white-space: nowrap !important;
+			vertical-align: middle !important;
+		}
+
 	}
 </style>
 
@@ -95,7 +108,7 @@
 						style="width:100%">
 						<thead>
 							<tr>
-								<th width="120px"></th>
+								<th></th>
 								<th>Nama</th>
 								<th>Username</th>
 							</tr>
@@ -129,7 +142,8 @@
 			</div>
 
 			<div class="modal-footer no-margin-top">
-				<button class="btn btn-sm btn-danger pull-left" style="background-color: #A01818; color: white; border-radius: 2px !important" data-dismiss="modal">
+				<button class="btn btn-sm btn-danger pull-left"
+					style="background-color: #A01818; color: white; border-radius: 2px !important" data-dismiss="modal">
 					<i class="fa fa-times"></i>
 					Close
 				</button>
@@ -158,11 +172,15 @@
 				</div>
 
 				<div class="modal-footer no-margin-top">
-					<button class="btn btn-sm pull-left" style="background-color: #A01818; color: white; border-radius: 2px !important" data-dismiss="modal">
+					<button class="btn btn-sm pull-left"
+						style="background-color: #A01818; color: white; border-radius: 2px !important"
+						data-dismiss="modal">
 						<i class="fa fa-times"></i>
 						Tutup
 					</button>
-					<button class="btn btn-sm  pull-right" style="background-color: #343851; color: white; border-radius: 2px !important" id="submit-import-data">
+					<button class="btn btn-sm  pull-right"
+						style="background-color: #343851; color: white; border-radius: 2px !important"
+						id="submit-import-data">
 						<i class="fa fa-times"></i>
 						Import
 					</button>
@@ -183,11 +201,15 @@
 				</div>
 
 				<div class="modal-footer no-margin-top">
-					<button class="btn btn-sm pull-left" style="background-color: #A01818; color:white; border-radius:2px !important" data-dismiss="modal">
+					<button class="btn btn-sm pull-left"
+						style="background-color: #A01818; color:white; border-radius:2px !important"
+						data-dismiss="modal">
 						<i class="fa fa-times"></i>
 						Tutup
 					</button>
-					<button class="btn btn-sm pull-right" style="background-color: #343851; color:white; border-radius:2px !important" id="submit-eksport-data">
+					<button class="btn btn-sm pull-right"
+						style="background-color: #343851; color:white; border-radius:2px !important"
+						id="submit-eksport-data">
 						<i class="fa fa-times"></i>
 						Eksport
 					</button>
