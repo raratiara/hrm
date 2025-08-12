@@ -374,10 +374,89 @@ class Profile_menu extends MY_Controller
 
 
 
+		//get data tasklist progress
+		$data_tasklist = $this->db->query("
+							select 
+							    a.id,
+							    a.employee_id,
+							    a.task,
+							    a.progress_percentage,
+							    a.parent_id,
+							    a.project_id,
+							    CASE 
+							        WHEN a.parent_id = 0 AND EXISTS (
+							            SELECT 1 FROM tasklist x WHERE x.parent_id = a.id
+							        ) THEN 'parent'
+							        WHEN a.parent_id != 0 THEN 'child'
+							        ELSE 'standalone'
+							    END AS task_type,
+							    CASE
+							        WHEN a.id IS NULL AND a.project_id IS NOT NULL
+							            THEN LPAD(a.project_id, 5, '0')
+							        WHEN a.parent_id = 0 AND a.project_id IS NOT NULL
+							            THEN CONCAT(LPAD(a.project_id, 5, '0'), '.', LPAD(a.id, 5, '0'))
+							        WHEN a.parent_id = 0 AND a.project_id IS NULL
+							            THEN CONCAT('99999.', LPAD(a.id, 5, '0'))
+							        WHEN a.parent_id != 0
+							            THEN (
+							                SELECT CONCAT(
+							                    LPAD(COALESCE(p.project_id, 99999), 5, '0'), '.', 
+							                    LPAD(p.id, 5, '0'), '.', 
+							                    LPAD(a.id, 5, '0')
+							                )
+							                FROM tasklist p
+							                WHERE p.id = a.parent_id
+							                LIMIT 1
+							            )
+							        ELSE CONCAT('99999.99999.', LPAD(a.id, 5, '0'))
+							    END AS sort_key,
+							    a.due_date,
+							    a.status_id,
+							    b.title AS project_name
+							FROM tasklist a
+							LEFT JOIN data_project b ON b.id = a.project_id
+							WHERE
+							    a.employee_id = '".$karyawan_id."'
+							    OR a.id IN (
+							        SELECT DISTINCT parent_id
+							        FROM tasklist
+							        WHERE employee_id = '".$karyawan_id."'
+							        AND parent_id IS NOT NULL
+							        AND parent_id != 0
+							    )
+							UNION ALL
+
+							SELECT 
+							    NULL AS id,
+							    NULL AS employee_id,
+							    b.title AS task,
+							    NULL AS progress_percentage,
+							    NULL AS parent_id,
+							    b.id AS project_id,
+							    'project' AS task_type,
+							    LPAD(b.id, 5, '0') AS sort_key,
+							    NULL AS due_date,
+							    NULL AS status_id,
+							    b.title AS project_name
+							FROM data_project b
+							WHERE b.id IN (
+							    SELECT DISTINCT project_id
+							    FROM tasklist
+							    WHERE project_id IS NOT NULL AND project_id != 0
+							)
+
+							ORDER BY sort_key;
+						")->result();
+
+
+
+
+
 
 	    echo json_encode([
-	        'dates' => $dates,
-	        'datasets' => $datasets
+	        'dates' 	=> $dates,
+	        'datasets' 	=> $datasets,
+	        'taskList' 	=> $data_tasklist
 	    ]);
 
  	}

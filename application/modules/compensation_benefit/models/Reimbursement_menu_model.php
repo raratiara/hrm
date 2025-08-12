@@ -428,7 +428,7 @@ class Reimbursement_menu_model extends MY_Model
 				return $rs;
 
   			}else{
-  				return null;
+  				echo 'Tidak ada sisa plafon reimburs'; die();
   			}
 
   		}else return null;

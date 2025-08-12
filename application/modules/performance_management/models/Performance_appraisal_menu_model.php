@@ -869,7 +869,7 @@ class Performance_appraisal_menu_model extends MY_Model
 					$ttl = 0;
 					if (!empty($rs)) {
 						foreach ($rs as $f) {
-							$ttl += $f->final_score;
+							/*$ttl += $f->final_score;*/
 							$no = $row + 1;
 
 							$dt .= '<tr>';

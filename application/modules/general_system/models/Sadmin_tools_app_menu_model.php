@@ -284,7 +284,7 @@ class Sadmin_tools_app_menu_model extends MY_Model
 			'um_order' => trim($post['um_order']),
 			'insert_by' => $_SESSION["username"]
 		];
-
+		print_r($data); die();
 		return $rs = $this->db->insert($this->table_name, $data);
 	}
 
