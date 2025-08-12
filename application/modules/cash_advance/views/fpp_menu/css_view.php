@@ -11,8 +11,4 @@
     width: 100%!important;
 }
 
-.modal-content{
-    width:1100px;
-    margin-left:-250px
-}
 </style>

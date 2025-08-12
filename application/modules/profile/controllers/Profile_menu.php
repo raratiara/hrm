@@ -182,28 +182,58 @@ class Profile_menu extends MY_Controller
 
  	}
 
- 	public function randomColor_old($taskName)
-	{
-	    /*$colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
-	    return $colors[array_rand($colors)];*/
-
-	     // Contoh warna acak tapi tetap (berdasarkan hash nama task)
-	    /*$colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#00aaff', '#aaff00'];*/
-	    $colors = [
-		  '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-		  '#00aaff', '#aaff00', '#ff00ff', '#00ffaa', '#aa00ff', '#ff5500',
-		  '#0055ff', '#ffaa00', '#00ff55', '#ff0055', '#55ff00', '#ffcc00',
-		  '#0099ff', '#cc00ff', '#ff0099', '#99ff00', '#0033ff', '#ff3300'
-		];
-
-	    $index = crc32($taskName) % count($colors);
-	    return $colors[$index];
-	}
-
-
+ 	
 	private $taskColorMap = [];
 
 	public function randomColor($taskName)
+	{
+	    $colors = [
+	        '#FF6384', '#36A2EB', '#FFCE56', '#4BCC00', '#9966FF', '#FF9F40',
+	        '#00aaff', '#aaff00', '#ff00ff', '#00ffaa', '#aa00ff', '#ff5500',
+	        '#0055ff', '#ffaa00', '#00ff55', '#ff0055', '#55ff00', '#ffcc00',
+	        '#0099ff', '#cc00ff', '#ff0099', '#99ff00', '#0033ff', '#ff3300'
+	    ];
+
+	    // Fungsi untuk konversi HEX ke RGBA
+	    $hexToRgba = function ($hex, $alpha = 0.5) {
+	        $hex = str_replace('#', '', $hex);
+	        $r = hexdec(substr($hex, 0, 2));
+	        $g = hexdec(substr($hex, 2, 2));
+	        $b = hexdec(substr($hex, 4, 2));
+	        return "rgba($r, $g, $b, $alpha)";
+	    };
+
+	    // Kalau sudah pernah dipakai
+	    if (isset($this->taskColorMap[$taskName])) {
+	        $hex = $this->taskColorMap[$taskName];
+	        return [
+	            'hex'  => $hex,
+	            'rgba' => $hexToRgba($hex, 0.5)
+	        ];
+	    }
+
+	    // Ambil urutan warna
+	    $usedCount = count($this->taskColorMap);
+	    if ($usedCount >= count($colors)) {
+	        $hex = '#cccccc';
+	        $this->taskColorMap[$taskName] = $hex;
+	        return [
+	            'hex'  => $hex,
+	            'rgba' => $hexToRgba($hex, 0.5)
+	        ];
+	    }
+
+	    $hex = $colors[$usedCount];
+	    $this->taskColorMap[$taskName] = $hex;
+	    return [
+	        'hex'  => $hex,
+	        'rgba' => $hexToRgba($hex, 0.5)
+	    ];
+	}
+
+
+
+	public function randomColor_old($taskName)
 	{
 	    $colors = [
 	        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',

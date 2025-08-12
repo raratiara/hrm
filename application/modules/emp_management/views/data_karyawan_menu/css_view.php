@@ -11,11 +11,5 @@
     width: 100%!important;
 }
 
-.modal-content{
-    width:1200px;
-    margin-left:-300px
-}
-
-
 
 </style>
