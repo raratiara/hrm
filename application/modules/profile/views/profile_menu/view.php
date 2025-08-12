@@ -99,7 +99,7 @@
                     <div class="total"><span class="ttl_sisa_cuti"></span></div>
                 </div>
                 <div class="icon">
-                    <i class="fas fa-user"></i><i class="fas fa-arrow-down" style="font-size: 15px;"></i>
+                    <i class="fa fa-user"></i><i class="fa fa-arrow-down" style="font-size: 15px;"></i>
                 </div>
 
             </div>
