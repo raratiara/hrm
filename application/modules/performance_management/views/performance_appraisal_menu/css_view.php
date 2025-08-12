@@ -13,11 +13,6 @@
     width: 100% !important;
   }
 
-  .modal-content {
-    width: 1100px;
-    margin-left: -250px
-  }
-
   #modal-rfu-data {
     padding-left: 600px
   }

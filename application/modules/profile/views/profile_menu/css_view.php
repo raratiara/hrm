@@ -29,26 +29,52 @@
 
   .top-bar {
     display: flex;
-    justify-content: flex-start;
     gap: 10px;
-    color: #38406F;
-    margin-top: 10px;
   }
+
+  .select2-selection__placeholder {
+    visibility: hidden;
+    /* sembunyikan teks default */
+    position: relative;
+    border: none !important;
+    background: #0000 !important;
+  }
+
+  .select2-selection__placeholder::after {
+    content: "Select Employee";
+    /* teks baru */
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    color: #999;
+  }
+
+  .select2-container--bootstrap .select2-selection {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  .select2-selection {
+      width: 150px !important;
+      font-size: 10px !important;
+      margin-top: 8px !important;
+    }
+
 
   @media (max-width: 768px) {
     .top-bar {
       display: flex;
-      justify-content: flex-start;
       gap: 5px;
       color: #38406F;
       margin-top: 10px;
     }
 
     .date-picker-wrapper {
-      width: 40% !important;
       height: auto !important;
       background-color: #fff;
-      margin-top: 10px;
+      width: 120px !important;
+      padding-left: 25px !important;
     }
 
     .date-icon {
@@ -60,9 +86,8 @@
 
     .employee-select-wrapper {
       position: relative;
-      width: 40% !important;
       padding-left: 18px !important;
-      ym
+      width: 160px !important;
     }
 
     .employee-icon {
@@ -73,13 +98,8 @@
       pointer-events: none;
     }
 
-    .select2-selection__placeholder {
-      font-size: 8px !important;
-    }
-
     .select2-selection {
-      width: 100% !important;
-      height: 28px !important;
+      width: 140px !important;
     }
 
 
@@ -122,6 +142,17 @@
       max-width: none !important;
     }
 
+    .title-box-chart {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+  }
+
+  .title-box-chart {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
   }
 
 
@@ -149,51 +180,47 @@
 
   .employee-select-wrapper {
     position: relative;
-    width: 200px;
-    height: 36px;
     border: 1px solid #ccc;
     border-radius: 20px !important;
     background-color: #fff;
     display: flex;
     align-items: center;
-    padding-left: 34px;
-    margin-top: 10px;
+    padding-left: 20px;
+    height: 28px !important;
+
   }
 
   .employee-icon {
     position: absolute;
     left: 10px;
     color: #666;
-    font-size: 16px;
+    font-size: 10px;
     pointer-events: none;
   }
 
 
   .date-picker-wrapper {
-    color: #38406F;
     position: relative;
     display: flex;
     align-items: center;
     border: 1px solid #ccc;
     border-radius: 20px !important;
-    width: 180px;
-    height: 36px;
     background-color: #fff;
     padding-left: 34px;
-    margin-top: 10px;
+    height: 28px !important;
   }
 
   .date-icon {
     position: absolute;
     left: 10px;
-    color: #38406F;
-    font-size: 16px;
+    color: grey !important;
+    font-size: 10px;
   }
 
   .date-input {
     border: none;
     outline: none;
-    font-size: 14px;
+    font-size: 10px;
     width: 100%;
     height: 100%;
     background: transparent;

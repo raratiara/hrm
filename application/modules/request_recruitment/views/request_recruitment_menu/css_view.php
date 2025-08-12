@@ -11,11 +11,6 @@
     width: 100%!important;
 }
 
-.modal-content{
-    width:1000px;
-    margin-left:-250px
-}
-
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

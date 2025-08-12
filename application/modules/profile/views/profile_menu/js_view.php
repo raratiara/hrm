@@ -758,8 +758,8 @@
 	                /*type: 'line',*/
 	                type: 'bar',
 	                fill: false,
-	                borderColor: ds.backgroundColor, // ambil dari controller
-	                backgroundColor: ds.backgroundColor, // opsional, untuk titik
+	                borderColor: ds.backgroundColor.hex, // ambil dari controller
+	                backgroundColor: ds.backgroundColor.rgba, // opsional, untuk titik
 	                tension: 0.3,
 	                pointRadius: 3,
 	                pointHoverRadius: 5,
