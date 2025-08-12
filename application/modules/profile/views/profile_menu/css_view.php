@@ -41,7 +41,7 @@
   }
 
   .select2-selection__placeholder::after {
-    content: "Select Employee";
+    content: "Select Status";
     /* teks baru */
     visibility: visible;
     position: absolute;
