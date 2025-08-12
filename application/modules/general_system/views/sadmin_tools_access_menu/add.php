@@ -1,4 +1,8 @@
 <style>
+
+	.select2-selection {
+		width: 280px !important;
+	}
 	
 .box {
 	background-color: #343851 !important;

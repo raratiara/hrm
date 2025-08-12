@@ -153,8 +153,10 @@
   }
 
   .summary span {
-  color: #38406F;
-}
-  
+    color: #38406F;
+  }
 
+  .modal-dialog {
+    width: 95% !important;
+  }
 </style>

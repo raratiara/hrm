@@ -11,5 +11,8 @@
     width: 100%!important;
 }
 
+.modal-dialog {
+	width: 95% !important;
+}
 
 </style>

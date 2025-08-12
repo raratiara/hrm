@@ -58,7 +58,7 @@
     background: #EAEDF5;
   }
 
- 
+
 
   .modal-header {
     background: #343851 !important;
@@ -86,7 +86,7 @@
 
   .select2-container {
     width: 200px !important;
-    
+
 
   }
 
@@ -114,7 +114,7 @@
     left: 0;
     color: #38406F;
   }
-  
+
 
   .accordion {
     background: #b6c5dfff;
@@ -177,5 +177,9 @@
     padding: 0px 10px;
     margin-bottom: 8px;
     gap: 8px !important;
+  }
+
+  .modal-dialog {
+    width: 95% !important;
   }
 </style>
