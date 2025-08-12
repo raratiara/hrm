@@ -820,7 +820,7 @@
 	            });
 
 
-
+console.log(data.taskList);
 	            //table tasklist progress
 	            const tbody = document.getElementById("tasklistBody");
 				tbody.innerHTML = "";
@@ -884,7 +884,7 @@
 				});
 
 
-	            
+
 	        }
 	    });
 	}

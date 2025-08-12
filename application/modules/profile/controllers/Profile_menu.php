@@ -261,9 +261,7 @@ class Profile_menu extends MY_Controller
 	    return $colors[$usedCount];
 	}
 
-
-
- 	public function get_data_dailyTasklist(){
+	public function get_data_dailyTasklist(){
  		$post = $this->input->post(null, true);
  		$fltasklistperiod 	= $post['fltasklistperiod'];
  		$flstatus 			= $post['flstatus'];
@@ -276,9 +274,11 @@ class Profile_menu extends MY_Controller
 
  			$whrDate = " and (DATE(a.submit_at) >= '".$fromDate."' and DATE(a.submit_at) <= '".$toDate."' )";
  		}
- 		$whrStatus="";
+ 		$whrStatus=""; $whrStatus2=""; $whrStatus3="";
  		if($flstatus != ''){
- 			$whrStatus = " and b.status_id = '".$flstatus."'";
+ 			$whrStatus 	= " and b.status_id = '".$flstatus."'";
+ 			$whrStatus2 = " and a.status_id = '".$flstatus."'";
+ 			$whrStatus3 = " and status_id = '".$flstatus."'";
  		}
  		
 
@@ -320,23 +320,219 @@ class Profile_menu extends MY_Controller
 	        $dataMap[$row->task][$row->submit_date] = $row->avg_progress;
 	    }
 
-	    // Buat dataset per task
-	    /*$datasets = [];
-	    foreach ($tasks as $task) {
-	        $progressList = [];
-	        foreach ($dates as $date) {
-	            $progressList[] = isset($dataMap[$task][$date]) ? floatval($dataMap[$task][$date]) : 0;
-	        }
 
-	        $datasets[] = [
-	            'label' => $task,
-	            'data' => $progressList,
-	            'type' => 'bar',
-	            'borderWidth' => 1,
-	            'borderRadius' => 4,
-	            'backgroundColor' => $this->randomColor($task) 
-	        ];
-	    }*/
+	    // Ambil semua tasklist_id dari hasil query pertama
+		$tasklistIds = [];
+		foreach ($results as $row) {
+		    $taskId = $this->db->query("
+		        SELECT id, parent_id, project_id 
+		        FROM tasklist 
+		        WHERE task = ?
+		        LIMIT 1
+		    ", [$row->task])->row();
+
+		    if ($taskId) {
+		        $tasklistIds[] = $taskId->id;
+		        if (!empty($taskId->parent_id) && $taskId->parent_id != 0) {
+		            $tasklistIds[] = $taskId->parent_id;
+		        }
+		        if (!empty($taskId->project_id) && $taskId->project_id != 0) {
+		            $projectIds[] = $taskId->project_id;
+		        }
+		    }
+		}
+
+		$tasklistIds = array_unique($tasklistIds);
+		$projectIds = array_unique($projectIds ?? []);
+
+		$whereTaskListIds = "";
+		if (!empty($tasklistIds)) {
+		    $whereTaskListIds = " AND a.id IN (" . implode(',', $tasklistIds) . ") ";
+		}
+	    
+
+	    $datasets = [];
+		foreach ($tasks as $task) {
+		    $progressList = [];
+		    $reached100 = false;
+
+		    foreach ($dates as $date) {
+		        if (isset($dataMap[$task][$date])) {
+		            $progress = floatval($dataMap[$task][$date]);
+		            $progressList[] = $progress;
+
+		            // Tandai jika sudah pernah mencapai 100
+		            if ($progress >= 100) {
+		                $reached100 = true;
+		            }
+		        } else {
+		            // Kalau tidak ada data dan sudah pernah 100, kosongkan
+		            if ($reached100) {
+		                $progressList[] = null; // null agar tidak tampil
+		            } else {
+		                $progressList[] = 0;
+		            }
+		        }
+		    }
+
+		    $datasets[] = [
+		        'label' => $task,
+		        'data' => $progressList,
+		        'type' => 'bar',
+		        'borderWidth' => 1,
+		        'borderRadius' => 4,
+		        'backgroundColor' => $this->randomColor($task)
+		    ];
+		}
+
+		if($whereTaskListIds == ''){
+			$data_tasklist= [];
+		}else{
+			//get data tasklist progress
+			$data_tasklist = $this->db->query("
+						    select 
+						        a.id,
+						        a.employee_id,
+						        a.task,
+						        a.progress_percentage,
+						        a.parent_id,
+						        a.project_id,
+						        CASE 
+						            WHEN a.parent_id = 0 AND EXISTS (
+						                SELECT 1 FROM tasklist x WHERE x.parent_id = a.id
+						            ) THEN 'parent'
+						            WHEN a.parent_id != 0 THEN 'child'
+						            ELSE 'standalone'
+						        END AS task_type,
+						        CASE
+						            WHEN a.id IS NULL AND a.project_id IS NOT NULL
+						                THEN LPAD(a.project_id, 5, '0')
+						            WHEN a.parent_id = 0 AND a.project_id IS NOT NULL
+						                THEN CONCAT(LPAD(a.project_id, 5, '0'), '.', LPAD(a.id, 5, '0'))
+						            WHEN a.parent_id = 0 AND a.project_id IS NULL
+						                THEN CONCAT('99999.', LPAD(a.id, 5, '0'))
+						            WHEN a.parent_id != 0
+						                THEN (
+						                    SELECT CONCAT(
+						                        LPAD(COALESCE(p.project_id, 99999), 5, '0'), '.', 
+						                        LPAD(p.id, 5, '0'), '.', 
+						                        LPAD(a.id, 5, '0')
+						                    )
+						                    FROM tasklist p
+						                    WHERE p.id = a.parent_id
+						                    LIMIT 1
+						                )
+						            ELSE CONCAT('99999.99999.', LPAD(a.id, 5, '0'))
+						        END AS sort_key,
+						        a.due_date,
+						        a.status_id,
+						        b.title AS project_name
+						    FROM tasklist a
+						    LEFT JOIN data_project b ON b.id = a.project_id
+						    WHERE 1=1
+						        $whereTaskListIds
+
+						    UNION ALL
+
+						    SELECT 
+						        NULL AS id,
+						        NULL AS employee_id,
+						        b.title AS task,
+						        NULL AS progress_percentage,
+						        NULL AS parent_id,
+						        b.id AS project_id,
+						        'project' AS task_type,
+						        LPAD(b.id, 5, '0') AS sort_key,
+						        NULL AS due_date,
+						        NULL AS status_id,
+						        b.title AS project_name
+						    FROM data_project b
+						    WHERE b.id IN (" . (empty($projectIds) ? "0" : implode(',', $projectIds)) . ")
+
+						    ORDER BY sort_key
+						")->result();
+		}
+
+		
+
+
+	    echo json_encode([
+	        'dates' 	=> $dates,
+	        'datasets' 	=> $datasets,
+	        'taskList' 	=> $data_tasklist
+	    ]);
+
+ 	}
+
+
+
+ 	public function get_data_dailyTasklist_old(){
+ 		$post = $this->input->post(null, true);
+ 		$fltasklistperiod 	= $post['fltasklistperiod'];
+ 		$flstatus 			= $post['flstatus'];
+
+ 		$whrDate="";
+ 		if($fltasklistperiod != ''){
+ 			$dataeperiod = explode(" - ",$fltasklistperiod);
+ 			$fromDate = $dataeperiod[0];
+ 			$toDate = $dataeperiod[1];
+
+ 			$whrDate = " and (DATE(a.submit_at) >= '".$fromDate."' and DATE(a.submit_at) <= '".$toDate."' )";
+ 		}
+ 		$whrStatus=""; $whrStatus2=""; $whrStatus3="";
+ 		if($flstatus != ''){
+ 			$whrStatus 	= " and b.status_id = '".$flstatus."'";
+ 			$whrStatus2 = " and a.status_id = '".$flstatus."'";
+ 			$whrStatus3 = " and status_id = '".$flstatus."'";
+ 		}
+ 		
+
+ 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+		
+		$query = $this->db->query("
+	        select  
+	            DATE(a.submit_at) AS submit_date,
+	            b.task,
+	            ROUND(AVG(a.progress_percentage), 2) AS avg_progress
+	        FROM history_progress_tasklist a
+	        LEFT JOIN tasklist b ON b.id = a.tasklist_id
+	        where b.employee_id = '".$karyawan_id."' ".$whrDate.$whrStatus."
+	        AND NOT EXISTS (
+			      SELECT 1
+			      FROM tasklist c
+			      WHERE c.parent_id = b.id
+			  )
+	        GROUP BY DATE(a.submit_at), b.task
+	        ORDER BY submit_date ASC
+	    ");
+
+	    $results = $query->result();
+
+	    $dates = [];
+	    $tasks = [];
+	    $dataMap = [];
+
+	    // Kumpulkan semua tanggal & task
+	    foreach ($results as $row) {
+	        if (!in_array($row->submit_date, $dates)) {
+	            $dates[] = $row->submit_date;
+	        }
+	        if (!in_array($row->task, $tasks)) {
+	            $tasks[] = $row->task;
+	        }
+	        $dataMap[$row->task][$row->submit_date] = $row->avg_progress;
+	    }
+
+	    // Buat string WHERE IN untuk filter di data_tasklist
+		$whereTaskList = "";
+		if (!empty($tasks)) {
+		    $taskListIn = "'" . implode("','", array_map('addslashes', $tasks)) . "'";
+		    $whereTaskList = " AND a.task IN ($taskListIn) ";
+		}
+
+	   
 
 	    $datasets = [];
 		foreach ($tasks as $task) {
@@ -416,11 +612,11 @@ class Profile_menu extends MY_Controller
 							FROM tasklist a
 							LEFT JOIN data_project b ON b.id = a.project_id
 							WHERE
-							    a.employee_id = '".$karyawan_id."'
+							    (a.employee_id = '".$karyawan_id."')
 							    OR a.id IN (
 							        SELECT DISTINCT parent_id
 							        FROM tasklist
-							        WHERE employee_id = '".$karyawan_id."'
+							        WHERE employee_id = '".$karyawan_id."' 
 							        AND parent_id IS NOT NULL
 							        AND parent_id != 0
 							    )
@@ -447,10 +643,6 @@ class Profile_menu extends MY_Controller
 
 							ORDER BY sort_key;
 						")->result();
-
-
-
-
 
 
 	    echo json_encode([
