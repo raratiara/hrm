@@ -10,6 +10,19 @@
 		.pagination {
 			margin: 5px 0 !important;
 		}
+
+		.dataTables_info {
+			font-size: 11px !important;
+		}
+
+		#dynamic-table th,
+		#dynamic-table td {
+			display: table-cell !important;
+			font-size: 12px !important;
+			padding: 6px !important;
+			white-space: nowrap !important;
+			vertical-align: middle !important;
+		}
 	}
 
 
