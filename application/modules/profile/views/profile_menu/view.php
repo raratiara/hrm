@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
 <style>
     table tbody td:nth-child(2) {
@@ -89,50 +89,6 @@
 
 
 
-
-
-
-
-
-
-
-
-    <!-- <div class="profile-box">
-        <span class="emp_photo">
-        </span>
-        <div class="profile-details">
-            <div><strong>NIK:</strong> <span class="nik"></div>
-            <div><strong>Division:</strong> <span class="division"></div>
-            <div><strong>Name:</strong> <span class="name"></div>
-            <div><strong>Department:</strong> <span class="department"></div>
-            <div><strong>Gender:</strong> <span class="gender"></div>
-            <div><strong>Job Title:</strong> <span class="job_title"></div>
-            <div><strong>Date of Birth:</strong> <span class="date_of_birth"></div>
-            <div><strong>Job Level:</strong> <span class="job_level"></div>
-            <div><strong>Phone:</strong> <span class="phone"></div>
-            <div><strong>Status:</strong> <span class="status"></div>
-     
-            <div><strong>Email:</strong> <span class="email"></div>
-            <div><strong>Date of Hired:</strong> <span class="date_of_hired"></div>
-            <div><strong>Direct:</strong> <span class="direct"></div>
-            <div><strong>Employee Type:</strong> <span class="shift_type"></div>
-            <div><strong>Address:</strong> <span class="address"></div>
-        </div>
-        <div class="app-download">
-            <span>Apk Mobile Attendance:</span>
-
-            <a href="javascript:void(0);" onclick="downloadFile('hrm.apk')" class="download-icon android">
-                <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" alt="Android" />
-                for Android
-            </a>
-            <a href="#" class="download-icon ios">
-                <img src="https://cdn-icons-png.flaticon.com/512/888/888841.png" alt="iOS" />
-                for iOS
-            </a>
-        </div>
-    </div> -->
-
-
     <!-- Summary Box -->
 
     <div class="summary-section">
@@ -191,27 +147,7 @@
                     </div>
                 </div>
 
-                <!-- <div class="reimbursement-grid">
-                    <div class="item">
-                        <div class="title_reim">Rawat jalan</div>
-                        <div class="amount" id="amount_rawatjalan"></div>
-                    </div>
-                    <div class="item">
-                        <div class="title_reim">Kacamata</div>
-                        <div class="amount" id="amount_kacamata"></div>
-                    </div>
-                    <div class="item">
-                        <div class="title_reim">Rawat Inap</div>
-                        <div class="amount" id="amount_rawatinap"></div>
-                    </div>
-                    <div class="item">
-                        <div class="title_reim">Persalinan</div>
-                        <div class="amount" id="amount_persalinan"></div>
-                    </div>
-                </div> -->
-
-
-
+              
                 
             </div> 
         </div>
@@ -265,7 +201,7 @@
 
     <div class="chart-section2">
 
-        <div class="chart-box2">
+        <!-- <div class="chart-box2">
             <strong>Daily Tasklist Statistics</strong>
 
             <div class="top-bar">
@@ -287,10 +223,10 @@
             <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
 
 
-        </div>
+        </div> -->
 
 
-        <div class="right-section">
+        <!-- <div class="right-section">
              <div class="box-1 table-box">
                 <div class="title_tasklist">Tasklist Progress</div>
                 <div class="table-container" style="margin-top: 10px;">
@@ -303,10 +239,48 @@
                             </tr>
                         </thead>
                         <tbody id="tasklistBody">
-                            <!-- Data will be injected here by JS -->
+                           
                         </tbody>
                     </table>
 
+                </div>
+            </div>
+        </div> -->
+
+        <div class="chart-box2">
+            <div class="title-box-chart">
+                <strong>Daily Tasklist Statistics</strong>
+                <div class="top-bar">
+                    <div class="date-picker-wrapper">
+                        <span class="date-icon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" id="fltasklistperiod" name="fltasklistperiod" placeholder="Select Date"
+                            class="date-input" />
+                    </div>
+                    <div class="employee-select-wrapper">
+                        <span class="employee-icon"><i class="fa fa-user"></i></span>
+                        <?= $selstatus ?>
+                    </div>
+                </div>
+            </div>
+            <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
+        </div>
+
+        <div class="right-section">
+            <div class="box-1 table-box">
+                <div class="title_tasklist">Tasklist Progress</div>
+                <div class="table-container" style="margin-top: 10px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; font-size:12px">Task</th>
+                                <th style="width: 100px; text-align: center; font-size:12px">Progress (%)</th>
+                                <th style="font-size:12px">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasklistBody">
+                            <!-- Data will be injected here by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

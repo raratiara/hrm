@@ -14,8 +14,6 @@
   }
 
   .modal-content {
-    width: 1100px;
-    margin-left: -250px;
     background: #EAEDF5 !important;
     border: none !important;
   }
