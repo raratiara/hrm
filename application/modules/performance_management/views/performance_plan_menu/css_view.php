@@ -58,7 +58,7 @@
     background: #EAEDF5;
   }
 
- 
+
 
   .modal-header {
     background: #343851 !important;
@@ -86,7 +86,7 @@
 
   .select2-container {
     width: 200px !important;
-    
+
 
   }
 
@@ -114,7 +114,7 @@
     left: 0;
     color: #38406F;
   }
-  
+
 
   .accordion {
     background: #b6c5dfff;
@@ -177,5 +177,79 @@
     padding: 0px 10px;
     margin-bottom: 8px;
     gap: 8px !important;
+  }
+
+  .modal-dialog {
+    width: 95% !important;
+  }
+
+  @media (max-width: 768px) {
+    label input[type="search"] {
+      font-size: 12px;
+      /* kecilkan font */
+      padding: 3px 6px;
+      /* kecilkan tinggi kotak */
+      width: 80% !important;
+    }
+
+    label {
+      font-size: 12px;
+      /* kecilkan tulisan "Search" */
+    }
+
+    .dataTables_filter {
+      margin-top: 0px !important;
+      margin-bottom: 10px !important;
+    }
+
+    .modal-body {
+      margin: 0 !important;
+    }
+
+    .row-flex {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 30px ! important;
+      margin-left: -15px ! important;
+      gap: 15px !important;
+    }
+
+
+
+    .row-flex .col-md-9 {
+      flex: 1;
+    }
+
+    .row-flex label {
+      width: 120px;
+      /* lebar label lebih kecil di HP */
+      margin: 0;
+    }
+
+    .row {
+      font-size: 12px !important;
+    }
+
+    .ca .col-md-12 {
+      width: 100% !important;
+    }
+
+
+    #tblHardskill_plan th,
+    #tblHardskill_plan td {
+      display: table-cell !important;
+      font-size: 12px !important;
+      padding: 6px !important;
+      white-space: nowrap !important;
+      vertical-align: middle !important;
+    }
+
+
+  }
+
+  .row-flex {
+    display: flex;
+    align-items: center;
+    margin: 0;
   }
 </style>
