@@ -227,7 +227,14 @@
                                         <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
                                             <th width="15px"><input type="checkbox" id="check-all"></th>
                                         <?php } ?>
-                                        <th width="120px">Action</th>
+                                        <?php
+                                        if($this->module_name != 'summaryabsen'){
+                                            ?>
+                                            <th width="120px">Action</th>
+                                            <?php
+                                        }
+                                        ?>
+                                        
                                         <?php
                                         if (isset($thData) && $thData <> "") {
                                             foreach ($thData as $th) {
