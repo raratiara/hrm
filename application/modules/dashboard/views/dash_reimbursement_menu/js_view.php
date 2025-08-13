@@ -34,6 +34,12 @@
 	});
 
 
+	function formatRupiah(angka) {
+	    return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	}
+
+
+
 	function dataTotal() {
 
 		var fldiv = $("#fldiv option:selected").val();
@@ -49,7 +55,8 @@
 				if (data != false) {
 
 					$('span#ttl_reimburs').html(data.ttl_reimburs);
-					var ttl_amount_reimburs = 'Rp. '+data.ttl_amount_reimburs;
+					/*var ttl_amount_reimburs = 'Rp. '+data.ttl_amount_reimburs;*/
+					var ttl_amount_reimburs = 'Rp. ' + formatRupiah(data.ttl_amount_reimburs);
 					$('span#ttl_amount_reimburs').html(ttl_amount_reimburs);
 					
 					$('p.total_rawatinap').html(data.total_rawatinap);
