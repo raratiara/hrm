@@ -390,6 +390,8 @@ class Training_menu_model extends MY_Model
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 
+			return $rs; 
+
   		}else return null;
 
 	}  

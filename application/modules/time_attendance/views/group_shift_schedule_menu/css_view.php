@@ -14,6 +14,9 @@
   }
 
 
+
+
+
   body {
     font-family: sans-serif;
     padding: 20px;
@@ -210,6 +213,10 @@
     border: none;
     border-radius: 16px;
     cursor: pointer;
+  }
+
+  .modal-dialog {
+    width: 90% !important;
   }
 
 

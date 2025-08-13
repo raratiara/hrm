@@ -99,32 +99,52 @@ class Dash_reimbursement_menu extends MY_Controller
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and division_id = '".$fldiv."'";
+			$whereDiv=" where b.division_id = '".$fldiv."'";
 		}
 
-		
-		$shiftType = $this->db->query("select SUM(CASE WHEN shift_type = 'Reguler' THEN 1 ELSE 0 END) AS total_reguler, SUM(CASE WHEN shift_type = 'Shift' THEN 1 ELSE 0 END) AS total_shift
- 			from employees where status_id = 1 ".$whereDiv."")->result(); 
-		$joLevel = $this->db->query("select SUM(CASE WHEN job_level_id <= 5 THEN 1 ELSE 0 END) AS total_managerial,
- 					SUM(CASE WHEN job_level_id > 5 THEN 1 ELSE 0 END) AS total_nonmanagerial
- 					from employees where status_id = 1 ".$whereDiv."")->result(); 
-		$grade = $this->db->query("select SUM(CASE WHEN grade_id = 1 THEN 1 ELSE 0 END) AS total_grade_a,
-								 	SUM(CASE WHEN grade_id = 2 THEN 1 ELSE 0 END) AS total_grade_b,
-								  	SUM(CASE WHEN grade_id = 3 THEN 1 ELSE 0 END) AS total_grade_c,
-								   	SUM(CASE WHEN grade_id = 4 THEN 1 ELSE 0 END) AS total_grade_d
-								from employees where status_id = 1 ".$whereDiv." ")->result(); 
+
+		$ttl_reimburs = $this->db->query("select count(a.id) as ttl from medicalreimbursements a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id ".$whereDiv." ")->result(); 
+
+		$ttl_amountreimburs = $this->db->query("select sum(a.nominal_reimburse) as ttl from medicalreimbursements a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id ".$whereDiv." ")->result(); 
+
+		$ttl_pertype = $this->db->query("select SUM(CASE WHEN reimburs_type_id = 1 THEN 1 ELSE 0 END) AS total_rawatjalan, 
+			SUM(CASE WHEN reimburs_type_id = 2 THEN 1 ELSE 0 END) AS total_rawatinap, 
+			SUM(CASE WHEN reimburs_type_id = 3 THEN 1 ELSE 0 END) AS total_kacamata, 
+			SUM(CASE WHEN reimburs_type_id = 4 THEN 1 ELSE 0 END) AS total_persalinan
+			from medicalreimbursements a left join employees b on b.id = a.employee_id
+			left join divisions c on c.id = b.division_id
+			".$whereDiv." ")->result(); 
+		$total_ttl_amountreimburs = $ttl_amountreimburs[0]->ttl;
+		if(empty($ttl_amountreimburs[0]->ttl)){
+			$total_ttl_amountreimburs = 0;
+		}
+
+		$total_rawatinap = $ttl_pertype[0]->total_rawatinap;
+		if(empty($ttl_pertype[0]->total_rawatinap)){
+			$total_rawatinap = 0;
+		}
+		$total_kacamata = $ttl_pertype[0]->total_kacamata;
+		if(empty($ttl_pertype[0]->total_kacamata)){
+			$total_kacamata = 0;
+		}
+		$total_persalinan = $ttl_pertype[0]->total_persalinan;
+		if(empty($ttl_pertype[0]->total_persalinan)){
+			$total_persalinan = 0;
+		}
+		$total_rawatjalan = $ttl_pertype[0]->total_rawatjalan;
+		if(empty($ttl_pertype[0]->total_rawatjalan)){
+			$total_rawatjalan = 0;
+		}
 		
 
 
 		$rs = array(
-			'total_reguler' 		=> $shiftType[0]->total_reguler,
-			'total_shift'			=> $shiftType[0]->total_shift,
-			'total_managerial'		=> $joLevel[0]->total_managerial,
-			'total_nonmanagerial'	=> $joLevel[0]->total_nonmanagerial,
-			'total_grade_a'			=> $grade[0]->total_grade_a,
-			'total_grade_b'			=> $grade[0]->total_grade_b,
-			'total_grade_c'			=> $grade[0]->total_grade_c,
-			'total_grade_d'			=> $grade[0]->total_grade_d
+			'ttl_reimburs' 				=> $ttl_reimburs[0]->ttl,
+			'ttl_amount_reimburs'		=> $total_ttl_amountreimburs,
+			'total_rawatinap'			=> $total_rawatinap,
+			'total_kacamata'			=> $total_kacamata,
+			'total_persalinan'			=> $total_persalinan,
+			'total_rawatjalan'			=> $total_rawatjalan
 		);
 
 
@@ -133,39 +153,72 @@ class Dash_reimbursement_menu extends MY_Controller
  	}
 
 
- 	public function get_data_empbyGen(){
+ 	public function get_data_reimFor(){
+	    $post  = $this->input->post(null, true);
+	    $fldiv = $post['fldiv'];
+
+	    // Query dengan filter division opsional
+	    $data_emp = $this->db->query("
+	        select 
+	            c.id AS reimbforid,
+	            c.name AS reimbforname,
+	            COUNT(
+	                CASE 
+	                    WHEN ? IS NULL OR ? = '' THEN a.id
+	                    WHEN e.id = ? THEN a.id
+	                END
+	            ) AS total
+	        FROM master_reimbursfor_type c
+	        LEFT JOIN medicalreimbursements a 
+	            ON a.reimburse_for = c.id
+	        LEFT JOIN employees d 
+	            ON d.id = a.employee_id
+	        LEFT JOIN divisions e 
+	            ON e.id = d.division_id
+	        GROUP BY c.id, c.name
+	        ORDER BY c.name
+	    ", [$fldiv, $fldiv, $fldiv])->result();
+
+	    // Ubah hasil query ke format pie chart
+	    $pie_data = [];
+	    foreach ($data_emp as $row) {
+	        $pie_data[] = [
+	            'label' => $row->reimbforname,
+	            'value' => (int) $row->total
+	        ];
+	    }
+
+	    echo json_encode($pie_data);
+	}
+
+
+
+ 	public function get_data_reimFor_old(){
  		$post = $this->input->post(null, true);
  		$fldiv 	= $post['fldiv'];
 
 
-		$whereDiv="";
-		if(!empty($fldiv)){ 
-			$whereDiv=" and division_id = '".$fldiv."'";
-		}
 
+		$data_emp = $this->db->query(" select 
+            c.id AS reimbforid,
+            c.name AS reimbforname,
+            COUNT(
+                CASE 
+                    WHEN ? IS NULL OR ? = '' THEN a.id
+                    WHEN e.id = ? THEN a.id
+                END
+            ) AS total
+        FROM master_reimbursfor_type c
+        LEFT JOIN medicalreimbursements a 
+            ON a.reimburse_for = c.id
+        LEFT JOIN employees d 
+            ON d.id = a.employee_id
+        LEFT JOIN divisions e 
+            ON e.id = d.division_id
+        GROUP BY c.id, c.name
+        ORDER BY c.name")->result(); 
 
-		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees where status_id = 1 ".$whereDiv."")->result(); 
-
-		$boomer=0; 		$gen_x=0; 		$gen_z=0;
-		$gen_mill=0; 	$gen_alpha=0; 	$unkgen=0;
-
-		foreach($data_emp as $row){
-			$birthYear = $row->year_of_birth;
-
-			if ($birthYear >= 1946 && $birthYear <= 1964) {
-		        $boomer += 1;
-		    } elseif ($birthYear >= 1965 && $birthYear <= 1980) {
-		        $gen_x += 1;
-		    } elseif ($birthYear >= 1981 && $birthYear <= 1996) {
-		        $gen_mill += 1;
-		    } elseif ($birthYear >= 1997 && $birthYear <= 2012) {
-		        $gen_z += 1;
-		    } elseif ($birthYear >= 2013) {
-	         	$gen_alpha += 1;
-		    } else {
-		        $unkgen += 1;
-		    }
-		}
+		
 
 		
 		$rs = array(
@@ -239,41 +292,47 @@ class Dash_reimbursement_menu extends MY_Controller
  	}
 
 
- 	public function get_data_empbyDivGender(){
+ 	public function get_data_monthlyReimbSummary(){
  		$post = $this->input->post(null, true);
  		$fldiv 	= $post['fldiv'];
 
 
-		$whereDiv="";
-		if(!empty($fldiv)){ 
-			$whereDiv=" and a.division_id = '".$fldiv."'";
-		}
+		// buat where dinamis
+	    $whereDiv = "";
+	    if (!empty($fldiv)) { 
+	        $whereDiv = " WHERE a.division_id = '".$this->db->escape_str($fldiv)."' ";
+	    }
 
 		
 		$rs = $this->db->query("select
-				    a.division_id, b.name as division_name,
-				    SUM(CASE WHEN a.gender = 'M' THEN 1 ELSE 0 END) AS total_laki_laki,
-				    SUM(CASE WHEN a.gender = 'F' THEN 1 ELSE 0 END) AS total_perempuan,
-				    COUNT(*) AS total_karyawan
+					aa.date_reimbursment, a.division_id, b.name as division_name,
+					SUM(CASE WHEN aa.status_id = '1' THEN 1 ELSE 0 END) AS total_waitingapproval,
+					SUM(CASE WHEN aa.status_id = '2' THEN 1 ELSE 0 END) AS total_approve,
+				    SUM(CASE WHEN aa.status_id = '3' THEN 1 ELSE 0 END) AS total_reject,
+					COUNT(*) AS total_reimburs
 				FROM
-				    employees a
-				    left join divisions b on b.id = a.division_id
-				where a.status_id = 1 and a.division_id != 0 ".$whereDiv."
+				medicalreimbursements aa 
+					left join employees a on a.id = aa.employee_id
+					left join divisions b on b.id = a.division_id
+					$whereDiv
 				GROUP BY
-				    a.division_id ")->result(); 
+					DATE_FORMAT(aa.date_reimbursment, '%Y-%m')
+				ORDER BY date_reimbursment ASC")->result(); 
 
-		$divisions=[]; $total_male=[]; $total_female=[];
+		$date_reimbursment=[]; $total_waitingapproval=[]; $total_approve=[]; $total_reject=[];
 		foreach($rs as $row){
-			$divisions[] 	= $row->division_name;
-			$total_male[] 	= $row->total_laki_laki;
-			$total_female[]	= $row->total_perempuan;
+			$date_reimbursment[] 		= $row->date_reimbursment;
+			$total_waitingapproval[] 	= $row->total_waitingapproval;
+			$total_approve[]			= $row->total_approve;
+			$total_reject[]				= $row->total_reject;
 		}
 
 
 		$data = array(
-			'divisions' 	=> $divisions,
-			'total_male' 	=> $total_male,
-			'total_female' 	=> $total_female
+			'date_reimbursment' 	=> $date_reimbursment,
+			'total_waitingapproval' => $total_waitingapproval,
+			'total_approve' 		=> $total_approve,
+			'total_reject' 			=> $total_reject
 		);
 
 
@@ -281,39 +340,40 @@ class Dash_reimbursement_menu extends MY_Controller
  	}
 
 
- 	public function get_data_empStatus(){
+ 	public function get_data_byDiv(){
  		$post = $this->input->post(null, true);
  		$fldiv 	= $post['fldiv'];
 
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and a.division_id = '".$fldiv."'";
+			$whereDiv=" and c.id = '".$fldiv."'";
 		}
 
 
     	$rs = $this->db->query("select 
-								  b.id AS status,
-								  b.name AS status_name,
-								  COUNT(a.id) AS total
-								FROM master_emp_status b
-								LEFT JOIN employees a 
-								  ON a.employment_status_id = b.id 
-								  AND a.status_id = 1 ".$whereDiv."
-								GROUP BY b.id, b.name
-								ORDER BY status")->result(); 
+								    c.id AS division_id,
+								    c.name AS division_name,
+								    COUNT(a.id) AS total
+								FROM divisions c
+								LEFT JOIN employees b ON b.division_id = c.id
+								LEFT JOIN medicalreimbursements a ON a.employee_id = b.id
+								where 1=1 ".$whereDiv."
+								GROUP BY c.id, c.name
+								ORDER BY c.name
+								")->result(); 
 
-		$status=[]; $total=[]; 
+		$division_name=[]; $total=[]; 
 		foreach($rs as $row){
-			$status[] 	= $row->status_name;
-			$total[] 	= $row->total;
+			$division_name[] 	= $row->division_name;
+			$total[] 			= $row->total;
 			
 		}
 
 
 		$data = array(
-			'status' 	=> $status,
-			'total'		=> $total
+			'division_name' => $division_name,
+			'total'			=> $total
 		);
 
 

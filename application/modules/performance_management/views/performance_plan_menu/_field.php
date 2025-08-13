@@ -43,6 +43,48 @@
 	.year-input-wrapper .year-input::placeholder {
 		color: #2d3667;
 	}
+
+	@media screen and (max-width: 768px) {
+
+		.select2-selection {
+			width: 150px !important;
+			height: 30px !important;
+		}
+
+		.select2-selection__placeholder {
+			font-size: 12px !important;
+		}
+
+		.select2-selection__arrow {
+			width: 30% !important;
+		}
+
+		.year-input-wrapper {
+			width: 100px !important;
+			padding: 0 0px !important;
+			margin-left: -50px !important;
+			height: 30px !important;
+			
+		}
+
+		.year-input-wrapper .year-input {
+			padding: 0px 0 !important;
+			font-size: 12px !important;
+		}
+
+		.tools {
+			justify-content: start !important;
+			padding: 0 0px !important;
+			margin-left: -15px !important;
+		}
+
+		.row {
+			margin-bottom: -10px !important;
+		}
+
+
+
+	}
 </style>
 
 <div class="row" style="font-family: 'Poppins', sans-serif;">
