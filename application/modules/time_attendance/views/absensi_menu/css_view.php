@@ -10,4 +10,8 @@
 [class*="col-"] .chosen-container .chosen-drop {
     width: 100%!important;
 }
+
+.modal-dialog {
+    width: 90%!important;
+}
 </style>

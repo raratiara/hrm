@@ -1,32 +1,3 @@
-<style>
-	.row-flex {
-		display: flex;
-		align-items: center;
-		margin: 0;
-	}
-
-	@media screen and (max-width: 768px) {
-		.row-flex {
-			display: flex;
-			align-items: center;
-			font-size: 12px;
-			margin-bottom: 10px ! important;
-		}
-
-
-		.row-flex .col-md-9 {
-			flex: 1;
-		}
-
-		.row-flex label {
-			width: 120px;
-			/* lebar label lebih kecil di HP */
-			margin: 0;
-		}
-
-
-	}
-</style>
 <div class="row-flex" style="margin-bottom: 20px;">
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
@@ -55,7 +26,7 @@
 
 <div class="row ca">
 	<div class="col-md-12">
-		<div class="portlet box grey">
+		<div class="portlet box">
 			<div class="portlet-title">
 				<div class="caption">Detail Job </div>
 				<div class="tools">

@@ -85,6 +85,82 @@
     color: #38406F;
   }
 
+  .row-flex {
+		display: flex;
+		align-items: center;
+		margin: 0;
+	}
+
+	@media screen and (max-width: 768px) {
+
+		.modal-body {
+			margin: 0 !important;
+		}
+
+		.row-flex {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.row-flex label {
+			width: 120px;
+			/* lebar label lebih kecil di HP */
+			margin: 0;
+		}
+
+		.row {
+			font-size: 12px !important;
+		}
+
+		.ca .col-md-12 {
+			width: 100% !important;
+		}
+
+		#tblHardskill th,
+		#tblHardskill td {
+			display: table-cell !important;
+			font-size: 12px !important;
+			padding: 6px !important;
+			vertical-align: middle !important;
+		}
+
+		#tblsoftskill_detail thead tr,
+		#tblsoftskill_detail tbody tr {
+			display: flex;
+			/* atau hapus saja baris ini */
+		}
+
+
+		#tblsoftskill_detail th,
+		#tblsoftskill_detail td {
+			flex: 1;
+			/* biar semua kolom proporsional */
+			display: table-cell !important;
+			font-size: 12px !important;
+			padding: 6px !important;
+			vertical-align: middle !important;
+		}
+
+		.table-scrollable-mobile {
+			display: block;
+			width: 100%;
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+			/* biar scroll halus di iOS */
+		}
+
+		.table-scrollable-mobile table {
+			width: max-content;
+			/* supaya tabel tidak terpotong */
+			min-width: 100%;
+		}
+
+
+
+
+
+	}
+
 
 
 

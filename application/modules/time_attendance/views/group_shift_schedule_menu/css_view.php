@@ -215,6 +215,10 @@
     cursor: pointer;
   }
 
+  .modal-dialog {
+    width: 90% !important;
+  }
+
 
   /*MODAL*/
   .custom-modal {

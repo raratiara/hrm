@@ -1,15 +1,10 @@
 <style>
     @media (max-width: 768px) {
 
-        .modal-dialog {
-            width: 25% !important;
-            margin-left: 308px !important;
-        }
-
         .modal-content {
             max-height: 80vh;
             overflow-y: auto;
-            width: fit-content !important;
+            width: 90% !important;
         }
 
         
