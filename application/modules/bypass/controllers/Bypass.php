@@ -548,9 +548,10 @@ class Bypass extends API_Controller
 	public function submit_absen_holiday(){ //jalanin setiap hari jam 8 pagi
 
 		$Holidays = $this->db->query("select * from master_holidays where date = '".date("Y-m-d")."'")->result();
-		$holID = $Holidays[0]->id;
+		
 
 		if(!empty($Holidays)){
+			$holID = $Holidays[0]->id;
 			$rowEmp = $this->db->query("select * from employees where status_id = 1")->result();
 
 			if(!empty($rowEmp)){ 
