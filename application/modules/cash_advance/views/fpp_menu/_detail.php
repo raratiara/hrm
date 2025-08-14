@@ -75,9 +75,9 @@
 
 <div>
     <div class="col-md-12">
-		<div class="portlet box grey">
+		<div class="portlet box">
 			<div class="portlet-title">
-				<div class="caption">Advance Request Details </div>
+			<div class="caption">Advance Request Details </div>
 				<div class="tools">
 					
 				</div>

@@ -16,4 +16,14 @@
     .modal-dialog {
         width: 90% !important;
     }
+
+    @media screen and (max-width: 768px) {
+        .row {
+        font-size: 12px !important;
+        display: flex;
+        margin-bottom: 8px ! important;
+        align-items: flex-start;
+    }
+    }
+    
 </style>

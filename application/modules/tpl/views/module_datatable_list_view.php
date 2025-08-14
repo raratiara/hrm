@@ -225,9 +225,9 @@
                                 <thead>
                                     <tr>
                                         <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
-                                            <th width="15px"><input type="checkbox" id="check-all"></th>
+                                            <th><input type="checkbox" id="check-all"></th>
                                         <?php } ?>
-                                        <th width="120px">Action</th>
+                                        <th style="min-width:120px !important;">Action</th>
                                         <?php
                                         if (isset($thData) && $thData <> "") {
                                             foreach ($thData as $th) {
