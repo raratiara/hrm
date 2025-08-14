@@ -301,8 +301,15 @@ class Ijin_menu_model extends MY_Model
 
 
 		if($post['employee'] != '' && $post['date_start'] != '' && $post['date_end'] != '' && $post['leave_type'] != ''){
-			$cek_sisa_cuti 	= $this->get_data_sisa_cuti($post['employee'], $f_date_start, $f_date_end);
-			$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+			/*$cek_sisa_cuti 	= $this->get_data_sisa_cuti($post['employee'], $f_date_start, $f_date_end);
+			$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;*/
+
+			$cek_sisa_cuti = $this->get_data_sisa_cuti($post['employee'], $f_date_start, $f_date_end);
+			if (is_array($cek_sisa_cuti) && isset($cek_sisa_cuti[0]->ttl_sisa_cuti)) {
+			    $sisa_cuti = $cek_sisa_cuti[0]->ttl_sisa_cuti;
+			} else {
+			    $sisa_cuti = 0; // default kalau datanya tidak ada
+			}
 
 			$diff_day		= $this->dayCount($f_date_start, $f_date_end);
 
@@ -404,9 +411,13 @@ class Ijin_menu_model extends MY_Model
 					
 				}
 				else return null;
-			}else return null;
+			}else{
+				echo "Date not match"; die();
+			}
 			
-		}else return null;
+		}else{
+			echo "Please fill Employee, Date Range & Leave Type"; die();
+		}
 		
 	}  
 
