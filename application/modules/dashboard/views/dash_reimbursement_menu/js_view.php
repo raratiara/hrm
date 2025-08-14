@@ -25,15 +25,19 @@
 		        allowClear: true
 		    });*/
 
-			empbyDivGender();
-			empbyStatus();
-			empbyGen();
-			empbyMaritalStatus();
-			projectSummary();
+			monthlyReimbSummary();
+			reimbByDiv();
+			reimbursFor();
 			dataTotal();
 
 		});
 	});
+
+
+	function formatRupiah(angka) {
+	    return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	}
+
 
 
 	function dataTotal() {
@@ -50,26 +54,26 @@
 			success: function (data) {
 				if (data != false) {
 
-					$('span.ttl_reguler').html(data.total_reguler);
-					$('span.ttl_shift').html(data.total_shift);
-					$('span.ttl_managerial').html(data.total_managerial);
-					$('span.ttl_nonmanagerial').html(data.total_nonmanagerial);
-					$('p.ttl_grade_a').html(data.total_grade_a);
-					$('p.ttl_grade_b').html(data.total_grade_b);
-					$('p.ttl_grade_c').html(data.total_grade_c);
-					$('p.ttl_grade_d').html(data.total_grade_d);
+					$('span#ttl_reimburs').html(data.ttl_reimburs);
+					/*var ttl_amount_reimburs = 'Rp. '+data.ttl_amount_reimburs;*/
+					var ttl_amount_reimburs = 'Rp. ' + formatRupiah(data.ttl_amount_reimburs);
+					$('span#ttl_amount_reimburs').html(ttl_amount_reimburs);
+					
+					$('p.total_rawatinap').html(data.total_rawatinap);
+					$('p.total_kacamata').html(data.total_kacamata);
+					$('p.total_persalinan').html(data.total_persalinan);
+					$('p.total_rawatjalan').html(data.total_rawatjalan);
 
 					
 				} else {
 					var valnull = 0;
-					$('span.ttl_reguler').html(valnull);
-					$('span.ttl_shift').html(valnull);
-					$('span.ttl_managerial').html(valnull);
-					$('span.ttl_nonmanagerial').html(valnull);
-					$('p.ttl_grade_a').html(valnull);
-					$('p.ttl_grade_b').html(valnull);
-					$('p.ttl_grade_c').html(valnull);
-					$('p.ttl_grade_d').html(valnull);
+					$('span#ttl_reimburs').html(valnull);
+					$('span#ttl_amount_reimburs').html(valnull);
+					
+					$('p.total_rawatinap').html(valnull);
+					$('p.total_kacamata').html(valnull);
+					$('p.total_persalinan').html(valnull);
+					$('p.total_rawatjalan').html(valnull);
 
 				}
 			},
@@ -91,32 +95,32 @@
 
 
 
-	function empbyStatus() {
+	function reimbByDiv() {
 
 		var fldiv = $("#fldiv option:selected").val();
 
 
 		$.ajax({
 			type: "POST",
-			url: module_path + '/get_data_empStatus',
+			url: module_path + '/get_data_byDiv',
 			data: { fldiv: fldiv},
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
-console.log(data);
-					const ctx = document.getElementById('empby_status').getContext('2d');
 
-					var chartExist = Chart.getChart("empby_status"); // <canvas> id
+					const ctx = document.getElementById('reimbyDiv').getContext('2d');
+
+					var chartExist = Chart.getChart("reimbyDiv"); // <canvas> id
 					if (chartExist != undefined)
 						chartExist.destroy();
 									
 					const barChart = new Chart(ctx, {
 						type: 'bar',
 						data: {
-							labels: data.status,
+							labels: data.division_name,
 							datasets: [{
-								label: 'Employee',
+								label: 'Reimbursement',
 								data: data.total,
 								backgroundColor: [
 									'#9EE06F',
@@ -346,34 +350,34 @@ console.log(data);
 	}
 
 
-	function empbyDivGender() {
+	function monthlyReimbSummary() {
 
 		var fldiv = $("#fldiv option:selected").val();
 
 
 		$.ajax({
 			type: "POST",
-			url: module_path + '/get_data_empbyDivGender',
+			url: module_path + '/get_data_monthlyReimbSummary',
 			data: { fldiv: fldiv},
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
 
-					const ctx = document.getElementById('empby_div_gender').getContext('2d');
-					var chartExist = Chart.getChart("empby_div_gender"); // <canvas> id
+					const ctx = document.getElementById('monthly_reimb_summ').getContext('2d');
+					var chartExist = Chart.getChart("monthly_reimb_summ"); // <canvas> id
 					if (chartExist != undefined)
 						chartExist.destroy();
 
 					new Chart(ctx, {
 						type: 'bar',
 						data: {
-							labels: data.divisions, /*['HRGA', 'IT', 'Marketing'],*/
+							labels: data.date_reimbursment, /*['HRGA', 'IT', 'Marketing'],*/
 							datasets: [
 								{
-									label: 'Male',
+									label: 'Waiting Approval',
 									type: 'bar',
-									data: data.total_male,
+									data: data.total_waitingapproval,
 									borderColor: '#3381fc',
 									backgroundColor: '#3F51B5', /*'#3381fc',*/
 									fill: false,
@@ -382,10 +386,21 @@ console.log(data);
 									borderRadius: 3
 								},
 								{
-									label: 'Female',
+									label: 'Approved',
 									type: 'bar',
-									data: data.total_female,
-									borderColor: '#fc3381',
+									data: data.total_approve,
+									borderColor: '#81fc33',
+									backgroundColor: '#81fc33',/*'#fc3381',*/
+									fill: false,
+									tension: 0.4,
+									yAxisID: 'y1',
+									borderRadius: 3
+								},
+								{
+									label: 'Rejected',
+									type: 'bar',
+									data: data.total_reject,
+									borderColor: '#FF4081',
 									backgroundColor: '#FF4081',/*'#fc3381',*/
 									fill: false,
 									tension: 0.4,
@@ -499,22 +514,113 @@ console.log(data);
 	}
 
 
-	function empbyGen() {
+	function reimbursFor() {
+	    var fldiv = $("#fldiv option:selected").val();
+
+	    $.ajax({
+	        type: "POST",
+	        url: module_path + '/get_data_reimFor',
+	        data: { fldiv: fldiv },
+	        cache: false,
+	        dataType: "JSON",
+	        success: function (data) {
+	            if (data && data.length > 0) {
+	                const labels = data.map(item => item.label);
+	                const values = data.map(item => item.value);
+
+	                const ctx = document.getElementById('reimFor').getContext('2d');
+	                var chartExist = Chart.getChart("reimFor");
+	                if (chartExist) chartExist.destroy();
+
+	                new Chart(ctx, {
+	                    type: 'pie',
+	                    data: {
+	                        labels: labels,
+	                        datasets: [{
+	                            label: 'Reimburse For',
+	                            data: values,
+	                            backgroundColor: [
+	                                '#FED24B',
+	                                '#38406F',
+	                                '#74DCE0',
+	                                '#D9CAAA',
+	                                '#A1C181',
+	                                '#F28482',
+	                                '#84A59D',
+	                                '#F6BD60'
+	                            ],
+	                            borderWidth: 2,
+	                            borderColor: '#fff',
+	                            hoverOffset: 10
+	                        }]
+	                    },
+	                    options: {
+	                        responsive: true,
+	                        maintainAspectRatio: false,
+	                        plugins: {
+	                            datalabels: {
+	                                formatter: (value) => {
+	                                    return value === 0 ? '' : value;
+	                                },
+	                                color: '#fff',
+	                                font: { size: 10 }
+	                            },
+	                            legend: {
+	                                labels: {
+	                                    font: { size: 8 },
+	                                    boxWidth: 12,
+	                                    boxHeight: 8,
+	                                    borderRadius: 4,
+	                                    usePointStyle: true
+	                                },
+	                                position: 'bottom'
+	                            },
+	                            tooltip: {
+	                                callbacks: {
+	                                    label: function (context) {
+	                                        let label = context.label || '';
+	                                        let value = context.parsed;
+	                                        return `${label}: ${value}`;
+	                                    }
+	                                }
+	                            },
+	                            title: { display: false }
+	                        }
+	                    },
+	                    plugins: [ChartDataLabels]
+	                });
+	            }
+	        },
+	        error: function (jqXHR, textStatus, errorThrown) {
+	            bootbox.dialog({
+	                title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+	                message: jqXHR.responseText,
+	                buttons: {
+	                    confirm: { label: 'Ok', className: 'btn blue' }
+	                }
+	            });
+	        }
+	    });
+	}
+
+
+
+	function reimbursFor_old() {
 
 		var fldiv = $("#fldiv option:selected").val();
 
 
 		$.ajax({
 			type: "POST",
-			url: module_path + '/get_data_empbyGen',
+			url: module_path + '/get_data_reimFor',
 			data: { fldiv: fldiv},
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
 
-					const ctx = document.getElementById('empby_gen').getContext('2d');
-					var chartExist = Chart.getChart("empby_gen"); // <canvas> id
+					const ctx = document.getElementById('reimFor').getContext('2d');
+					var chartExist = Chart.getChart("reimFor"); // <canvas> id
 					if (chartExist != undefined)
 						chartExist.destroy();
 
@@ -733,9 +839,9 @@ console.log(data);
 
 	function setFilter() {
 
-		empbyDivGender();
-		empbyStatus();
-		empbyGen();
+		monthlyReimbSummary();
+		reimbByDiv();
+		reimbursFor();
 		empbyMaritalStatus();
 		projectSummary();
 		dataTotal();
@@ -745,9 +851,9 @@ console.log(data);
 
 	$('#fldiv').on('change', function () {
 
-		empbyDivGender();
-		empbyStatus();
-		empbyGen();
+		monthlyReimbSummary();
+		reimbByDiv();
+		reimbursFor();
 		empbyMaritalStatus();
 		projectSummary();
 		dataTotal();

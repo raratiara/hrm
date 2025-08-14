@@ -11,7 +11,7 @@
     <meta content="" name="author" />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet"
         type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/font-awesome/css/font-awesome.min.css"
         rel="stylesheet" type="text/css" />
     <link href="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/simple-line-icons/simple-line-icons.min.css"
@@ -88,6 +88,10 @@
             background-color: #343851 !important;
             
         } */
+
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
 
         /* Warna teks menu sidebar */
 

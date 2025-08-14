@@ -75,6 +75,8 @@
       background-color: #fff;
       width: 120px !important;
       padding-left: 25px !important;
+      width: 120px !important;
+      padding-left: 25px !important;
     }
 
     .date-icon {
@@ -88,6 +90,7 @@
       position: relative;
       padding-left: 18px !important;
       width: 160px !important;
+      width: 160px !important;
     }
 
     .employee-icon {
@@ -99,6 +102,7 @@
     }
 
     .select2-selection {
+      width: 140px !important;
       width: 140px !important;
     }
 
@@ -153,6 +157,17 @@
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
+    .title-box-chart {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+  }
+
+  .title-box-chart {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
   }
 
 
@@ -188,12 +203,16 @@
     padding-left: 20px;
     height: 28px !important;
 
+    padding-left: 20px;
+    height: 28px !important;
+
   }
 
   .employee-icon {
     position: absolute;
     left: 10px;
     color: #666;
+    font-size: 10px;
     font-size: 10px;
     pointer-events: none;
   }
@@ -208,6 +227,7 @@
     background-color: #fff;
     padding-left: 34px;
     height: 28px !important;
+    height: 28px !important;
   }
 
   .date-icon {
@@ -215,11 +235,14 @@
     left: 10px;
     color: grey !important;
     font-size: 10px;
+    color: grey !important;
+    font-size: 10px;
   }
 
   .date-input {
     border: none;
     outline: none;
+    font-size: 10px;
     font-size: 10px;
     width: 100%;
     height: 100%;

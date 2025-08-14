@@ -3,13 +3,15 @@
 
         .modal-dialog {
             width: 100% !important;
+            
         }
 
         .modal-content {
+            
             width: 90% !important;
         }
 
-
+        
         .vertical-alignment-helper {
             display: flex;
             align-items: center;
@@ -19,9 +21,7 @@
         .vertical-align-center {
             width: 100%;
         }
-
-
-
+        
 
     }
 

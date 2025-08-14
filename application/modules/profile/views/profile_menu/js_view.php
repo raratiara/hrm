@@ -269,7 +269,7 @@
 						});*/
 
 
-						const tbody = document.getElementById("tasklistBody");
+						/*const tbody = document.getElementById("tasklistBody");
 						tbody.innerHTML = "";
 
 						let previousGroupId = null;
@@ -328,7 +328,7 @@
 						    previousGroupId = currentGroupId;
 						    previousTaskType = taskrow.task_type;
 						    tbody.appendChild(tr);
-						});
+						});*/
 
 
 
@@ -747,6 +747,8 @@
 	        cache: false,
 	        dataType: "JSON",
 	        success: function (data) {
+
+	        	//chart tasklist 
 	            const ctx = document.getElementById('daily_tasklist').getContext('2d');
 	            const chartExist = Chart.getChart("daily_tasklist");
 	            if (chartExist !== undefined) chartExist.destroy();
@@ -758,8 +760,8 @@
 	                /*type: 'line',*/
 	                type: 'bar',
 	                fill: false,
-	                borderColor: '#FED24B', // ambil dari controller
-	                backgroundColor: 'rgba(254, 210, 75, 0.7)', // opsional, untuk titik
+	                borderColor: ds.backgroundColor.hex, // ambil dari controller
+	                backgroundColor: ds.backgroundColor.rgba, // opsional, untuk titik
 	                tension: 0.3,
 	                pointRadius: 3,
 	                pointHoverRadius: 5,
@@ -816,6 +818,73 @@
 	                },
 	                plugins: [ChartDataLabels]
 	            });
+
+
+console.log(data.taskList);
+	            //table tasklist progress
+	            const tbody = document.getElementById("tasklistBody");
+				tbody.innerHTML = "";
+
+				let previousGroupId = null;
+				let previousTaskType = null;
+
+				data.taskList.forEach((taskrow, index) => {
+				    let due_date = taskrow.due_date ?? '-';
+				    let tr = document.createElement("tr");
+
+				    let currentGroupId = taskrow.project_id ?? `parent-${index}`; // Grouping
+
+				    const isNotFirst = index > 0;
+				    const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
+				    const isDifferentGroup = currentGroupId !== previousGroupId;
+
+				    // 1. Jika task_type adalah 'standalone', selalu beri garis
+				    if (taskrow.task_type === 'standalone') {
+				        const hrRow = document.createElement("tr");
+				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				        tbody.appendChild(hrRow);
+				    }
+
+				    // 2. Garis pemisah antar grup (bukan 'project → parent/child' dalam satu project)
+				    else if (
+				        isNotFirst &&
+				        isParentOrProject &&
+				        isDifferentGroup &&
+				        previousTaskType !== 'project' &&
+				        previousTaskType !== 'standalone' // jangan beri garis kalau sebelumnya standalone
+				    ) {
+				        const hrRow = document.createElement("tr");
+				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				        tbody.appendChild(hrRow);
+				    }
+
+				    // Baris Project
+				    if (taskrow.task_type === 'project') {
+				        tr.innerHTML = `
+				            <td colspan="3" style="font-weight: bold; font-size:10px; background:#eef;">📁 ${taskrow.task}</td>
+				        `;
+				    } else {
+				        let indent = '';
+				        if (taskrow.task_type === 'child') {
+				            indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
+				        } else if (taskrow.task_type === 'parent') {
+				            indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
+				        }
+
+				        tr.innerHTML = `
+				            <td style="font-size:10px">${indent}${taskrow.task}</td>
+				            <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
+				            <td style="font-size:10px">${due_date}</td>
+				        `;
+				    }
+
+				    previousGroupId = currentGroupId;
+				    previousTaskType = taskrow.task_type;
+				    tbody.appendChild(tr);
+				});
+
+
+
 	        }
 	    });
 	}

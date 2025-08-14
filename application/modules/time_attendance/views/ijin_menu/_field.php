@@ -47,6 +47,13 @@
 				<span class="file_attachment"></span>
 			</div>
 		</div>
+
+		<!-- <div class="form-group" id="cl">
+			<label class="col-md-4 control-label no-padding-right">Work Date</label>
+			<div class="col-md-8">
+				<?=$txtworkdate;?>
+			</div>
+		</div> -->
 		
 	</div>
 </div>

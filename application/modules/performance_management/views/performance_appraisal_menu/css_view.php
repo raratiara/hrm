@@ -12,13 +12,30 @@
   [class*="col-"] .chosen-container .chosen-drop {
     width: 100% !important;
   }
+  [class*="col-"] .chosen-container {
+    width: 98% !important;
+  }
 
+  [class*="col-"] .chosen-container .chosen-search input[type="text"] {
+    padding: 2px 4% !important;
+    width: 90% !important;
+    margin: 5px 2%;
+  }
+
+  [class*="col-"] .chosen-container .chosen-drop {
+    width: 100% !important;
+  }
+
+
+  #modal-rfu-data {
 
   #modal-rfu-data {
     padding-left: 600px
   }
+  }
 
 
+  /*.accordion {
   /*.accordion {
   background-color: #eee;
   color: #444;
@@ -44,6 +61,11 @@
 }*/
 
 
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f4f4;
+    padding: 50px;
+  }
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #f4f4f4;
@@ -188,12 +210,26 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   }
+  /* 
+  .accordion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
 
   .accordion:after {
     content: '\25BC';
     font-size: 16px;
     transition: transform 0.3s ease;
   }
+  .accordion:after {
+    content: '\25BC';
+    font-size: 16px;
+    transition: transform 0.3s ease;
+  }
+
+  .accordion.active:after {
+    transform: rotate(180deg);
+  } */
 
   .accordion.active:after {
     transform: rotate(180deg);
@@ -211,7 +247,21 @@
     margin-bottom: 0px !important;
 
   }
+  .panel {
+    max-height: none !important;
+    overflow: visible !important;
+    transition: none !important;
+    background: white;
+    padding: 0px 0px !important;
+    display: block !important;
+    margin-bottom: 0px !important;
 
+  }
+
+  .panel p {
+    margin: 16px 0;
+    color: #333;
+  }
   .panel p {
     margin: 16px 0;
     color: #333;
@@ -221,7 +271,24 @@
     max-height: 800px;
     padding: 16px 24px;
   }
+  .panel.show {
+    max-height: 800px;
+    padding: 16px 24px;
+  }
 
+  .summary {
+    display: flex;
+    gap: 20px;
+    margin-top: -20px !important;
+  }
+
+  .summary span {
+    color: #38406F;
+  }
+
+  .modal-dialog {
+    width: 95% !important;
+  }
   .summary {
     display: flex;
     gap: 20px;

@@ -4,18 +4,19 @@
 		width: 280px !important;
 	}
 	
-.box {
-	background-color: #343851 !important;
-	border: 1px solid #6b6b6b !important;
-}
+	.box {
+		background-color: #343851 !important;
+		border: 1px solid #6b6b6b !important;
+	}
 
-.portlet.box .portlet-title .caption i {
-	color: #ffffff !important;
-}
+	.portlet.box .portlet-title .caption i {
+		color: #ffffff !important;
+	}
 
-.portlet.box .portlet-title .caption i {
-	color: #ffffff !important;
-}
+	.portlet.box .portlet-title .caption i {
+		color: #ffffff !important;
+	}
+	
 </style>
 
 <h3 class="page-title"></h3>

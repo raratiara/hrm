@@ -264,13 +264,7 @@ class Sadmin_tools_app_menu_model extends MY_Model
 
 	public function add_data($post)
 	{ 
-		/*if(isset($post['parent_id']) && $post['parent_id'] != ''){
-			echo 'tes ada'; die();
-		}else{
-			echo 'tes kosong'; die();
-		}*/
-
-
+		
 
 		$data = [
 			'title' => trim($post['title']),
@@ -284,7 +278,7 @@ class Sadmin_tools_app_menu_model extends MY_Model
 			'um_order' => trim($post['um_order']),
 			'insert_by' => $_SESSION["username"]
 		];
-
+		
 		return $rs = $this->db->insert($this->table_name, $data);
 	}
 

@@ -548,9 +548,10 @@ class Bypass extends API_Controller
 	public function submit_absen_holiday(){ //jalanin setiap hari jam 8 pagi
 
 		$Holidays = $this->db->query("select * from master_holidays where date = '".date("Y-m-d")."'")->result();
-		$holID = $Holidays[0]->id;
+		
 
 		if(!empty($Holidays)){
+			$holID = $Holidays[0]->id;
 			$rowEmp = $this->db->query("select * from employees where status_id = 1")->result();
 
 			if(!empty($rowEmp)){ 
@@ -653,7 +654,175 @@ class Bypass extends API_Controller
 	}
 	
 	
-	
+	// cron jalanin manual utk update dan insert jatah cuti (case kalau cron otomatis tidak jalan)
+	public function help_update_insert_jatah_cuti(){
+		
+		$dateNow = date("Y-m-d");
+
+		$rs = $this->db->query("select * from total_cuti_karyawan where status = 1 and '".$dateNow."' > period_end ")->result(); 
+
+		if(!empty($rs)){
+			$data_update = array();
+			foreach ($rs as $row) {
+
+				/*$data1 = [
+					'status' 		=> 0,
+					'updated_date'	=> date("Y-m-d H:i:s")
+				];
+				$this->db->update('total_cuti_karyawan', $data1, "id = '".$row->id."'");*/
+
+				//insert cuti baru//
+				/*$getperiodstart = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$row->employee_id."' order by period_end desc limit 1")->result();*/
+				$last_period_end = $row->period_end;
+				$period_start = date('Y-m-d', strtotime('+1 day', strtotime($last_period_end)) );
+
+				$cek = $this->db->query("select a.* from total_cuti_karyawan a left join employees b on b.id = a.employee_id where b.status_id = 1 and a.employee_id = '".$row->employee_id."' and a.period_start = '".$period_start."' ")->result(); 
+				if(empty($cek)){
+					$period_end = date('Y-m-d', strtotime('+1 year', strtotime($period_start)) );
+					$data = [
+
+							'employee_id' 	=> $row->employee_id,
+							'period_start' 	=> $period_start,
+							'period_end' 	=> $period_end,
+							'sisa_cuti' 	=> 12,
+							'status' 		=> 1,
+							'created_date'	=> date("Y-m-d H:i:s")
+							
+						];
+
+					$exec = $this->db->insert('total_cuti_karyawan', $data);
+					if($exec){
+						$exp_date = date('Y-m-d', strtotime('+6 month', strtotime($period_start)) );
+
+						$data2 = [
+
+							'expired_date' 	=> $exp_date,
+							'updated_date'	=> date("Y-m-d H:i:s")
+							
+						];
+						$this->db->update('total_cuti_karyawan', $data2, "id = '".$row->id."'");
+					}
+				}
+				//end insert cuti baru
+
+
+				$result['employee_id'] = $row->employee_id;
+				$data_update[] = $result;
+			}
+
+			print_r($data_update); die();
+		}
+		else{
+			echo 'Tidak ada data yg di update'; die();
+		}
+
+	}
+
+
+
+	public function help_update_status_expired(){
+
+		$dateNow = date("Y-m-d");
+
+		$rs = $this->db->query("select * from total_cuti_karyawan where status = 1 and '".$dateNow."' > expired_date ")->result(); 
+
+		if(!empty($rs)){
+			$data_update = array();
+			foreach ($rs as $row) {
+				$data = [
+					'status' 		=> 0,
+					'updated_date'	=> date("Y-m-d H:i:s")
+				];
+				$this->db->update('total_cuti_karyawan', $data, "id = '".$row->id."'");
+
+				$result['employee_id'] = $row->employee_id;
+				$data_update[] = $result;
+			}
+
+			print_r($data_update); die();
+		}
+		else{
+			echo 'Tidak ada data yg di update'; die();
+		}
+
+	}
+
+
+	//help_submit_daily_absen_bydate?datex=2025-08-01
+	public function help_submit_daily_absen_bydate(){ //
+		/*$tanggal = date('Y-m-d');
+		$yesterday = date('Y-m-d', strtotime('-1 day', strtotime($tanggal)));*/
+
+		$yesterday 	= $_GET['datex'];
+
+		$period = date("Y-m", strtotime($yesterday));
+		$tgl = date("d", strtotime($yesterday));
+
+		
+		$hari = date('w', strtotime($yesterday)); // 0 = Minggu, 6 = Sabtu
+		$is_sabtuminggu = 0;
+		if ($hari == 0 || $hari == 6) {
+		   $is_sabtuminggu = 1;
+		} 
+
+
+
+		$emp = $this->db->query("select * from employees where status_id = 1")->result();
+
+		foreach($emp as $row_emp){
+			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
+
+			if(count($absen) == 0){
+				$emp_shift_type=1; $reguler_sabtuminggu=0; 
+				if($row_emp->shift_type == 'Reguler'){ 
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					if($is_sabtuminggu == 1){
+						$reguler_sabtuminggu=1;
+					}
+					
+				}else if($row_emp->shift_type == 'Shift'){ 
+					/*$dt = $this->db->query("select a.*, b.periode
+							, b.`".$tgl."` as 'shift' 
+							, c.time_in, c.time_out, c.name 
+							from shift_schedule a
+							left join group_shift_schedule b on b.id = a.group_shift_schedule_id 
+							left join master_shift_time c on c.id = b.`".$tgl."`
+							where a.employee_id = '".$row_emp->id."' and b.periode = '".$period."' ")->result(); */
+
+					$dt = $this->db->query("select a.*, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+						from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id left join master_shift_time c on c.id = b.`".$tgl."`
+						where b.employee_id = '".$row_emp->id."' and a.period = '".$period."' ")->result(); 
+
+				}else{ //tidak ada shift type
+					$emp_shift_type=0;
+				} 
+
+				$attendance_type=""; $time_in=""; $time_out="";
+				if($emp_shift_type==1){
+					$attendance_type 	= $dt[0]->name;
+					if($reguler_sabtuminggu!=1){
+						$time_in 	= $dt[0]->time_in;
+						$time_out 	= $dt[0]->time_out;
+					}
+				}
+
+
+				$data = [
+					'date_attendance' 			=> $yesterday,
+					'employee_id' 				=> $row_emp->id,
+					'attendance_type' 			=> $attendance_type,
+					'time_in' 					=> $time_in,
+					'time_out' 					=> $time_out,
+					'created_at'				=> date("Y-m-d H:i:s")
+				];
+				$rs = $this->db->insert('time_attendances', $data);
+			}
+			
+		}
+
+
+
+	}
 
 
 
