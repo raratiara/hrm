@@ -416,7 +416,7 @@ class Settlement_menu_model extends MY_Model
 				'cash_advance_id' 	=> trim($post['ca_number']), 
 				'prepared_by' 		=> $karyawan_id,
 				'requested_by'		=> trim($post['requested_by']),
-				'total_cost' 		=> trim($post['total_cost']),
+				'total_cost' 		=> trim($post['total_cost_sett']),
 				'settlement_amount' => trim($post['settlement_amount']),
 				'document' 			=> $document,
 				'status_id' 		=> 1, //waiting approval
@@ -519,7 +519,7 @@ class Settlement_menu_model extends MY_Model
 
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_sett']),
 						'settlement_amount' => trim($post['settlement_amount']),
 						'document' 			=> $document,
 						'updated_at'		=> date("Y-m-d H:i:s"),
@@ -532,7 +532,7 @@ class Settlement_menu_model extends MY_Model
 				}else{
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_sett']),
 						'settlement_amount' => trim($post['settlement_amount']),
 						'document' 			=> $document,
 						'updated_at'		=> date("Y-m-d H:i:s"),
