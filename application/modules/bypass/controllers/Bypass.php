@@ -820,6 +820,43 @@ class Bypass extends API_Controller
 			
 		}
 
+	}
+
+
+	public function WAReminder_absensimasuk(){
+
+
+		$token = "YOUR TOKEN";
+
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'https://dash.pushwa.com/api/kirimPesan',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS => json_encode([
+		    'token' => $token,
+		    'target' => "6287881747918",
+		    'type' => "text",
+		    'delay' => "1",
+		    'message' => "Hello Word\nHallo dunia",
+		    'sparator' => ","
+		  ]),
+		  CURLOPT_HTTPHEADER => array(
+		    'Content-Type: application/json'
+		  ),
+		));
+
+		$response = curl_exec($curl);
+
+		curl_close($curl);
+		echo $response;
+
 
 
 	}

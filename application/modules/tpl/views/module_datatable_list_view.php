@@ -228,7 +228,7 @@
                                             <th width="15px"><input type="checkbox" id="check-all"></th>
                                         <?php } ?>
                                         <?php
-                                        if($this->module_name != 'summaryabsen'){
+                                        if($this->module_name != 'summaryabsen' && $this->module_name != 'tidakabsenmasuk'){
                                             ?>
                                             <th width="120px">Action</th>
                                             <?php

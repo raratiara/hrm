@@ -98,7 +98,7 @@
 				<input type="hidden" id="hdndoc" name="hdndoc"/>
 			</div>
 			<div class="col-md-4">
-				<span class="file_doc"></span>
+				<span class="file_doc" id="file-doc-fpu"></span>
 			</div>
 		</div>
 	</div>
