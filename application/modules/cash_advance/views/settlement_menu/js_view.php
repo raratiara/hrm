@@ -229,34 +229,43 @@ function load_data()
 						document.getElementById("submit-data").className = "btn btn-success";
 
 						var modalFooter =  document.getElementById('mdlFooter');
-
+						var approveBtn = document.getElementById('submit-data');
 						
 						// Create a new button
-						var rfuButton = document.createElement('button');
-						rfuButton.innerText = 'RFU';
-						rfuButton.className = 'btn btn-warning btnRfu';
-						rfuButton.id = 'idbtnRfu';
-						// Append the button to the footer
-						modalFooter.appendChild(rfuButton);
+						if (!document.getElementById('idbtnRfu')) {
+							var rfuButton = document.createElement('button');
+							rfuButton.innerText = 'RFU';
+							rfuButton.className = 'btn btn-warning btnRfu';
+							rfuButton.id = 'idbtnRfu';
+							// Append the button to the footer
+							/*modalFooter.appendChild(rfuButton);*/
+							// Sisipkan setelah Approve
+        					approveBtn.insertAdjacentElement('afterend', rfuButton);
 
-						rfuButton.addEventListener('click', function() {
-							$('#modal-rfu-data').modal('show');
-							$('[name="id"]').val(data.rowdata.id);
-						});
-
+							rfuButton.addEventListener('click', function() {
+								$('#modal-rfu-data').modal('show');
+								$('[name="id"]').val(data.rowdata.id);
+							});
+						}
+						
 
 						//button reject
-						var rejectButton = document.createElement('button');
-						rejectButton.innerText = 'Reject';
-						rejectButton.className = 'btn btn-danger btnReject';
-						rejectButton.id = 'idbtnReject';
-						// Append the button to the footer
-						modalFooter.appendChild(rejectButton);
+						if (!document.getElementById('idbtnReject')) {
+							var rejectButton = document.createElement('button');
+							rejectButton.innerText = 'Reject';
+							rejectButton.className = 'btn btn-danger btnReject';
+							rejectButton.id = 'idbtnReject';
+							// Append the button to the footer
+							/*modalFooter.appendChild(rejectButton);*/
+							// Sisipkan setelah RFU
+        					document.getElementById('idbtnRfu').insertAdjacentElement('afterend', rejectButton);
 
-						rejectButton.addEventListener('click', function() {
-							$('#modal-reject-data').modal('show');
-							$('[name="id"]').val(data.rowdata.id);
-						});
+							rejectButton.addEventListener('click', function() {
+								$('#modal-reject-data').modal('show');
+								$('[name="id"]').val(data.rowdata.id);
+							});
+						}
+						
 
 					}
 
@@ -281,8 +290,24 @@ function load_data()
 
 
       				$('[name="hdndoc"]').val(data.rowdata.document);
-					if(data.rowdata.document != '' && data.rowdata.document != null){
+					/*if(data.rowdata.document != '' && data.rowdata.document != null){
 						$('span.file_doc').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.document+'" width="150" height="150" >');
+					}else{
+						$('span.file_doc').html('');
+					}*/
+					if(data.rowdata.document != '' && data.rowdata.document != null){
+						// CLEAR link sebelumnya
+						document.getElementById("file-doc-sett").innerHTML = '';
+
+						const fileName = data.rowdata.document; // ini bisa dari PHP atau hasil upload
+					    const fileUrl = baseUrl+"/uploads/cashadvance/settlement/" + fileName;
+
+					    const link = document.createElement('a');
+					    link.href = fileUrl;
+					    link.textContent = "View";
+					    link.target = "_blank";
+
+					    document.getElementById("file-doc-sett").appendChild(link);
 					}else{
 						$('span.file_doc').html('');
 					}
@@ -290,13 +315,30 @@ function load_data()
 
 					//bukti transfer
 					$('[name="hdndoc_buktitransfer"]').val(data.rowdata.bukti_transfer);
-					if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
+					/*if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
 						$('span.file_doc_buktitransfer').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.bukti_transfer+'" width="150" height="150" >');
 					}else{
 						$('span.file_doc_buktitransfer').html('');
-					}
-					
+					}*/
+					if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
+						// CLEAR link sebelumnya
+						document.getElementById("file_doc_buktitransfer_id").innerHTML = '';
 
+						const fileName = data.rowdata.bukti_transfer; // ini bisa dari PHP atau hasil upload
+					    const fileUrl = baseUrl+"/uploads/cashadvance/settlement/" + fileName;
+
+					    const link = document.createElement('a');
+					    link.href = fileUrl;
+					    link.textContent = "View";
+					    link.target = "_blank";
+
+					    document.getElementById("file_doc_buktitransfer_id").appendChild(link);
+					}else{
+						$('span.file_doc_buktitransfer').html('');
+					}
+
+					
+					var locate = 'table.sett-list';
 					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:data.rowdata.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
@@ -333,18 +375,52 @@ function load_data()
 
 					setinputanSettlement(data.rowdata.total_cost_ca, data.rowdata.total_cost,'view');
 					
-					if(data.rowdata.document != '' && data.rowdata.document != null){
+					/*if(data.rowdata.document != '' && data.rowdata.document != null){
 						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.document').html('');
+					}*/
+					if(data.rowdata.document != '' && data.rowdata.document != null){
+						// CLEAR link sebelumnya
+						document.getElementById("file-link-sett").innerHTML = '';
+
+						const fileName = data.rowdata.document; // ini bisa dari PHP atau hasil upload
+					    const fileUrl = baseUrl+"/uploads/cashadvance/settlement/" + fileName;
+
+					    const link = document.createElement('a');
+					    link.href = fileUrl;
+					    link.textContent = "View";
+					    link.target = "_blank";
+
+					    document.getElementById("file-link-sett").appendChild(link);
+					}else{
+						$('span.file').html('-');
 					}
 
+
 					//bukti transfer
-					if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
+					/*if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
 						$('span.bukti_transfer').html('<img src="'+baseUrl+'/uploads/cashadvance/settlement/'+data.rowdata.bukti_transfer+'" width="150" height="150" >');
 					}else{
 						$('span.bukti_transfer').html('');
+					}*/
+					if(data.rowdata.bukti_transfer != '' && data.rowdata.bukti_transfer != null){
+						// CLEAR link sebelumnya
+						document.getElementById("file-link-buktitrf").innerHTML = '';
+
+						const fileName = data.rowdata.bukti_transfer; // ini bisa dari PHP atau hasil upload
+					    const fileUrl = baseUrl+"/uploads/cashadvance/settlement/" + fileName;
+
+					    const link = document.createElement('a');
+					    link.href = fileUrl;
+					    link.textContent = "View";
+					    link.target = "_blank";
+
+					    document.getElementById("file-link-buktitrf").appendChild(link);
+					}else{
+						$('span.bukti_transfer').html('-');
 					}
+
 					
 					var locate = 'table.sett-list-view';
 					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:data.rowdata.id, view:true },success: function (response) { 
