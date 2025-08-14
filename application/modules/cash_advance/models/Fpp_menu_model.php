@@ -402,7 +402,7 @@ class Fpp_menu_model extends MY_Model
 				'request_date' 		=> trim($post['request_date']),
 				'prepared_by' 		=> $karyawan_id,
 				'requested_by'		=> trim($post['requested_by']),
-				'total_cost' 		=> trim($post['total_cost']),
+				'total_cost' 		=> trim($post['total_cost_fpp']),
 				'document' 			=> $document,
 				'fpp_type' 			=> trim($post['fpp_type']),
 				'no_rekening' 		=> trim($post['no_rekening']),
@@ -491,7 +491,7 @@ class Fpp_menu_model extends MY_Model
 
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_fpp']),
 						'document' 			=> $document,
 						'updated_at'		=> date("Y-m-d H:i:s"),
 						'fpp_type' 			=> trim($post['fpp_type']),
@@ -504,7 +504,7 @@ class Fpp_menu_model extends MY_Model
 				}else{
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_fpp']),
 						'document' 			=> $document,
 						'fpp_type' 			=> trim($post['fpp_type']),
 						'no_rekening' 		=> trim($post['no_rekening']),
