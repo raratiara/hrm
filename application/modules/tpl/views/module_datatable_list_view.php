@@ -146,6 +146,7 @@
     .pagination>li>a,
     .pagination>li>span {
         color: #343851 !important;
+        font-size: 12px !important;
     }
 </style>
 
