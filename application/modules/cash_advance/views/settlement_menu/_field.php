@@ -111,7 +111,7 @@
 				<input type="hidden" id="hdndoc_buktitransfer" name="hdndoc_buktitransfer"/>
 			</div>
 			<div class="col-md-4">
-				<span class="file_doc_buktitransfer"></span>
+				<span class="file_doc_buktitransfer" id="file_doc_buktitransfer_id"></span>
 			</div>
 		</div>
 		<div class="form-group" id="div_no_rekening" style="display:none">
@@ -136,13 +136,13 @@
 
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Document</label>
+			<label class="col-md-4 control-label no-padding-right"> Document Settlement</label>
 			<div class="col-md-4">
 				<?=$txtdoc;?>
 				<input type="hidden" id="hdndoc" name="hdndoc"/>
 			</div>
 			<div class="col-md-4">
-				<span class="file_doc"></span>
+				<span class="file_doc" id="file-doc-sett"></span>
 			</div>
 		</div>
 	</div>

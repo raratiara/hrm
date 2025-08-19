@@ -820,7 +820,317 @@ class Bypass extends API_Controller
 			
 		}
 
+	}
 
+
+	public function startDevice(){
+
+		$token = "zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+
+
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'https://dash.pushwa.com/api/startDevice',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS => json_encode([
+		    'token' => $token
+		  ]),
+		  CURLOPT_HTTPHEADER => array(
+		    'Content-Type: application/json'
+		  ),
+		));
+
+		$response = curl_exec($curl);
+
+		curl_close($curl);
+
+		$parse = json_decode($response, true);
+
+		if(isset($parse)){
+			$status 	= $parse['status'];
+			$message 	="";
+			if(isset($parse['message'])){
+				$message = $parse['message'];
+			}
+			if(isset($parse['qr'])){
+				$message = "Please scan qr again";
+			}
+		}
+
+		$data = [
+			'name' 		=> "Reminder Absensi - startDevice",
+			'status' 	=> $status,
+			'notes' 	=> $message,
+			'datetime'	=> date("Y-m-d H:i:s")
+		];
+		$this->db->insert('log_send_wa', $data);
+
+		$stsData = [
+			'status' 	=> $status,
+			'msg' 		=> $message
+		];
+
+		return $stsData; 
+
+		
+		/*if ( isset($parse['qr']) ) {
+		  echo 'https://api.qrserver.com/v1/create-qr-code/?data='.urlencode($parse['qr']);
+		}*/
+
+	}
+
+	//kirim setelah WAReminderAbsen, kasi jeda 2 menit. brarti jalanin di 11.02
+	public function re_checkStatusSendWA()
+	{ 
+	    $token = "zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+	    
+	    $rs = $this->db->query("
+	        SELECT id, notes
+	        FROM log_send_wa
+	        WHERE notes LIKE '%\"status\":\"pending\"%'
+	           OR notes LIKE '%\"status\":\"failed\"%'
+	    ")->result();
+
+	    if (!empty($rs)) {
+	        $idMsgList = [];
+	        $rowData = [];
+
+	        foreach ($rs as $row) {
+	            $data = json_decode($row->notes, true);
+	            if (is_array($data)) {
+	                foreach ($data as $item) {
+	                    if (!empty($item['idMsg']) && $item['status'] != 'success') {
+	                        $idMsgList[] = $item['idMsg'];
+	                    }
+	                }
+	            }
+	            $rowData[$row->id] = $data;
+	        }
+
+	        $idMsgList = array_unique($idMsgList);
+	        $idMsgString = implode(',', $idMsgList);
+
+	        $curl = curl_init();
+	        curl_setopt_array($curl, array(
+	            CURLOPT_URL => 'https://dash.pushwa.com/api/statusMessage',
+	            CURLOPT_RETURNTRANSFER => true,
+	            CURLOPT_ENCODING => '',
+	            CURLOPT_MAXREDIRS => 10,
+	            CURLOPT_TIMEOUT => 0,
+	            CURLOPT_FOLLOWLOCATION => true,
+	            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	            CURLOPT_CUSTOMREQUEST => 'POST',
+	            CURLOPT_POSTFIELDS => json_encode([
+	                "token" => $token,
+	                "idMsg" => $idMsgString
+	            ]),
+	            CURLOPT_HTTPHEADER => array(
+	                'Content-Type: application/json'
+	            ),
+	        ));
+	        $response = curl_exec($curl);
+	        curl_close($curl);
+
+	        $result = json_decode($response, true);
+
+	        $updateCount = 0; // counter update
+
+	        if (!empty($result['data'])) {
+	            foreach ($result['data'] as $res) {
+	                $msgId = $res['id'];
+	                $newStatus = $res['status'];
+
+	                foreach ($rowData as $rowId => &$notesArr) {
+	                    if (is_array($notesArr)) {
+	                        foreach ($notesArr as &$item) {
+	                            if (!empty($item['idMsg']) && $item['idMsg'] == $msgId) {
+	                                if ($item['status'] !== $newStatus) {
+	                                    $item['status'] = $newStatus;
+	                                    $updateCount++;
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+
+	            foreach ($rowData as $rowId => $updatedNotes) {
+	                $this->db->update('log_send_wa', [
+	                    'notes' => json_encode($updatedNotes)
+	                ], ["id" => $rowId]);
+	            }
+	        }
+
+	        if ($updateCount > 0) {
+	            echo "Berhasil update status pada {$updateCount} data.";
+	        } else {
+	            echo "Tidak ada perubahan status.";
+	        }
+	    } else {
+	        echo "Tidak ada data pending/failed.";
+	    }
+	}
+
+
+
+
+	public function checkStatusSendWA($token, $idMsgString){
+	/*public function checkStatusSendWA(){
+		$token="zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+		$idMsgString="653441,653442,653443";*/
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'https://dash.pushwa.com/api/statusMessage',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS =>'{
+		    "token": "'.$token.'",
+		    "idMsg" : "'.$idMsgString.'"
+		}',
+		  CURLOPT_HTTPHEADER => array(
+		    'Content-Type: application/json'
+		  ),
+		));
+
+		$response = curl_exec($curl);
+
+		curl_close($curl);
+		return $response;
+
+	}
+
+
+	//jalan setiap hari jam 11 pagi
+	public function WAReminderAbsen(){
+
+		$sts_startDevice = $this->startDevice();
+
+		
+		if(isset($sts_startDevice)){
+			if($sts_startDevice['status'] == '1' && $sts_startDevice['msg'] == 'connected'){ 
+
+				//kirim reminder absen
+				$dateNow = date("Y-m-d");
+				$rs = $this->db->query("select id, full_name, nick_name, shift_type, personal_phone from employees where status_id = 1 and id not in (select employee_id from time_attendances where date_attendance = '".$dateNow."') and id < 9")->result();
+				
+				if(!empty($rs)){ 
+
+					$arrtarget = [];
+				    foreach ($rs as $row) {
+				        $personal_phone = $row->personal_phone;
+				        $emp_name       = $row->full_name;
+
+				        if ($personal_phone != '') {
+				        	// Ubah 0 di depan jadi 62
+			                if (substr($personal_phone, 0, 1) == '0') {
+			                    $personal_phone = '62' . substr($personal_phone, 1);
+			                }
+				            // Gabungkan nomor dan nama pakai |
+				            $arrtarget[] = $personal_phone . "|" . $emp_name;
+				        }
+				    }
+				    // Gabungkan semua elemen dengan koma
+				    $targetString = implode(",", $arrtarget);
+
+
+					$token = "zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+
+					$curl = curl_init();
+
+					curl_setopt_array($curl, array(
+					  CURLOPT_URL => 'https://dash.pushwa.com/api/kirimPesan',
+					  CURLOPT_RETURNTRANSFER => true,
+					  CURLOPT_ENCODING => '',
+					  CURLOPT_MAXREDIRS => 10,
+					  CURLOPT_TIMEOUT => 0,
+					  CURLOPT_FOLLOWLOCATION => true,
+					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					  CURLOPT_CUSTOMREQUEST => 'POST',
+					  CURLOPT_POSTFIELDS => json_encode([
+					    'token' => $token,
+					    'target' => $targetString, 
+					    'type' => "text",
+					    'delay' => "2",
+					    'message' => "Hai *{var1}*,\n\nAku belum lihat kamu absen hari ini 😢\nJangan lupa absen yaa! 😁\n\n\n-HRM System-"
+
+					    /*Jalan-jalan ke pasar Senen 🛍️  
+						Pulang-pulang beli kue cucur 🍩  
+						Aku lihat-lihat kamu belum absen 😢
+						Jangan sampe gaji nanti hancur 💸*/
+
+					  ]),
+					  CURLOPT_HTTPHEADER => array(
+					    'Content-Type: application/json'
+					  ),
+					));
+
+					$response = curl_exec($curl); 
+					// Ubah JSON menjadi array
+					$data = json_decode($response, true);
+					// Ambil nilai idMsg
+					$idMsg = $data['idMsg']; 
+					// Kalau mau jadi string dipisahkan koma
+					$idMsgString = implode(',', $idMsg);
+					$statusSend = $this->checkStatusSendWA($token, $idMsgString);
+/*print_r($statusSend); die();*/
+
+					//ubah jd array
+					$responseArr  = json_decode($statusSend, true);
+					$result = [];
+					$items = explode(',', $targetString);
+
+					foreach ($items as $index => $item) {
+					    list($number, $emp) = explode('|', $item);
+					    
+					    $result[] = [
+					        "phone"  => $number,
+					        "emp"    => $emp,
+					        "idMsg"  => $responseArr['data'][$index]['id'] ?? null,
+					        "status" => $responseArr['data'][$index]['status'] ?? null
+					    ];
+					}
+					$xxResult = json_encode($result, JSON_UNESCAPED_UNICODE);
+					//end
+
+					$Logdata = [
+						'name' 		=> "Reminder Absensi - sendWA",
+						/*'status' 	=> $status,*/
+						'notes' 	=> $xxResult,
+						'datetime'	=> date("Y-m-d H:i:s")
+					]; 
+					$this->db->insert('log_send_wa', $Logdata);
+
+
+					curl_close($curl);
+					echo $response;
+
+				}else{
+					echo 'Tidak ada data'; die();
+				}
+
+			}else{
+				if(isset($sts_startDevice['msg'])){
+					echo $sts_startDevice['msg']; die();
+				}else{
+					echo "gagal"; die();
+				}
+			}
+		}else{
+			echo "gagal"; die();
+		}
 
 	}
 

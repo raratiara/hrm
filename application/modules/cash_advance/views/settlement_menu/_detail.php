@@ -107,7 +107,7 @@
 		<div class="row" id="div_bukti_transfer_view" style="display:none">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Bukti Transfer</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="bukti_transfer"></span>
+				: <span class="bukti_transfer" id="file-link-buktitrf"></span>
 			</div>
 		</div>
 		<div class="row" id="div_no_rekening_view" style="display:none">
@@ -133,9 +133,9 @@
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Document</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Document Settlement</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="document"></span>
+				: <!-- <span class="document"></span> --> <span class="file" id="file-link-sett"></span>
 			</div>
 		</div>
 		

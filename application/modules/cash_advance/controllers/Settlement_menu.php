@@ -62,7 +62,7 @@ class Settlement_menu extends MY_Controller
 		$msemp 						= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['txtrequestedby'] 	= $this->self_model->return_build_select2me($msemp,'','','','requested_by','requested_by','','','id','full_name',' ','','','',3,'-');
 
-		$msca 	= $this->db->query("select * from cash_advance where status_id in ('2','5') and id not in (select cash_advance_id from settlement)")->result(); 
+		$msca 	= $this->db->query("select * from cash_advance where status_id in ('2','5') and id not in (select cash_advance_id from settlement where status_id = 2)")->result(); 
 		$field['selcanumber'] 		= $this->self_model->return_build_select2me($msca,'','','','ca_number','ca_number','','','id','ca_number',' ','','','',3,'-');
 		
 

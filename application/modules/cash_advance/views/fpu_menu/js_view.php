@@ -229,39 +229,49 @@ function load_data()
 						document.getElementById("submit-data").className = "btn btn-success";
 
 						var modalFooter =  document.getElementById('mdlFooter');
-
+						var approveBtn = document.getElementById('submit-data');
 						
 						// Create a new button
-						var rfuButton = document.createElement('button');
-						rfuButton.innerText = 'RFU';
-						rfuButton.className = 'btn btn-warning btnRfu';
-						rfuButton.id = 'idbtnRfu';
-						// Append the button to the footer
-						modalFooter.appendChild(rfuButton);
+					 	if (!document.getElementById('idbtnRfu')) {
+					 		var rfuButton = document.createElement('button');
+							rfuButton.innerText = 'RFU';
+							rfuButton.className = 'btn btn-warning btnRfu';
+							rfuButton.id = 'idbtnRfu';
+							// Append the button to the footer
+							/*modalFooter.appendChild(rfuButton);*/
+							// Sisipkan setelah Approve
+        					approveBtn.insertAdjacentElement('afterend', rfuButton);
 
-						rfuButton.addEventListener('click', function() {
-							$('#modal-rfu-data').modal('show');
-							$('[name="id"]').val(data.rowdata.id);
-						});
+							rfuButton.addEventListener('click', function() {
+								$('#modal-rfu-data').modal('show');
+								$('[name="id"]').val(data.rowdata.id);
+							});
+					 	}
+						
 
 
 						//button reject
-						var rejectButton = document.createElement('button');
-						rejectButton.innerText = 'Reject';
-						rejectButton.className = 'btn btn-danger btnReject';
-						rejectButton.id = 'idbtnReject';
-						// Append the button to the footer
-						modalFooter.appendChild(rejectButton);
+						if (!document.getElementById('idbtnReject')) {
+							var rejectButton = document.createElement('button');
+							rejectButton.innerText = 'Reject';
+							rejectButton.className = 'btn btn-danger btnReject';
+							rejectButton.id = 'idbtnReject';
+							// Append the button to the footer
+							/*modalFooter.appendChild(rejectButton);*/
+							// Sisipkan setelah RFU
+        					document.getElementById('idbtnRfu').insertAdjacentElement('afterend', rejectButton);
 
-						rejectButton.addEventListener('click', function() {
-							$('#modal-reject-data').modal('show');
-							$('[name="id"]').val(data.rowdata.id);
-						});
+							rejectButton.addEventListener('click', function() {
+								$('#modal-reject-data').modal('show');
+								$('[name="id"]').val(data.rowdata.id);
+							});
+						}
+						
 
 					}
 
 
-					$('[name="fpu_number"]').val(data.rowdata.fpu_number);
+					$('[name="fpu_number"]').val(data.rowdata.ca_number);
 					$('[name="request_date"]').val(data.rowdata.request_date);
 					$('[name="prepared_by"]').val(data.rowdata.prepared_by_name);
 					$('[name="id"]').val(data.rowdata.id);
@@ -271,13 +281,33 @@ function load_data()
       				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
 
       				$('[name="hdndoc"]').val(data.rowdata.document);
-					if(data.rowdata.document != '' && data.rowdata.document != null){
+					/*if(data.rowdata.document != '' && data.rowdata.document != null){
 						$('span.file_doc').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.file_doc').html('');
-					}
-					
+					}*/
 
+
+					if(data.rowdata.document != '' && data.rowdata.document != null){
+						// CLEAR link sebelumnya
+						document.getElementById("file-doc-fpu").innerHTML = '';
+
+						const fileName = data.rowdata.document; // ini bisa dari PHP atau hasil upload
+					    const fileUrl = baseUrl+"/uploads/cashadvance/fpu/" + fileName;
+
+					    const link = document.createElement('a');
+					    link.href = fileUrl;
+					    link.textContent = "View";
+					    link.target = "_blank";
+
+					    document.getElementById("file-doc-fpu").appendChild(link);
+					}else{
+						$('span.file_doc').html('');
+					}
+
+
+					
+					var locate = 'table.fpu-list';
 					$.ajax({type: 'post',url: module_path+'/genfpurow',data: { id:data.rowdata.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
@@ -296,7 +326,7 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.fpu_number').html(data.rowdata.fpu_number);
+					$('span.fpu_number').html(data.rowdata.ca_number);
 					$('span.prepared_by').html(data.rowdata.prepared_by_name);
 					$('span.request_date').html(data.rowdata.request_date);
 					$('span.requested_by').html(data.rowdata.requested_by_name);
@@ -304,11 +334,31 @@ function load_data()
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
 					$('span.total_cost_terbilang').html(total_cost_terbilang);
 					
-					if(data.rowdata.document != '' && data.rowdata.document != null){
+					/*if(data.rowdata.document != '' && data.rowdata.document != null){
 						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.document').html('');
+					}*/
+
+					if(data.rowdata.document != '' && data.rowdata.document != null){
+						// CLEAR link sebelumnya
+						document.getElementById("file-link-fpu").innerHTML = '';
+
+						const fileName = data.rowdata.document; // ini bisa dari PHP atau hasil upload
+					    const fileUrl = baseUrl+"/uploads/cashadvance/fpu/" + fileName;
+
+					    const link = document.createElement('a');
+					    link.href = fileUrl;
+					    link.textContent = "View";
+					    link.target = "_blank";
+
+					    document.getElementById("file-link-fpu").appendChild(link);
+					}else{
+						$('span.file').html('-');
 					}
+
+					
+
 					
 					var locate = 'table.fpu-list-view';
 					$.ajax({type: 'post',url: module_path+'/genfpurow',data: { id:data.rowdata.id, view:true },success: function (response) { 

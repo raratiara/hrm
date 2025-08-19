@@ -218,12 +218,14 @@ class Fpp_menu_model extends MY_Model
 				}
 			}
 
-			/*$reject=""; 
+			$reject=""; 
 			$approve="";
 			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
-				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
-				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
-			}*/
+				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';*/
+
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+			}
 
 
 
@@ -402,7 +404,7 @@ class Fpp_menu_model extends MY_Model
 				'request_date' 		=> trim($post['request_date']),
 				'prepared_by' 		=> $karyawan_id,
 				'requested_by'		=> trim($post['requested_by']),
-				'total_cost' 		=> trim($post['total_cost']),
+				'total_cost' 		=> trim($post['total_cost_fpp']),
 				'document' 			=> $document,
 				'fpp_type' 			=> trim($post['fpp_type']),
 				'no_rekening' 		=> trim($post['no_rekening']),
@@ -415,10 +417,10 @@ class Fpp_menu_model extends MY_Model
 			$lastId = $this->db->insert_id();
 
 			if($rs){
-				if(isset($post['name'])){
-					$item_num = count($post['name']); // cek sum
-					$item_len_min = min(array_keys($post['name'])); // cek min key index
-					$item_len = max(array_keys($post['name'])); // cek max key index
+				if(isset($post['post_budget_fpp'])){
+					$item_num = count($post['post_budget_fpp']); // cek sum
+					$item_len_min = min(array_keys($post['post_budget_fpp'])); // cek min key index
+					$item_len = max(array_keys($post['post_budget_fpp'])); // cek max key index
 				} else {
 					$item_num = 0;
 				}
@@ -426,7 +428,7 @@ class Fpp_menu_model extends MY_Model
 				if($item_num>0){
 					for($i=$item_len_min;$i<=$item_len;$i++) 
 					{
-						if(isset($post['name'][$i])){
+						if(isset($post['post_budget_fpp'][$i])){
 							$itemData = [
 								'cash_advance_id'	=> $lastId,
 								'post_budget_id' 	=> trim($post['post_budget_fpp'][$i]),
@@ -491,7 +493,7 @@ class Fpp_menu_model extends MY_Model
 
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_fpp']),
 						'document' 			=> $document,
 						'updated_at'		=> date("Y-m-d H:i:s"),
 						'fpp_type' 			=> trim($post['fpp_type']),
@@ -504,7 +506,7 @@ class Fpp_menu_model extends MY_Model
 				}else{
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_fpp']),
 						'document' 			=> $document,
 						'fpp_type' 			=> trim($post['fpp_type']),
 						'no_rekening' 		=> trim($post['no_rekening']),
@@ -577,6 +579,7 @@ class Fpp_menu_model extends MY_Model
 						from cash_advance a left join employees b on b.id = a.prepared_by
 						left join employees c on c.id = a.requested_by
 						left join master_status_cashadvance d on d.id = a.status_id
+						where a.ca_type = 2
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();

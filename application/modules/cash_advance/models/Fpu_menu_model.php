@@ -219,12 +219,13 @@ class Fpu_menu_model extends MY_Model
 				}
 			}
 
-			/*$reject=""; 
+			$reject=""; 
 			$approve="";
 			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
-				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
-				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
-			}*/
+				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';*/
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+			}
 
 
 
@@ -559,10 +560,11 @@ class Fpu_menu_model extends MY_Model
 
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-						, d.name as status_name, c.direct_id   
-						from cash_advance a left join employees b on b.id = a.prepared_by
-						left join employees c on c.id = a.requested_by
-						left join master_status_cashadvance d on d.id = a.status_id
+					, d.name as status_name, c.direct_id   
+					from cash_advance a left join employees b on b.id = a.prepared_by
+					left join employees c on c.id = a.requested_by
+					left join master_status_cashadvance d on d.id = a.status_id
+					where a.ca_type = 1
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();

@@ -219,12 +219,14 @@ class Settlement_menu_model extends MY_Model
 				}
 			}
 
-			/*$reject=""; 
+			$reject=""; 
 			$approve="";
 			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
-				$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
-				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
-			}*/
+				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
+				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';*/
+
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+			}
 
 
 
@@ -416,7 +418,7 @@ class Settlement_menu_model extends MY_Model
 				'cash_advance_id' 	=> trim($post['ca_number']), 
 				'prepared_by' 		=> $karyawan_id,
 				'requested_by'		=> trim($post['requested_by']),
-				'total_cost' 		=> trim($post['total_cost']),
+				'total_cost' 		=> trim($post['total_cost_sett']),
 				'settlement_amount' => trim($post['settlement_amount']),
 				'document' 			=> $document,
 				'status_id' 		=> 1, //waiting approval
@@ -429,10 +431,10 @@ class Settlement_menu_model extends MY_Model
 			$lastId = $this->db->insert_id();
 
 			if($rs){
-				if(isset($post['name'])){
-					$item_num = count($post['name']); // cek sum
-					$item_len_min = min(array_keys($post['name'])); // cek min key index
-					$item_len = max(array_keys($post['name'])); // cek max key index
+				if(isset($post['post_budget_sett'])){
+					$item_num = count($post['post_budget_sett']); // cek sum
+					$item_len_min = min(array_keys($post['post_budget_sett'])); // cek min key index
+					$item_len = max(array_keys($post['post_budget_sett'])); // cek max key index
 				} else {
 					$item_num = 0;
 				}
@@ -440,7 +442,7 @@ class Settlement_menu_model extends MY_Model
 				if($item_num>0){
 					for($i=$item_len_min;$i<=$item_len;$i++) 
 					{
-						if(isset($post['name'][$i])){
+						if(isset($post['post_budget_sett'][$i])){
 							$itemData = [
 								'settlement_id' => $lastId,
 								'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
@@ -469,7 +471,7 @@ class Settlement_menu_model extends MY_Model
 
 
 
-		if($post['action_type'] == 'approval'){
+		if($post['action_type'] == 'approval'){ 
 
 			if(!empty($post['id'])){ 
 				$data = [
@@ -482,7 +484,7 @@ class Settlement_menu_model extends MY_Model
 				return $rs;
 			}else return null;
 
-		}else{
+		}else{ 
 			if(!empty($post['id'])){ 
 
 				$upload_doc = $this->upload_file('1', 'fpu_document', FALSE, '', TRUE);
@@ -519,7 +521,7 @@ class Settlement_menu_model extends MY_Model
 
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_sett']),
 						'settlement_amount' => trim($post['settlement_amount']),
 						'document' 			=> $document,
 						'updated_at'		=> date("Y-m-d H:i:s"),
@@ -532,7 +534,7 @@ class Settlement_menu_model extends MY_Model
 				}else{
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
-						'total_cost' 		=> trim($post['total_cost']),
+						'total_cost' 		=> trim($post['total_cost_sett']),
 						'settlement_amount' => trim($post['settlement_amount']),
 						'document' 			=> $document,
 						'updated_at'		=> date("Y-m-d H:i:s"),
@@ -600,12 +602,12 @@ class Settlement_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, d.direct_id, e.name as status_name, b.total_cost as total_cost_ca 
-						from settlement a 
-						left join cash_advance b on b.id = a.cash_advance_id
-						left join employees c on c.id = a.prepared_by
-						left join employees d on d.id = a.requested_by
-						left join master_status_cashadvance e on e.id = a.status_id
+		$mTable = '(select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, e.name as status_name, d.direct_id, b.total_cost as total_cost_ca
+					from settlement a 
+					left join cash_advance b on b.id = a.cash_advance_id
+					left join employees c on c.id = a.prepared_by
+					left join employees d on d.id = a.requested_by
+					left join master_status_cashadvance e on e.id = a.status_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
