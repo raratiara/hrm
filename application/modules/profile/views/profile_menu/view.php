@@ -7,7 +7,29 @@
 
     table tbody td {
         font-size: 12px;
-        border-bottom: 1px solid #e2e3e4ff;
+        /*border-bottom: 1px solid #e2e3e4ff;*/
+    }
+
+    /* thead font lebih kecil */
+    .table-container thead th {
+        font-size: 13px !important;
+        white-space: nowrap;
+
+    }
+
+
+    .table-container tbody td {
+        white-space: nowrap;
+    }
+
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .table-container table {
+        border-collapse: collapse;
+        min-width: 100%;
     }
 
 </style>
@@ -273,7 +295,8 @@
                         <thead>
                             <tr>
                                 <th style="text-align: left; font-size:12px">Task</th>
-                                <th style="width: 100px; text-align: center; font-size:12px">Progress (%)</th>
+                                <!-- <th style="width: 100px; text-align: center; font-size:12px">Progress (%)</th> -->
+                                <th style="text-align: center;">Progress (%)</th>
                                 <th style="font-size:12px">Due Date</th>
                             </tr>
                         </thead>

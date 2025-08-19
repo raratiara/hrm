@@ -617,6 +617,7 @@
   .grey {
     background-color: white;
     color: #38406F;
+    min-width: 200px !important;
   }
 
   .grey .title {

@@ -16,4 +16,35 @@
     .modal-dialog {
         width: 80% !important;
     }
+
+    .row-flex {
+        display: flex;
+        margin: 0;
+    }
+
+    @media screen and (max-width: 768px) {
+        .row-flex {
+            display: flex;
+            font-size: 12px !important;
+            margin-bottom: 8px ! important;
+            align-items: flex-start;
+            /* biar kalau isi banyak baris tetap sejajar di atas */
+            margin: 0;
+
+        }
+
+
+
+        .row-flex label {
+            width: 100px;
+            margin: 0;
+        }
+
+        .row-flex .col-md-9 span {
+            word-break: break-all;
+            /* kalau ada kata super panjang, tetap pecah */
+
+        }
+    }
+    
 </style>

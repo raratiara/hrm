@@ -146,6 +146,7 @@
     .pagination>li>a,
     .pagination>li>span {
         color: #343851 !important;
+        font-size: 12px !important;
     }
 </style>
 
@@ -225,12 +226,14 @@
                                 <thead>
                                     <tr>
                                         <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
-                                            <th width="15px"><input type="checkbox" id="check-all"></th>
+                                            <!-- <th width="15px"><input type="checkbox" id="check-all"></th> -->
+                                            <th><input type="checkbox" id="check-all"></th>
                                         <?php } ?>
                                         <?php
                                         if($this->module_name != 'summaryabsen' && $this->module_name != 'tidakabsenmasuk'){
                                             ?>
-                                            <th width="120px">Action</th>
+                                            <!-- <th width="120px">Action</th> -->
+                                            <th style="min-width:120px !important;">Action</th>
                                             <?php
                                         }
                                         ?>
