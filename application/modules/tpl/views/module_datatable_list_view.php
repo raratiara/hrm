@@ -186,6 +186,17 @@
                             </a>
                             <?php
                         }
+
+                        if ($this->module_name == 'tidakabsenmasuk') {
+                            ?>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="gosendWAReminder()">
+                                <i class="fa fa-whatsapp"></i>
+                                Send WA Reminder
+                            </a>
+                            <?php
+                        }
+
+
                     } ?>
                     <?php if (_USER_ACCESS_LEVEL_IMPORT == "1") { ?>
                         <a class="btn btn-default btn-sm btn-circle" id="btnImportData">
@@ -230,10 +241,11 @@
                                             <th><input type="checkbox" id="check-all"></th>
                                         <?php } ?>
                                         <?php
-                                        if($this->module_name != 'summaryabsen' && $this->module_name != 'tidakabsenmasuk'){
+                                        if($this->module_name != 'summaryabsen'){
                                             ?>
                                             <!-- <th width="120px">Action</th> -->
                                             <th style="min-width:120px !important;">Action</th>
+                                            
                                             <?php
                                         }
                                         ?>

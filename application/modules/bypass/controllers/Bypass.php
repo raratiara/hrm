@@ -825,7 +825,7 @@ class Bypass extends API_Controller
 
 	public function startDevice(){
 
-		$token = "zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+		$token = "I4EMpL6raAUKRgQtZ2FshcC8mof35zkq0TG9ViO7";
 
 
 		$curl = curl_init();
@@ -889,7 +889,8 @@ class Bypass extends API_Controller
 	//kirim setelah WAReminderAbsen, kasi jeda 2 menit. brarti jalanin di 11.02
 	public function re_checkStatusSendWA()
 	{ 
-	    $token = "zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+	    $token = "I4EMpL6raAUKRgQtZ2FshcC8mof35zkq0TG9ViO7";
+	    
 	    
 	    $rs = $this->db->query("
 	        SELECT id, notes
@@ -983,7 +984,7 @@ class Bypass extends API_Controller
 
 	public function checkStatusSendWA($token, $idMsgString){
 	/*public function checkStatusSendWA(){
-		$token="zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+		$token="I4EMpL6raAUKRgQtZ2FshcC8mof35zkq0TG9ViO7";
 		$idMsgString="653441,653442,653443";*/
 		$curl = curl_init();
 
@@ -1046,7 +1047,7 @@ class Bypass extends API_Controller
 				    $targetString = implode(",", $arrtarget);
 
 
-					$token = "zf7l2EYMtojLB4b5i6CAJ0dDuFQhk8sIGUrm1SKZ";
+					$token = "I4EMpL6raAUKRgQtZ2FshcC8mof35zkq0TG9ViO7";
 
 					$curl = curl_init();
 
