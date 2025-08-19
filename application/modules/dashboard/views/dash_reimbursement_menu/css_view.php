@@ -24,7 +24,10 @@
     width: 200px !important;
   }
 
-
+   #reimFor {
+    width: 200px;
+    height: 180px;
+  }
 
 
   /* Select2 container menyesuaikan wrapper */

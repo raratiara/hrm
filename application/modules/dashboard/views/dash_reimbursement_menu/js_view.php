@@ -29,14 +29,34 @@
 			reimbByDiv();
 			reimbursFor();
 			dataTotal();
+			reimbBySubtype();
+			monthlyReimbAmount();
 
 		});
 	});
 
 
-	function formatRupiah(angka) {
+	/*function formatRupiah(angka) {
 	    return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	}*/
+
+	function formatRupiah(angka) {
+	    if (angka == null || angka === "") return "0,00";
+
+	    // pastikan angka float (hilangkan karakter non angka dulu)
+	    let number = parseFloat(angka.toString().replace(/[^0-9.-]/g, ""));
+	    if (isNaN(number)) number = 0;
+
+	    // fixed 2 decimal → diganti koma
+	    let parts = number.toFixed(2).toString().split(".");
+
+	    // format ribuan
+	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+	    return parts.join(",");
 	}
+
+
 
 
 
@@ -837,15 +857,258 @@
 	}
 
 
+	function reimbBySubtype() {
+
+		var fldiv = $("#fldiv option:selected").val();
+
+
+		$.ajax({
+			type: "POST",
+			url: module_path + '/get_data_bySubtype',
+			data: { fldiv: fldiv},
+			cache: false,
+			dataType: "JSON",
+			success: function (data) {
+				if (data != false) {
+
+					const ctx = document.getElementById('reimbySubtype').getContext('2d');
+
+					var chartExist = Chart.getChart("reimbySubtype"); // <canvas> id
+					if (chartExist != undefined)
+						chartExist.destroy();
+									
+					const barChart = new Chart(ctx, {
+						type: 'bar',
+						data: {
+							labels: data.subtypename,
+							datasets: [{
+								label: 'Reimbursement',
+								data: data.total,
+								backgroundColor: [
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B',
+									'#FED24B'
+								],
+								borderRadius: 3
+							}]
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							plugins: {
+								datalabels: {
+			                        formatter: (value, context) => {
+			                            /*let percentage = (value / context.chart._metasets
+			                            [context.datasetIndex].total * 100)
+			                                .toFixed(2) + '%';*/
+			                            /*return percentage + '\n' + value;*/
+			                            if (parseFloat(value) === 0) {
+								            return ''; // tidak ditampilkan
+								        }
+			                            return value;
+			                        },
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
+								legend: {
+									display: false
+								},
+								tooltip: {
+									backgroundColor: '#333',
+									titleColor: '#fff',
+									bodyColor: '#fff',
+									padding: 10,
+									borderRadius: 6
+								}
+							},
+							scales: {
+								y: {
+									beginAtZero: true,
+									grid: {
+										color: '#eee'
+									},
+									ticks: {
+										color: '#666',
+										font: { size: 10 }
+									}
+								},
+								x: {
+									grid: {
+										display: false
+									},
+									ticks: {
+										color: '#666',
+										font: { size: 10 }
+									}
+								}
+							}
+						}
+						,plugins: [ChartDataLabels]
+					});
+
+				} else {
+
+
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
+
+	}
+
+
+	function monthlyReimbAmount() {
+
+		var fldiv = $("#fldiv option:selected").val();
+
+
+
+		$.ajax({
+			type: "POST",
+			url: module_path + '/get_data_monthlyReimbAmount',
+			data: { fldiv: fldiv },
+			cache: false,
+			dataType: "JSON",
+			success: function (data) {
+				if (data != false) {
+
+					const ctx = document.getElementById('monthly_reimb_amount').getContext('2d');
+
+					var chartExist = Chart.getChart("monthly_reimb_amount"); // <canvas> id
+					if (chartExist != undefined)
+						chartExist.destroy();
+
+
+					const barChart = new Chart(ctx, {
+						type: 'bar',
+						data: {
+							labels: data.periode,
+							
+							datasets: [{
+								label: 'Amount',
+								data: data.nominal_raw,
+								backgroundColor: Array(12).fill('#081F5C'),
+								borderRadius: 3
+							}]
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							plugins: {
+								datalabels: {
+			                        // formatter: (value, context) => {
+			                        //     /*let percentage = (value / context.chart._metasets
+			                        //     [context.datasetIndex].total * 100)
+			                        //         .toFixed(2) + '%';*/
+			                        //     /*return percentage + '\n' + value;*/
+			                        //     if (parseFloat(value) === 0) {
+								    //         return ''; // tidak ditampilkan
+								    //     }
+			                        //     return value;
+			                        // },
+			                        formatter: (value, context) => {
+									    if (parseFloat(value) === 0) {
+									        return ''; // tidak ditampilkan
+									    }
+									    // Format angka pakai titik ribuan
+									    return parseFloat(value).toLocaleString('id-ID', {
+									        minimumFractionDigits: 2,
+									        maximumFractionDigits: 2
+									    });
+									},
+			                        color: '#fff',
+			                        font: {
+			                            size: 10,
+			                        }
+			                    },
+								legend: {
+									display: false
+								},
+								tooltip: {
+									backgroundColor: '#333',
+									titleColor: '#fff',
+									bodyColor: '#fff',
+									padding: 10,
+									borderRadius: 6
+								}
+							},
+							scales: {
+								y: {
+									beginAtZero: true,
+									grid: {
+										color: '#eee'
+									},
+									ticks: {
+										color: '#666',
+										font: { size: 10 }
+									}
+								},
+								x: {
+									grid: {
+										display: false
+									},
+									ticks: {
+										color: '#666',
+										font: { size: 10 }
+									}
+								}
+							}
+						}
+						,plugins: [ChartDataLabels]
+					});
+
+				} else {
+
+
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
+
+	}
+
+
 	function setFilter() {
 
 		monthlyReimbSummary();
 		reimbByDiv();
+		reimbBySubtype();
 		reimbursFor();
 		empbyMaritalStatus();
 		projectSummary();
 		dataTotal();
-		
+		monthlyReimbAmount();
 	}
 
 
@@ -853,10 +1116,12 @@
 
 		monthlyReimbSummary();
 		reimbByDiv();
+		reimbBySubtype();
 		reimbursFor();
 		empbyMaritalStatus();
 		projectSummary();
 		dataTotal();
+		monthlyReimbAmount();
 
 	});
 
