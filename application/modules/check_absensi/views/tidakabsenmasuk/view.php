@@ -24,3 +24,5 @@ if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_DELETE == "1") {
 	$this->load->view(_TEMPLATE_PATH . "modal/delete_bulk"); // standard
 }
 ?>
+
+<input type="hidden" id="listunCheck" name="listunCheck">
