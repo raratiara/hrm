@@ -431,5 +431,231 @@ class Dash_reimbursement_menu extends MY_Controller
  	}
 
 
+ 	public function get_data_bySubtype(){
+ 		$post = $this->input->post(null, true);
+ 		$fldiv 	= $post['fldiv'];
+
+
+		if (!empty($fldiv)) {
+		    // ada filter divisi
+		    $sql = "
+		        select 
+		            c.id AS subtypeid,
+		            c.fulltipe AS subtypename,
+		            COUNT(
+		                CASE WHEN b.division_id = '".$fldiv."' THEN a.id END
+		            ) AS total,
+		            '".$fldiv."' AS division_id
+		        FROM (
+		            SELECT aa.id, CONCAT(bb.name,' - ',aa.name) AS fulltipe 
+		            FROM master_reimburs_subtype aa 
+		            LEFT JOIN master_reimburs_type bb ON bb.id = aa.reimburs_type_id
+		        ) c
+		        LEFT JOIN reimbursement_detail ab 
+		            ON ab.subtype_id = c.id
+		        LEFT JOIN medicalreimbursements a 
+		            ON a.id = ab.reimbursement_id
+		        LEFT JOIN employees b 
+		            ON b.id = a.employee_id
+		        GROUP BY c.id, c.fulltipe
+		        ORDER BY c.fulltipe
+		    ";
+		} else {
+		    // tidak ada filter divisi → hitung semua
+		    $sql = "
+		        select 
+		            c.id AS subtypeid,
+		            c.fulltipe AS subtypename,
+		            COUNT(a.id) AS total,
+		            NULL AS division_id
+		        FROM (
+		            SELECT aa.id, CONCAT(bb.name,' - ',aa.name) AS fulltipe 
+		            FROM master_reimburs_subtype aa 
+		            LEFT JOIN master_reimburs_type bb ON bb.id = aa.reimburs_type_id
+		        ) c
+		        LEFT JOIN reimbursement_detail ab 
+		            ON ab.subtype_id = c.id
+		        LEFT JOIN medicalreimbursements a 
+		            ON a.id = ab.reimbursement_id
+		        LEFT JOIN employees b 
+		            ON b.id = a.employee_id
+		        GROUP BY c.id, c.fulltipe
+		        ORDER BY c.fulltipe
+		    ";
+		}
+
+		$result = $this->db->query($sql)->result_array();
+
+		/*$subtypename=[]; $total=[]; 
+		foreach($result as $row){
+			$subtypename[] 	= $row->subtypename;
+			$total[] 		= $row->total;
+			
+		}*/
+		$subtypename=[]; 
+		$total=[]; 
+		foreach($result as $row){
+		    $subtypename[] = $row['subtypename'];
+		    $total[]       = $row['total'];
+		}
+
+
+		$data = array(
+			'subtypename' 	=> $subtypename,
+			'total'			=> $total
+		);
+
+
+		echo json_encode($data);
+
+
+ 	}
+
+
+ 	public function get_data_monthlyReimbAmount()
+	{
+	    $post  = $this->input->post(null, true);
+		$fldiv = isset($post['fldiv']) ? trim($post['fldiv']) : "";
+
+		if (empty($fldiv)) { // all div
+		    $sql = "
+		        select 
+		            CONCAT(YEAR(CURDATE()), '-', LPAD(b.bln, 2, '0')) AS tahun_bulan,
+		            COALESCE(SUM(m.nominal_reimburse), 0) AS nominal_raw,
+		            FORMAT(COALESCE(SUM(m.nominal_reimburse), 0), 2) AS nominal_reimburse
+		        FROM (
+		            SELECT 1 AS bln UNION ALL
+		            SELECT 2 UNION ALL
+		            SELECT 3 UNION ALL
+		            SELECT 4 UNION ALL
+		            SELECT 5 UNION ALL
+		            SELECT 6 UNION ALL
+		            SELECT 7 UNION ALL
+		            SELECT 8 UNION ALL
+		            SELECT 9 UNION ALL
+		            SELECT 10 UNION ALL
+		            SELECT 11 UNION ALL
+		            SELECT 12
+		        ) b
+		        LEFT JOIN medicalreimbursements m 
+		            ON MONTH(m.date_reimbursment) = b.bln 
+		           AND YEAR(m.date_reimbursment) = YEAR(CURDATE())
+		        LEFT JOIN employees n 
+		            ON n.id = m.employee_id
+		        GROUP BY b.bln
+		        ORDER BY b.bln
+		    ";
+		} else { // with filter
+		    $sql = "
+		        select 
+		            CONCAT(YEAR(CURDATE()), '-', LPAD(b.bln, 2, '0')) AS tahun_bulan,
+		            COALESCE(SUM(
+		                CASE WHEN n.division_id = '".$fldiv."' THEN m.nominal_reimburse ELSE 0 END
+		            ), 0) AS nominal_raw,
+		            FORMAT(COALESCE(SUM(
+		                CASE WHEN n.division_id = '".$fldiv."' THEN m.nominal_reimburse ELSE 0 END
+		            ), 0), 2) AS nominal_reimburse
+		        FROM (
+		            SELECT 1 AS bln UNION ALL
+		            SELECT 2 UNION ALL
+		            SELECT 3 UNION ALL
+		            SELECT 4 UNION ALL
+		            SELECT 5 UNION ALL
+		            SELECT 6 UNION ALL
+		            SELECT 7 UNION ALL
+		            SELECT 8 UNION ALL
+		            SELECT 9 UNION ALL
+		            SELECT 10 UNION ALL
+		            SELECT 11 UNION ALL
+		            SELECT 12
+		        ) b
+		        LEFT JOIN medicalreimbursements m 
+		            ON MONTH(m.date_reimbursment) = b.bln 
+		           AND YEAR(m.date_reimbursment) = YEAR(CURDATE())
+		        LEFT JOIN employees n 
+		            ON n.id = m.employee_id
+		        GROUP BY b.bln
+		        ORDER BY b.bln
+		    ";
+		}
+
+		$rs = $this->db->query($sql)->result();
+
+	    $periode = [];
+	    $nominal_raw = [];
+	    $nominal_reimburse = [];
+	    foreach ($rs as $row) {
+	        $periode[]           = $row->tahun_bulan;
+	        $nominal_raw[]       = $row->nominal_raw;
+	        $nominal_reimburse[] = $row->nominal_reimburse;
+	    }
+
+	    $data = array(
+	        'periode'            => $periode,
+	        'nominal_raw'        => $nominal_raw,
+	        'nominal_reimburse'  => $nominal_reimburse
+	    );
+
+	    echo json_encode($data);
+	}
+
+
+ 	public function get_data_monthlyReimbAmount_old(){
+ 		$post = $this->input->post(null, true);
+ 		$fldiv = $post['fldiv'];
+
+		$filterDiv = "";
+		if (!empty($fldiv)) {
+		    $filterDiv = " AND n.division_id = '".$fldiv."' ";
+		}
+
+
+    	$rs = $this->db->query("select 
+								    CONCAT(YEAR(CURDATE()), '-', LPAD(b.bln, 2, '0')) AS tahun_bulan,
+								    COALESCE(SUM(m.nominal_reimburse), 0) AS nominal_raw,
+								    FORMAT(COALESCE(SUM(m.nominal_reimburse), 0), 2) AS nominal_reimburse
+								FROM (
+								    SELECT 1 AS bln UNION ALL
+								    SELECT 2 UNION ALL
+								    SELECT 3 UNION ALL
+								    SELECT 4 UNION ALL
+								    SELECT 5 UNION ALL
+								    SELECT 6 UNION ALL
+								    SELECT 7 UNION ALL
+								    SELECT 8 UNION ALL
+								    SELECT 9 UNION ALL
+								    SELECT 10 UNION ALL
+								    SELECT 11 UNION ALL
+								    SELECT 12
+								) b
+								LEFT JOIN medicalreimbursements m 
+								    ON MONTH(m.date_reimbursment) = b.bln 
+								   AND YEAR(m.date_reimbursment) = YEAR(CURDATE())
+								   left join employees n on n.id = m.employee_id
+								   ".$filterDiv."
+								GROUP BY b.bln
+								ORDER BY b.bln;
+								")->result(); 
+
+		$periode=[]; $nominal_reimburse=[]; 
+		foreach($rs as $row){
+			$periode[] 				= $row->tahun_bulan;
+			$nominal_reimburse[] 	= $row->nominal_raw;
+			
+		}
+
+
+		$data = array(
+			'periode' 			=> $periode,
+			'nominal_reimburse'	=> $nominal_reimburse
+		);
+
+
+		echo json_encode($data);
+
+
+ 	}
+
+
 
 }
