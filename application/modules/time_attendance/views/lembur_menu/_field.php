@@ -1,10 +1,25 @@
 <div class="row">
-	
-	<div class="col-md-6 col-sm-12">
+	<!-- <div class="col-md-12 col-sm-12">
 		<div class="form-group">
+			<label class="col-md-2 control-label no-padding-right">Type</label>
+			<div class="col-md-4">
+				<?=$seltype;?>
+			</div>
+		</div>
+	</div> -->
+
+	<div class="col-md-6 col-sm-12">
+		<!-- <div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Date</label>
 			<div class="col-md-8">
 				<?=$txtdate;?>
+			</div>
+		</div> -->
+
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Type</label>
+			<div class="col-md-8">
+				<?=$seltype;?>
 			</div>
 		</div>
 		

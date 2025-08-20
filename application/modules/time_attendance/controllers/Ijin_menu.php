@@ -213,9 +213,43 @@ class Ijin_menu extends MY_Controller
 					$date_att = date("Y-m-d", strtotime($date_att.'+ 1 days'));
 
 				}
-			}
-			
-			return $rs;
+
+				//update sisa jatah cuti
+				if($leaves[0]->masterleave_id != '2'){ //unpaid leave gak update sisa cuti
+					$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$leaves[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
+
+					$is_update_jatah_selanjutnya=0;
+					$sisa_cuti = $jatahcuti[0]->sisa_cuti-$total_leave;
+
+					if($total_leave > $jatahcuti[0]->sisa_cuti){ 
+						$is_update_jatah_selanjutnya=1;
+						$sisa_cuti = 0;
+						$diff_day2 = $total_leave-$jatahcuti[0]->sisa_cuti;
+						$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;
+						
+					}
+					
+					$data22 = [
+								'sisa_cuti' 	=> $sisa_cuti,
+								'updated_date'	=> date("Y-m-d H:i:s")
+							];
+					$this->db->update('total_cuti_karyawan', $data22, "id = '".$jatahcuti[0]->id."'");
+
+
+					if($is_update_jatah_selanjutnya == 1){ 
+						$data33 = [
+									'sisa_cuti' 	=> $sisa_cuti2,
+									'updated_date'	=> date("Y-m-d H:i:s")
+								];
+						$this->db->update('total_cuti_karyawan', $data33, "id = '".$jatahcuti[1]->id."'");
+					}
+
+				}
+
+
+				return $rs;
+			}else return null;
+
 
 		}else{
 			$rs=null;
