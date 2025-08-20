@@ -347,18 +347,7 @@ function gosendWAReminder(){
 	    dataType: "JSON",
 	    success: function(data)
 	    {  
-	    	console.log(data);
-			/*if(data != null){ 	
-				$('#emp_type').val(data.name);
-				$('#time_in').val(data.time_in);
-				$('#time_out').val(data.time_out);
-
-			} else { 
-				$('#emp_type').val('');
-				$('#time_in').val('');
-				$('#time_out').val('');
-
-			}*/
+	    	alert(data);
 
 	    },
 	    error: function (jqXHR, textStatus, errorThrown)

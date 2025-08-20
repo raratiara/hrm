@@ -128,7 +128,7 @@
 
             <div class="summary-item yellow">
 
-                <div class="title" style="margin-top: 20px;">Tasklist</div>
+                <div class="title">Tasklist</div>
                 <div class="tasklist-line">
                     <div class="task-item">
                         <p class="ttl_tasklist_open"></p>

@@ -28,7 +28,9 @@ class Lembur_menu_model extends MY_Model
 			'dt.amount',
 			'dt.reason',
 			'dt.status_name',
-			'dt.direct_id'
+			'dt.direct_id',
+			'dt.type_name',
+			'dt.count_day'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -46,7 +48,12 @@ class Lembur_menu_model extends MY_Model
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "Rejected"
 					else ""
-					end) as status_name 
+					end) as status_name,
+					(case 
+					when a.type = 1 then "Lembur Hari Kerja"
+					when a.type = 2 then "Kerja di Hari Libur"
+					else ""
+					end) as type_name  
 					from overtimes a left join employees b on b.id = a.employee_id
 					'.$whr.'
 				)dt';
@@ -228,12 +235,13 @@ class Lembur_menu_model extends MY_Model
 					'.$approve.'
 				</div>',
 				$row->id,
-				$row->date_overtime,
+				$row->type_name,
 				$row->full_name,
 				$row->datetime_start,
 				$row->datetime_end,
 				$row->num_of_hour,
 				$row->amount,
+				$row->count_day,
 				$row->reason,
 				$row->status_name
 
@@ -296,34 +304,57 @@ class Lembur_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
-		$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
-		$date_overtime = date('Y-m-d', strtotime($post['date']));
+		if($post['type'] != '' && $post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
 
-		$start = strtotime($datetime_start);
-		$end = strtotime($datetime_end);
+			if($post['type'] == '1'){ //lembur hari kerja
 
-		$selisihDetik = $end - $start;
-		$num_of_hour = floor($selisihDetik / 3600);
-		/*$menit = floor(($selisihDetik % 3600) / 60);*/
+				$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
+				$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
+				/*$date_overtime = date('Y-m-d', strtotime($post['date']));*/
 
-		$biaya='50000';
-		$amount = $num_of_hour*$biaya;
+				$start = strtotime($datetime_start);
+				$end = strtotime($datetime_end);
+
+				$selisihDetik = $end - $start;
+				$num_of_hour = floor($selisihDetik / 3600);
+				/*$menit = floor(($selisihDetik % 3600) / 60);*/
+
+				$biaya='50000';
+				$amount = $num_of_hour*$biaya;
 
 
-		if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
+				$data = [
+					/*'date_overtime' 			=> $date_overtime,*/
+					'type' 						=> trim($post['type']),
+					'employee_id' 				=> trim($post['employee']),
+					'datetime_start' 			=> $datetime_start,
+					'datetime_end' 				=> $datetime_end,
+					'num_of_hour' 				=> $num_of_hour,
+					'amount' 					=> $amount,
+					'reason' 					=> trim($post['reason']),
+					'status_id' 				=> 1,
+					'created_at'				=> date("Y-m-d H:i:s")
+				];
+			}else if($post['type'] == '2'){ //masuk di hari libur
+
+				$datetime_start = date('Y-m-d', strtotime($post['datetime_start']));
+				$datetime_end = date('Y-m-d', strtotime($post['datetime_end']));
+
+				$count_day = $this->dayCount($datetime_start, $datetime_end);
+				$data = [
+					/*'date_overtime' 			=> $date_overtime,*/
+					'type' 						=> trim($post['type']),
+					'employee_id' 				=> trim($post['employee']),
+					'datetime_start' 			=> $datetime_start,
+					'datetime_end' 				=> $datetime_end,
+					'count_day' 				=> $count_day,
+					'reason' 					=> trim($post['reason']),
+					'status_id' 				=> 1,
+					'created_at'				=> date("Y-m-d H:i:s")
+				];
+			}
 			
-			$data = [
-				'date_overtime' 			=> $date_overtime,
-				'employee_id' 				=> trim($post['employee']),
-				'datetime_start' 			=> $datetime_start,
-				'datetime_end' 				=> $datetime_end,
-				'num_of_hour' 				=> $num_of_hour,
-				'amount' 					=> $amount,
-				'reason' 					=> trim($post['reason']),
-				'status_id' 				=> 1,
-				'created_at'				=> date("Y-m-d H:i:s")
-			];
+			
 			$rs = $this->db->insert($this->table_name, $data);
 
 			return $rs; 
@@ -336,33 +367,53 @@ class Lembur_menu_model extends MY_Model
 
 		if(!empty($post['id'])){
 
-			$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
-			$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
-			$date_overtime = date('Y-m-d', strtotime($post['date']));
+			if($post['type'] != '' && $post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
 
-			$start = strtotime($datetime_start);
-			$end = strtotime($datetime_end);
+				if($post['type'] == '1'){ //lembur hari kerja
 
-			$selisihDetik = $end - $start;
-			$num_of_hour = floor($selisihDetik / 3600);
-			/*$menit = floor(($selisihDetik % 3600) / 60);*/
+					$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
+					$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
+					/*$date_overtime = date('Y-m-d', strtotime($post['date']));*/
 
-			$biaya='50000';
-			$amount = $num_of_hour*$biaya;
+					$start = strtotime($datetime_start);
+					$end = strtotime($datetime_end);
 
+					$selisihDetik = $end - $start;
+					$num_of_hour = floor($selisihDetik / 3600);
+					/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-			if($post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
+					$biaya='50000';
+					$amount = $num_of_hour*$biaya;
+
+					$data = [
+						/*'date_overtime' 			=> $date_overtime,*/
+						'employee_id' 				=> trim($post['employee']),
+						'datetime_start' 			=> $datetime_start,
+						'datetime_end' 				=> $datetime_end,
+						'num_of_hour' 				=> $num_of_hour,
+						'amount' 					=> $amount,
+						'reason' 					=> trim($post['reason']),
+						'updated_at'				=> date("Y-m-d H:i:s")
+					];
+				}else if($post['type'] == '2'){ //masuk di hari libur
+					$datetime_start = date('Y-m-d', strtotime($post['datetime_start']));
+					$datetime_end = date('Y-m-d', strtotime($post['datetime_end']));
+
+					$count_day = $this->dayCount($datetime_start, $datetime_end);
+					$data = [
+						/*'date_overtime' 			=> $date_overtime,*/
+						'employee_id' 				=> trim($post['employee']),
+						'datetime_start' 			=> $datetime_start,
+						'datetime_end' 				=> $datetime_end,
+						'count_day' 				=> $count_day,
+						'reason' 					=> trim($post['reason']),
+						'updated_at'				=> date("Y-m-d H:i:s"),
+						'status_dayoff_available' 	=> 1 //available
+					];
+				}
+
 			
-				$data = [
-					'date_overtime' 			=> $date_overtime,
-					'employee_id' 				=> trim($post['employee']),
-					'datetime_start' 			=> $datetime_start,
-					'datetime_end' 				=> $datetime_end,
-					'num_of_hour' 				=> $num_of_hour,
-					'amount' 					=> $amount,
-					'reason' 					=> trim($post['reason']),
-					'updated_at'				=> date("Y-m-d H:i:s")
-				];
+				
 				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 				return $rs;
@@ -379,7 +430,12 @@ class Lembur_menu_model extends MY_Model
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "Rejected"
 					else ""
-					end) as status_name 
+					end) as status_name,
+					(case 
+					when a.type = 1 then "Lembur Hari Kerja"
+					when a.type = 2 then "Kerja di Hari Libur"
+					else ""
+					end) as type_name  
 					from overtimes a left join employees b on b.id = a.employee_id
 
 			)dt';
@@ -437,13 +493,18 @@ class Lembur_menu_model extends MY_Model
 
 
 
-		$sql = 'select a.id, a.date_overtime, b.full_name, a.datetime_start, a.datetime_end, a.num_of_hour, a.amount,a.reason, 
+		$sql = 'select a.id, a.date_overtime, b.full_name, a.datetime_start, a.datetime_end, a.num_of_hour, a.amount,a.reason, a.count_day,
 				(case 
 				when a.status_id = 1 then "Waiting Approval"
 				when a.status_id = 2 then "Approved"
 				when a.status_id = 3 then "Rejected"
 				else ""
-				end) as status_name 
+				end) as status_name,
+				(case 
+					when a.type = 1 then "Lembur Hari Kerja"
+					when a.type = 2 then "Kerja di Hari Libur"
+					else ""
+					end) as type_name 
 				from overtimes a left join employees b on b.id = a.employee_id
 				'.$whr.'
 				order by a.id asc

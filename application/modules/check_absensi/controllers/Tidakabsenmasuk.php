@@ -299,12 +299,12 @@ class Tidakabsenmasuk extends MY_Controller
 				$sql = "
 			        select id, full_name, nick_name, shift_type, personal_phone 
 			        FROM employees 
-			        WHERE status_id = 1 
+			        WHERE status_id = 1
 			          AND id NOT IN (
 			              SELECT employee_id 
 			              FROM time_attendances 
 			              WHERE date_attendance = '".$dateNow."'
-			          )
+			          ) 
 			    ";
 			    // tambahkan kondisi kalau listunCheck tidak kosong
 			    if ($listunCheck !== '') {
@@ -325,7 +325,7 @@ class Tidakabsenmasuk extends MY_Controller
 			                if (substr($personal_phone, 0, 1) == '0') {
 			                    $personal_phone = '62' . substr($personal_phone, 1);
 			                }
-			                $personal_phone='6287881747918';
+			                //$personal_phone='6287881747918';
 				            // Gabungkan nomor dan nama pakai |
 				            $arrtarget[] = $personal_phone . "|" . $emp_name;
 				        }
@@ -398,7 +398,7 @@ class Tidakabsenmasuk extends MY_Controller
 
 
 					curl_close($curl);
-					echo $response;
+					//echo $response;
 					$hasil="Sukses";
 
 				}else{

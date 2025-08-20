@@ -227,13 +227,13 @@ function load_data()
 			if(data != false){ 
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
-					$('[name="date"]').val(data.date_overtime);
+					/*$('[name="date"]').val(data.date_overtime);*/
 					$('[name="reason"]').val(data.reason);
 					$('[name="datetime_start"]').val(data.datetime_start);
 					$('[name="datetime_end"]').val(data.datetime_end);
 				
 					$('select#employee').val(data.employee_id).trigger('change.select2');
-					
+					$('select#type').val(data.type).trigger('change.select2');
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -241,14 +241,16 @@ function load_data()
 				}
 				if(save_method == 'detail'){ 
 					$('span.employee').html(data.full_name);
-					$('span.date').html(data.date_overtime);
+					/*$('span.date').html(data.date_overtime);*/
+					$('span.type').html(data.type_name);
 					$('span.datetime_start').html(data.datetime_start);
 					$('span.datetime_end').html(data.datetime_end);
 					$('span.reason').html(data.reason);
 					$('span.num_of_hour').html(data.num_of_hour);
 					$('span.amount').html(data.amount);
 					$('span.status').html(data.status_name);
-				
+					$('span.ttl_day').html(data.count_day);
+					
 					
 					$('#modal-view-data').modal('show');
 				}
