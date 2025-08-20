@@ -2188,6 +2188,65 @@ class Api extends API_Controller
 
 	}
 
+	public function get_pendingan_approval(){
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+
+		if(!empty($_REQUEST)){
+			$employee 	= $_REQUEST['employee'];
+			$tipe 		= $_REQUEST['tipe'];
+
+			if($employee != '' && $tipe != ''){
+				if($tipe == 'leave attendance'){
+					$gettotalpendingan 	= $this->db->query("select count(*) as ttl from leave_absences a left join employees b on b.id = a.employee_id where a.status_approval = 1 and b.direct_id = '".$employee."'")->result(); 
+					$total_pendingan=0;
+					if(!empty($gettotalpendingan)){
+						$total_pendingan = $gettotalpendingan[0]->ttl;
+					}
+					
+					$response = [
+			    		'status' 			=> 200,
+						'message' 			=> 'Success',
+						'total_pendingan' 	=> $total_pendingan
+					];
+				}else{
+					$response = [
+						'status' 	=> 400, // Bad Request
+						'message' 	=>'Failed',
+						'error' 	=> 'Require not satisfied'
+					];
+				}
+
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Require not satisfied'
+				];
+			}
+
+		}else{
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+	}
+
 
 
 }
