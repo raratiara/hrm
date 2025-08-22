@@ -41,7 +41,7 @@ class Absensi_menu_model extends MY_Model
 		}
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
+		/*$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
 					(case 
 					when a.leave_type != "" then concat("(",c.name,")") 
 					when a.is_leaving_office_early = "Y" then "Leaving Office Early"
@@ -49,6 +49,78 @@ class Absensi_menu_model extends MY_Model
 					end) as is_leaving_office_early_desc
 					from time_attendances a left join employees b on b.id = a.employee_id
 					left join master_leaves c on c.id = a.leave_type
+					'.$whr.'
+				)dt';*/
+
+		$sTable = '(SELECT 
+					    a.*,
+					    b.full_name,
+					    IF(a.is_late = "Y","Late", "") AS is_late_desc,
+					    (CASE 
+					        WHEN a.leave_type != "" THEN CONCAT("(", c.name, ")") 
+					        WHEN a.is_leaving_office_early = "Y" THEN "Leaving Office Early"
+					        ELSE ""
+					     END) AS is_leaving_office_early_desc,
+					    CASE 
+					        WHEN o.id IS NOT NULL THEN ""
+					        WHEN b.shift_type = "Reguler" AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN "Holiday"
+					        WHEN h.date IS NOT NULL THEN "Holiday"
+					        WHEN a.leave_absences_id IS NOT NULL THEN "Holiday"
+					        WHEN b.shift_type = "Shift" AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN "Holiday"
+					        ELSE ""
+					    END AS holiday_flag,
+					    CASE 
+					        WHEN o.id IS NOT NULL THEN ""
+					        WHEN b.shift_type = "Reguler" AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN "Weekend"
+					        WHEN h.date IS NOT NULL THEN "Master Holiday"
+					        WHEN a.leave_absences_id IS NOT NULL THEN "Leave"
+					        WHEN b.shift_type = "Shift" AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN "No Shift"
+					        ELSE ""
+					    END AS holiday_type,
+					    CASE 
+					        WHEN o.id IS NOT NULL THEN "Y"
+					        ELSE "N"
+					    END AS overtime_flag
+					FROM time_attendances a
+					LEFT JOIN employees b ON b.id = a.employee_id
+					LEFT JOIN master_leaves c ON c.id = a.leave_type
+					LEFT JOIN master_holidays h ON h.date = a.date_attendance
+					LEFT JOIN overtimes o 
+					       ON o.employee_id = a.employee_id
+					      AND a.date_attendance BETWEEN DATE(o.datetime_start) AND DATE(o.datetime_end)
+					      AND o.status_id = 2 
+					      AND o.type = 2
+					LEFT JOIN group_shift_schedule gss 
+					       ON gss.employee_id = a.employee_id
+					      AND gss.periode = DATE_FORMAT(a.date_attendance, "%Y-%m")
 					'.$whr.'
 				)dt';
 		
