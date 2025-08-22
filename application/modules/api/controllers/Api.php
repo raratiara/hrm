@@ -1835,6 +1835,7 @@ class Api extends API_Controller
 					    b.direct_id,
 					    b.shift_type,
 					    CASE 
+					     	WHEN a.date_attendance_in IS NOT NULL THEN ''
 					        WHEN o.id IS NOT NULL THEN '' 
 					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Holiday'
 					        WHEN h.date IS NOT NULL THEN 'Holiday'
@@ -1857,6 +1858,7 @@ class Api extends API_Controller
 					        ELSE ''
 					    END AS holiday_flag,
 					    CASE 
+					    	WHEN a.date_attendance_in IS NOT NULL THEN ''  
 					        WHEN o.id IS NOT NULL THEN ''  
 					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Weekend'
 					        WHEN h.date IS NOT NULL THEN h.description
@@ -2041,7 +2043,7 @@ class Api extends API_Controller
     		$where = " where a.employee_id = '".$employee."' ";
     	}*/
 
-    	
+
     	$datamaster = $this->db->query("select * from master_leaves where name != 'Absence' ")->result();  
 
     	$response = [

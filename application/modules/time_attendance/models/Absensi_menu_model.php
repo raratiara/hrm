@@ -63,6 +63,7 @@ class Absensi_menu_model extends MY_Model
 					        ELSE ""
 					     END) AS is_leaving_office_early_desc,
 					    CASE 
+					    	WHEN a.date_attendance_in IS NOT NULL THEN ""
 					        WHEN o.id IS NOT NULL THEN ""
 					        WHEN b.shift_type = "Reguler" AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN "Holiday"
 					        WHEN h.date IS NOT NULL THEN "Holiday"
@@ -85,6 +86,7 @@ class Absensi_menu_model extends MY_Model
 					        ELSE ""
 					    END AS holiday_flag,
 					    CASE 
+					    	WHEN a.date_attendance_in IS NOT NULL THEN ""
 					        WHEN o.id IS NOT NULL THEN ""
 					        WHEN b.shift_type = "Reguler" AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN "Weekend"
 					        WHEN h.date IS NOT NULL THEN "Master Holiday"
