@@ -201,8 +201,8 @@ class Ijin_menu extends MY_Controller
 						'attendance_type' 			=> $employees[0]->shift_type,
 						'time_in' 					=> $time_in,
 						'time_out' 					=> $time_out,
-						'date_attendance_in' 		=> $date_att,
-						'date_attendance_out'		=> $date_att,
+						/*'date_attendance_in' 		=> $date_att,
+						'date_attendance_out'		=> $date_att,*/
 						'created_at'				=> date("Y-m-d H:i:s"),
 						'leave_type' 				=> $leaves[0]->masterleave_id,
 						'leave_absences_id' 		=> $leaves[0]->id
