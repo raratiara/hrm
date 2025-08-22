@@ -633,36 +633,79 @@ class Api extends API_Controller
 					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 					
 				}else if($cek_emp['shift_type'] == 'Shift'){ 
-					/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
-					left join master_shift_time b on b.id = a.master_shift_time_id
-					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+					
+					// $data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
+					// //jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
+					// if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
 
-					$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
-					//jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
-					if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
+					// 	$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
+					// 	$period  = date('Y-m', strtotime($dateTomorrow));
+					// 	$tgl = date('d', strtotime($dateTomorrow));
+					// }
 
-						$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
-						$period  = date('Y-m', strtotime($dateTomorrow));
-						$tgl = date('d', strtotime($dateTomorrow));
+					// $dt = $this->db->query("select a.*, b.periode
+					// 		, b.`".$tgl."` as 'shift' 
+					// 		, c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a
+					// 		left join group_shift_schedule b on b.shift_schedule_id = a.id
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+
+					// if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
+					// 	//$emp_shift_type=0;
+					// 	$period = date("Y-m", strtotime($date)); 
+					// 	$tgl = date("d", strtotime($date));
+					// 	$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
+					// }
+
+
+
+					/// NEW SCRIPT
+					$datetimemax_shift3 = $date.' 08:00:00';
+					if($datetime < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
+						$dateYesterday = date("Y-m-d", strtotime($date . " -1 day"));
+						$period  = date('Y-m', strtotime($dateYesterday));
+					 	$tgl = date('d', strtotime($dateYesterday));
+					 	$date = $dateYesterday;
 					}
 
-					$dt = $this->db->query("select a.*, b.periode
-							, b.`".$tgl."` as 'shift' 
-							, c.time_in, c.time_out, c.name 
-							from shift_schedule a
-							left join group_shift_schedule b on b.shift_schedule_id = a.id
-							left join master_shift_time c on c.shift_id = b.`".$tgl."`
-							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
-					if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
-						//$emp_shift_type=0;
-						$period = date("Y-m", strtotime($date)); 
-						$tgl = date("d", strtotime($date));
-						$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-							from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-							left join master_shift_time c on c.shift_id = b.`".$tgl."`
-							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
+					$dt = $this->db->query("select 
+					    a.*, 
+					    b.periode, 
+					    b.`".$tgl."` as 'shift', 
+					    c.name,
+					    case 
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
+					    end as expected_checkin,
+					    case 
+					        when c.shift_id = 2 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
+					    end as expected_checkout,
+					    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
+					from shift_schedule a
+					left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					where b.employee_id = '".$employee."'
+					and a.period = '".$period."'
+					")->result(); 
+
+
+					if($dt[0]->shift == ""){
+						$emp_shift_type=0;
 					}
+
+					/// END NEW SCRIPT
 
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
@@ -673,168 +716,191 @@ class Api extends API_Controller
 					$attendance_type 	= $dt[0]->name;
 					$time_in 			= $dt[0]->time_in;
 					$time_out 			= $dt[0]->time_out;
-					$post_timein 		= strtotime($time_in);
-					$post_timeout 		= strtotime($time_out);
+					//$post_timein 		= strtotime($time_in);
+					//$post_timeout 		= strtotime($time_out);
 
-
-					$is_late=''; 
-					if($timestamp_time > $post_timein){
-						$is_late='Y';
+					if($attendance_type == 'Shift 3'){
+						$date2 = date("Y-m-d", strtotime($date . " +1 day"));
+					}else{
+						$date2 = $date;
 					}
+
+					$schedule 			= $date2.' '.$time_in;
+					$post_timein 		= strtotime($schedule); 
+					$schedule_out 		= $date2.' '.$time_out;
+					$post_timeout 		= strtotime($schedule_out); 
+
 					
 
-					$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-
-
-					if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
+					if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
 						$response = [
 							'status' 	=> 401,
 							'message' 	=> 'Failed',
-							'error' 	=> 'Cannot double checkin'
+							'error' 	=> 'Check-in time has expired'
 						];
-					}else{ //insert
-						$error=0; 
-						if($cek_emp['shift_type'] == 'Shift'){ 
-							if(!empty($cek_data)){  
-								$cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
-								if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
-							
-									$date = date("Y-m-d", strtotime($date . " +1 day"));
 
-									$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-									if(!empty($cek_data_shift_besok)){ 
-										$error='Cannot double checkin';
-									}else{ 
-										/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a left join master_shift_time b on b.id = a.master_shift_time_id
-										where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+					}else{
 
-										$dt = $this->db->query("select a.*, b.periode
-												, b.`".$tgl."` as 'shift' 
-												, c.time_in, c.time_out, c.name 
-												from shift_schedule a
-												left join group_shift_schedule b on b.shift_schedule_id = a.id 
-												left join master_shift_time c on c.shift_id = b.`".$tgl."`
-												where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-
-										if(empty($dt)){
-											$error='Checkin Date not valid';
-										}else{
-											$attendance_type 	= $dt[0]->name;
-											$time_in 			= $dt[0]->time_in;
-											$time_out 			= $dt[0]->time_out;
-											$datetime_in 		= $date.' '.$time_in;
-											$post_datetimein 	= strtotime($datetime_in);
-											
-
-											$is_late=''; 
-											if($timestamp_datetime > $post_datetimein){
-												$is_late='Y';
-											}
-										}
-									}
-
-								}else{ 
-									/*$error='Checkin Date not valid';*/
-									$error='Cannot double checkin';
-								}
-							}else{ 
-								$dt = $this->db->query("select a.*, b.periode
-										, b.`".$tgl."` as 'shift' 
-										, c.time_in, c.time_out, c.name 
-										from shift_schedule a
-										left join group_shift_schedule b on b.shift_schedule_id = a.id 
-										left join master_shift_time c on c.shift_id = b.`".$tgl."`
-										where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-								if(empty($dt)){
-									$error='Checkin Date not valid';
-								}
-							}
-					
+						$is_late=''; 
+						if($timestamp_time > $post_timein){
+							$is_late='Y';
 						}
 
-						if($error==0){
-
-							//upload 
-							$dataU = array();
-	        				$dataU['status'] = FALSE; 
-							$fieldname='photo';
-							if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-				            { 
-				               
-				                
-				            	$config['upload_path']   = "uploads/absensi/";
-				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-				                $config['max_size']      = "0"; 
-				                
-				                $this->load->library('upload', $config); 
-				                
-				                if(!$this->upload->do_upload($fieldname)){ 
-				                    $err_msg = $this->upload->display_errors(); 
-				                    $dataU['error_warning'] = strip_tags($err_msg);              
-				                    $dataU['status'] = FALSE;
-				                } else { 
-				                    $fileData = $this->upload->data();
-				                    $dataU['upload_file'] = $fileData['file_name'];
-				                    $dataU['status'] = TRUE;
-				                }
-				            }
-				            $document = '';
-							if($dataU['status']){ 
-								$document = $dataU['upload_file'];
-							} else if(isset($dataU['error_warning'])){ 
-								//echo $dataU['error_warning']; exit;
-
-								$document = 'ERROR : '.$dataU['error_warning'];
-							}
-				            //end upload
+						$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
 
 
-							$data = [
-								'date_attendance' 			=> $date,
-								'employee_id' 				=> $employee,
-								'attendance_type' 			=> $attendance_type,
-								'time_in' 					=> $time_in,
-								'time_out' 					=> $time_out,
-								'date_attendance_in' 		=> $datetime,
-								'is_late'					=> $is_late,
-								'created_at'				=> date("Y-m-d H:i:s"),
-								'lat_checkin' 				=> $latitude,
-								'long_checkin' 				=> $longitude,
-								'work_location' 			=> $work_location,
-								'notes' 					=> $notes,
-								'photo' 					=> $document
+						if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Cannot double checkin'
 							];
+						}else{ //insert
+							$error=0; 
+							if($cek_emp['shift_type'] == 'Shift'){ 
+								if(!empty($cek_data)){  
+									// $cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
+									// if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
+								
+									// 	$date = date("Y-m-d", strtotime($date . " +1 day"));
 
-							$rs = $this->db->insert("time_attendances", $data);
+									// 	$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+									// 	if(!empty($cek_data_shift_besok)){ 
+									// 		$error='Cannot double checkin';
+									// 	}else{ 
+											
+									// 		$dt = $this->db->query("select a.*, b.periode
+									// 				, b.`".$tgl."` as 'shift' 
+									// 				, c.time_in, c.time_out, c.name 
+									// 				from shift_schedule a
+									// 				left join group_shift_schedule b on b.shift_schedule_id = a.id 
+									// 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
+									// 				where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
-							if($rs){
-								$upd_emp = [
-									'last_lat' 				=> $latitude,
-									'last_long' 			=> $longitude
+									// 		if(empty($dt)){
+									// 			$error='Checkin Date not valid';
+									// 		}else{
+									// 			$attendance_type 	= $dt[0]->name;
+									// 			$time_in 			= $dt[0]->time_in;
+									// 			$time_out 			= $dt[0]->time_out;
+									// 			$datetime_in 		= $date.' '.$time_in;
+									// 			$post_datetimein 	= strtotime($datetime_in);
+												
+
+									// 			$is_late=''; 
+									// 			if($timestamp_datetime > $post_datetimein){
+									// 				$is_late='Y';
+									// 			}
+									// 		}
+									// 	}
+
+									// }else{ 
+									// 	/*$error='Checkin Date not valid';*/
+									// 	$error='Cannot double checkin';
+									// }
+
+									$error='Cannot double checkin';
+								}else{ 
+									$dt = $this->db->query("select a.*, b.periode
+											, b.`".$tgl."` as 'shift' 
+											, c.time_in, c.time_out, c.name 
+											from shift_schedule a
+											left join group_shift_schedule b on b.shift_schedule_id = a.id 
+											left join master_shift_time c on c.shift_id = b.`".$tgl."`
+											where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+									if(empty($dt)){
+										$error='Checkin Date not valid';
+									}
+								}
+						
+							}
+
+							if($error==0){
+
+								//upload 
+								$dataU = array();
+		        				$dataU['status'] = FALSE; 
+								$fieldname='photo';
+								if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+					            { 
+					               
+					                
+					            	$config['upload_path']   = "uploads/absensi/";
+					                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+					                $config['max_size']      = "0"; 
+					                
+					                $this->load->library('upload', $config); 
+					                
+					                if(!$this->upload->do_upload($fieldname)){ 
+					                    $err_msg = $this->upload->display_errors(); 
+					                    $dataU['error_warning'] = strip_tags($err_msg);              
+					                    $dataU['status'] = FALSE;
+					                } else { 
+					                    $fileData = $this->upload->data();
+					                    $dataU['upload_file'] = $fileData['file_name'];
+					                    $dataU['status'] = TRUE;
+					                }
+					            }
+					            $document = '';
+								if($dataU['status']){ 
+									$document = $dataU['upload_file'];
+								} else if(isset($dataU['error_warning'])){ 
+									//echo $dataU['error_warning']; exit;
+
+									$document = 'ERROR : '.$dataU['error_warning'];
+								}
+					            //end upload
+
+
+								$data = [
+									'date_attendance' 			=> $date,
+									'employee_id' 				=> $employee,
+									'attendance_type' 			=> $attendance_type,
+									'time_in' 					=> $time_in,
+									'time_out' 					=> $time_out,
+									'date_attendance_in' 		=> $datetime,
+									'is_late'					=> $is_late,
+									'created_at'				=> date("Y-m-d H:i:s"),
+									'lat_checkin' 				=> $latitude,
+									'long_checkin' 				=> $longitude,
+									'work_location' 			=> $work_location,
+									'notes' 					=> $notes,
+									'photo' 					=> $document
 								];
-								$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+								$rs = $this->db->insert("time_attendances", $data);
+
+								if($rs){
+									$upd_emp = [
+										'last_lat' 				=> $latitude,
+										'last_long' 			=> $longitude
+									];
+									$this->db->update("employees", $upd_emp, "id='".$employee."'");
 
 
-								$response = [
-									'status' 	=> 200,
-									'message' 	=> 'Success'
-								];
+									$response = [
+										'status' 	=> 200,
+										'message' 	=> 'Success'
+									];
+								}else{
+									$response = [
+										'status' 	=> 401,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Error submit checkin'
+									];
+								}
 							}else{
 								$response = [
 									'status' 	=> 401,
 									'message' 	=> 'Failed',
-									'error' 	=> 'Error submit checkin'
+									'error' 	=> $error
 								];
 							}
-						}else{
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> $error
-							];
-						}
 
+						}
 					}
+
+					
 				}else{
 					$response = [
 						'status' 	=> 401,
@@ -914,7 +980,11 @@ class Api extends API_Controller
 							left join master_shift_time c on c.shift_id = b.`".$tgl."`
 							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 					
-					$datetime_out = $dt[0]->date.' '.$dt[0]->time_out;
+					if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
+						$date_attendance = date("Y-m-d", strtotime($dt[0]->date . " +1 day"));
+					}
+
+					$datetime_out = $date_attendance.' '.$dt[0]->time_out;
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
 				} 
@@ -926,6 +996,7 @@ class Api extends API_Controller
 
 					$timestamp_datetime = strtotime($datetime);
 					$post_datetimeout 	= strtotime($datetime_out);
+
 
 
 					$is_leaving_office_early = '';
@@ -1441,7 +1512,7 @@ class Api extends API_Controller
 
     public function update_ijin($employee, $leave_type, $date_start, $date_end, $reason, $id){
 
-    	if(!empty($id)){
+    	if(!empty($id)){ 
 
 			if($date_start != '' && $date_end != '' && $leave_type != ''){ 
 				$diff_day		= $this->api->dayCount($date_start, $date_end);
@@ -1537,7 +1608,7 @@ class Api extends API_Controller
 											'masterleave_id' 			=> $leave_type,
 											'reason' 					=> $reason,
 											'total_leave' 				=> $diff_day,
-											/*'photo' 					=> $document,*/
+											'photo' 					=> $document,
 											'updated_at'				=> date("Y-m-d H:i:s")
 										]; 
 										$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
@@ -1600,7 +1671,7 @@ class Api extends API_Controller
 									'masterleave_id' 			=> $leave_type,
 									'reason' 					=> $reason,
 									'total_leave' 				=> $diff_day,
-									'document' 					=> $document,
+									'photo' 					=> $document,
 									'updated_at'				=> date("Y-m-d H:i:s")
 								];
 
