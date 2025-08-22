@@ -1859,7 +1859,7 @@ class Api extends API_Controller
 					    CASE 
 					        WHEN o.id IS NOT NULL THEN ''  
 					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Weekend'
-					        WHEN h.date IS NOT NULL THEN 'Master Holiday'
+					        WHEN h.date IS NOT NULL THEN h.description
 					        WHEN a.leave_absences_id IS NOT NULL THEN 'Leave'
 					        WHEN b.shift_type = 'Shift' AND (
 					            CASE DAY(a.date_attendance)
