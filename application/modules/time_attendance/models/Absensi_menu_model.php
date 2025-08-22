@@ -30,7 +30,8 @@ class Absensi_menu_model extends MY_Model
 			'dt.date_attendance_out',
 			'dt.is_late_desc',
 			'dt.is_leaving_office_early_desc',
-			'dt.num_of_working_hours'
+			'dt.num_of_working_hours',
+			'dt.holiday_flag'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -311,6 +312,35 @@ class Absensi_menu_model extends MY_Model
 
 			$dayName = date('l', strtotime($row->date_attendance));
 
+			if($row->holiday_flag == 'Holiday'){ //libur
+				$id = '<span style="color:red">'.$row->id.'</span>';
+				$dayName = '<span style="color:red">'.$dayName.'</span>';
+				$date_attendance = '<span style="color:red">'.$row->date_attendance.'</span>';
+				$full_name = '<span style="color:red">'.$row->full_name.'</span>';
+				$attendance_type = '<span style="color:red">'.$row->attendance_type.'</span>';
+				$time_in = '<span style="color:red">'.$row->time_in.'</span>';
+				$time_out = '<span style="color:red">'.$row->time_out.'</span>';
+				$date_attendance_in = '<span style="color:red">'.$date_attendance_in.'</span>';
+				$date_attendance_out = '<span style="color:red">'.$date_attendance_out.'</span>';
+				$is_late_desc = '<span style="color:red">'.$row->is_late_desc.'</span>';
+				$is_leaving_office_early_desc = '<span style="color:red">'.$row->is_leaving_office_early_desc.'</span>';
+				$num_of_working_hours = '<span style="color:red">'.$num_of_working_hours.'</span>';
+			}else{
+				$id = $row->id;
+				$dayName = $dayName;
+				$date_attendance = $row->date_attendance;
+				$full_name = $row->full_name;
+				$attendance_type = $row->attendance_type;
+				$time_in = $row->time_in;
+				$time_out = $row->time_out;
+				$date_attendance_in = $date_attendance_in;
+				$date_attendance_out = $date_attendance_out;
+				$is_late_desc = $row->is_late_desc;
+				$is_leaving_office_early_desc = $row->is_leaving_office_early_desc;
+				$num_of_working_hours = $num_of_working_hours;
+			}
+			
+
 			if($delete_bulk == ""){
 				array_push($output["aaData"],array(
 					'<div class="action-buttons">
@@ -318,17 +348,17 @@ class Absensi_menu_model extends MY_Model
 						'.$edit.'
 						'.$delete.'
 					</div>',
-					$row->id,
+					$id,
 					$dayName,
-					$row->date_attendance,
-					$row->full_name,
-					$row->attendance_type,
-					$row->time_in,
-					$row->time_out,
+					$date_attendance,
+					$full_name,
+					$attendance_type,
+					$time_in,
+					$time_out,
 					$date_attendance_in,
 					$date_attendance_out,
-					$row->is_late_desc,
-					$row->is_leaving_office_early_desc,
+					$is_late_desc,
+					$is_leaving_office_early_desc,
 					$num_of_working_hours
 
 
@@ -341,17 +371,17 @@ class Absensi_menu_model extends MY_Model
 						'.$edit.'
 						'.$delete.'
 					</div>',
-					$row->id,
+					$id,
 					$dayName,
-					$row->date_attendance,
-					$row->full_name,
-					$row->attendance_type,
-					$row->time_in,
-					$row->time_out,
+					$date_attendance,
+					$full_name,
+					$attendance_type,
+					$time_in,
+					$time_out,
 					$date_attendance_in,
 					$date_attendance_out,
-					$row->is_late_desc,
-					$row->is_leaving_office_early_desc,
+					$is_late_desc,
+					$is_leaving_office_early_desc,
 					$num_of_working_hours
 
 
