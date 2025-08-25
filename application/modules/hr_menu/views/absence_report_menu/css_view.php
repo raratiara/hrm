@@ -17,7 +17,7 @@
         width: 90% !important;
     }
 
-    .row-flex {
+     .row-flex {
         display: flex;
         margin: 0;
     }
@@ -36,4 +36,5 @@
             margin: 0;
         }
     }
+    
 </style>

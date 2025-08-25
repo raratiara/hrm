@@ -192,8 +192,10 @@ class Tidakabsenmasuk_model extends MY_Model
 				$time_out 	= $dt[0]->time_out;
 			}
 
+			$chk_sendwa = '<input name="ids[]" type="checkbox" checked class="data-check" value="'.$row->id.'">';
 
 			array_push($output["aaData"],array(
+				$chk_sendwa,
 				$row->full_name,
 				$attendance_type,
 				$time_in,

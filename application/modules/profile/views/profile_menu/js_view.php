@@ -861,7 +861,7 @@ console.log(data.taskList);
 				    // Baris Project
 				    if (taskrow.task_type === 'project') {
 				        tr.innerHTML = `
-				            <td colspan="3" style="font-weight: bold; font-size:10px; background:#eef;">📁 ${taskrow.task}</td>
+				        <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
 				        `;
 				    } else {
 				        let indent = '';

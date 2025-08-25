@@ -633,36 +633,79 @@ class Api extends API_Controller
 					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 					
 				}else if($cek_emp['shift_type'] == 'Shift'){ 
-					/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
-					left join master_shift_time b on b.id = a.master_shift_time_id
-					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+					
+					// $data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
+					// //jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
+					// if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
 
-					$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
-					//jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
-					if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
+					// 	$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
+					// 	$period  = date('Y-m', strtotime($dateTomorrow));
+					// 	$tgl = date('d', strtotime($dateTomorrow));
+					// }
 
-						$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
-						$period  = date('Y-m', strtotime($dateTomorrow));
-						$tgl = date('d', strtotime($dateTomorrow));
+					// $dt = $this->db->query("select a.*, b.periode
+					// 		, b.`".$tgl."` as 'shift' 
+					// 		, c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a
+					// 		left join group_shift_schedule b on b.shift_schedule_id = a.id
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+
+					// if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
+					// 	//$emp_shift_type=0;
+					// 	$period = date("Y-m", strtotime($date)); 
+					// 	$tgl = date("d", strtotime($date));
+					// 	$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
+					// }
+
+
+
+					/// NEW SCRIPT
+					$datetimemax_shift3 = $date.' 08:00:00';
+					if($datetime < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
+						$dateYesterday = date("Y-m-d", strtotime($date . " -1 day"));
+						$period  = date('Y-m', strtotime($dateYesterday));
+					 	$tgl = date('d', strtotime($dateYesterday));
+					 	$date = $dateYesterday;
 					}
 
-					$dt = $this->db->query("select a.*, b.periode
-							, b.`".$tgl."` as 'shift' 
-							, c.time_in, c.time_out, c.name 
-							from shift_schedule a
-							left join group_shift_schedule b on b.shift_schedule_id = a.id
-							left join master_shift_time c on c.shift_id = b.`".$tgl."`
-							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
-					if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
-						//$emp_shift_type=0;
-						$period = date("Y-m", strtotime($date)); 
-						$tgl = date("d", strtotime($date));
-						$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-							from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-							left join master_shift_time c on c.shift_id = b.`".$tgl."`
-							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
+					$dt = $this->db->query("select 
+					    a.*, 
+					    b.periode, 
+					    b.`".$tgl."` as 'shift', 
+					    c.name,
+					    case 
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
+					    end as expected_checkin,
+					    case 
+					        when c.shift_id = 2 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
+					    end as expected_checkout,
+					    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
+					from shift_schedule a
+					left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					where b.employee_id = '".$employee."'
+					and a.period = '".$period."'
+					")->result(); 
+
+
+					if($dt[0]->shift == ""){
+						$emp_shift_type=0;
 					}
+
+					/// END NEW SCRIPT
 
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
@@ -673,168 +716,191 @@ class Api extends API_Controller
 					$attendance_type 	= $dt[0]->name;
 					$time_in 			= $dt[0]->time_in;
 					$time_out 			= $dt[0]->time_out;
-					$post_timein 		= strtotime($time_in);
-					$post_timeout 		= strtotime($time_out);
+					//$post_timein 		= strtotime($time_in);
+					//$post_timeout 		= strtotime($time_out);
 
-
-					$is_late=''; 
-					if($timestamp_time > $post_timein){
-						$is_late='Y';
+					if($attendance_type == 'Shift 3'){
+						$date2 = date("Y-m-d", strtotime($date . " +1 day"));
+					}else{
+						$date2 = $date;
 					}
+
+					$schedule 			= $date2.' '.$time_in;
+					$post_timein 		= strtotime($schedule); 
+					$schedule_out 		= $date2.' '.$time_out;
+					$post_timeout 		= strtotime($schedule_out); 
+
 					
 
-					$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-
-
-					if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
+					if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
 						$response = [
 							'status' 	=> 401,
 							'message' 	=> 'Failed',
-							'error' 	=> 'Cannot double checkin'
+							'error' 	=> 'Check-in time has expired'
 						];
-					}else{ //insert
-						$error=0; 
-						if($cek_emp['shift_type'] == 'Shift'){ 
-							if(!empty($cek_data)){  
-								$cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
-								if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
-							
-									$date = date("Y-m-d", strtotime($date . " +1 day"));
 
-									$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-									if(!empty($cek_data_shift_besok)){ 
-										$error='Cannot double checkin';
-									}else{ 
-										/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a left join master_shift_time b on b.id = a.master_shift_time_id
-										where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+					}else{
 
-										$dt = $this->db->query("select a.*, b.periode
-												, b.`".$tgl."` as 'shift' 
-												, c.time_in, c.time_out, c.name 
-												from shift_schedule a
-												left join group_shift_schedule b on b.shift_schedule_id = a.id 
-												left join master_shift_time c on c.shift_id = b.`".$tgl."`
-												where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-
-										if(empty($dt)){
-											$error='Checkin Date not valid';
-										}else{
-											$attendance_type 	= $dt[0]->name;
-											$time_in 			= $dt[0]->time_in;
-											$time_out 			= $dt[0]->time_out;
-											$datetime_in 		= $date.' '.$time_in;
-											$post_datetimein 	= strtotime($datetime_in);
-											
-
-											$is_late=''; 
-											if($timestamp_datetime > $post_datetimein){
-												$is_late='Y';
-											}
-										}
-									}
-
-								}else{ 
-									/*$error='Checkin Date not valid';*/
-									$error='Cannot double checkin';
-								}
-							}else{ 
-								$dt = $this->db->query("select a.*, b.periode
-										, b.`".$tgl."` as 'shift' 
-										, c.time_in, c.time_out, c.name 
-										from shift_schedule a
-										left join group_shift_schedule b on b.shift_schedule_id = a.id 
-										left join master_shift_time c on c.shift_id = b.`".$tgl."`
-										where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-								if(empty($dt)){
-									$error='Checkin Date not valid';
-								}
-							}
-					
+						$is_late=''; 
+						if($timestamp_time > $post_timein){
+							$is_late='Y';
 						}
 
-						if($error==0){
-
-							//upload 
-							$dataU = array();
-	        				$dataU['status'] = FALSE; 
-							$fieldname='photo';
-							if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-				            { 
-				               
-				                
-				            	$config['upload_path']   = "uploads/absensi/";
-				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-				                $config['max_size']      = "0"; 
-				                
-				                $this->load->library('upload', $config); 
-				                
-				                if(!$this->upload->do_upload($fieldname)){ 
-				                    $err_msg = $this->upload->display_errors(); 
-				                    $dataU['error_warning'] = strip_tags($err_msg);              
-				                    $dataU['status'] = FALSE;
-				                } else { 
-				                    $fileData = $this->upload->data();
-				                    $dataU['upload_file'] = $fileData['file_name'];
-				                    $dataU['status'] = TRUE;
-				                }
-				            }
-				            $document = '';
-							if($dataU['status']){ 
-								$document = $dataU['upload_file'];
-							} else if(isset($dataU['error_warning'])){ 
-								//echo $dataU['error_warning']; exit;
-
-								$document = 'ERROR : '.$dataU['error_warning'];
-							}
-				            //end upload
+						$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
 
 
-							$data = [
-								'date_attendance' 			=> $date,
-								'employee_id' 				=> $employee,
-								'attendance_type' 			=> $attendance_type,
-								'time_in' 					=> $time_in,
-								'time_out' 					=> $time_out,
-								'date_attendance_in' 		=> $datetime,
-								'is_late'					=> $is_late,
-								'created_at'				=> date("Y-m-d H:i:s"),
-								'lat_checkin' 				=> $latitude,
-								'long_checkin' 				=> $longitude,
-								'work_location' 			=> $work_location,
-								'notes' 					=> $notes,
-								'photo' 					=> $document
+						if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Cannot double checkin'
 							];
+						}else{ //insert
+							$error=0; 
+							if($cek_emp['shift_type'] == 'Shift'){ 
+								if(!empty($cek_data)){  
+									// $cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
+									// if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
+								
+									// 	$date = date("Y-m-d", strtotime($date . " +1 day"));
 
-							$rs = $this->db->insert("time_attendances", $data);
+									// 	$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+									// 	if(!empty($cek_data_shift_besok)){ 
+									// 		$error='Cannot double checkin';
+									// 	}else{ 
+											
+									// 		$dt = $this->db->query("select a.*, b.periode
+									// 				, b.`".$tgl."` as 'shift' 
+									// 				, c.time_in, c.time_out, c.name 
+									// 				from shift_schedule a
+									// 				left join group_shift_schedule b on b.shift_schedule_id = a.id 
+									// 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
+									// 				where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
-							if($rs){
-								$upd_emp = [
-									'last_lat' 				=> $latitude,
-									'last_long' 			=> $longitude
+									// 		if(empty($dt)){
+									// 			$error='Checkin Date not valid';
+									// 		}else{
+									// 			$attendance_type 	= $dt[0]->name;
+									// 			$time_in 			= $dt[0]->time_in;
+									// 			$time_out 			= $dt[0]->time_out;
+									// 			$datetime_in 		= $date.' '.$time_in;
+									// 			$post_datetimein 	= strtotime($datetime_in);
+												
+
+									// 			$is_late=''; 
+									// 			if($timestamp_datetime > $post_datetimein){
+									// 				$is_late='Y';
+									// 			}
+									// 		}
+									// 	}
+
+									// }else{ 
+									// 	/*$error='Checkin Date not valid';*/
+									// 	$error='Cannot double checkin';
+									// }
+
+									$error='Cannot double checkin';
+								}else{ 
+									$dt = $this->db->query("select a.*, b.periode
+											, b.`".$tgl."` as 'shift' 
+											, c.time_in, c.time_out, c.name 
+											from shift_schedule a
+											left join group_shift_schedule b on b.shift_schedule_id = a.id 
+											left join master_shift_time c on c.shift_id = b.`".$tgl."`
+											where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+									if(empty($dt)){
+										$error='Checkin Date not valid';
+									}
+								}
+						
+							}
+
+							if($error==0){
+
+								//upload 
+								$dataU = array();
+		        				$dataU['status'] = FALSE; 
+								$fieldname='photo';
+								if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+					            { 
+					               
+					                
+					            	$config['upload_path']   = "uploads/absensi/";
+					                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+					                $config['max_size']      = "0"; 
+					                
+					                $this->load->library('upload', $config); 
+					                
+					                if(!$this->upload->do_upload($fieldname)){ 
+					                    $err_msg = $this->upload->display_errors(); 
+					                    $dataU['error_warning'] = strip_tags($err_msg);              
+					                    $dataU['status'] = FALSE;
+					                } else { 
+					                    $fileData = $this->upload->data();
+					                    $dataU['upload_file'] = $fileData['file_name'];
+					                    $dataU['status'] = TRUE;
+					                }
+					            }
+					            $document = '';
+								if($dataU['status']){ 
+									$document = $dataU['upload_file'];
+								} else if(isset($dataU['error_warning'])){ 
+									//echo $dataU['error_warning']; exit;
+
+									$document = 'ERROR : '.$dataU['error_warning'];
+								}
+					            //end upload
+
+
+								$data = [
+									'date_attendance' 			=> $date,
+									'employee_id' 				=> $employee,
+									'attendance_type' 			=> $attendance_type,
+									'time_in' 					=> $time_in,
+									'time_out' 					=> $time_out,
+									'date_attendance_in' 		=> $datetime,
+									'is_late'					=> $is_late,
+									'created_at'				=> date("Y-m-d H:i:s"),
+									'lat_checkin' 				=> $latitude,
+									'long_checkin' 				=> $longitude,
+									'work_location' 			=> $work_location,
+									'notes' 					=> $notes,
+									'photo' 					=> $document
 								];
-								$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+								$rs = $this->db->insert("time_attendances", $data);
+
+								if($rs){
+									$upd_emp = [
+										'last_lat' 				=> $latitude,
+										'last_long' 			=> $longitude
+									];
+									$this->db->update("employees", $upd_emp, "id='".$employee."'");
 
 
-								$response = [
-									'status' 	=> 200,
-									'message' 	=> 'Success'
-								];
+									$response = [
+										'status' 	=> 200,
+										'message' 	=> 'Success'
+									];
+								}else{
+									$response = [
+										'status' 	=> 401,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Error submit checkin'
+									];
+								}
 							}else{
 								$response = [
 									'status' 	=> 401,
 									'message' 	=> 'Failed',
-									'error' 	=> 'Error submit checkin'
+									'error' 	=> $error
 								];
 							}
-						}else{
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> $error
-							];
-						}
 
+						}
 					}
+
+					
 				}else{
 					$response = [
 						'status' 	=> 401,
@@ -914,7 +980,11 @@ class Api extends API_Controller
 							left join master_shift_time c on c.shift_id = b.`".$tgl."`
 							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 					
-					$datetime_out = $dt[0]->date.' '.$dt[0]->time_out;
+					if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
+						$date_attendance = date("Y-m-d", strtotime($dt[0]->date . " +1 day"));
+					}
+
+					$datetime_out = $date_attendance.' '.$dt[0]->time_out;
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
 				} 
@@ -926,6 +996,7 @@ class Api extends API_Controller
 
 					$timestamp_datetime = strtotime($datetime);
 					$post_datetimeout 	= strtotime($datetime_out);
+
 
 
 					$is_leaving_office_early = '';
@@ -1163,6 +1234,13 @@ class Api extends API_Controller
 						'error' 	=> 'Harap lampirkan file'
 					];
 				}
+				else if($rs == 'sisa_dayoff_tidak_cukup'){
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Sisa Dayoff tidak cukup'
+					];
+				}
 				else{
 					$response = [
 						'status' 	=> 401,
@@ -1194,6 +1272,98 @@ class Api extends API_Controller
 		$this->render_json($response, $response['status']);
     }
 
+
+    public function cek_ttl_dayoff($employee_id){
+		$overtimes = $this->db->query("select 
+								    employee_id,
+								    SUM(count_day - COALESCE(ttl_dayoff_used, 0)) AS total_sisa_dayoff
+								FROM overtimes
+								WHERE type = 2 
+								  AND status_id = 2
+								  AND employee_id = '".$employee_id."'
+								GROUP BY employee_id;
+								")->result(); 
+
+		if(!empty($overtimes)){
+			return $overtimes[0]->total_sisa_dayoff;
+		}else return 0;
+		
+	}
+
+
+	public function update_table_overtimes($employee, $diff_day){
+
+		$tmp_ttl_pengajuan = $diff_day;
+		$dataOvertimes = $this->db->query("select * from overtimes where type = 2 and employee_id = '".$employee."' and status_id = 2 and status_dayoff_available = 1")->result(); 
+
+		if($tmp_ttl_pengajuan != 0){
+			foreach($dataOvertimes as $rowOvertimes){
+				$count_day 	= $rowOvertimes->count_day;
+				$kuota 		= $rowOvertimes->count_day-$rowOvertimes->ttl_dayoff_used;
+				
+				if($tmp_ttl_pengajuan > $kuota){ 
+					$ttl_dayoff_used = $kuota;
+				}else{ 
+					$ttl_dayoff_used = $tmp_ttl_pengajuan;
+				}
+				$sumdayoff = $rowOvertimes->ttl_dayoff_used+$ttl_dayoff_used;
+
+				$status_dayoff_available='';
+				if($count_day == $sumdayoff){
+					$status_dayoff_available=0;
+				}
+				
+				if($status_dayoff_available==0){
+					$dataUpd = [
+						'ttl_dayoff_used' 			=> $sumdayoff,
+						'status_dayoff_available' 	=> $status_dayoff_available
+					];
+					$this->db->update('overtimes', $dataUpd, "id = '".$rowOvertimes->id."'");
+				}else{
+					$dataUpd = [
+						'ttl_dayoff_used' => $sumdayoff
+					];
+					$this->db->update('overtimes', $dataUpd, "id = '".$rowOvertimes->id."'");
+				}
+				
+				$tmp_ttl_pengajuan = $tmp_ttl_pengajuan-$ttl_dayoff_used;
+				
+
+			}
+		}
+		
+	}
+
+
+	public function pengembalian_jatah_dayoff($employee, $diff_day){
+
+		$ttl_pengembalian = $diff_day;
+		$dataOvertimes = $this->db->query("select * from overtimes where type = 2 and employee_id = '".$employee."' and status_id = 2 order by id desc")->result(); 
+		foreach($dataOvertimes as $rowOvertimes){
+			$kuota = $rowOvertimes->count_day;
+			$curr_ttl_dayoff_used = $rowOvertimes->ttl_dayoff_used;
+			
+			if($ttl_pengembalian > $kuota){
+				$yg_sudah_dikembalikan = $ttl_pengembalian-$kuota;
+			}else{
+				$yg_sudah_dikembalikan = $ttl_pengembalian;
+			}
+			$sisa_pengembalian = $ttl_pengembalian-$yg_sudah_dikembalikan;
+			$ttl_dayoff_used = $curr_ttl_dayoff_used-$yg_sudah_dikembalikan;
+			
+			$dataUpd = [
+				'ttl_dayoff_used' => $ttl_dayoff_used,
+				'status_dayoff_available' => 1
+			];
+			$this->db->update('overtimes', $dataUpd, "id = '".$rowOvertimes->id."'");
+			
+
+			$ttl_pengembalian = $sisa_pengembalian;
+
+		}
+	}
+
+
     public function insert_ijin($employee, $leave_type, $date_start, $date_end, $reason, $photo){
 
     	if($employee != '' && $date_start != '' && $date_end != '' && $leave_type != ''){ 
@@ -1202,52 +1372,46 @@ class Api extends API_Controller
 
 			$diff_day		= $this->api->dayCount($date_start, $date_end);
 
-			if($leave_type == '6'){ //Half day leave
-				$diff_day = $diff_day*0.5;
+			//upload 
+			$dataU = array();
+			$dataU['status'] = FALSE; 
+			$fieldname='photo';
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+            { 
+               
+                $config['upload_path']   = "uploads/ijin/";
+                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+                $config['max_size']      = "0"; 
+                
+                $this->load->library('upload', $config); 
+                
+                if(!$this->upload->do_upload($fieldname)){ 
+                    $err_msg = $this->upload->display_errors(); 
+                    $dataU['error_warning'] = strip_tags($err_msg);              
+                    $dataU['status'] = FALSE;
+                } else { 
+                    $fileData = $this->upload->data();
+                    $dataU['upload_file'] = $fileData['file_name'];
+                    $dataU['status'] = TRUE;
+                }
+            }
+            $document = '';
+			if($dataU['status']){ 
+				$document = $dataU['upload_file'];
+			} else if(isset($dataU['error_warning'])){ 
+				//echo $dataU['error_warning']; exit;
+				$document = 'ERROR : '.$dataU['error_warning'];
 			}
-			if($leave_type == '5'){ //Sick Leave
-				$diff_day = 0 ;
-			}
-			
+            //end upload
 
-			if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
 
-				//upload 
-				$dataU = array();
-				$dataU['status'] = FALSE; 
-				$fieldname='photo';
-				if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-	            { 
-	               
-	                $config['upload_path']   = "uploads/ijin/";
-	                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-	                $config['max_size']      = "0"; 
-	                
-	                $this->load->library('upload', $config); 
-	                
-	                if(!$this->upload->do_upload($fieldname)){ 
-	                    $err_msg = $this->upload->display_errors(); 
-	                    $dataU['error_warning'] = strip_tags($err_msg);              
-	                    $dataU['status'] = FALSE;
-	                } else { 
-	                    $fileData = $this->upload->data();
-	                    $dataU['upload_file'] = $fileData['file_name'];
-	                    $dataU['status'] = TRUE;
-	                }
-	            }
-	            $document = '';
-				if($dataU['status']){ 
-					$document = $dataU['upload_file'];
-				} else if(isset($dataU['error_warning'])){ 
-					//echo $dataU['error_warning']; exit;
-					$document = 'ERROR : '.$dataU['error_warning'];
-				}
-	            //end upload
+			if($leave_type == '24'){ //DAY OFF
+				$ttl_dayoff = $this->cek_ttl_dayoff($employee);
 
-	            if($leave_type == 5 && ($document == '' || $document == null)){
-	            	return 'lampirkan_file';
-	            }else{
-	            	$data = [
+				if($diff_day <= $ttl_dayoff){
+
+					//insert table leave
+					$data = [
 						'employee_id' 				=> $employee,
 						'date_leave_start' 			=> $date_start,
 						'date_leave_end' 			=> $date_end,
@@ -1261,44 +1425,85 @@ class Api extends API_Controller
 					$rs = $this->db->insert("leave_absences", $data);
 
 					if($rs){
-						//update sisa jatah cuti
-						/*if($leave_type != '2'){ //unpaid leave gak update sisa cuti
-							$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
-
-							$is_update_jatah_selanjutnya=0;
-							$sisa_cuti = $jatahcuti[0]->sisa_cuti-$diff_day;
-
-							if($diff_day > $jatahcuti[0]->sisa_cuti){ 
-								$is_update_jatah_selanjutnya=1;
-								$sisa_cuti = 0;
-								$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
-								$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;	
-							}
-							
-							$data2 = [
-								'sisa_cuti' 	=> $sisa_cuti,
-								'updated_date'	=> date("Y-m-d H:i:s")
-							];
-							$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-
-							if($is_update_jatah_selanjutnya == 1){ 
-								$data3 = [
-									'sisa_cuti' 	=> $sisa_cuti2,
-									'updated_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-							}
-
-						}*/
+						//update table overtimes
+						$this->update_table_overtimes($employee,$diff_day);
 
 						return $rs;
 					}else return null;
-	            }
+
+				}else{
+					return 'sisa_dayoff_tidak_cukup';
+				}
+
+			}else{
+
+				if($leave_type == '6'){ //Half day leave
+					$diff_day = $diff_day*0.5;
+				}
+				if($leave_type == '5'){ //Sick Leave
+					$diff_day = 0 ;
+				}
+				
+
+				if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
+
+		            if($leave_type == 5 && ($document == '' || $document == null)){
+		            	return 'lampirkan_file';
+		            }else{
+		            	$data = [
+							'employee_id' 				=> $employee,
+							'date_leave_start' 			=> $date_start,
+							'date_leave_end' 			=> $date_end,
+							'masterleave_id' 			=> $leave_type,
+							'reason' 					=> $reason,
+							'total_leave' 				=> $diff_day,
+							'status_approval' 			=> 1, //waiting approval
+							'created_at'				=> date("Y-m-d H:i:s"),
+							'photo' => $document
+						];
+						$rs = $this->db->insert("leave_absences", $data);
+
+						if($rs){
+							//update sisa jatah cuti
+							/*if($leave_type != '2'){ //unpaid leave gak update sisa cuti
+								$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
+
+								$is_update_jatah_selanjutnya=0;
+								$sisa_cuti = $jatahcuti[0]->sisa_cuti-$diff_day;
+
+								if($diff_day > $jatahcuti[0]->sisa_cuti){ 
+									$is_update_jatah_selanjutnya=1;
+									$sisa_cuti = 0;
+									$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
+									$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;	
+								}
+								
+								$data2 = [
+									'sisa_cuti' 	=> $sisa_cuti,
+									'updated_date'	=> date("Y-m-d H:i:s")
+								];
+								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+
+								if($is_update_jatah_selanjutnya == 1){ 
+									$data3 = [
+										'sisa_cuti' 	=> $sisa_cuti2,
+										'updated_date'	=> date("Y-m-d H:i:s")
+									];
+									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+								}
+
+							}*/
+
+							return $rs;
+						}else return null;
+		            }
+
+				}
+				else return 'sisa_cuti_tidak_cukup';
 
 			}
-			else return 'sisa_cuti_tidak_cukup';
-			
+
 		}else return null;
 
 
@@ -1307,182 +1512,274 @@ class Api extends API_Controller
 
     public function update_ijin($employee, $leave_type, $date_start, $date_end, $reason, $id){
 
-    	if(!empty($id)){
+    	if(!empty($id)){ 
 
 			if($date_start != '' && $date_end != '' && $leave_type != ''){ 
-				$getcurrLeave = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
+				$diff_day		= $this->api->dayCount($date_start, $date_end);
+				$getcurrLeave 	= $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
 
 				if($getcurrLeave[0]->status_approval == 1){ //waiting approval
-					/*$getcurrTotalCuti =0;
-					if($getcurrLeave[0]->masterleave_id != 2){ //data sebelumnya bukan unpaid leave, maka sisa cuti dibalikin
-						$getcurrTotalCuti = $getcurrLeave[0]->total_leave;
+
+					//upload 
+					$dataU = array();
+					$dataU['status'] = FALSE; 
+					$fieldname='photo';
+					if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+		            { 
+		               
+		                $config['upload_path']   = "uploads/ijin/";
+		                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+		                $config['max_size']      = "0"; 
+		                
+		                $this->load->library('upload', $config); 
+		                
+		                if(!$this->upload->do_upload($fieldname)){ 
+		                    $err_msg = $this->upload->display_errors(); 
+		                    $dataU['error_warning'] = strip_tags($err_msg);              
+		                    $dataU['status'] = FALSE;
+		                } else { 
+		                    $fileData = $this->upload->data();
+		                    $dataU['upload_file'] = $fileData['file_name'];
+		                    $dataU['status'] = TRUE;
+		                }
+		            }
+		            $document = '';
+					if($dataU['status']){ 
+						$document = $dataU['upload_file'];
+					} else if(isset($dataU['error_warning'])){ 
+						//echo $dataU['error_warning']; exit;
+						$document = 'ERROR : '.$dataU['error_warning'];
 					}
+		            //end upload
+		            if($document == '' && $getcurrLeave[0]->photo != ''){
+		            	$document = $getcurrLeave[0]->photo;
+		            }
 
-					$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end); 
-					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti+$getcurrTotalCuti;*/
 
+		            if($leave_type == '24'){ //day off
+		            	if($getcurrLeave[0]->masterleave_id != '24'){ //awalnya bukan day off
+							$ttl_dayoff = $this->cek_ttl_dayoff($employee);
 
-					$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
-					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+							if($diff_day <= $ttl_dayoff){
+								$data = [
+									'date_leave_start' 			=> $date_start,
+									'date_leave_end' 			=> $date_end,
+									'masterleave_id' 			=> $leave_type,
+									'reason' 					=> $reason,
+									'total_leave' 				=> $diff_day,
+									'photo' 					=> $document,
+									'updated_at'				=> date("Y-m-d H:i:s")
+								];
+								$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
+								if($rs){
+									//update table overtimes
+									$this->update_table_overtimes($employee,$diff_day);
 
-					$diff_day		= $this->api->dayCount($date_start, $date_end);
-
-					if($leave_type == '6'){ //Half day leave
-						$diff_day = $diff_day*0.5;
-					}
-					if($leave_type == '5'){ //Sick Leave
-						$diff_day = 0 ;
-					}
-
-					if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
-
-						//upload 
-						$dataU = array();
-						$dataU['status'] = FALSE; 
-						$fieldname='photo';
-						if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-			            { 
-			               
-			                $config['upload_path']   = "uploads/ijin/";
-			                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-			                $config['max_size']      = "0"; 
-			                
-			                $this->load->library('upload', $config); 
-			                
-			                if(!$this->upload->do_upload($fieldname)){ 
-			                    $err_msg = $this->upload->display_errors(); 
-			                    $dataU['error_warning'] = strip_tags($err_msg);              
-			                    $dataU['status'] = FALSE;
-			                } else { 
-			                    $fileData = $this->upload->data();
-			                    $dataU['upload_file'] = $fileData['file_name'];
-			                    $dataU['status'] = TRUE;
-			                }
-			            }
-			            $document = '';
-						if($dataU['status']){ 
-							$document = $dataU['upload_file'];
-						} else if(isset($dataU['error_warning'])){ 
-							//echo $dataU['error_warning']; exit;
-							$document = 'ERROR : '.$dataU['error_warning'];
-						}
-			            //end upload
-			            if($document == '' && $getcurrLeave[0]->photo != ''){
-			            	$document = $getcurrLeave[0]->photo;
-			            }
-
-			            if($leave_type == 5 && ($document == '' || $document == null)){
-			            	return 'lampirkan_file';
-			            }else{
-			            	$data = [
-
-								'date_leave_start' 			=> $date_start,
-								'date_leave_end' 			=> $date_end,
-								'masterleave_id' 			=> $leave_type,
-								'reason' 					=> $reason,
-								'total_leave' 				=> $diff_day,
-								'updated_at'				=> date("Y-m-d H:i:s")
+									return $rs;
+								}else return null;
+							}else{
+								return 'sisa_dayoff_tidak_cukup';
+							}
+							
+						}else{ 
+							$curr_diff_day = $getcurrLeave[0]->total_leave;
+							if($curr_diff_day == $diff_day){ //kalo sama brarti gausah update data overtime, update data biasa aja yg leave_absences
+								$data = [
+									'date_leave_start' 			=> $date_start,
+									'date_leave_end' 			=> $date_end,
+									'masterleave_id' 			=> $leave_type,
+									'reason' 					=> $reason,
+									'total_leave' 				=> $diff_day,
+									'photo' 					=> $document,
+									'updated_at'				=> date("Y-m-d H:i:s")
+								];
+								$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
 								
-							];
+								return $rs;
+							}else{  //total lama tidak sama dengan total baru
+								if($curr_diff_day < $diff_day){ //nambah dayoff
 
-							$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
+									$ttl_dayoff = $this->cek_ttl_dayoff($employee); 
+									$selisih_diff_day = $diff_day-$curr_diff_day;
+									if($selisih_diff_day <= $ttl_dayoff){
+										$data = [
+											'date_leave_start' 			=> $date_start,
+											'date_leave_end' 			=> $date_end,
+											'masterleave_id' 			=> $leave_type,
+											'reason' 					=> $reason,
+											'total_leave' 				=> $diff_day,
+											'photo' 					=> $document,
+											'updated_at'				=> date("Y-m-d H:i:s")
+										]; 
+										$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
+										if($rs){ 
+											$this->update_table_overtimes($employee,$selisih_diff_day);
+											return $rs;
+										}else return null;
+									}else{ 
+										return 'sisa_dayoff_tidak_cukup';
+									}
+								}else{ //mengembalikan jatah dayoff 
+									$data = [
+										'date_leave_start' 			=> $date_start,
+										'date_leave_end' 			=> $date_end,
+										'masterleave_id' 			=> $leave_type,
+										'reason' 					=> $reason,
+										'total_leave' 				=> $diff_day,
+										'photo' 					=> $document,
+										'updated_at'				=> date("Y-m-d H:i:s")
+									];
+									$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
+									if($rs){
+										$selisih_diff_day = $curr_diff_day-$diff_day;
+										$this->pengembalian_jatah_dayoff($employee,$selisih_diff_day);
 
-							//update sisa jatah cuti
-							if($rs){
-
-								/*$update_jatah_cuti=1;
-								if($getcurrLeave[0]->masterleave_id == 2 && $leave_type == 2){ //tidak ada perubahan jika data sebelumnya dan data skrg sama2 unpaid leave
-									$update_jatah_cuti=0;
-									return $rs; 
+										return $rs;
+									}else return null;
 								}
+							}
+						}
 
-								if($update_jatah_cuti == 1){
+		            }else{ 
 
-									if($leave_type == 2){
-										$diff_day=0;
+		            	/*$getcurrTotalCuti =0;
+						if($getcurrLeave[0]->masterleave_id != 2){ //data sebelumnya bukan unpaid leave, maka sisa cuti dibalikin
+							$getcurrTotalCuti = $getcurrLeave[0]->total_leave;
+						}
+						$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end); 
+						$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti+$getcurrTotalCuti;*/
+
+						$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
+						$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+
+
+						if($leave_type == '6'){ //Half day leave
+							$diff_day = $diff_day*0.5;
+						}
+						if($leave_type == '5'){ //Sick Leave
+							$diff_day = 0 ;
+						}
+
+						if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
+
+				            if($leave_type == 5 && ($document == '' || $document == null)){
+				            	return 'lampirkan_file';
+				            }else{
+				            	$data = [
+									'date_leave_start' 			=> $date_start,
+									'date_leave_end' 			=> $date_end,
+									'masterleave_id' 			=> $leave_type,
+									'reason' 					=> $reason,
+									'total_leave' 				=> $diff_day,
+									'photo' 					=> $document,
+									'updated_at'				=> date("Y-m-d H:i:s")
+								];
+
+								$rs = $this->db->update("leave_absences", $data, "id = '".	$id."'");
+
+								//update sisa jatah cuti
+								if($rs){
+
+									if($getcurrLeave[0]->masterleave_id != '24'){ //dr tipe day off
+										$this->pengembalian_jatah_dayoff($employee,$getcurrLeave[0]->total_leave);
 									}
 
-									$jml_tambahan_cuti =  $getcurrTotalCuti-$diff_day;
+									/*$update_jatah_cuti=1;
+									if($getcurrLeave[0]->masterleave_id == 2 && $leave_type == 2){ //tidak ada perubahan jika data sebelumnya dan data skrg sama2 unpaid leave
+										$update_jatah_cuti=0;
+										return $rs; 
+									}
 
-									if($jml_tambahan_cuti != 0){
-										$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
+									if($update_jatah_cuti == 1){
 
-										if($jml_tambahan_cuti > 0){ // metode tambahin cuti
-										
-											$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti+$jml_tambahan_cuti;
-
-											$tambah_selanjutnya=0;
-											if($sisa_cuti_1 > 12){
-												$tambah_selanjutnya =1;
-												$slot_tambah = 12- $jatahcuti[0]->sisa_cuti;
-												$sisa_slot_tambah = $jml_tambahan_cuti-$slot_tambah;
-												$sisa_cuti_1 =12;
-											}
-											$data2 = [
-												'sisa_cuti' 	=> $sisa_cuti_1,
-												'updated_date'	=> date("Y-m-d H:i:s")
-											];
-											$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-											if($tambah_selanjutnya == 1){
-												$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti+$sisa_slot_tambah;
-												if($sisa_cuti_2 > 12){
-													$sisa_cuti_2 = 12;
-												}
-
-												$data3 = [
-													'sisa_cuti' 	=> $sisa_cuti_2,
-													'updated_date'	=> date("Y-m-d H:i:s")
-												];
-												$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-											}
-
-										}else{ //metode kurangi cuti
-
-											$jml_kurang_cuti = $diff_day-$getcurrTotalCuti;
-											$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti-$jml_kurang_cuti;
-
-											$kurang_selanjutnya=0;
-											if($sisa_cuti_1 < 0){
-												$kurang_selanjutnya = 1;
-
-												if($jatahcuti[0]->sisa_cuti == 0){
-													$slot_kurang =0;
-												}else{
-													$slot_kurang = $jml_kurang_cuti-$jatahcuti[0]->sisa_cuti;
-												}
-												
-												$sisa_slot_kurang = $jml_kurang_cuti-$slot_kurang;
-												$sisa_cuti_1 = 0;
-											}
-											$data2 = [
-												'sisa_cuti' 	=> $sisa_cuti_1,
-												'updated_date'	=> date("Y-m-d H:i:s")
-											];
-											$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-											if($kurang_selanjutnya == 1){
-												$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti-$sisa_slot_kurang;
-												if($sisa_cuti_2 < 0){
-													$sisa_cuti_2 = 0;
-												}
-												$data3 = [
-													'sisa_cuti' 	=> $sisa_cuti_2,
-													'updated_date'	=> date("Y-m-d H:i:s")
-												];
-												$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-											}
-
+										if($leave_type == 2){
+											$diff_day=0;
 										}
-									}
-									
-								}*/
-								
-								return  $rs;
-							}else return null;
-			            }
 
-					}else return 'sisa_cuti_tidak_cukup'; // cuti gak cukup
+										$jml_tambahan_cuti =  $getcurrTotalCuti-$diff_day;
+
+										if($jml_tambahan_cuti != 0){
+											$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
+
+											if($jml_tambahan_cuti > 0){ // metode tambahin cuti
+											
+												$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti+$jml_tambahan_cuti;
+
+												$tambah_selanjutnya=0;
+												if($sisa_cuti_1 > 12){
+													$tambah_selanjutnya =1;
+													$slot_tambah = 12- $jatahcuti[0]->sisa_cuti;
+													$sisa_slot_tambah = $jml_tambahan_cuti-$slot_tambah;
+													$sisa_cuti_1 =12;
+												}
+												$data2 = [
+													'sisa_cuti' 	=> $sisa_cuti_1,
+													'updated_date'	=> date("Y-m-d H:i:s")
+												];
+												$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+												if($tambah_selanjutnya == 1){
+													$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti+$sisa_slot_tambah;
+													if($sisa_cuti_2 > 12){
+														$sisa_cuti_2 = 12;
+													}
+
+													$data3 = [
+														'sisa_cuti' 	=> $sisa_cuti_2,
+														'updated_date'	=> date("Y-m-d H:i:s")
+													];
+													$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+												}
+
+											}else{ //metode kurangi cuti
+
+												$jml_kurang_cuti = $diff_day-$getcurrTotalCuti;
+												$sisa_cuti_1 = $jatahcuti[0]->sisa_cuti-$jml_kurang_cuti;
+
+												$kurang_selanjutnya=0;
+												if($sisa_cuti_1 < 0){
+													$kurang_selanjutnya = 1;
+
+													if($jatahcuti[0]->sisa_cuti == 0){
+														$slot_kurang =0;
+													}else{
+														$slot_kurang = $jml_kurang_cuti-$jatahcuti[0]->sisa_cuti;
+													}
+													
+													$sisa_slot_kurang = $jml_kurang_cuti-$slot_kurang;
+													$sisa_cuti_1 = 0;
+												}
+												$data2 = [
+													'sisa_cuti' 	=> $sisa_cuti_1,
+													'updated_date'	=> date("Y-m-d H:i:s")
+												];
+												$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+												if($kurang_selanjutnya == 1){
+													$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti-$sisa_slot_kurang;
+													if($sisa_cuti_2 < 0){
+														$sisa_cuti_2 = 0;
+													}
+													$data3 = [
+														'sisa_cuti' 	=> $sisa_cuti_2,
+														'updated_date'	=> date("Y-m-d H:i:s")
+													];
+													$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+												}
+
+											}
+										}
+										
+									}*/
+									
+									return  $rs;
+								}else return null;
+				            }
+
+						}else return 'sisa_cuti_tidak_cukup'; // cuti gak cukup
+
+		            }
+
 				}else{
 					return 'cannot_edit_approved_leave';
 				}
@@ -1586,52 +1883,93 @@ class Api extends API_Controller
 		$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
-
-    	/*$islogin_employee	= $_REQUEST['islogin_employee'];
-    	$employee			= $_REQUEST['employee']; //filter employee
-
-
-    	if($islogin_employee != ''){
-
-    		$where=''; 
-	    	if($employee != ''){
-	    		$where = " and a.employee_id = '".$employee."' ";
-	    	}
-
-	    	$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
-				if(a.is_leaving_office_early = 'Y','Leaving Office Early','') as 'is_leaving_office_early_desc', b.direct_id 
-				from time_attendances a left join employees b on b.id = a.employee_id
-				where (a.employee_id = '".$islogin_employee."' or b.direct_id = '".$islogin_employee."') 
-	                    ".$where." ")->result();  
-
-	    	$response = [
-	    		'status' 	=> 200,
-				'message' 	=> 'Success',
-				'data' 		=> $dataabsen
-			];
-
-    	}else{
-    		$response = [
-				'status' 	=> 401,
-				'message' 	=> 'Failed',
-				'error' 	=> 'Employee ID Login not found'
-			];
-    	}*/
-
-
-
-    	$employee			= $_REQUEST['employee']; //filter employee
+    	$employee = $_REQUEST['employee']; //filter employee
 
 		$where=''; 
     	if($employee != ''){
     		$where = " where a.employee_id = '".$employee."' ";
     	}
 
-    	$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
-			if(a.is_leaving_office_early = 'Y','Leaving Office Early','') as 'is_leaving_office_early_desc', b.direct_id 
-			from time_attendances a left join employees b on b.id = a.employee_id
-			 
-                    ".$where." ")->result();  
+    	
+		/*$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
+			if(a.is_leaving_office_early = 'Y','Leaving Office Early','') as 'is_leaving_office_early_desc', b.direct_id from time_attendances a left join employees b on b.id = a.employee_id ".$where." ")->result();  */
+
+		$dataabsen = $this->db->query("select 
+					    a.id,
+					    a.date_attendance,
+					    b.full_name,
+					    a.date_attendance_in,
+					    a.date_attendance_out,
+					    a.num_of_working_hours,
+					    IF(a.is_late = 'Y', 'Late', '') AS is_late_desc,
+					    IF(a.is_leaving_office_early = 'Y','Leaving Office Early','') AS is_leaving_office_early_desc,
+					    b.direct_id,
+					    b.shift_type,
+					    CASE 
+					     	WHEN a.date_attendance_in IS NOT NULL THEN ''
+					        WHEN o.id IS NOT NULL THEN '' 
+					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Holiday'
+					        WHEN h.date IS NOT NULL THEN 'Holiday'
+					        WHEN a.leave_absences_id IS NOT NULL THEN 'Holiday'
+					        WHEN b.shift_type = 'Shift' AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN 'Holiday'
+					        ELSE ''
+					    END AS holiday_flag,
+					    CASE 
+					    	WHEN a.date_attendance_in IS NOT NULL THEN ''  
+					        WHEN o.id IS NOT NULL THEN ''  
+					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Weekend'
+					        WHEN h.date IS NOT NULL THEN h.description
+					        WHEN a.leave_absences_id IS NOT NULL THEN 'Leave'
+					        WHEN b.shift_type = 'Shift' AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN 'No Shift'
+					        ELSE ''
+					    END AS holiday_type,
+					    CASE 
+					        WHEN o.id IS NOT NULL THEN 'Y'
+					        ELSE ''
+					    END AS overtime_flag
+					FROM time_attendances a
+					LEFT JOIN employees b ON b.id = a.employee_id
+					LEFT JOIN master_holidays h ON h.date = a.date_attendance
+					LEFT JOIN overtimes o 
+					       ON o.employee_id = a.employee_id
+					      AND a.date_attendance BETWEEN DATE(o.datetime_start) AND DATE(o.datetime_end)
+					      AND o.status_id = 2 
+					      AND o.type = 2
+					LEFT JOIN group_shift_schedule gss 
+					       ON gss.employee_id = a.employee_id
+					      AND gss.periode = DATE_FORMAT(a.date_attendance, '%Y-%m')
+					     	".$where."
+					 ")->result();
+				
+			
 
     	$response = [
     		'status' 	=> 200,
@@ -1641,7 +1979,7 @@ class Api extends API_Controller
 
     	
 
-    	
+    
 
 		$this->output->set_header('Access-Control-Allow-Origin: *');
 		$this->output->set_header('Access-Control-Allow-Methods: POST');
@@ -1745,6 +2083,39 @@ class Api extends API_Controller
     	}*/
 
     	$datamaster = $this->db->query("select * from tasklist where parent_id = 0 ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+    public function get_master_leaves()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	/*$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}*/
+
+
+    	$datamaster = $this->db->query("select * from master_leaves where name != 'Absence' ")->result();  
 
     	$response = [
     		'status' 	=> 200,
@@ -2161,6 +2532,68 @@ class Api extends API_Controller
 					'sisa_cuti' => $sisa_cuti
 				];
 
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Require not satisfied'
+				];
+			}
+
+		}else{
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+	}
+
+	public function get_pendingan_approval(){
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+
+		if(!empty($_REQUEST)){
+			$employee 	= $_REQUEST['employee'];
+
+			if($employee != ''){
+				
+				$get_data_pendingan 	= $this->db->query("select 'leave attendance' as description, count(*) as total_pendingan_approval from leave_absences a left join employees b on b.id = a.employee_id where a.status_approval = 1 and b.direct_id = '".$employee."'
+					union
+					select 'overtime' as description, count(*) as total_pendingan_approval from overtimes a left join employees b on b.id = a.employee_id 
+					where a.status_id = 1 and b.direct_id = '".$employee."'
+					union
+					select 'reimbursement' as description, count(*) as total_pendingan_approval from medicalreimbursements a left join employees b on b.id = a.employee_id 
+					where a.status_id = 1 and b.direct_id = '".$employee."'
+					union
+					select 'cash advance' as description, count(*) as total_pendingan_approval from cash_advance a left join employees b on b.id = a.requested_by 
+					where a.status_id = 1 and b.direct_id = '".$employee."' ")->result(); 
+
+				$data_pendingan = "Tidak ada data";
+				if(!empty($get_data_pendingan)){
+					$data_pendingan = $get_data_pendingan;
+				}
+
+				
+				$response = [
+		    		'status' 			=> 200,
+					'message' 			=> 'Success',
+					'data_pendingan' 	=> $data_pendingan
+				];
+				
 			}else{
 				$response = [
 					'status' 	=> 400, // Bad Request

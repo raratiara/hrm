@@ -17,7 +17,8 @@
         width: 90% !important;
     }
 
-    @media screen and (max-width: 768px) {
+
+     @media screen and (max-width: 768px) {
         .row {
             font-size: 12px !important;
         }
@@ -53,4 +54,5 @@
         }
 
     }
+    
 </style>

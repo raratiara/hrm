@@ -7,6 +7,7 @@
 
     table tbody td {
         font-size: 12px;
+        /*border-bottom: 1px solid #e2e3e4ff;*/
     }
 
     /* thead font lebih kecil */
@@ -293,7 +294,8 @@
                         <thead>
                             <tr>
                                 <th style="text-align: left; font-size:12px">Task</th>
-                                <th style="width: 100px; text-align: center; font-size:12px">Progress (%)</th>
+                                <!-- <th style="width: 100px; text-align: center; font-size:12px">Progress (%)</th> -->
+                                <th style="text-align: center;">Progress (%)</th>
                                 <th style="font-size:12px">Due Date</th>
                             </tr>
                         </thead>

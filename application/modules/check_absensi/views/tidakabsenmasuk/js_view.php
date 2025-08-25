@@ -1,3 +1,8 @@
+
+
+<!-- <input type="text" id="listunCheck" name="listunCheck"> -->
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -296,6 +301,72 @@ function getFormattedDateTime() {
   const seconds = pad(now.getSeconds());
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+
+let uncheckedList = [];
+
+// Saat user klik checkbox
+$(document).on("change", ".data-check", function(){
+    let val = $(this).val();
+
+    if(!this.checked){
+        if(uncheckedList.indexOf(val) === -1){
+            uncheckedList.push(val);
+        }
+    } else {
+        uncheckedList = uncheckedList.filter(v => v !== val);
+    }
+
+    // update ke input hidden
+    $("#listunCheck").val(uncheckedList.join(","));
+});
+
+// Saat datatable redraw (misalnya search/paging)
+$('#dynamic-table').on('draw.dt', function(){
+    $(".data-check").each(function(){
+        let val = $(this).val();
+        if(uncheckedList.indexOf(val) !== -1){
+            $(this).prop("checked", false); // kalau ada di list, jadikan uncheck
+        } else {
+            $(this).prop("checked", true); // selain itu default checked
+        }
+    });
+});
+
+
+
+function gosendWAReminder(){
+	var listunCheck = $("#listunCheck").val();
+
+	$.ajax({
+		type: "POST",
+	    url : module_path+'/sendWAReminder',
+		data: { listunCheck: listunCheck },
+		cache: false,		
+	    dataType: "JSON",
+	    success: function(data)
+	    {  
+	    	alert(data);
+
+	    },
+	    error: function (jqXHR, textStatus, errorThrown)
+	    {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+	    }
+	});
+
+
+
 }
 
 
