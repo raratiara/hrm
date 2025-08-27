@@ -127,10 +127,11 @@ class Tracker_menu extends MY_Controller
 						    a.full_name AS nama,
 						    a.last_lat AS lat,
 						    a.last_long AS lng,
-						    ta_latest.date_attendance
+						    ta_latest.date_attendance,
+						    ta_latest.work_location
 						FROM employees a
 						JOIN (
-						    SELECT t.employee_id, t.date_attendance, t.lat_checkin, t.long_checkin
+						    SELECT t.employee_id, t.date_attendance, t.lat_checkin, t.long_checkin, t.work_location
 						    FROM time_attendances t
 						    INNER JOIN (
 						        SELECT employee_id, MAX(date_attendance) AS max_date

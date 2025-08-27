@@ -15,12 +15,12 @@ class Performance_appraisal_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Year","Status","RFU Reason"];
+	public $tabel_header 			= ["ID","Employee Name","Year","Status", "Score","RFU Reason"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Year","Status","RFU Reason"];
-	public $colfields 				= ["id","full_name","year","status_name","rfu_reason"];
+	public $colnames 				= ["ID","Employee Name","Year","Status","Score", "RFU Reason"];
+	public $colfields 				= ["id","full_name","year","status_name", "score", "rfu_reason"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

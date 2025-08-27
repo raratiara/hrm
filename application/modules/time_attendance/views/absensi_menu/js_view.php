@@ -153,8 +153,10 @@ function load_data()
 						var latitude = data.lat_checkin;
 						var longitude = data.long_checkin;
 					}
-					$('[name="latitude"]').val(latitude);
-					$('[name="longitude"]').val(longitude);
+					// $('[name="latitude"]').val(latitude);
+					// $('[name="longitude"]').val(longitude);
+
+
 
 					if(data.photo != '' && data.photo != null){
 						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
@@ -190,10 +192,27 @@ function load_data()
 						var latitude = data.lat_checkin;
 						var longitude = data.long_checkin;
 					}
-					$('span.latitude').html(latitude);
-					$('span.longitude').html(longitude);
+					/*$('span.latitude').html(latitude);
+					$('span.longitude').html(longitude);*/
 
-					if(data.photo != '' && data.photo != null){
+
+					//maps
+					if (latitude && longitude) {
+					    // bikin URL Google Maps
+					    var mapsUrl = "https://www.google.com/maps?q=" + latitude + "," + longitude + "&hl=es;z=14&output=embed";
+					    
+					    // inject iframe ke dalam div
+					    $("#mapContainer").html(
+					        '<iframe width="100%" height="300" frameborder="0" style="border:0; border-radius:10px;" ' +
+					        'src="' + mapsUrl + '" allowfullscreen></iframe>'
+					    );
+					} else {
+					    $("#mapContainer").html("<p style='color:red'>Lokasi tidak tersedia</p>");
+					}
+					//end maps
+
+
+					if(data.photo != '' && data.photo != null){ 
 						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
 					}else{
 						$('span.photo').html('');

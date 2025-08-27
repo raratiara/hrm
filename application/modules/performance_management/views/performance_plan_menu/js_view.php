@@ -88,7 +88,7 @@ var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
 /*in LOCAL*/  /*var modloc = '/_hrm/performance_management/performance_plan_menu/';*/
-var modloc = '/performance_management/performance_plan_menu/';
+ var modloc = '/performance_management/performance_plan_menu/';
 var opsForm = 'form#frmInputData';
 var locate = 'table.performance-plan-list';
 var wcount = 0; //for ca list row identify
@@ -117,13 +117,13 @@ $(document).ready(function() {
 		}*/
 
 
-		const acc = document.querySelector('.accordion');
+		/*const acc = document.querySelector('.accordion');
 		const panel = document.querySelector('.panel');
 
 		  acc.addEventListener('click', function() {
 		    acc.classList.toggle('active');
 		    panel.classList.toggle('show');
-		  });
+		  });*/
 
 		
    	});

@@ -28,7 +28,8 @@ class Performance_appraisal_menu_model extends MY_Model
 			'dt.status_name',
 			'dt.direct_id',
 			'dt.employee_id',
-			'dt.rfu_reason'
+			'dt.rfu_reason',
+			'dt.score'
 		];
 
 		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
@@ -222,6 +223,7 @@ class Performance_appraisal_menu_model extends MY_Model
 				$row->full_name,
 				$row->year,
 				$row->status_name,
+				$row->score,
 				$row->rfu_reason
 
 			));
@@ -372,20 +374,42 @@ class Performance_appraisal_menu_model extends MY_Model
 			if ($rowdata[0]->status_id == 0 || $rowdata[0]->status_id == 3) { //draft atau rfu
 				$next_status = 1; //waiting approval direct
 			} else if ($rowdata[0]->status_id == 1) {
+				$ttl_score = ($post['hdnttl_final_score']+$post['hdnttl_final_score_softskill'])/2; 
+				$getScore = $this->db->query("select * from master_kpi_score where '".$ttl_score."' >= start_val and '".$ttl_score."' <= end_val ")->result();
+				if(!empty($getScore)){
+					$score = $getScore[0]->name;
+				}else{
+					$score = '-';
+				}
+				
 				$next_status = 2; //approved
 			}
 
+			if($next_status == 2){
+				$data = [
+					'employee_id' => trim($post['employee']),
+					'year' => trim($post['year']),
+					'updated_at' => date("Y-m-d H:i:s"),
+					'total_final_score' => $post['hdnttl_final_score'],
+					'total_final_score_softskill' => $post['hdnttl_final_score_softskill'],
+					'status_id' => $next_status,
+					'rfu_reason' => '',
+					'score_val' => $ttl_score,
+					'score' => $score
+				];
+			}else{
+				$data = [
+					'employee_id' => trim($post['employee']),
+					'year' => trim($post['year']),
+					'updated_at' => date("Y-m-d H:i:s"),
+					'total_final_score' => $post['hdnttl_final_score'],
+					'total_final_score_softskill' => $post['hdnttl_final_score_softskill'],
+					'status_id' => $next_status,
+					'rfu_reason' => ''
 
-			$data = [
-				'employee_id' => trim($post['employee']),
-				'year' => trim($post['year']),
-				'updated_at' => date("Y-m-d H:i:s"),
-				'total_final_score' => $post['hdnttl_final_score'],
-				'total_final_score_softskill' => $post['hdnttl_final_score_softskill'],
-				'status_id' => $next_status,
-				'rfu_reason' => ''
-
-			];
+				];
+			}
+			
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if ($rs) {

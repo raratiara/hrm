@@ -66,7 +66,7 @@
 				: <span class="attendance_out"></span>
 			</div>
 		</div>
-		<div class="row">
+		<!-- <div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Latitude</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="latitude"></span>
@@ -77,6 +77,7 @@
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="longitude"></span>
 			</div>
-		</div>
+		</div> -->
+		<div id="mapContainer" style="margin-top:10px;"></div>
 	</div>
 </div>
