@@ -426,7 +426,13 @@ class Profile_menu extends MY_Controller
 						        END AS sort_key,
 						        a.due_date,
 						        a.status_id,
-						        b.title AS project_name
+						        b.title AS project_name,
+						        CASE 
+									WHEN a.due_date IS NULL THEN NULL
+									WHEN CURDATE() > a.due_date THEN 'overdue'
+									WHEN a.due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 3 DAY) THEN 'near_due'
+									ELSE 'ok'
+								END AS due_flag
 						    FROM tasklist a
 						    LEFT JOIN data_project b ON b.id = a.project_id
 						    WHERE 1=1
@@ -445,7 +451,8 @@ class Profile_menu extends MY_Controller
 						        LPAD(b.id, 5, '0') AS sort_key,
 						        NULL AS due_date,
 						        NULL AS status_id,
-						        b.title AS project_name
+						        b.title AS project_name,
+						        NULL AS due_flag
 						    FROM data_project b
 						    WHERE b.id IN (" . (empty($projectIds) ? "0" : implode(',', $projectIds)) . ")
 

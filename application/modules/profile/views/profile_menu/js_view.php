@@ -820,9 +820,73 @@
 	            });
 
 
-console.log(data.taskList);
+
 	            //table tasklist progress
-	            const tbody = document.getElementById("tasklistBody");
+	            // const tbody = document.getElementById("tasklistBody");
+				// tbody.innerHTML = "";
+
+				// let previousGroupId = null;
+				// let previousTaskType = null;
+
+				// data.taskList.forEach((taskrow, index) => {
+				//     let due_date = taskrow.due_date ?? '-';
+				//     let tr = document.createElement("tr");
+
+				//     let currentGroupId = taskrow.project_id ?? `parent-${index}`; // Grouping
+
+				//     const isNotFirst = index > 0;
+				//     const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
+				//     const isDifferentGroup = currentGroupId !== previousGroupId;
+
+				//     // 1. Jika task_type adalah 'standalone', selalu beri garis
+				//     if (taskrow.task_type === 'standalone') {
+				//         const hrRow = document.createElement("tr");
+				//         hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				//         tbody.appendChild(hrRow);
+				//     }
+
+				//     // 2. Garis pemisah antar grup (bukan 'project → parent/child' dalam satu project)
+				//     else if (
+				//         isNotFirst &&
+				//         isParentOrProject &&
+				//         isDifferentGroup &&
+				//         previousTaskType !== 'project' &&
+				//         previousTaskType !== 'standalone' // jangan beri garis kalau sebelumnya standalone
+				//     ) {
+				//         const hrRow = document.createElement("tr");
+				//         hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				//         tbody.appendChild(hrRow);
+				//     }
+
+				//     // Baris Project
+				//     if (taskrow.task_type === 'project') {
+				//         tr.innerHTML = `
+				//         <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
+				//         `;
+				//     } else {
+				//         let indent = '';
+				//         if (taskrow.task_type === 'child') {
+				//             indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
+				//         } else if (taskrow.task_type === 'parent') {
+				//             indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
+				//         }
+
+				//         tr.innerHTML = `
+				//             <td style="font-size:10px">${indent}${taskrow.task}</td>
+				//             <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
+				//             <td style="font-size:10px">${due_date}</td>
+				//         `;
+				//     }
+
+				//     previousGroupId = currentGroupId;
+				//     previousTaskType = taskrow.task_type;
+				//     tbody.appendChild(tr);
+				// });
+
+
+
+
+				const tbody = document.getElementById("tasklistBody");
 				tbody.innerHTML = "";
 
 				let previousGroupId = null;
@@ -832,36 +896,43 @@ console.log(data.taskList);
 				    let due_date = taskrow.due_date ?? '-';
 				    let tr = document.createElement("tr");
 
-				    let currentGroupId = taskrow.project_id ?? `parent-${index}`; // Grouping
+				    let currentGroupId = taskrow.project_id ?? `parent-${index}`;
 
 				    const isNotFirst = index > 0;
 				    const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
 				    const isDifferentGroup = currentGroupId !== previousGroupId;
 
-				    // 1. Jika task_type adalah 'standalone', selalu beri garis
+				    // garis standalone
 				    if (taskrow.task_type === 'standalone') {
 				        const hrRow = document.createElement("tr");
 				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
 				        tbody.appendChild(hrRow);
 				    }
-
-				    // 2. Garis pemisah antar grup (bukan 'project → parent/child' dalam satu project)
+				    // garis antar grup
 				    else if (
 				        isNotFirst &&
 				        isParentOrProject &&
 				        isDifferentGroup &&
 				        previousTaskType !== 'project' &&
-				        previousTaskType !== 'standalone' // jangan beri garis kalau sebelumnya standalone
+				        previousTaskType !== 'standalone'
 				    ) {
 				        const hrRow = document.createElement("tr");
 				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
 				        tbody.appendChild(hrRow);
 				    }
 
-				    // Baris Project
+				    // tentukan warna utk seluruh row
+				    let rowStyle = "";
+				    if (taskrow.due_flag === "overdue") {
+				        rowStyle = "color:red;";
+				    } else if (taskrow.due_flag === "near_due") {
+				        rowStyle = "color:orange;";
+				    }
+
+				    // Project row
 				    if (taskrow.task_type === 'project') {
 				        tr.innerHTML = `
-				        <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
+				            <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
 				        `;
 				    } else {
 				        let indent = '';
@@ -878,10 +949,14 @@ console.log(data.taskList);
 				        `;
 				    }
 
+				    // apply style ke seluruh baris
+				    tr.setAttribute("style", rowStyle);
+
 				    previousGroupId = currentGroupId;
 				    previousTaskType = taskrow.task_type;
 				    tbody.appendChild(tr);
 				});
+
 
 
 
