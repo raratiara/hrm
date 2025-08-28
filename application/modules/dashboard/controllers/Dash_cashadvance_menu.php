@@ -250,7 +250,7 @@ class Dash_cashadvance_menu extends MY_Controller
 	    }
 
 		
-		$rs = $this->db->query("select
+		/*$rs = $this->db->query("select
 									aa.request_date, a.division_id, b.name as division_name,
 									SUM(CASE WHEN aa.status_id = '1' THEN 1 ELSE 0 END) AS total_waitingapproval,
 									SUM(CASE WHEN aa.status_id = '2' THEN 1 ELSE 0 END) AS total_approve,
@@ -264,11 +264,28 @@ class Dash_cashadvance_menu extends MY_Controller
 									$whereDiv
 								GROUP BY
 									DATE_FORMAT(aa.request_date, '%Y-%m')
-								ORDER BY request_date ASC")->result(); 
+								ORDER BY request_date ASC")->result();*/
+
+		$rs = $this->db->query("select
+									DATE_FORMAT(aa.request_date, '%Y-%m') AS periode,
+									MAX(a.division_id) AS division_id,
+									MAX(b.name) AS division_name,
+									SUM(CASE WHEN aa.status_id = '1' THEN 1 ELSE 0 END) AS total_waitingapproval,
+									SUM(CASE WHEN aa.status_id = '2' THEN 1 ELSE 0 END) AS total_approve,
+									SUM(CASE WHEN aa.status_id = '3' THEN 1 ELSE 0 END) AS total_reject,
+									SUM(CASE WHEN aa.status_id = '4' THEN 1 ELSE 0 END) AS total_rfu,
+									COUNT(*) AS total_ca
+								FROM cash_advance aa
+								LEFT JOIN employees a ON a.id = aa.requested_by
+								LEFT JOIN divisions b ON b.id = a.division_id 
+								$whereDiv
+								GROUP BY DATE_FORMAT(aa.request_date, '%Y-%m')
+								ORDER BY periode ASC;
+								")->result(); 
 
 		$request_date=[]; $total_waitingapproval=[]; $total_approve=[]; $total_reject=[]; $total_rfu=[];
 		foreach($rs as $row){
-			$request_date[] 		= $row->request_date;
+			$request_date[] 			= $row->periode;
 			$total_waitingapproval[] 	= $row->total_waitingapproval;
 			$total_approve[]			= $row->total_approve;
 			$total_reject[]				= $row->total_reject;
@@ -548,7 +565,7 @@ class Dash_cashadvance_menu extends MY_Controller
 	    }
 
 
-	    $sql = "
+	    /*$sql = "
 	        select 
 	            CONCAT(YEAR(ca.request_date), '-', LPAD(MONTH(ca.request_date), 2, '0')) AS tahun_bulan,
 	            COALESCE(SUM(ca.total_cost), 0) AS total_pengajuan,
@@ -561,7 +578,24 @@ class Dash_cashadvance_menu extends MY_Controller
 	        WHERE (YEAR(ca.request_date) = YEAR(CURDATE())) $whereDiv
 	        GROUP BY YEAR(ca.request_date), MONTH(ca.request_date) 
 	        ORDER BY tahun_bulan
+	    ";*/
+
+	    $sql = "
+	        select 
+				DATE_FORMAT(ca.request_date, '%Y-%m') AS tahun_bulan,
+				COALESCE(SUM(ca.total_cost), 0) AS total_pengajuan,
+				COALESCE(SUM(s.total_cost), 0) AS total_pemakaian,
+				(COALESCE(SUM(ca.total_cost), 0) - COALESCE(SUM(s.total_cost), 0)) AS outstanding,
+				COUNT(DISTINCT CASE WHEN s.id IS NULL THEN ca.id END) AS jumlah_belum_settlement
+			FROM cash_advance ca
+			LEFT JOIN settlement s ON s.cash_advance_id = ca.id
+			LEFT JOIN employees b ON b.id = ca.requested_by
+			WHERE YEAR(ca.request_date) = YEAR(CURDATE()) $whereDiv
+			GROUP BY DATE_FORMAT(ca.request_date, '%Y-%m')
+			ORDER BY tahun_bulan;
+
 	    ";
+
 
 	    $rs = $this->db->query($sql)->result();
 
