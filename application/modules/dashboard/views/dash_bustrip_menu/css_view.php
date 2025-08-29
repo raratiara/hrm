@@ -709,7 +709,7 @@
   }
 
 
-  .earlylogin-line {
+  /*.earlylogin-line {
     margin-top: 8px;
     display: flex;
     justify-content: space-between;
@@ -722,5 +722,38 @@
     display: flex;
     gap: 4px;
     align-items: center;
+  }*/
+
+  .earlylogin-line {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* jarak antar baris */
   }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .status-row strong {
+    display: inline-block;
+    width: 20px;   /* lebar tetap supaya angka rata */
+    text-align: right;
+    margin-right: 6px;
+
+  }
+
+  .txtt {
+    font-size: 12px;   /* teks lebih kecil */
+    color: #333;  
+  }
+
+  .txtdays {
+    font-size: 10px;   /* teks lebih kecil */
+  }
+
+
+  
+
+
 </style>

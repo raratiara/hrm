@@ -36,7 +36,7 @@
 					<div class="title">Total Trip</div>
 					<div class="value"><span id="ttl_trip"></span></div>
 				</div>
-				<i class="icon fas fa-users"></i>
+				<i class="icon fas fa-plane"></i>
 			</div>
 		</div>
 
@@ -46,18 +46,17 @@
 			<div class="card-content">
 				<div>
 					<div class="title">Total Budget</div>
-					<div class="value"><span id="ttl_budget"></span></div>
+					<div class="value"><span style="font-size:16px" id="ttl_budget"></span></div>
 				</div>
-				<i class="icon fas fa-calendar-alt"></i>
+				<i class="icon fas fa-calculator"></i>
 				
 			</div>
 		</div>
 
-		<div class="summary-card beige">
+		<!-- <div class="summary-card beige">
 			<div class="card-content">
 				<div>
 					<div class="title">Status</div>
-					<!-- <div class="value"><span id="ttl_projects"></span></div> -->
 				 	<div class="earlylogin-line">
 	                    <div><strong><span class="total_waitingapproval"></span></strong> Waiting Approval</div>
 	                    <div><strong><span class="total_approved"></span></strong> Approved</div>
@@ -66,16 +65,39 @@
 				</div>
 				<i class="icon fas fa-chart-line"></i>
 			</div>
+		</div> -->
+		<div class="summary-card beige">
+		  <div class="card-content">
+		    <div>
+		      <div class="title">Status</div>
+		      <div class="earlylogin-line">
+		        <div class="status-row">
+		          <strong><span class="total_waitingapproval">1</span></strong>
+		          <span class="txtt">Waiting Approval</span>
+		        </div>
+		        <div class="status-row">
+		          <strong><span class="total_approved">1</span></strong>
+		          <span class="txtt">Approved</span>
+		        </div>
+		        <div class="status-row">
+		          <strong><span class="total_rejected">0</span></strong>
+		          <span class="txtt">Rejected</span>
+		        </div>
+		      </div>
+		    </div>
+		    <i class="icon fas fa-chart-line"></i>
+		  </div>
 		</div>
+
 
 		<div class="summary-card white">
 			<div class="card-content">
 				<div>
 					<div class="title">Avg Trip Duration</div>
-					<div class="value"><span class="avg_days"></span></div>
+					<div class="value"><span class="avg_days"></span><span class="txtdays"></span></div>
 				</div>
 				<div class="icon-2">
-					<i class="fas fa-user"></i><i class="fas fa-arrow-down" style="font-size: 15px;"></i>
+					<i class="fas fa-calendar-check-o"></i>
 				</div>
 			</div>
 		</div>

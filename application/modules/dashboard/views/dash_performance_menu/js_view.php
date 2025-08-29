@@ -227,10 +227,10 @@
 
 
 					const rawData = [
-						{ label: 'A', data: data.total_a, backgroundColor: '#38406F', borderRadius: 3 },
-						{ label: 'B', data: data.total_b, backgroundColor: '#FED24B', borderRadius: 3 },
-						{ label: 'C', data: data.total_c, backgroundColor: '#D9CAAA', borderRadius: 3 },
-						{ label: 'D', data: data.total_d, backgroundColor: '#BC9BF3', borderRadius: 3 },
+						{ label: 'A', data: data.total_a, backgroundColor: '#303A95', borderRadius: 3 },
+						{ label: 'B', data: data.total_b, backgroundColor: '#A9D7F3', borderRadius: 3 },
+						{ label: 'C', data: data.total_c, backgroundColor: '#D8E022', borderRadius: 3 },
+						{ label: 'D', data: data.total_d, backgroundColor: '#F8982E', borderRadius: 3 },
 					];
 
 					// Convert data to 100% scale per group
@@ -365,10 +365,10 @@
 
 
 					const rawData = [
-						{ label: 'A', data: data.total_a, backgroundColor: '#38406F', borderRadius: 3 },
-						{ label: 'B', data: data.total_b, backgroundColor: '#FED24B', borderRadius: 3 },
-						{ label: 'C', data: data.total_c, backgroundColor: '#D9CAAA', borderRadius: 3 },
-						{ label: 'D', data: data.total_d, backgroundColor: '#BC9BF3', borderRadius: 3 },
+						{ label: 'A', data: data.total_a, backgroundColor: '#303A95', borderRadius: 2 },
+						{ label: 'B', data: data.total_b, backgroundColor: '#A9D7F3', borderRadius: 2 },
+						{ label: 'C', data: data.total_c, backgroundColor: '#D8E022', borderRadius: 2 },
+						{ label: 'D', data: data.total_d, backgroundColor: '#F8982E', borderRadius: 2 },
 					];
 
 					// Convert data to 100% scale per group
@@ -656,92 +656,165 @@
 					if (chartExist != undefined)
 						chartExist.destroy();
 
+					// new Chart(ctx, {
+					// 	type: 'pie',
+					// 	data: {
+					// 		/*labels: ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'],*/
+					// 		labels: data.softskill_name,
+					// 		datasets: [{
+					// 			label: 'Generation',
+					// 			/*data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],*/
+					// 			data: data.total,
+					// 			backgroundColor: [
+					// 				'#FED24B',
+					// 				'#8ECAE6',
+					// 				'#219EBC',
+					// 				'#126782',
+					// 				'#023047',
+					// 				'#FFB703',
+					// 				'#FB8500',
+					// 				'#5DC3AB',
+					// 				'#A9D7F3',
+					// 				'#FF374B',
+					// 				'#D1C4E9',
+					// 				'#6D2D59'
+					// 				// '#D48331',
+					// 				// '#B9D440',
+					// 				// '#74DCE0',
+					// 				// '#38406F',
+					// 				// '#D9CAAA',
+					// 				// '#D48331',
+					// 				// '#B9D440',
+					// 				// '#74DCE0',
+					// 				// '#38406F'
+					// 			],
+					// 			borderWidth: 2,
+					// 			borderColor: '#fff',
+					// 			hoverOffset: 10
+					// 		}]
+					// 	},
+					// 	options: {
+					// 		responsive: true,
+					// 		maintainAspectRatio: false,
+					// 		plugins: {
+					// 			datalabels: {
+			        //                 formatter: (value, context) => {
+			        //                     /*let percentage = (value / context.chart._metasets
+			        //                     [context.datasetIndex].total * 100)
+			        //                         .toFixed(2) + '%';*/
+			        //                     /*return percentage + '\n' + value;*/
+			        //                     if (parseFloat(value) === 0) {
+					// 			            return ''; // tidak ditampilkan
+					// 			        }
+			        //                     return parseInt(value);
+			        //                 },
+			        //                 color: '#fff',
+			        //                 font: {
+			        //                     size: 10,
+			        //                 }
+			        //             },
+					// 			legend: {
+					// 				labels: {
+					// 					font: {
+					// 						size: 8  // kecilkan ukuran legend text
+					// 					},
+					// 					boxWidth: 12,        // kecilkan ukuran kotak warna
+					// 					boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
+					// 					borderRadius: 4,     // ubah jadi bulat (opsional)
+					// 					usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
+					// 				},
+					// 				position: 'bottom'
+					// 			},
+					// 			tooltip: {
+					// 				callbacks: {
+					// 					label: function (context) {
+					// 						let label = context.label || '';
+					// 						let value = context.parsed;
+					// 						/*return `${label}: ${value}%`;*/
+					// 						return `${label}: ${value}`;
+					// 					}
+					// 				}
+					// 			},
+					// 			title: {
+					// 				display: false
+					// 			}
+					// 		}
+					// 	},
+					// 	plugins: [ChartDataLabels]
+					// });
+
+
 					new Chart(ctx, {
-						type: 'pie',
-						data: {
-							/*labels: ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'],*/
-							labels: data.softskill_name,
-							datasets: [{
-								label: 'Generation',
-								/*data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],*/
-								data: data.total,
-								backgroundColor: [
-									'#FED24B',
-									'#8ECAE6',
-									'#219EBC',
-									'#126782',
-									'#023047',
-									'#FFB703',
-									'#FB8500',
-									'#5DC3AB',
-									'#A9D7F3',
-									'#FF374B',
-									'#D1C4E9',
-									'#6D2D59'
-									// '#D48331',
-									// '#B9D440',
-									// '#74DCE0',
-									// '#38406F',
-									// '#D9CAAA',
-									// '#D48331',
-									// '#B9D440',
-									// '#74DCE0',
-									// '#38406F'
+					    type: 'doughnut', // lebih modern daripada pie
+					    data: {
+					        labels: data.softskill_name,
+					        datasets: [{
+					            data: data.total,
+					            /*backgroundColor: [
+					                '#FFB703', '#8ECAE6', '#219EBC', '#FF6B6B', 
+					                '#06D6A0', '#FFD166', '#8338EC', '#3A86FF',
+					                '#FB8500', '#EF476F', '#118AB2', '#073B4C'
+					            ],*/
+					            backgroundColor: [
+								  'rgba(255, 183, 3, 0.6)',   // soft yellow
+								  'rgba(142, 202, 230, 0.6)', // soft blue
+								  'rgba(174, 214, 241, 0.6)', // light sky
+								  'rgba(255, 182, 193, 0.6)', // soft pink
+								  'rgba(144, 238, 144, 0.6)', // soft green
+								  'rgba(255, 218, 185, 0.6)', // peach
+								  'rgba(221, 160, 221, 0.6)', // lavender
+								  'rgba(173, 216, 230, 0.6)', // light cyan
+								  'rgba(250, 250, 210, 0.6)', // light golden
+								  'rgba(255, 222, 173, 0.6)', // navajo white
+								  'rgba(176, 224, 230, 0.6)', // powder blue
+								  'rgba(240, 230, 140, 0.6)'  // khaki
 								],
-								borderWidth: 2,
-								borderColor: '#fff',
-								hoverOffset: 10
-							}]
-						},
-						options: {
-							responsive: true,
-							maintainAspectRatio: false,
-							plugins: {
-								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
-								legend: {
-									labels: {
-										font: {
-											size: 8  // kecilkan ukuran legend text
-										},
-										boxWidth: 12,        // kecilkan ukuran kotak warna
-										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-										borderRadius: 4,     // ubah jadi bulat (opsional)
-										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
-									},
-									position: 'bottom'
-								},
-								tooltip: {
-									callbacks: {
-										label: function (context) {
-											let label = context.label || '';
-											let value = context.parsed;
-											/*return `${label}: ${value}%`;*/
-											return `${label}: ${value}`;
-										}
-									}
-								},
-								title: {
-									display: false
-								}
-							}
-						},
-						plugins: [ChartDataLabels]
+					            borderWidth: 2,
+					            borderColor: '#fff',
+					            hoverOffset: 12,
+					        }]
+					    },
+					    options: {
+					        responsive: true,
+					        maintainAspectRatio: false,
+					        cutout: '55%', // jadi donut biar modern
+					        plugins: {
+					            datalabels: {
+					                formatter: (value, context) => {
+					                    if (parseFloat(value) === 0) return '';
+					                    return value; // bisa tambahkan persentase juga
+					                },
+					                color: '#fff',
+					                font: { size: 11, weight: 'bold' },
+					                textShadowBlur: 4,
+					                textShadowColor: 'rgba(0,0,0,0.5)'
+					            },
+					            legend: {
+					                position: 'bottom',
+					                labels: {
+					                    font: { size: 10 },
+					                    usePointStyle: true,
+					                    boxWidth: 12,
+					                    padding: 15
+					                }
+					            },
+					            tooltip: {
+					                backgroundColor: 'rgba(0,0,0,0.8)',
+					                titleColor: '#fff',
+					                bodyColor: '#fff',
+					                callbacks: {
+					                    label: function (context) {
+					                        let label = context.label || '';
+					                        let value = context.parsed;
+					                        return `${label}: ${value}`;
+					                    }
+					                }
+					            }
+					        }
+					    },
+					    plugins: [ChartDataLabels]
 					});
+
 
 
 

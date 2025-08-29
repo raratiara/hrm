@@ -137,17 +137,13 @@ class Dash_performance_menu extends MY_Controller
  	public function get_data_softskillAnalysis(){
  		$post = $this->input->post(null, true);
  		$fldiv 	= $post['fldiv'];
- 		//$flyear 	= $post['flyear'];
-
+ 		
 
 		$whereDiv="";
 		if(!empty($fldiv)){ 
-			$whereDiv=" and c.id = '".$fldiv."'";
+			$whereDiv=" and e.id = '".$fldiv."'";
 		}
-		$whereYear="";
-		/*if(!empty($flyear)){ 
-			$whereYear=" and a.year = '".$flyear."'";
-		}*/
+		
 
 
     	$rs = $this->db->query("select 
@@ -163,6 +159,7 @@ class Dash_performance_menu extends MY_Controller
 								       ON d.id = b.employee_id
 								LEFT JOIN divisions e 
 								       ON e.id = d.division_id 
+								       where 1=1 ".$whereDiv."
 								GROUP BY c.name
 								ORDER BY c.name;
 
