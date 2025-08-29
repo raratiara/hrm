@@ -47,19 +47,17 @@
 
 	function dataTotal() {
 
-		var dateperiod = $("#fldashdateperiod").val();
-		var employee = $("#fldashemp option:selected").val();
-		//alert(dateperiod); 
+		var fldiv = $("#fldiv option:selected").val();
 
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_total',
-			data: { dateperiod: dateperiod, employee: employee },
+			data: { fldiv: fldiv },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
-
+console.log(data);
 					var ttl_budget = 'Rp. ' + formatRupiah(data.ttl_budget);
 
 					$('span#ttl_trip').html(data.ttl_trip);
@@ -68,8 +66,14 @@
 					$('span.total_approved').html(data.total_approved);
 					$('span.total_rejected').html(data.total_rejected);
 					$('span.avg_days').html(data.avgDays);
-				
-
+					var txtdays ='';
+					if(data.avgDays == 1){
+						var txtdays = ' day';
+					}else if(data.avgDays > 1){
+						var txtdays = ' days';
+					}
+					$('span.txtdays').html(txtdays);
+					
 				} else {
 					var valnull = 0;
 					$('span#ttl_trip').html(valnull);
@@ -125,7 +129,7 @@
 						data: {
 							labels: data.division_name,
 							datasets: [{
-								label: 'Attendance',
+								label: 'Trip',
 								data: data.total,
 								backgroundColor: [
 									'#FED24B',
@@ -272,7 +276,8 @@
 			                            if (parseFloat(value) === 0) {
 								            return ''; // tidak ditampilkan
 								        }
-			                            return parseInt(value);
+			                            //return parseInt(value);
+			                            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 			                        },
 			                        color: '#fff',
 			                        font: {
@@ -358,12 +363,24 @@
 	                        labels: data.periode, // bulan (2025-01, 2025-02, dst)
 	                        datasets: [
 	                            {
+	                                // label: 'Trip',
+	                                // type: 'line',
+	                                // data: data.jumlah_trip,
+	                                // backgroundColor: '#FED24B',
+	                                // borderRadius: 3,
+	                                // yAxisID: 'y'
+
 	                                label: 'Trip',
-	                                type: 'line',
-	                                data: data.jumlah_trip,
-	                                backgroundColor: '#FED24B',
-	                                borderRadius: 3,
-	                                yAxisID: 'y'
+								    type: 'line',
+								    data: data.jumlah_trip,
+								    borderColor: '#FED24B',
+								    backgroundColor: '#FED24B',
+								    borderWidth: 2,
+								    tension: 0.3,   // <-- bikin garis halus
+								    fill: false,
+								    yAxisID: 'y',
+								    borderDash: [4, 4]  // <-- bikin putus-putus
+
 	                            },
 	                            {
 	                                label: 'Cost',
@@ -375,6 +392,7 @@
 	                                tension: 0.3,
 	                                fill: false,
 	                                yAxisID: 'y1'
+
 	                            }
 	                        ]
 	                    },

@@ -140,13 +140,14 @@
 							datasets: [{
 								label: 'Cash Advance',
 								data: data.total,
-								backgroundColor: [
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
+								/*backgroundColor: [
+									'#FA841A',
+									'#FA841A',
+									'#FA841A',
+									'#FA841A',
 									'#9EE06F'
-								],
+								],*/
+								backgroundColor: Array(12).fill('#FA841A'),
 								borderRadius: 3
 							}]
 						},
@@ -256,8 +257,8 @@
 									label: 'Waiting Approval',
 									type: 'bar',
 									data: data.total_waitingapproval,
-									borderColor: '#3381fc',
-									backgroundColor: '#3F51B5', /*'#3381fc',*/
+									borderColor: '#A9D7F3',
+									backgroundColor: '#A9D7F3', /*'#3381fc',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -267,8 +268,8 @@
 									label: 'Approved',
 									type: 'bar',
 									data: data.total_approve,
-									borderColor: '#81fc33',
-									backgroundColor: '#81fc33',/*'#fc3381',*/
+									borderColor: '#303A95',
+									backgroundColor: '#303A95',/*'#fc3381',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -278,8 +279,8 @@
 									label: 'Rejected',
 									type: 'bar',
 									data: data.total_reject,
-									borderColor: '#FF4081',
-									backgroundColor: '#FF4081',/*'#fc3381',*/
+									borderColor: '#F8982E',
+									backgroundColor: '#F8982E',/*'#fc3381',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -289,8 +290,8 @@
 									label: 'RFU',
 									type: 'bar',
 									data: data.total_rfu,
-									borderColor: '#FED24B',
-									backgroundColor: '#FED24B',/*'#fc3381',*/
+									borderColor: '#D8E022',
+									backgroundColor: '#D8E022',/*'#fc3381',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
@@ -431,8 +432,10 @@
 			                    label: 'FPP Type',
 			                    data: values,
 			                    backgroundColor: [
-			                        '#D0E3FF',
-			                        '#38406F'
+			                        /*'#D0E3FF',
+			                        '#38406F'*/
+			                        '#0D3B66',
+			                        '#FAF0CA'
 			                    ],
 			                    borderWidth: 2,
 			                    borderColor: '#fff',
@@ -526,9 +529,14 @@
 	                                label: 'Jumlah CA Belum Settlement',
 	                                type: 'bar',
 	                                data: data.belum_settlement,
-	                                backgroundColor: '#FED24B',
+	                                backgroundColor: 'rgba(208, 227, 255, 0.8)', //'#FED24B',
+
+	                                // '#D0E3FF',
+			                        // '#38406F'
+	                                //backgroundColor: 'rgba(254, 210, 75, 0.4)',  // 0.4 = 40% opacity
 	                                borderRadius: 3,
-	                                yAxisID: 'y'
+	                                yAxisID: 'y',
+	                                order: 2   // <-- bar ada di bawah line
 	                            },
 	                            {
 	                                label: 'Outstanding Amount (Rp)',
@@ -539,59 +547,104 @@
 	                                borderWidth: 2,
 	                                tension: 0.3,
 	                                fill: false,
-	                                yAxisID: 'y1'
+	                                yAxisID: 'y1',
+	                                borderDash: [5, 5],  // <-- bikin putus-putus
+	                                order: 1   // <-- line ditarik di atas bar
 	                            }
 	                        ]
 	                    },
 	                    options: {
 	                        responsive: true,
 	                        maintainAspectRatio: false,
+	                        // plugins: {
+	                        //     datalabels: {
+	                        //         formatter: (value, context) => {
+	                        //             if (parseFloat(value) === 0) {
+	                        //                 return ''; // tidak ditampilkan
+	                        //             }
+	                        //             //return value;
+	                        //             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	                        //         },
+	                        //         /*color: '#333',
+	                        //         font: {
+	                        //             size: 14,
+	                        //             weight: 'bold'
+	                        //         }*/
+	                        //         color: '#fff',
+							// 	    textStrokeColor: '#000', 
+							// 	    textStrokeWidth: 1,
+							// 	    font: {
+							// 	        size: 14,
+							// 	        weight: 'bold'
+							// 	    }
+	                        //     },
+	                        //     legend: {
+	                        //         display: true,
+	                        //         position: 'top',
+	                        //         labels: {
+	                        //             font: { size: 11 }
+	                        //         }
+	                        //     },
+	                        //     tooltip: {
+	                        //         backgroundColor: '#333',
+	                        //         titleColor: '#fff',
+	                        //         bodyColor: '#fff',
+	                        //         padding: 10,
+	                        //         borderRadius: 6,
+	                        //         callbacks: {
+	                        //             label: function (context) {
+	                        //                 let value = context.raw;
+	                        //                 if (context.dataset.label.includes("Rp")) {
+	                        //                     return context.dataset.label + ": Rp " + new Intl.NumberFormat().format(value);
+	                        //                 }
+	                        //                 return context.dataset.label + ": " + value;
+	                        //             }
+	                        //         }
+	                        //     }
+	                        // },
 	                        plugins: {
-	                            datalabels: {
-	                                formatter: (value, context) => {
-	                                    if (parseFloat(value) === 0) {
-	                                        return ''; // tidak ditampilkan
-	                                    }
-	                                    //return value;
-	                                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-	                                },
-	                                /*color: '#333',
-	                                font: {
-	                                    size: 14,
-	                                    weight: 'bold'
-	                                }*/
-	                                color: '#fff',
-								    textStrokeColor: '#000', 
-								    textStrokeWidth: 1,
-								    font: {
-								        size: 14,
-								        weight: 'bold'
-								    }
-	                            },
-	                            legend: {
-	                                display: true,
-	                                position: 'top',
-	                                labels: {
-	                                    font: { size: 11 }
-	                                }
-	                            },
-	                            tooltip: {
-	                                backgroundColor: '#333',
-	                                titleColor: '#fff',
-	                                bodyColor: '#fff',
-	                                padding: 10,
-	                                borderRadius: 6,
-	                                callbacks: {
-	                                    label: function (context) {
-	                                        let value = context.raw;
-	                                        if (context.dataset.label.includes("Rp")) {
-	                                            return context.dataset.label + ": Rp " + new Intl.NumberFormat().format(value);
-	                                        }
-	                                        return context.dataset.label + ": " + value;
-	                                    }
-	                                }
-	                            }
-	                        },
+							    datalabels: {
+							        formatter: (value, context) => {
+							            if (parseFloat(value) === 0) return '';
+							            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+							        },
+							        color: function(context) {
+							            return context.dataset.type === 'line' ? '#38406F' : '#000';
+							        },
+							        font: {
+							            size: 12,
+							            weight: 'bold'
+							        },
+							        anchor: function(context) {
+							            return context.dataset.type === 'line' ? 'end' : 'center';
+							        },
+							        align: function(context) {
+							            return context.dataset.type === 'line' ? 'end' : 'center';
+							        },
+							    },
+							    legend: {
+							        display: true,
+							        position: 'top',
+							        labels: { font: { size: 11 } }
+							    },
+							    tooltip: {
+							        backgroundColor: '#333',
+							        titleColor: '#fff',
+							        bodyColor: '#fff',
+							        padding: 10,
+							        borderRadius: 6,
+							        callbacks: {
+							            label: function (context) {
+							                let value = context.raw;
+							                if (context.dataset.label.includes("Rp")) {
+							                    return context.dataset.label + ": Rp " + new Intl.NumberFormat().format(value);
+							                }
+							                return context.dataset.label + ": " + value;
+							            }
+							        }
+							    }
+							}
+							,
 	                        scales: {
 	                            y: {
 	                                beginAtZero: true,

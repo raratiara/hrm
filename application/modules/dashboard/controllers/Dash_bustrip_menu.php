@@ -104,7 +104,7 @@ class Dash_bustrip_menu extends MY_Controller
 
 		
 		$ttl_trip = $this->db->query("select count(a.id) as ttl from business_trip a left join employees bb on bb.id = a.employee_id where 1=1 $whereDiv ")->result(); 
-		$ttl_budget = $this->db->query("select sum(a.amount) as ttl from business_trip_detail a left join business_trip bb on bb.id = a.business_trip_id left join employees c on c.id = bb.employee_id where 1=1 
+		$ttl_budget = $this->db->query("select sum(a.amount) as ttl from business_trip_detail a left join business_trip b on b.id = a.business_trip_id left join employees bb on bb.id = b.employee_id where 1=1 
 			$whereDiv ")->result(); 
 		$getstatus = $this->db->query("select SUM(CASE WHEN a.status_id = 1 THEN 1 ELSE 0 END) AS 	total_waitingapproval,
 				SUM(CASE WHEN a.status_id = 2 THEN 1 ELSE 0 END) AS total_approved,

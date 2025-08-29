@@ -592,6 +592,7 @@ class Dash_cashadvance_menu extends MY_Controller
 			LEFT JOIN employees b ON b.id = ca.requested_by
 			WHERE YEAR(ca.request_date) = YEAR(CURDATE()) $whereDiv
 			GROUP BY DATE_FORMAT(ca.request_date, '%Y-%m')
+			HAVING jumlah_belum_settlement > 0   
 			ORDER BY tahun_bulan;
 
 	    ";
