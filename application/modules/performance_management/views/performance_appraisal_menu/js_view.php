@@ -88,8 +88,8 @@
 	var save_method; //for save method string
 	var idx; //for save index string
 	var ldx; //for save list index string
-	/*in LOCAL*/  var modloc = '/_hrm/performance_management/performance_appraisal_menu/';
-	//var modloc = '/performance_management/performance_appraisal_menu/';
+	/*in LOCAL*/  /*var modloc = '/_hrm/performance_management/performance_appraisal_menu/';*/
+	var modloc = '/performance_management/performance_appraisal_menu/';
 	var opsForm = 'form#frmInputData';
 	var locate = 'table.ca-list';
 	var dlocate = 'table.dca-list';
