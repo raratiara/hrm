@@ -25,6 +25,8 @@
 				: <span class="attendance_in"></span>
 			</div>
 		</div>
+		<div id="mapContainer_checkin" style="margin-top:10px;"></div>
+
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Description</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
@@ -79,5 +81,6 @@
 			</div>
 		</div> -->
 		<div id="mapContainer" style="margin-top:10px;"></div>
+		
 	</div>
 </div>
