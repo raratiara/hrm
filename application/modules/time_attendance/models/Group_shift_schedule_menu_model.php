@@ -281,106 +281,124 @@ class Group_shift_schedule_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
-		$bulan = $post['bulan']+1; //di plus 1 karna di js bulannya mulainya dr index 0
+
+		if($post['bulan'] != '' && $post['tahun'] != ''){
+			$bulan = $post['bulan']+1; //di plus 1 karna di js bulannya mulainya dr index 0
 
 		
-		if($bulan < 10){
-			$bulan = "0".$bulan;
-		}
+			if($bulan < 10){
+				$bulan = "0".$bulan;
+			}
 
-		$period = $post['tahun'].'-'.$bulan;
-		$selectedshift = json_decode($post['selectedshift']);
+			$period = $post['tahun'].'-'.$bulan;
+			$selectedshift = json_decode($post['selectedshift']);
 
-		$shiftschedule = $this->db->query("select * from shift_schedule where period = '".$period."'")->result();
-		if(empty($shiftschedule)){
-			$data_shiftschedule = [
-				'period' 		=> $period,
-				'created_at'	=> date("Y-m-d H:i:s")
-			];
-			$rs_shiftschedule = $this->db->insert('shift_schedule', $data_shiftschedule);
-			$shiftschedule_id = $this->db->insert_id();
-		}else{
-			$shiftschedule_id = $shiftschedule[0]->id;
-		} 
+			$is_insert_header=0;
+			$shiftschedule = $this->db->query("select * from shift_schedule where period = '".$period."'")->result();
+			if(empty($shiftschedule)){
+				$data_shiftschedule = [
+					'period' 		=> $period,
+					'created_at'	=> date("Y-m-d H:i:s")
+				];
+				$rs_shiftschedule = $this->db->insert('shift_schedule', $data_shiftschedule);
+				$shiftschedule_id = $this->db->insert_id();
+
+				$is_insert_header=1;
+			}else{
+				$shiftschedule_id = $shiftschedule[0]->id;
+			} 
 
 
-		$grouped = [];
-		foreach ($selectedshift as $row) {
-		    $id = $row->id;
+			$grouped = [];
+			foreach ($selectedshift as $row) {
+			    $id = $row->id;
 
-		    if (!isset($grouped[$id])) {
-		        $grouped[$id] = [
-		        	'id' => $id,
-		            'name' => $row->empname,
-		            'jadwal' => []
-		        ];
-		    }
+			    if (!isset($grouped[$id])) {
+			        $grouped[$id] = [
+			        	'id' => $id,
+			            'name' => $row->empname,
+			            'jadwal' => []
+			        ];
+			    }
 
-		    $grouped[$id]['jadwal'][] = [
-		        'tgl' => $row->tgl,
-		        'shift' => $row->shift
-		    ];
-		}
+			    $grouped[$id]['jadwal'][] = [
+			        'tgl' => $row->tgl,
+			        'shift' => $row->shift
+			    ];
+			}
 
 		
-		if($period != ''){
+			if($period != ''){
+				if(!empty($grouped)){
+					foreach($grouped as $groupedRow)
+					{
+						$exist_data = $this->db->query("select * from group_shift_schedule where periode = '".$period."' and employee_id = '".$groupedRow['id']."'")->result(); 
 
-			foreach($grouped as $groupedRow)
-			{
-				$exist_data = $this->db->query("select * from group_shift_schedule where periode = '".$period."' and employee_id = '".$groupedRow['id']."'")->result(); 
-
-				if(empty($exist_data)){
-					$data = [
-						'periode' 		=> $period,
-						'shift_schedule_id' => $shiftschedule_id,
-						'employee_id'	=> $groupedRow['id'],
-						'created_at'	=> date("Y-m-d H:i:s")
-					];
-					$rs = $this->db->insert($this->table_name, $data);
-					$lastId = $this->db->insert_id();
-
-
-					if($rs){
-
-						if(isset($groupedRow['jadwal'])){
-							$item_num = count($groupedRow['jadwal']); // cek sum
-							$item_len_min = min(array_keys($groupedRow['jadwal'])); // cek min key index
-							$item_len = max(array_keys($groupedRow['jadwal'])); // cek max key index
-						} else {
-							$item_num = 0;
-						}
-
-						if($item_num>0){
-
-							for($i=$item_len_min;$i<=$item_len;$i++) 
-							{
-								
-								$fulltanggal = $groupedRow['jadwal'][$i]['tgl'];
-								$exp = explode("-",$fulltanggal);
-								$tgl = $exp[2];
+						if(empty($exist_data)){
+							$data = [
+								'periode' 		=> $period,
+								'shift_schedule_id' => $shiftschedule_id,
+								'employee_id'	=> $groupedRow['id'],
+								'created_at'	=> date("Y-m-d H:i:s")
+							];
+							$rs = $this->db->insert($this->table_name, $data);
+							$lastId = $this->db->insert_id();
 
 
-								if(isset($groupedRow['jadwal'][$i]['tgl'])){
-									$fullshift = $groupedRow['jadwal'][$i]['shift'];
-									$exp2 = explode(" ",$fullshift);
-									$shift = $exp2[1];
+							if($rs){
 
-									$itemData = [
-										'`'.$tgl.'`' 	=> $shift
-									];
-									$this->db->update($this->table_name, $itemData, "id = '".$lastId."'");
+								if(isset($groupedRow['jadwal'])){
+									$item_num = count($groupedRow['jadwal']); // cek sum
+									$item_len_min = min(array_keys($groupedRow['jadwal'])); // cek min key index
+									$item_len = max(array_keys($groupedRow['jadwal'])); // cek max key index
+								} else {
+									$item_num = 0;
+								}
+
+								if($item_num>0){
+
+									for($i=$item_len_min;$i<=$item_len;$i++) 
+									{
+										
+										$fulltanggal = $groupedRow['jadwal'][$i]['tgl'];
+										$exp = explode("-",$fulltanggal);
+										$tgl = $exp[2];
+
+
+										if(isset($groupedRow['jadwal'][$i]['tgl'])){
+											$fullshift = $groupedRow['jadwal'][$i]['shift'];
+											$exp2 = explode(" ",$fullshift);
+											$shift = $exp2[1];
+
+											$itemData = [
+												'`'.$tgl.'`' 	=> $shift
+											];
+											$this->db->update($this->table_name, $itemData, "id = '".$lastId."'");
+										}
+									}
 								}
 							}
 						}
 					}
+						
+					return $rs;
+				}else{
+					if($is_insert_header == 1){
+						return $rs_shiftschedule;
+					}else{
+						"No Data insert"; die();
+					}
 				}
-			}
 				
-			return $rs;
 
-		}else return null;
-			
-		
+
+			}else{
+				echo "Period not valid"; die();
+			}
+		}else{
+			echo "Please choose the Month & Year"; die();
+		}
+
 	} 
 
 
