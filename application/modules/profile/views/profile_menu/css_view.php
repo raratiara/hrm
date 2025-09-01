@@ -56,10 +56,10 @@
   }
 
   .select2-selection {
-      width: 150px !important;
-      font-size: 10px !important;
-      margin-top: 8px !important;
-    }
+    width: 150px !important;
+    font-size: 10px !important;
+    margin-top: 8px !important;
+  }
 
 
   @media (max-width: 768px) {
@@ -157,6 +157,7 @@
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
+
     .title-box-chart {
       display: flex !important;
       flex-direction: column !important;
@@ -372,6 +373,7 @@
     border-radius: 10px !important;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 13px !important;
   }
 
   .profile-card {
@@ -390,7 +392,6 @@
   }
 
   .profile-card h3 {
-    font-size: 20px;
     margin: 10px 0;
   }
 
@@ -411,7 +412,7 @@
   }
 
   .info-grid span {
-    font-size: 14px;
+    font-size: 13px;
   }
 
 
@@ -433,7 +434,7 @@
 
   .info-grid .column div {
     margin-bottom: 15px;
-    font-size: 15px;
+    font-size: 13px;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
     white-space: normal !important;
@@ -441,12 +442,12 @@
 
   .info-grid strong {
     color: #888888;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
   }
 
   .info-grid div {
-    font-size: 15px;
+    font-size: 13px;
 
   }
 
@@ -513,11 +514,22 @@
 
 
   .birthday-box {
-    background-color: white !important;
+    background: linear-gradient(to bottom, #FFE69B, #FED24B) !important;
     padding: 15px;
     border-radius: 15px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
+
+  .birthday-balon {
+    width: 120px;
+    height: 100px;
+    object-fit: contain;
+    transform: rotate(-18deg);
+    margin-bottom: -17px !important;
+    margin-right: -20px !important;
+  }
+
+  
 
 
 
@@ -537,7 +549,7 @@
   .event-item {
     padding: 10px;
     border-bottom: 1px solid #ddd;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .event-item:last-child {
@@ -551,12 +563,14 @@
     font-weight: 600;
     color: #3d3d5c;
     margin-bottom: 10px;
+    font-size: 15px;
   }
 
   .birthday-content {
     display: flex;
     align-items: center;
-    margin-top: 15px;
+    position: relative
+
 
   }
 
@@ -574,7 +588,7 @@
 
   .birthday-name {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 13px;
     color: #000;
   }
 
@@ -589,6 +603,12 @@
     flex-direction: column;
     color: #555;
     cursor: pointer;
+  }
+
+  .birthday-arrow i {
+    line-height: 1;
+    font-size: 15px;
+
   }
 
   .summary-box {
@@ -621,12 +641,12 @@
 
   .summary-item h4 {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
   }
 
   .summary-item .total {
-    font-size: 24px;
+    font-size: 16px;
     font-weight: bold;
     margin-top: 5px;
   }
@@ -640,7 +660,7 @@
   }
 
   .summary-item .title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
   }
 
@@ -694,7 +714,7 @@
   }
 
   .task-item p:first-child {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: bold;
     margin-bottom: 2px;
   }
@@ -728,6 +748,7 @@
     border-radius: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex: 2;
+    font-size: 13px !important;
 
   }
 
@@ -737,6 +758,7 @@
     border-radius: 20px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex: 2;
+    font-size: 13px !important;
   }
 
 
@@ -818,14 +840,14 @@
   }
 
   .title_tasklist {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
     margin-top: 10px;
   }
 
@@ -842,5 +864,24 @@
   tbody td {
     padding: 10px;
     vertical-align: middle;
+  }
+
+  .birthday-title .birthday-span {
+    position: relative;
+    top: 4px;
+    margin-left: 4px;
+
+  }
+
+  .birthday-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .birthday-content svg {
+    display: inline-block;
+    margin-right: 18px;
+
   }
 </style>
