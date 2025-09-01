@@ -316,6 +316,7 @@ class Performance_plan_menu_model extends MY_Model
 								$itemData = [
 									'performance_plan_id' => $lastId,
 									'hardskill' => trim($post['hardskill'][$i]),
+									'type_id' => trim($post['type'][$i]),
 									'notes' => trim($post['notes'][$i]),
 									'weight' => trim($post['weight'][$i])
 								];
@@ -377,6 +378,7 @@ class Performance_plan_menu_model extends MY_Model
 								if ($hdnid != '') { //update
 									$itemData = [
 										'hardskill' => trim($post['hardskill'][$i]),
+										'type_id' => trim($post['type'][$i]),
 										'notes' => trim($post['notes'][$i]),
 										'weight' => trim($post['weight'][$i])
 									];
@@ -385,6 +387,7 @@ class Performance_plan_menu_model extends MY_Model
 									$itemData = [
 										'performance_plan_id' => $post['id'],
 										'hardskill' => trim($post['hardskill'][$i]),
+										'type_id' => trim($post['type'][$i]),
 										'notes' => trim($post['notes'][$i]),
 										'weight' => trim($post['weight'][$i])
 									];
@@ -416,6 +419,7 @@ class Performance_plan_menu_model extends MY_Model
 						$itemData2 = [
 							'performance_appraisal_id' => $lastId,
 							'hardskill' => $row_plan->hardskill,
+							'type_id' => $row_plan->type_id,
 							'notes' => $row_plan->notes,
 							'weight' => $row_plan->weight
 						];
@@ -434,7 +438,9 @@ class Performance_plan_menu_model extends MY_Model
 
 	public function getRowData($id)
 	{
-		$mTable = '(select a.*, b.full_name, b.direct_id,
+		$mTable = '(select a.*, b.full_name, b.direct_id, b.emp_code, b.shift_type, b.date_of_hire,
+					c.name AS division_name, h.name AS department_name, i.name AS emp_status_name,
+					o.name AS job_title_name, p.full_name AS direct_name,
 					(case 
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
@@ -442,6 +448,11 @@ class Performance_plan_menu_model extends MY_Model
 					else ""
 					 end) as status_name
 					from performance_plan a left join employees b on b.id = a.employee_id
+					LEFT JOIN divisions c ON c.id = b.division_id
+					LEFT JOIN departments h ON h.id = b.department_id
+					LEFT JOIN master_emp_status i ON i.id = b.employment_status_id
+					LEFT JOIN master_job_title o ON o.id = b.job_title_id
+					LEFT JOIN employees p ON p.id = b.direct_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -523,7 +534,7 @@ class Performance_plan_menu_model extends MY_Model
 		} else {
 			$data = '';
 			$no = $row + 1;
-
+			$msType = $this->db->query("select * from master_perfomance_type")->result(); 
 			// $data 	.= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
 			$data .= '<td><div style="height: 54px; display: flex; align-items: center;">' . $no . '<input type="hidden" id="hdnid' . $row . '" name="hdnid[' . $row . ']" value=""/></div></td>';
 
@@ -531,6 +542,7 @@ class Performance_plan_menu_model extends MY_Model
 			$inputStyle = 'height: 54px; width: 100%; box-sizing: border-box;';
 
 			$data .= '<td>' . $this->return_build_txt('', 'hardskill[' . $row . ']', '', 'hardskill', $inputStyle, 'data-id="' . $row . '" ') . '</td>';
+			$data 	.= '<td>'.$this->return_build_chosenme($msType,'','','','type['.$row.']','type','type','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 			$data .= '<td>' . $this->return_build_txtarea('', 'notes[' . $row . ']', '', 'notes', $inputStyle, 'data-id="' . $row . '" ') . '</td>';
 			$data .= '<td>' . $this->return_build_txt('', 'weight[' . $row . ']', '', 'weight', $inputStyle, 'data-id="' . $row . '" ') . '</td>';
 
@@ -549,7 +561,7 @@ class Performance_plan_menu_model extends MY_Model
 
 		$dt = '';
 
-		$rs = $this->db->query("select * from performance_plan_hardskill where performance_plan_id = '" . $id . "' ")->result();
+		$rs = $this->db->query("select a.*, b.name as type_name from performance_plan_hardskill a left join master_perfomance_type b on b.id = a.type_id where a.performance_plan_id = '" . $id . "' ")->result();
 		$rd = $rs;
 
 		$row = 0;
@@ -563,6 +575,7 @@ class Performance_plan_menu_model extends MY_Model
 					$arrS[$ai['id']] = $ai;
 				}
 			}*/
+			$msType = $this->db->query("select * from master_perfomance_type")->result(); 
 			foreach ($rd as $f) {
 				$no = $row + 1;
 
@@ -573,6 +586,7 @@ class Performance_plan_menu_model extends MY_Model
 					$dt .= '<td>' . $no . '<input type="hidden" id="hdnid' . $row . '" name="hdnid[' . $row . ']" value="' . $f->id . '"/></td>';
 
 					$dt .= '<td>' . $this->return_build_txt($f->hardskill, 'hardskill[' . $row . ']', '', 'hardskill', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
+					$dt .= '<td>'.$this->return_build_chosenme($msType,'',isset($f->type_id)?$f->type_id:1,'','type['.$row.']','type','type','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 					$dt .= '<td>' . $this->return_build_txtarea($f->notes, 'notes[' . $row . ']', '', 'notes', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
 					$dt .= '<td>' . $this->return_build_txt($f->weight, 'weight[' . $row . ']', '', 'weight', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
 
@@ -592,6 +606,7 @@ class Performance_plan_menu_model extends MY_Model
 
 					$dt .= '<td>' . $no . '</td>';
 					$dt .= '<td>' . $f->hardskill . '</td>';
+					$dt .= '<td>' . $f->type_name . '</td>';
 					$dt .= '<td>' . $f->notes . '</td>';
 					$dt .= '<td>' . $f->weight . '</td>';
 					$dt .= '</tr>';
@@ -607,7 +622,84 @@ class Performance_plan_menu_model extends MY_Model
 	}
 
 
+	public function getDataEmployee($empid){ 
 
+		
+		$rs = $this->db->query('select 
+					    a.*,
+					    b.name AS company_name,
+					    c.name AS division_name,
+					    d.name AS section_name,
+					    f.name AS regency_name_ktp,
+                        f2.name AS regency_name_residen,
+					    g.name AS village_name_ktp,
+                        g2.name AS village_name_residen,
+					    h.name AS department_name,
+					    i.name AS emp_status_name,
+					    j.full_name AS indirect_name,
+					    k.name AS branch_name,
+					    l.name AS marital_status_name,
+					    m.name AS province_name_ktp,
+						m2.name AS province_name_residen,
+					    n.name AS district_name_ktp,
+                        n2.name AS district_name_residen,
+					    o.name AS job_title_name,
+					    p.full_name AS direct_name,
+					    (case when a.gender = "M" then "Male"
+					    when a.gender = "F" then "Female"
+					    else ""
+					    end) as gender_name,
+					    if(a.status_id = "1","Active","Not Active") as status_name,
+					    q.name as job_level_name,
+					    r.name as grade_name
+					FROM
+					    employees a
+					        LEFT JOIN
+					    companies b ON b.id = a.company_id
+					        LEFT JOIN
+					    divisions c ON c.id = a.division_id
+					        LEFT JOIN
+					    sections d ON d.id = a.section_id
+					        LEFT JOIN
+					    regencies f ON f.id = a.regency_id_ktp
+                        LEFT JOIN
+					    regencies f2 ON f2.id = a.regency_id_residen
+					        LEFT JOIN
+					    villages g ON g.id = a.village_id_ktp
+                        LEFT JOIN
+					    villages g2 ON g2.id = a.village_id_residen
+					        LEFT JOIN
+					    departments h ON h.id = a.department_id
+					        LEFT JOIN
+					    master_emp_status i ON i.id = a.employment_status_id
+					        LEFT JOIN
+					    employees j ON j.id = a.indirect_id
+					        LEFT JOIN
+					    branches k ON k.id = a.branch_id
+					        LEFT JOIN
+					    master_marital_status l ON l.id = a.marital_status_id
+					        LEFT JOIN
+					    provinces m ON m.id = a.province_id_ktp
+                        LEFT JOIN
+					    provinces m2 ON m2.id = a.province_id_residen
+					        LEFT JOIN
+					    districts n ON n.id = a.district_id_ktp
+                        LEFT JOIN
+					    districts n2 ON n2.id = a.district_id_residen
+					        LEFT JOIN
+					    master_job_title o ON o.id = a.job_title_id
+					        LEFT JOIN
+					    employees p ON p.id = a.direct_id
+					    left join master_job_level q on q.id = a.job_level_id
+					    left join master_grade r on r.id = a.grade_id where a.id = '.$empid.' ')->result(); 
+
+		
+
+
+		return $rs; 
+
+
+	}
 
 
 

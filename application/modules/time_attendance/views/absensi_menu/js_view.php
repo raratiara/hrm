@@ -183,23 +183,40 @@ function load_data()
 					$('span.work_loc').html(data.work_location_name);
 					$('span.description').html(data.notes);
 
-					var latitude=''; var longitude='';
+					var latitude_in=''; var longitude_in='';
+					if(data.lat_checkin != null && data.long_checkin != null){
+						var latitude_in = data.lat_checkin;
+						var longitude_in = data.long_checkin;
+					}
+					var latitude_out=''; var longitude_out='';
 					if(data.lat_checkout != null && data.long_checkout != null){
-						var latitude = data.lat_checkout;
-						var longitude = data.long_checkout;
+						var latitude_out = data.lat_checkout;
+						var longitude_out = data.long_checkout;
 					}
-					else if(data.lat_checkin != null && data.long_checkin != null){
-						var latitude = data.lat_checkin;
-						var longitude = data.long_checkin;
-					}
+					
 					/*$('span.latitude').html(latitude);
 					$('span.longitude').html(longitude);*/
 
 
 					//maps
-					if (latitude && longitude) {
+					///// CHECKIN
+					if (latitude_in && longitude_in) {
 					    // bikin URL Google Maps
-					    var mapsUrl = "https://www.google.com/maps?q=" + latitude + "," + longitude + "&hl=es;z=14&output=embed";
+					    var mapsUrl = "https://www.google.com/maps?q=" + latitude_in + "," + longitude_in + "&hl=es;z=14&output=embed";
+					    
+					    // inject iframe ke dalam div
+					    $("#mapContainer_checkin").html(
+					        '<iframe width="100%" height="300" frameborder="0" style="border:0; border-radius:10px;" ' +
+					        'src="' + mapsUrl + '" allowfullscreen></iframe>'
+					    );
+					} else {
+					    $("#mapContainer_checkin").html("<p style='color:red'>Lokasi tidak tersedia</p>");
+					}
+
+					///// CHECKOUT
+					if (latitude_out && longitude_out) {
+					    // bikin URL Google Maps
+					    var mapsUrl = "https://www.google.com/maps?q=" + latitude_out + "," + longitude_out + "&hl=es;z=14&output=embed";
 					    
 					    // inject iframe ke dalam div
 					    $("#mapContainer").html(
