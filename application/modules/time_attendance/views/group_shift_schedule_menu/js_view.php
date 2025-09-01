@@ -286,11 +286,11 @@ function load_data()
 				var dialog = bootbox.dialog({
 					message: title+'<center>'+msg+btn+'</center>'
 				});
-				if(response.status){
+				/*if(response.status){
 					setTimeout(function(){
 						dialog.modal('hide');
 					}, 1500);
-				}
+				}*/
 			}
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -708,7 +708,164 @@ function formatDateLocal(date) {
 }
 
 
-function renderSchedule(currentWeek, jadwalData='',tanggalList=''){
+function renderSchedule(currentWeek, jadwalData = '', tanggalList = '') {
+
+  let hdnjadwalTersimpana = $("#hdnjadwalTersimpan").val();
+  let jadwalTersimpan = hdnjadwalTersimpana ? JSON.parse(hdnjadwalTersimpana) : [];
+  //console.log("jadwalTersimpan", jadwalTersimpan);
+
+  let month = document.getElementById('bulan').value;
+  let year = document.getElementById('tahun').value;
+  if (month == '' && year == '') {
+    month = new Date().getMonth();
+    year = new Date().getFullYear();
+  }
+
+  $.ajax({
+    type: "POST",
+    url: module_path + '/get_shift',
+    data: {},
+    cache: false,
+    dataType: "JSON",
+    success: function (data) {
+      if (data != false) {
+
+        let karyawanList = data;
+        let tbody = document.getElementById('jadwal-body');
+        tbody.innerHTML = "";
+
+        let startDate = new Date(year, month, 1 + currentWeek * 7);
+
+        // Set header tanggal
+        for (let i = 0; i < 7; i++) {
+          let tgl = new Date(year, month, 1 + currentWeek * 7 + i);
+          let id = "tgl" + (i + 1);
+          let el = document.getElementById(id);
+
+          if (isValidDate(tgl)) {
+            let namaHari = tgl.toLocaleDateString('en-US', { weekday: 'long' });
+            let tanggalStr = formatDateLocal(tgl);
+            let namaTgl = tgl.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+
+            el.innerHTML = `${namaHari}<br>${namaTgl}`;
+            el.dataset.tgl = tanggalStr;
+          } else {
+            el.textContent = 'Tanggal tidak valid';
+          }
+        }
+
+        // Ambil semua shift yang sudah dipilih sebelumnya
+        let existingData = $('[name="selectedshift"]').val();
+        let jadwalData = existingData ? JSON.parse(existingData) : [];
+
+        // Gabungkan dengan jadwalTersimpan dari server (hindari duplikat)
+        jadwalTersimpan.forEach(j => {
+          const exist = jadwalData.find(x => x.empname === j.employee_name && x.tgl === j.tanggal);
+          if (!exist) {
+            jadwalData.push({
+              id: j.id,
+              empname: j.employee_name,
+              tgl: j.tanggal,
+              shift: j.shift
+            });
+          }
+        });
+
+        // Simpan ke hidden input biar konsisten antar minggu
+        $('[name="selectedshift"]').val(JSON.stringify(jadwalData));
+
+        // Buat baris per karyawan
+        karyawanList.forEach(emp => {
+          let tr = document.createElement('tr');
+          tr.innerHTML = `<td><strong>${emp.full_name}</strong></td>`;
+
+          for (let i = 0; i < 7; i++) {
+            let tgl = document.getElementById("tgl" + (i + 1)).dataset.tgl;
+            let td = document.createElement('td');
+            td.className = 'drop-cell';
+            td.dataset.karyawan = emp.full_name;
+            td.dataset.tanggal = tgl;
+
+            // Cari apakah ada shift tersimpan (dari hidden input)
+            const jadwal = jadwalData.find(j => j.empname === emp.full_name && j.tgl === tgl);
+
+            if (jadwal) {
+              const shiftClass = jadwal.shift.toLowerCase().replace(/\s+/g, '');
+              const shiftName = jadwal.shift;
+              td.innerHTML = `
+                <div class="assigned ${shiftClass}" 
+                     onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">
+                  ${shiftName}
+                </div>`;
+            }
+
+            // Event drag & drop
+            td.addEventListener('dragover', e => e.preventDefault());
+            td.addEventListener('drop', e => {
+              e.preventDefault();
+              let shift = e.dataTransfer.getData('text/plain');
+              td.innerHTML = `<div class="assigned ${shift.toLowerCase().replace(/\s+/g, '')}" 
+                              onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${shift}</div>`;
+
+              // Ambil data lama
+              let allData = $('[name="selectedshift"]').val();
+              let jadwalData = allData ? JSON.parse(allData) : [];
+
+              // Update atau tambah baru
+              const existing = jadwalData.find(item => item.empname === emp.full_name && item.tgl === tgl);
+              if (existing) {
+                existing.shift = shift;
+              } else {
+                jadwalData.push({ id: emp.id, empname: emp.full_name, tgl, shift });
+              }
+
+              // Simpan lagi ke hidden input
+              $('[name="selectedshift"]').val(JSON.stringify(jadwalData));
+            });
+
+            tr.appendChild(td);
+          }
+
+          tbody.appendChild(tr);
+        });
+
+      } else {
+        title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+        btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+        msg = '<p>Gagal peroleh data.</p>';
+        var dialog = bootbox.dialog({
+          message: title + '<center>' + msg + btn + '</center>'
+        });
+        if (response.status) {
+          setTimeout(function () {
+            dialog.modal('hide');
+          }, 1500);
+        }
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      var dialog = bootbox.dialog({
+        title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+        message: jqXHR.responseText,
+        buttons: {
+          confirm: {
+            label: 'Ok',
+            className: 'btn blue'
+          }
+        }
+      });
+    }
+  });
+
+}
+
+
+
+function renderSchedule_old(currentWeek, jadwalData='',tanggalList=''){
 
 	
 	let hdnjadwalTersimpana = $("#hdnjadwalTersimpan").val(); 
@@ -819,9 +976,19 @@ function renderSchedule(currentWeek, jadwalData='',tanggalList=''){
 
 
 
-			  let jadwalData = []; // penampung sementara semua shift yang di-drag
-			  // Buat baris per karyawan
-			  karyawanList.forEach(emp => {
+			let jadwalData = []; // penampung sementara semua shift yang di-drag
+			// Ambil jadwal yang sudah ada di hidden input (kalau ada)
+			let existingData = $('[name="selectedshift"]').val();
+			if (existingData) {
+			  try {
+			    jadwalData = JSON.parse(existingData);
+			  } catch(e) {
+			    jadwalData = [];
+			  }
+			}
+
+			// Buat baris per karyawan
+			karyawanList.forEach(emp => {
 			    let tr = document.createElement('tr');
 			    tr.innerHTML = `<td><strong>${emp.full_name}</strong></td>`;
 
@@ -882,15 +1049,30 @@ function renderSchedule(currentWeek, jadwalData='',tanggalList=''){
 			        });*/
 
 			        
-			        const existing = jadwalData.find(item => item.nama === emp.full_name && item.tgl === tgl);
-						  if (existing) {
-						    existing.shift = shift;
-						  } else {
-						  	var id = emp.id;
-						  	var empname = emp.full_name;
-						    jadwalData.push({ id, empname, tgl, shift });
-						    $('[name="selectedshift"]').val(JSON.stringify(jadwalData)); 
-						  }
+			        // const existing = jadwalData.find(item => item.nama === emp.full_name && item.tgl === tgl);
+					// if (existing) {
+					//     existing.shift = shift;
+					// } else {
+					//   	var id = emp.id;
+					//   	var empname = emp.full_name;
+					//     jadwalData.push({ id, empname, tgl, shift });
+					//     $('[name="selectedshift"]').val(JSON.stringify(jadwalData)); 
+					// }
+
+
+
+					const existing = jadwalData.find(item => item.nama === emp.full_name && item.tgl === tgl);
+					if (existing) {
+					  existing.shift = shift;
+					} else {
+					  var id = emp.id;
+					  var empname = emp.full_name;
+					  jadwalData.push({ id, empname, tgl, shift });
+					}
+
+					// simpan semua data lagi (jangan hanya else)
+					$('[name="selectedshift"]').val(JSON.stringify(jadwalData));
+
 
 
 			        //console.log("Tanggal ke-" + (i + 1), tgl);
@@ -1105,137 +1287,6 @@ function renderScheduleView(currentWeek, jadwalData='',tanggalList=''){
 
 
 
-function renderSchedule_old(currentWeek, jadwalTersimpan='',jadwalData='',tanggalList=''){
-
-	let month = document.getElementById('bulan').value;
-	let year = document.getElementById('tahun').value;
-
-
-	if(month == '' && year == ''){ 
-		let month = new Date().getMonth(); 
-		let year = new Date().getFullYear();
-	}
-
-
-	 $.ajax({
-		type: "POST",
-    url : module_path+'/get_shift',
-		data: { },
-		cache: false,		
-    dataType: "JSON",
-    success: function(data)
-    {
-			if(data != false){ 
-
-				let karyawanList = data;
-				
-				/*let month = 5; // Juni (0-indexed, jadi 5)
-				let year = 2025;*/
-
-				
-				/*document.getElementById('bulan').value = month;
-				document.getElementById('tahun').value = year;*/
-
-
-			  let tbody = document.getElementById('jadwal-body');
-			  tbody.innerHTML = "";
-
-			  // Hitung tanggal awal minggu
-			  let startDate = new Date(year, month, 1 + currentWeek * 7);
-
-			  // Set header tanggal
-			  for (let i = 0; i < 7; i++) {
-			    let tgl = new Date(startDate);
-			    tgl.setDate(startDate.getDate() + i);
-			    let id = "tgl" + (i + 1);
-			    let el = document.getElementById(id);
-			    el.textContent = isValidDate(tgl) ? tgl.toISOString().slice(0, 10) : 'Tanggal tidak valid';
-			    el.dataset.tgl = el.textContent;
-
-
-			  }
-
-			  let jadwalData = []; // penampung sementara semua shift yang di-drag
-			  // Buat baris per karyawan
-			  karyawanList.forEach(emp => {
-			    let tr = document.createElement('tr');
-			    tr.innerHTML = `<td><strong>${emp.full_name}</strong></td>`;
-
-			    for (let i = 0; i < 7; i++) {
-			      let tgl = document.getElementById("tgl" + (i + 1)).dataset.tgl;
-			      let td = document.createElement('td');
-			      td.className = 'drop-cell';
-			      td.dataset.karyawan = emp.full_name;
-			      td.dataset.tanggal = tgl;
-
-			      td.addEventListener('dragover', e => e.preventDefault());
-			      td.addEventListener('drop', e => {
-			        e.preventDefault();
-			        let shift = e.dataTransfer.getData('text/plain');
-			        td.innerHTML = `<div class="assigned ${shift.toLowerCase().replace(/\s+/g, '')}" onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${shift}</div>`;
-
-			        // Simpan ke PHP
-			        /*fetch('save.php', {
-			          method: 'POST',
-			          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-			          body: `karyawan=${encodeURIComponent(nama)}&shift=${encodeURIComponent(shift)}&tanggal=${tgl}`
-			        });*/
-
-			        
-			        const existing = jadwalData.find(item => item.nama === emp.full_name && item.tgl === tgl);
-						  if (existing) {
-						    existing.shift = shift;
-						  } else {
-						  	var id = emp.id;
-						  	var empname = emp.full_name;
-						    jadwalData.push({ id, empname, tgl, shift });
-						    $('[name="selectedshift"]').val(JSON.stringify(jadwalData)); 
-						  }
-
-
-			        //console.log("Tanggal ke-" + (i + 1), tgl);
-			      });
-
-			      tr.appendChild(td);
-			    }
-
-			    tbody.appendChild(tr);
-			  });
-
-
-
-				
-			} else {
-				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
-				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
-				msg = '<p>Gagal peroleh data.</p>';
-				var dialog = bootbox.dialog({
-					message: title+'<center>'+msg+btn+'</center>'
-				});
-				if(response.status){
-					setTimeout(function(){
-						dialog.modal('hide');
-					}, 1500);
-				}
-			}
-    },
-    error: function (jqXHR, textStatus, errorThrown)
-    {
-			var dialog = bootbox.dialog({
-				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-				message: jqXHR.responseText,
-				buttons: {
-					confirm: {
-						label: 'Ok',
-						className: 'btn blue'
-					}
-				}
-			});
-    }
-  });
-
-
-}
 
 
 function pilihShift(){
