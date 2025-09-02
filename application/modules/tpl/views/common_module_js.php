@@ -37,10 +37,28 @@ $( "#btnAddData" ).on('click', function(){
 	save_method = 'add'; 
 	reset();
 	$('#mfdata').text('Add');
-	if(module_name == 'absensi_menu'){
+	if(module_name == 'absensi_menu'){ 
+		var hdnempid = $("#hdnempid").val();
 		$("#location ").prop('disabled', false);
 		$('#mfdata').text('Form Check-IN');
 		document.getElementById("submit-data").innerText = "Check In";
+
+
+		var locate = 'table.task-list';
+		var wcount = 0;
+		$.ajax({type: 'post',url: module_path+'/gettasklistrow',data: { id:hdnempid, checkin:true },success: function (response) { 
+				var obj = JSON.parse(response);
+				$(locate+' tbody').html(obj[0]);
+				
+				wcount=obj[1];
+			}
+		}).done(function() {
+			//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+			tSawBclear(locate);
+			///expenseviewadjust(lstatus);
+		});
+
+
 	}
 	$('#modal-form-data').modal('show');
 });

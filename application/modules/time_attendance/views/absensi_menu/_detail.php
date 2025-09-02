@@ -84,3 +84,40 @@
 		
 	</div>
 </div>
+
+
+
+
+<div class="row tasklist">
+    <div class="col-md-12">
+		<div class="portlet box">
+			<div class="portlet-title">
+				<div class="caption">Task List </div>
+				<div class="tools">
+					
+				</div>
+			</div>
+			<div class="portlet-body">
+				<div class="table-scrollable tablesaw-cont">
+				<table class="table table-striped table-bordered table-hover task-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblTasklist">
+					<thead>
+						<tr>
+							<th scope="col">No</th>
+							<th scope="col">Task</th>
+							<th scope="col">Project</th>
+							<th scope="col">Due Date</th>
+							<th scope="col">Progress</th>
+							<th scope="col">Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -279,6 +279,7 @@ function load_data()
 					$('[name="total_cost"]').val(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
       				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+      				$('select#project').val(data.rowdata.project_id).trigger('change.select2');
 
       				$('[name="hdndoc"]').val(data.rowdata.document);
 					/*if(data.rowdata.document != '' && data.rowdata.document != null){
@@ -333,6 +334,7 @@ function load_data()
 					$('span.total_cost').html(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
 					$('span.total_cost_terbilang').html(total_cost_terbilang);
+					$('span.project').html(data.rowdata.project_name);
 					
 					/*if(data.rowdata.document != '' && data.rowdata.document != null){
 						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
