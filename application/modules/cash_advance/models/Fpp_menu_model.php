@@ -410,8 +410,9 @@ class Fpp_menu_model extends MY_Model
 				'no_rekening' 		=> trim($post['no_rekening']),
 				'vendor_name' 		=> trim($post['vendor_name']),
 				'invoice_number' 	=> trim($post['invoice_number']),
-				'invoice_date' 		=> trim($post['invoice_date']),
-				'status_id' 		=> 1 //waiting approval
+				'invoice_date' 		=> date('Y-m-d', strtotime($post['invoice_date'])),
+				'status_id' 		=> 1, //waiting approval
+				'project_id' 		=> trim($post['project'])
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
@@ -500,8 +501,9 @@ class Fpp_menu_model extends MY_Model
 						'no_rekening' 		=> trim($post['no_rekening']),
 						'vendor_name' 		=> trim($post['vendor_name']),
 						'invoice_number' 	=> trim($post['invoice_number']),
-						'invoice_date' 		=> trim($post['invoice_date']),
-						'status_id' 		=> 1
+						'invoice_date' 		=> date('Y-m-d', strtotime($post['invoice_date'])),
+						'status_id' 		=> 1,
+						'project_id' 		=> trim($post['project'])
 					];
 				}else{
 					$data = [
@@ -512,8 +514,9 @@ class Fpp_menu_model extends MY_Model
 						'no_rekening' 		=> trim($post['no_rekening']),
 						'vendor_name' 		=> trim($post['vendor_name']),
 						'invoice_number' 	=> trim($post['invoice_number']),
-						'invoice_date' 		=> trim($post['invoice_date']),
-						'updated_at'		=> date("Y-m-d H:i:s")
+						'invoice_date' 		=> date('Y-m-d', strtotime($post['invoice_date'])),
+						'updated_at'		=> date("Y-m-d H:i:s"),
+						'project_id' 		=> trim($post['project'])
 					];
 				}
 
@@ -575,10 +578,11 @@ class Fpp_menu_model extends MY_Model
 
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-						, d.name as status_name, c.direct_id   
+						, d.name as status_name, c.direct_id, e.title as project_name     
 						from cash_advance a left join employees b on b.id = a.prepared_by
 						left join employees c on c.id = a.requested_by
 						left join master_status_cashadvance d on d.id = a.status_id
+						left join data_project e on e.id = a.project_id
 						where a.ca_type = 2
 					)dt';
 
@@ -637,10 +641,11 @@ class Fpp_menu_model extends MY_Model
 
 
 		$sql = "select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id   
+					, d.name as status_name, c.direct_id, e.title as project_name     
 					from cash_advance a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
+					left join data_project e on e.id = a.project_id
 					where a.ca_type = '2'
 					".$whr."
 					order by a.id asc

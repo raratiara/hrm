@@ -108,7 +108,7 @@ var wcount = 0; //for ca list row identify
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#date" ).datepicker();
+        $( "#invoice_date" ).datepicker();
 		
    	});
 });
@@ -282,8 +282,18 @@ function load_data()
       				$('[name="no_rekening"]').val(data.rowdata.no_rekening);
       				$('[name="fpp_type"][value="'+data.rowdata.fpp_type+'"]').prop('checked', true);
       				$('[name="vendor_name"]').val(data.rowdata.vendor_name);
-      				$('[name="invoice_date"]').val(data.rowdata.invoice_date);
+      				var invoice_date = dateFormat(data.rowdata.invoice_date);
+					$('[name="invoice_date"]').datepicker('setDate', invoice_date);
+      				//$('[name="invoice_date"]').val(data.rowdata.invoice_date);
       				$('[name="invoice_number"]').val(data.rowdata.invoice_number);
+      				$('select#project').val(data.rowdata.project_id).trigger('change.select2');
+
+
+      				if(data.rowdata.fpp_type == 'Company'){
+				  		document.getElementById("inputVendor").style.display = "block";
+				  	}else{
+				  		document.getElementById("inputVendor").style.display = "none";
+				  	}
 
       				$('[name="hdndoc"]').val(data.rowdata.document);
 					/*if(data.rowdata.document != '' && data.rowdata.document != null){
@@ -340,12 +350,19 @@ function load_data()
 					$('span.vendor_name').html(data.rowdata.vendor_name);
 					$('span.invoice_date').html(data.rowdata.invoice_date);
 					$('span.invoice_number').html(data.rowdata.invoice_number);
+					$('span.project').html(data.rowdata.project_name);
 					
 					/*if(data.rowdata.document != '' && data.rowdata.document != null){
 						$('span.document').html('<img src="'+baseUrl+'/uploads/cashadvance/fpp/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
 						$('span.document').html('');
 					}*/
+
+					if(data.rowdata.fpp_type == 'Company'){
+				  		document.getElementById("inputVendorView").style.display = "block";
+				  	}else{
+				  		document.getElementById("inputVendorView").style.display = "none";
+				  	}
 
 
 					if(data.rowdata.document != '' && data.rowdata.document != null){
@@ -413,6 +430,15 @@ function load_data()
 }
 <?php } ?>
 
+
+function dateFormat(tanggal){
+	/*let tanggal = "2025-06-24";*/
+
+	let parts = tanggal.split("-"); // ['2025', '06', '24']
+	let hasil = `${parts[1]}/${parts[2]}/${parts[0]}`;
+
+	return hasil;
+}
 
 
 $("#addfpprow").on("click", function () { 

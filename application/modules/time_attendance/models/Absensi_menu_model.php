@@ -621,7 +621,48 @@ class Absensi_menu_model extends MY_Model
 							'work_location' 			=> trim($post['location'])
 						];
 
-						return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+						$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+						if($rs){
+							if(isset($post['hdnid'])){
+								$item_num = count($post['hdnid']); // cek sum
+								$item_len_min = min(array_keys($post['hdnid'])); // cek min key index
+								$item_len = max(array_keys($post['hdnid'])); // cek max key index
+							} else {
+								$item_num = 0;
+							}
+
+							if($item_num>0){
+								for($i=$item_len_min;$i<=$item_len;$i++) 
+								{
+									$hdnid = trim($post['hdnid'][$i]);
+									if(!empty($hdnid)){ //update
+										$currTask = $this->db->query("select * from tasklist where id = '".$hdnid."' ")->result();
+											$currProgress = $currTask[0]->progress_percentage;
+											$currStatus = $currTask[0]->status_id;
+
+										$itemData = [
+											'progress_percentage' 	=> trim($post['progress_percentage'][$i]),
+											'status_id' 			=> trim($post['status'][$i]),
+											'updated_at' 			=> date("Y-m-d H:i:s")
+										];
+										$rd = $this->db->update("tasklist", $itemData, "id = '".$hdnid."'");
+										if($rd){
+											if($currProgress != trim($post['progress_percentage'][$i]) || $currStatus != trim($post['status'][$i])){ //jika ada perubahan maka masukin ke table progress
+												$dataprogress = [
+													'time_attendances_id' 	=> $post['id'],
+													'tasklist_id' 			=> $hdnid,
+													'progress_percentage'	=> trim($post['progress_percentage'][$i]),
+													'submit_at'				=> date("Y-m-d H:i:s")
+												];
+												$this->db->insert("history_progress_tasklist", $dataprogress);
+											}
+										}
+									}
+								}
+							}
+						}
+
+						return $rs;
 
 					}else{
 						echo "Attendance In not valid"; die();
@@ -743,5 +784,152 @@ class Absensi_menu_model extends MY_Model
 
 
 	}
+
+
+	public function getNewExpensesRow($row,$id,$view=FALSE,$checkin=FALSE)
+	{ 
+
+		if(!$view){ 
+
+			$tasklist = $this->db->query("select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
+			from tasklist a left join employees b on b.id = a.employee_id
+			left join tasklist c on c.id = a.parent_id
+			left join master_tasklist_status d on d.id = a.status_id
+			left join data_project e on e.id = a.project_id where a.employee_id = '".$id."' and a.status_id != 3")->result();
+
+			if(!empty($tasklist)){
+				
+				
+				$row = 0; 
+				$rs_num = count($tasklist); 
+				
+				/*if($view){
+					$arrSat = json_decode(json_encode($msObat), true);
+					$arrS = [];
+					foreach($arrSat as $ai){
+						$arrS[$ai['id']] = $ai;
+					}
+				}*/
+				foreach ($tasklist as $f){
+					$task = $f->task;
+					if($f->parent_name != '' && $f->parent_name != null){
+						$task = $f->parent_name.' - '.$f->task;
+					}
+
+					$no = $row+1;
+					$msStatus = $this->db->query("select * from master_tasklist_status ")->result(); 
+
+					
+					if($checkin){ 
+						$dt .= '<tr>';
+
+						$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+
+						$dt .= '<td>'.$task.'</td>';
+						$dt .= '<td>'.$f->project_name.'</td>';
+						$dt .= '<td>'.$f->due_date.'</td>';
+						$dt .= '<td>'.$f->progress_percentage.'</td>';
+						$dt .= '<td>'.$f->status_name.'</td>';
+						
+						$dt .= '</tr>';
+					}else{ 
+						$dt .= '<tr>';
+
+						$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+
+						$dt .= '<td>'.$task.'</td>';
+						$dt .= '<td>'.$f->project_name.'</td>';
+						$dt .= '<td>'.$f->due_date.'</td>';
+						$dt .= '<td>'.$this->return_build_txt($f->progress_percentage,'progress_percentage['.$row.']','','progress_percentage','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+						
+						$dt .= '<td>'.$this->return_build_chosenme($msStatus,'',isset($f->status_id)?$f->status_id:1,'','status['.$row.']','status','status','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+					
+			
+						$dt .= '</tr>';
+					}
+
+
+					$row++;
+				}
+				
+				return [$dt,$row];
+
+			}else{
+
+				$data = '<td colspan="5">No Data</td>';
+				
+				return $data;
+			}
+
+		}else{ 
+
+			$tasklist = $this->db->query("select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
+				from history_progress_tasklist aa
+				left join tasklist a on a.id = aa.tasklist_id
+				left join employees b on b.id = a.employee_id
+				left join tasklist c on c.id = a.parent_id
+				left join master_tasklist_status d on d.id = a.status_id
+				left join data_project e on e.id = a.project_id
+				where aa.time_attendances_id = '".$id."'")->result();
+
+			if(!empty($tasklist)){
+				
+				$row = 0; 
+				$rs_num = count($tasklist); 
+				
+				/*if($view){
+					$arrSat = json_decode(json_encode($msObat), true);
+					$arrS = [];
+					foreach($arrSat as $ai){
+						$arrS[$ai['id']] = $ai;
+					}
+				}*/
+				foreach ($tasklist as $f){
+					$task = $f->task;
+					if($f->parent_name != '' && $f->parent_name != null){
+						$task = $f->parent_name.' - '.$f->task;
+					}
+
+					$no = $row+1;
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$task.'</td>';
+					$dt .= '<td>'.$f->project_name.'</td>';
+					$dt .= '<td>'.$f->due_date.'</td>';
+					$dt .= '<td>'.$f->progress_percentage.'</td>';
+					$dt .= '<td>'.$f->status_name.'</td>';
+					$dt .= '</tr>';
+
+					$row++;
+				}
+				
+				return [$dt,$row];
+
+			}else{
+
+				$data = '<td colspan="5">No Data</td>';
+				
+				return $data;
+			}
+
+		}
+
+		
+
+
+	} 
+	
+	
 
 }

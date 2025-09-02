@@ -54,6 +54,9 @@ class Fpu_menu extends MY_Controller
 
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['txtrequestedby'] 	= $this->self_model->return_build_select2me($msemp,'','','','requested_by','requested_by','','','id','full_name',' ','','','',3,'-');
+
+		$msproject 					= $this->db->query("select * from data_project order by title asc")->result(); 
+		$field['selproject'] 	= $this->self_model->return_build_select2me($msproject,'','','','project','project','','','id','title',' ','','','',3,'-');
 		
 
 		

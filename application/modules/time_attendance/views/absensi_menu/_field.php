@@ -79,4 +79,74 @@
 
 
 
+<!-- <div class="row tasklist-checkin">
+    <div class="col-md-12">
+		<div class="portlet box">
+			<div class="portlet-title">
+				<div class="caption">Task List </div>
+				
+			</div>
+			<div class="portlet-body">
+				<div class="table-scrollable tablesaw-cont">
+				<table class="table table-striped table-bordered table-hover task-list-checkin tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblTasklist-checkin">
+					<thead>
+						<tr>
+							<th scope="col">No</th>
+							<th scope="col">Task</th>
+							<th scope="col">Project</th>
+							<th scope="col">Due Date</th>
+							<th scope="col">Progress</th>
+							<th scope="col">Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> -->
+
+
+
+<div class="row tasklist">
+    <div class="col-md-12">
+		<div class="portlet box">
+			<div class="portlet-title">
+				<div class="caption">Task List </div>
+				<!-- <div class="tools">
+					<input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addcarow" value="Add Row" />
+				</div> -->
+			</div>
+			<div class="portlet-body">
+				<div class="table-scrollable tablesaw-cont">
+				<table class="table table-striped table-bordered table-hover task-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblTasklist">
+					<thead>
+						<tr>
+							<th scope="col">No</th>
+							<th scope="col">Task</th>
+							<th scope="col">Project</th>
+							<th scope="col">Due Date</th>
+							<th scope="col">Progress</th>
+							<th scope="col">Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
 								

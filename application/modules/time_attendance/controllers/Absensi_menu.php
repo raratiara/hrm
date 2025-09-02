@@ -235,4 +235,28 @@ class Absensi_menu extends MY_Controller
 
 
 
+	public function gettasklistrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			
+			if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				$checkin = (isset($post['checkin']) && $post['checkin'] == TRUE)? TRUE:FALSE;
+
+
+				echo json_encode($this->self_model->getNewExpensesRow($row,$id,$view,$checkin));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+
+
 }

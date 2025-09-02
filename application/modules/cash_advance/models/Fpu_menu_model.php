@@ -406,7 +406,8 @@ class Fpu_menu_model extends MY_Model
 				'requested_by'	=> trim($post['requested_by']),
 				'total_cost' 	=> trim($post['total_cost']),
 				'document' 		=> $document,
-				'status_id' 	=> 1 //waiting approval
+				'status_id' 	=> 1, //waiting approval
+				'project_id' 	=> trim($post['project'])
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
@@ -491,14 +492,16 @@ class Fpu_menu_model extends MY_Model
 						'total_cost' 	=> trim($post['total_cost']),
 						'document' 		=> $document,
 						'updated_at'	=> date("Y-m-d H:i:s"),
-						'status_id' 	=> 1
+						'status_id' 	=> 1,
+						'project_id' 	=> trim($post['project'])
 					];
 				}else{
 					$data = [
 						'requested_by'	=> trim($post['requested_by']),
 						'total_cost' 	=> trim($post['total_cost']),
 						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s")
+						'updated_at'	=> date("Y-m-d H:i:s"),
+						'project_id' 	=> trim($post['project'])
 					];
 				}
 
@@ -560,10 +563,11 @@ class Fpu_menu_model extends MY_Model
 
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id   
+					, d.name as status_name, c.direct_id, e.title as project_name  
 					from cash_advance a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
+					left join data_project e on e.id = a.project_id
 					where a.ca_type = 1
 					)dt';
 
@@ -623,10 +627,11 @@ class Fpu_menu_model extends MY_Model
 
 
 		$sql = 'select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-				, d.name as status_name, c.direct_id   
+				, d.name as status_name, c.direct_id, e.title as project_name  
 				from cash_advance a left join employees b on b.id = a.prepared_by
 				left join employees c on c.id = a.requested_by
 				left join master_status_cashadvance d on d.id = a.status_id
+				left join data_project e on e.id = a.project_id
 				where a.ca_type = 1
 				'.$whr.'
 				order by a.id asc

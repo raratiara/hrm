@@ -63,6 +63,8 @@ class Fpp_menu extends MY_Controller
 
 		$field['txttype'] 		= $this->self_model->return_build_radio('', [['Personal','Personal'],['Company','Company']], 'fpp_type', '', 'inline');
 		
+		$msproject 					= $this->db->query("select * from data_project order by title asc")->result(); 
+		$field['selproject'] 	= $this->self_model->return_build_select2me($msproject,'','','','project','project','','','id','title',' ','','','',3,'-');
 
 		
 		return $field;

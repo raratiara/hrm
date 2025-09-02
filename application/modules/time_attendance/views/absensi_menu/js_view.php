@@ -5,6 +5,7 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var opsForm = 'form#frmInputData';
 
 
 
@@ -164,6 +165,21 @@ function load_data()
 						$('span.photo').html('');
 					}
 					
+					var locate = 'table.task-list';
+					var wcount = 0; //for ca list row identify
+					// get data tasklist
+					$.ajax({type: 'post',url: module_path+'/gettasklistrow',data: { id:data.employee_id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+					// end get data tasklist
 
 					
 					$.uniform.update();
@@ -234,6 +250,20 @@ function load_data()
 					}else{
 						$('span.photo').html('');
 					}
+
+					var locate = 'table.task-list-view';
+					var wcount = 0;
+					$.ajax({type: 'post',url: module_path+'/gettasklistrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 				
 					
 					$('#modal-view-data').modal('show');
