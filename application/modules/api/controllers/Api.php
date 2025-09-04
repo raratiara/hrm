@@ -2623,4 +2623,407 @@ class Api extends API_Controller
 
 
 
+	public function sync_health()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employeeId			= $_REQUEST['employeeId'];
+    	$windowStartUtc 	= $_REQUEST['windowStartUtc'];
+    	$windowEndUtc		= $_REQUEST['windowEndUtc'];
+    	$idempotencyKey		= $_REQUEST['idempotencyKey'];
+    	$source				= $_REQUEST['source'];
+    	$date				= $_REQUEST['date'];
+    	$sleepMinutes		= $_REQUEST['sleepMinutes'];
+    	$steps 				= $_REQUEST['steps'];
+    	$activeCaloriesKcal = $_REQUEST['activeCaloriesKcal'];
+    	$hrAvgBpm 			= $_REQUEST['hrAvgBpm'];
+    	$hrSamples 			= $_REQUEST['hrSamples'];
+    	$spo2AvgPct 		= $_REQUEST['spo2AvgPct'];
+    	$spo2MinPct			= $_REQUEST['spo2MinPct'];
+    	$spo2MaxPct			= $_REQUEST['spo2MaxPct'];
+    	$spo2Samples		= $_REQUEST['spo2Samples'];
+    	$rawHr_tsUtc		= $_REQUEST['rawHr_tsUtc'];
+    	$rawHr_bpm 			= $_REQUEST['rawHr_bpm'];
+    	$rawSpo2_tsUtc 		= $_REQUEST['rawSpo2_tsUtc'];
+    	$rawSpo2_pct 		= $_REQUEST['rawSpo2_pct'];
+    	$platform 			= $_REQUEST['platform'];
+
+
+
+    	if($employeeId != '' && $windowStartUtc != '' && $windowEndUtc != '' && $idempotencyKey != ''){
+    		$data = [
+				'employee_id' 		=> $employeeId,
+				'window_start_utc' 	=> $windowStartUtc,
+				'window_end_utc'	=> $windowEndUtc,
+				'idempotency_key' 	=> $idempotencyKey,
+				'created_at'		=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert("health_sync_runs", $data);
+			$lastId = $this->db->insert_id();
+
+			if($rs){
+				$data2 = [
+					'employee_id' 	=> $employeeId,
+					'ts_utc'		=> $rawHr_tsUtc,
+					'bpm' 			=> $rawHr_bpm,
+					'source'		=> $source,
+					'sync_runs_id' 	=> $lastId,
+					'created_at'	=> date("Y-m-d H:i:s")
+				];
+				$input_hr = $this->db->insert("health_raw_hr", $data2);
+
+				$data3 = [
+					'employee_id' 	=> $employeeId,
+					'ts_utc'		=> $rawSpo2_tsUtc,
+					'pct' 			=> $rawSpo2_pct,
+					'source'		=> $source,
+					'sync_runs_id' 	=> $lastId,
+					'created_at'	=> date("Y-m-d H:i:s")
+				];
+				$input_spo2 = $this->db->insert("health_row_spo2", $data3);
+
+
+				/// update atau insert data daily
+				/// cek jika belum ada maka insert, jika sudah ada maka update (like summary)
+				$daily 	= $this->db->query("select * from health_daily where employee_id = '".$employeeId."' and date = '".$date."'")->result(); 
+				if(!empty($daily)){ //update
+					$data_daily = [
+						'sleep_minutes' 		=> $sleepMinutes,
+						'steps'					=> $steps,
+						'active_calories_kcal' 	=> $activeCaloriesKcal,
+						'hr_avg_bpm' 			=> $hrAvgBpm,
+						'hr_samples' 			=> $hrSamples,
+						'spo2_avg_pct'			=> $spo2AvgPct,
+						'spo2_min_pct' 			=> $spo2MinPct,
+						'spo2_max_pct' 			=> $spo2MaxPct,
+						'spo2_samples' 			=> $spo2Samples,
+						'source'				=> $source,
+						'platform' 				=> $platform,
+						'updated_at'			=> date("Y-m-d H:i:s"),
+						'last_sync_runs_id' 	=> $lastId
+					];
+					$input_daily = $this->db->update("health_daily", $data_daily, "id = '".$daily[0]->id."'");
+
+				}else{ //insert
+					$data_daily = [
+						'employee_id' 			=> $employeeId,
+						'date'					=> $date,
+						'sleep_minutes' 		=> $sleepMinutes,
+						'steps'					=> $steps,
+						'active_calories_kcal' 	=> $activeCaloriesKcal,
+						'hr_avg_bpm' 			=> $hrAvgBpm,
+						'hr_samples' 			=> $hrSamples,
+						'spo2_avg_pct'			=> $spo2AvgPct,
+						'spo2_min_pct' 			=> $spo2MinPct,
+						'spo2_max_pct' 			=> $spo2MaxPct,
+						'spo2_samples' 			=> $spo2Samples,
+						'source'				=> $source,
+						'platform' 				=> $platform,
+						'created_at'			=> date("Y-m-d H:i:s"),
+						'last_sync_runs_id' 	=> $lastId
+					];
+					$input_daily = $this->db->insert("health_daily", $data_daily);
+				}
+
+				if($input_hr && $input_spo2 && $input_daily){
+					$ttl_daily	= $this->db->query("select count(*) as ttl from health_daily where last_sync_runs_id = '".$lastId."'")->result(); 
+					$ttl_hr 	= $this->db->query("select count(*) as ttl from health_raw_hr where sync_runs_id = '".$lastId."'")->result(); 
+					$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_row_spo2 where sync_runs_id = '".$lastId."'")->result(); 
+					$data_sync = [
+						'status' 				=> 'ok',
+						'total_daily_upserts' 	=> $ttl_daily[0]->ttl,
+						'total_raw_hr' 			=> $ttl_hr[0]->ttl,
+						'total_raw_spo2' 		=> $ttl_spo2[0]->ttl,
+						'updated_at'			=> date("Y-m-d H:i:s")
+					];
+					$this->db->update("health_sync_runs", $data_sync, "id = '".$lastId."'");
+				}
+				
+
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+    	}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function health_hr()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employeeId			= $_REQUEST['employeeId'];
+    	$source				= $_REQUEST['source'];
+    	$rawHr_tsUtc		= $_REQUEST['rawHr_tsUtc'];
+    	$rawHr_bpm 			= $_REQUEST['rawHr_bpm'];
+    	$sync_runs_id 		= $_REQUEST['sync_runs_id'];
+
+
+
+    	if($employeeId != '' && $sync_runs_id != '' && $source != '' && $rawHr_tsUtc != '' && $rawHr_bpm != ''){
+    		$data2 = [
+				'employee_id' 	=> $employeeId,
+				'ts_utc'		=> $rawHr_tsUtc,
+				'bpm' 			=> $rawHr_bpm,
+				'source'		=> $source,
+				'sync_runs_id' 	=> $sync_runs_id,
+				'created_at'	=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert("health_raw_hr", $data2);
+			
+			if($rs){
+				$ttl_daily	= $this->db->query("select count(*) as ttl from health_daily where last_sync_runs_id = '".$sync_runs_id."'")->result(); 
+				$ttl_hr 	= $this->db->query("select count(*) as ttl from health_raw_hr where sync_runs_id = '".$sync_runs_id."'")->result(); 
+				$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_row_spo2 where sync_runs_id = '".$sync_runs_id."'")->result(); 
+
+				$data_sync = [
+					'status' 				=> 'ok',
+					'total_daily_upserts' 	=> $ttl_daily[0]->ttl,
+					'total_raw_hr' 			=> $ttl_hr[0]->ttl,
+					'total_raw_spo2' 		=> $ttl_spo2[0]->ttl,
+					'updated_at'			=> date("Y-m-d H:i:s")
+				];
+				$this->db->update("health_sync_runs", $data_sync, "id = '".$sync_runs_id."'");
+				
+
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+    	}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function health_spo2()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employeeId			= $_REQUEST['employeeId'];
+    	$source				= $_REQUEST['source'];
+    	$rawSpo2_tsUtc 		= $_REQUEST['rawSpo2_tsUtc'];
+    	$rawSpo2_pct 		= $_REQUEST['rawSpo2_pct'];
+    	$sync_runs_id 		= $_REQUEST['sync_runs_id'];
+
+
+    	if($employeeId != '' && $sync_runs_id != '' && $rawSpo2_tsUtc != '' && $rawSpo2_pct != '' && $source != ''){
+    		$data3 = [
+				'employee_id' 	=> $employeeId,
+				'ts_utc'		=> $rawSpo2_tsUtc,
+				'pct' 			=> $rawSpo2_pct,
+				'source'		=> $source,
+				'sync_runs_id' 	=> $sync_runs_id,
+				'created_at'	=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert("health_row_spo2", $data3);
+
+			if($rs){
+				
+				$ttl_daily	= $this->db->query("select count(*) as ttl from health_daily where last_sync_runs_id = '".$sync_runs_id."'")->result(); 
+				$ttl_hr 	= $this->db->query("select count(*) as ttl from health_raw_hr where sync_runs_id = '".$sync_runs_id."'")->result(); 
+				$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_row_spo2 where sync_runs_id = '".$sync_runs_id."'")->result(); 
+				$data_sync = [
+					'status' 				=> 'ok',
+					'total_daily_upserts' 	=> $ttl_daily[0]->ttl,
+					'total_raw_hr' 			=> $ttl_hr[0]->ttl,
+					'total_raw_spo2' 		=> $ttl_spo2[0]->ttl,
+					'updated_at'			=> date("Y-m-d H:i:s")
+				];
+				$this->db->update("health_sync_runs", $data_sync, "id = '".$sync_runs_id."'");
+				
+				
+
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+    	}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function health_daily()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employeeId			= $_REQUEST['employeeId'];
+    	$source				= $_REQUEST['source'];
+    	$date				= $_REQUEST['date'];
+    	$sleepMinutes		= $_REQUEST['sleepMinutes'];
+    	$steps 				= $_REQUEST['steps'];
+    	$activeCaloriesKcal = $_REQUEST['activeCaloriesKcal'];
+    	$hrAvgBpm 			= $_REQUEST['hrAvgBpm'];
+    	$hrSamples 			= $_REQUEST['hrSamples'];
+    	$spo2AvgPct 		= $_REQUEST['spo2AvgPct'];
+    	$spo2MinPct			= $_REQUEST['spo2MinPct'];
+    	$spo2MaxPct			= $_REQUEST['spo2MaxPct'];
+    	$spo2Samples		= $_REQUEST['spo2Samples'];
+    	$platform 			= $_REQUEST['platform'];
+    	$sync_runs_id 		= $_REQUEST['sync_runs_id'];
+
+
+    	if($employeeId != '' && $date != ''){
+    		/// update atau insert data daily
+			/// cek jika belum ada maka insert, jika sudah ada maka update (like summary)
+			$daily 	= $this->db->query("select * from health_daily where employee_id = '".$employeeId."' and date = '".$date."'")->result(); 
+			if(!empty($daily)){ //update
+				$data_daily = [
+					'sleep_minutes' 		=> $sleepMinutes,
+					'steps'					=> $steps,
+					'active_calories_kcal' 	=> $activeCaloriesKcal,
+					'hr_avg_bpm' 			=> $hrAvgBpm,
+					'hr_samples' 			=> $hrSamples,
+					'spo2_avg_pct'			=> $spo2AvgPct,
+					'spo2_min_pct' 			=> $spo2MinPct,
+					'spo2_max_pct' 			=> $spo2MaxPct,
+					'spo2_samples' 			=> $spo2Samples,
+					'source'				=> $source,
+					'platform' 				=> $platform,
+					'updated_at'			=> date("Y-m-d H:i:s"),
+					'last_sync_runs_id' 	=> $sync_runs_id
+				];
+				$rs = $this->db->update("health_daily", $data_daily, "id = '".$daily[0]->id."'");
+
+			}else{ //insert
+				$data_daily = [
+					'employee_id' 			=> $employeeId,
+					'date'					=> $date,
+					'sleep_minutes' 		=> $sleepMinutes,
+					'steps'					=> $steps,
+					'active_calories_kcal' 	=> $activeCaloriesKcal,
+					'hr_avg_bpm' 			=> $hrAvgBpm,
+					'hr_samples' 			=> $hrSamples,
+					'spo2_avg_pct'			=> $spo2AvgPct,
+					'spo2_min_pct' 			=> $spo2MinPct,
+					'spo2_max_pct' 			=> $spo2MaxPct,
+					'spo2_samples' 			=> $spo2Samples,
+					'source'				=> $source,
+					'platform' 				=> $platform,
+					'created_at'			=> date("Y-m-d H:i:s"),
+					'last_sync_runs_id' 	=> $sync_runs_id
+				];
+				$rs = $this->db->insert("health_daily", $data_daily);
+			}
+
+			if($rs){
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+    	}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+
 }
