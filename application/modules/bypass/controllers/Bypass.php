@@ -544,8 +544,8 @@ class Bypass extends API_Controller
 
 	}
 
-
-	public function submit_absen_holiday(){ //jalanin setiap hari jam 8 pagi
+	//gak pakai cron submit_absen_holiday lg, dijadikan satu sm cron submit_daily_absen
+	public function submit_absen_holiday_old(){ //jalanin setiap hari jam 8 pagi
 
 		$Holidays = $this->db->query("select * from master_holidays where date = '".date("Y-m-d")."'")->result();
 		
@@ -581,6 +581,7 @@ class Bypass extends API_Controller
 	}
 
 
+
 	public function submit_daily_absen(){ // jalan setiap hari, jam 8 pagi
 		$tanggal = date('Y-m-d');
 		$yesterday = date('Y-m-d', strtotime('-1 day', strtotime($tanggal)));
@@ -593,6 +594,15 @@ class Bypass extends API_Controller
 		if ($hari == 0 || $hari == 6) {
 		   $is_sabtuminggu = 1;
 		} 
+
+
+		//cek kemarin tgl libur nasional bukan
+		$Holidays = $this->db->query("select * from master_holidays where date = '".$yesterday."'")->result();
+		$is_holiday=0;
+		if(!empty($Holidays)){
+			$holID = $Holidays[0]->id;
+			$is_holiday = 1;
+		}
 
 
 
@@ -622,6 +632,10 @@ class Bypass extends API_Controller
 						from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id left join master_shift_time c on c.id = b.`".$tgl."`
 						where b.employee_id = '".$row_emp->id."' and a.period = '".$period."' ")->result(); 
 
+					if(!empty($dt)){ //kalo shift ada jadwal shift, brarti bukan libur nasional
+						$is_holiday=0;
+					}
+
 				}else{ //tidak ada shift type
 					$emp_shift_type=0;
 				} 
@@ -635,15 +649,27 @@ class Bypass extends API_Controller
 					}
 				}
 
+				if($is_holiday == 1){
+					$data = [
+						'date_attendance' 			=> $yesterday,
+						'employee_id' 				=> $row_emp->id,
+						'attendance_type' 			=> $attendance_type,
+						'holidays_id' 				=> $holID,
+						'created_at'				=> date("Y-m-d H:i:s")
+					];
+					
+				}else{
+					$data = [
+						'date_attendance' 			=> $yesterday,
+						'employee_id' 				=> $row_emp->id,
+						'attendance_type' 			=> $attendance_type,
+						'time_in' 					=> $time_in,
+						'time_out' 					=> $time_out,
+						'created_at'				=> date("Y-m-d H:i:s")
+					];
+				}
 
-				$data = [
-					'date_attendance' 			=> $yesterday,
-					'employee_id' 				=> $row_emp->id,
-					'attendance_type' 			=> $attendance_type,
-					'time_in' 					=> $time_in,
-					'time_out' 					=> $time_out,
-					'created_at'				=> date("Y-m-d H:i:s")
-				];
+				
 				$rs = $this->db->insert('time_attendances', $data);
 			}
 			
