@@ -629,7 +629,7 @@ class Bypass extends API_Controller
 							where a.employee_id = '".$row_emp->id."' and b.periode = '".$period."' ")->result(); */
 
 					$dt = $this->db->query("select a.*, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-						from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id left join master_shift_time c on c.id = b.`".$tgl."`
+						from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id left join master_shift_time c on c.shift_id = b.`".$tgl."`
 						where b.employee_id = '".$row_emp->id."' and a.period = '".$period."' ")->result(); 
 
 					if(!empty($dt)){ //kalo shift ada jadwal shift, brarti bukan libur nasional
@@ -816,7 +816,7 @@ class Bypass extends API_Controller
 							where a.employee_id = '".$row_emp->id."' and b.periode = '".$period."' ")->result(); */
 
 					$dt = $this->db->query("select a.*, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-						from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id left join master_shift_time c on c.id = b.`".$tgl."`
+						from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id left join master_shift_time c on c.shift_id = b.`".$tgl."`
 						where b.employee_id = '".$row_emp->id."' and a.period = '".$period."' ")->result(); 
 
 				}else{ //tidak ada shift type
