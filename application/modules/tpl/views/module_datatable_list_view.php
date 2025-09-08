@@ -241,7 +241,7 @@
                                             <th><input type="checkbox" id="check-all"></th>
                                         <?php } ?>
                                         <?php
-                                        if($this->module_name != 'summaryabsen'){
+                                        if($this->module_name != 'summaryabsen' && $this->module_name != 'health_sync' && $this->module_name != 'health_hr' && $this->module_name != 'health_spo2' && $this->module_name != 'health_daily'){
                                             ?>
                                             <!-- <th width="120px">Action</th> -->
                                             <th style="min-width:120px !important;">Action</th>
