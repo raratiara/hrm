@@ -32,7 +32,7 @@ class Health_spo2_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name from health_row_spo2 a left join employees b on b.id = a.employee_id
+		$sTable = '(select a.*, b.full_name from health_raw_spo2 a left join employees b on b.id = a.employee_id
 				)dt';
 		
 
@@ -453,7 +453,7 @@ class Health_spo2_model extends MY_Model
 	public function eksport_data()
 	{ 
 		
-		$sql = "select a.*, b.full_name from health_row_spo2 a left join employees b on b.id = a.employee_id
+		$sql = "select a.*, b.full_name from health_raw_spo2 a left join employees b on b.id = a.employee_id
 				ORDER BY a.id desc
 		";
 
