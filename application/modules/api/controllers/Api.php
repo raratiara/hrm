@@ -2685,7 +2685,7 @@ class Api extends API_Controller
 					'sync_runs_id' 	=> $lastId,
 					'created_at'	=> date("Y-m-d H:i:s")
 				];
-				$input_spo2 = $this->db->insert("health_row_spo2", $data3);
+				$input_spo2 = $this->db->insert("health_raw_spo2", $data3);
 
 
 				/// update atau insert data daily
@@ -2733,7 +2733,7 @@ class Api extends API_Controller
 				if($input_hr && $input_spo2 && $input_daily){
 					$ttl_daily	= $this->db->query("select count(*) as ttl from health_daily where last_sync_runs_id = '".$lastId."'")->result(); 
 					$ttl_hr 	= $this->db->query("select count(*) as ttl from health_raw_hr where sync_runs_id = '".$lastId."'")->result(); 
-					$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_row_spo2 where sync_runs_id = '".$lastId."'")->result(); 
+					$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_raw_spo2 where sync_runs_id = '".$lastId."'")->result(); 
 					$data_sync = [
 						'status' 				=> 'ok',
 						'total_daily_upserts' 	=> $ttl_daily[0]->ttl,
@@ -2807,7 +2807,7 @@ class Api extends API_Controller
 			if($rs){
 				$ttl_daily	= $this->db->query("select count(*) as ttl from health_daily where last_sync_runs_id = '".$sync_runs_id."'")->result(); 
 				$ttl_hr 	= $this->db->query("select count(*) as ttl from health_raw_hr where sync_runs_id = '".$sync_runs_id."'")->result(); 
-				$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_row_spo2 where sync_runs_id = '".$sync_runs_id."'")->result(); 
+				$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_raw_spo2 where sync_runs_id = '".$sync_runs_id."'")->result(); 
 
 				$data_sync = [
 					'status' 				=> 'ok',
@@ -2875,13 +2875,13 @@ class Api extends API_Controller
 				'sync_runs_id' 	=> $sync_runs_id,
 				'created_at'	=> date("Y-m-d H:i:s")
 			];
-			$rs = $this->db->insert("health_row_spo2", $data3);
+			$rs = $this->db->insert("health_raw_spo2", $data3);
 
 			if($rs){
 				
 				$ttl_daily	= $this->db->query("select count(*) as ttl from health_daily where last_sync_runs_id = '".$sync_runs_id."'")->result(); 
 				$ttl_hr 	= $this->db->query("select count(*) as ttl from health_raw_hr where sync_runs_id = '".$sync_runs_id."'")->result(); 
-				$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_row_spo2 where sync_runs_id = '".$sync_runs_id."'")->result(); 
+				$ttl_spo2 	= $this->db->query("select count(*) as ttl from health_raw_spo2 where sync_runs_id = '".$sync_runs_id."'")->result(); 
 				$data_sync = [
 					'status' 				=> 'ok',
 					'total_daily_upserts' 	=> $ttl_daily[0]->ttl,
