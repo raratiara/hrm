@@ -120,6 +120,18 @@ class Candidates_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
+ 	public function getDataStep(){
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+		$save_method = $post['save_method'];
+
+		$rs =  $this->self_model->getDataStep($id,$save_method);
+		
+
+		echo json_encode($rs);
+	}
+
+
 
 
 }

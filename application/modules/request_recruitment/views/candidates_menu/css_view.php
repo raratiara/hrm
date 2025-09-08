@@ -16,4 +16,15 @@
     .modal-dialog {
         width: 90% !important;
     }
+
+    #file-link {
+      display: inline-block; 
+      vertical-align: middle; 
+      margin-left: 6px; /* kasih jarak dari teks CV */
+      margin-top: 10px;
+    }
+    #file-link a i {
+      font-size: 18px; /* biar pas ukurannya */
+    }
+
 </style>

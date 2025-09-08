@@ -39,12 +39,19 @@
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">CV</label>
 			<div class="col-md-8">
-				<?=$txtcv;?>
+				<!-- <?=$txtcv;?> -->
+				<div id="file-link"></div>
+				<input type="hidden" id="hdnfile" name="hdnfile">
 			</div>
 		</div>
 	</div>
 	
 	
+</div>
+
+
+<div class="panel" id="tabstep">
+	<span id="tblstep"></span>
 </div>
 
 
