@@ -314,9 +314,9 @@ class Candidates_menu_model extends MY_Model
 
 	public function getRowData($id)
 	{
-		$mTable = '(select a.*, b.name as section_name, c.name as level_name, a.headcount_id as id 
-					from mpp a left join sections b on b.id = a.section_id
-					left join master_job_level c on c.id = a.job_level_id
+		$mTable = '(select a.*, b.subject as position_name, c.name as status_name 
+						from candidates a left join request_recruitment b on b.id = a.request_recruitment_id
+						left join master_status_candidates c on c.id = a.status_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -363,6 +363,255 @@ class Candidates_menu_model extends MY_Model
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
+	}
+
+
+	public function getDataStep($id, $save_method)
+	{
+
+		if ($save_method == 'detail') { //VIEW
+			$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '" . $id . "' ")->result();
+
+			$dt = '';
+			$ttl = 0;
+			if (!empty($datasoftskill)) {
+				$row = 0;
+
+				foreach ($datasoftskill as $f) {
+					$no = $row + 1;
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>' . $no . '</td>';
+					$dt .= '<td>' . $f->name . '</td>';
+					$dt .= '<td>' . $f->weight_percentage . '</td>';
+					$dt .= '<td>' . $f->score_emp . '</td>';
+					$dt .= '<td>' . $f->score_direct . '</td>';
+					$dt .= '<td>' . $f->notes . '</td>';
+					$dt .= '<td>' . $f->final_score . '</td>';
+
+					$dt .= '</tr>';
+
+					$ttl += $f->final_score;
+					$row++;
+				}
+			}
+
+			$tblsoftskill = '<div class="row">
+			    <div class="col-md-12">
+					<div class="portlet box grey">
+						<div class="portlet-title">
+							<div class="caption">Softskill </div>
+							<div class="tools">
+								
+							</div>
+						</div> 
+						<div class="portlet-body"> 
+							<span style="color:red">
+							Keterangan Nilai:
+							1 = Sangat Kurang, 2 = Kurang, 3 = Cukup, 4 = Baik, 5 = Sangat Baik
+							</span>
+							<div class="table-scrollable tablesaw-cont">
+							
+							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSoftskill">
+							
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Name</th>
+										<th scope="col">Weight (%)</th>
+										<th scope="col" style="width:7%">Score (1-5)</th>
+										<th scope="col" style="width:7%">Score by Direct (1-5)</th>
+										<th scope="col">Notes by Direct</th>
+										<th scope="col">Final Score</th>
+									</tr>
+								</thead>
+								<tbody>
+									' . $dt . '
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+
+							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" >
+							
+								<thead>
+									
+								</thead>
+								<tbody>
+									<tr>
+										<td style="width:896px; text-align: right;"><b>Total Final Score</b></td>
+										<td><b><span id="total_final_score_softskill">' . $ttl . '</span></b></td>
+									</tr>
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>';
+
+
+			$data['tblsoftskill'] = $tblsoftskill;
+
+
+			return $data;
+
+		} else { // ADD OR UPDATE
+
+			$datastep = $this->db->query("select a.*, b.name as step_name from candidates_step a 
+								left join master_step_recruitment b on b.id = a.step_recruitment_id
+								where a.candidates_id = '" . $id . "' ")->result();
+
+
+			if (!empty($datastep)) {
+
+				$dt = '';
+				$row = 0;
+				
+				$msStatus = $this->db->query("select * from master_status_candidates where id in ('2','5')")->result(); 
+				foreach ($datastep as $f) {
+					$viewdoc = '';
+					if($f->doc != ''){
+						$viewdoc = '<a href="'.base_url().'uploads/candidates/'.$f->doc.'" target="_blank">View</a>';
+					}
+					if($f->step_recruitment_id == 4){ //psikotes
+						$docc = '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value="'.$f->doc.'"/></td>';
+					}else{
+						$docc='<td></td>';
+					}
+					
+					$no = $row + 1;
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>' . $no . '</td>';
+					$dt .= '<td>' . $f->step_name . '</td>';
+
+					$dt .= '<td>' . $this->return_build_txt($f->date, 'date[' . $row . ']', '', 'date', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
+
+					/*$dt .= '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value="'.$f->doc.'"/></td>';*/
+
+					$dt .= $docc;
+
+					$dt .= '<td>' . $this->return_build_txtarea($f->notes, 'notes[' . $row . ']', '', 'notes', 'text-align: right;', 'data-id="' . $row . '"  ') . '</td>';
+
+					$dt .= '<td>'.$this->return_build_chosenme($msStatus,'',isset($f->status_id)?$f->status_id:1,'','status['.$row.']','status','status','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+					
+
+					$dt .= '</tr>';
+
+
+					$row++;
+				}
+
+			} else {
+				$rs = $this->db->query("select * from master_step_recruitment order by order_no asc ")->result();
+
+				$dt = '';
+				$row = 0;
+				$ttl = 0;
+				if (!empty($rs)) {
+					foreach ($rs as $f) {
+						$msStatus = $this->db->query("select * from master_status_candidates where id in ('2','5')")->result(); 
+						if($f->id == 4){ //psikotes
+							$docc = '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value=""/></td>';
+						}else{
+							$docc='<td></td>';
+						}
+						
+						$no = $row + 1;
+
+						$dt .= '<tr>';
+
+						$dt .= '<td>' . $no . '</td>';
+						$dt .= '<td>' . $f->name . '</td>';
+						
+
+						$dt .= '<td>' . $this->return_build_txt('', 'date[' . $row . ']', '', 'date', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
+
+						/*$dt .= '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value=""/></td>';*/
+						$dt .= $docc;
+
+						$dt .= '<td>' . $this->return_build_txtarea('', 'notes[' . $row . ']', '', 'notes', 'text-align: right;', 'data-id="' . $row . '"  ') . '</td>';
+
+						$dt .= '<td>'.$this->return_build_chosenme($msStatus,'','','','status['.$row.']','status','status','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+
+						$dt .= '</tr>';
+
+
+						$row++;
+					}
+				}
+			}
+
+
+
+			$tblstep = '<div class="row">
+			    <div class="col-md-12">
+					<div class="portlet box grey">
+						<div class="portlet-title">
+							<div class="caption">Step Detail </div>
+							<div class="tools">
+								
+							</div>
+						</div> 
+						<div class="portlet-body"> 
+							
+							<div class="table-scrollable tablesaw-cont">
+							
+							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailStep">
+							
+								<thead>
+									<tr>
+										<th scope="col">No</th>
+										<th scope="col">Step</th>
+										<th scope="col">Date</th>
+										<th scope="col" style="width:13%">Document</th>
+										<th scope="col">Notes</th>
+										<th scope="col">Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									' . $dt . '
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+
+							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailStep">
+							
+								<thead>
+									
+								</thead>
+								<tbody>
+									
+								</tbody>
+								<tfoot>
+								</tfoot>
+							</table>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>';
+
+
+
+
+			$data['tblstep'] = $tblstep;
+
+
+			return $data;
+
+			
+		}
+
+
 	}
 
 

@@ -107,6 +107,11 @@ jQuery(function($) {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 function load_data()
 {
+	var getUrl = window.location;
+	/*local=>*/ var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	//var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
+
     $.ajax({
 		type: "POST",
         url : module_path+'/get_detail_data',
@@ -119,12 +124,39 @@ function load_data()
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					
-					$('select#section').val(data.section_id).trigger('change.select2');
-					$('select#joblevel').val(data.job_level_id).trigger('change.select2');
-					$('[name="year"]').val(data.year);
-					$('[name="headcount"]').val(data.mpp);
-					$('[name="notes"]').val(data.notes);
-					
+					$('[name="position"]').val(data.position_name);
+					$('[name="name"]').val(data.full_name);
+					$('[name="email"]').val(data.email);
+					$('[name="phone"]').val(data.phone);
+
+					$('[name="hdnfile"]').val(data.cv);
+
+					const fileName = data.cv; // ini bisa dari PHP atau hasil upload
+				    const fileUrl = baseUrl+"/uploads/documents/" + fileName;
+
+				    // CLEAR link sebelumnya
+					// document.getElementById("file-link").innerHTML = '<i class="fa fa-download"></i>';
+
+				    // const link = document.createElement('a');
+				    // link.href = fileUrl;
+				    // link.textContent = " ";
+				    // link.target = "_blank";
+
+				    // document.getElementById("file-link").appendChild(link);
+
+
+				    const link = document.createElement('a');
+					link.href = fileUrl;
+					link.target = "_blank";
+					link.innerHTML = '<i class="fa fa-download"></i>'; // pakai icon sebagai isi link
+					link.style.textDecoration = "none";
+					link.style.color = "#007bff"; // warna biru (atau sesuaikan)
+
+					document.getElementById("file-link").innerHTML = "";
+					document.getElementById("file-link").appendChild(link);
+
+
+				  	getStep(data.id, save_method);
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -181,6 +213,49 @@ function downloadFile(filename) {
     link.click();
     document.body.removeChild(link);
 }
+
+
+function getStep(id, save_method) {
+
+		$.ajax({
+			type: "POST",
+			url: module_path + '/getDataStep',
+			data: {id: id, save_method: save_method },
+			cache: false,
+			dataType: "JSON",
+			success: function (data) {
+				if (data != null) {
+					if (save_method == 'detail') {
+						$('span#tblstep_detail').html(data.tblstep);
+					} else {
+						$('span#tblstep').html(data.tblstep);
+					}
+
+				} else {
+					if (save_method == 'detail') {
+						$('span#tblstep_detail').html('');
+					} else {
+						$('span#tblstep').html('');
+					}
+				}
+
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
+
+
+	}
 
 
 </script>
