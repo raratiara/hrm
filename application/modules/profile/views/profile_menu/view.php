@@ -255,6 +255,7 @@
                         <div id="birthday-name" class="birthday-name"></div>
                         <div id="birthday-job" class="birthday-job"></div>
                     </div>
+                    <img src=<?php echo _ASSET_BIRTHDAY_PICTURE; ?> alt="Balon" class="birthday-balon" />
                     <!-- <div class="birthday-arrow" id="birthday-arrow">
                         <i class="fa fa-caret-up" onclick="showPrevious()"></i>
                         <i class="fa fa-caret-down" onclick="showNext()"></i>
