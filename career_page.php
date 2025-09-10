@@ -4,26 +4,48 @@
   <meta charset="UTF-8">
   <title>Career - Gerbang Data Indonesia</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                  url('https://hrm.nathabuana.com/public/assets/images/logo/bg_careerpage.jpg') center/cover no-repeat;
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+    .hero h1 {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body class="p-4">
 
-  <h3 class="mb-3">Job Vacancy List</h3>
+  <!-- Hero Section -->
+  <div class="hero">
+    <h1>Join Our Team</h1>
+    <p class="lead">Grow your career with Gerbang Data Indonesia</p>
+  </div>
 
-  <table class="table table-bordered table-striped">
-    <thead class="table-dark">
-      <tr>
-        <th>No</th>
-        <th>Position</th>
-        <th>Job Description</th>
-        <th>Level</th>
-        <th>Division</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="jobTable">
-      <!-- Data akan diisi via JS -->
-    </tbody>
-  </table>
+  <!-- Job Vacancy List -->
+  <div class="container">
+    <h3 class="mb-3">Job Vacancy List</h3>
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>No</th>
+          <th>Position</th>
+          <th>Job Description</th>
+          <th>Level</th>
+          <th>Division</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="jobTable">
+        <!-- Data via JS -->
+      </tbody>
+    </table>
+  </div>
 
   <!-- Modal Apply -->
   <div class="modal fade" id="applyModal" tabindex="-1">
@@ -67,12 +89,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-
     //var url = 'http://localhost/_hrm';
     var url = 'https://hrm.nathabuana.com';
-    // ambil list job dari API
 
-    fetch(""+url+"/api/api/get_career_list", { method: "POST" })
+    // ambil list job dari API
+    fetch(url + "/api/api/get_career_list", { method: "POST" })
       .then(response => response.json())
       .then(result => {
         if (result.status === 200) {
@@ -98,11 +119,8 @@
             `;
             tableBody.innerHTML += row;
           });
-        } else {
-          console.error("API error:", result.message);
         }
-      })
-      .catch(error => console.error("Error fetching data:", error));
+      });
 
     // buka modal apply
     function openApplyModal(jobId, position) {
@@ -114,10 +132,9 @@
     // submit form apply
     document.getElementById("applyForm").addEventListener("submit", function(e) {
       e.preventDefault();
-
       let formData = new FormData(this);
 
-      fetch(""+url+"/api/api/save_candidates", {
+      fetch(url + "/api/api/save_candidates", {
         method: "POST",
         body: formData
       })
@@ -126,14 +143,13 @@
         if (res.status === 200) {
           alert("Apply success!");
           bootstrap.Modal.getInstance(document.getElementById('applyModal')).hide();
-          this.reset(); // kosongkan form setelah sukses
+          this.reset();
         } else {
           alert("Failed: " + res.message);
         }
       })
       .catch(err => console.error("Error submit:", err));
     });
-
   </script>
 </body>
 </html>
