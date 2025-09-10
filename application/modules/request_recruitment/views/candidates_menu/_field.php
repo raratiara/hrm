@@ -54,6 +54,23 @@
 	<span id="tblstep"></span>
 </div>
 
-
+<div class="row">
+	<div class="col-md-6 col-sm-6">
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Join Date</label>
+			<div class="col-md-8">
+				<?=$txtjoindate;?>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-6">
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Contract Sign Date</label>
+			<div class="col-md-8">
+				<?=$txtcontractsigndate;?>
+			</div>
+		</div>
+	</div>
+</div>
 
 								

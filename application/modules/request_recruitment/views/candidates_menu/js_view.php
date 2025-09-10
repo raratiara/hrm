@@ -1,3 +1,6 @@
+
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -11,7 +14,15 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-       
+   		$( "#join_date" ).datepicker({
+        	//startDate: '+1d'
+        });
+
+        $( "#contract_sign_date" ).datepicker({
+        	//startDate: '+1d'
+        });
+
+
 		
    	});
 });
@@ -128,6 +139,14 @@ function load_data()
 					$('[name="name"]').val(data.full_name);
 					$('[name="email"]').val(data.email);
 					$('[name="phone"]').val(data.phone);
+					$('select#status').val(data.status_id).trigger('change.select2');
+					/*$('[name="join_date"]').val(data.join_date);
+					$('[name="contract_sign_date"]').val(data.contract_sign_date);*/
+
+					var join_date = dateFormat(data.join_date);
+					$('[name="join_date"]').datepicker('setDate', join_date);
+					var contract_sign_date = dateFormat(data.contract_sign_date);
+					$('[name="contract_sign_date"]').datepicker('setDate', contract_sign_date);
 
 					$('[name="hdnfile"]').val(data.cv);
 
@@ -163,11 +182,30 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.section').html(data.section_name);
-					$('span.level').html(data.level_name);
-					$('span.year').html(data.year);
-					$('span.headcount').html(data.mpp);
-					$('span.notes').html(data.notes);
+					$('span.position').html(data.position_name);
+					$('span.full_name').html(data.full_name);
+					$('span.phone').html(data.phone);
+					$('span.email').html(data.email);
+					$('span.status').html(data.status_name);
+					$('span.join_date').html(data.join_date);
+					$('span.contract_sign_date').html(data.contract_sign_date);
+
+
+					const fileName = data.cv; // ini bisa dari PHP atau hasil upload
+				    const fileUrl = baseUrl+"/uploads/documents/" + fileName;
+
+				    const link = document.createElement('a');
+					link.href = fileUrl;
+					link.target = "_blank";
+					link.innerHTML = '<i class="fa fa-download"></i>'; // pakai icon sebagai isi link
+					link.style.textDecoration = "none";
+					link.style.color = "#007bff"; // warna biru (atau sesuaikan)
+
+					$('span.file-link-view').html();
+					$('span.file-link-view').html(link);
+
+
+					getStep(data.id, save_method);
 					
 					
 					$('#modal-view-data').modal('show');
@@ -255,6 +293,20 @@ function getStep(id, save_method) {
 		});
 
 
+	}
+
+
+	function dateFormat(tanggal) {
+	    if (!tanggal || tanggal === "0000-00-00") {
+	        return ""; // kosongkan saja, jangan ditampilkan
+	    }
+
+	    let parts = tanggal.split("-");
+	    if (parts.length !== 3) {
+	        return tanggal; // fallback kalau format aneh
+	    }
+
+	    return `${parts[1]}/${parts[2]}/${parts[0]}`;
 	}
 
 

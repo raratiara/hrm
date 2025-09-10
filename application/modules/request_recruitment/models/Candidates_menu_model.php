@@ -8,6 +8,14 @@ class Candidates_menu_model extends MY_Model
 	protected $table_name = _PREFIX_TABLE . "candidates";
 	protected $primary_key = "id";
 
+
+	/* upload */
+ 	protected $attachment_folder	= "./uploads/candidates";
+	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt|apk";
+	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
+
+
+
 	function __construct()
 	{
 		parent::__construct();
@@ -20,6 +28,7 @@ class Candidates_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
+			'dt.candidate_code',
 			'dt.full_name',
 			'dt.position_name',
 			'dt.email',
@@ -173,6 +182,7 @@ class Candidates_menu_model extends MY_Model
 			"aaData" => array()
 		);
 
+		$no=1;
 		foreach ($rResult as $row) {
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1") {
@@ -197,7 +207,8 @@ class Candidates_menu_model extends MY_Model
 					' . $edit . '
 					' . $delete . '
 				</div>',
-				$row->id,
+				$no,
+				$row->candidate_code,
 				$row->full_name,
 				$row->position_name,
 				$row->email,
@@ -206,6 +217,8 @@ class Candidates_menu_model extends MY_Model
 				$row->status_name
 
 			));
+
+			$no++;
 		}
 
 		echo json_encode($output);
@@ -262,52 +275,156 @@ class Candidates_menu_model extends MY_Model
 	}
 
 
-	public function add_data($post)
-	{
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+	// Upload file
+	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+		$data = array();
+		$data['status'] = FALSE; 
+		if(!empty($id) && !empty($fieldname)){ 
+			// handling multiple upload (as array field)
 
-		if (!empty($post['year'])) {
-			$data = [
-				'year' => trim($post['year']),
-				'section_id' => trim($post['section']),
-				'job_level_id' => trim($post['joblevel']),
-				'mpp' => trim($post['headcount']),
-				/*'completed' 	=> '',*/
-				'notes' => trim($post['notes']),
-				'created_at' => date("Y-m-d H:i:s"),
-				'created_by' => $karyawan_id
-			];
-			$rs = $this->db->insert($this->table_name, $data);
+			if($array){ 
+				// Define new $_FILES array - $_FILES['file']
+				$_FILES['file']['name'] = $_FILES[$fieldname]['name'];
+				$_FILES['file']['type'] = $_FILES[$fieldname]['type'];
+				$_FILES['file']['tmp_name'] = $_FILES[$fieldname]['tmp_name'];
+				$_FILES['file']['error'] = $_FILES[$fieldname]['error'];
+				$_FILES['file']['size'] = $_FILES[$fieldname]['size']; 
+				// override field
+				//$fieldname = 'document';
 
-			return $rs;
+			} 
+			// handling regular upload (as one field)
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			{ 
+				/*$dir = $this->attachment_folder.'/'.$id;
+				if(!is_dir($dir)) {
+					mkdir($dir);
+				}
+				if($replace){
+					$this->remove_file($id, $oldfilename);
+				}*/
+				$config['upload_path']   = $this->attachment_folder;
+				$config['allowed_types'] = $this->allow_type;
+				$config['max_size'] 	 = $this->allow_size;
+				
+				$this->load->library('upload', $config); 
+				
+				if(!$this->upload->do_upload($fieldname)){ 
+					$err_msg = $this->upload->display_errors(); 
+					$data['error_warning'] = strip_tags($err_msg);				
+					$data['status'] = FALSE;
+				} else { 
+					$fileData = $this->upload->data();
+					$data['upload_file'] = $fileData['file_name'];
+					$data['status'] = TRUE;
+				}
+			}
+		}
 
-		} else
-			return null;
-
-
+		
+		
+		return $data;
 	}
+
+
+	// public function add_data($post)
+	// {
+	// 	$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+	// 	$karyawan_id = $getdata[0]->id_karyawan;
+
+	// 	if (!empty($post['year'])) {
+	// 		$data = [
+	// 			'year' => trim($post['year']),
+	// 			'section_id' => trim($post['section']),
+	// 			'job_level_id' => trim($post['joblevel']),
+	// 			'mpp' => trim($post['headcount']),
+	// 			/*'completed' 	=> '',*/
+	// 			'notes' => trim($post['notes']),
+	// 			'created_at' => date("Y-m-d H:i:s"),
+	// 			'created_by' => $karyawan_id
+	// 		];
+	// 		$rs = $this->db->insert($this->table_name, $data);
+
+	// 		return $rs;
+
+	// 	} else
+	// 		return null;
+
+
+	// }
 
 	public function edit_data($post)
 	{
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
-
-
+		$join_date = trim($post['join_date']);
+		$contract_sign_date = trim($post['contract_sign_date']);
+		
 		if (!empty($post['id'])) {
 
 			$data = [
-				'year' => trim($post['year']),
-				'section_id' => trim($post['section']),
-				'job_level_id' => trim($post['joblevel']),
-				'mpp' => trim($post['headcount']),
-				/*'completed' 	=> '',*/
-				'notes' => trim($post['notes']),
-				'updated_at' => date("Y-m-d H:i:s"),
-				'updated_by' => $karyawan_id
+				'status_id' 	=> trim($post['status']),
+				'join_date' 	=> date('Y-m-d', strtotime($join_date)),
+				'contract_sign_date' => date('Y-m-d', strtotime($contract_sign_date)),
+				'updated_date' 	=> date("Y-m-d H:i:s")
 			];
 
-			return $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+
+			//step
+			if (isset($post['step_id'])) {
+				$item_num2 = count($post['step_id']); // cek sum
+				$item_len_min2 = min(array_keys($post['step_id'])); // cek min key index
+				$item_len2 = max(array_keys($post['step_id'])); // cek max key index
+			} else {
+				$item_num2 = 0;
+			}
+
+			if ($item_num2 > 0) {
+				for ($i = $item_len_min2; $i <= $item_len2; $i++) {
+					$candidates_step_id = $post['candidates_step_id'][$i];
+					if (isset($post['step_id'][$i])) {
+
+						/// add file
+						$hdndocument = trim($post['hdndocument'.$i]);
+						$document = '';
+						$upload_emp_photo = $this->upload_file('1', 'document'.$i.'', FALSE, '', TRUE, $i);
+						if($upload_emp_photo['status']){ 
+							$document = $upload_emp_photo['upload_file'];
+						} else if(isset($upload_emp_photo['error_warning'])){ 
+							echo $upload_emp_photo['error_warning']; exit;
+						}
+
+						if($document == '' && $hdndocument != ''){
+							$document = $hdndocument;
+						}
+						/// end add file
+
+						if ($candidates_step_id != '') { //update
+							$itemData2 = [
+								'date' 		=> trim($post['date'][$i]),
+								'doc' 		=> $document,
+								'notes' 	=> trim($post['notes'][$i]),
+								'status_id' => trim($post['status_step'][$i])
+							];
+
+							$this->db->update('candidates_step', $itemData2, "id = '" . $candidates_step_id . "'");
+						} else { //insert
+							$itemData2 = [
+								'candidates_id' => $post['id'],
+								'date' 		=> trim($post['date'][$i]),
+								'doc' 		=> $document,
+								'notes' 	=> trim($post['notes'][$i]),
+								'status_id' => trim($post['status_step'][$i])
+							];
+
+							$this->db->insert('candidates_step', $itemData2);
+						}
+					}
+				}
+			}
+
+			return $rs;
+
 		} else
 			return null;
 	}
@@ -354,10 +471,10 @@ class Candidates_menu_model extends MY_Model
 	{
 
 
-		$sql = 'select a.*, b.name as section_name, c.name as level_name, a.headcount_id as id 
-					from mpp a left join sections b on b.id = a.section_id
-					left join master_job_level c on c.id = a.job_level_id
-	   			ORDER BY a.headcount_id ASC
+		$sql = 'select a.*, b.subject as position_name, c.name as status_name 
+						from candidates a left join request_recruitment b on b.id = a.request_recruitment_id
+						left join master_status_candidates c on c.id = a.status_id
+	   			ORDER BY a.id ASC
 		';
 
 		$res = $this->db->query($sql);
@@ -370,60 +487,65 @@ class Candidates_menu_model extends MY_Model
 	{
 
 		if ($save_method == 'detail') { //VIEW
-			$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '" . $id . "' ")->result();
+			$datastep = $this->db->query("select a.*, b.name as step_name, b.id as step_id, c.name as status_name
+								from candidates_step a 
+								left join master_step_recruitment b on b.id = a.step_recruitment_id
+								left join master_status_candidates c on c.id = a.status_id
+								where a.candidates_id = '" . $id . "' ")->result();
 
 			$dt = '';
-			$ttl = 0;
-			if (!empty($datasoftskill)) {
+			if (!empty($datastep)) {
 				$row = 0;
-
-				foreach ($datasoftskill as $f) {
-					$no = $row + 1;
-
+				$no = 1;
+				foreach ($datastep as $f) {
+					$viewdoc = '';
+					if($f->doc != ''){
+						$viewdoc = '<a href="'.base_url().'uploads/candidates/'.$f->doc.'" target="_blank">View</a>';
+					}
+					$date = $f->date;
+					if($f->date == '0000-00-00'){
+						$date = '';
+					}
+				
 					$dt .= '<tr>';
 
 					$dt .= '<td>' . $no . '</td>';
-					$dt .= '<td>' . $f->name . '</td>';
-					$dt .= '<td>' . $f->weight_percentage . '</td>';
-					$dt .= '<td>' . $f->score_emp . '</td>';
-					$dt .= '<td>' . $f->score_direct . '</td>';
+					$dt .= '<td>' . $f->step_name . '</td>';
+					$dt .= '<td>' . $date . '</td>';
+					$dt .= '<td>' . $viewdoc . '</td>';
 					$dt .= '<td>' . $f->notes . '</td>';
-					$dt .= '<td>' . $f->final_score . '</td>';
+					$dt .= '<td>' . $f->status_name . '</td>';
 
 					$dt .= '</tr>';
 
-					$ttl += $f->final_score;
-					$row++;
+				
+					$row++; $no++;
 				}
 			}
 
-			$tblsoftskill = '<div class="row">
+			$tblstep = '<div class="row">
 			    <div class="col-md-12">
 					<div class="portlet box grey">
 						<div class="portlet-title">
-							<div class="caption">Softskill </div>
+							<div class="caption">Step Detail </div>
 							<div class="tools">
 								
 							</div>
 						</div> 
 						<div class="portlet-body"> 
-							<span style="color:red">
-							Keterangan Nilai:
-							1 = Sangat Kurang, 2 = Kurang, 3 = Cukup, 4 = Baik, 5 = Sangat Baik
-							</span>
+							
 							<div class="table-scrollable tablesaw-cont">
 							
-							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSoftskill">
+							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailStep">
 							
 								<thead>
 									<tr>
 										<th scope="col">No</th>
-										<th scope="col">Name</th>
-										<th scope="col">Weight (%)</th>
-										<th scope="col" style="width:7%">Score (1-5)</th>
-										<th scope="col" style="width:7%">Score by Direct (1-5)</th>
-										<th scope="col">Notes by Direct</th>
-										<th scope="col">Final Score</th>
+										<th scope="col">Step</th>
+										<th scope="col">Date</th>
+										<th scope="col" style="width:12%">Document</th>
+										<th scope="col">Notes</th>
+										<th scope="col">Status</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -433,21 +555,7 @@ class Candidates_menu_model extends MY_Model
 								</tfoot>
 							</table>
 
-							<table class="table table-striped table-bordered table-hover tablesaw tablesaw-stack" data-tablesaw-mode="stack" >
 							
-								<thead>
-									
-								</thead>
-								<tbody>
-									<tr>
-										<td style="width:896px; text-align: right;"><b>Total Final Score</b></td>
-										<td><b><span id="total_final_score_softskill">' . $ttl . '</span></b></td>
-									</tr>
-								</tbody>
-								<tfoot>
-								</tfoot>
-							</table>
-
 							</div>
 						</div>
 					</div>
@@ -455,14 +563,14 @@ class Candidates_menu_model extends MY_Model
 			</div>';
 
 
-			$data['tblsoftskill'] = $tblsoftskill;
+			$data['tblstep'] = $tblstep;
 
 
 			return $data;
 
 		} else { // ADD OR UPDATE
 
-			$datastep = $this->db->query("select a.*, b.name as step_name from candidates_step a 
+			$datastep = $this->db->query("select a.*, b.name as step_name, b.id as step_id from candidates_step a 
 								left join master_step_recruitment b on b.id = a.step_recruitment_id
 								where a.candidates_id = '" . $id . "' ")->result();
 
@@ -474,12 +582,10 @@ class Candidates_menu_model extends MY_Model
 				
 				$msStatus = $this->db->query("select * from master_status_candidates where id in ('2','5')")->result(); 
 				foreach ($datastep as $f) {
-					$viewdoc = '';
-					if($f->doc != ''){
-						$viewdoc = '<a href="'.base_url().'uploads/candidates/'.$f->doc.'" target="_blank">View</a>';
-					}
+					
 					if($f->step_recruitment_id == 4){ //psikotes
-						$docc = '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value="'.$f->doc.'"/></td>';
+						$docc = '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndocument'.$row.'" name="hdndocument'.$row.'" value="'.$f->doc.'"/></td>';
+						
 					}else{
 						$docc='<td></td>';
 					}
@@ -488,10 +594,13 @@ class Candidates_menu_model extends MY_Model
 
 					$dt .= '<tr>';
 
-					$dt .= '<td>' . $no . '</td>';
+					$dt .= '<td>' . $no . '<input type="hidden" name="candidates_step_id[' . $row . ']" value="'.$f->id.'"/><input type="hidden" name="step_id[' . $row . ']" value="'.$f->step_id.'"/></td>';
 					$dt .= '<td>' . $f->step_name . '</td>';
 
-					$dt .= '<td>' . $this->return_build_txt($f->date, 'date[' . $row . ']', '', 'date', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
+					/*$dt .= '<td>' . $this->return_build_txt($f->date, 'date[' . $row . ']', 'date', 'date', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';*/
+
+					$dt .= '<td><input type="date" class="form-control" name="date[' . $row . ']" value="'.$f->date.'" data-id="' . $row . '" /></td>';
+
 
 					/*$dt .= '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').$viewdoc.' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value="'.$f->doc.'"/></td>';*/
 
@@ -499,7 +608,7 @@ class Candidates_menu_model extends MY_Model
 
 					$dt .= '<td>' . $this->return_build_txtarea($f->notes, 'notes[' . $row . ']', '', 'notes', 'text-align: right;', 'data-id="' . $row . '"  ') . '</td>';
 
-					$dt .= '<td>'.$this->return_build_chosenme($msStatus,'',isset($f->status_id)?$f->status_id:1,'','status['.$row.']','status','status','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_chosenme($msStatus,'',isset($f->status_id)?$f->status_id:1,'','status_step['.$row.']','status_step','status_step','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 					
 
 					$dt .= '</tr>';
@@ -518,7 +627,7 @@ class Candidates_menu_model extends MY_Model
 					foreach ($rs as $f) {
 						$msStatus = $this->db->query("select * from master_status_candidates where id in ('2','5')")->result(); 
 						if($f->id == 4){ //psikotes
-							$docc = '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value=""/></td>';
+							$docc = '<td>'.$this->return_build_fileinput('document'.$row.'','','','document','text-align: right;','data-id="'.$row.'" ').' <input type="hidden" id="hdndocument'.$row.'" name="hdndocument'.$row.'" value=""/></td>';
 						}else{
 							$docc='<td></td>';
 						}
@@ -527,18 +636,19 @@ class Candidates_menu_model extends MY_Model
 
 						$dt .= '<tr>';
 
-						$dt .= '<td>' . $no . '</td>';
+						$dt .= '<td>' . $no . '<input type="hidden" name="candidates_step_id[' . $row . ']" /><input type="hidden" name="step_id[' . $row . ']" value="'.$f->id.'"/></td>';
 						$dt .= '<td>' . $f->name . '</td>';
 						
 
-						$dt .= '<td>' . $this->return_build_txt('', 'date[' . $row . ']', '', 'date', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
+						/*$dt .= '<td>' . $this->return_build_txt('', 'date[' . $row . ']', '', 'date', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';*/
+						$dt .= '<td><input type="date" class="form-control" name="date[' . $row . ']" value="" data-id="' . $row . '"></></td>';
 
 						/*$dt .= '<td>'.$this->return_build_fileinput('doc'.$row.'','','','doc','text-align: right;','data-id="'.$row.'" ').' <input type="hidden" id="hdndoc'.$row.'" name="hdndoc'.$row.'" value=""/></td>';*/
 						$dt .= $docc;
 
 						$dt .= '<td>' . $this->return_build_txtarea('', 'notes[' . $row . ']', '', 'notes', 'text-align: right;', 'data-id="' . $row . '"  ') . '</td>';
 
-						$dt .= '<td>'.$this->return_build_chosenme($msStatus,'','','','status['.$row.']','status','status','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+						$dt .= '<td>'.$this->return_build_chosenme($msStatus,'','','','status_step['.$row.']','status_step','status_step','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 
 						$dt .= '</tr>';
 

@@ -3026,4 +3026,138 @@ class Api extends API_Controller
 
 
 
+    public function get_career_list()
+    { 
+    	//$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+
+    	$datacareer = $this->db->query("select a.*, c.name as divname, d.name as job_level_name
+						from request_recruitment a left join sections b on b.id = a.section_id
+						left join divisions c on c.id = b.division_id
+						left join master_job_level d on d.id = a.job_level_id
+						where status = 'approved' ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datacareer
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    // Get next number 
+	public function genCandidateCode() { 
+		
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+
+		$lettercode = ('CND'); 
+
+
+		$cek = $this->db->query("select * from candidates where SUBSTRING(candidate_code, 4, 4) = '".$period."'");
+		$rs_cek = $cek->result_array();
+
+		if(empty($rs_cek)){ 
+			$num = '0001';
+		}else{ 
+			$cek2 = $this->db->query("select max(candidate_code) as maxnum from candidates where SUBSTRING(candidate_code, 4, 4) = '".$period."'");
+			$rs_cek2 = $cek2->result_array();
+			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,7); 
+			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
+			
+		}
+
+		
+		$nextnum = $lettercode.$period.$num;
+
+		return $nextnum;
+		
+	} 
+
+
+    public function save_candidates() {  
+        header('Content-Type: application/json');
+
+        $job_id     = $this->input->post('job_id');
+        $full_name  = $this->input->post('full_name');
+        $email      = $this->input->post('email');
+        $phone      = $this->input->post('phone');
+
+        $candidate_code = $this->genCandidateCode();
+
+        ///bikin folder candidates
+        $upload_dir = './uploads/candidates/'.$candidate_code.'/'; // nama folder
+		// Cek apakah folder sudah ada
+		if (!is_dir($upload_dir)) {
+		    // Jika belum ada, buat folder
+		    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+		}
+
+        // Upload CV
+        $config['upload_path']   = './uploads/candidates/'.$candidate_code.'';
+        $config['allowed_types'] = 'pdf|doc|docx';
+        //$config['max_size']      = 2048; //2 MB
+        $config['max_size'] = 5120; // 5 MB
+
+        $this->load->library('upload', $config);
+
+        $cv_file = "";
+        if ($this->upload->do_upload('cv')) {
+            $cv_file = $this->upload->data('file_name');
+        } else {
+            echo json_encode([
+                "status" => 400,
+                "message" => $this->upload->display_errors()
+            ]);
+            return;
+        }
+
+        
+        // Simpan ke DB
+        $data = [
+            'request_recruitment_id'=> $job_id,
+            'candidate_code'   		=> $candidate_code,
+            'full_name'  			=> $full_name,
+            'email'      			=> $email,
+            'phone' 				=> $phone,
+           	'cv'    				=> $cv_file,
+            'created_date' 			=> date('Y-m-d H:i:s')
+        ];
+
+        
+        $rs = $this->db->insert("candidates", $data);
+
+
+        if($rs){
+        	echo json_encode([
+	            "status"  => 200,
+	            "message" => "Application submitted successfully",
+	            "data"    => $data
+	        ]);
+        }else{
+        	echo json_encode([
+	            "status"  => 401,
+	            "message" => "Application submitted failed"
+	        ]);
+        }
+
+        
+    }
+
+
+
 }

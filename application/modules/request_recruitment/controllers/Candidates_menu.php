@@ -15,12 +15,12 @@ class Candidates_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Name","Position","Email","Phone","CV","Status"];
+	public $tabel_header 			= ["No","Code","Name","Position","Email","Phone","CV","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Year","Section","Level","Headcount"];
-	public $colfields 				= ["id","year","section_name","level_name","mpp"];
+	public $colnames 				= ["Code","Name","Position","Email","Phone","Status"];
+	public $colfields 				= ["candidate_code","full_name","position_name","email","phone","status_name"];
 
 
 	/* Form Field Asset */
@@ -35,8 +35,11 @@ class Candidates_menu extends MY_Controller
 		$field['txtemail']		= $this->self_model->return_build_txt('','email','email','','','readonly');
 		$field['txtphone']		= $this->self_model->return_build_txt('','phone','phone','','','readonly');
 		$field['txtcv'] 		= $this->self_model->return_build_fileinput('cv','cv');
+		$field['txtjoindate']			= $this->self_model->return_build_txt('','join_date','join_date');
+		$field['txtcontractsigndate']	= $this->self_model->return_build_txt('','contract_sign_date','contract_sign_date');
 		
-		$msstatus 				= $this->db->query("select * from master_status_candidates order by id asc")->result(); 
+		
+		$msstatus 				= $this->db->query("select * from master_status_candidates where id != 5 order by id asc")->result(); 
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',1,'-');
 
 
