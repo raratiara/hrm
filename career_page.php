@@ -5,9 +5,12 @@
   <title>Career - Gerbang Data Indonesia</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .hero {
+    /*.hero {
       background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-                  url('https://hrm.nathabuana.com/public/assets/images/logo/bg_careerpage.jpg') center/cover no-repeat;
+                  url('https://hrm.nathabuana.com/public/assets/images/logo/bg_careerpage.jpg') center/cover no-repeat;*/
+      .hero {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                  url('http://localhost/_hrm/public/assets/images/logo/bg_careerpage.jpg') center/cover no-repeat;
       color: white;
       padding: 80px 20px;
       text-align: center;
@@ -89,8 +92,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    //var url = 'http://localhost/_hrm';
-    var url = 'https://hrm.nathabuana.com';
+    var url = 'http://localhost/_hrm';
+    //var url = 'https://hrm.nathabuana.com';
 
     // ambil list job dari API
     fetch(url + "/api/api/get_career_list", { method: "POST" })

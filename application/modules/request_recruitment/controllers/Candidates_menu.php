@@ -37,6 +37,8 @@ class Candidates_menu extends MY_Controller
 		$field['txtcv'] 		= $this->self_model->return_build_fileinput('cv','cv');
 		$field['txtjoindate']			= $this->self_model->return_build_txt('','join_date','join_date');
 		$field['txtcontractsigndate']	= $this->self_model->return_build_txt('','contract_sign_date','contract_sign_date');
+		$field['txtendprobdate']		= $this->self_model->return_build_txt('','end_prob_date','end_prob_date');
+
 		
 		
 		$msstatus 				= $this->db->query("select * from master_status_candidates where id != 5 order by id asc")->result(); 
