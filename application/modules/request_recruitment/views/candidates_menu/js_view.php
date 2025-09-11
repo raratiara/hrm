@@ -147,6 +147,8 @@ function load_data()
 					$('[name="join_date"]').datepicker('setDate', join_date);
 					var contract_sign_date = dateFormat(data.contract_sign_date);
 					$('[name="contract_sign_date"]').datepicker('setDate', contract_sign_date);
+					var end_prob_date = dateFormat(data.end_prob_date);
+					$('[name="end_prob_date"]').datepicker('setDate', end_prob_date);
 
 					$('[name="hdnfile"]').val(data.cv);
 
@@ -189,6 +191,7 @@ function load_data()
 					$('span.status').html(data.status_name);
 					$('span.join_date').html(data.join_date);
 					$('span.contract_sign_date').html(data.contract_sign_date);
+					$('span.end_prob_date').html(data.end_prob_date);
 
 
 					const fileName = data.cv; // ini bisa dari PHP atau hasil upload

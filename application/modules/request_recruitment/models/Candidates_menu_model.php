@@ -355,16 +355,18 @@ class Candidates_menu_model extends MY_Model
 
 	public function edit_data($post)
 	{
-		$join_date = trim($post['join_date']);
+		$join_date 			= trim($post['join_date']);
 		$contract_sign_date = trim($post['contract_sign_date']);
+		$end_prob_date 		= trim($post['end_prob_date']);
 		
 		if (!empty($post['id'])) {
 
 			$data = [
-				'status_id' 	=> trim($post['status']),
-				'join_date' 	=> date('Y-m-d', strtotime($join_date)),
-				'contract_sign_date' => date('Y-m-d', strtotime($contract_sign_date)),
-				'updated_date' 	=> date("Y-m-d H:i:s")
+				'status_id' 			=> trim($post['status']),
+				'join_date' 			=> date('Y-m-d', strtotime($join_date)),
+				'contract_sign_date' 	=> date('Y-m-d', strtotime($contract_sign_date)),
+				'end_prob_date' 		=> date('Y-m-d', strtotime($end_prob_date)),
+				'updated_date' 			=> date("Y-m-d H:i:s")
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
