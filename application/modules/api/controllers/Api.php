@@ -3036,11 +3036,14 @@ class Api extends API_Controller
     	$_REQUEST = $data;
 
 
-    	$datacareer = $this->db->query("select a.*, c.name as divname, d.name as job_level_name
+    	$datacareer = $this->db->query("select a.*, c.name as divname, d.name as job_level_name,
+    					(select GROUP_CONCAT(CONCAT(responsibility)  ORDER BY priority_level ASC SEPARATOR '|') from recruitment_job_descriptions where request_recruitment_id = a.id) as job_descriptions,
+						(select GROUP_CONCAT(CONCAT(requirement_type, ':', requirement_text) SEPARATOR '|') from recruitment_requirements where request_recruitment_id = a.id) as requirements
 						from request_recruitment a left join sections b on b.id = a.section_id
 						left join divisions c on c.id = b.division_id
 						left join master_job_level d on d.id = a.job_level_id
 						where status = 'approved' ")->result();  
+    	
 
     	$response = [
     		'status' 	=> 200,
