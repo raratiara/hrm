@@ -119,8 +119,8 @@ jQuery(function($) {
 function load_data()
 {
 	var getUrl = window.location;
-	/*local=>*/ var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-	//var baseUrl = getUrl .protocol + "//" + getUrl.host;
+	/*local=>*/ //var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+	var baseUrl = getUrl .protocol + "//" + getUrl.host;
 
 
     $.ajax({
@@ -153,7 +153,7 @@ function load_data()
 					$('[name="hdnfile"]').val(data.cv);
 
 					const fileName = data.cv; // ini bisa dari PHP atau hasil upload
-				    const fileUrl = baseUrl+"/uploads/documents/" + fileName;
+				    const fileUrl = baseUrl+"/uploads/candidates/"+data.candidate_code+"/" + fileName;
 
 				    // CLEAR link sebelumnya
 					// document.getElementById("file-link").innerHTML = '<i class="fa fa-download"></i>';
@@ -195,7 +195,7 @@ function load_data()
 
 
 					const fileName = data.cv; // ini bisa dari PHP atau hasil upload
-				    const fileUrl = baseUrl+"/uploads/documents/" + fileName;
+				    const fileUrl = baseUrl+"/uploads/candidates/"+data.candidate_code+"/" + fileName;
 
 				    const link = document.createElement('a');
 					link.href = fileUrl;
