@@ -182,7 +182,7 @@ class Api_model extends MY_Model
        
         $host   = "localhost";
         $dbname = "hrm";
-        $user   = "hrm";
+        $user   = "root";
         $pass   = "HRM_NBID@2025!";
         
 
