@@ -7,6 +7,15 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 
+<!-- Tambahin CSS & JS markercluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+
+
+
+
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"> -->
 
 
@@ -61,9 +70,299 @@ function initMap() {
 }
 
 
+function isOverlapping(rect1, rect2) {
+  return !(
+    rect1.right < rect2.left ||
+    rect1.left > rect2.right ||
+    rect1.bottom < rect2.top ||
+    rect1.top > rect2.bottom
+  );
+}
+
+function adjustTooltipPosition(el) {
+  let moved = false;
+  const maxTries = 10; // biar ga infinite loop
+  let tries = 0;
+
+  while (tries < maxTries) {
+    let collided = false;
+    const rect = el.getBoundingClientRect();
+
+    document.querySelectorAll('.tooltip-nama').forEach(other => {
+      if (other === el) return;
+      const otherRect = other.getBoundingClientRect();
+      if (isOverlapping(rect, otherRect)) {
+        // geser ke bawah 20px kalau tabrakan
+        const currentMargin = parseInt(el.style.marginTop || "0", 10);
+        el.style.marginTop = (currentMargin + 20) + "px";
+        collided = true;
+        moved = true;
+      }
+    });
+
+    if (!collided) break; // sudah aman
+    tries++;
+  }
+
+  return moved;
+}
 
 
-function getMaps(empid = '',period='') {
+
+
+// Buat clusterGroup di luar ajax
+var markersCluster = L.markerClusterGroup();
+
+function getMaps(empid = '', period = '') {
+  $.ajax({
+    type: "POST",
+    url: module_path + '/get_maps',
+    data: { empid: empid, period: period },
+    cache: false,
+    dataType: "JSON",
+    success: function (data) {
+      if (data !== false) {
+        markersCluster.clearLayers(); // hapus cluster lama
+
+        // kelompokkan data berdasarkan koordinat
+        let coordMap = {};
+        data.forEach(titik => {
+          const key = `${titik.lat},${titik.lng}`;
+          if (!coordMap[key]) coordMap[key] = [];
+          coordMap[key].push(titik);
+        });
+
+        const directions = ['top', 'right', 'bottom', 'left']; // arah tooltip bergantian
+
+        Object.keys(coordMap).forEach(key => {
+          const group = coordMap[key];
+          const lat = parseFloat(group[0].lat);
+          const lng = parseFloat(group[0].lng);
+
+          group.forEach((titik, index) => {
+            // pilih arah bergantian
+            const dir = directions[index % directions.length];
+
+            // offset bertingkat per marker
+            let offset;
+            switch(dir) {
+              case 'top':
+                offset = L.point(0, -30 * Math.floor(index / directions.length) - 20);
+                break;
+              case 'bottom':
+                offset = L.point(0, 30 * Math.floor(index / directions.length) + 20);
+                break;
+              case 'right':
+                offset = L.point(60 * Math.floor(index / directions.length) + 20, 0);
+                break;
+              case 'left':
+                offset = L.point(-60 * Math.floor(index / directions.length) - 20, 0);
+                break;
+            }
+
+            // === Tambahin jitter acak biar makin jarang nabrak ===
+            const jitterX = (Math.random() - 0.5) * 15; // -7.5 s/d +7.5
+            const jitterY = (Math.random() - 0.5) * 15;
+            offset = offset.add(L.point(jitterX, jitterY));
+
+            const marker = L.marker([lat, lng])
+            .bindTooltip(titik.nama, {
+              permanent: true,
+              direction: dir,
+              offset: offset,
+              className: 'tooltip-nama',
+              interactive: true // penting biar tooltip bisa diklik
+            })
+            .bindPopup(
+              "<strong>" + titik.nama + "</strong><br>" +
+              "<b>Date:</b> " + titik.date_attendance + "<br>" +
+              "<b>Location:</b> " + titik.work_location
+            );
+              
+
+            markersCluster.addLayer(marker);
+
+            // rapihin posisi tooltip setelah marker ditambah
+            marker.on('add', function () {
+              setTimeout(() => {
+                const tooltip = marker.getTooltip();
+                if (!tooltip) return;
+                const el = tooltip.getElement();
+                if (!el) return;
+                adjustTooltipPosition(el);
+              }, 100);
+            });
+
+            // klik tooltip juga buka popup
+            marker.on("tooltipclick", function () {
+              marker.openPopup();
+            });
+          });
+        });
+
+        map.addLayer(markersCluster);
+      }
+    }
+  });
+}
+
+
+
+// function getMaps_old3(empid = '', period = '') {
+//   $.ajax({
+//     type: "POST",
+//     url: module_path + '/get_maps',
+//     data: { empid: empid, period: period },
+//     cache: false,
+//     dataType: "JSON",
+//     success: function (data) {
+//       if (data !== false) {
+//         markersCluster.clearLayers(); // hapus cluster lama
+
+//         // kelompokkan data berdasarkan koordinat
+//         let coordMap = {};
+//         data.forEach(titik => {
+//           const key = `${titik.lat},${titik.lng}`;
+//           if (!coordMap[key]) coordMap[key] = [];
+//           coordMap[key].push(titik);
+//         });
+
+//         const directions = ['top', 'right', 'bottom', 'left']; // arah tooltip bergantian
+
+//         Object.keys(coordMap).forEach(key => {
+//           const group = coordMap[key];
+//           const lat = parseFloat(group[0].lat);
+//           const lng = parseFloat(group[0].lng);
+
+//           group.forEach((titik, index) => {
+//             // pilih arah bergantian
+//             const dir = directions[index % directions.length];
+
+//             // offset bertingkat per marker
+//             let offset;
+//             switch(dir) {
+//               case 'top':
+//                 offset = L.point(0, -30 * Math.floor(index / directions.length) - 20);
+//                 break;
+//               case 'bottom':
+//                 offset = L.point(0, 30 * Math.floor(index / directions.length) + 20);
+//                 break;
+//               case 'right':
+//                 offset = L.point(60 * Math.floor(index / directions.length) + 20, 0);
+//                 break;
+//               case 'left':
+//                 offset = L.point(-60 * Math.floor(index / directions.length) - 20, 0);
+//                 break;
+//             }
+//             // === Tambahin jitter acak biar makin jarang nabrak ===
+//             const jitterX = (Math.random() - 0.5) * 15; // -7.5 s/d +7.5
+//             const jitterY = (Math.random() - 0.5) * 15;
+//             offset = offset.add(L.point(jitterX, jitterY));
+
+//             const marker = L.marker([lat, lng])
+//               .bindTooltip(titik.nama, {
+//                 permanent: true,
+//                 direction: dir,
+//                 offset: offset,
+//                 className: 'tooltip-nama',
+//                 interactive: true
+//               })
+//               .bindPopup(
+//                 "<strong>" + titik.nama + "</strong><br>" +
+//                 "<b>Tanggal:</b> " + titik.date_attendance + "<br>" +
+//                 "<b>Lokasi:</b> " + titik.work_location
+//               );
+
+//             markersCluster.addLayer(marker);
+
+//             /*marker.on('add', function () {
+//               setTimeout(() => {
+//                 const el = marker.getTooltip().getElement();
+//                 if (!el) return;
+//                 adjustTooltipPosition(el);
+//               }, 100);
+//             });*/
+
+//             marker.on('add', function () {
+//               setTimeout(() => {
+//                 const tooltip = marker.getTooltip();
+//                 if (!tooltip) return;
+
+//                 const el = tooltip.getElement();
+//                 if (!el) return;
+
+//                 // atur posisi biar gak nabrak
+//                 adjustTooltipPosition(el);
+
+//                 // tambahin event klik di tooltip
+//                 el.style.cursor = "pointer"; // biar kelihatan bisa di-klik
+//                 el.addEventListener("click", function () {
+//                   marker.openPopup();
+//                 });
+//               }, 100);
+//             });
+
+//             marker.on("tooltipclick", function () {
+//               marker.openPopup();
+//             });
+
+
+//           });
+//         });
+
+//         map.addLayer(markersCluster);
+//       }
+//     }
+//   });
+// }
+
+
+function getMaps_old2(empid = '',period='') {
+  $.ajax({
+    type: "POST",
+    url: module_path + '/get_maps',
+    data: { empid: empid, period: period },
+    cache: false,
+    dataType: "JSON",
+    success: function (data) {
+      if (data !== false) {
+        markersCluster.clearLayers(); // hapus cluster lama
+
+        data.forEach(function (titik,i) {
+          var marker = L.marker([titik.lat, titik.lng])
+            .bindPopup(
+              "<div>" +
+                "<strong>" + titik.nama + "</strong><br>" +
+                "<b>Tanggal:</b> " + titik.date_attendance + "<br>" +
+               /* "<b>Lokasi:</b> " + titik.lat + ", " + titik.lng +*/
+                 "<b>Lokasi:</b> " + titik.work_location +
+              "</div>"
+            )
+            //.bindTooltip(titik.nama, { permanent: true, direction: "top" });
+            .bindTooltip(titik.nama, { 
+				      permanent: true,
+				      direction: i % 2 === 0 ? "left" : "right",  // ganti arah kiri/kanan biar gak tabrakan
+				      offset: L.point(0, -15 * (i % 5))           // geser tiap tooltip biar tidak numpuk
+				    });
+
+          markersCluster.addLayer(marker);
+        });
+
+
+        map.addLayer(markersCluster);
+
+      } else {
+        bootbox.dialog({
+          message: '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>' +
+                   '<center><p>Gagal peroleh data.</p><br/><button class="btn blue" data-dismiss="modal">OK</button></center>'
+        });
+      }
+    }
+  });
+}
+
+
+function getMaps_old(empid = '',period='') {
   $.ajax({
     type: "POST",
     url: module_path + '/get_maps',
@@ -125,83 +424,6 @@ function getMaps(empid = '',period='') {
 }
 
 
-
-function getMaps_old(empid=''){
-
-
-	$.ajax({
-		type: "POST",
-        url : module_path+'/get_maps',
-		data: {empid: empid },
-		cache: false,		
-        dataType: "JSON",
-        success: function(data)
-        { 
-		if(data != false){ 
-
-			console.log(data);
-
-
-			var container = L.DomUtil.get('map');
-	      	if(container != null){
-		        container._leaflet_id = null;
-	      	}
-			
-			// Inisialisasi peta
-			  var map = L.map('map').setView([-6.224598, 106.992416], 13); // titik awal (latitude, longitude, zoom)
-
-			  // Tambahkan tile layer (peta dasar)
-			  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			    attribution: '&copy; OpenStreetMap contributors'
-			  }).addTo(map);
-
-			  // Contoh array titik koordinat
-			  /*var titikKoordinat = [
-			    { nama: "Summarecon Mall Bekasi", lat: -6.224598, lng: 106.992416 },
-			    { nama: "Pakuwon Mall Bekasi", lat: -6.25608, lng: 106.9894 },
-			    { nama: "Contoh Lokasi Lain", lat: -6.2400, lng: 106.9800 }
-			  ];*/
-			  var titikKoordinat = data;
-
-			  // Tambahkan marker untuk setiap titik
-			  titikKoordinat.forEach(function(titik) {
-			    L.marker([titik.lat, titik.lng])
-			      .addTo(map)
-			      .bindPopup("<b>" + titik.nama + "</b>")
-			      .openPopup();
-			  });
-			
-		} else {
-			title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
-			btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
-			msg = '<p>Gagal peroleh data.</p>';
-			var dialog = bootbox.dialog({
-				message: title+'<center>'+msg+btn+'</center>'
-			});
-			if(response.status){
-				setTimeout(function(){
-					dialog.modal('hide');
-				}, 1500);
-			}
-		}
-        },
-        error: function (jqXHR, textStatus, errorThrown)
-        {
-			var dialog = bootbox.dialog({
-				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-				message: jqXHR.responseText,
-				buttons: {
-					confirm: {
-						label: 'Ok',
-						className: 'btn blue'
-					}
-				}
-			});
-        }
-    });
-
-
-}
 
 function updateSelectBoxHeight() {
     const selectedCount = $('#fldashemp').select2('data').length;

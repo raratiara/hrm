@@ -432,13 +432,17 @@ function ucwords(str) {
 }
 
 
-function dateFormat(tanggal){
-	/*let tanggal = "2025-06-24";*/
+function dateFormat(tanggal) {
+    if (!tanggal || tanggal === "0000-00-00") {
+        return ""; // kosongkan saja, jangan ditampilkan
+    }
 
-	let parts = tanggal.split("-"); // ['2025', '06', '24']
-	let hasil = `${parts[1]}/${parts[2]}/${parts[0]}`;
+    let parts = tanggal.split("-");
+    if (parts.length !== 3) {
+        return tanggal; // fallback kalau format aneh
+    }
 
-	return hasil;
+    return `${parts[1]}/${parts[2]}/${parts[0]}`;
 }
 
 

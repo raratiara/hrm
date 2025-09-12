@@ -15,12 +15,12 @@ class Lembur_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Date","Employee Name","Date Time Start","Date Time End","Num of Hour","Amount","Reason","Status"];
+	public $tabel_header 			= ["ID","Type","Employee Name","Date Time Start","Date Time End","Num of Hour","Amount","Total Day","Reason","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Date","Employee Name","Date Time Start","Date Time End","Num of Hour","Amount","Reason","Status"];
-	public $colfields 				= ["id","date_overtime","full_name","datetime_start","datetime_end","num_of_hour","amount","reason","status_name"];
+	public $colnames 				= ["ID","Type","Employee Name","Date Time Start","Date Time End","Num of Hour","Amount","Total Day", "Reason","Status"];
+	public $colfields 				= ["id","type_name","full_name","datetime_start","datetime_end","num_of_hour","amount","count_day","reason","status_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -42,6 +42,20 @@ class Lembur_menu extends MY_Controller
 		$field['txtreason']			= $this->self_model->return_build_txtarea('','reason','reason');
 		$field['txtdatetimestart']	= $this->self_model->return_build_txt('','datetime_start','datetime_start');
 		$field['txtdatetimeend']	= $this->self_model->return_build_txt('','datetime_end','datetime_end');
+
+		$mstype = [
+							    (object) [
+							        "id"   => 1,
+							        "name" => "Lembur Hari Kerja"
+							    ],
+							    (object) [
+							        "id"   => 2,
+							        "name" => "Kerja di Hari Libur"
+							    ]
+							];
+
+		
+		$field['seltype'] 	= $this->self_model->return_build_select2me($mstype,'','','','type','type','','','id','name',' ','','','',3,'-');
 
 
 		

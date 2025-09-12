@@ -1,10 +1,16 @@
 <div class="row">
 	
 	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row">
+		<!-- <div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="date"></span>
+			</div>
+		</div> -->
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Type</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="type"></span>
 			</div>
 		</div>
 		<div class="row">
@@ -25,7 +31,12 @@
 				: <span class="reason"></span>
 			</div>
 		</div>
-		
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Total Day</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="ttl_day"></span>
+			</div>
+		</div>
 	</div>
 
 

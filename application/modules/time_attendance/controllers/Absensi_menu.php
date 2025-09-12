@@ -25,12 +25,12 @@ class Absensi_menu extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
-		$datetimeNow = date("Y-m-d H:i:s");
+		$datetimeNow = date("Y-m-d H:i:s"); 
 		$dateNow = date("Y-m-d");
 		$period = date("Y-m");
 		$tgl = date("d");
 		$date_attendance = $dateNow;
-		$dateTomorrow='';
+		//$dateTomorrow='';
 
 
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -44,34 +44,81 @@ class Absensi_menu extends MY_Controller
 		$emp_shift_type=1; $time_in=""; $time_out=""; $attendance_type="";
 		if($empData[0]->shift_type == 'Reguler'){
 			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
-			
+
 		}else if($empData[0]->shift_type == 'Shift'){
-			$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$dateNow."' and employee_id = '".$karyawan_id."'")->result(); 
-			//jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
-			if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
+			// $data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$dateNow."' and employee_id = '".$karyawan_id."'")->result(); 
+			// //jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
+			// if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
 
-				$dateTomorrow = date("Y-m-d", strtotime($dateNow . " +1 day"));
-				$period  = date('Y-m', strtotime($dateTomorrow));
-				$tgl = date('d', strtotime($dateTomorrow));
-			}
+			// 	$dateTomorrow = date("Y-m-d", strtotime($dateNow . " +1 day"));
+			// 	$period  = date('Y-m', strtotime($dateTomorrow));
+			// 	$tgl = date('d', strtotime($dateTomorrow));
+			// }
 
-			$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-					from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-					left join master_shift_time c on c.shift_id = b.`".$tgl."`
-					where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result(); 
+			// $dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+			// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+			// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+			// 		where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result(); 
 			
-			if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
-				//$emp_shift_type=0;
-				$period = date("Y-m");
-				$tgl = date("d");
-				$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-					from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-					left join master_shift_time c on c.shift_id = b.`".$tgl."`
-					where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result();
+			// if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
+			// 	//$emp_shift_type=0;
+			// 	$period = date("Y-m");
+			// 	$tgl = date("d");
+			// 	$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+			// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+			// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+			// 		where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result();
 
-			}else{
-				$date_attendance = $dateTomorrow;
+			// }else{
+			// 	$date_attendance = $dateTomorrow;
+			// }
+
+
+
+
+			/// NEW SCRIPT
+			$datetimemax_shift3 = $dateNow.' 08:00:00';
+			if($datetimeNow < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
+				$dateYesterday = date("Y-m-d", strtotime($dateNow . " -1 day"));
+				$period  = date('Y-m', strtotime($dateYesterday));
+			 	$tgl = date('d', strtotime($dateYesterday));
+			 	$date_attendance = $dateYesterday;
 			}
+
+
+			$dt = $this->db->query("select 
+			    a.*, 
+			    b.periode, 
+			    b.`".$tgl."` as 'shift', 
+			    c.name,
+			    case 
+			        when c.shift_id = 3 then 
+			            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
+			        else 
+			            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
+			    end as expected_checkin,
+			    case 
+			        when c.shift_id = 2 then 
+			            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
+			        when c.shift_id = 3 then 
+			            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
+			        else 
+			            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
+			    end as expected_checkout,
+			    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
+			from shift_schedule a
+			left join group_shift_schedule b on b.shift_schedule_id = a.id 
+			left join master_shift_time c on c.shift_id = b.`".$tgl."`
+			where b.employee_id = '".$karyawan_id."'
+			and a.period = '".$period."'
+			")->result(); 
+
+			if($dt[0]->shift == ""){
+				$emp_shift_type=0;
+			}
+
+			
+			/// END NEW SCRIPT
 
 		}else{ //tidak ada shift type
 			$emp_shift_type=0;
@@ -104,7 +151,8 @@ class Absensi_menu extends MY_Controller
 		$field['txtattendanceout'] 		= $this->self_model->return_build_txt('','attendance_out','attendance_out','','','readonly');
 		$field['txtleavingearlydesc']	= $this->self_model->return_build_txt('','leaving_early_desc','leaving_early_desc','','','readonly');
 		$field['txtdesc'] 				= $this->self_model->return_build_txtarea('','description','description');
-
+		
+		
 
 		$raw = [
 		    ['id' => 'wfo', 'name' => 'WFO'],
@@ -183,6 +231,30 @@ class Absensi_menu extends MY_Controller
 		
 
 		echo json_encode($rs);
+	}
+
+
+
+	public function gettasklistrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			
+			if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				$checkin = (isset($post['checkin']) && $post['checkin'] == TRUE)? TRUE:FALSE;
+
+
+				echo json_encode($this->self_model->getNewExpensesRow($row,$id,$view,$checkin));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
 	}
 
 

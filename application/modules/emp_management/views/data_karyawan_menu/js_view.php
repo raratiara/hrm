@@ -237,12 +237,26 @@ function load_data()
 						$('span.file_simc').html('');
 					}
 					
-					$('[name="date_of_hire"]').val(data.date_of_hire);
-					$('[name="date_permanent"]').val(data.date_permanent);
-					$('[name="date_of_birth"]').val(data.date_of_birth);
-					$('[name="date_resign_letter"]').val(data.date_resign_letter);
-					$('[name="date_resign_active"]').val(data.date_resign_active);
-					$('[name="date_end_prob"]').val(data.date_end_probation);
+					var date_of_hire = dateFormat(data.date_of_hire);
+					$('[name="date_of_hire"]').datepicker('setDate', date_of_hire);
+					var date_permanent = dateFormat(data.date_permanent);
+					$('[name="date_permanent"]').datepicker('setDate', date_permanent);
+					var date_of_birth = dateFormat(data.date_of_birth);
+					$('[name="date_of_birth"]').datepicker('setDate', date_of_birth);
+					var date_resign_letter = dateFormat(data.date_resign_letter);
+					$('[name="date_resign_letter"]').datepicker('setDate', date_resign_letter);
+					var date_resign_active = dateFormat(data.date_resign_active);
+					$('[name="date_resign_active"]').datepicker('setDate', date_resign_active);
+					var date_end_prob = dateFormat(data.date_end_probation);
+					$('[name="date_end_prob"]').datepicker('setDate', date_end_prob);
+
+
+					//$('[name="date_of_hire"]').val(data.date_of_hire);
+					//$('[name="date_permanent"]').val(data.date_permanent);
+					//$('[name="date_of_birth"]').val(data.date_of_birth);
+					//$('[name="date_resign_letter"]').val(data.date_resign_letter);
+					//$('[name="date_resign_active"]').val(data.date_resign_active);
+					//$('[name="date_end_prob"]').val(data.date_end_probation);
 
 					$('select#indirect').val(data.indirect_id).trigger('change.select2');
 					$('select#marital_status').val(data.marital_status_id).trigger('change.select2');
@@ -545,6 +559,19 @@ function load_data()
     });
 }
 
+
+function dateFormat(tanggal) {
+    if (!tanggal || tanggal === "0000-00-00") {
+        return ""; // kosongkan saja, jangan ditampilkan
+    }
+
+    let parts = tanggal.split("-");
+    if (parts.length !== 3) {
+        return tanggal; // fallback kalau format aneh
+    }
+
+    return `${parts[1]}/${parts[2]}/${parts[0]}`;
+}
 
 
 $("#addcarow").on("click", function () { 

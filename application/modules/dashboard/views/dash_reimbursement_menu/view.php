@@ -101,9 +101,9 @@
 	<div class="employee-container">
 
 		<div class="box typeSubtype">
-			<div class="box-title">Reimbursement Type & Subtype</div>
+			<div class="box-title">Reimbursement Subtype</div>
 			<div class="box-value">
-				<!-- <canvas id="empby_maritalStatus" style="margin-top: 15px;"></canvas> -->
+				<canvas id="reimbySubtype" style="margin-top: 15px;"></canvas>
 			</div>
 		</div>
 
@@ -114,6 +114,18 @@
 				<canvas id="reimFor" style="margin-top: 15px;"></canvas>
 			</div>
 		</div>
+
+	</div>
+
+	<div class="employee-container">
+
+		<div class="box typeSubtype">
+			<div class="box-title">Monthly Reimbursement Amount</div>
+			<div class="box-value">
+				<canvas id="monthly_reimb_amount" style="margin-top: 15px;"></canvas>
+			</div>
+		</div>
+
 
 	</div>
 	

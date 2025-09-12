@@ -38,7 +38,7 @@ class Ijin_menu extends MY_Controller
 		
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
-		$msleave 				= $this->db->query("select * from master_leaves")->result(); 
+		$msleave 				= $this->db->query("select * from master_leaves where name != 'Absence' ")->result(); 
 		$field['selleavetype'] 	= $this->self_model->return_build_select2me($msleave,'','','','leave_type','leave_type','','','id','name',' ','','','',3,'-');
 		$field['txtreason']		= $this->self_model->return_build_txtarea('','reason','reason');
 		$field['txtdatestart']	= $this->self_model->return_build_txt('','date_start','date_start');
@@ -201,8 +201,8 @@ class Ijin_menu extends MY_Controller
 						'attendance_type' 			=> $employees[0]->shift_type,
 						'time_in' 					=> $time_in,
 						'time_out' 					=> $time_out,
-						'date_attendance_in' 		=> $date_att,
-						'date_attendance_out'		=> $date_att,
+						/*'date_attendance_in' 		=> $date_att,
+						'date_attendance_out'		=> $date_att,*/
 						'created_at'				=> date("Y-m-d H:i:s"),
 						'leave_type' 				=> $leaves[0]->masterleave_id,
 						'leave_absences_id' 		=> $leaves[0]->id
@@ -213,9 +213,43 @@ class Ijin_menu extends MY_Controller
 					$date_att = date("Y-m-d", strtotime($date_att.'+ 1 days'));
 
 				}
-			}
-			
-			return $rs;
+
+				//update sisa jatah cuti
+				if($leaves[0]->masterleave_id != '2'){ //unpaid leave gak update sisa cuti
+					$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$leaves[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
+
+					$is_update_jatah_selanjutnya=0;
+					$sisa_cuti = $jatahcuti[0]->sisa_cuti-$total_leave;
+
+					if($total_leave > $jatahcuti[0]->sisa_cuti){ 
+						$is_update_jatah_selanjutnya=1;
+						$sisa_cuti = 0;
+						$diff_day2 = $total_leave-$jatahcuti[0]->sisa_cuti;
+						$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;
+						
+					}
+					
+					$data22 = [
+								'sisa_cuti' 	=> $sisa_cuti,
+								'updated_date'	=> date("Y-m-d H:i:s")
+							];
+					$this->db->update('total_cuti_karyawan', $data22, "id = '".$jatahcuti[0]->id."'");
+
+
+					if($is_update_jatah_selanjutnya == 1){ 
+						$data33 = [
+									'sisa_cuti' 	=> $sisa_cuti2,
+									'updated_date'	=> date("Y-m-d H:i:s")
+								];
+						$this->db->update('total_cuti_karyawan', $data33, "id = '".$jatahcuti[1]->id."'");
+					}
+
+				}
+
+
+				return $rs;
+			}else return null;
+
 
 		}else{
 			$rs=null;

@@ -148,6 +148,7 @@ defined('_ASSET_METRONIC_TEMPLATE')        	OR define('_ASSET_METRONIC_TEMPLATE'
 defined('_ASSET_GLOBAL_METRONIC_TEMPLATE')  OR define('_ASSET_GLOBAL_METRONIC_TEMPLATE',_URL."public/assets/metronic/assets/global/");  
 defined('_ASSET_LAYOUTS_METRONIC_TEMPLATE') OR define('_ASSET_LAYOUTS_METRONIC_TEMPLATE',_URL."public/assets/metronic/assets/layouts/");  
 defined('_ASSET_PAGES_METRONIC_TEMPLATE')   OR define('_ASSET_PAGES_METRONIC_TEMPLATE',_URL."public/assets/metronic/assets/pages/");
+defined('_ASSET_BIRTHDAY_PICTURE') OR define('_ASSET_BIRTHDAY_PICTURE', _ASSET_IMG . "logo/balon.png");  
 
 // Login/user mailing
 defined('_MAIL_SYSTEM_NAME')        		OR define('_MAIL_SYSTEM_NAME', _COMPANY_NAME_ABBR.' Support System');

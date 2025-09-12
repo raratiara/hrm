@@ -29,7 +29,8 @@ class Absence_report_menu_model extends MY_Model
 			'dt.date_attendance_out',
 			'dt.is_late_desc',
 			'dt.is_leaving_office_early_desc',
-			'dt.num_of_working_hours'
+			'dt.num_of_working_hours',
+			'dt.holiday_flag'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -41,7 +42,7 @@ class Absence_report_menu_model extends MY_Model
 
 		$where_date=" where a.date_attendance = '".$dateNow."' ";
 		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " where a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+			$where_date = " where (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."') ";
 		}
 
 		$where_emp="";
@@ -50,7 +51,7 @@ class Absence_report_menu_model extends MY_Model
 		}
 
 
-		$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
+		/*$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
 					(case 
 					when a.leave_type != "" then concat("(",c.name,")") 
 					when a.is_leaving_office_early = "Y" then "Leaving Office Early"
@@ -60,6 +61,80 @@ class Absence_report_menu_model extends MY_Model
 					left join master_leaves c on c.id = a.leave_type
 					'.$where_date.$where_emp.'
 					
+				)dt';*/
+
+		$sTable = '(SELECT 
+					    a.*,
+					    b.full_name,
+					    IF(a.is_late = "Y","Late", "") AS is_late_desc,
+					    (CASE 
+					        WHEN a.leave_type != "" THEN CONCAT("(", c.name, ")") 
+					        WHEN a.is_leaving_office_early = "Y" THEN "Leaving Office Early"
+					        ELSE ""
+					     END) AS is_leaving_office_early_desc,
+					    CASE 
+					    	WHEN a.date_attendance_in IS NOT NULL THEN ""
+					        WHEN o.id IS NOT NULL THEN ""
+					        WHEN b.shift_type = "Reguler" AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN "Holiday"
+					        WHEN h.date IS NOT NULL THEN "Holiday"
+					        WHEN a.leave_absences_id IS NOT NULL THEN "Holiday"
+					        WHEN b.shift_type = "Shift" AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN "Holiday"
+					        ELSE ""
+					    END AS holiday_flag,
+					    CASE 
+					    	WHEN a.date_attendance_in IS NOT NULL THEN ""
+					        WHEN o.id IS NOT NULL THEN ""
+					        WHEN b.shift_type = "Reguler" AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN "Weekend"
+					        WHEN h.date IS NOT NULL THEN "Master Holiday"
+					        WHEN a.leave_absences_id IS NOT NULL THEN "Leave"
+					        WHEN b.shift_type = "Shift" AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN "No Shift"
+					        ELSE ""
+					    END AS holiday_type,
+					    CASE 
+					        WHEN o.id IS NOT NULL THEN "Y"
+					        ELSE "N"
+					    END AS overtime_flag
+					FROM time_attendances a
+					LEFT JOIN employees b ON b.id = a.employee_id
+					LEFT JOIN master_leaves c ON c.id = a.leave_type
+					LEFT JOIN master_holidays h ON h.date = a.date_attendance
+					LEFT JOIN overtimes o 
+					       ON o.employee_id = a.employee_id
+					      AND a.date_attendance BETWEEN DATE(o.datetime_start) AND DATE(o.datetime_end)
+					      AND o.status_id = 2 
+					      AND o.type = 2
+					LEFT JOIN group_shift_schedule gss 
+					       ON gss.employee_id = a.employee_id
+					      AND gss.periode = DATE_FORMAT(a.date_attendance, "%Y-%m")
+					'.$where_date.$where_emp.'
 				)dt';
 		
 
@@ -212,6 +287,35 @@ class Absence_report_menu_model extends MY_Model
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
+			$dayName = date('l', strtotime($row->date_attendance));
+
+			if($row->holiday_flag == 'Holiday'){ //libur
+				$id = '<span style="color:red">'.$row->id.'</span>';
+				$dayName = '<span style="color:red">'.$dayName.'</span>';
+				$date_attendance = '<span style="color:red">'.$row->date_attendance.'</span>';
+				$full_name = '<span style="color:red">'.$row->full_name.'</span>';
+				$attendance_type = '<span style="color:red">'.$row->attendance_type.'</span>';
+				$time_in = '<span style="color:red">'.$row->time_in.'</span>';
+				$time_out = '<span style="color:red">'.$row->time_out.'</span>';
+				$date_attendance_in = '<span style="color:red">'.$date_attendance_in.'</span>';
+				$date_attendance_out = '<span style="color:red">'.$date_attendance_out.'</span>';
+				$is_late_desc = '<span style="color:red">'.$row->is_late_desc.'</span>';
+				$is_leaving_office_early_desc = '<span style="color:red">'.$row->is_leaving_office_early_desc.'</span>';
+				$num_of_working_hours = '<span style="color:red">'.$num_of_working_hours.'</span>';
+			}else{
+				$id = $row->id;
+				$dayName = $dayName;
+				$date_attendance = $row->date_attendance;
+				$full_name = $row->full_name;
+				$attendance_type = $row->attendance_type;
+				$time_in = $row->time_in;
+				$time_out = $row->time_out;
+				$date_attendance_in = $date_attendance_in;
+				$date_attendance_out = $date_attendance_out;
+				$is_late_desc = $row->is_late_desc;
+				$is_leaving_office_early_desc = $row->is_leaving_office_early_desc;
+				$num_of_working_hours = $num_of_working_hours;
+			}
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -220,17 +324,18 @@ class Absence_report_menu_model extends MY_Model
 					'.$edit.'
 					'.$delete.'
 				</div>',
-				$row->id,
-				$row->date_attendance,
-				$row->full_name,
-				$row->attendance_type,
-				$row->time_in,
-				$row->time_out,
-				$row->date_attendance_in,
-				$row->date_attendance_out,
-				$row->is_late_desc,
-				$row->is_leaving_office_early_desc,
-				$row->num_of_working_hours
+				$id,
+				$dayName,
+				$date_attendance,
+				$full_name,
+				$attendance_type,
+				$time_in,
+				$time_out,
+				$date_attendance_in,
+				$date_attendance_out,
+				$is_late_desc,
+				$is_leaving_office_early_desc,
+				$num_of_working_hours
 
 
 			));

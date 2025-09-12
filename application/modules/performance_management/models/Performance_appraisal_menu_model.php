@@ -28,7 +28,8 @@ class Performance_appraisal_menu_model extends MY_Model
 			'dt.status_name',
 			'dt.direct_id',
 			'dt.employee_id',
-			'dt.rfu_reason'
+			'dt.rfu_reason',
+			'dt.score'
 		];
 
 		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
@@ -222,6 +223,7 @@ class Performance_appraisal_menu_model extends MY_Model
 				$row->full_name,
 				$row->year,
 				$row->status_name,
+				$row->score,
 				$row->rfu_reason
 
 			));
@@ -315,6 +317,7 @@ class Performance_appraisal_menu_model extends MY_Model
 								$itemData = [
 									'performance_appraisal_id' => $lastId,
 									'hardskill' => trim($post['hardskill'][$i]),
+									'type_id' => trim($post['type'][$i]),
 									'notes' => trim($post['notes'][$i]),
 									'score_emp' => trim($post['score_emp'][$i]),
 									'score_direct' => trim($post['score_direct'][$i]),
@@ -372,20 +375,42 @@ class Performance_appraisal_menu_model extends MY_Model
 			if ($rowdata[0]->status_id == 0 || $rowdata[0]->status_id == 3) { //draft atau rfu
 				$next_status = 1; //waiting approval direct
 			} else if ($rowdata[0]->status_id == 1) {
+				$ttl_score = ($post['hdnttl_final_score']+$post['hdnttl_final_score_softskill'])/2; 
+				$getScore = $this->db->query("select * from master_kpi_score where '".$ttl_score."' >= start_val and '".$ttl_score."' <= end_val ")->result();
+				if(!empty($getScore)){
+					$score = $getScore[0]->name;
+				}else{
+					$score = '-';
+				}
+				
 				$next_status = 2; //approved
 			}
 
+			if($next_status == 2){
+				$data = [
+					'employee_id' => trim($post['employee']),
+					'year' => trim($post['year']),
+					'updated_at' => date("Y-m-d H:i:s"),
+					'total_final_score' => $post['hdnttl_final_score'],
+					'total_final_score_softskill' => $post['hdnttl_final_score_softskill'],
+					'status_id' => $next_status,
+					'rfu_reason' => '',
+					'score_val' => $ttl_score,
+					'score' => $score
+				];
+			}else{
+				$data = [
+					'employee_id' => trim($post['employee']),
+					'year' => trim($post['year']),
+					'updated_at' => date("Y-m-d H:i:s"),
+					'total_final_score' => $post['hdnttl_final_score'],
+					'total_final_score_softskill' => $post['hdnttl_final_score_softskill'],
+					'status_id' => $next_status,
+					'rfu_reason' => ''
 
-			$data = [
-				'employee_id' => trim($post['employee']),
-				'year' => trim($post['year']),
-				'updated_at' => date("Y-m-d H:i:s"),
-				'total_final_score' => $post['hdnttl_final_score'],
-				'total_final_score_softskill' => $post['hdnttl_final_score_softskill'],
-				'status_id' => $next_status,
-				'rfu_reason' => ''
-
-			];
+				];
+			}
+			
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if ($rs) {
@@ -404,6 +429,7 @@ class Performance_appraisal_menu_model extends MY_Model
 							if ($hdnid != '') { //update
 								$itemData = [
 									'hardskill' => trim($post['hardskill'][$i]),
+									'type_id' => trim($post['type'][$i]),
 									'notes' => trim($post['notes'][$i]),
 									'score_emp' => trim($post['score_emp'][$i]),
 									'score_direct' => trim($post['score_direct'][$i]),
@@ -415,6 +441,7 @@ class Performance_appraisal_menu_model extends MY_Model
 								$itemData = [
 									'performance_appraisal_id' => $post['id'],
 									'hardskill' => trim($post['hardskill'][$i]),
+									'type_id' => trim($post['type'][$i]),
 									'notes' => trim($post['notes'][$i]),
 									'score_emp' => trim($post['score_emp'][$i]),
 									'score_direct' => trim($post['score_direct'][$i]),
@@ -479,7 +506,9 @@ class Performance_appraisal_menu_model extends MY_Model
 
 	public function getRowData($id)
 	{
-		$mTable = '(select a.*, b.full_name, b.direct_id,
+		$mTable = '(select a.*, b.full_name, b.direct_id, b.emp_code, b.shift_type, b.date_of_hire,
+					c.name AS division_name, h.name AS department_name, i.name AS emp_status_name,
+					o.name AS job_title_name, p.full_name AS direct_name,
 					(case 
 					when a.status_id = 0 then "Draft"
 					when a.status_id = 1 then "Waiting Approval"
@@ -488,6 +517,11 @@ class Performance_appraisal_menu_model extends MY_Model
 					else ""
 					 end) as status_name
 					from performance_appraisal a left join employees b on b.id = a.employee_id
+					LEFT JOIN divisions c ON c.id = b.division_id
+					LEFT JOIN departments h ON h.id = b.department_id
+					LEFT JOIN master_emp_status i ON i.id = b.employment_status_id
+					LEFT JOIN master_job_title o ON o.id = b.job_title_id
+					LEFT JOIN employees p ON p.id = b.direct_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -593,10 +627,11 @@ class Performance_appraisal_menu_model extends MY_Model
 		} else {
 			$data = '';
 			$no = $row + 1;
-
+			$msType = $this->db->query("select * from master_perfomance_type")->result(); 
 			$data .= '<td>' . $no . '<input type="hidden" id="hdnid' . $row . '" name="hdnid[' . $row . ']" value=""/></td>';
 
 			$data .= '<td>' . $this->return_build_txt('', 'hardskill[' . $row . ']', '', 'hardskill', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
+			$data 	.= '<td>'.$this->return_build_chosenme($msType,'','','','type['.$row.']','type','type','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 			$data .= '<td>' . $this->return_build_txtarea('', 'notes[' . $row . ']', '', 'notes', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
 			$data .= '<td>' . $this->return_build_txt('', 'weight[' . $row . ']', '', 'weight', 'text-align: right;', 'data-id="' . $row . '" onkeyup="set_weight(this)" ') . '</td>';
 			$data .= '<td>' . $this->return_build_txt('', 'score_emp[' . $row . ']', '', 'score_emp', 'text-align: right;', 'data-id="' . $row . '" onkeyup="set_score_emp(this)" ') . '</td>';
@@ -619,7 +654,7 @@ class Performance_appraisal_menu_model extends MY_Model
 
 		$dt = '';
 
-		$rs = $this->db->query("select * from performance_appraisal_hardskill where performance_appraisal_id = '" . $id . "' ")->result();
+		$rs = $this->db->query("select a.*, b.name as type_name from performance_appraisal_hardskill a left join master_perfomance_type b on b.id = a.type_id where a.performance_appraisal_id = '" . $id . "' ")->result();
 		$rd = $rs;
 
 		$row = 0;
@@ -654,6 +689,7 @@ class Performance_appraisal_menu_model extends MY_Model
 					$arrS[$ai['id']] = $ai;
 				}
 			}*/
+			$msType = $this->db->query("select * from master_perfomance_type")->result(); 
 			foreach ($rd as $f) {
 				$no = $row + 1;
 
@@ -664,6 +700,7 @@ class Performance_appraisal_menu_model extends MY_Model
 					$dt .= '<td>' . $no . '<input type="hidden" id="hdnid' . $row . '" name="hdnid[' . $row . ']" value="' . $f->id . '"/></td>';
 
 					$dt .= '<td>' . $this->return_build_txt($f->hardskill, 'hardskill[' . $row . ']', '', 'hardskill', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
+					$dt .= '<td>'.$this->return_build_chosenme($msType,'',isset($f->type_id)?$f->type_id:1,'','type['.$row.']','type','type','','id','name','','','',' data-id="'.$row.'" ').'</td>';
 					$dt .= '<td>' . $this->return_build_txtarea($f->notes, 'notes[' . $row . ']', '', 'notes', 'text-align: right;', 'data-id="' . $row . '" ') . '</td>';
 					$dt .= '<td>' . $this->return_build_txt($f->weight, 'weight[' . $row . ']', '', 'weight', 'text-align: right;', 'data-id="' . $row . '" onkeyup="set_weight(this)" ') . '</td>';
 					$dt .= '<td>' . $this->return_build_txt($f->score_emp, 'score_emp[' . $row . ']', '', 'score_emp', 'text-align: right;', 'data-id="' . $row . '" onkeyup="set_score_emp(this)" ' . $readonly_emp . ' ') . '</td>';
@@ -686,6 +723,7 @@ class Performance_appraisal_menu_model extends MY_Model
 
 					$dt .= '<td>' . $no . '</td>';
 					$dt .= '<td>' . $f->hardskill . '</td>';
+					$dt .= '<td>' . $f->type_name . '</td>';
 					$dt .= '<td>' . $f->notes . '</td>';
 					$dt .= '<td>' . $f->weight . '</td>';
 					$dt .= '<td>' . $f->score_emp . '</td>';
@@ -967,6 +1005,86 @@ class Performance_appraisal_menu_model extends MY_Model
 			} else
 				return null;
 		}
+
+
+	}
+
+
+	public function getDataEmployee($empid){ 
+
+		
+		$rs = $this->db->query('select 
+					    a.*,
+					    b.name AS company_name,
+					    c.name AS division_name,
+					    d.name AS section_name,
+					    f.name AS regency_name_ktp,
+                        f2.name AS regency_name_residen,
+					    g.name AS village_name_ktp,
+                        g2.name AS village_name_residen,
+					    h.name AS department_name,
+					    i.name AS emp_status_name,
+					    j.full_name AS indirect_name,
+					    k.name AS branch_name,
+					    l.name AS marital_status_name,
+					    m.name AS province_name_ktp,
+						m2.name AS province_name_residen,
+					    n.name AS district_name_ktp,
+                        n2.name AS district_name_residen,
+					    o.name AS job_title_name,
+					    p.full_name AS direct_name,
+					    (case when a.gender = "M" then "Male"
+					    when a.gender = "F" then "Female"
+					    else ""
+					    end) as gender_name,
+					    if(a.status_id = "1","Active","Not Active") as status_name,
+					    q.name as job_level_name,
+					    r.name as grade_name
+					FROM
+					    employees a
+					        LEFT JOIN
+					    companies b ON b.id = a.company_id
+					        LEFT JOIN
+					    divisions c ON c.id = a.division_id
+					        LEFT JOIN
+					    sections d ON d.id = a.section_id
+					        LEFT JOIN
+					    regencies f ON f.id = a.regency_id_ktp
+                        LEFT JOIN
+					    regencies f2 ON f2.id = a.regency_id_residen
+					        LEFT JOIN
+					    villages g ON g.id = a.village_id_ktp
+                        LEFT JOIN
+					    villages g2 ON g2.id = a.village_id_residen
+					        LEFT JOIN
+					    departments h ON h.id = a.department_id
+					        LEFT JOIN
+					    master_emp_status i ON i.id = a.employment_status_id
+					        LEFT JOIN
+					    employees j ON j.id = a.indirect_id
+					        LEFT JOIN
+					    branches k ON k.id = a.branch_id
+					        LEFT JOIN
+					    master_marital_status l ON l.id = a.marital_status_id
+					        LEFT JOIN
+					    provinces m ON m.id = a.province_id_ktp
+                        LEFT JOIN
+					    provinces m2 ON m2.id = a.province_id_residen
+					        LEFT JOIN
+					    districts n ON n.id = a.district_id_ktp
+                        LEFT JOIN
+					    districts n2 ON n2.id = a.district_id_residen
+					        LEFT JOIN
+					    master_job_title o ON o.id = a.job_title_id
+					        LEFT JOIN
+					    employees p ON p.id = a.direct_id
+					    left join master_job_level q on q.id = a.job_level_id
+					    left join master_grade r on r.id = a.grade_id where a.id = '.$empid.' ')->result(); 
+
+		
+
+
+		return $rs; 
 
 
 	}

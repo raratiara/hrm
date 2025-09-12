@@ -124,9 +124,14 @@ function load_data()
 					$('[name="task"]').val(data.task);
 					$('select#task_parent').val(data.parent_id).trigger('change.select2');
 					$('[name="progress"]').val(data.progress_percentage);
-					$('[name="due_date"]').val(data.due_date);
-					$('[name="solve_date"]').val(data.solve_date);
+					//$('[name="due_date"]').val(data.due_date);
+					//$('[name="solve_date"]').val(data.solve_date);
 					$('select#project').val(data.project_id).trigger('change.select2');
+
+					var due_date = dateFormat(data.due_date);
+					$('[name="due_date"]').datepicker('setDate', due_date);
+					var solve_date = dateFormat(data.solve_date);
+					$('[name="solve_date"]').datepicker('setDate', solve_date);
 
 					
 					$.uniform.update();
@@ -178,7 +183,18 @@ function load_data()
 <?php } ?>
 
 
+function dateFormat(tanggal) {
+    if (!tanggal || tanggal === "0000-00-00") {
+        return ""; // kosongkan saja, jangan ditampilkan
+    }
 
+    let parts = tanggal.split("-");
+    if (parts.length !== 3) {
+        return tanggal; // fallback kalau format aneh
+    }
+
+    return `${parts[1]}/${parts[2]}/${parts[0]}`;
+}
 
 
 </script>

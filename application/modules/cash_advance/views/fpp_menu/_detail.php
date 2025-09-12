@@ -19,6 +19,12 @@
 				: <span class="fpp_type"></span>
 			</div>
 		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Project</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="project"></span>
+			</div>
+		</div>
 	</div>
 
 
@@ -45,7 +51,7 @@
 
 </div>
 
-<div id="inputVendorView" style="display: none;">
+<div class="row" id="inputVendorView" style="display: none;">
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Vendor Name</label>
@@ -75,7 +81,7 @@
 
 <div>
     <div class="col-md-12">
-		<div class="portlet box grey">
+		<div class="portlet box">
 			<div class="portlet-title">
 				<div class="caption">Advance Request Details </div>
 				<div class="tools">

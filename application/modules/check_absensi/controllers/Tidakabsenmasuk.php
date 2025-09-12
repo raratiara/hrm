@@ -185,6 +185,242 @@ class Tidakabsenmasuk extends MY_Controller
 		echo json_encode($rs);
 	}
 
+	
 
+	public function startDevice(){
+
+		$token = "I4EMpL6raAUKRgQtZ2FshcC8mof35zkq0TG9ViO7";
+
+
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'https://dash.pushwa.com/api/startDevice',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS => json_encode([
+		    'token' => $token
+		  ]),
+		  CURLOPT_HTTPHEADER => array(
+		    'Content-Type: application/json'
+		  ),
+		));
+
+		$response = curl_exec($curl);
+
+		curl_close($curl);
+
+		$parse = json_decode($response, true);
+
+		if(isset($parse)){
+			$status 	= $parse['status'];
+			$message 	="";
+			if(isset($parse['message'])){
+				$message = $parse['message'];
+			}
+			if(isset($parse['qr'])){
+				$message = "Please scan qr again";
+			}
+		}
+
+		$data = [
+			'name' 		=> "Reminder Absensi - startDevice",
+			'status' 	=> $status,
+			'notes' 	=> $message,
+			'datetime'	=> date("Y-m-d H:i:s")
+		];
+		$this->db->insert('log_send_wa', $data);
+
+		$stsData = [
+			'status' 	=> $status,
+			'msg' 		=> $message
+		];
+
+		return $stsData; 
+
+		
+		/*if ( isset($parse['qr']) ) {
+		  echo 'https://api.qrserver.com/v1/create-qr-code/?data='.urlencode($parse['qr']);
+		}*/
+
+	}
+
+
+	public function checkStatusSendWA($token, $idMsgString){
+	/*public function checkStatusSendWA(){
+		$token="I4EMpL6raAUKRgQtZ2FshcC8mof35zkq0TG9ViO7";
+		$idMsgString="653441,653442,653443";*/
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => 'https://dash.pushwa.com/api/statusMessage',
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => '',
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 0,
+		  CURLOPT_FOLLOWLOCATION => true,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => 'POST',
+		  CURLOPT_POSTFIELDS =>'{
+		    "token": "'.$token.'",
+		    "idMsg" : "'.$idMsgString.'"
+		}',
+		  CURLOPT_HTTPHEADER => array(
+		    'Content-Type: application/json'
+		  ),
+		));
+
+		$response = curl_exec($curl);
+
+		curl_close($curl);
+		return $response;
+
+	}
+
+
+	public function sendWAReminder(){
+		$post = $this->input->post(null, true);
+		$listunCheck = isset($post['listunCheck']) ? trim($post['listunCheck']) : '';
+
+
+		$sts_startDevice = $this->startDevice();
+
+		
+		if(isset($sts_startDevice)){
+			if($sts_startDevice['status'] == '1' && $sts_startDevice['msg'] == 'connected'){ 
+
+				//kirim reminder absen
+				$dateNow = date("Y-m-d");
+				$sql = "
+			        select id, full_name, nick_name, shift_type, personal_phone 
+			        FROM employees 
+			        WHERE status_id = 1
+			          AND id NOT IN (
+			              SELECT employee_id 
+			              FROM time_attendances 
+			              WHERE date_attendance = '".$dateNow."'
+			          ) 
+			    ";
+			    // tambahkan kondisi kalau listunCheck tidak kosong
+			    if ($listunCheck !== '') {
+			        $sql .= " AND id NOT IN (".$listunCheck.")";
+			    }
+
+			    $rs = $this->db->query($sql)->result();
+				
+				if(!empty($rs)){ 
+
+					$arrtarget = [];
+				    foreach ($rs as $row) {
+				        $personal_phone = $row->personal_phone;
+				        $emp_name       = $row->full_name;
+
+				        if ($personal_phone != '') {
+				        	// Ubah 0 di depan jadi 62
+			                if (substr($personal_phone, 0, 1) == '0') {
+			                    $personal_phone = '62' . substr($personal_phone, 1);
+			                }
+			                //$personal_phone='6287881747918';
+				            // Gabungkan nomor dan nama pakai |
+				            $arrtarget[] = $personal_phone . "|" . $emp_name;
+				        }
+				    }
+				    // Gabungkan semua elemen dengan koma
+				    $targetString = implode(",", $arrtarget);
+
+
+					$token = "I4EMpL6raAUKRgQtZ2FshcC8mof35zkq0TG9ViO7";
+
+					$curl = curl_init();
+
+					curl_setopt_array($curl, array(
+					  CURLOPT_URL => 'https://dash.pushwa.com/api/kirimPesan',
+					  CURLOPT_RETURNTRANSFER => true,
+					  CURLOPT_ENCODING => '',
+					  CURLOPT_MAXREDIRS => 10,
+					  CURLOPT_TIMEOUT => 0,
+					  CURLOPT_FOLLOWLOCATION => true,
+					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					  CURLOPT_CUSTOMREQUEST => 'POST',
+					  CURLOPT_POSTFIELDS => json_encode([
+					    'token' => $token,
+					    'target' => $targetString, 
+					    'type' => "text",
+					    'delay' => "2",
+					    'message' => "Hai *{var1}*,\n\nAku belum lihat kamu absen hari ini 😢\nJangan lupa absen yaa! 😁\n\n\n-HRM System-"
+
+					  ]),
+					  CURLOPT_HTTPHEADER => array(
+					    'Content-Type: application/json'
+					  ),
+					));
+
+					$response = curl_exec($curl); 
+					// Ubah JSON menjadi array
+					$data = json_decode($response, true);
+					// Ambil nilai idMsg
+					$idMsg = $data['idMsg']; 
+					// Kalau mau jadi string dipisahkan koma
+					$idMsgString = implode(',', $idMsg);
+					$statusSend = $this->checkStatusSendWA($token, $idMsgString);
+
+
+					//ubah jd array
+					$responseArr  = json_decode($statusSend, true);
+					$result = [];
+					$items = explode(',', $targetString);
+
+					foreach ($items as $index => $item) {
+					    list($number, $emp) = explode('|', $item);
+					    
+					    $result[] = [
+					        "phone"  => $number,
+					        "emp"    => $emp,
+					        "idMsg"  => $responseArr['data'][$index]['id'] ?? null,
+					        "status" => $responseArr['data'][$index]['status'] ?? null
+					    ];
+					}
+					$xxResult = json_encode($result, JSON_UNESCAPED_UNICODE);
+					//end
+
+					$Logdata = [
+						'name' 		=> "Reminder Absensi - sendWA",
+						/*'status' 	=> $status,*/
+						'notes' 	=> $xxResult,
+						'datetime'	=> date("Y-m-d H:i:s")
+					]; 
+					$this->db->insert('log_send_wa', $Logdata);
+
+
+					curl_close($curl);
+					//echo $response;
+					$hasil="Sukses";
+
+				}else{
+					$hasil="Tidak ada data";
+				}
+
+			}else{
+				if(isset($sts_startDevice['msg'])){
+					$hasil=$sts_startDevice['msg'];
+				}else{
+					$hasil="gagal";
+				}
+			}
+		}else{
+			$hasil="gagal";
+		}
+
+		echo json_encode($hasil);
+
+	}
+
+
+	
 
 }

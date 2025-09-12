@@ -5,6 +5,7 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var opsForm = 'form#frmInputData';
 
 
 
@@ -153,8 +154,10 @@ function load_data()
 						var latitude = data.lat_checkin;
 						var longitude = data.long_checkin;
 					}
-					$('[name="latitude"]').val(latitude);
-					$('[name="longitude"]').val(longitude);
+					// $('[name="latitude"]').val(latitude);
+					// $('[name="longitude"]').val(longitude);
+
+
 
 					if(data.photo != '' && data.photo != null){
 						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
@@ -162,6 +165,21 @@ function load_data()
 						$('span.photo').html('');
 					}
 					
+					var locate = 'table.task-list';
+					var wcount = 0; //for ca list row identify
+					// get data tasklist
+					$.ajax({type: 'post',url: module_path+'/gettasklistrow',data: { id:data.employee_id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+					// end get data tasklist
 
 					
 					$.uniform.update();
@@ -181,23 +199,71 @@ function load_data()
 					$('span.work_loc').html(data.work_location_name);
 					$('span.description').html(data.notes);
 
-					var latitude=''; var longitude='';
+					var latitude_in=''; var longitude_in='';
+					if(data.lat_checkin != null && data.long_checkin != null){
+						var latitude_in = data.lat_checkin;
+						var longitude_in = data.long_checkin;
+					}
+					var latitude_out=''; var longitude_out='';
 					if(data.lat_checkout != null && data.long_checkout != null){
-						var latitude = data.lat_checkout;
-						var longitude = data.long_checkout;
+						var latitude_out = data.lat_checkout;
+						var longitude_out = data.long_checkout;
 					}
-					else if(data.lat_checkin != null && data.long_checkin != null){
-						var latitude = data.lat_checkin;
-						var longitude = data.long_checkin;
-					}
-					$('span.latitude').html(latitude);
-					$('span.longitude').html(longitude);
+					
+					/*$('span.latitude').html(latitude);
+					$('span.longitude').html(longitude);*/
 
-					if(data.photo != '' && data.photo != null){
+
+					//maps
+					///// CHECKIN
+					if (latitude_in && longitude_in) {
+					    // bikin URL Google Maps
+					    var mapsUrl = "https://www.google.com/maps?q=" + latitude_in + "," + longitude_in + "&hl=es;z=14&output=embed";
+					    
+					    // inject iframe ke dalam div
+					    $("#mapContainer_checkin").html(
+					        '<iframe width="100%" height="300" frameborder="0" style="border:0; border-radius:10px;" ' +
+					        'src="' + mapsUrl + '" allowfullscreen></iframe>'
+					    );
+					} else {
+					    $("#mapContainer_checkin").html("<p style='color:red'>Lokasi tidak tersedia</p>");
+					}
+
+					///// CHECKOUT
+					if (latitude_out && longitude_out) {
+					    // bikin URL Google Maps
+					    var mapsUrl = "https://www.google.com/maps?q=" + latitude_out + "," + longitude_out + "&hl=es;z=14&output=embed";
+					    
+					    // inject iframe ke dalam div
+					    $("#mapContainer").html(
+					        '<iframe width="100%" height="300" frameborder="0" style="border:0; border-radius:10px;" ' +
+					        'src="' + mapsUrl + '" allowfullscreen></iframe>'
+					    );
+					} else {
+					    $("#mapContainer").html("<p style='color:red'>Lokasi tidak tersedia</p>");
+					}
+					//end maps
+
+
+					if(data.photo != '' && data.photo != null){ 
 						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
 					}else{
 						$('span.photo').html('');
 					}
+
+					var locate = 'table.task-list-view';
+					var wcount = 0;
+					$.ajax({type: 'post',url: module_path+'/gettasklistrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 				
 					
 					$('#modal-view-data').modal('show');
