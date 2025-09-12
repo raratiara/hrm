@@ -224,8 +224,7 @@ class Api extends API_Controller
 
     	//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
     	$sql = "select * from companies where website = '".$url."'";
-    	$nama_db="u1647144_hrm"; $username_db="u1647144_hrm"; $password_db="HRM_NBID@2025!";
-    	$cek_url = $this->api->query_db($nama_db, $username_db, $password_db, $sql); 
+    	$cek_url = $this->api->query_db($sql); 
     
 	//echo "test";die();
     	if(!empty($cek_url)){ 
