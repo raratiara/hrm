@@ -192,9 +192,14 @@ class Api_model extends MY_Model
         $pass   = $password_db;*/
 
 
-        $host   = "localhost";
+        /*$host   = "localhost";
         $dbname = "u1647144_hrm";
         $user   = "u1647144_hrm";
+        $pass   = "HRM_NBID@2025!";*/
+
+        $host   = "localhost";
+        $dbname = "hrm";
+        $user   = "hrm";
         $pass   = "HRM_NBID@2025!";
         
 
