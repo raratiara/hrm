@@ -177,7 +177,7 @@ class Api_model extends MY_Model
     }
 
 
-    public function query_db($nama_db, $username_db, $password_db, $sql)
+    public function query_db($sql)
     { 
        
 
@@ -204,7 +204,7 @@ class Api_model extends MY_Model
         
 
         try {
-            $pdo = new PDO("mysql:host=$host;dbname=$nama_db", $user, $pass);
+            $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
             // Enable error exceptions
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             //echo "Connected successfully<br>";
