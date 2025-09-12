@@ -32,7 +32,8 @@
     gap: 10px;
   }
 
-  .select2-selection__placeholder {
+  /*.select2-selection__placeholder {*/
+  #flstatus + .select2 .select2-selection__placeholder {
     visibility: hidden;
     /* sembunyikan teks default */
     position: relative;
@@ -40,7 +41,8 @@
     background: #0000 !important;
   }
 
-  .select2-selection__placeholder::after {
+  /*.select2-selection__placeholder::after {*/
+  #flstatus + .select2 .select2-selection__placeholder::after {
     content: "Select Status";
     /* teks baru */
     visibility: visible;
@@ -49,17 +51,19 @@
     color: #999;
   }
 
-  .select2-container--bootstrap .select2-selection {
+  /*.select2-container--bootstrap .select2-selection {*/
+  #flstatus + .select2.select2-container--bootstrap .select2-selection {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
   }
 
-  .select2-selection {
-      width: 150px !important;
-      font-size: 10px !important;
-      margin-top: 8px !important;
-    }
+  /*.select2-selection {*/
+  #flstatus + .select2 .select2-selection {
+    width: 150px !important;
+    font-size: 10px !important;
+    margin-top: 8px !important;
+  }
 
 
   @media (max-width: 768px) {
@@ -869,6 +873,41 @@
     margin-right: 18px;
 
   }
+
+
+  .btn-checkin {
+    background-color: #25c87c; /* hijau */
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-right: 8px;
+    width:100px; 
+    font-weight:bold;
+  }
+  .btn-checkin:hover {
+    background-color: #157347;
+  }
+
+  .btn-checkout {
+    background-color: #c82571; /* merah */
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width:100px; 
+    font-weight:bold;
+  }
+  .btn-checkout:hover {
+    background-color: #bb2d3b;
+  }
+
 
 
 </style>

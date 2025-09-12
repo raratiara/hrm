@@ -9,8 +9,63 @@
 <!-- <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>-->
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>  
 
+
+<!-- Modal Form Data -->
+<div id="modal-form-checkin" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-checkin"
+	aria-hidden="true">
+	<div class="vertical-alignment-helper">
+		<div class="modal-dialog model-dialog-centered vertical-align-center custom-modal">
+			<div class="modal-content" style="width:1000px">
+				<form class="form-horizontal" id="frmInputData" enctype="multipart/form-data">
+					<div class="modal-header bg-blue bg-font-blue no-padding">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+						<div class="table-header">
+							<span id="mfdata"></span> <!-- <?php echo $smodul; ?>  -->
+							
+						</div>
+					</div>
+
+					<div class="modal-body" style="min-height:100px; margin:10px">
+						<input type="hidden" name="id" value="">
+						<?php $this->load->view("_field"); ?>
+					</div>
+				</form>
+
+
+				<div class="modal-footer d-flex justify-content-between flex-wrap no-margin-top" id="mdlFooter">
+					<span class="act-container-btn d-flex flex-wrap gap-2">
+						<button class="btn btn-info"
+							style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;"
+							id="submit-data" onclick="save()">
+							<i class="fa fa-check"></i> Save
+						</button>
+					</span>
+
+					<!-- Container untuk tombol tetap di kanan -->
+					<span class="d-flex gap-2 ms-auto">
+						<button class="btn"
+							style="background-color: #FED24B; color: #343851; border-radius: 4px !important;"
+							onclick="reset()" id="btnReset">
+							<i class="fa fa-undo"></i> Reset
+						</button>
+						<button class="btn"
+							style="background-color: #A01818; color: white; border-radius: 4px !important;"
+							data-dismiss="modal">
+							<i class="fa fa-times"></i> Close
+						</button>
+					</span>
+				</div>
+
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 	var module_path = "<?php echo base_url($folder_name); ?>";
+	var base_url = "<?php echo base_url($base_url); ?>";
 
 	$(document).ready(function () {
 		$(function () {
@@ -1027,6 +1082,280 @@
 	            });
 	        }
 	    });
+	}
+
+
+
+	$( "#btnAddData" ).on('click', function(){ 
+		form_check = $("#frmInputData").valid();
+		if(!form_check) return false;
+
+		var module_name = '<?=$this->module_name?>'; 
+		
+		save_method = 'add'; 
+		$('#mfdata').text('Add'); 
+		//if(module_name == 'absensi_menu'){ 
+			var hdnempid = $("#hdnempid").val();
+			$("#location ").prop('disabled', false);
+			$('#mfdata').text('Form Check-IN');
+			document.getElementById("submit-data").innerText = "Check In";
+
+
+			var locate = 'table.task-list';
+			var wcount = 0;
+			$.ajax({type: 'post',url: module_path+'/gettasklistrow',data: { id:hdnempid, checkin:true },success: function (response) { 
+					var obj = JSON.parse(response);
+					$(locate+' tbody').html(obj[0]);
+					
+					wcount=obj[1];
+				}
+			}).done(function() {
+				//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+				tSawBclear(locate);
+				///expenseviewadjust(lstatus);
+			});
+
+
+		//}
+		$('#modal-form-checkin').modal('show'); 
+	});
+
+
+	function getdatacheckout()
+	{
+		//expire();
+	    save_method = 'update';
+		//idx = id;
+		//reset();
+
+
+		var getUrl = window.location;
+		//local=> 
+		var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+		//var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
+
+	    $.ajax({
+			type: "POST",
+	        url : module_path+'/get_data_checkout',
+			data: {},
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {
+				if(data != false){ 
+					if(save_method == 'update'){  
+
+						if(data.isupdate == 1){
+							var date_attendance_out = getFormattedDateTime();
+
+							$('[name="id"]').val(data.dataabsen[0].id);
+							$('[name="date_attendance"]').val(data.dataabsen[0].date_attendance);
+							$('[name="hdnempid"]').val(data.dataabsen[0].employee_id);
+							$('[name="employee"]').val(data.dataabsen[0].employee_name);
+							$('[name="emp_type"]').val(data.dataabsen[0].attendance_type);
+							$('[name="time_in"]').val(data.dataabsen[0].time_in);
+							$('[name="time_out"]').val(data.dataabsen[0].time_out);
+							$('[name="attendance_in"]').val(data.dataabsen[0].date_attendance_in);
+							$('[name="attendance_out"]').val(date_attendance_out);
+							$('[name="description"]').val(data.dataabsen[0].notes);
+							$('select#location').val(data.dataabsen[0].work_location).trigger('change.select2');
+							
+							var latitude=''; var longitude='';
+							if(data.dataabsen[0].lat_checkout != null && data.dataabsen[0].long_checkout != null){
+								var latitude = data.dataabsen[0].lat_checkout;
+								var longitude = data.dataabsen[0].long_checkout;
+							}
+							else if(data.dataabsen[0].lat_checkin != null && data.dataabsen[0].long_checkin != null){
+								var latitude = data.dataabsen[0].lat_checkin;
+								var longitude = data.dataabsen[0].long_checkin;
+							}
+							
+
+
+							if(data.dataabsen[0].photo != '' && data.dataabsen[0].photo != null){
+								$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.dataabsen[0].photo+'" width="150" height="150" >');
+							}else{
+								$('span.photo').html('');
+							}
+							
+							var locate = 'table.task-list';
+							var wcount = 0; //for ca list row identify
+							// get data tasklist
+							$.ajax({type: 'post',url: module_path+'/gettasklistrow',data: { id:data.dataabsen[0].employee_id },success: function (response) {
+									var obj = JSON.parse(response);
+									$(locate+' tbody').html(obj[0]);
+									
+									wcount=obj[1];
+								}
+							}).done(function() {
+								//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+								tSawBclear(locate);
+								///expenseviewadjust(lstatus);
+							});
+							// end get data tasklist
+
+							
+							$.uniform.update();
+							$('#mfdata').text('Form Check-OUT');
+							document.getElementById("submit-data").innerText = "Check Out";
+
+							$('#modal-form-checkin').modal('show');
+
+						}else{
+							alert("Cannot Checkout");
+						}
+
+					}
+				
+				} else {
+					title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+					btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+					msg = '<p>Gagal peroleh data.</p>';
+					var dialog = bootbox.dialog({
+						message: title+'<center>'+msg+btn+'</center>'
+					});
+					if(response.status){
+						setTimeout(function(){
+							dialog.modal('hide');
+						}, 1500);
+					}
+				}
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+
+
+	}
+
+
+	function tSawBclear(elem){
+		Tablesaw.init(elem);
+		var ts = $(elem);
+		$(document).off("." + ts.attr("id"));
+		$(window).off("." + ts.attr("id"));
+		ts.removeData('tablesaw');
+	}
+
+
+	function save(status='')
+	{ 
+		// if(status != ''){
+		// 	$('[name="status"]').val(status);
+		// }
+		
+
+		//xpire();
+	    var title;
+	    var send_url;
+	    var form_check;
+	    var post_type = 'POST';
+	    var smsg;
+		var formData;
+
+		
+		if(save_method == 'add' || save_method == 'update') {
+			form_check = $("#frmInputData").valid();
+			if(!form_check) return false;
+		}
+		
+
+		if(save_method == 'add') {
+			send_url = module_path+'/add';
+			formData = new FormData($('#frmInputData')[0]);
+		}
+		 
+		
+		if(save_method == 'update'){
+			send_url = module_path+'/edit';
+			formData = new FormData($('#frmInputData')[0]);
+		} 
+		
+
+
+
+
+		if((save_method == 'add') || (save_method == 'update')) { 
+			$.ajax({
+				type: post_type,
+				url: send_url,
+				data: formData,
+				contentType: false,
+				processData: false,
+				cache: false,
+				dataType: "JSON",
+				success: function( response ) {
+					if(response.status){ 
+						title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-check-circle-o fa-5x" style="color:green"></i></div>';
+						btn = '';
+						if(save_method == 'add' || save_method == 'update') {
+							$('#frmInputData')[0].reset();
+							$('#modal-form-checkin').modal('hide');
+						} 
+
+						//reload_table();
+						// redirect ke halaman absensi_menu
+    					window.location.href = base_url + "time_attendance/absensi_menu";
+    					
+					} else {
+						title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+						btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+					}
+					var dialog = bootbox.dialog({
+						message: title+'<center>'+response.msg+btn+'</center>'
+					});
+					if(response.status){
+						setTimeout(function(){
+							dialog.modal('hide');
+						}, 1500);
+					}
+
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					var dialog = bootbox.dialog({
+						title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+						message: jqXHR.responseText,
+						buttons: {
+							confirm: {
+								label: 'Ok',
+								className: 'btn blue'
+							}
+						}
+					});
+				}
+			});
+		}
+		
+	}
+
+
+	function getFormattedDateTime() {
+	  const now = new Date();
+
+	  const pad = (n) => n.toString().padStart(2, '0');
+
+	  const year = now.getFullYear();
+	  const month = pad(now.getMonth() + 1);     // bulan dimulai dari 0
+	  const day = pad(now.getDate());
+	  const hours = pad(now.getHours());
+	  const minutes = pad(now.getMinutes());
+	  const seconds = pad(now.getSeconds());
+
+	  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 	}
 
 

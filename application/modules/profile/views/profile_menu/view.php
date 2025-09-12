@@ -107,6 +107,22 @@
                 </div>
             </div>
         </div>
+
+        <div class="profile-action" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; width: 100px;">
+            <input type="hidden" id="hdnempid" name="hdnempid" value="<?=$empid?>" />
+
+            <button class="btn-circle btn-checkin" id="btnAddData">
+                <i class="bi bi-box-arrow-in-right"></i> Check-in
+            </button>
+            <!-- <a class="btn btn-default btn-sm btn-circle" id="btnAddData">Check-IN</a> -->
+            
+            <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
+                <i class="bi bi-box-arrow-right"></i> Check-out
+            </button>
+        </div>
+
+
+
     </div>
 
 
