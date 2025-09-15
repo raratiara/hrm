@@ -32,7 +32,8 @@
     gap: 10px;
   }
 
-  .select2-selection__placeholder {
+  /*.select2-selection__placeholder {*/
+  #flstatus + .select2 .select2-selection__placeholder {
     visibility: hidden;
     /* sembunyikan teks default */
     position: relative;
@@ -40,8 +41,9 @@
     background: #0000 !important;
   }
 
-  .select2-selection__placeholder::after {
-    content: "Select Employee";
+  /*.select2-selection__placeholder::after {*/
+  #flstatus + .select2 .select2-selection__placeholder::after {
+    content: "Select Status";
     /* teks baru */
     visibility: visible;
     position: absolute;
@@ -49,13 +51,15 @@
     color: #999;
   }
 
-  .select2-container--bootstrap .select2-selection {
+  /*.select2-container--bootstrap .select2-selection {*/
+  #flstatus + .select2.select2-container--bootstrap .select2-selection {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
   }
 
-  .select2-selection {
+  /*.select2-selection {*/
+  #flstatus + .select2 .select2-selection {
     width: 150px !important;
     font-size: 10px !important;
     margin-top: 8px !important;
@@ -392,6 +396,7 @@
   }
 
   .profile-card h3 {
+    /*font-size: 20px;*/
     margin: 10px 0;
   }
 
@@ -514,11 +519,13 @@
 
 
   .birthday-box {
+    /*background-color: white !important;*/
     background: linear-gradient(to bottom, #FFE69B, #FED24B) !important;
     padding: 15px;
     border-radius: 15px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
+
 
   .birthday-balon {
     width: 120px;
@@ -528,8 +535,6 @@
     margin-bottom: -17px !important;
     margin-right: -20px !important;
   }
-
-  
 
 
 
@@ -552,8 +557,19 @@
     font-size: 13px;
   }
 
-  .event-item:last-child {
+  /*.event-item:last-child {
     border-bottom: none;
+  }*/
+
+  /*.event-item:last-child {
+    border-bottom: none;
+  }*/
+
+  .event-item:last-child {
+    font-weight: 600;
+    color: #3d3d5c;
+    margin-bottom: 10px;
+    font-size: 15px;
   }
 
 
@@ -569,8 +585,8 @@
   .birthday-content {
     display: flex;
     align-items: center;
-    position: relative
-
+    /* margin-top: 15px;*/
+    position: relative;
 
   }
 
@@ -590,6 +606,13 @@
     font-weight: bold;
     font-size: 13px;
     color: #000;
+  }
+
+
+  .birthday-arrow i {
+    line-height: 1;
+    font-size: 15px;
+
   }
 
   .birthday-job {
@@ -866,6 +889,7 @@
     vertical-align: middle;
   }
 
+
   .birthday-title .birthday-span {
     position: relative;
     top: 4px;
@@ -884,4 +908,41 @@
     margin-right: 18px;
 
   }
+
+
+  .btn-checkin {
+    background-color: #25c87c; /* hijau */
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-right: 8px;
+    width:100px; 
+    font-weight:bold;
+  }
+  .btn-checkin:hover {
+    background-color: #157347;
+  }
+
+  .btn-checkout {
+    background-color: #c82571; /* merah */
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width:100px; 
+    font-weight:bold;
+  }
+  .btn-checkout:hover {
+    background-color: #bb2d3b;
+  }
+
+
+
 </style>

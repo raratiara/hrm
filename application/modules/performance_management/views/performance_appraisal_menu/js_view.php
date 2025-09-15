@@ -88,7 +88,7 @@
 	var save_method; //for save method string
 	var idx; //for save index string
 	var ldx; //for save list index string
-	//in LOCAL  var modloc = '/_hrm/performance_management/performance_appraisal_menu/';
+	/*in LOCAL*/  /*var modloc = '/_hrm/performance_management/performance_appraisal_menu/';*/
 	var modloc = '/performance_management/performance_appraisal_menu/';
 	var opsForm = 'form#frmInputData';
 	var locate = 'table.ca-list';
@@ -272,6 +272,14 @@
 							$('span#ttl_kehadiran').html(data.ttl_kehadiran);
 							$('span#ttl_ijin').html(data.ttl_ijin);
 							$('span#ttl_telat').html(data.ttl_telat);
+							$('.empid').html(data.rowdata.emp_code);
+							$('.jobtitle').html(data.rowdata.job_title_name);
+							$('.emptype').html(data.rowdata.shift_type);
+							$('.empstatus').html(data.rowdata.emp_status_name);
+							$('.division').html(data.rowdata.division_name);
+							$('.department').html(data.rowdata.department_name);
+							$('.direct').html(data.rowdata.direct_name);
+							$('.dateofhired').html(data.rowdata.date_of_hire);
 
 
 							$.ajax({
@@ -301,6 +309,14 @@
 							$('span#ttl_kehadiran_dtl').html(data.ttl_kehadiran);
 							$('span#ttl_ijin_dtl').html(data.ttl_ijin);
 							$('span#ttl_telat_dtl').html(data.ttl_telat);
+							$('.empid').html(data.rowdata.emp_code);
+							$('.jobtitle').html(data.rowdata.job_title_name);
+							$('.emptype').html(data.rowdata.shift_type);
+							$('.empstatus').html(data.rowdata.emp_status_name);
+							$('.division').html(data.rowdata.division_name);
+							$('.department').html(data.rowdata.department_name);
+							$('.direct').html(data.rowdata.direct_name);
+							$('.dateofhired').html(data.rowdata.date_of_hire);
 
 
 							$.ajax({
@@ -682,6 +698,66 @@
 		$('[name="hdnttl_final_score_softskill"]').val(sum);
 
 	}
+
+
+	$('#employee').on('change', function () { 
+	 	var empid = $("#employee option:selected").val();
+	 	
+	 	if(empid != ''){
+	 		
+	 		$.ajax({
+				type: "POST",
+		        url : module_path+'/getDataEmp',
+				data: { empid: empid },
+				cache: false,		
+		        dataType: "JSON",
+		        success: function(data)
+		        {  
+					if(data != null){ 	
+						$('.empid').html(data[0].emp_code);
+						$('.jobtitle').html(data[0].job_title_name);
+						$('.emptype').html(data[0].shift_type);
+						$('.empstatus').html(data[0].emp_status_name);
+						$('.division').html(data[0].division_name);
+						$('.department').html(data[0].department_name);
+						$('.direct').html(data[0].direct_name);
+						$('.dateofhired').html(data[0].date_of_hire);
+
+					} else { 
+						var valnull = '';
+						$('.empid').html(valnull);
+						$('.jobtitle').html(valnull);
+						$('.emptype').html(valnull);
+						$('.empstatus').html(valnull);
+						$('.division').html(valnull);
+						$('.department').html(valnull);
+						$('.direct').html(valnull);
+						$('.dateofhired').html(valnull);
+
+					}
+
+		        },
+		        error: function (jqXHR, textStatus, errorThrown)
+		        {
+					var dialog = bootbox.dialog({
+						title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+						message: jqXHR.responseText,
+						buttons: {
+							confirm: {
+								label: 'Ok',
+								className: 'btn blue'
+							}
+						}
+					});
+		        }
+		    });
+
+
+	 	}else{
+	 		alert("Please choose Order Name");
+	 	}
+
+	});
 
 
 

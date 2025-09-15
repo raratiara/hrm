@@ -205,5 +205,16 @@ class Performance_plan_menu extends MY_Controller
 		
 	}
 
+
+	public function getDataEmp(){
+		$post = $this->input->post(null, true);
+		$empid = $post['empid'];
+
+		$rs =  $this->self_model->getDataEmployee($empid);
+		
+
+		echo json_encode($rs);
+	}
+
  	
 }
