@@ -37,16 +37,26 @@ class Candidates_menu_model extends MY_Model
 			'dt.status_name'
 		];
 
-		/*$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;*/
+		$where_div="";
+		if(isset($_GET['fldivision']) && $_GET['fldivision'] != '' && $_GET['fldivision'] != 0){
+			$where_div = " and d.division_id = '".$_GET['fldivision']."' ";
+		}
+		$where_position="";
+		if(isset($_GET['flposition']) && $_GET['flposition'] != '' && $_GET['flposition'] != 0){
+			$where_position = " and b.subject = '".$_GET['flposition']."' ";
+		}
+
+
 
 		$sIndexColumn = $this->primary_key;
 
 
 
-		$sTable = '(select a.*, b.subject as position_name, c.name as status_name 
-						from candidates a left join request_recruitment b on b.id = a.request_recruitment_id
-						left join master_status_candidates c on c.id = a.status_id)dt';
+		$sTable = '(select a.*, b.subject as position_name, IF(c.name IS NULL, "Not Started", c.name) AS status_name, b.section_id, d.division_id, e.name as div_name
+			from candidates a left join request_recruitment b on b.id = a.request_recruitment_id
+			left join master_status_candidates c on c.id = a.status_id 
+			left join sections d ON d.id = b.section_id left join divisions e on e.id = d.division_id 
+			where 1=1 '.$where_div.$where_position.')dt';
 
 
 		/* Paging */

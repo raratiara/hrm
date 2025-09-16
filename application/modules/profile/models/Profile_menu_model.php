@@ -243,6 +243,45 @@ class Profile_menu_model extends MY_Model
 		} else return null;
 	}  
 
+
+	public function calculateFatigue($sleepHours, $bpm, $spo2) { 
+	    $score = 0;
+
+	    // Sleep
+	    if ($sleepHours < 5) $score += 3;
+	    elseif ($sleepHours < 7) $score += 2;
+	    else $score += 1;
+
+	    // BPM
+	    if ($bpm > 90) $score += 3;
+	    elseif ($bpm > 80) $score += 2;
+	    else $score += 1;
+
+	    // SpO2
+	    if ($spo2 < 94) $score += 3;
+	    elseif ($spo2 < 96) $score += 2;
+	    else $score += 1;
+
+	    // Hitung persentase
+	    $percentage = round(($score / 9) * 100);
+
+	    // Tentukan kategori
+	    if ($percentage >= 67) {
+	        $category = "High";
+	    } elseif ($percentage >= 34) {
+	        $category = "Moderate";
+	    } else {
+	        $category = "Low";
+	    }
+
+	    // Return dalam bentuk array
+	    return [
+	        'score'      => $score,
+	        'percentage' => $percentage,
+	        'category'   => $category
+	    ];
+	}
+
 	
 
 	public function getRowData($id) { 
@@ -491,7 +530,44 @@ class Profile_menu_model extends MY_Model
 		$sisa_plafon_all = $sisaplafon_rawatjalan;
 		$sisa_plafon_all = 'Rp ' . number_format($sisa_plafon_all, 0, ',', '.');
 
+
+		$health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where employee_id = '".$id."' order by ts_utc desc limit 1")->result(); 
+		$spo2 ="0"; $spo2_desc ="-";
+		if(!empty($health_raw_spo2)){
+			$spo2 = $health_raw_spo2[0]->pct;
+		}
+		if($spo2 >= 95){
+			$spo2_desc = "Excellent";
+		}else if($spo2 >= 91 && $spo2 <= 94){
+			$spo2_desc = "Good";
+		}else if($spo2 <= 90){
+			$spo2_desc = "Not Good";
+		}
+
+
+		$health_raw_hr = $this->db->query("select * from health_raw_hr where employee_id = '".$id."' order by ts_utc desc limit 1")->result(); 
+		$bpm ="0"; $bpm_desc="-";
+		if(!empty($health_raw_hr)){
+			$bpm = $health_raw_hr[0]->bpm;
+		}
+		if($bpm >= 60){
+			$bpm_desc = "Normal";
+		}else if($bpm < 60){
+			$bpm_desc = "Not Normal";
+		}
+
+		$health_daily = $this->db->query("select * from health_daily where employee_id = '".$id."' order by date desc limit 1")->result(); 
+		$sleep ="0"; $steps="0";
+		if(!empty($health_daily)){
+			$sleep = $health_daily[0]->sleep_minutes;
+			$steps = $health_daily[0]->steps;
+		}
+
+		$result = $this->calculateFatigue($sleep, $bpm, $spo2);
+		$fatigue_percentage = $result['percentage'].'%';
+		$fatigue_category = $result['category'];
 		
+
 		
 		$dataX = array(
 			'dtEmp' 					=> $rs,
@@ -507,12 +583,23 @@ class Profile_menu_model extends MY_Model
 			'sisaplafon_rawatinap' 		=> 'Rp ' . number_format($sisaplafon_rawatinap, 0, ',', '.'),
 			'sisaplafon_kacamata' 		=> 'Rp ' . number_format($sisaplafon_kacamata, 0, ',', '.'),
 			'sisaplafon_persalinan' 	=> 'Rp ' . number_format($sisaplafon_persalinan, 0, ',', '.'),
-			'sisa_plafon_all' 			=> $sisa_plafon_all
+			'sisa_plafon_all' 			=> $sisa_plafon_all,
 			/*'taskList' 					=> $data_tasklist*/
+			'spo2' 		=> $spo2,
+			'spo2_desc' => $spo2_desc,
+			'bpm' 		=> $bpm,
+			'bpm_desc' 	=> $bpm_desc,
+			'sleep' 	=> $sleep,
+			'fatigue_percentage' 	=> $fatigue_percentage,
+			'fatigue_category' 		=> $fatigue_category
 		);
 
 		return $dataX;
 	} 
+
+
+
+
 
 	
 	public function eksport_data()
