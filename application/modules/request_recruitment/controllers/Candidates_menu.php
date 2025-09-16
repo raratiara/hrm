@@ -145,6 +145,152 @@ class Candidates_menu extends MY_Controller
 
 	public function get_card_data()
 	{
+	    $post = $this->input->post(null, true);
+	    $division = $post['division'];
+	    $position = $post['position'];
+
+	    $whr_position = "";
+	    if (!empty($position)) {
+	        $whr_position = " and b.subject = '".$position."'";
+	    }
+
+	    $whr_division = "";
+	    if (!empty($division)) {
+	        $whr_division = " and d.division_id = '".$division."'";
+	    }
+
+	    // ambil semua kandidat
+	    $sTable = '(SELECT 
+	                    a.*,
+	                    b.subject AS position_name,
+	                    IF(c.name IS NULL,
+	                        "Not Started",
+	                        c.name) AS status_name,
+	                    b.section_id,
+	                    d.division_id,
+	                    IF(a.status_id = 2,
+	                        (SELECT 
+	                                bb.name
+	                            FROM
+	                                candidates_step aa
+	                                    LEFT JOIN
+	                                master_step_recruitment bb ON bb.id = aa.step_recruitment_id
+	                            WHERE
+	                                aa.candidates_id = a.id
+	                                    AND aa.status_id = 2),
+	                        "") AS status_step
+	                FROM
+	                    candidates a
+	                        LEFT JOIN
+	                    request_recruitment b ON b.id = a.request_recruitment_id
+	                        LEFT JOIN
+	                    master_status_candidates c ON c.id = a.status_id
+	                        LEFT JOIN
+	                    sections d ON d.id = b.section_id
+	                WHERE
+	                    1 = 1 '.$whr_position.$whr_division.' )dt';
+
+	    $query = $this->db->query("select id, candidate_code, full_name, position_name, email, phone, cv, status_name, status_step FROM $sTable ORDER BY status_name ASC, full_name ASC")->result();
+
+	    // group kandidat
+	    $grouped = [];
+	    foreach ($query as $row) {
+	        if ($row->status_name === "In Process") {
+	            $grouped["In Process"][$row->status_step][] = [
+	                'id'       => $row->id,
+	                'code'     => $row->candidate_code,
+	                'name'     => $row->full_name,
+	                'position' => $row->position_name,
+	                'email'    => $row->email,
+	                'phone'    => $row->phone,
+	                'cv'       => $row->cv,
+	                'status'   => $row->status_step
+	            ];
+	        } else {
+	            $grouped[$row->status_name][] = [
+	                'id'       => $row->id,
+	                'code'     => $row->candidate_code,
+	                'name'     => $row->full_name,
+	                'position' => $row->position_name,
+	                'email'    => $row->email,
+	                'phone'    => $row->phone,
+	                'cv'       => $row->cv,
+	                'status'   => $row->status_name
+	            ];
+	        }
+	    }
+
+	    // urutan custom status
+	    $custom_order = ["Not Started", "In Process", "Done", "Rejected"];
+
+	    // urutan fixed untuk step recruitment
+	    $all_steps = [
+	        "HR Interview",
+	        "User Interview",
+	        "Technical Test",
+	        "Psychological Test",
+	        "Medical Check",
+	        "Offering Letter"
+	    ];
+
+	    $data = [];
+	    foreach ($custom_order as $st) {
+	        if ($st === "In Process") {
+	            $items = isset($grouped["In Process"]) ? $grouped["In Process"] : [];
+	            $step_data = [];
+	            foreach ($all_steps as $step) {
+	                $step_data[] = [
+	                    'step'  => $step,
+	                    'count' => isset($items[$step]) ? count($items[$step]) : 0,
+	                    'items' => isset($items[$step]) ? $items[$step] : []
+	                ];
+	            }
+	            $data[] = [
+	                'status' => $st,
+	                'count'  => array_sum(array_column($step_data, 'count')),
+	                'steps'  => $step_data
+	            ];
+	        } elseif ($st === "Done") {
+	            // gabungkan Hired + Not Passed
+	            $hired = isset($grouped["Hired"]) ? $grouped["Hired"] : [];
+	            $not_passed = isset($grouped["Not Passed"]) ? $grouped["Not Passed"] : [];
+
+	            $groups = [];
+	            $groups[] = [
+	                'substatus' => "Hired",
+	                'count'     => count($hired),
+	                'items'     => $hired
+	            ];
+	            $groups[] = [
+	                'substatus' => "Not Passed",
+	                'count'     => count($not_passed),
+	                'items'     => $not_passed
+	            ];
+
+	            $data[] = [
+	                'status' => "Done",
+	                'count'  => count($hired) + count($not_passed),
+	                'groups' => $groups
+	            ];
+	        } else {
+	            $items = isset($grouped[$st]) ? $grouped[$st] : [];
+	            $data[] = [
+	                'status' => $st,
+	                'count'  => count($items),
+	                'items'  => $items
+	            ];
+	        }
+	    }
+
+	    echo json_encode([
+	        'success' => true,
+	        'data'    => $data
+	    ]);
+	}
+
+
+	public function get_card_data_old()
+	{
 		$post = $this->input->post(null, true);
 		$division = $post['division'];
 		$position = $post['position'];
@@ -161,18 +307,37 @@ class Candidates_menu extends MY_Controller
 
 
 	    // ambil semua kandidat
-	    $sTable = '(select a.*, 
-	                       b.subject as position_name, 
-	                       if(c.name is null,"Not Started", c.name) as status_name, b.section_id, d.division_id 
-	                from candidates a 
-	                left join request_recruitment b on b.id = a.request_recruitment_id
-	                left join master_status_candidates c on c.id = a.status_id 
-	                left join sections d on d.id = b.section_id
-	                where 1=1 '.$whr_position.$whr_division.' )dt';
+	    $sTable = '(SELECT 
+					    a.*,
+					    b.subject AS position_name,
+					    IF(c.name IS NULL,
+					        "Not Started",
+					        c.name) AS status_name,
+					    b.section_id,
+					    d.division_id,
+					    IF(a.status_id = 2,
+					        (SELECT 
+					                bb.name
+					            FROM
+					                candidates_step aa
+					                    LEFT JOIN
+					                master_step_recruitment bb ON bb.id = aa.step_recruitment_id
+					            WHERE
+					                aa.candidates_id = a.id
+					                    AND aa.status_id = 2),
+					        "") AS status_step
+					FROM
+					    candidates a
+					        LEFT JOIN
+					    request_recruitment b ON b.id = a.request_recruitment_id
+					        LEFT JOIN
+					    master_status_candidates c ON c.id = a.status_id
+					        LEFT JOIN
+					    sections d ON d.id = b.section_id
+					WHERE
+					    1 = 1 '.$whr_position.$whr_division.' )dt';
 
-	    $query = $this->db->query("SELECT id, candidate_code, full_name, position_name, email, phone, cv, status_name 
-	                               FROM $sTable 
-	                               ORDER BY status_name ASC, full_name ASC")->result();
+	    $query = $this->db->query("select id, candidate_code, full_name, position_name, email, phone, cv, status_name, status_step FROM $sTable ORDER BY status_name ASC, full_name ASC")->result();
 
 	    // group kandidat by status
 	    $grouped = [];

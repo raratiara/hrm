@@ -536,13 +536,14 @@ class Profile_menu_model extends MY_Model
 		if(!empty($health_raw_spo2)){
 			$spo2 = $health_raw_spo2[0]->pct;
 		}
-		if($spo2 >= 95){
-			$spo2_desc = "Excellent";
-		}else if($spo2 >= 91 && $spo2 <= 94){
-			$spo2_desc = "Good";
-		}else if($spo2 <= 90){
-			$spo2_desc = "Not Good";
+		if ($spo2 >= 95) {
+		    $spo2_desc = "Excellent";
+		} else if ($spo2 >= 91) { 
+		    $spo2_desc = "Good";
+		} else { // berarti <91
+		    $spo2_desc = "Not Good";
 		}
+
 
 
 		$health_raw_hr = $this->db->query("select * from health_raw_hr where employee_id = '".$id."' order by ts_utc desc limit 1")->result(); 
@@ -550,18 +551,38 @@ class Profile_menu_model extends MY_Model
 		if(!empty($health_raw_hr)){
 			$bpm = $health_raw_hr[0]->bpm;
 		}
-		if($bpm >= 60){
-			$bpm_desc = "Normal";
-		}else if($bpm < 60){
-			$bpm_desc = "Not Normal";
+		if ($bpm >= 60 && $bpm <= 100) {
+		    $bpm_desc = "Normal";
+		} else if ($bpm < 60) {
+		    $bpm_desc = "Low";
+		} else { // > 100
+		    $bpm_desc = "High";
 		}
 
+
 		$health_daily = $this->db->query("select * from health_daily where employee_id = '".$id."' order by date desc limit 1")->result(); 
-		$sleep ="0"; $steps="0";
-		if(!empty($health_daily)){
-			$sleep = $health_daily[0]->sleep_minutes;
-			$steps = $health_daily[0]->steps;
+		$sleep_hours ="0"; $lastLog=""; $sleep_percent="0";
+		if (!empty($health_daily)) {
+			$lastLog =  $health_daily[0]->date;
+
+		    $sleep_minutes = $health_daily[0]->sleep_minutes;
+
+		    // ubah ke jam
+		    $sleep_hours = round($sleep_minutes / 60, 1); // 1 decimal
+
+		    // hitung persentase dari 8 jam (480 menit)
+		    $sleep_percent = min(100, round(($sleep_minutes / 480) * 100));
+
+		    // kategori 
+		    if ($sleep_hours >= 7 && $sleep_hours <= 9) {
+		        $sleep_desc = "Optimal";
+		    } else if ($sleep_hours >= 5) {
+		        $sleep_desc = "Fair";
+		    } else {
+		        $sleep_desc = "Poor";
+		    }
 		}
+
 
 		$result = $this->calculateFatigue($sleep, $bpm, $spo2);
 		$fatigue_percentage = $result['percentage'].'%';
@@ -589,9 +610,11 @@ class Profile_menu_model extends MY_Model
 			'spo2_desc' => $spo2_desc,
 			'bpm' 		=> $bpm,
 			'bpm_desc' 	=> $bpm_desc,
-			'sleep' 	=> $sleep,
+			'sleep_hours' 	=> $sleep_hours,
+			'sleep_percent' => $sleep_percent,
 			'fatigue_percentage' 	=> $fatigue_percentage,
-			'fatigue_category' 		=> $fatigue_category
+			'fatigue_category' 		=> $fatigue_category,
+			'lastLog' 	=> $lastLog
 		);
 
 		return $dataX;
