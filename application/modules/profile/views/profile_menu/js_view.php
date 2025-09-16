@@ -157,6 +157,14 @@
 							var job_level_name = '-';
 						}
 						
+						$('span#spo2').html(data.spo2);
+						$('span#spo2_desc').html(data.spo2_desc);
+						$('span#bpm').html(data.bpm);
+						$('span#bpm_desc').html(data.bpm_desc);
+						$('span#sleep').html(data.sleep+" m");
+						$('span#fatigue_percentage').html(data.fatigue_percentage);
+						$('span#fatigue_category').html(data.fatigue_category);
+
 						$('span.nik').html(data.dtEmp.emp_code);
 						$('span.name').html(data.dtEmp.full_name);
 						$('span.gender').html(gender_name);

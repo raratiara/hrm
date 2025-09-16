@@ -347,7 +347,7 @@
   }
 
 
-  .profile-card,
+  .profile-card,.health-card,
   .profile-info {
     background-color: #ffffff;
     border-radius: 10px !important;
@@ -356,7 +356,7 @@
     font-size: 13px !important;
   }
 
-  .profile-card {
+  .profile-card,.health-card {
     text-align: center;
   }
 
@@ -876,7 +876,7 @@
 
 
   .btn-checkin {
-    background-color: #25c87c; /* hijau */
+    background-color: #25c87c; 
     color: white;
     border: none;
     padding: 10px;
@@ -893,7 +893,7 @@
   }
 
   .btn-checkout {
-    background-color: #c82571; /* merah */
+    background-color: #c82571; 
     color: white;
     border: none;
     padding: 10px;
@@ -906,6 +906,53 @@
   }
   .btn-checkout:hover {
     background-color: #bb2d3b;
+  }
+
+  .health-card {
+    background: #000; /* dark mode */
+    padding: 5px;
+    border-radius: 12px;
+  }
+
+  .card-box {
+      background: #111;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .card-box h3 {
+      margin: 5px 0 0;
+      font-size: 14px;   /* lebih kecil */
+      font-weight: bold;
+  }
+
+  .card-box p {
+      margin: 0;
+      font-size: 10px;   /* kecil */
+      color: #aaa;
+  }
+
+  .card-box small {
+      font-size: 8px;   /* kecil untuk teks tambahan */
+      color: #888;
+  }
+
+  .card-box .icon {
+      font-size: 14px;   /* ikon lebih kecil */
+      margin-bottom: 3px;
+  }
+
+  .card-box .badge {
+      font-size: 8px;   /* badge kecil */
+      padding: 3px 6px;
+      border-radius: 8px;
+  }
+
+  .action-button {
+    margin-top: 20px;
   }
 
 

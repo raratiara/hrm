@@ -1,6 +1,5 @@
 
 
-
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -23,7 +22,6 @@ $(document).ready(function() {
         });
 
 
-		
    	});
 });
 
@@ -312,5 +310,198 @@ function getStep(id, save_method) {
 	    return `${parts[1]}/${parts[2]}/${parts[0]}`;
 	}
 
+
+
+
+	// tombol LIST VIEW
+	$("#btnListView").on("click", function () {
+	    // tampilkan tabel
+	    $('#table-container').show();
+	    $('#card-container').hide();
+
+	    // toggle btn style
+	    $(this).addClass('btn-primary').removeClass('btn-secondary');
+	    $('#btnKanbanView').removeClass('btn-primary').addClass('btn-secondary');
+
+	    // reload datatable
+	    if (myTable) {
+	        myTable.ajax.reload(null, false);
+	    }
+
+	    subFilter();
+	});
+
+
+	// tombol KANBAN VIEW
+	$("#btnKanbanView").on("click", function () {
+	    // sembunyikan tabel
+	    $('#table-container').hide();
+	    // tampilkan card container
+	    $('#card-container').show().html('<div class="text-center p-3">Loading...</div>');
+
+	    // toggle btn style
+	    $(this).addClass('btn-primary').removeClass('btn-secondary');
+	    $('#btnListView').removeClass('btn-primary').addClass('btn-secondary');
+
+	    // load view kanban via AJAX lalu panggil loadCardView()
+	    $("#card-container").load("<?= site_url('request_recruitment/candidates_menu/kanban_view') ?>", function() {
+	        loadCardView(); // isi data setelah view kanban diload
+	    });
+	});
+
+
+	function loadCardView() {
+	    var division = $('#filter-division').val();
+	    var position = $('#filter-position').val();
+
+	    $.ajax({
+	        url: module_path + "/get_card_data",
+	        type: "POST",
+	        data: {
+	            division: division,
+	            position: position
+	        },
+	        dataType: "json",
+	        success: function(response) {
+	            if (response.success) {
+	                let html = '<div class="row kanban-board">';
+
+	                // mapping status ke class
+	                const statusMap = {
+	                    "Not Started": "not-started",
+	                    "In Process": "in-process",
+	                    "Hired": "hired",
+	                    "Not Passed": "not-passed",
+	                    "Rejected": "rejected"
+	                };
+
+	                $.each(response.data, function(i, group) {
+	                    let statusClass = statusMap[group.status] || group.status.toLowerCase().replace(/\s+/g, '-');
+
+	                    html += `
+	                        <div class="col-md-2 kanban-column">
+	                            <div class="kanban-header ${statusClass}">${group.status}</div>
+	                            <div class="kanban-items">
+	                    `;
+
+	                    if (group.items.length > 0) {
+	                        $.each(group.items, function(i, item) {
+	                            html += `
+	                                <div class="kanban-card card mb-2 shadow-sm">
+	                                    <div class="card-body p-2">
+	                                        <h6 class="card-title mb-1">${capitalize(item.name)}</h6>
+	                                        <small>${capitalize(item.position) || ''}</small><br>
+	                                        <small>${item.email || ''}</small><br>
+	                                        <small>${item.phone || ''}</small>
+	                            			<a class="btn btn-xs circle btn-primary" 
+	                                           href="javascript:void(0);" 
+	                                           onclick="downloadFile('${item.cv}')" role="button">
+	                                           <i class="fa fa-download"></i> CV
+	                                        </a>
+	                                        <br><br>
+	                                        
+
+	                                        <a class="btn btn-xs btn-success detail-btn" 
+	                                           style="background-color: #343851; border-color: #343851;" 
+	                                           href="javascript:void(0);" 
+	                                           onclick="detail('${item.id}')" role="button">
+	                                           <i class="fa fa-search-plus"></i>
+	                                        </a>
+	                            			<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('${item.id}')" role="button"><i class="fa fa-pencil"></i></a>
+	                                    </div>
+	                                </div>
+	                            `;
+	                        });
+	                    } else {
+	                        html += `<div class="text-muted small text-center">No Data</div>`;
+	                    }
+
+	                    html += `</div></div>`; // close items & column
+	                });
+
+	                html += '</div>';
+	                $('#candidate-container').html(html);
+	            }
+	        },
+	        error: function(xhr, status, error) {
+	            console.log("Error loadCardView:", error);
+	        }
+	    });
+	}
+
+
+	$(document).on('change', '#filter-division', function () {
+	    
+	    loadCardView();
+	    subFilter();
+	});
+
+	$(document).on('change', '#filter-position', function () {
+	    
+	    loadCardView();
+	    subFilter();
+
+	});
+
+	// pertama kali load
+	$(document).ready(function() {
+	    loadCardView();
+	});
+
+
+
+	function subFilter(){
+		
+		var division = $('#filter-division').val();
+	    var position = $('#filter-position').val();
+
+	    if(division == ''){
+			division=0;
+		}
+		if(position == ''){
+			position=0;
+		}
+		
+
+		
+		$('#dynamic-table').DataTable().clear().destroy(); 
+		$('#dynamic-table')
+		.DataTable( {
+			fixedHeader: {
+				headerOffset: $('.page-header').outerHeight()
+			},
+			responsive: true,
+			bAutoWidth: false,
+			"aoColumnDefs": [
+			  { "bSortable": false, "aTargets": [ 0,1 ] },
+			  { "sClass": "text-center", "aTargets": [ 0,1 ] },
+			],
+			"aaSorting": [
+			  	[2,'asc'] 
+			],
+			"sAjaxSource": module_path+"/get_data?fldivision="+division+"&flposition="+position+"",
+			"bProcessing": true,
+	        "bServerSide": true,
+			"pagingType": "bootstrap_full_number",
+			"colReorder": true
+	    } );
+
+	}
+
+
+	function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+
+
+
+
+
+	
+
+
+
+	
 
 </script>

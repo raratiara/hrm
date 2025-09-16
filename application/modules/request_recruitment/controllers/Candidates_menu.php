@@ -44,6 +44,12 @@ class Candidates_menu extends MY_Controller
 		$msstatus 				= $this->db->query("select * from master_status_candidates where id != 5 order by id asc")->result(); 
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',1,'-');
 
+		$msdiv 				= $this->db->query("select * from divisions order by name asc")->result();
+		$field['seldiv'] 	= $this->self_model->return_build_select2me($msdiv,'','','','filter-division','filter-division','','','id','name',' ','','','',1,'-');
+
+		$msposition 			= $this->db->query("select * from request_recruitment order by subject asc")->result();
+		$field['selposition'] 	= $this->self_model->return_build_select2me($msposition,'','','','filter-position','filter-position','','','subject','subject',' ','','','',1,'-');
+
 
 		
 		return $field;
@@ -135,6 +141,91 @@ class Candidates_menu extends MY_Controller
 
 		echo json_encode($rs);
 	}
+
+
+	public function get_card_data()
+	{
+		$post = $this->input->post(null, true);
+		$division = $post['division'];
+		$position = $post['position'];
+
+		$whr_position="";
+		if(!empty($position)){
+			$whr_position = " and b.subject = '".$position."'";
+		}
+
+		$whr_division="";
+		if(!empty($division)){
+			$whr_division = " and d.division_id = '".$division."'";
+		}
+
+
+	    // ambil semua kandidat
+	    $sTable = '(select a.*, 
+	                       b.subject as position_name, 
+	                       if(c.name is null,"Not Started", c.name) as status_name, b.section_id, d.division_id 
+	                from candidates a 
+	                left join request_recruitment b on b.id = a.request_recruitment_id
+	                left join master_status_candidates c on c.id = a.status_id 
+	                left join sections d on d.id = b.section_id
+	                where 1=1 '.$whr_position.$whr_division.' )dt';
+
+	    $query = $this->db->query("SELECT id, candidate_code, full_name, position_name, email, phone, cv, status_name 
+	                               FROM $sTable 
+	                               ORDER BY status_name ASC, full_name ASC")->result();
+
+	    // group kandidat by status
+	    $grouped = [];
+	    foreach ($query as $row) {
+	        $grouped[$row->status_name][] = [
+	            'id'       => $row->id,
+	            'code'     => $row->candidate_code,
+	            'name'     => $row->full_name,
+	            'position' => $row->position_name,
+	            'email'    => $row->email,
+	            'phone'    => $row->phone,
+	            'cv'       => $row->cv,
+	            'status'   => $row->status_name
+	        ];
+	    }
+
+	    // urutan custom status
+	    $custom_order = ["Not Started", "In Process", "Hired", "Not Passed", "Rejected"];
+
+	    $data = [];
+	    foreach ($custom_order as $st) {
+	        $data[] = [
+	            'status' => $st,
+	            'items'  => isset($grouped[$st]) ? $grouped[$st] : []
+	        ];
+	    }
+
+	    echo json_encode([
+	        "success" => true,
+	        "data"    => $data
+	    ]);
+	}
+
+
+
+
+
+
+	public function kanban_view()
+	{
+		$msdiv 				= $this->db->query("select * from divisions order by name asc")->result();
+		$field['seldiv'] 	= $this->self_model->return_build_select2me($msdiv,'','','','filter-division','filter-division','','','id','name',' ','','','',1,'-');
+
+		$msposition 			= $this->db->query("select * from request_recruitment order by subject asc")->result();
+		$field['selposition'] 	= $this->self_model->return_build_select2me($msposition,'','','','filter-position','filter-position','','','subject','subject',' ','','','',1,'-');
+
+
+	    $this->load->view(_TEMPLATE_PATH . "module_kanban_candidates_view", $field);
+	}
+
+
+
+
 
 
 
