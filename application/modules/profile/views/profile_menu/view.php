@@ -76,6 +76,18 @@
                 </div>
             </div>
 
+            <div class="action-button">
+                <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
+                <button class="btn-circle btn-checkin" id="btnAddData">
+                    <i class="bi bi-box-arrow-in-right"></i> Check-in
+                </button>
+                <!-- <a class="btn btn-default btn-sm btn-circle" id="btnAddData">Check-IN</a> -->
+                <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
+                    <i class="bi bi-box-arrow-right"></i> Check-out
+                </button>
+            </div>
+
+
         </div>
 
         <div class="profile-info">
@@ -104,21 +116,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="profile-action" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; width: 100px;">
-            <input type="hidden" id="hdnempid" name="hdnempid" value="<?=$empid?>" />
-
-            <button class="btn-circle btn-checkin" id="btnAddData">
-                <i class="bi bi-box-arrow-in-right"></i> Check-in
-            </button>
-            <!-- <a class="btn btn-default btn-sm btn-circle" id="btnAddData">Check-IN</a> -->
-            
-            <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
-                <i class="bi bi-box-arrow-right"></i> Check-out
-            </button>
-        </div>
-
-
 
     </div>
 
@@ -208,7 +205,7 @@
             <div class="birthday-box">
                 <!-- <h4 class="birthday-title">Today’s Birthdays</h4> -->
 
-                 <div class="birthday-header">
+                <div class="birthday-header">
                     <h4 class="birthday-title">Today’s Birthdays <span class="birthday-span"> <svg
                                 xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 128 128">
                                 <path fill="#ffc107"
@@ -259,7 +256,7 @@
 
 
 
-                
+
                 <div class="birthday-content">
                     <!-- <img id="birthday-image" src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture"
                     class="birthday-image"> -->
