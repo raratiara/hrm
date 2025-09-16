@@ -121,8 +121,8 @@
         </div>
 
         <div class="health-card">
+            <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
             <div class="row g-3">
-                
                 <div class="col-md-6 col-12">
                     <!-- BPM -->
                     <div class="card-box">
@@ -146,7 +146,7 @@
                         <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
                         <h3><span id="sleep"></span></h3>
                         <p>Sleep</p>
-                        <small><span id="sleep_desc">85% quality</span></small>
+                        <small><span id="sleep_percent"></span></small>
                     </div>
                     <!-- Fatigue -->
                     <div class="card-box">
