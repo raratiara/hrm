@@ -243,6 +243,45 @@ class Profile_menu_model extends MY_Model
 		} else return null;
 	}  
 
+
+	public function calculateFatigue($sleepHours, $bpm, $spo2) { 
+	    $score = 0;
+
+	    // Sleep
+	    if ($sleepHours < 5) $score += 3;
+	    elseif ($sleepHours < 7) $score += 2;
+	    else $score += 1;
+
+	    // BPM
+	    if ($bpm > 90) $score += 3;
+	    elseif ($bpm > 80) $score += 2;
+	    else $score += 1;
+
+	    // SpO2
+	    if ($spo2 < 94) $score += 3;
+	    elseif ($spo2 < 96) $score += 2;
+	    else $score += 1;
+
+	    // Hitung persentase
+	    $percentage = round(($score / 9) * 100);
+
+	    // Tentukan kategori
+	    if ($percentage >= 67) {
+	        $category = "High";
+	    } elseif ($percentage >= 34) {
+	        $category = "Moderate";
+	    } else {
+	        $category = "Low";
+	    }
+
+	    // Return dalam bentuk array
+	    return [
+	        'score'      => $score,
+	        'percentage' => $percentage,
+	        'category'   => $category
+	    ];
+	}
+
 	
 
 	public function getRowData($id) { 
@@ -491,7 +530,44 @@ class Profile_menu_model extends MY_Model
 		$sisa_plafon_all = $sisaplafon_rawatjalan;
 		$sisa_plafon_all = 'Rp ' . number_format($sisa_plafon_all, 0, ',', '.');
 
+
+		$health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where employee_id = '".$id."' order by ts_utc desc limit 1")->result(); 
+		$spo2 ="0"; $spo2_desc ="-";
+		if(!empty($health_raw_spo2)){
+			$spo2 = $health_raw_spo2[0]->pct;
+		}
+		if($spo2 >= 95){
+			$spo2_desc = "Excellent";
+		}else if($spo2 >= 91 && $spo2 <= 94){
+			$spo2_desc = "Good";
+		}else if($spo2 <= 90){
+			$spo2_desc = "Not Good";
+		}
+
+
+		$health_raw_hr = $this->db->query("select * from health_raw_hr where employee_id = '".$id."' order by ts_utc desc limit 1")->result(); 
+		$bpm ="0"; $bpm_desc="-";
+		if(!empty($health_raw_hr)){
+			$bpm = $health_raw_hr[0]->bpm;
+		}
+		if($bpm >= 60){
+			$bpm_desc = "Normal";
+		}else if($bpm < 60){
+			$bpm_desc = "Not Normal";
+		}
+
+		$health_daily = $this->db->query("select * from health_daily where employee_id = '".$id."' order by date desc limit 1")->result(); 
+		$sleep ="0"; $steps="0";
+		if(!empty($health_daily)){
+			$sleep = $health_daily[0]->sleep_minutes;
+			$steps = $health_daily[0]->steps;
+		}
+
+		$result = $this->calculateFatigue($sleep, $bpm, $spo2);
+		$fatigue_percentage = $result['percentage'].'%';
+		$fatigue_category = $result['category'];
 		
+
 		
 		$dataX = array(
 			'dtEmp' 					=> $rs,
@@ -507,12 +583,23 @@ class Profile_menu_model extends MY_Model
 			'sisaplafon_rawatinap' 		=> 'Rp ' . number_format($sisaplafon_rawatinap, 0, ',', '.'),
 			'sisaplafon_kacamata' 		=> 'Rp ' . number_format($sisaplafon_kacamata, 0, ',', '.'),
 			'sisaplafon_persalinan' 	=> 'Rp ' . number_format($sisaplafon_persalinan, 0, ',', '.'),
-			'sisa_plafon_all' 			=> $sisa_plafon_all
+			'sisa_plafon_all' 			=> $sisa_plafon_all,
 			/*'taskList' 					=> $data_tasklist*/
+			'spo2' 		=> $spo2,
+			'spo2_desc' => $spo2_desc,
+			'bpm' 		=> $bpm,
+			'bpm_desc' 	=> $bpm_desc,
+			'sleep' 	=> $sleep,
+			'fatigue_percentage' 	=> $fatigue_percentage,
+			'fatigue_category' 		=> $fatigue_category
 		);
 
 		return $dataX;
 	} 
+
+
+
+
 
 	
 	public function eksport_data()
@@ -525,6 +612,352 @@ class Profile_menu_model extends MY_Model
 		$rs = $res->result_array();
 		return $rs;
 	}
+
+
+	public function getNewExpensesRow($row,$id,$view=FALSE,$checkin=FALSE)
+	{ 
+
+		if(!$view){ 
+
+			$tasklist = $this->db->query("select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
+			from tasklist a left join employees b on b.id = a.employee_id
+			left join tasklist c on c.id = a.parent_id
+			left join master_tasklist_status d on d.id = a.status_id
+			left join data_project e on e.id = a.project_id where a.employee_id = '".$id."' and a.status_id != 3")->result();
+
+			if(!empty($tasklist)){
+				
+				
+				$row = 0; 
+				$rs_num = count($tasklist); 
+				
+				/*if($view){
+					$arrSat = json_decode(json_encode($msObat), true);
+					$arrS = [];
+					foreach($arrSat as $ai){
+						$arrS[$ai['id']] = $ai;
+					}
+				}*/
+				foreach ($tasklist as $f){
+					$task = $f->task;
+					if($f->parent_name != '' && $f->parent_name != null){
+						$task = $f->parent_name.' - '.$f->task;
+					}
+
+					$no = $row+1;
+					$msStatus = $this->db->query("select * from master_tasklist_status ")->result(); 
+
+					
+					if($checkin){ 
+						$dt .= '<tr>';
+
+						$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+
+						$dt .= '<td>'.$task.'</td>';
+						$dt .= '<td>'.$f->project_name.'</td>';
+						$dt .= '<td>'.$f->due_date.'</td>';
+						$dt .= '<td>'.$f->progress_percentage.'</td>';
+						$dt .= '<td>'.$f->status_name.'</td>';
+						
+						$dt .= '</tr>';
+					}else{ 
+						$dt .= '<tr>';
+
+						$dt .= '<td>'.$no.'<input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+
+						$dt .= '<td>'.$task.'</td>';
+						$dt .= '<td>'.$f->project_name.'</td>';
+						$dt .= '<td>'.$f->due_date.'</td>';
+						$dt .= '<td>'.$this->return_build_txt($f->progress_percentage,'progress_percentage['.$row.']','','progress_percentage','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+						
+						$dt .= '<td>'.$this->return_build_chosenme($msStatus,'',isset($f->status_id)?$f->status_id:1,'','status['.$row.']','status','status','','id','name','','','',' data-id="'.$row.'" ').'</td>';
+					
+			
+						$dt .= '</tr>';
+					}
+
+
+					$row++;
+				}
+				
+				return [$dt,$row];
+
+			}else{
+
+				$data = '<td colspan="5">No Data</td>';
+				
+				return $data;
+			}
+
+		}else{ 
+
+			$tasklist = $this->db->query("select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
+				from history_progress_tasklist aa
+				left join tasklist a on a.id = aa.tasklist_id
+				left join employees b on b.id = a.employee_id
+				left join tasklist c on c.id = a.parent_id
+				left join master_tasklist_status d on d.id = a.status_id
+				left join data_project e on e.id = a.project_id
+				where aa.time_attendances_id = '".$id."'")->result();
+
+			if(!empty($tasklist)){
+				
+				$row = 0; 
+				$rs_num = count($tasklist); 
+				
+				/*if($view){
+					$arrSat = json_decode(json_encode($msObat), true);
+					$arrS = [];
+					foreach($arrSat as $ai){
+						$arrS[$ai['id']] = $ai;
+					}
+				}*/
+				foreach ($tasklist as $f){
+					$task = $f->task;
+					if($f->parent_name != '' && $f->parent_name != null){
+						$task = $f->parent_name.' - '.$f->task;
+					}
+
+					$no = $row+1;
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					
+					$dt .= '<td>'.$no.'</td>';
+					$dt .= '<td>'.$task.'</td>';
+					$dt .= '<td>'.$f->project_name.'</td>';
+					$dt .= '<td>'.$f->due_date.'</td>';
+					$dt .= '<td>'.$f->progress_percentage.'</td>';
+					$dt .= '<td>'.$f->status_name.'</td>';
+					$dt .= '</tr>';
+
+					$row++;
+				}
+				
+				return [$dt,$row];
+
+			}else{
+
+				$data = '<td colspan="5">No Data</td>';
+				
+				return $data;
+			}
+
+		}
+
+		
+
+
+	} 
+
+
+	public function add_data($post) { 
+
+		$date_attendance 	= $post['date_attendance']; 
+		
+		$is_late=''; 
+
+		
+		
+		if($post['date_attendance'] == ''){
+			echo 'Date Attendance is not valid'; die();
+		}else if($post['emp_type'] == ''){
+			echo 'Shift Schedule not found'; die();
+		}else{ 
+			if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00'){
+				$f_datetime_in 		= $post['attendance_in'];
+				$f_time_in 			= date("H:i:s", strtotime($post['attendance_in']));
+				$timestamp_timein 	= strtotime($post['attendance_in']); 
+
+				if($post['emp_type'] == 'Shift 3'){
+					$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
+				}
+
+				$schedule 			= $date_attendance.' '.$post['time_in'];
+				$post_timein 		= strtotime($schedule); 
+
+				$schedule_out 		= $date_attendance.' '.$post['time_out'];
+				$post_timeout 		= strtotime($schedule_out); 
+
+				if($timestamp_timein > $post_timeout){ //jika checkin di atas waktu checkout
+					echo "Check-in time has expired"; die();
+				}else{ 
+					if($timestamp_timein > $post_timein){
+						$is_late='Y';
+					}
+
+					$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$post['date_attendance']."' and employee_id = '".$post['hdnempid']."'")->result(); 
+
+			  		if(empty($data_attendances)){ 
+			  			$data = [
+							
+							'date_attendance' 			=> $post['date_attendance'],
+							'employee_id' 				=> trim($post['hdnempid']),
+							'attendance_type' 			=> trim($post['emp_type']),
+							'time_in' 					=> trim($post['time_in']),
+							'time_out' 					=> trim($post['time_out']),
+							'date_attendance_in' 		=> $f_datetime_in,
+							'is_late'					=> $is_late,
+							'created_at'				=> date("Y-m-d H:i:s"),
+							'notes' 					=> trim($post['description']),
+							'work_location' 			=> trim($post['location'])
+						];
+						$rs = $this->db->insert("time_attendances", $data);
+
+						return $rs;
+
+			  		}else{
+			  			echo "Cannot double check in"; die();
+			  		}
+				}
+				
+
+			}else{
+				echo "Attendance IN not valid"; die();
+			}
+			
+		}
+		
+	} 
+
+
+	public function edit_data($post) { 
+		
+		$date_attendance 	= date_create($post['date_attendance']); 
+		$post_timein 		= strtotime($post['time_in']);
+		$post_timeout 		= strtotime($post['time_out']);
+
+		//$is_late=''; 
+		$is_leaving_office_early = ''; $num_of_working_hours='';
+
+
+		if(!empty($post['id'])){ 
+
+			$f_datetime_in 		= $post['attendance_in'];
+			$timestamp1 		= strtotime($f_datetime_in); 
+
+			$cek_emp = $this->db->query("select * from time_attendances where id = '".$post['id']."' ")->result(); 
+			$is_attendance_type=1;
+			if($cek_emp[0]->attendance_type == 'Reguler'){ 
+
+				$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+
+			}else if($cek_emp[0]->attendance_type == 'Shift 1' || $cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){ 
+
+				$tgl 	= date("d", strtotime($cek_emp[0]->date_attendance));
+				$period = date("Y-m", strtotime($cek_emp[0]->date_attendance));
+
+				$dt = $this->db->query("select a.*, b.periode
+						, b.`".$tgl."` as 'shift' 
+						, c.time_in, c.time_out, c.name 
+						from shift_schedule a
+						left join group_shift_schedule b on b.shift_schedule_id = a.id 
+						left join master_shift_time c on c.shift_id = b.`".$tgl."`
+						where b.employee_id = '".$cek_emp[0]->employee_id."' and a.period = '".$period."' ")->result(); 
+			}else{
+				$is_attendance_type=0;
+			}
+
+
+			if($is_attendance_type == 0){
+				echo "Attendance type not found"; die();
+			}else{ 
+				$date_attendance = $cek_emp[0]->date_attendance;
+
+				if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
+					$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
+				}
+
+				$datetime_out = $date_attendance.' '.$dt[0]->time_out;
+				
+
+				if(!empty($post['attendance_out']) && $post['attendance_out'] != '0000-00-00 00:00:00'){
+					
+					$f_datetime_out 	= $post['attendance_out'];
+					$timestamp2 		= strtotime($f_datetime_out);
+					$timestamp_timeout 	= strtotime($f_datetime_out);
+					$post_timeout 		= strtotime($datetime_out);
+
+					if($timestamp_timeout < $post_timeout){
+						$is_leaving_office_early = 'Y';
+					}
+
+					if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00' && !empty($post['attendance_out']) && $post['attendance_out'] != '0000-00-00 00:00:00'){ 
+						$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+
+						$data = [
+							
+							'date_attendance_out'		=> $f_datetime_out,
+							'is_leaving_office_early'	=> $is_leaving_office_early,
+							'num_of_working_hours'		=> $num_of_working_hours,
+							'updated_at'				=> date("Y-m-d H:i:s"),
+							'notes' 					=> trim($post['description']),
+							'work_location' 			=> trim($post['location'])
+						];
+
+						$rs = $this->db->update("time_attendances", $data, [$this->primary_key => trim($post['id'])]);
+						if($rs){
+							if(isset($post['hdnid'])){
+								$item_num = count($post['hdnid']); // cek sum
+								$item_len_min = min(array_keys($post['hdnid'])); // cek min key index
+								$item_len = max(array_keys($post['hdnid'])); // cek max key index
+							} else {
+								$item_num = 0;
+							}
+
+							if($item_num>0){
+								for($i=$item_len_min;$i<=$item_len;$i++) 
+								{
+									$hdnid = trim($post['hdnid'][$i]);
+									if(!empty($hdnid)){ //update
+										$currTask = $this->db->query("select * from tasklist where id = '".$hdnid."' ")->result();
+											$currProgress = $currTask[0]->progress_percentage;
+											$currStatus = $currTask[0]->status_id;
+
+										$itemData = [
+											'progress_percentage' 	=> trim($post['progress_percentage'][$i]),
+											'status_id' 			=> trim($post['status'][$i]),
+											'updated_at' 			=> date("Y-m-d H:i:s")
+										];
+										$rd = $this->db->update("tasklist", $itemData, "id = '".$hdnid."'");
+										if($rd){
+											if($currProgress != trim($post['progress_percentage'][$i]) || $currStatus != trim($post['status'][$i])){ //jika ada perubahan maka masukin ke table progress
+												$dataprogress = [
+													'time_attendances_id' 	=> $post['id'],
+													'tasklist_id' 			=> $hdnid,
+													'progress_percentage'	=> trim($post['progress_percentage'][$i]),
+													'submit_at'				=> date("Y-m-d H:i:s")
+												];
+												$this->db->insert("history_progress_tasklist", $dataprogress);
+											}
+										}
+									}
+								}
+							}
+						}
+
+						return $rs;
+
+					}else{
+						echo "Attendance In not valid"; die();
+					}
+
+				}else{
+					echo "Attendance Out not valid"; die();
+				}
+
+			}
+			
+		} else return null;
+	} 
 
 	
 

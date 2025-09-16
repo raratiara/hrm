@@ -32,7 +32,8 @@
     gap: 10px;
   }
 
-  .select2-selection__placeholder {
+  /*.select2-selection__placeholder {*/
+  #flstatus + .select2 .select2-selection__placeholder {
     visibility: hidden;
     /* sembunyikan teks default */
     position: relative;
@@ -40,7 +41,8 @@
     background: #0000 !important;
   }
 
-  .select2-selection__placeholder::after {
+  /*.select2-selection__placeholder::after {*/
+  #flstatus + .select2 .select2-selection__placeholder::after {
     content: "Select Status";
     /* teks baru */
     visibility: visible;
@@ -49,17 +51,19 @@
     color: #999;
   }
 
-  .select2-container--bootstrap .select2-selection {
+  /*.select2-container--bootstrap .select2-selection {*/
+  #flstatus + .select2.select2-container--bootstrap .select2-selection {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
   }
 
-  .select2-selection {
-      width: 150px !important;
-      font-size: 10px !important;
-      margin-top: 8px !important;
-    }
+  /*.select2-selection {*/
+  #flstatus + .select2 .select2-selection {
+    width: 150px !important;
+    font-size: 10px !important;
+    margin-top: 8px !important;
+  }
 
 
   @media (max-width: 768px) {
@@ -343,7 +347,7 @@
   }
 
 
-  .profile-card,
+  .profile-card,.health-card,
   .profile-info {
     background-color: #ffffff;
     border-radius: 10px !important;
@@ -352,7 +356,7 @@
     font-size: 13px !important;
   }
 
-  .profile-card {
+  .profile-card,.health-card {
     text-align: center;
   }
 
@@ -869,6 +873,88 @@
     margin-right: 18px;
 
   }
+
+
+  .btn-checkin {
+    background-color: #25c87c; 
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-right: 8px;
+    width:100px; 
+    font-weight:bold;
+  }
+  .btn-checkin:hover {
+    background-color: #157347;
+  }
+
+  .btn-checkout {
+    background-color: #c82571; 
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width:100px; 
+    font-weight:bold;
+  }
+  .btn-checkout:hover {
+    background-color: #bb2d3b;
+  }
+
+  .health-card {
+    background: #000; /* dark mode */
+    padding: 5px;
+    border-radius: 12px;
+  }
+
+  .card-box {
+      background: #111;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .card-box h3 {
+      margin: 5px 0 0;
+      font-size: 14px;   /* lebih kecil */
+      font-weight: bold;
+  }
+
+  .card-box p {
+      margin: 0;
+      font-size: 10px;   /* kecil */
+      color: #aaa;
+  }
+
+  .card-box small {
+      font-size: 8px;   /* kecil untuk teks tambahan */
+      color: #888;
+  }
+
+  .card-box .icon {
+      font-size: 14px;   /* ikon lebih kecil */
+      margin-bottom: 3px;
+  }
+
+  .card-box .badge {
+      font-size: 8px;   /* badge kecil */
+      padding: 3px 6px;
+      border-radius: 8px;
+  }
+
+  .action-button {
+    margin-top: 20px;
+  }
+
 
 
 </style>

@@ -111,8 +111,8 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="index.php">Homepage</a></li>
-          <li class="nav-item"><a class="nav-link active" href="career.php">Vacancy</a></li>
+          <li class="nav-item"><a class="nav-link" href="https://gerbangdata.co.id">Homepage</a></li>
+          <li class="nav-item"><a class="nav-link active" href="career_page.php">Vacancy</a></li>
         </ul>
       </div>
     </div>

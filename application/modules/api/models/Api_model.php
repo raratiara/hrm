@@ -1,3 +1,4 @@
+
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
@@ -179,7 +180,7 @@ class Api_model extends MY_Model
 
     public function query_db($sql)
     { 
-       
+
         $host   = "localhost";
         $dbname = "hrm";
         $user   = "root";
@@ -210,3 +211,4 @@ class Api_model extends MY_Model
     
 
 }
+
