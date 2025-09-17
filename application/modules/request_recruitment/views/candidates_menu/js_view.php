@@ -362,6 +362,157 @@ function getStep(id, save_method) {
 	            position: position
 	        },
 	        dataType: "json",
+	        success: function(response) { 
+	            console.log(response);
+	            if (response.success) {
+	                let html = '<div class="row kanban-board">';
+
+	                // mapping status ke class
+	                const statusMap = {
+	                    "Not Started": "not-started",
+	                    "In Process": "in-process",
+	                    "Hired": "hired",
+	                    "Not Passed": "not-passed",
+	                    "Rejected": "rejected"
+	                };
+
+	                $.each(response.data, function(i, group) {
+	                    let statusClass = statusMap[group.status] || group.status.toLowerCase().replace(/\s+/g, '-');
+
+	                    html += `
+	                        <div class="col-md-2 kanban-column">
+	                            <div class="kanban-header ${statusClass}">
+	                                ${group.status} (${group.count})
+	                            </div>
+	                            <div class="kanban-items">
+	                    `;
+
+	                    // khusus In Process -> tampilkan step breakdown
+	                    if (group.status === "In Process") {
+	                        if (group.steps && group.steps.length > 0) {
+	                            $.each(group.steps, function(iStep, stepObj) {
+	                                html += `<div class="step-group"><strong>${stepObj.step} (${stepObj.count})</strong></div>`;
+
+	                                if (stepObj.items.length > 0) {
+	                                    $.each(stepObj.items, function(i, item) {
+	                                        html += `
+	                                            <div class="kanban-card card mb-2 shadow-sm">
+	                                                <div class="card-body p-2">
+	                                                    <h6 class="card-title mb-1">${capitalize(item.name)}</h6>
+	                                                    <small>${capitalize(item.position) || ''}</small><br>
+	                                                    <small>${item.email || ''}</small><br>
+	                                                    <small>${item.phone || ''}</small>
+	                                                    <a class="btn btn-xs circle btn-primary"
+	                                                       href="javascript:void(0);" 
+	                                                       onclick="downloadFile('${item.cv}')" role="button">
+	                                                       <i class="fa fa-download"></i> CV
+	                                                    </a>
+	                                        			<br><br>
+			                                        	<a class="btn btn-xs btn-success detail-btn" 
+				                                           style="background-color: #343851; border-color: #343851;" 
+				                                           href="javascript:void(0);" 
+				                                           onclick="detail('${item.id}')" role="button">
+				                                           <i class="fa fa-search-plus"></i>
+				                                        </a>
+				                            			<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('${item.id}')" role="button"><i class="fa fa-pencil"></i></a>
+	                                                </div>
+	                                            </div>
+	                                        `;
+	                                    });
+	                                } else {
+	                                    html += `<div class="text-muted small text-center">No Data</div>`;
+	                                }
+	                            });
+	                        } else {
+	                            html += `<div class="text-muted small text-center">No Data</div>`;
+	                        }
+	                    } else if (group.status === "Done") {
+						    // tampilkan sub-group Hired & Not Passed
+						    $.each(group.groups, function(iSub, sub) {
+						        html += `<div class="step-group"><strong>${sub.substatus} (${sub.count})</strong></div>`;
+						        if (sub.items.length > 0) {
+						            $.each(sub.items, function(i, item) {
+						                html += `
+						                    <div class="kanban-card card mb-2 shadow-sm">
+						                        <div class="card-body p-2">
+						                            <h6 class="card-title mb-1">${capitalize(item.name)}</h6>
+						                            <small>${capitalize(item.position) || ''}</small><br>
+						                            <small>${item.email || ''}</small><br>
+						                            <small>${item.phone || ''}</small>
+						                            <a class="btn btn-xs circle btn-primary"
+						                               href="javascript:void(0);" 
+						                               onclick="downloadFile('${item.cv}')" role="button">
+						                               <i class="fa fa-download"></i> CV
+						                            </a>
+						                        </div>
+						                    </div>
+						                `;
+						            });
+						        } else {
+						            html += `<div class="text-muted small text-center">No Data</div>`;
+						        }
+						    });
+						}
+	                    // status lain langsung tampilkan items
+	                    else {
+	                        if (group.items.length > 0) {
+	                            $.each(group.items, function(i, item) {
+	                                html += `
+	                                    <div class="kanban-card card mb-2 shadow-sm">
+	                                        <div class="card-body p-2">
+	                                            <h6 class="card-title mb-1">${capitalize(item.name)}</h6>
+	                                            <small>${capitalize(item.position) || ''}</small><br>
+	                                            <small>${item.email || ''}</small><br>
+	                                            <small>${item.phone || ''}</small>
+	                                            <a class="btn btn-xs circle btn-primary"
+	                                               href="javascript:void(0);" 
+	                                               onclick="downloadFile('${item.cv}')" role="button">
+	                                               <i class="fa fa-download"></i> CV
+	                                            </a>
+	                                			<br><br>
+	                                        	<a class="btn btn-xs btn-success detail-btn" 
+		                                           style="background-color: #343851; border-color: #343851;" 
+		                                           href="javascript:void(0);" 
+		                                           onclick="detail('${item.id}')" role="button">
+		                                           <i class="fa fa-search-plus"></i>
+		                                        </a>
+		                            			<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('${item.id}')" role="button"><i class="fa fa-pencil"></i></a>
+	                                        </div>
+	                                    </div>
+	                                `;
+	                            });
+	                        } else {
+	                            html += `<div class="text-muted small text-center">No Data</div>`;
+	                        }
+	                    }
+
+	                    html += `</div></div>`; // close items & column
+	                });
+
+	                html += '</div>';
+	                $('#candidate-container').html(html);
+	            }
+	        },
+	        error: function(xhr, status, error) {
+	            console.log("Error loadCardView:", error);
+	        }
+	    });
+	}
+
+
+
+	function loadCardView_old() {
+	    var division = $('#filter-division').val();
+	    var position = $('#filter-position').val();
+
+	    $.ajax({
+	        url: module_path + "/get_card_data",
+	        type: "POST",
+	        data: {
+	            division: division,
+	            position: position
+	        },
+	        dataType: "json",
 	        success: function(response) {
 	            if (response.success) {
 	                let html = '<div class="row kanban-board">';

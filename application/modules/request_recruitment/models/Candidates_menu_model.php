@@ -364,7 +364,7 @@ class Candidates_menu_model extends MY_Model
 	// }
 
 	public function edit_data($post)
-	{
+	{ 
 		$join_date 			= trim($post['join_date']);
 		$contract_sign_date = trim($post['contract_sign_date']);
 		$end_prob_date 		= trim($post['end_prob_date']);
@@ -423,6 +423,7 @@ class Candidates_menu_model extends MY_Model
 						} else { //insert
 							$itemData2 = [
 								'candidates_id' => $post['id'],
+								'step_recruitment_id' => $post['step_id'][$i],
 								'date' 		=> trim($post['date'][$i]),
 								'doc' 		=> $document,
 								'notes' 	=> trim($post['notes'][$i]),

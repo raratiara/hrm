@@ -43,26 +43,32 @@
         text-align: center;
     }
 
-    /* mapping warna sesuai status */
+    
     .kanban-header.not-started {
-        background-color: #34495e; /* abu gelap */
+        background-color: #34495e; 
         color: #fff;
     }
     .kanban-header.in-process {
-        background-color: #f39c12; /* oranye */
+        background-color: #f39c12; 
         color: #000;
     }
     .kanban-header.hired {
-        background-color: #27ae60; /* hijau */
+        background-color: #27ae60; 
         color: #fff;
     }
+
+    .kanban-header.done {
+        background-color: #27ae60; 
+        color: #fff;
+    }
+
     .kanban-header.not-passed {
-        background-color: #9b59b6; /* ungu */
+        background-color: #9b59b6; 
         color: #fff;
     }
     .kanban-header.rejected {
         
-        background-color: #e74c3c; /* merah */
+        background-color: #e74c3c; 
         color: #fff;
     }
 
@@ -71,24 +77,31 @@
         border: 1px solid #ddd;
         border-radius: 6px;
         background-color: #fff;
-        color: #2c3e50; /* warna teks default lebih gelap */
+        color: #2c3e50; 
     }
 
     .kanban-card .card-title {
         font-size: 14px;
         font-weight: 600;
-        color: #2c3e50; /* nama kandidat lebih tegas */
+        color: #2c3e50; 
     }
 
     .kanban-card small {
-        /*display: block;
-        color: #2c3e50;  
-        font-size: 12px;
-        margin-bottom: 2px;*/
-
-        background-color: #8bdcf4; /* abu gelap */
+       
+        background-color: #8bdcf4; 
         color: #0a0a0a;
     }
+
+
+    .step-group {
+    background: #f0f0f0;
+    padding: 4px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 6px;
+    border-radius: 4px;
+}
+
 
 
 
