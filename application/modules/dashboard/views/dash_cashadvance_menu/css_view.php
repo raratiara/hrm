@@ -25,8 +25,8 @@
   }
 
    #fppType {
-    width: 200px;
-    height: 180px;
+    width: 230px;
+    height: 210px;
   }
 
 
@@ -122,20 +122,26 @@
   }
 
 
-  #monthly_att_summ {
+  #monthly_ca_summ {
     width: 350px;
     height: 250px;
   }
 
-  #att_statistic {
+  #cabyDiv {
     width: 350px;
     height: 250px;
   }
 
-  #empby_div_gender {
+  #outstandingSett {
     width: 330px;
     height: 250px;
   }
+
+  #monthly_ca_amount {
+    width: 330px;
+    height: 250px;
+  }
+  
 
 
   .dashboard {

@@ -122,15 +122,11 @@
   }
 
 
-  #monthly_att_summ {
-    width: 350px;
-    height: 250px;
+  #empby_status {
+    width: 300px;
+    height: 220px;
   }
 
-  #att_statistic {
-    width: 350px;
-    height: 250px;
-  }
 
   #empby_div_gender {
     width: 330px;
@@ -188,14 +184,21 @@
 
 
   #empby_gen {
-    width: 200px;
-    height: 180px;
+    width: 230px;
+    height: 210px;
   }
 
   #empby_maritalStatus {
-    width: 200px;
-    height: 180px;
+    width: 230px;
+    height: 210px;
   }
+
+  #project_summary {
+    width: 230px;
+    height: 210px;
+  }
+
+  
 
 
   .dashboard-grid {
