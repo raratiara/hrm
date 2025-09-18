@@ -107,7 +107,7 @@
 		<div class="box">
 			<div class="box-title">Business Trip by Division</div>
 			<div class="box-value">
-				<canvas id="bustripbyDiv"></canvas>
+				<canvas id="bustripbyDiv" style="margin-top: 15px;"></canvas>
 			</div>
 		</div>
 		<div class="box">
