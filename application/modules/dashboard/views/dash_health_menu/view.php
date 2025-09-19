@@ -11,8 +11,9 @@
 
 		<div class="date-picker-wrapper">
 			<span class="date-icon"><i class="fas fa-calendar-alt"></i></span>
-			<input type="date" id="fldashdateperiod" name="fldashdateperiod" placeholder="Select Date"
-				class="date-input" />
+			<!-- <input type="date" id="fldashdateperiod" name="fldashdateperiod" placeholder="Select Date"
+				class="date-input" /> -->
+			<input type="text" class="form-control date-input" id="fldateperiod" name="fldateperiod">
 		</div>
 
 

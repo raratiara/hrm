@@ -320,7 +320,7 @@
     }
 
     .date-picker-wrapper {
-      width: 40% !important;
+      width: 70% !important;
       height: auto !important;
       background-color: #fff;
       margin-top: 10px;
@@ -458,7 +458,7 @@
     align-items: center;
     border: 1px solid #ccc;
     border-radius: 20px !important;
-    width: 180px;
+    width: 250px;
     height: 36px;
     background-color: #fff;
     padding-left: 34px;

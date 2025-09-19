@@ -19,6 +19,15 @@
 	$(document).ready(function () {
 		$(function () {
 
+			$('input[name="fldateperiod"]').daterangepicker({
+			    autoUpdateInput: false, // <-- ini kuncinya
+			    /*locale: {
+			        cancelLabel: 'Clear'
+			    }*/
+			});
+
+
+
 			dataTotal();
 			getSteps();
 			getSleeps();
@@ -28,15 +37,35 @@
 	});
 
 
-	
-	function dataTotal() {
+	// Event saat user memilih tanggal
+	$('input[name="fldateperiod"]').on('apply.daterangepicker', function(ev, picker) { 
+	    $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
 
-		var flemp = $("#flemp option:selected").val();
+	    var flemp = $('#flemp').val();
+	    var fldateperiod = $('#fldateperiod').val();
+	    //getMaps(fldashemp,fldashperiod);
+
+
+	    dataTotal(flemp, fldateperiod);
+		getSteps(flemp, fldateperiod);
+		getSleeps(flemp, fldateperiod);
+		vitalSigns(flemp, fldateperiod);
+	});
+
+	// Event saat user klik tombol "Cancel" (Clear)
+	$('input[name="fldashperiod"]').on('cancel.daterangepicker', function(ev, picker) {
+	    $(this).val('');
+	});
+
+	
+	function dataTotal(empid = '', dateperiod = '') {
+
+		//var flemp = $("#flemp option:selected").val();
 
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_total',
-			data: { flemp: flemp },
+			data: { flemp: empid, fldateperiod: dateperiod },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
@@ -86,16 +115,16 @@
 	}
 
 
-	function getSteps() {
+	function getSteps(empid = '', dateperiod = '') {
 
-		var flemp = $("#flemp option:selected").val();
+		//var flemp = $("#flemp option:selected").val();
 
 
 
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_steps',
-			data: { flemp: flemp },
+			data: { flemp: empid, fldateperiod: dateperiod },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
@@ -197,16 +226,16 @@
 	}
 
 
-	function getSleeps() {
+	function getSleeps(empid = '', dateperiod = '') {
 
-		var flemp = $("#flemp option:selected").val();
+		//var flemp = $("#flemp option:selected").val();
 
 
 
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_sleeps',
-			data: { flemp: flemp },
+			data: { flemp: empid, fldateperiod: dateperiod },
 			cache: false,
 			dataType: "JSON",
 			success: function (data) {
@@ -308,13 +337,13 @@
 	}
 
 
-	function vitalSigns() {
+	function vitalSigns(empid = '', dateperiod = '') {
 	    var flemp = $("#flemp option:selected").val();
 
 	    $.ajax({
 	        type: "POST",
 	        url: module_path + '/get_data_vitalSigns',
-	        data: { flemp: flemp },
+	        data: { flemp: empid, fldateperiod: dateperiod },
 	        cache: false,
 	        dataType: "JSON",
 	        success: function (data) {
@@ -558,24 +587,20 @@
 	}
 	
 
-	function setFilter() {
-
-		dataTotal();
-		getSteps();
-		getSleeps();
-		vitalSigns();
-
-	}
 
 
 	$('#flemp').on('change', function () {
+		var flemp = $('#flemp').val(); 
+		var fldateperiod = $('#fldateperiod').val();
 
-		dataTotal();
-		getSteps();
-		getSleeps();
-		vitalSigns();
+		dataTotal(flemp,fldateperiod);
+		getSteps(flemp,fldateperiod);
+		getSleeps(flemp,fldateperiod);
+		vitalSigns(flemp,fldateperiod);
 
 	});
+
+	
 
 
 </script>
