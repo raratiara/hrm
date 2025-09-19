@@ -26,7 +26,7 @@
 			<div class="modal-body" style="min-height:100px; margin:10px">
 				<p class="text-center">Choose the menu</p>
 				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Menu</label>
+					<label class="col-md-2 control-label no-padding-right"></label>
 					<div class="col-md-8">
 						<?=$selmenu;?>
 						<!-- <input type="hidden" name="id" id="id" value=""> -->
