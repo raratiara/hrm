@@ -25,8 +25,8 @@
   }
 
    #reimFor {
-    width: 200px;
-    height: 180px;
+    width: 230px;
+    height: 210px;
   }
 
 
@@ -122,17 +122,22 @@
   }
 
 
-  #monthly_att_summ {
-    width: 350px;
+  #monthly_reimb_summ {
+    width: 300px;
+    height: 220px;
+  }
+
+  #reimbyDiv {
+    width: 300px;
+    height: 220px;
+  }
+
+  #reimbySubtype {
+    width: 330px;
     height: 250px;
   }
 
-  #att_statistic {
-    width: 350px;
-    height: 250px;
-  }
-
-  #empby_div_gender {
+  #monthly_reimb_amount {
     width: 330px;
     height: 250px;
   }

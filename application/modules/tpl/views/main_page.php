@@ -281,70 +281,6 @@
         .nav-toggle a:hover {
           background-color: #34495e;
         }*/
-
-    
-
-        <?php
-        if($this->module_name == 'profile_menu'){
-            ?>
-            /*.btn-checkin {
-                background-color: #ed3267; 
-                color: white;
-                border: none;
-                padding: 8px;
-                font-size: 13px;
-                border-radius: 6px;
-                cursor: pointer;
-                transition: background 0.3s ease;
-                margin-right: 3px;
-                margin-bottom: 5px;
-                margin-top: 5px;
-                width:100px; 
-                font-weight:bold;
-            }
-            .btn-checkin:hover {
-                background-color: #410617;
-            }
-
-            .btn-checkout {
-                background-color: white; 
-                color: #ed3267; 
-                border: none;
-                padding: 8px;
-                font-size: 13px;
-                border-radius: 50px;
-                cursor: pointer;
-                transition: background 0.3s ease;
-                width:100px; 
-                font-weight:bold;
-                margin-bottom: 5px;
-                margin-top: 5px;
-            }
-            .btn-checkout:hover {
-                background-color: #bb2d3b;
-            }*/
-
-            /*.page-bar {
-                display: flex !important;      
-                align-items: center;
-                justify-content: space-between; 
-            }
-
-            .page-breadcrumb {
-                margin: 0;
-                padding: 0;
-            }
-
-            .page-actions {
-                margin-left: auto;   
-                display: flex;
-                gap: 8px;
-            }*/
-            <?php
-        }
-        ?>
-
-
     </style>
 
 
@@ -371,8 +307,7 @@
         <div class="page-content-wrapper">
             <div class="page-content">
                 <div class="page-bar">
-                    <!-- <ul class="page-breadcrumb"> -->
-                    <ul class="page-breadcrumb mb-0">
+                    <ul class="page-breadcrumb">
                         <?php if (isset($breadcrumb) && $breadcrumb): ?>
                             <?php if (is_array($breadcrumb)): ?>
                                 <li>
@@ -392,27 +327,7 @@
                             <?php endif ?>
                         <?php endif; ?>
                     </ul>
-
-                    <?php
-                    /*if($this->module_name == 'profile_menu'){
-                        ?>
-                        <div class="page-actions">
-                            <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
-
-                            <button class="btn-circle btn-checkin" id="btnAddData">
-                                <i class="bi bi-box-arrow-in-right"></i> Check-in 
-                            </button>
-                            <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
-                                <i class="bi bi-box-arrow-right"></i> Check-out
-                            </button>
-                        </div>
-                        <?php
-                    }*/
-                    ?>
-                    
                 </div>
-
-
                 <?php if (isset($sview))
                     $this->load->view($sview); ?>
             </div>

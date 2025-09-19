@@ -82,18 +82,18 @@
   }
 
 
-  #monthly_att_summ {
+  #bustripbyDiv {
     width: 350px;
     height: 250px;
   }
 
   #costbyType {
-    width: 350px;
-    height: 250px;
+    width: 250px;
+    height: 230px;
   }
 
-  #empby_dept_gender {
-    width: 330px;
+  #monthlyTripSummary {
+    width: 350px;
     height: 250px;
   }
 
