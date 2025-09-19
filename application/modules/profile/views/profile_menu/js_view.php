@@ -1488,6 +1488,20 @@
 	            let container = $("#quickLinksContainer");
 	            container.empty();
 
+	            // Tambahkan button Check-in & Check-out di awal
+	            let actionButtons = `
+	                <div class="action-button d-flex">
+	                    <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
+	                    <button class="btn btn-checkin" id="btnAddData">
+	                        <i class="fa fa-sign-in"></i> Check-in
+	                    </button>
+	                    <button class="btn btn-checkout" onclick="getdatacheckout()">
+	                        <i class="fa fa-sign-out"></i> Check-out
+	                    </button>
+	                </div>
+	            `;
+	            container.append(actionButtons);
+
 	            if(res.length > 0){
 	                res.forEach(item => {
 	                	var url_menu = base_url+item.url;
