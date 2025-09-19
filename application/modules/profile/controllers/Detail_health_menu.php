@@ -30,7 +30,7 @@ class Detail_health_menu extends MY_Controller
 		$field = [];
 
 
-		$msemp 				= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp 				= $this->db->query("select * from employees where status_id = 1 and id = '".$karyawan_id."' order by full_name asc")->result(); 
 		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemp','flemp','','','id','full_name',' ','','','',3,'-');
 
 		$msdiv 				= $this->db->query("select * from divisions order by name asc")->result(); 

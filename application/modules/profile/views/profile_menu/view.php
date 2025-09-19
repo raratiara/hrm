@@ -202,7 +202,7 @@
 
             <!-- Button See Detail -->
             <div class="mt-3">
-                <button class="btn btn-primary rounded-pill px-4 py-2" onclick="goHealthDetails()">
+                <button class="btn btn-primary rounded-pill px-4 py-2" style="margin-top:20px" onclick="goHealthDetails()">
                     See Detail
                 </button>
             </div>
@@ -225,7 +225,7 @@
 
 
     </div>
-    
+
 
     <!-- Summary Box -->
 
