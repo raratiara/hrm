@@ -127,7 +127,9 @@ class Profile_menu extends MY_Controller
 		
 		$msmenu = $this->db->query("select a.*, b.title as menu_name, b.* from user_akses_role a 
 							left join user_menu b on b.user_menu_id = a.user_menu_id
-							where role_id = ".$_SESSION["role"]." and show_menu = 1 and b.url != '#' order by b.title asc")->result();
+							where role_id = ".$_SESSION["role"]." and show_menu = 1 and b.url != '#' 
+							and a.user_menu_id not in (select user_menu_id from quick_links where employee_id = '".$karyawan_id."')
+							order by b.title asc")->result();
 		$field['selmenu'] 	= $this->self_model->return_build_select2me($msmenu,'','','','menu','menu','','','user_menu_id','menu_name',' ','','','',3,'-');
 
 		$raw = [
@@ -864,7 +866,7 @@ class Profile_menu extends MY_Controller
  		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 		
-		
+
 		$rs = $this->db->query('select a.*, b.title, b.url from quick_links a left join user_menu b on b.user_menu_id = a.user_menu_id where a.employee_id = '.$karyawan_id.' ')->result();
 		
 
