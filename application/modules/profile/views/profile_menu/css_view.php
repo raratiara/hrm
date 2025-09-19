@@ -963,6 +963,94 @@
     margin-top: 20px;
   }
 
+  
+  .quick-links {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  /* judul jangan terlalu mepet bawah, karena ada button + */
+  .quick-links h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0; /* biar lebih rapat */
+      color: #333;
+  }
+
+  /* grid horizontal scroll */
+  .quick-links-grid {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 5px 2px 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #ccc transparent;
+  }
+
+  .quick-links-grid::-webkit-scrollbar {
+      height: 6px;
+  }
+  .quick-links-grid::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+  }
+
+  /* item */
+  .quick-link-item {
+      flex: 0 0 auto;
+      width: 100px;
+      height: 50px;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px; /* agak kecil biar muat */
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      user-select: none; /* biar gak ke-block teks pas di-swipe */
+  }
+
+  .quick-link-item icon {
+      width: 100px;
+      height: 30px;
+     
+  }
+
+  /* icon */
+  .quick-link-item i {
+      font-size: 20px;
+      margin-bottom: 6px;
+      color: #666;
+  }
+
+  /* teks biar rapi */
+  .quick-link-item span {
+      max-width: 100px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+
+  /* hover effect */
+  .quick-link-item:hover {
+      background: #f5f5f5;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+
+  /*#quickLinksContainer {
+    width: 50px;
+    height: 50px;
+  }*/
+
+
+
 
 
 </style>

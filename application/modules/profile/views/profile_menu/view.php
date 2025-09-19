@@ -227,6 +227,29 @@
     </div>
 
 
+    <!-- Quick Links -->
+    <!-- Quick Links -->
+    <div class="quick-links mt-4">
+        <div class="d-flex align-items-center">
+            Quick Links
+            <!-- <h4 class="mb-0 me-2">Quick Links</h4> -->
+            <button class="btn btn-sm btn-outline-primary btn-circle" 
+                    title="Add Quick Link" 
+                    onclick="addQuickLink()">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="quick-links-grid mt-3" id="quickLinksContainer">
+          
+        </div>
+    </div>
+
+
+
+
+
+
     <!-- Summary Box -->
 
     <div class="summary-section">
