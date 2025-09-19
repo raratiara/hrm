@@ -98,6 +98,7 @@ class Dash_health_menu extends MY_Controller
 
  		$post = $this->input->post(null, true);
 		$flemp 	= $post['flemp'];
+		$fldateperiod 	= $post['fldateperiod'];
 
 
 		$whr_emp = " and employee_id = '".$karyawan_id."'";
@@ -105,9 +106,19 @@ class Dash_health_menu extends MY_Controller
 			$whr_emp = " and employee_id = '".$flemp."'";
 		}
 
+		$whr_period_daily=""; $whr_period="";
+		if($fldateperiod != ''){
+			$exp = explode(" - ",$fldateperiod);
+			$start = $exp[0];
+			$end = $exp[1];
+
+			$whr_period_daily = " and (date between '".$start."' and '".$end."')";
+			$whr_period = " and (DATE_FORMAT(ts_utc, '%Y-%m-%d') between '".$start."' and '".$end."')";
+		}
+
 
 		
-		$health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where 1=1 ".$whr_emp." order by ts_utc desc limit 1")->result(); 
+		$health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where 1=1 ".$whr_emp.$whr_period." order by ts_utc desc limit 1")->result(); 
 		$spo2 ="0"; $spo2_desc ="-";
 		if(!empty($health_raw_spo2)){
 			$spo2 = $health_raw_spo2[0]->pct;
@@ -123,7 +134,7 @@ class Dash_health_menu extends MY_Controller
 		
 
 
-		$health_raw_hr = $this->db->query("select * from health_raw_hr where 1=1 ".$whr_emp." order by ts_utc desc limit 1")->result(); 
+		$health_raw_hr = $this->db->query("select * from health_raw_hr where 1=1 ".$whr_emp.$whr_period." order by ts_utc desc limit 1")->result(); 
 		$bpm ="0"; $bpm_desc="-";
 		if(!empty($health_raw_hr)){
 			$bpm = $health_raw_hr[0]->bpm;
@@ -139,7 +150,7 @@ class Dash_health_menu extends MY_Controller
 		
 
 
-		$health_daily = $this->db->query("select * from health_daily where 1=1 ".$whr_emp." order by date desc limit 1")->result(); 
+		$health_daily = $this->db->query("select * from health_daily where 1=1 ".$whr_emp.$whr_period_daily." order by date desc limit 1")->result(); 
 		$sleep_hours="0"; $lastLog=""; $sleep_percent="0"; $sleep_mins="0";
 		$calories="0"; $hr_avg_bpm="0"; $spo2_avg_pct="0"; $steps="0"; 
 		$sleep_hours_format = "0";
@@ -255,15 +266,25 @@ class Dash_health_menu extends MY_Controller
 
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];
+ 		$fldateperiod 	= $post['fldateperiod'];
 
 
 		$whr_emp=" and employee_id = '".$karyawan_id."'";
 		if(!empty($flemp)){ 
 			$whr_emp=" and employee_id = '".$flemp."'";
 		}
+		$whr_period_daily=""; 
+		if($fldateperiod != ''){
+			$exp = explode(" - ",$fldateperiod);
+			$start = $exp[0];
+			$end = $exp[1];
+
+			$whr_period_daily = " and (date between '".$start."' and '".$end."')";
+		}
 
 
-    	$rs = $this->db->query("select id, employee_id, date, steps from health_daily where 1=1 ".$whr_emp." group by date ORDER BY date")->result(); 
+
+    	$rs = $this->db->query("select id, employee_id, date, steps from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); 
 
 		$date=[]; $steps=[]; 
 		foreach($rs as $row){
@@ -291,15 +312,24 @@ class Dash_health_menu extends MY_Controller
 		
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];
+ 		$fldateperiod 	= $post['fldateperiod'];
 
 
 		$whr_emp=" and employee_id = '".$karyawan_id."'";
 		if(!empty($flemp)){ 
 			$whr_emp=" and employee_id = '".$flemp."'";
 		}
+		$whr_period_daily=""; 
+		if($fldateperiod != ''){
+			$exp = explode(" - ",$fldateperiod);
+			$start = $exp[0];
+			$end = $exp[1];
+
+			$whr_period_daily = " and (date between '".$start."' and '".$end."')";
+		}
 
 
-    	$rs = $this->db->query("select id, employee_id, date, sleep_minutes from health_daily where 1=1 ".$whr_emp." group by date ORDER BY date")->result(); 
+    	$rs = $this->db->query("select id, employee_id, date, sleep_minutes from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); 
 
 		$date=[]; $sleeps=[]; 
 		foreach($rs as $row){
@@ -328,11 +358,21 @@ class Dash_health_menu extends MY_Controller
 		
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];
+ 		$fldateperiod 	= $post['fldateperiod'];
 
 
 		$employee_id = $karyawan_id;
 		if(!empty($flemp)){ 
 			$employee_id = $flemp;
+		}
+		$whr_period=""; $whr_period2="";
+		if($fldateperiod != ''){
+			$exp = explode(" - ",$fldateperiod);
+			$start = $exp[0];
+			$end = $exp[1];
+
+			$whr_period = " and (DATE_FORMAT(hr.ts_utc, '%Y-%m-%d') between '".$start."' and '".$end."')";
+			$whr_period2 = " and (DATE_FORMAT(sp.ts_utc, '%Y-%m-%d') between '".$start."' and '".$end."')";
 		}
 	    
 
@@ -342,7 +382,7 @@ class Dash_health_menu extends MY_Controller
 			    LEFT JOIN health_raw_spo2 sp 
 			        ON hr.ts_utc = sp.ts_utc 
 			       AND hr.employee_id = sp.employee_id
-			    WHERE hr.employee_id = ".$employee_id."
+			    WHERE hr.employee_id = ".$employee_id.$whr_period."
 
 			    UNION
 
@@ -351,7 +391,7 @@ class Dash_health_menu extends MY_Controller
 			    LEFT JOIN health_raw_hr hr 
 			        ON hr.ts_utc = sp.ts_utc 
 			       AND hr.employee_id = sp.employee_id
-			    WHERE sp.employee_id = ".$employee_id."
+			    WHERE sp.employee_id = ".$employee_id.$whr_period2."
 
 			    ORDER BY ts_utc ASC
 			";
