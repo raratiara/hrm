@@ -893,7 +893,7 @@
     cursor: pointer;
     transition: background 0.3s ease;
     margin-right: 8px;
-    width:100px; 
+    width:100px; height: 50px;
     font-weight:bold;
   }
   .btn-checkin:hover {
@@ -909,7 +909,7 @@
     border-radius: 50px;
     cursor: pointer;
     transition: background 0.3s ease;
-    width:100px; 
+    width:100px; height: 50px;
     font-weight:bold;
   }
   .btn-checkout:hover {
@@ -959,9 +959,9 @@
       border-radius: 8px;
   }
 
-  .action-button {
+  /*.action-button {
     margin-top: 20px;
-  }
+  }*/
 
   
   .quick-links {

@@ -80,16 +80,16 @@
             </div>
 
 
-            <div class="action-button">
+            <!-- <div class="action-button">
                 <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
                 <button class="btn-circle btn-checkin" id="btnAddData">
                     <i class="bi bi-box-arrow-in-right"></i> Check-in
                 </button>
-                <!-- <a class="btn btn-default btn-sm btn-circle" id="btnAddData">Check-IN</a> -->
+                
                 <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
                     <i class="bi bi-box-arrow-right"></i> Check-out
                 </button>
-            </div>
+            </div> -->
 
         </div>
 
@@ -183,7 +183,7 @@
                 </div>
 
                 <div class="col-md-6 col-12">
-                    <!-- Sleep -->
+                    
                     <div class="card-box">
                         <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
                         <h3><span id="sleep"></span></h3>
@@ -200,9 +200,9 @@
                 </div>
             </div>
 
-            <!-- Button See Detail -->
+            
             <div class="mt-3">
-                <button class="btn btn-primary rounded-pill px-4 py-2" style="margin-top:20px" onclick="goHealthDetails()">
+                <button class="btn btn-primary btn-circle" style="margin-top:20px" onclick="goHealthDetails()">
                     See Detail
                 </button>
             </div>
@@ -241,7 +241,7 @@
         </div>
 
         <div class="quick-links-grid mt-3" id="quickLinksContainer">
-          
+            
         </div>
     </div>
 
