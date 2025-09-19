@@ -7,23 +7,25 @@
 <div class="dashboard-container">
 
 
-	<div class="top-bar">
-
-		<div class="date-picker-wrapper">
-			<span class="date-icon"><i class="fas fa-calendar-alt"></i></span>
-			<!-- <input type="date" id="fldashdateperiod" name="fldashdateperiod" placeholder="Select Date"
-				class="date-input" /> -->
-			<input type="text" class="form-control date-input" id="fldateperiod" name="fldateperiod">
-		</div>
-
+	<!-- <div class="top-bar">
 
 		<div class="employee-select-wrapper">
 			<span class="employee-icon"><i class="fas fa-user"></i></span>
 			
 			<?=$selemp?>
-		</div>
-	</div>
+		 </div> 
 
+		<div class="date-picker-wrapper">
+			<span class="date-icon"><i class="fas fa-calendar-alt"></i></span>
+			
+			<input type="text" class="form-control date-input" id="fldateperiod" name="fldateperiod">
+		</div>
+
+
+		
+	</div> -->
+
+	<br>
 
 	<div class="summary-container">
 		<div class="summary-card navy">
