@@ -120,8 +120,50 @@
             </div>
         </div>
 
-        <div class="health-card">
+        <!-- <div class="health-card">
             <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
+            <div class="row g-3">
+                <div class="col-md-6 col-12">
+                    
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-heart-fill text-danger"></i></div>
+                        <h3><span id="bpm"></span></h3>
+                        <p>BPM</p>
+                        <span class="badge bg-success" id="bpm_desc"></span>
+                    </div>
+                    
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-activity text-info"></i></div>
+                        <h3><span id="spo2"></span></h3>
+                        <p>SpO₂</p>
+                        <span class="badge bg-success" id="spo2_desc"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-12">
+                  
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
+                        <h3><span id="sleep"></span></h3>
+                        <p>Sleep</p>
+                        <small><span id="sleep_percent"></span></small>
+                    </div>
+                   
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div>
+                        <h3><span id="fatigue_percentage"></span></h3>
+                        <p>Fatigue</p>
+                        <span class="badge bg-warning text-dark" id="fatigue_category">Moderate</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div> -->
+
+        <div class="health-card p-3 rounded shadow text-center">
+            <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
+            
             <div class="row g-3">
                 <div class="col-md-6 col-12">
                     <!-- BPM -->
@@ -156,9 +198,16 @@
                         <span class="badge bg-warning text-dark" id="fatigue_category">Moderate</span>
                     </div>
                 </div>
+            </div>
 
+            <!-- Button See Detail -->
+            <div class="mt-3">
+                <button class="btn btn-primary rounded-pill px-4 py-2" onclick="goHealthDetails()">
+                    See Detail
+                </button>
             </div>
         </div>
+
 
 
         <!-- <div class="profile-action" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; width: 100px;">
@@ -176,8 +225,7 @@
 
 
     </div>
-
-
+    
 
     <!-- Summary Box -->
 

@@ -485,6 +485,14 @@
       font-size: 12px;
     } */
 
+  .summary-health {
+    display: flex;
+    gap: 20px;
+    /* Jarak antar kotak */
+    align-items: stretch;
+    /* Biar tingginya otomatis sama */
+  }
+
   .summary-section {
     display: flex;
     gap: 20px;
