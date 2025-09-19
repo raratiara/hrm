@@ -9,6 +9,12 @@
 
 	<!-- <div class="top-bar">
 
+		<div class="employee-select-wrapper">
+			<span class="employee-icon"><i class="fas fa-user"></i></span>
+			
+			<?=$selemp?>
+		 </div> 
+
 		<div class="date-picker-wrapper">
 			<span class="date-icon"><i class="fas fa-calendar-alt"></i></span>
 			
@@ -16,11 +22,7 @@
 		</div>
 
 
-		<div class="employee-select-wrapper">
-			<span class="employee-icon"><i class="fas fa-user"></i></span>
-			
-			<?=$selemp?>
-		</div>
+		
 	</div> -->
 
 	<br>
