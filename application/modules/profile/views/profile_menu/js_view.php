@@ -10,6 +10,50 @@
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>  
 
 
+<!-- Modal add quick link -->
+<div id="modal-quicklink" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true" style="padding-left: 600px">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:50%; text-align:center;">
+			<form class="form-horizontal" id="frmRfuData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Add Quick Link 
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Choose the menu</p>
+				<div class="form-group">
+					<label class="col-md-4 control-label no-padding-right">Menu</label>
+					<div class="col-md-8">
+						<?=$selmenu;?>
+						<!-- <input type="hidden" name="id" id="id" value=""> -->
+					</div>
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-rfu-data" onclick="save_quicklink()">
+					<i class="fa fa-check"></i>
+					Save
+				</button>
+				<button class="btn red" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Cancel
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
 <!-- Modal Form Data -->
 <div id="modal-form-checkin" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-checkin"
 	aria-hidden="true">
@@ -69,6 +113,8 @@
 
 	$(document).ready(function () {
 		$(function () {
+
+			loadQuickLinks();
 
 			$('#fltasklistperiod').daterangepicker({
 		        locale: {
@@ -1377,6 +1423,91 @@
 	}
 
 
+	function addQuickLink() {
+	    $('#modal-quicklink').modal('show');
+	}
+
+
+	function save_quicklink(){
+		/*var id 		= $("#id").val();*/
+		var menu 	= $("#menu").val();
+
+		$('#modal-quicklink').modal('hide');
+		
+		if(menu != ''){
+			$.ajax({
+				type: "POST",
+		        url : module_path+'/add_quick_link',
+				data: { menu: menu },
+				cache: false,		
+		        dataType: "JSON",
+		        success: function(data)
+		        { 
+		        	
+					if(data != false){ 	
+						alert("The menu has been successfully at quick link.");
+					} else { 
+						alert("Failed to save the data!");
+					}
+
+
+		        },
+		        error: function (jqXHR, textStatus, errorThrown)
+		        {
+					var dialog = bootbox.dialog({
+						title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+						message: jqXHR.responseText,
+						buttons: {
+							confirm: {
+								label: 'Ok',
+								className: 'btn blue'
+							}
+						}
+					});
+		        }
+		    });
+		}else{
+			alert("Data not found!");
+		}
+
+		location.reload();
+
+
+	}
+
+
+	function loadQuickLinks() {
+		var base_url = "<?php echo base_url($base_url); ?>"; 
+
+
+	    $.ajax({
+	        url: "<?= site_url('profile/profile_menu/get_data_quicklink') ?>",
+	        type: "POST",
+	        dataType: "json",
+	        success: function(res) {
+	            let container = $("#quickLinksContainer");
+	            container.empty();
+
+	            if(res.length > 0){
+	                res.forEach(item => {
+	                	var url_menu = base_url+item.url;
+	                    let div = `
+	                        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
+	                            <i class="${item.icon ?? 'fa fa-link'}"></i>
+	                            <span title="${item.title}">${item.title}</span>
+	                        </div>
+	                    `;
+	                    container.append(div);
+	                });
+	            } else {
+	                container.html("<small class='text-muted'>Belum ada quick link</small>");
+	            }
+	        },
+	        error: function(xhr, status, err) {
+	            console.error(err);
+	        }
+	    });
+	}
 
 
 </script>

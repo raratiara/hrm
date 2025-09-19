@@ -125,6 +125,10 @@ class Profile_menu extends MY_Controller
 		$msstatus 				= $this->db->query("select * from master_tasklist_status order by id asc")->result();
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','flstatus','flstatus','','','id','name',' ','','','',3,'-');
 		
+		$msmenu = $this->db->query("select a.*, b.title as menu_name, b.* from user_akses_role a 
+							left join user_menu b on b.user_menu_id = a.user_menu_id
+							where role_id = ".$_SESSION["role"]." and show_menu = 1 and b.url != '#' order by b.title asc")->result();
+		$field['selmenu'] 	= $this->self_model->return_build_select2me($msmenu,'','','','menu','menu','','','user_menu_id','menu_name',' ','','','',3,'-');
 
 		$raw = [
 		    ['id' => 'wfo', 'name' => 'WFO'],
@@ -825,6 +829,47 @@ class Profile_menu extends MY_Controller
 	        'isupdate' 	=> $isupdate,
 	        'dataabsen'	=> $rs
 	    ]);
+
+ 	}
+
+
+ 	public function add_quick_link(){
+ 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+		$post = $this->input->post(null, true);
+		$menu = $post['menu'];
+
+		if($menu != ''){
+
+			$data = [
+				'employee_id' 	=> $karyawan_id,
+				'user_menu_id' 	=> $menu,
+				'created_at'	=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert("quick_links", $data);
+
+			return $rs;
+			
+		}else return null;
+
+		echo json_encode($rs);
+
+	}
+
+
+	public function get_data_quicklink(){
+ 		//$post = $this->input->post(null, true);
+
+ 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		
+		$rs = $this->db->query('select a.*, b.title, b.url from quick_links a left join user_menu b on b.user_menu_id = a.user_menu_id where a.employee_id = '.$karyawan_id.' ')->result();
+		
+
+	    echo json_encode($rs);
+	   
 
  	}
 
