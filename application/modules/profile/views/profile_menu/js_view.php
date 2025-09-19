@@ -1369,6 +1369,13 @@
 	  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 	}
 
+	function goHealthDetails(){
+		var base_url = "<?php echo base_url($base_url); ?>";
+	 
+		
+		window.open(base_url+"profile/detail_health_menu", "_blank");
+	}
+
 
 
 

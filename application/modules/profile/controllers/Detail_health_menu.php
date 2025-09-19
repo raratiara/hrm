@@ -1,14 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Dash_health_menu extends MY_Controller
+class Detail_health_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "dash_health_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Dashboard Health";
- 	const  LABELFOLDER				= "dashboard"; // module folder
- 	const  LABELPATH				= "dash_health_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "dashboard"; // adjusted 1st sub parent segment
+ 	const  LABELMODULE				= "detail_health_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Detail Health";
+ 	const  LABELFOLDER				= "profile"; // module folder
+ 	const  LABELPATH				= "detail_health_menu"; // controller file (lowercase)
+ 	const  LABELNAVSEG1				= "profile"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Dashboard"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
