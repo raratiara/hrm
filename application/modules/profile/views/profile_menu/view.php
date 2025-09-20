@@ -76,17 +76,17 @@
                 </div>
             </div>
 
-            <div class="action-button">
+
+            <!-- <div class="action-button">
                 <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
                 <button class="btn-circle btn-checkin" id="btnAddData">
                     <i class="bi bi-box-arrow-in-right"></i> Check-in
                 </button>
-                <!-- <a class="btn btn-default btn-sm btn-circle" id="btnAddData">Check-IN</a> -->
+                
                 <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
                     <i class="bi bi-box-arrow-right"></i> Check-out
                 </button>
-            </div>
-
+            </div> -->
 
         </div>
 
@@ -117,7 +117,133 @@
             </div>
         </div>
 
+        <!-- <div class="health-card">
+            <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
+            <div class="row g-3">
+                <div class="col-md-6 col-12">
+                    
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-heart-fill text-danger"></i></div>
+                        <h3><span id="bpm"></span></h3>
+                        <p>BPM</p>
+                        <span class="badge bg-success" id="bpm_desc"></span>
+                    </div>
+                    
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-activity text-info"></i></div>
+                        <h3><span id="spo2"></span></h3>
+                        <p>SpO₂</p>
+                        <span class="badge bg-success" id="spo2_desc"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-12">
+                  
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
+                        <h3><span id="sleep"></span></h3>
+                        <p>Sleep</p>
+                        <small><span id="sleep_percent"></span></small>
+                    </div>
+                   
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div>
+                        <h3><span id="fatigue_percentage"></span></h3>
+                        <p>Fatigue</p>
+                        <span class="badge bg-warning text-dark" id="fatigue_category">Moderate</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div> -->
+
+        <div class="health-card p-3 rounded shadow text-center">
+            <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
+            
+            <div class="row g-3">
+                <div class="col-md-6 col-12">
+                    <!-- BPM -->
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-heart-fill text-danger"></i></div>
+                        <h3><span id="bpm"></span></h3>
+                        <p>BPM</p>
+                        <span class="badge bg-success" id="bpm_desc"></span>
+                    </div>
+                    <!-- SpO₂ -->
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-activity text-info"></i></div>
+                        <h3><span id="spo2"></span></h3>
+                        <p>SpO₂</p>
+                        <span class="badge bg-success" id="spo2_desc"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-12">
+                    
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
+                        <h3><span id="sleep"></span></h3>
+                        <p>Sleep</p>
+                        <small><span id="sleep_percent"></span></small>
+                    </div>
+                    <!-- Fatigue -->
+                    <div class="card-box">
+                        <div class="icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div>
+                        <h3><span id="fatigue_percentage"></span></h3>
+                        <p>Fatigue</p>
+                        <span class="badge bg-warning text-dark" id="fatigue_category">Moderate</span>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="mt-3">
+                <button class="btn btn-primary btn-circle" style="margin-top:20px" onclick="goHealthDetails()">
+                    See Detail
+                </button>
+            </div>
+        </div>
+
+
+
+        <!-- <div class="profile-action" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; width: 100px;">
+            <input type="hidden" id="hdnempid" name="hdnempid" value="<?=$empid?>" />
+
+            <button class="btn-circle btn-checkin" id="btnAddData">
+                <i class="bi bi-box-arrow-in-right"></i> Check-in
+            </button>
+            
+            <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
+                <i class="bi bi-box-arrow-right"></i> Check-out
+            </button>
+        </div> -->
+
+
+
     </div>
+
+
+    <!-- Quick Links -->
+    <!-- Quick Links -->
+    <div class="quick-links mt-4">
+        <div class="d-flex align-items-center">
+            Quick Links
+            <!-- <h4 class="mb-0 me-2">Quick Links</h4> -->
+            <button class="btn btn-sm btn-outline-primary btn-circle" 
+                    title="Add Quick Link" 
+                    onclick="addQuickLink()">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="quick-links-grid mt-3" id="quickLinksContainer">
+            
+        </div>
+    </div>
+
+
+
 
 
 

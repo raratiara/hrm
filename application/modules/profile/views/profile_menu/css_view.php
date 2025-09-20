@@ -371,7 +371,7 @@
   }
 
 
-  .profile-card,
+  .profile-card,.health-card,
   .profile-info {
     background-color: #ffffff;
     border-radius: 10px !important;
@@ -380,7 +380,7 @@
     font-size: 13px !important;
   }
 
-  .profile-card {
+  .profile-card,.health-card {
     text-align: center;
   }
 
@@ -508,6 +508,14 @@
       gap: 5px 30px;
       font-size: 12px;
     } */
+
+  .summary-health {
+    display: flex;
+    gap: 20px;
+    /* Jarak antar kotak */
+    align-items: stretch;
+    /* Biar tingginya otomatis sama */
+  }
 
   .summary-section {
     display: flex;
@@ -911,7 +919,7 @@
 
 
   .btn-checkin {
-    background-color: #25c87c; /* hijau */
+    background-color: #25c87c; 
     color: white;
     border: none;
     padding: 10px;
@@ -920,7 +928,7 @@
     cursor: pointer;
     transition: background 0.3s ease;
     margin-right: 8px;
-    width:100px; 
+    width:100px; height: 50px;
     font-weight:bold;
   }
   .btn-checkin:hover {
@@ -928,7 +936,7 @@
   }
 
   .btn-checkout {
-    background-color: #c82571; /* merah */
+    background-color: #c82571; 
     color: white;
     border: none;
     padding: 10px;
@@ -936,16 +944,147 @@
     border-radius: 50px;
     cursor: pointer;
     transition: background 0.3s ease;
-    width:100px; 
+    width:100px; height: 50px;
     font-weight:bold;
   }
   .btn-checkout:hover {
     background-color: #bb2d3b;
   }
 
-  .action-button {
-    margin-top: 20px;
+  .health-card {
+    background: #000; /* dark mode */
+    padding: 5px;
+    border-radius: 12px;
   }
+
+  .card-box {
+      background: #111;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .card-box h3 {
+      margin: 5px 0 0;
+      font-size: 14px;   /* lebih kecil */
+      font-weight: bold;
+  }
+
+  .card-box p {
+      margin: 0;
+      font-size: 10px;   /* kecil */
+      color: #aaa;
+  }
+
+  .card-box small {
+      font-size: 8px;   /* kecil untuk teks tambahan */
+      color: #888;
+  }
+
+  .card-box .icon {
+      font-size: 14px;   /* ikon lebih kecil */
+      margin-bottom: 3px;
+  }
+
+  .card-box .badge {
+      font-size: 8px;   /* badge kecil */
+      padding: 3px 6px;
+      border-radius: 8px;
+  }
+
+  /*.action-button {
+    margin-top: 20px;
+  }*/
+
+  
+  .quick-links {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  /* judul jangan terlalu mepet bawah, karena ada button + */
+  .quick-links h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0; /* biar lebih rapat */
+      color: #333;
+  }
+
+  /* grid horizontal scroll */
+  .quick-links-grid {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 5px 2px 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #ccc transparent;
+  }
+
+  .quick-links-grid::-webkit-scrollbar {
+      height: 6px;
+  }
+  .quick-links-grid::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+  }
+
+  /* item */
+  .quick-link-item {
+      flex: 0 0 auto;
+      width: 100px;
+      height: 50px;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px; /* agak kecil biar muat */
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      user-select: none; /* biar gak ke-block teks pas di-swipe */
+  }
+
+  .quick-link-item icon {
+      width: 100px;
+      height: 30px;
+     
+  }
+
+  /* icon */
+  .quick-link-item i {
+      font-size: 20px;
+      margin-bottom: 6px;
+      color: #666;
+  }
+
+  /* teks biar rapi */
+  .quick-link-item span {
+      max-width: 100px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+
+  /* hover effect */
+  .quick-link-item:hover {
+      background: #f5f5f5;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+
+  /*#quickLinksContainer {
+    width: 50px;
+    height: 50px;
+  }*/
+
+
 
 
 

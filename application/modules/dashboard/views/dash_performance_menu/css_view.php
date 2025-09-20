@@ -122,17 +122,17 @@
   }
 
 
-  #monthly_att_summ {
+  #chartTopPerformers {
     width: 350px;
     height: 250px;
   }
 
-  #att_statistic {
+  #chartAchieveTarget {
     width: 350px;
     height: 250px;
   }
 
-  #empby_div_gender {
+  #chartDivScore {
     width: 330px;
     height: 250px;
   }

@@ -82,21 +82,22 @@
   }
 
 
-  #monthly_att_summ {
+  #canvas_steps {
     width: 350px;
     height: 250px;
   }
 
-  #att_statistic {
+  #canvas_heart_rate {
     width: 350px;
     height: 250px;
   }
 
-  #empby_dept_gender {
-    width: 330px;
-    height: 250px;
+  #canvas_vitalsigns {
+    width: 300px;
+    height: 200px;
   }
 
+  
 
   .dashboard {
     display: grid;
@@ -146,28 +147,6 @@
     margin-top: 10px;
   }
 
-
-  #empby_gen {
-    width: 200px;
-    height: 180px;
-  }
-
-  #workLocation {
-    width: 230px;
-    height: 210px;
-  }
-
-
-  #att_percentage {
-    width: 120px;
-    height: 120px;
-  }
-
-
-  #workhrs_percentage {
-    width: 120px;
-    height: 120px;
-  }
 
 
   .dashboard-grid {
@@ -341,7 +320,7 @@
     }
 
     .date-picker-wrapper {
-      width: 40% !important;
+      width: 70% !important;
       height: auto !important;
       background-color: #fff;
       margin-top: 10px;
@@ -479,7 +458,7 @@
     align-items: center;
     border: 1px solid #ccc;
     border-radius: 20px !important;
-    width: 180px;
+    width: 250px;
     height: 36px;
     background-color: #fff;
     padding-left: 34px;
@@ -709,7 +688,7 @@
   }
 
 
-  .earlylogin-line {
+  /*.earlylogin-line {
     margin-top: 8px;
     display: flex;
     justify-content: space-between;
@@ -722,5 +701,40 @@
     display: flex;
     gap: 4px;
     align-items: center;
+  }*/
+
+  .earlylogin-line {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* jarak antar baris */
   }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .status-row strong {
+    display: inline-block;
+    width: 20px;   /* lebar tetap supaya angka rata */
+    text-align: right;
+    margin-right: 6px;
+
+  }
+
+  .txtt {
+    font-size: 12px;   /* teks lebih kecil */
+    color: #333;  
+  }
+
+  #sleep_desc_hrs {
+    font-size: 10px;   /* teks lebih kecil */
+  }
+
+  #sleep_desc_mins {
+    font-size: 10px;   /* teks lebih kecil */
+  }
+  
+
+
 </style>
