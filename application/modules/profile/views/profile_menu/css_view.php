@@ -1052,5 +1052,15 @@
 
 
 
+.select2-container {
+  width: 100% !important; 
+}
+
+.select2-dropdown {
+  position: absolute !important;
+  top: auto !important;
+  left: 0 !important;
+}
+
 
 </style>
