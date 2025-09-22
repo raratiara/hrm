@@ -917,28 +917,31 @@
   }
 
   .health-card {
+    width: 200px;
     background: #000; /* dark mode */
-    padding: 5px;
+    padding: 10px;
     border-radius: 12px;
   }
 
   .card-box {
       background: #111;
       border-radius: 12px;
-      padding: 10px;
+      padding: 8px;
       text-align: center;
       color: #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      margin-bottom: 6px; 
+      height: 90px;
   }
 
   .card-box h3 {
-      margin: 5px 0 0;
+      margin: 10px 0 0;
       font-size: 14px;   /* lebih kecil */
       font-weight: bold;
   }
 
   .card-box p {
-      margin: 0;
+      margin: 5px;
       font-size: 10px;   /* kecil */
       color: #aaa;
   }
@@ -957,6 +960,22 @@
       font-size: 8px;   /* badge kecil */
       padding: 3px 6px;
       border-radius: 8px;
+  }
+
+  .health-card .row {
+      margin-left: 0;
+      margin-right: 0;
+  }
+  .health-card .col-md-6 {
+      padding-left: 4px;
+      padding-right: 4px;
+  }
+
+
+  .btn-health {
+    font-size: 12px;     /* kecilkan teks */
+    padding: 4px 12px;   /* kecilkan tinggi & lebar */
+    border-radius: 20px; /* biar oval */
   }
 
   /*.action-button {
