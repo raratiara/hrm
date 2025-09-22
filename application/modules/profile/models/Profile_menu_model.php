@@ -584,7 +584,7 @@ class Profile_menu_model extends MY_Model
 		}
 
 
-		$result = $this->calculateFatigue($sleep, $bpm, $spo2);
+		$result = $this->calculateFatigue($sleep_hours, $bpm, $spo2);
 		$fatigue_percentage = $result['percentage'].'%';
 		$fatigue_category = $result['category'];
 		
