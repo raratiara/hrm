@@ -33,7 +33,7 @@
   }
 
   /*.select2-selection__placeholder {*/
-  #flstatus + .select2 .select2-selection__placeholder {
+  #flstatus+.select2 .select2-selection__placeholder {
     visibility: hidden;
     /* sembunyikan teks default */
     position: relative;
@@ -42,7 +42,7 @@
   }
 
   /*.select2-selection__placeholder::after {*/
-  #flstatus + .select2 .select2-selection__placeholder::after {
+  #flstatus+.select2 .select2-selection__placeholder::after {
     content: "Select Status";
     /* teks baru */
     visibility: visible;
@@ -52,14 +52,14 @@
   }
 
   /*.select2-container--bootstrap .select2-selection {*/
-  #flstatus + .select2.select2-container--bootstrap .select2-selection {
+  #flstatus+.select2.select2-container--bootstrap .select2-selection {
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
   }
 
   /*.select2-selection {*/
-  #flstatus + .select2 .select2-selection {
+  #flstatus+.select2 .select2-selection {
     width: 150px !important;
     font-size: 10px !important;
     margin-top: 8px !important;
@@ -371,7 +371,8 @@
   }
 
 
-  .profile-card,.health-card,
+  .profile-card,
+  .health-card,
   .profile-info {
     background-color: #ffffff;
     border-radius: 10px !important;
@@ -380,7 +381,8 @@
     font-size: 13px !important;
   }
 
-  .profile-card,.health-card {
+  .profile-card,
+  .health-card {
     text-align: center;
   }
 
@@ -919,7 +921,7 @@
 
 
   .btn-checkin {
-    background-color: #25c87c; 
+    background-color: #25c87c;
     color: white;
     border: none;
     padding: 10px;
@@ -928,15 +930,17 @@
     cursor: pointer;
     transition: background 0.3s ease;
     margin-right: 8px;
-    width:100px; height: 50px;
-    font-weight:bold;
+    width: 100px;
+    height: 50px;
+    font-weight: bold;
   }
+
   .btn-checkin:hover {
     background-color: #157347;
   }
 
   .btn-checkout {
-    background-color: #c82571; 
+    background-color: #c82571;
     color: white;
     border: none;
     padding: 10px;
@@ -944,158 +948,193 @@
     border-radius: 50px;
     cursor: pointer;
     transition: background 0.3s ease;
-    width:100px; height: 50px;
-    font-weight:bold;
+    width: 100px;
+    height: 50px;
+    font-weight: bold;
   }
+
   .btn-checkout:hover {
     background-color: #bb2d3b;
   }
 
   .health-card {
-    width: 200px;
-    background: #000; /* dark mode */
+    min-width: 200px;
+    background: #005479;
+    /* dark mode */
     padding: 10px;
     border-radius: 12px;
   }
 
   .card-box {
-      background: #111;
-      border-radius: 12px;
-      padding: 8px;
-      text-align: center;
-      color: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      margin-bottom: 6px; 
-      height: 90px;
+    background: #dbdadaff;
+    border-radius: 12px !important;
+    padding: 8px;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    margin-bottom: 6px;
+    height: 90px;
   }
 
   .card-box h3 {
-      margin: 10px 0 0;
-      font-size: 14px;   /* lebih kecil */
-      font-weight: bold;
+    margin: 10px 0 0;
+    font-size: 14px;
+    /* lebih kecil */
+    font-weight: bold;
+    color: #5c5c5cff;
   }
 
   .card-box p {
-      margin: 5px;
-      font-size: 10px;   /* kecil */
-      color: #aaa;
+    margin: 5px;
+    font-size: 10px;
+    /* kecil */
+    color: #aaa;
   }
 
   .card-box small {
-      font-size: 8px;   /* kecil untuk teks tambahan */
-      color: #888;
+    font-size: 8px;
+    /* kecil untuk teks tambahan */
+    color: #888;
   }
 
   .card-box .icon {
-      font-size: 14px;   /* ikon lebih kecil */
-      margin-bottom: 3px;
+    font-size: 14px;
+    /* ikon lebih kecil */
+    margin-bottom: 3px;
   }
 
   .card-box .badge {
-      font-size: 8px;   /* badge kecil */
-      padding: 3px 6px;
-      border-radius: 8px;
+    font-size: 8px;
+    /* badge kecil */
+    padding: 3px 6px;
+    border-radius: 8px;
   }
 
   .health-card .row {
-      margin-left: 0;
-      margin-right: 0;
+    margin-left: 0;
+    margin-right: 0;
   }
+
   .health-card .col-md-6 {
-      padding-left: 4px;
-      padding-right: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
   }
 
 
   .btn-health {
-    font-size: 12px;     /* kecilkan teks */
-    padding: 4px 12px;   /* kecilkan tinggi & lebar */
-    border-radius: 20px; /* biar oval */
+    font-size: 12px;
+    /* kecilkan teks */
+    padding: 4px 12px;
+    /* kecilkan tinggi & lebar */
+    border-radius: 20px;
+    /* biar oval */
+    background-color: #fac86bff;
   }
 
   /*.action-button {
     margin-top: 20px;
   }*/
 
-  
-  .quick-links {
+
+  /* .quick-links {
       background: #fff;
       padding: 15px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  } */
+
+  .quick-links {
+    position: fixed;
+    /* biar selalu melayang */
+    bottom: 20px;
+    /* jarak dari bawah */
+    right: 20px;
+    /* jarak dari kanan */
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    /* lebar panel */
+    z-index: 9999;
+    /* pastikan di atas elemen lain */
   }
 
   /* judul jangan terlalu mepet bawah, karena ada button + */
   .quick-links h4 {
-      font-size: 14px;
-      font-weight: 600;
-      margin: 0; /* biar lebih rapat */
-      color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    /* biar lebih rapat */
+    color: #333;
   }
 
   /* grid horizontal scroll */
   .quick-links-grid {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 12px;
-      overflow-x: auto;
-      padding: 5px 2px 8px;
-      scrollbar-width: thin;
-      scrollbar-color: #ccc transparent;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 5px 2px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
   }
 
   .quick-links-grid::-webkit-scrollbar {
-      height: 6px;
+    height: 6px;
   }
+
   .quick-links-grid::-webkit-scrollbar-thumb {
-      background: #ccc;
-      border-radius: 4px;
+    background: #ccc;
+    border-radius: 4px;
   }
 
   /* item */
   .quick-link-item {
-      flex: 0 0 auto;
-      width: 100px;
-      height: 50px;
-      background: #fafafa;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px; /* agak kecil biar muat */
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-      user-select: none; /* biar gak ke-block teks pas di-swipe */
+    flex: 0 0 auto;
+    width: 100px;
+    height: 50px;
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    /* agak kecil biar muat */
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+    /* biar gak ke-block teks pas di-swipe */
   }
 
   .quick-link-item icon {
-      width: 100px;
-      height: 30px;
-     
+    width: 100px;
+    height: 30px;
+
   }
 
   /* icon */
   .quick-link-item i {
-      font-size: 20px;
-      margin-bottom: 6px;
-      color: #666;
+    font-size: 20px;
+    margin-bottom: 6px;
+    color: #666;
   }
 
   /* teks biar rapi */
   .quick-link-item span {
-      max-width: 100px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* hover effect */
   .quick-link-item:hover {
-      background: #f5f5f5;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    background: #f5f5f5;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   }
 
   /*#quickLinksContainer {
@@ -1106,15 +1145,17 @@
 
 
 
-.select2-container {
-  width: 100% !important; 
-}
+  .select2-container {
+    width: 100% !important;
+  }
 
-.select2-dropdown {
-  position: absolute !important;
-  top: auto !important;
-  left: 0 !important;
-}
+  .select2-dropdown {
+    position: absolute !important;
+    top: auto !important;
+    left: 0 !important;
+  }
 
-
+  .card-information-health {
+    margin-top: 6px !important;
+  }
 </style>

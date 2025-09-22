@@ -159,9 +159,9 @@
         </div> -->
 
         <div class="health-card p-3 rounded shadow text-center">
-            <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
-            
-            <div class="row g-0">
+            <span id="lastLog" style="font-size: 11px; color: #ffffffff; font-weight:bold;"></span>
+
+            <div class="row g-0 card-information-health">
                 <div class="col-md-6 col-12">
                     <!-- BPM -->
                     <div class="card-box">
@@ -180,7 +180,7 @@
                 </div>
 
                 <div class="col-md-6 col-12">
-                    
+
                     <div class="card-box">
                         <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
                         <h3><span id="sleep"></span></h3>
@@ -197,9 +197,9 @@
                 </div>
             </div>
 
-            
+
             <div class="mt-3">
-                <button class="btn btn-primary btn-circle btn-health" style="margin-top:7px" onclick="goHealthDetails()">
+                <button class="btn btn-circle btn-health" style="margin-top:6px" onclick="goHealthDetails()">
                     See Detail
                 </button>
             </div>
@@ -208,7 +208,7 @@
 
 
         <!-- <div class="profile-action" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; width: 100px;">
-            <input type="hidden" id="hdnempid" name="hdnempid" value="<?=$empid?>" />
+            <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
 
             <button class="btn-circle btn-checkin" id="btnAddData">
                 <i class="bi bi-box-arrow-in-right"></i> Check-in
@@ -224,23 +224,35 @@
     </div>
 
 
-    <!-- Quick Links -->
-    <!-- Quick Links -->
-    <div class="quick-links mt-4">
-        <div class="d-flex align-items-center">
+    <div class="quick-links">
+        <div class="d-flex align-items-center justify-content-between">
             Quick Links
-            <!-- <h4 class="mb-0 me-2">Quick Links</h4> -->
-            <button class="btn btn-sm btn-outline-primary btn-circle" 
-                    title="Add Quick Link" 
-                    onclick="addQuickLink()">
+            <button class="btn btn-sm btn-outline-primary btn-circle" title="Add Quick Link" onclick="addQuickLink()">
                 <i class="fa fa-plus"></i>
             </button>
         </div>
 
         <div class="quick-links-grid mt-3" id="quickLinksContainer">
-            
         </div>
     </div>
+
+
+
+    <!-- Quick Links -->
+    <!-- Quick Links -->
+    <!-- <div class="quick-links mt-4">
+        <div class="d-flex align-items-center">
+            Quick Links
+          
+            <button class="btn btn-sm btn-outline-primary btn-circle" title="Add Quick Link" onclick="addQuickLink()">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="quick-links-grid mt-3" id="quickLinksContainer">
+
+        </div>
+    </div> -->
 
 
 

@@ -718,6 +718,8 @@
 	});*/
 </script>
 
+
+
 <script>
 
 	
@@ -1522,15 +1524,24 @@
 
 	            //if(res.length > 0){
 	                res.forEach(item => {
-	                	var url_menu = base_url+item.url;
-	                    let div = `
-	                        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
-	                            <i class="${item.icon ?? 'fa fa-link'}"></i>
-	                            <span title="${item.title}">${item.title}</span>
-	                        </div>
-	                    `;
-	                    container.append(div);
-	                });
+    var url_menu = base_url + item.url;
+
+    // Ambil icon, kalau kosong fallback ke fa-link
+    let iconClass = item.icon ?? "fa-link";
+
+    // pastikan ada prefix "fa "
+    if (!iconClass.startsWith("fa ")) {
+        iconClass = "fa " + iconClass;
+    }
+
+    let div = `
+        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
+            <i class="${iconClass}"></i>
+            <span title="${item.title}">${item.title}</span>
+        </div>
+    `;
+    container.append(div);
+});
 	            /*} else {
 	                container.html("<small class='text-muted'>Belum ada quick link</small>");
 	            }*/
@@ -1543,3 +1554,5 @@
 
 
 </script>
+
+
