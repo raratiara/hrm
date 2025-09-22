@@ -102,7 +102,7 @@ class Detail_health_menu extends MY_Controller
 
 
 		$whr_emp = " and employee_id = '".$karyawan_id."'";
-		if(!empty($flemp)){
+		/*if(!empty($flemp)){
 			$whr_emp = " and employee_id = '".$flemp."'";
 		}
 
@@ -114,48 +114,19 @@ class Detail_health_menu extends MY_Controller
 
 			$whr_period_daily = " and (date between '".$start."' and '".$end."')";
 			$whr_period = " and (DATE_FORMAT(ts_utc, '%Y-%m-%d') between '".$start."' and '".$end."')";
-		}
+		}*/
 
 
-		
-		$health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where 1=1 ".$whr_emp.$whr_period." order by ts_utc desc limit 1")->result(); 
-		$spo2 ="0"; $spo2_desc ="-";
-		if(!empty($health_raw_spo2)){
-			$spo2 = $health_raw_spo2[0]->pct;
+		$health_daily = $this->db->query("select * from health_daily where 1=1 ".$whr_emp." order by date desc limit 1")->result(); 
 
-			if ($spo2 >= 95) {
-			    $spo2_desc = "Excellent";
-			} else if ($spo2 >= 91) { 
-			    $spo2_desc = "Good";
-			} else if($spo2 < 91) { // berarti <91
-			    $spo2_desc = "Not Good";
-			}
-		}
-		
-
-
-		$health_raw_hr = $this->db->query("select * from health_raw_hr where 1=1 ".$whr_emp.$whr_period." order by ts_utc desc limit 1")->result(); 
-		$bpm ="0"; $bpm_desc="-";
-		if(!empty($health_raw_hr)){
-			$bpm = $health_raw_hr[0]->bpm;
-
-			if ($bpm >= 60 && $bpm <= 100) {
-			    $bpm_desc = "Normal";
-			} else if ($bpm < 60) {
-			    $bpm_desc = "Low";
-			} else if($bpm > 100) { // > 100
-			    $bpm_desc = "High";
-			}
-		}
-		
-
-
-		$health_daily = $this->db->query("select * from health_daily where 1=1 ".$whr_emp.$whr_period_daily." order by date desc limit 1")->result(); 
 		$sleep_hours="0"; $lastLog=""; $sleep_percent="0"; $sleep_mins="0";
 		$calories="0"; $hr_avg_bpm="0"; $spo2_avg_pct="0"; $steps="0"; 
 		$sleep_hours_format = "0";
 		$fatigue_percentage = '';
 		$fatigue_category = '-';
+		$bpm ="0"; $bpm_desc="-";
+		$spo2 ="0"; $spo2_desc ="-";
+
 		if (!empty($health_daily)) {
 			$lastLog 		=  $health_daily[0]->date;
 			$calories 		= $health_daily[0]->active_calories_kcal;
@@ -184,15 +155,44 @@ class Detail_health_menu extends MY_Controller
 		    }
 
 
-		    $result = $this->calculateFatigue($sleep_hours_format, $bpm, $spo2);
-			$fatigue_percentage = $result['percentage'].'%';
-			$fatigue_category = $result['category'];
+
+		    $health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where 1=1 and DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' order by ts_utc desc limit 1")->result(); 
+			
+			if(!empty($health_raw_spo2)){
+				$spo2 = $health_raw_spo2[0]->pct;
+
+				if ($spo2 >= 95) {
+				    $spo2_desc = "Excellent";
+				} else if ($spo2 >= 91) { 
+				    $spo2_desc = "Good";
+				} else if($spo2 < 91) { // berarti <91
+				    $spo2_desc = "Not Good";
+				}
+			}
+			
+
+
+			$health_raw_hr = $this->db->query("select * from health_raw_hr where 1=1 and DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' order by ts_utc desc limit 1")->result(); 
+			
+			if(!empty($health_raw_hr)){
+				$bpm = $health_raw_hr[0]->bpm;
+
+				if ($bpm >= 60 && $bpm <= 100) {
+				    $bpm_desc = "Normal";
+				} else if ($bpm < 60) {
+				    $bpm_desc = "Low";
+				} else if($bpm > 100) { // > 100
+				    $bpm_desc = "High";
+				}
+			}
 
 		}
 
 
 		
-		
+		$result = $this->calculateFatigue($sleep_hours_format, $bpm, $spo2);
+		$fatigue_percentage = $result['percentage'].'%';
+		$fatigue_category = $result['category'];
 
 		
 
@@ -221,7 +221,62 @@ class Detail_health_menu extends MY_Controller
  	}
 
 
- 	public function calculateFatigue($sleepHours, $bpm, $spo2) { 
+ 	public function calculateFatigue($sleepHours=0, $bpm=0, $spo2=0) {
+	    $score = 0;
+	    $minScore = 0;
+	    $maxScore = 0;
+
+	    // Sleep
+	    if ($sleepHours > 0) { // 0 = tidak ada data
+	        $minScore += 1; $maxScore += 3;
+	        if ($sleepHours < 5) $score += 3;
+	        elseif ($sleepHours < 7) $score += 2;
+	        else $score += 1;
+	    }
+
+	    // SpO2
+	    if ($spo2 > 0) { // 0 = tidak ada data
+	        $minScore += 1; $maxScore += 3;
+	        if ($spo2 < 90) $score += 3;
+	        elseif ($spo2 < 95) $score += 2;
+	        else $score += 1;
+	    }
+
+	    // BPM
+	    if ($bpm > 0) { // 0 = tidak ada data
+	        $minScore += 1; $maxScore += 3;
+	        if ($bpm > 100) $score += 3;
+	        elseif ($bpm > 90) $score += 2;
+	        else $score += 1;
+	    }
+
+	    // Kalau semua kosong (0)
+	    if ($maxScore == 0) {
+	        return [
+	            "score" => 0,
+	            "percentage" => 0,
+	            "category" => "-"
+	        ];
+	    }
+
+	    // Hitung persentase
+	    $fatiguePercent = (($score - $minScore) / ($maxScore - $minScore)) * 100;
+
+	    // Kategori
+	    if ($fatiguePercent <= 30) $status = "Low";
+	    elseif ($fatiguePercent <= 65) $status = "Moderate";
+	    else $status = "High";
+
+	    return [
+	        "score" => $score,
+	        "percentage" => round($fatiguePercent, 2),
+	        "category" => $status
+	    ];
+
+	}
+
+
+ 	public function calculateFatigue_old($sleepHours, $bpm, $spo2) { 
 	    $score = 0;
 
 	    // Sleep
@@ -284,7 +339,18 @@ class Detail_health_menu extends MY_Controller
 
 
 
-    	$rs = $this->db->query("select id, employee_id, date, steps from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); 
+    	/*$rs = $this->db->query("select id, employee_id, date, steps from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); */
+
+    	$rs = $this->db->query("select h.*
+				FROM health_daily h
+				JOIN (
+				    SELECT date, MAX(id) AS max_id
+				    FROM health_daily
+				    WHERE 1=1  ".$whr_emp.$whr_period_daily."
+				    GROUP BY date
+				) x ON h.date = x.date AND h.id = x.max_id
+				ORDER BY h.date;
+				")->result(); 
 
 		$date=[]; $steps=[]; 
 		foreach($rs as $row){
@@ -329,7 +395,18 @@ class Detail_health_menu extends MY_Controller
 		}
 
 
-    	$rs = $this->db->query("select id, employee_id, date, sleep_minutes from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); 
+    	/*$rs = $this->db->query("select id, employee_id, date, sleep_minutes from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); */
+
+    	$rs = $this->db->query("select h.*
+				FROM health_daily h
+				JOIN (
+				    SELECT date, MAX(id) AS max_id
+				    FROM health_daily
+				    WHERE 1=1  ".$whr_emp.$whr_period_daily."
+				    GROUP BY date
+				) x ON h.date = x.date AND h.id = x.max_id
+				ORDER BY h.date;
+				")->result(); 
 
 		$date=[]; $sleeps=[]; 
 		foreach($rs as $row){

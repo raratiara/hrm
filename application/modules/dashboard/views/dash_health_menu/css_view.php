@@ -428,7 +428,7 @@
 
   .employee-select-wrapper {
     position: relative;
-    width: 200px;
+    width: 230px;
     height: 36px;
     border: 1px solid #ccc;
     border-radius: 20px !important;

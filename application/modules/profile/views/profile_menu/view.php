@@ -161,7 +161,7 @@
         <div class="health-card p-3 rounded shadow text-center">
             <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
             
-            <div class="row g-3">
+            <div class="row g-0">
                 <div class="col-md-6 col-12">
                     <!-- BPM -->
                     <div class="card-box">
@@ -199,7 +199,7 @@
 
             
             <div class="mt-3">
-                <button class="btn btn-primary btn-circle" style="margin-top:20px" onclick="goHealthDetails()">
+                <button class="btn btn-primary btn-circle btn-health" style="margin-top:7px" onclick="goHealthDetails()">
                     See Detail
                 </button>
             </div>
