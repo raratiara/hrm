@@ -284,7 +284,18 @@ class Detail_health_menu extends MY_Controller
 
 
 
-    	$rs = $this->db->query("select id, employee_id, date, steps from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); 
+    	/*$rs = $this->db->query("select id, employee_id, date, steps from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); */
+
+    	$rs = $this->db->query("select h.*
+				FROM health_daily h
+				JOIN (
+				    SELECT date, MAX(id) AS max_id
+				    FROM health_daily
+				    WHERE 1=1  ".$whr_emp.$whr_period_daily."
+				    GROUP BY date
+				) x ON h.date = x.date AND h.id = x.max_id
+				ORDER BY h.date;
+				")->result(); 
 
 		$date=[]; $steps=[]; 
 		foreach($rs as $row){
@@ -329,7 +340,18 @@ class Detail_health_menu extends MY_Controller
 		}
 
 
-    	$rs = $this->db->query("select id, employee_id, date, sleep_minutes from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); 
+    	/*$rs = $this->db->query("select id, employee_id, date, sleep_minutes from health_daily where 1=1 ".$whr_emp.$whr_period_daily." group by date ORDER BY date")->result(); */
+
+    	$rs = $this->db->query("select h.*
+				FROM health_daily h
+				JOIN (
+				    SELECT date, MAX(id) AS max_id
+				    FROM health_daily
+				    WHERE 1=1  ".$whr_emp.$whr_period_daily."
+				    GROUP BY date
+				) x ON h.date = x.date AND h.id = x.max_id
+				ORDER BY h.date;
+				")->result(); 
 
 		$date=[]; $sleeps=[]; 
 		foreach($rs as $row){
