@@ -80,7 +80,7 @@
 
 	<div class="chart-container">
 		<div class="box">
-			<div class="box-title">Sleep Analysis</div>
+			<div class="box-title">Sleeps</div>
 			<div class="box-value">
 				<canvas id="canvas_sleeps" style="margin-top: 15px;"></canvas>
 			</div>

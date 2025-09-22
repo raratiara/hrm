@@ -1476,7 +1476,7 @@
 	}
 
 
-	function loadQuickLinks() {
+	function loadQuickLinks() { 
 		var base_url = "<?php echo base_url($base_url); ?>"; 
 
 
@@ -1502,7 +1502,19 @@
 	            `;
 	            container.append(actionButtons);*/
 
-	            if(res.length > 0){
+	            var url_menu_absen = base_url+'time_attendance/absensi_menu';
+	            var title = 'Daily Absence';
+                let divAbsen = `
+                    <div class="quick-link-item" onclick="window.location.href='${url_menu_absen}'">
+                        <i class="fa fa-calendar"></i>
+                        <span title="${title}">${title}</span>
+                    </div>
+                `;
+                container.append(divAbsen);
+
+
+
+	            //if(res.length > 0){
 	                res.forEach(item => {
 	                	var url_menu = base_url+item.url;
 	                    let div = `
@@ -1513,9 +1525,9 @@
 	                    `;
 	                    container.append(div);
 	                });
-	            } else {
+	            /*} else {
 	                container.html("<small class='text-muted'>Belum ada quick link</small>");
-	            }
+	            }*/
 	        },
 	        error: function(xhr, status, err) {
 	            console.error(err);
