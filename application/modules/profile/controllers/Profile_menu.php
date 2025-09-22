@@ -867,7 +867,10 @@ class Profile_menu extends MY_Controller
 		$karyawan_id = $getdata[0]->id_karyawan;
 		
 
-		$rs = $this->db->query('select a.*, b.title, b.url from quick_links a left join user_menu b on b.user_menu_id = a.user_menu_id where a.employee_id = '.$karyawan_id.' ')->result();
+		$rs = $this->db->query('select a.*, b.title, b.url, if(b.um_class != "", b.um_class, c.um_class) as icon 						from quick_links a 
+								left join user_menu b on b.user_menu_id = a.user_menu_id 
+								left join user_menu c on c.user_menu_id = b.parent_id
+								where a.employee_id = '.$karyawan_id.' ')->result();
 		
 
 	    echo json_encode($rs);
