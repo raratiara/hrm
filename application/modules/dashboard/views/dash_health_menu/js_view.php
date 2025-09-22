@@ -70,7 +70,13 @@
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
-					$('select#flemp').val(data.empid).trigger('change.select2');
+					if(empid == ''){
+						var flemp = data.empid;
+					}else{
+						var flemp = empid;
+					}
+
+					$('select#flemp').val(flemp).trigger('change.select2');
 					$('span#bpm').html(data.bpm);
 					$('span#bpm_desc').html(data.bpm_desc);
 					$('span#spo2').html(data.spo2);
@@ -288,7 +294,16 @@
 									titleColor: '#fff',
 									bodyColor: '#fff',
 									padding: 10,
-									borderRadius: 6
+									borderRadius: 6,
+									callbacks: {
+			                            label: function (context) {
+			                                // ambil nilai menit dari sleeps_mins pakai index
+			                                let minutes = data.sleeps_mins[context.dataIndex];
+			                                let h = Math.floor(minutes / 60);
+			                                let m = minutes % 60;
+			                                return h + "h " + m + "m";
+			                            }
+			                        }
 								}
 							},
 							scales: {
@@ -300,7 +315,11 @@
 									ticks: {
 										color: '#666',
 										font: { size: 10 }
-									}
+									},
+									title: {
+			                            display: true,
+			                            text: "Hours"
+			                        }
 								},
 								x: {
 									grid: {

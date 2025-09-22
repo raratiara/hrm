@@ -411,17 +411,21 @@ class Dash_health_menu extends MY_Controller
 				ORDER BY h.date;
 				")->result(); 
 
-		$date=[]; $sleeps=[]; 
+		$date=[]; $sleeps=[]; $sleeps_mins=[];
 		foreach($rs as $row){
 			$date[] 	= $row->date;
-			$sleeps[] 	= $row->sleep_minutes;
+			// ubah ke jam
+		    $sleep_hours 	= round($row->sleep_minutes / 60, 1); // 1 decimal
+			$sleeps[] 		= $sleep_hours;
+			$sleeps_mins[] 	= $row->sleep_minutes;
 			
 		}
 
 
 		$data = array(
-			'date' 		=> $date,
-			'sleeps'	=> $sleeps
+			'date' 			=> $date,
+			'sleeps'		=> $sleeps,
+			'sleeps_mins' 	=> $sleeps_mins
 		);
 
 
