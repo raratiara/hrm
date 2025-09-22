@@ -70,6 +70,7 @@
 			dataType: "JSON",
 			success: function (data) {
 				if (data != false) {
+					$('select#flemp').val(data.empid).trigger('change.select2');
 					$('span#bpm').html(data.bpm);
 					$('span#bpm_desc').html(data.bpm_desc);
 					$('span#spo2').html(data.spo2);
