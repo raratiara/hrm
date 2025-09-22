@@ -1489,7 +1489,7 @@
 	            container.empty();
 
 	            // Tambahkan button Check-in & Check-out di awal
-	            let actionButtons = `
+	            /*let actionButtons = `
 	                <div class="action-button d-flex">
 	                    <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
 	                    <button class="btn btn-checkin" id="btnAddData">
@@ -1500,7 +1500,7 @@
 	                    </button>
 	                </div>
 	            `;
-	            container.append(actionButtons);
+	            container.append(actionButtons);*/
 
 	            if(res.length > 0){
 	                res.forEach(item => {
