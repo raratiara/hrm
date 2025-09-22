@@ -125,9 +125,10 @@ class Profile_menu extends MY_Controller
 		$msstatus 				= $this->db->query("select * from master_tasklist_status order by id asc")->result();
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','flstatus','flstatus','','','id','name',' ','','','',3,'-');
 		
+		// menu daily absence sudah default muncul di quicklink, jd gausah dipilih lg
 		$msmenu = $this->db->query("select a.*, b.title as menu_name, b.* from user_akses_role a 
 							left join user_menu b on b.user_menu_id = a.user_menu_id
-							where role_id = ".$_SESSION["role"]." and show_menu = 1 and b.url != '#' 
+							where role_id = ".$_SESSION["role"]." and show_menu = 1 and b.url != '#' and a.user_menu_id != 6 
 							and a.user_menu_id not in (select user_menu_id from quick_links where employee_id = '".$karyawan_id."')
 							order by b.title asc")->result();
 		$field['selmenu'] 	= $this->self_model->return_build_select2me($msmenu,'','','','menu','menu','','','user_menu_id','menu_name',' ','','','',3,'-');

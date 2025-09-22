@@ -244,35 +244,34 @@ class Profile_menu_model extends MY_Model
 	}  
 
 
-	public function calculateFatigue($sleepHours, $bpm, $spo2) { 
+	public function calculateFatigue_old($sleepHours, $bpm, $spo2) { 
 	    $score = 0;
 
 	    // Sleep
-	    if ($sleepHours < 5) $score += 3;
-	    elseif ($sleepHours < 7) $score += 2;
-	    else $score += 1;
+	    if ($sleepHours < 5) $score += 3;      // sangat kurang tidur
+	    elseif ($sleepHours < 7) $score += 2;  // kurang tidur
+	    else $score += 1;                      // cukup tidur
 
 	    // BPM
-	    if ($bpm > 90) $score += 3;
-	    elseif ($bpm > 80) $score += 2;
-	    else $score += 1;
+	    if ($bpm > 100) $score += 3;           // tinggi
+	    elseif ($bpm > 90) $score += 2;        // agak tinggi
+	    else $score += 1;                      // normal
 
 	    // SpO2
-	    if ($spo2 < 94) $score += 3;
-	    elseif ($spo2 < 96) $score += 2;
-	    else $score += 1;
+	   	if ($spo2 < 90) $score += 3;           // sangat rendah
+	    elseif ($spo2 < 95) $score += 2;       // agak rendah
+	    else $score += 1;                      // normal
+
+
 
 	    // Hitung persentase
-	    $percentage = round(($score / 9) * 100);
+	    $percentage = round((($score - 3) / (9 - 3)) * 100);
 
-	    // Tentukan kategori
-	    if ($percentage >= 67) {
-	        $category = "High";
-	    } elseif ($percentage >= 34) {
-	        $category = "Moderate";
-	    } else {
-	        $category = "Low";
-	    }
+	    // Kategori Fatigue
+	    if ($percentage <= 30) $category = "Low";
+	    elseif ($percentage <= 65) $category = "Moderate";
+	    else $category = "High";
+
 
 	    // Return dalam bentuk array
 	    return [
@@ -281,6 +280,62 @@ class Profile_menu_model extends MY_Model
 	        'category'   => $category
 	    ];
 	}
+
+
+	public function calculateFatigue($sleepHours=0, $bpm=0, $spo2=0) {
+	    $score = 0;
+	    $minScore = 0;
+	    $maxScore = 0;
+
+	    // Sleep
+	    if ($sleepHours > 0) { // 0 = tidak ada data
+	        $minScore += 1; $maxScore += 3;
+	        if ($sleepHours < 5) $score += 3;
+	        elseif ($sleepHours < 7) $score += 2;
+	        else $score += 1;
+	    }
+
+	    // SpO2
+	    if ($spo2 > 0) { // 0 = tidak ada data
+	        $minScore += 1; $maxScore += 3;
+	        if ($spo2 < 90) $score += 3;
+	        elseif ($spo2 < 95) $score += 2;
+	        else $score += 1;
+	    }
+
+	    // BPM
+	    if ($bpm > 0) { // 0 = tidak ada data
+	        $minScore += 1; $maxScore += 3;
+	        if ($bpm > 100) $score += 3;
+	        elseif ($bpm > 90) $score += 2;
+	        else $score += 1;
+	    }
+
+	    // Kalau semua kosong (0)
+	    if ($maxScore == 0) {
+	        return [
+	            "score" => 0,
+	            "percentage" => 0,
+	            "category" => "-"
+	        ];
+	    }
+
+	    // Hitung persentase
+	    $fatiguePercent = (($score - $minScore) / ($maxScore - $minScore)) * 100;
+
+	    // Kategori
+	    if ($fatiguePercent <= 30) $status = "Low";
+	    elseif ($fatiguePercent <= 65) $status = "Moderate";
+	    else $status = "High";
+
+	    return [
+	        "score" => $score,
+	        "percentage" => round($fatiguePercent, 2),
+	        "category" => $status
+	    ];
+
+	}
+
 
 	
 
@@ -531,37 +586,13 @@ class Profile_menu_model extends MY_Model
 		$sisa_plafon_all = 'Rp ' . number_format($sisa_plafon_all, 0, ',', '.');
 
 
-		$health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where employee_id = '".$id."' order by ts_utc desc limit 1")->result(); 
-		$spo2 ="0"; $spo2_desc ="-";
-		if(!empty($health_raw_spo2)){
-			$spo2 = $health_raw_spo2[0]->pct;
-		}
-		if ($spo2 >= 95) {
-		    $spo2_desc = "Excellent";
-		} else if ($spo2 >= 91) { 
-		    $spo2_desc = "Good";
-		} else { // berarti <91
-		    $spo2_desc = "Not Good";
-		}
-
-
-
-		$health_raw_hr = $this->db->query("select * from health_raw_hr where employee_id = '".$id."' order by ts_utc desc limit 1")->result(); 
-		$bpm ="0"; $bpm_desc="-";
-		if(!empty($health_raw_hr)){
-			$bpm = $health_raw_hr[0]->bpm;
-		}
-		if ($bpm >= 60 && $bpm <= 100) {
-		    $bpm_desc = "Normal";
-		} else if ($bpm < 60) {
-		    $bpm_desc = "Low";
-		} else { // > 100
-		    $bpm_desc = "High";
-		}
-
+		
 
 		$health_daily = $this->db->query("select * from health_daily where employee_id = '".$id."' order by date desc limit 1")->result(); 
 		$sleep_hours ="0"; $lastLog=""; $sleep_percent="0";
+		$bpm ="0"; $bpm_desc="-";
+		$spo2 ="0"; $spo2_desc ="-";
+
 		if (!empty($health_daily)) {
 			$lastLog =  $health_daily[0]->date;
 
@@ -581,9 +612,42 @@ class Profile_menu_model extends MY_Model
 		    } else {
 		        $sleep_desc = "Poor";
 		    }
+
+
+		    /// get data BPM
+		    $health_raw_hr = $this->db->query("select * from health_raw_hr where employee_id = '".$id."' and  DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' order by ts_utc desc limit 1")->result(); 
+			
+			if(!empty($health_raw_hr)){
+				$bpm = $health_raw_hr[0]->bpm;
+
+				if ($bpm >= 60 && $bpm <= 100) {
+				    $bpm_desc = "Normal";
+				} else if ($bpm < 60) {
+				    $bpm_desc = "Low";
+				} else { // > 100
+				    $bpm_desc = "High";
+				}
+			}
+
+
+
+			/// get data sop2
+			$health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where employee_id = '".$id."' and  DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' order by ts_utc desc limit 1")->result(); 
+			
+			if(!empty($health_raw_spo2)){ 
+				$spo2 = $health_raw_spo2[0]->pct;
+
+				if ($spo2 >= 95) {
+				    $spo2_desc = "Excellent";
+				} else if ($spo2 >= 91) { 
+				    $spo2_desc = "Good";
+				} else { // berarti <91
+				    $spo2_desc = "Not Good";
+				}
+			}
 		}
 
-
+		
 		$result = $this->calculateFatigue($sleep_hours, $bpm, $spo2);
 		$fatigue_percentage = $result['percentage'].'%';
 		$fatigue_category = $result['category'];

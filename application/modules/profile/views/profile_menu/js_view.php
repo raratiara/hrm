@@ -116,6 +116,12 @@
 
 			loadQuickLinks();
 
+			$('#menu').select2({
+	     		dropdownParent: $('#modal-quicklink'), 
+				minimumResultsForSearch: 0,
+				width: '100%'
+		  	});
+
 			$('#fltasklistperiod').daterangepicker({
 		        locale: {
 		            format: 'YYYY-MM-DD', // format tanggal
