@@ -68,15 +68,15 @@
 			data: { flemp: empid, fldateperiod: dateperiod },
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function (data) { 
 				if (data != false) {
-					if(empid == ''){
+					/*if(empid == ''){
 						var flemp = data.empid;
 					}else{
 						var flemp = empid;
 					}
 
-					$('select#flemp').val(flemp).trigger('change.select2');
+					$('select#flemp').val(flemp).trigger('change.select2');*/
 					$('span#bpm').html(data.bpm);
 					$('span#bpm_desc').html(data.bpm_desc);
 					$('span#spo2').html(data.spo2);
@@ -86,8 +86,8 @@
 					$('span#sleep_desc').html(data.sleep_percent+'% quality');
 					$('span#fatigue').html(data.fatigue_percentage);
 					$('span#fatigue_category').html(data.fatigue_category);
-					$('span#avg_bpm').html(data.hr_avg_bpm);
-					$('span#avg_spo2').html(data.spo2_avg_pct);
+					//$('span#avg_bpm').html(data.hr_avg_bpm);
+					//$('span#avg_spo2').html(data.spo2_avg_pct);
 					
 				} else { 
 					var valnull = 0; var descnull = '-';
@@ -100,8 +100,8 @@
 					$('span#sleep_desc').html(descnull);
 					$('span#fatigue').html(valnull);
 					$('span#fatigue_category').html(descnull);
-					$('span#avg_bpm').html(valnull);
-					$('span#avg_spo2').html(valnull);
+					//$('span#avg_bpm').html(valnull);
+					//$('span#avg_spo2').html(valnull);
 					
 				}
 			},
@@ -121,8 +121,112 @@
 
 	}
 
-
 	function getSteps(empid = '', dateperiod = '') {
+	    $.ajax({
+	        type: "POST",
+	        url: module_path + '/get_data_steps',
+	        data: { flemp: empid, fldateperiod: dateperiod },
+	        cache: false,
+	        dataType: "JSON",
+	        success: function (data) {
+	            if (data != false) {
+
+	                const ctx = document.getElementById('canvas_steps').getContext('2d');
+
+	                var chartExist = Chart.getChart("canvas_steps"); 
+	                if (chartExist != undefined) chartExist.destroy();
+
+	                const barChart = new Chart(ctx, {
+	                    type: 'bar',
+	                    data: {
+	                        labels: data.date,     // tanggal di sumbu X
+	                        datasets: data.datasets // langsung ambil dari backend
+	                    },
+	                    options: {
+	                        responsive: true,
+	                        maintainAspectRatio: false,
+	                        plugins: {
+	                            datalabels: {
+	                                formatter: (value, context) => {
+	                                    if (parseFloat(value) === 0) {
+	                                        return ''; 
+	                                    }
+	                                    return value; // tampilkan angka jam di atas bar
+	                                },
+	                                color: '#fff',
+	                                font: { size: 11 }
+	                            },
+	                            legend: {
+	                                display: true,
+	                                position: 'top',
+						            labels: {
+						                usePointStyle: true,   // pakai simbol kecil
+						                pointStyle: 'circle',  // bulat
+						                boxWidth: 8,           // ukuran bulat kecil
+						                padding: 15,           // jarak antar item legend
+						                font: { size: 11 }
+						            }
+	                            },
+	                            tooltip: {
+	                                backgroundColor: '#333',
+	                                titleColor: '#fff',
+	                                bodyColor: '#fff',
+	                                padding: 10,
+	                                borderRadius: 6,
+	                                callbacks: {
+									    label: function (context) {
+									        let steps = context.dataset.data[context.dataIndex];
+									        if (steps === null) return ''; // skip kalau gak ada data
+									       
+									        return context.dataset.label + ": " + steps;
+									    }
+									}
+	                            }
+	                        },
+	                        scales: {
+	                            y: {
+	                                beginAtZero: true,
+	                                grid: { color: '#eee' },
+	                                ticks: {
+	                                    color: '#666',
+	                                    font: { size: 10 }
+	                                },
+	                                title: {
+	                                    display: true,
+	                                    text: "Hours"
+	                                }
+	                            },
+	                            x: {
+	                                grid: { display: false },
+	                                ticks: {
+	                                    color: '#666',
+	                                    font: { size: 10 }
+	                                }
+	                            }
+	                        }
+	                    },
+	                    plugins:[] //[ChartDataLabels]
+	                });
+
+	            }
+	        },
+	        error: function (jqXHR, textStatus, errorThrown) {
+	            var dialog = bootbox.dialog({
+	                title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+	                message: jqXHR.responseText,
+	                buttons: {
+	                    confirm: {
+	                        label: 'Ok',
+	                        className: 'btn blue'
+	                    }
+	                }
+	            });
+	        }
+	    });
+	}
+
+
+	function getSteps_emp(empid = '', dateperiod = '') {
 
 		//var flemp = $("#flemp option:selected").val();
 
@@ -233,7 +337,7 @@
 	}
 
 
-	function getSleeps(empid = '', dateperiod = '') {
+	function getSleeps_emp(empid = '', dateperiod = '') {
 
 		//var flemp = $("#flemp option:selected").val();
 
@@ -357,7 +461,114 @@
 	}
 
 
-	function vitalSigns(empid = '', dateperiod = '') {
+	function getSleeps(empid = '', dateperiod = '') {
+	    $.ajax({
+	        type: "POST",
+	        url: module_path + '/get_data_sleeps',
+	        data: { flemp: empid, fldateperiod: dateperiod },
+	        cache: false,
+	        dataType: "JSON",
+	        success: function (data) {
+	            if (data != false) {
+
+	                const ctx = document.getElementById('canvas_sleeps').getContext('2d');
+
+	                var chartExist = Chart.getChart("canvas_sleeps"); 
+	                if (chartExist != undefined) chartExist.destroy();
+
+	                const barChart = new Chart(ctx, {
+	                    type: 'bar',
+	                    data: {
+	                        labels: data.date,     // tanggal di sumbu X
+	                        datasets: data.datasets // langsung ambil dari backend
+	                    },
+	                    options: {
+	                        responsive: true,
+	                        maintainAspectRatio: false,
+	                        plugins: {
+	                            datalabels: {
+	                                formatter: (value, context) => {
+	                                    if (parseFloat(value) === 0) {
+	                                        return ''; 
+	                                    }
+	                                    return value; // tampilkan angka jam di atas bar
+	                                },
+	                                color: '#fff',
+	                                font: { size: 11 }
+	                            },
+	                            legend: {
+	                                display: true,
+	                                position: 'top',
+						            labels: {
+						                usePointStyle: true,   // pakai simbol kecil
+						                pointStyle: 'circle',  // bulat
+						                boxWidth: 8,           // ukuran bulat kecil
+						                padding: 15,           // jarak antar item legend
+						                font: { size: 11 }
+						            }
+	                            },
+	                            tooltip: {
+	                                backgroundColor: '#333',
+	                                titleColor: '#fff',
+	                                bodyColor: '#fff',
+	                                padding: 10,
+	                                borderRadius: 6,
+	                                callbacks: {
+									    label: function (context) {
+									        let minutes = context.dataset.sleeps_mins[context.dataIndex];
+									        if (minutes === null) return ''; // skip kalau gak ada data
+									        let h = Math.floor(minutes / 60);
+									        let m = minutes % 60;
+									        return context.dataset.label + ": " + h + "h " + m + "m";
+									    }
+									}
+	                            }
+	                        },
+	                        scales: {
+	                            y: {
+	                                beginAtZero: true,
+	                                grid: { color: '#eee' },
+	                                ticks: {
+	                                    color: '#666',
+	                                    font: { size: 10 }
+	                                },
+	                                title: {
+	                                    display: true,
+	                                    text: "Hours"
+	                                }
+	                            },
+	                            x: {
+	                                grid: { display: false },
+	                                ticks: {
+	                                    color: '#666',
+	                                    font: { size: 10 }
+	                                }
+	                            }
+	                        }
+	                    },
+	                    plugins:[] //[ChartDataLabels]
+	                });
+
+	            }
+	        },
+	        error: function (jqXHR, textStatus, errorThrown) {
+	            var dialog = bootbox.dialog({
+	                title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+	                message: jqXHR.responseText,
+	                buttons: {
+	                    confirm: {
+	                        label: 'Ok',
+	                        className: 'btn blue'
+	                    }
+	                }
+	            });
+	        }
+	    });
+	}
+
+
+
+	function vitalSigns_emp(empid = '', dateperiod = '') {
 	    
 
 	    $.ajax({
@@ -548,8 +759,12 @@
 					                display: true,
 					                position: 'top',
 					                labels: {
-					                    font: { size: 11 }
-					                }
+						                usePointStyle: true,   // pakai simbol kecil
+						                pointStyle: 'circle',  // bulat
+						                boxWidth: 8,           // ukuran bulat kecil
+						                padding: 15,           // jarak antar item legend
+						                font: { size: 11 }
+						            }
 					            },
 					            tooltip: {
 					                backgroundColor: '#333',
@@ -606,6 +821,138 @@
 	    });
 	}
 	
+
+	function vitalSigns(empid = '', dateperiod = '') { 
+	    $.ajax({
+	        type: "POST",
+	        url: module_path + '/get_data_vitalSigns',
+	        data: { flemp: empid, fldateperiod: dateperiod },
+	        cache: false,
+	        dataType: "JSON",
+	        success: function (data) { 
+	            /*if (data && data.labels.length > 0) {*/
+	        	if (data != false) {
+
+	                const ctx = document.getElementById('canvas_vitalsigns').getContext('2d');
+	                var chartExist = Chart.getChart("canvas_vitalsigns");
+	                if (chartExist) chartExist.destroy();
+
+	                const chart = new Chart(ctx, {
+	                    type: 'line',
+	                    data: {
+	                        labels: data.labels,
+	                        datasets: data.datasets
+	                    },
+	                    options: {
+	                        responsive: true,
+	                        maintainAspectRatio: false,
+	                        interaction: {
+					            mode: 'index',   // <<== ambil semua dataset di label yang sama
+					            intersect: false
+					        },
+	                        plugins: {
+	                            legend: {
+	                                display: true,
+	                                position: 'top',
+	                                labels: {
+	                                    usePointStyle: true,
+	                                    pointStyle: 'circle',
+	                                    boxWidth: 8,
+	                                    padding: 15,
+	                                    font: { size: 11 },
+
+	                                    generateLabels: function (chart) {
+						                    const employees = {};
+						                    chart.data.datasets.forEach(ds => {
+						                        // Ambil nama sebelum " - BPM" / " - SpO2"
+						                        const empName = ds.label.replace(/ - .+$/, "");
+						                        employees[empName] = '#000100';//ds.borderColor;
+						                    });
+
+						                    return Object.keys(employees).map(name => ({
+						                        text: name,
+						                        strokeStyle: employees[name],
+						                        fillStyle: employees[name],
+						                        pointStyle: 'circle'
+
+						                    }));
+						                }
+	                                }
+	                            },
+	                            tooltip: {
+	                                backgroundColor: '#333',
+	                                titleColor: '#fff',
+	                                bodyColor: '#fff',
+	                                padding: 10,
+	                                borderRadius: 6
+	                            }
+	                        },
+	                        /*scales: {
+	                            y: {
+	                                beginAtZero: true,
+	                                position: 'left',
+	                                grid: { color: 'rgba(200,200,200,0.2)' },
+	                                ticks: {
+	                                    color: '#666',
+	                                    font: { size: 10 }
+	                                }
+	                            },
+	                            y1: {
+	                                beginAtZero: true,
+	                                position: 'right',
+	                                grid: { drawOnChartArea: false },
+	                                ticks: {
+	                                    color: '#666',
+	                                    font: { size: 10 }
+	                                }
+	                            },
+	                            x: {
+	                                grid: { display: false },
+	                                ticks: {
+	                                    color: '#666',
+	                                    font: { size: 10 }
+	                                }
+	                            }
+	                        }*/
+	                        scales: {
+					            y: {
+					                beginAtZero: true,
+					                position: 'left',
+					                title: {
+					                    display: false,
+					                    text: 'Jumlah BPM & SpO2'
+					                },
+					                grid: {
+					                    color: 'rgba(200,200,200,0.2)' // grid lebih soft
+					                },
+					                ticks: {
+					                    color: '#666',
+					                    font: { size: 10 }
+					                }
+					            },
+					            x: {
+					                grid: { display: false },
+					                ticks: {
+					                    color: '#666',
+					                    font: { size: 10 }
+					                }
+					            }
+					        }
+	                    },
+	                     plugins: []
+	                });
+	            }
+	        },
+	        error: function (jqXHR, textStatus, errorThrown) {
+	            bootbox.dialog({
+	                title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+	                message: jqXHR.responseText,
+	                buttons: { confirm: { label: 'Ok', className: 'btn blue' } }
+	            });
+	        }
+	    });
+	}
+
 
 
 
