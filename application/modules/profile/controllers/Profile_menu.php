@@ -176,7 +176,7 @@ class Profile_menu extends MY_Controller
     }
 
 	/* Module */
-	public $base_url = _URL; 
+	//public $base_url = _URL; 
  	public $folder_name				= self::LABELFOLDER."/".self::LABELPATH; // module path
  	public $module_name				= self::LABELMODULE;
  	public $model_name				= self::LABELPATH."_model";
