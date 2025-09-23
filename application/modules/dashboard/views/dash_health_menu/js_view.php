@@ -192,7 +192,7 @@
 	                                    font: { size: 10 }
 	                                },
 	                                title: {
-	                                    display: true,
+	                                    display: false,
 	                                    text: "Hours"
 	                                }
 	                            },
