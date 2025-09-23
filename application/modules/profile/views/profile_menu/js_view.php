@@ -113,7 +113,7 @@
 
 	$(document).ready(function () { 
 		$(function () {
-alert(base_url);
+alert('ok');
 			loadQuickLinks();
 
 			$('#menu').select2({
