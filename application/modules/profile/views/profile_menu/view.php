@@ -1,5 +1,3 @@
-
-
 <style>
     table tbody td:nth-child(2) {
         text-align: center;
@@ -31,7 +29,6 @@
         border-collapse: collapse;
         min-width: 100%;
     }
-
 </style>
 
 
@@ -98,7 +95,7 @@
                 <!-- Kolom 1 -->
                 <div class="column">
 
-                    <div><strong>NIK</strong><span class="nik"></span></div>
+                    <div><strong>NIKK</strong><span class="nik"></span></div>
                     <div><strong>Date of Birth</strong><span class="date_of_birth"><span></div>
                     <div><strong>Gender</strong><span class="gender"></span></div>
                     <div><strong>Address</strong><span class="address"></span></div>
@@ -162,9 +159,9 @@
         </div> -->
 
         <div class="health-card p-3 rounded shadow text-center">
-            <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
-            
-            <div class="row g-0">
+            <span id="lastLog" style="font-size: 11px; color: #ffffffff; font-weight:bold;"></span>
+
+            <div class="row g-0 card-information-health">
                 <div class="col-md-6 col-12">
                     <!-- BPM -->
                     <div class="card-box">
@@ -183,7 +180,7 @@
                 </div>
 
                 <div class="col-md-6 col-12">
-                    
+
                     <div class="card-box">
                         <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
                         <h3><span id="sleep"></span></h3>
@@ -200,9 +197,9 @@
                 </div>
             </div>
 
-            
+
             <div class="mt-3">
-                <button class="btn btn-primary btn-circle btn-health" style="margin-top:7px" onclick="goHealthDetails()">
+                <button class="btn btn-circle btn-health" style="margin-top:6px" onclick="goHealthDetails()">
                     See Detail
                 </button>
             </div>
@@ -211,7 +208,7 @@
 
 
         <!-- <div class="profile-action" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; width: 100px;">
-            <input type="hidden" id="hdnempid" name="hdnempid" value="<?=$empid?>" />
+            <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
 
             <button class="btn-circle btn-checkin" id="btnAddData">
                 <i class="bi bi-box-arrow-in-right"></i> Check-in
@@ -227,23 +224,35 @@
     </div>
 
 
-    <!-- Quick Links -->
-    <!-- Quick Links -->
-    <div class="quick-links mt-4">
-        <div class="d-flex align-items-center">
+    <div class="quick-links">
+        <div class="d-flex align-items-center justify-content-between">
             Quick Links
-            <!-- <h4 class="mb-0 me-2">Quick Links</h4> -->
-            <button class="btn btn-sm btn-outline-primary btn-circle" 
-                    title="Add Quick Link" 
-                    onclick="addQuickLink()">
+            <button class="btn btn-sm btn-outline-primary btn-circle" title="Add Quick Link" onclick="addQuickLink()">
                 <i class="fa fa-plus"></i>
             </button>
         </div>
 
         <div class="quick-links-grid mt-3" id="quickLinksContainer">
-            
         </div>
     </div>
+
+
+
+    <!-- Quick Links -->
+    <!-- Quick Links -->
+    <!-- <div class="quick-links mt-4">
+        <div class="d-flex align-items-center">
+            Quick Links
+          
+            <button class="btn btn-sm btn-outline-primary btn-circle" title="Add Quick Link" onclick="addQuickLink()">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="quick-links-grid mt-3" id="quickLinksContainer">
+
+        </div>
+    </div> -->
 
 
 
@@ -254,7 +263,7 @@
 
     <div class="summary-section">
         <div class="summary-box">
-             <div class="summary-item highlight">
+            <div class="summary-item highlight">
                 <div>
                     <h4>Remaining Leave</h4>
                     <div class="total"><span class="ttl_sisa_cuti"></span></div>
@@ -308,9 +317,9 @@
                     </div>
                 </div>
 
-              
-                
-            </div> 
+
+
+            </div>
         </div>
 
         <!--  <span class="dataBday"> -->
@@ -334,7 +343,7 @@
             <div class="birthday-box">
                 <!-- <h4 class="birthday-title">Today’s Birthdays</h4> -->
 
-                 <div class="birthday-header">
+                <div class="birthday-header">
                     <h4 class="birthday-title">Today’s Birthdays <span class="birthday-span"> <svg
                                 xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 128 128">
                                 <path fill="#ffc107"
@@ -385,7 +394,7 @@
 
 
 
-                
+
                 <div class="birthday-content">
                     <!-- <img id="birthday-image" src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture"
                     class="birthday-image"> -->
@@ -419,20 +428,21 @@
         <!-- <div class="chart-box2">
             <strong>Daily Tasklist Statistics</strong>
 
-            <div class="top-bar">
-                <div class="date-picker-wrapper">
-                    <span class="date-icon"><i class="fas fa-calendar-alt"></i></span>
-                    <input type="text" id="fltasklistperiod" name="fltasklistperiod" placeholder="Select Date"
-                        class="date-input" />
-                </div>
+                <div class="top-bar">
+                    <div class="date-picker-wrapper">
+                        <span class="date-icon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" id="fltasklistperiod" name="fltasklistperiod" placeholder="Select Date"
+                            class="date-input" />
+                    </div>
 
+                    <div class="employee-select-wrapper">
+                        <span class="employee-icon"><i class="fa fa-user"></i></span>
 
-                <div class="employee-select-wrapper">
-                    <span class="employee-icon"><i class="fas fa-user"></i></span>
-                   
-                    <?=$selstatus?>
+                        <?= $selstatus ?>
+                    </div>
                 </div>
             </div>
+
 
 
             <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
@@ -457,7 +467,6 @@
                            
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div> -->

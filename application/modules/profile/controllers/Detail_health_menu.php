@@ -156,7 +156,7 @@ class Detail_health_menu extends MY_Controller
 
 
 
-		    $health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where 1=1 and DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' order by ts_utc desc limit 1")->result(); 
+		    $health_raw_spo2 = $this->db->query("select * from health_raw_spo2 where 1=1 and DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' ".$whr_emp." order by ts_utc desc limit 1")->result(); 
 			
 			if(!empty($health_raw_spo2)){
 				$spo2 = $health_raw_spo2[0]->pct;
@@ -172,7 +172,7 @@ class Detail_health_menu extends MY_Controller
 			
 
 
-			$health_raw_hr = $this->db->query("select * from health_raw_hr where 1=1 and DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' order by ts_utc desc limit 1")->result(); 
+			$health_raw_hr = $this->db->query("select * from health_raw_hr where 1=1 and DATE_FORMAT(ts_utc, '%Y-%m-%d') = '".$lastLog."' ".$whr_emp." order by ts_utc desc limit 1")->result(); 
 			
 			if(!empty($health_raw_hr)){
 				$bpm = $health_raw_hr[0]->bpm;

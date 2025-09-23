@@ -111,7 +111,7 @@
 	var module_path = "<?php echo base_url($folder_name); ?>";
 	var base_url = "<?php echo base_url($base_url); ?>";
 
-	$(document).ready(function () {
+	$(document).ready(function () { 
 		$(function () {
 
 			loadQuickLinks();
@@ -426,7 +426,7 @@
 						    // Baris Project
 						    if (taskrow.task_type === 'project') {
 						        tr.innerHTML = `
-						            <td colspan="3" style="font-weight: bold; font-size:10px; background:#eef;">📁 ${taskrow.task}</td>
+						            <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
 						        `;
 						    } else {
 						        let indent = '';
@@ -717,6 +717,8 @@
 		container.appendChild(div);
 	});*/
 </script>
+
+
 
 <script>
 
@@ -1522,15 +1524,24 @@
 
 	            //if(res.length > 0){
 	                res.forEach(item => {
-	                	var url_menu = base_url+item.url;
-	                    let div = `
-	                        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
-	                            <i class="${item.icon ?? 'fa fa-link'}"></i>
-	                            <span title="${item.title}">${item.title}</span>
-	                        </div>
-	                    `;
-	                    container.append(div);
-	                });
+    var url_menu = base_url + item.url;
+
+    // Ambil icon, kalau kosong fallback ke fa-link
+    let iconClass = item.icon ?? "fa-link";
+
+    // pastikan ada prefix "fa "
+    if (!iconClass.startsWith("fa ")) {
+        iconClass = "fa " + iconClass;
+    }
+
+    let div = `
+        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
+            <i class="${iconClass}"></i>
+            <span title="${item.title}">${item.title}</span>
+        </div>
+    `;
+    container.append(div);
+});
 	            /*} else {
 	                container.html("<small class='text-muted'>Belum ada quick link</small>");
 	            }*/
@@ -1543,3 +1554,4 @@
 
 
 </script>
+
