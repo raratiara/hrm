@@ -32,14 +32,14 @@ class Summaryabsen_model extends MY_Model
 		// if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
 		// 	$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		// }
-
+		$dateNow = date("Y-m-d");
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(SELECT 
 					    a.date_attendance,
 					    SUM(CASE WHEN a.date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
 					    SUM(CASE WHEN a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen,
 					    COUNT(*) AS total_karyawan
-					FROM time_attendances a
+					FROM time_attendances a where a.date_attendance <= "'.$dateNow.'"
 					GROUP BY a.date_attendance
 					ORDER BY a.date_attendance
 					'.$whr.'

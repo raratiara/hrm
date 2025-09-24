@@ -1,19 +1,31 @@
 <style>
-    .kanban-board {
+    /*.kanban-board {
         display: flex;
         gap: 16px;
         overflow-x: auto;
         padding: 10px;
+    }*/
+
+    .kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        overflow-y: hidden;   
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
     }
+
 
     .kanban-column {
         background: #fafafa;
         border-radius: 8px;
+        /*width: 300px;*/
         min-width: 250px;
-        flex: 0 0 250px;
+        /*flex: 0 0 250px;
         display: flex;
-        flex-direction: column;
-        max-height: 80vh;
+        flex-direction: column;*/
+        /*max-height: 80vh;*/
     }
 
     .kanban-header {

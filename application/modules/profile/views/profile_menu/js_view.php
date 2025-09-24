@@ -111,7 +111,7 @@
 	var module_path = "<?php echo base_url($folder_name); ?>";
 	var base_url = "<?php echo base_url($base_url); ?>";
 
-	$(document).ready(function () {
+	$(document).ready(function () { 
 		$(function () {
 
 			loadQuickLinks();
@@ -156,7 +156,10 @@
 			var getUrl = window.location;
 			//local=> 
 			//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-			var baseUrl = getUrl.protocol + "//" + getUrl.host;
+			//var baseUrl = getUrl.protocol + "//" + getUrl.host;
+
+
+			var baseUrl = "<?php echo base_url($base_url); ?>";
 
 
 			$.ajax({
@@ -217,7 +220,11 @@
 						$('span#sleep_percent').html(data.sleep_percent+"% quality");
 						$('span#fatigue_percentage').html(data.fatigue_percentage);
 						$('span#fatigue_category').html(data.fatigue_category);
-						$('span#lastLog').html(data.lastLog);
+						var lastLog = data.lastLog;
+						if(data.lastLog == ''){
+							lastLog = "Oops.. sorry no data :)";
+						}
+						$('span#lastLog').html(lastLog);
 						
 
 						$('span.nik').html(data.dtEmp.emp_code);
@@ -426,7 +433,7 @@
 						    // Baris Project
 						    if (taskrow.task_type === 'project') {
 						        tr.innerHTML = `
-						            <td colspan="3" style="font-weight: bold; font-size:10px; background:#eef;">📁 ${taskrow.task}</td>
+						            <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
 						        `;
 						    } else {
 						        let indent = '';
@@ -718,6 +725,8 @@
 	});*/
 </script>
 
+
+
 <script>
 
 	
@@ -746,7 +755,9 @@
 		var getUrl = window.location;
 		//local=> 
 		//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-		var baseUrl = getUrl.protocol + "//" + getUrl.host;
+		//var baseUrl = getUrl.protocol + "//" + getUrl.host;
+
+		var baseUrl = "<?php echo base_url($base_url); ?>";
 
 
 		let list_birthdays = $("#list_birthdays").val(); 
@@ -1522,15 +1533,24 @@
 
 	            //if(res.length > 0){
 	                res.forEach(item => {
-	                	var url_menu = base_url+item.url;
-	                    let div = `
-	                        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
-	                            <i class="${item.icon ?? 'fa fa-link'}"></i>
-	                            <span title="${item.title}">${item.title}</span>
-	                        </div>
-	                    `;
-	                    container.append(div);
-	                });
+    var url_menu = base_url + item.url;
+
+    // Ambil icon, kalau kosong fallback ke fa-link
+    let iconClass = item.icon ?? "fa-link";
+
+    // pastikan ada prefix "fa "
+    if (!iconClass.startsWith("fa ")) {
+        iconClass = "fa " + iconClass;
+    }
+
+    let div = `
+        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
+            <i class="${iconClass}"></i>
+            <span title="${item.title}">${item.title}</span>
+        </div>
+    `;
+    container.append(div);
+});
 	            /*} else {
 	                container.html("<small class='text-muted'>Belum ada quick link</small>");
 	            }*/
@@ -1543,3 +1563,4 @@
 
 
 </script>
+
