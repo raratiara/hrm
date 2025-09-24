@@ -82,6 +82,16 @@
 
 	<div class="chart-container">
 		<div class="box">
+			<div class="box-title">Daily Attendance Summary</div>
+			<div class="box-value">
+				<canvas id="daily_att_summ" style="margin-top: 15px;"></canvas>
+			</div>
+		</div>
+		
+	</div>
+
+	<div class="chart-container">
+		<div class="box">
 			<div class="box-title">Monthly Attendance Summary</div>
 			<div class="box-value">
 				<canvas id="monthly_att_summ"></canvas>

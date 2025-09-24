@@ -83,7 +83,12 @@
 
 
   #monthly_att_summ {
-    width: 350px;
+    width: 370px;
+    height: 250px;
+  }
+
+  #daily_att_summ {
+    width: 320px;
     height: 250px;
   }
 
