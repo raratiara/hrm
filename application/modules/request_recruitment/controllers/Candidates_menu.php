@@ -193,94 +193,59 @@ class Candidates_menu extends MY_Controller
 	    $query = $this->db->query("select id, candidate_code, full_name, position_name, email, phone, cv, status_name, status_step FROM $sTable ORDER BY status_name ASC, full_name ASC")->result();
 
 	    // group kandidat
-	    $grouped = [];
-	    foreach ($query as $row) {
-	        if ($row->status_name === "In Process") {
-	            $grouped["In Process"][$row->status_step][] = [
-	                'id'       => $row->id,
-	                'code'     => $row->candidate_code,
-	                'name'     => $row->full_name,
-	                'position' => $row->position_name,
-	                'email'    => $row->email,
-	                'phone'    => $row->phone,
-	                'cv'       => $row->cv,
-	                'status'   => $row->status_step
-	            ];
-	        } else {
-	            $grouped[$row->status_name][] = [
-	                'id'       => $row->id,
-	                'code'     => $row->candidate_code,
-	                'name'     => $row->full_name,
-	                'position' => $row->position_name,
-	                'email'    => $row->email,
-	                'phone'    => $row->phone,
-	                'cv'       => $row->cv,
-	                'status'   => $row->status_name
-	            ];
-	        }
-	    }
+		$grouped = [];
+		foreach ($query as $row) {
+		    if ($row->status_name === "In Process" && !empty($row->status_step)) {
+		        // langsung treat step sebagai status utama
+		        $grouped[$row->status_step][] = [
+		            'id'       => $row->id,
+		            'code'     => $row->candidate_code,
+		            'name'     => $row->full_name,
+		            'position' => $row->position_name,
+		            'email'    => $row->email,
+		            'phone'    => $row->phone,
+		            'cv'       => $row->cv,
+		            'status'   => $row->status_step
+		        ];
+		    } else {
+		        $grouped[$row->status_name][] = [
+		            'id'       => $row->id,
+		            'code'     => $row->candidate_code,
+		            'name'     => $row->full_name,
+		            'position' => $row->position_name,
+		            'email'    => $row->email,
+		            'phone'    => $row->phone,
+		            'cv'       => $row->cv,
+		            'status'   => $row->status_name
+		        ];
+		    }
+		}
 
-	    // urutan custom status
-	    $custom_order = ["Not Started", "In Process", "Done", "Rejected"];
+		// urutan custom status
+		$custom_order = [
+		    "Not Started",
+		    "HR Interview",
+		    "User Interview",
+		    "Technical Test",
+		    "Psychological Test",
+		    "Medical Check",
+		    "Offering Letter",
+		    "Hired",        // langsung status sendiri
+		    "Not Passed",   // langsung status sendiri
+		    "Rejected"
+		];
 
-	    // urutan fixed untuk step recruitment
-	    $all_steps = [
-	        "HR Interview",
-	        "User Interview",
-	        "Technical Test",
-	        "Psychological Test",
-	        "Medical Check",
-	        "Offering Letter"
-	    ];
 
 	    $data = [];
-	    foreach ($custom_order as $st) {
-	        if ($st === "In Process") {
-	            $items = isset($grouped["In Process"]) ? $grouped["In Process"] : [];
-	            $step_data = [];
-	            foreach ($all_steps as $step) {
-	                $step_data[] = [
-	                    'step'  => $step,
-	                    'count' => isset($items[$step]) ? count($items[$step]) : 0,
-	                    'items' => isset($items[$step]) ? $items[$step] : []
-	                ];
-	            }
-	            $data[] = [
-	                'status' => $st,
-	                'count'  => array_sum(array_column($step_data, 'count')),
-	                'steps'  => $step_data
-	            ];
-	        } elseif ($st === "Done") {
-	            // gabungkan Hired + Not Passed
-	            $hired = isset($grouped["Hired"]) ? $grouped["Hired"] : [];
-	            $not_passed = isset($grouped["Not Passed"]) ? $grouped["Not Passed"] : [];
+		foreach ($custom_order as $st) {
+		    $items = isset($grouped[$st]) ? $grouped[$st] : [];
+		    $data[] = [
+		        'status' => $st,
+		        'count'  => count($items),
+		        'items'  => $items
+		    ];
+		}
 
-	            $groups = [];
-	            $groups[] = [
-	                'substatus' => "Hired",
-	                'count'     => count($hired),
-	                'items'     => $hired
-	            ];
-	            $groups[] = [
-	                'substatus' => "Not Passed",
-	                'count'     => count($not_passed),
-	                'items'     => $not_passed
-	            ];
-
-	            $data[] = [
-	                'status' => "Done",
-	                'count'  => count($hired) + count($not_passed),
-	                'groups' => $groups
-	            ];
-	        } else {
-	            $items = isset($grouped[$st]) ? $grouped[$st] : [];
-	            $data[] = [
-	                'status' => $st,
-	                'count'  => count($items),
-	                'items'  => $items
-	            ];
-	        }
-	    }
 
 	    echo json_encode([
 	        'success' => true,
