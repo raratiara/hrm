@@ -315,6 +315,7 @@ function getStep(id, save_method) {
 
 	// tombol LIST VIEW
 	$("#btnListView").on("click", function () {
+		setActiveBtn("btnListView");
 	    // tampilkan tabel
 	    $('#table-container').show();
 	    $('#card-container').hide();
@@ -334,6 +335,7 @@ function getStep(id, save_method) {
 
 	// tombol KANBAN VIEW
 	$("#btnKanbanView").on("click", function () {
+		setActiveBtn("btnKanbanView");
 	    // sembunyikan tabel
 	    $('#table-container').hide();
 	    // tampilkan card container
@@ -392,14 +394,14 @@ function getStep(id, save_method) {
                                 html += `
                                     <div class="kanban-card card mb-2 shadow-sm">
                                         <div class="card-body p-2">
-                                            <h6 class="card-title mb-1">${capitalize(item.name)}</h6>
-                                            <small>${capitalize(item.position) || ''}</small><br>
-                                            <small>${item.email || ''}</small><br>
-                                            <small>${item.phone || ''}</small>
+                                            <h6 class="card-title mb-1" title="${capitalize(item.name)}">${capitalize(item.name)}</h6>
+                                            <small class="truncate" title="${capitalize(item.position) || ''}">${capitalize(item.position) || ''}</small><br>
+                                            <small class="truncate" title="${item.email || ''}">${item.email || ''}</small><br>
+                                            <small class="truncate" title="${item.phone || ''}">${item.phone || ''}</small>
                                             <a class="btn btn-xs circle btn-primary"
                                                href="javascript:void(0);" 
                                                onclick="downloadFile('${item.cv}')" role="button">
-                                               <i class="fa fa-download"></i> CV
+                                               <i class="fa fa-download" style="font-size:10px"></i><span style="font-size:10px"> CV</span>
                                             </a>
                                 			<br><br>
                                         	<a class="btn btn-xs btn-success detail-btn" 
@@ -573,6 +575,17 @@ function getStep(id, save_method) {
 
 	function capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+
+
+    function setActiveBtn(id) {
+      document.getElementById("btnKanbanView").classList.remove("active","btn-primary");
+      document.getElementById("btnListView").classList.remove("active","btn-primary");
+      document.getElementById("btnKanbanView").classList.add("btn-outline-secondary");
+      document.getElementById("btnListView").classList.add("btn-outline-secondary");
+      document.getElementById(id).classList.add("active","btn-primary");
+      document.getElementById(id).classList.remove("btn-outline-secondary");
     }
 
 

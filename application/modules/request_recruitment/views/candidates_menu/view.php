@@ -1,27 +1,50 @@
-<div class="d-flex justify-content-end mb-3">
+<!-- <div class="d-flex justify-content-end mb-3">
   <button id="btnListView" class="btn btn-sm btn-primary">Table View</button>
   <button id="btnKanbanView" class="btn btn-sm btn-secondary">Kanban View</button>
+  <?= $seldiv ?>
 </div>
 
 <br>
-<!-- FILTER -->
+
 <div class="row mb-2" style="padding-left: 250px;
         padding-right: 10px;">
     <div class="col-md-4">
-        <!-- <select id="filter-division" class="form-control">
-            <option value="">All Division</option>
-        </select> -->
-
         <?= $seldiv ?>
     </div>
     <div class="col-md-4 text-end">
-        <!-- <select id="filter-position" class="form-control">
-            <option value="">All Position</option>
-        </select> -->
         <?= $selposition ?>
-        
+    </div>
+</div> -->
+
+
+
+<div class="title-box-chart-hdr">
+    <!-- <div class="d-flex justify-content-end mb-3">
+      <button id="btnListView" class="btn btn-sm btn-primary">Table View</button>
+      <button id="btnKanbanView" class="btn btn-sm btn-secondary">Kanban View</button>
+    </div> -->
+    <div class="view-toggle btn-group">
+        <button id="btnListView" class="btn btn-primary active" title="List View">
+            <i class="fa fa-list-ul" aria-hidden="true"></i>
+        </button>
+        <button id="btnKanbanView" class="btn btn-outline-secondary" title="Card View">
+            <i class="fa fa-th-large" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="top-bar">
+        <div class="employee-select-wrapper">
+            <span class="employee-icon"><i class="fa fa-user"></i></span>
+            <?= $seldiv ?>
+        </div>
+        <div class="employee-select-wrapper">
+            <span class="employee-icon"><i class="fa fa-user"></i></span>
+            <?= $selposition ?>
+        </div>
     </div>
 </div>
+
+
+
 
 
 
