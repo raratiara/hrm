@@ -307,4 +307,15 @@
       color: #fff;
     }
 
+
+    .card-placeholder {
+      border: 2px dashed #999;
+      background: #f9f9f9;
+      height: 60px;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+
+
+
 </style>
