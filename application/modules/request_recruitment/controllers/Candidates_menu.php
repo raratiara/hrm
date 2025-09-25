@@ -227,7 +227,7 @@ class Candidates_menu extends MY_Controller
 		    "HR Interview",
 		    "User Interview",
 		    "Technical Test",
-		    "Psychological Test",
+		    "Psycho Test",
 		    "Medical Check",
 		    "Offering Letter",
 		    "Hired",        // langsung status sendiri
