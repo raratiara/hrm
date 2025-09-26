@@ -3162,6 +3162,143 @@ class Api extends API_Controller
     }
 
 
+    public function get_data_healthDaily()
+    { 
+    	$this->verify_token();
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employee 	= $_REQUEST['employee_id'];
+    	$date_start = $_REQUEST['date_start'];
+    	$date_end 	= $_REQUEST['date_end'];
+
+
+		$whr_emp=''; 
+    	if($employee != ''){
+    		$whr_emp = " and employee_id = '".$employee."' ";
+    	}
+    	$whr_period_daily=""; 
+		if($date_start != '' && $date_end){
+			$whr_period_daily = " and (date between '".$date_start."' and '".$date_end."')";
+		}
+
+
+    	$datarow = $this->db->query("select h.*
+						FROM health_daily h
+						JOIN (
+							SELECT date, MAX(id) AS max_id
+							FROM health_daily
+							WHERE 1=1 ".$whr_emp.$whr_period_daily."
+							GROUP BY date
+						) x ON h.date = x.date AND h.id = x.max_id
+						ORDER BY h.date; ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datarow
+		];
+
+    	
+    	
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_data_healthBpm()
+    { 
+    	$this->verify_token();
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employee 	= $_REQUEST['employee_id'];
+    	$date_start = $_REQUEST['date_start'];
+    	$date_end 	= $_REQUEST['date_end'];
+
+
+		$whr_emp=''; 
+    	if($employee != ''){
+    		$whr_emp = " and employee_id = '".$employee."' ";
+    	}
+    	$whr_period=""; 
+		if($date_start != '' && $date_end != ''){
+			$whr_period = " and (DATE_FORMAT(ts_utc, '%Y-%m-%d') between '".$date_start."' and '".$date_end."')";
+		}
+
+
+    	$datarow = $this->db->query("select * from health_raw_hr where 1=1 ".$whr_emp.$whr_period."
+						order by ts_utc asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datarow
+		];
+
+    	
+    	
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_data_healthSpo2()
+    { 
+    	$this->verify_token();
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employee 	= $_REQUEST['employee_id'];
+    	$date_start = $_REQUEST['date_start'];
+    	$date_end 	= $_REQUEST['date_end'];
+
+
+		$whr_emp=''; 
+    	if($employee != ''){
+    		$whr_emp = " and employee_id = '".$employee."' ";
+    	}
+    	$whr_period=""; 
+		if($date_start != '' && $date_end != ''){
+			$whr_period = " and (DATE_FORMAT(ts_utc, '%Y-%m-%d') between '".$date_start."' and '".$date_end."')";
+		}
+
+
+    	$datarow = $this->db->query("select * from health_raw_spo2 where 1=1 ".$whr_emp.$whr_period."
+						order by ts_utc asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datarow
+		];
+
+    	
+    	
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
 
 }
 
