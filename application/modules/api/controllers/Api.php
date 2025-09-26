@@ -223,7 +223,7 @@ class Api extends API_Controller
     	$username	= $_REQUEST['username'];
     	$password 	= $_REQUEST['password'];
 
-
+echo "select * from companies where website = '".$url."'"; die();
     	//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
     	$sql = "select * from companies where website = '".$url."'";
     	//$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
