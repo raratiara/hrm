@@ -1,3 +1,12 @@
+<!-- jQuery (wajib duluan) -->
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
+<!-- jQuery UI -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<!-- jQuery UI CSS (biar placeholder dll. kelihatan rapi) -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
 
 
 <script type="text/javascript">
@@ -315,6 +324,7 @@ function getStep(id, save_method) {
 
 	// tombol LIST VIEW
 	$("#btnListView").on("click", function () {
+		setActiveBtn("btnListView");
 	    // tampilkan tabel
 	    $('#table-container').show();
 	    $('#card-container').hide();
@@ -334,6 +344,7 @@ function getStep(id, save_method) {
 
 	// tombol KANBAN VIEW
 	$("#btnKanbanView").on("click", function () {
+		setActiveBtn("btnKanbanView");
 	    // sembunyikan tabel
 	    $('#table-container').hide();
 	    // tampilkan card container
@@ -380,7 +391,7 @@ function getStep(id, save_method) {
 	                    let statusClass = statusMap[group.status] || group.status.toLowerCase().replace(/\s+/g, '-');
 
 	                    html += `
-	                        <div class="col-md-2 kanban-column">
+	                        <div class="col-md-2 kanban-column" data-status="${group.status}">
 	                            <div class="kanban-header ${statusClass}">
 	                                ${group.status} (${group.count})
 	                            </div>
@@ -388,40 +399,69 @@ function getStep(id, save_method) {
 	                    `;
 
 	                    if (group.items.length > 0) {
-                            $.each(group.items, function(i, item) {
-                                html += `
-                                    <div class="kanban-card card mb-2 shadow-sm">
-                                        <div class="card-body p-2">
-                                            <h6 class="card-title mb-1">${capitalize(item.name)}</h6>
-                                            <small>${capitalize(item.position) || ''}</small><br>
-                                            <small>${item.email || ''}</small><br>
-                                            <small>${item.phone || ''}</small>
-                                            <a class="btn btn-xs circle btn-primary"
-                                               href="javascript:void(0);" 
-                                               onclick="downloadFile('${item.cv}')" role="button">
-                                               <i class="fa fa-download"></i> CV
-                                            </a>
-                                			<br><br>
-                                        	<a class="btn btn-xs btn-success detail-btn" 
+	                        $.each(group.items, function(i, item) {
+	                            html += `
+	                                <div class="kanban-card card mb-2 shadow-sm" 
+	                                     data-id="${item.id}" 
+	                                     data-status="${group.status}">
+	                                    <div class="card-body p-2">
+	                                        <h6 class="card-title mb-1" title="${capitalize(item.name)}">${capitalize(item.name)}</h6>
+	                                        <small class="truncate" title="${capitalize(item.position) || ''}">${capitalize(item.position) || ''}</small><br>
+	                                        <small class="truncate" title="${item.email || ''}">${item.email || ''}</small><br>
+	                                        <small class="truncate" title="${item.phone || ''}">${item.phone || ''}</small>
+	                                        <a class="btn btn-xs circle btn-primary"
+	                                           href="javascript:void(0);" 
+	                                           onclick="downloadFile('${item.cv}')" role="button">
+	                                           <i class="fa fa-download" style="font-size:10px"></i><span style="font-size:10px"> CV</span>
+	                                        </a>
+	                                        <br><br>
+	                                        <a class="btn btn-xs btn-success detail-btn" 
 	                                           style="background-color: #343851; border-color: #343851;" 
 	                                           href="javascript:void(0);" 
 	                                           onclick="detail('${item.id}')" role="button">
 	                                           <i class="fa fa-search-plus"></i>
 	                                        </a>
-	                            			<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('${item.id}')" role="button"><i class="fa fa-pencil"></i></a>
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                        } else {
-                            html += `<div class="text-muted small text-center">No Data</div>`;
-                        }
+	                                        <a class="btn btn-xs btn-primary" 
+	                                           style="background-color: #FFA500; border-color: #FFA500;" 
+	                                           href="javascript:void(0);" 
+	                                           onclick="edit('${item.id}')" role="button">
+	                                           <i class="fa fa-pencil"></i>
+	                                        </a>
+	                                    </div>
+	                                </div>
+	                            `;
+	                        });
+	                    } else {
+	                        html += `<div class="text-muted small text-center">No Data</div>`;
+	                    }
 
 	                    html += `</div></div>`; // close items & column
 	                });
 
 	                html += '</div>';
 	                $('#candidate-container').html(html);
+
+	                // aktifkan sortable di sini setelah elemen sudah ada
+	                $(".kanban-items").sortable({
+	                    connectWith: ".kanban-items",
+	                    placeholder: "card-placeholder",
+	                    forcePlaceholderSize: true,
+	                    receive: function (event, ui) {
+	                        const id = ui.item.data("id");
+	                        const oldStatus = ui.item.data("status"); // status lama
+	                        const targetStatus = $(this).closest(".kanban-column").data("status");
+
+	                        // update data-status di card supaya konsisten
+	                        ui.item.attr("data-status", targetStatus);
+
+	                        // kirim ke backend
+	                        $.post(module_path + "/update_status_kanban", { 
+	                            id: id, 
+	                            old_status: oldStatus,
+	                            new_status: targetStatus 
+	                        });
+	                    }
+	                }).disableSelection();
 	            }
 	        },
 	        error: function(xhr, status, error) {
@@ -432,6 +472,10 @@ function getStep(id, save_method) {
 
 
 
+	
+
+
+	
 	function loadCardView_old() {
 	    var division = $('#filter-division').val();
 	    var position = $('#filter-position').val();
@@ -525,11 +569,6 @@ function getStep(id, save_method) {
 
 	});
 
-	// pertama kali load
-	$(document).ready(function() {
-	    loadCardView();
-	});
-
 
 
 	function subFilter(){
@@ -577,13 +616,16 @@ function getStep(id, save_method) {
 
 
 
+    function setActiveBtn(id) {
+      document.getElementById("btnKanbanView").classList.remove("active","btn-primary");
+      document.getElementById("btnListView").classList.remove("active","btn-primary");
+      document.getElementById("btnKanbanView").classList.add("btn-outline-secondary");
+      document.getElementById("btnListView").classList.add("btn-outline-secondary");
+      document.getElementById(id).classList.add("active","btn-primary");
+      document.getElementById(id).classList.remove("btn-outline-secondary");
+    }
 
 
 
-	
-
-
-
-	
 
 </script>

@@ -227,7 +227,7 @@ class Candidates_menu extends MY_Controller
 		    "HR Interview",
 		    "User Interview",
 		    "Technical Test",
-		    "Psychological Test",
+		    "Psycho Test",
 		    "Medical Check",
 		    "Offering Letter",
 		    "Hired",        // langsung status sendiri
@@ -355,6 +355,132 @@ class Candidates_menu extends MY_Controller
 
 
 
+	public function update_status_kanban() {
+	    $id = $this->input->post('id');
+	    $old_status = $this->input->post('old_status');
+	    $new_status = $this->input->post('new_status');
+
+	    if($id != '' && $new_status != ''){  
+
+    		$step_recruitment_id = ''; $status_progress='';
+
+    		/// NEW
+	    	if($new_status == 'HR Interview' || $new_status == 'User Interview' || $new_status == 'Technical Test' || $new_status == 'Psycho Test' || $new_status == 'Medical Check' || $new_status == 'Offering Letter'){
+	    		
+	    		$get_status = $this->db->query("select * from master_step_recruitment where name = '".$new_status."' ")->result();
+	    		$step_recruitment_id = $get_status[0]->id;
+	    		$status_progress = 2;
+
+	    	}else{
+	    		if($new_status == 'Not Started'){
+		    		$status_progress = '';
+		    	}else{
+		    		$get_status = $this->db->query("select * from master_status_candidates where name = '".$new_status."' ")->result();
+	    			$status_progress = $get_status[0]->id;
+		    	}
+	    	}
+
+	    	/// OLD
+	    	$status_before_inprocess="";
+	    	if($old_status == 'HR Interview' || $old_status == 'User Interview' || $old_status == 'Technical Test' || $old_status == 'Psycho Test' || $old_status == 'Medical Check' || $old_status == 'Offering Letter'){
+	    		$status_before_inprocess = 1;
+	    		$get_status_before_inprocess = $this->db->query("select * from master_step_recruitment where name = '".$old_status."' ")->result();
+	    		$id_before = $get_status_before_inprocess[0]->id;
+
+	    	}
+
+
+	    	if($step_recruitment_id != ''){ //update ke proses step
+	    		$getStep = $this->db->query("select * from candidates_step where candidates_id = '".$id."' and step_recruitment_id = '".$step_recruitment_id."'")->result();
+	    		if(!empty($getStep)){ //ada data stepnya, tinggal update
+	    			$getStepId = $getStep[0]->id;
+	    			$data = [
+						'status_id' => 2
+					];
+					$this->db->update('candidates_step', $data, "candidates_id = '".$id."' and id = '" . $getStepId . "'");
+
+					if($status_before_inprocess == 1){
+
+						$data_before = [
+							'status_id' => 5 //done
+						];
+						$this->db->update('candidates_step', $data_before, "candidates_id = '".$id."' and step_recruitment_id = '" . $id_before . "'");
+					}else{
+						//update status depan
+		        		$datahdr = [
+							'status_id' 	=> 2, //in process
+							'updated_date' 	=> date("Y-m-d H:i:s")
+						];
+						$this->db->update("candidates", $datahdr, "id = '".$id."'");
+					}
+
+	    		}else{ //blm ada data stepnya, maka insert dulu
+	    			$steps =  $this->db->query("select * from master_step_recruitment")->result();
+		        	if(!empty($steps)){
+		        		foreach($steps as $row_step){
+		        			$status_id = '';
+		        			if($row_step->id == $step_recruitment_id){
+		        				$status_id = 2; //in progress
+		        			}
+		        			$itemData2 = [
+								'candidates_id' => $id,
+								'step_recruitment_id' => $row_step->id,
+								'status_id' => $status_id
+							];
+
+							$this->db->insert('candidates_step', $itemData2);
+		        		}
+
+		        		//update status depan 
+		        		$datahdr = [
+							'status_id' 	=> 2, //in process
+							'updated_date' 	=> date("Y-m-d H:i:s")
+						];
+						$this->db->update("candidates", $datahdr, "id = '".$id."'");
+		        	}
+
+	    		}
+	    		
+	    	}else{ //update ke status depan
+	    		if($status_progress != ''){
+	    			$data = [
+						'status_id' 	=> $status_progress,
+						'updated_date' 	=> date("Y-m-d H:i:s")
+					];
+
+					$this->db->update("candidates", $data, "id = '".$id."'");
+	    		}else{
+	    			$datahdr = [
+						'status_id' 	=> "",
+						'updated_date' 	=> date("Y-m-d H:i:s")
+					];
+					$this->db->update("candidates", $datahdr, "id = '".$id."'");
+
+	    			$steps =  $this->db->query("select * from candidates_step where candidates_id = '".$id."' ")->result();
+	    			
+		        	if(!empty($steps)){
+		        		foreach($steps as $row_step){
+			        		$data = [
+								'status_id' 	=> 0
+							];
+							$this->db->update("candidates_step", $data, "candidates_id = '".$id."'");
+		        		}
+		        	}
+	    		}
+	    	}
+
+
+
+			echo json_encode(['success' => true]);
+
+
+	    }else{
+	    	echo json_encode(['success' => false]);
+	    }
+	   
+	    
+	    
+	}
 
 
 
