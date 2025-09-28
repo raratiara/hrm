@@ -77,7 +77,7 @@
             </div>
 
 
-            <!-- <div class="action-button">
+            <div class="action-button">
                 <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
                 <button class="btn-circle btn-checkin" id="btnAddData">
                     <i class="bi bi-box-arrow-in-right"></i> Check-in
@@ -86,7 +86,7 @@
                 <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
                     <i class="bi bi-box-arrow-right"></i> Check-out
                 </button>
-            </div> -->
+            </div>
 
         </div>
 
@@ -159,48 +159,51 @@
         </div> -->
 
         <div class="health-card p-3 rounded shadow text-center">
-            <span id="lastLog" style="font-size: 11px; color: #ffffffff; font-weight:bold;"></span>
+            <i class="fa fa-calendar"></i> <span id="lastLog" style="font-size: 12px; color: #5542BB; font-weight:bold;"></span>
 
             <div class="row g-0 card-information-health">
                 <div class="col-md-6 col-12">
                     <!-- BPM -->
-                    <div class="card-box">
+                    <div class="card-box" style="background: #C1008F;">
                         <div class="icon"><i class="bi bi-heart-fill text-danger"></i></div>
                         <h3><span id="bpm"></span></h3>
                         <p>BPM</p>
-                        <span class="badge bg-success" id="bpm_desc"></span>
+                        <span class="badge bg-success" style="color: #C43670;
+    background: #FBD9E5;" id="bpm_desc"></span>
                     </div>
                     <!-- SpO₂ -->
-                    <div class="card-box">
+                    <div class="card-box" style="background: #FFD400;">
                         <div class="icon"><i class="bi bi-activity text-info"></i></div>
                         <h3><span id="spo2"></span></h3>
                         <p>SpO₂</p>
-                        <span class="badge bg-success" id="spo2_desc"></span>
+                        <span class="badge bg-success" style="color: #FF7B00;
+    background: #FFE264;" id="spo2_desc"></span>
                     </div>
                 </div>
 
                 <div class="col-md-6 col-12">
 
-                    <div class="card-box">
+                    <div class="card-box" style="background: #F76400;">
                         <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
                         <h3><span id="sleep"></span></h3>
                         <p>Sleep</p>
-                        <small><span id="sleep_percent"></span></small>
+                        <small><span style="color:#3D1203; background:#FFD3A5; padding: 3px; border-radius:8px !important" id="sleep_percent"></span></small>
                     </div>
                     <!-- Fatigue -->
-                    <div class="card-box">
+                    <div class="card-box" style="background: #2743CB;">
                         <div class="icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div>
                         <h3><span id="fatigue_percentage"></span></h3>
                         <p>Fatigue</p>
-                        <span class="badge bg-warning text-dark" id="fatigue_category">Moderate</span>
+                        <span class="badge bg-warning text-dark" style="color: #081F5C;
+    background: #D0E3FF;" id="fatigue_category">Moderate</span>
                     </div>
                 </div>
             </div>
 
 
             <div class="mt-3">
-                <button class="btn btn-circle btn-health" style="margin-top:6px" onclick="goHealthDetails()">
-                    See Detail
+                <button class="btn btn-circle btn-health" style="margin-top:20px;" onclick="goHealthDetails()">
+                    See Detail >>
                 </button>
             </div>
         </div>

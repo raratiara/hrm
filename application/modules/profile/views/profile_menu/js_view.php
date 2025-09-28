@@ -111,7 +111,7 @@
 	var module_path = "<?php echo base_url($folder_name); ?>";
 	var base_url = "<?php echo base_url($base_url); ?>";
 
-	$(document).ready(function () {
+	$(document).ready(function () { 
 		$(function () {
 
 			loadQuickLinks();
@@ -156,7 +156,10 @@
 			var getUrl = window.location;
 			//local=> 
 			//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-			var baseUrl = getUrl.protocol + "//" + getUrl.host;
+			//var baseUrl = getUrl.protocol + "//" + getUrl.host;
+
+
+			var baseUrl = "<?php echo base_url($base_url); ?>";
 
 
 			$.ajax({
@@ -217,7 +220,11 @@
 						$('span#sleep_percent').html(data.sleep_percent+"% quality");
 						$('span#fatigue_percentage').html(data.fatigue_percentage);
 						$('span#fatigue_category').html(data.fatigue_category);
-						$('span#lastLog').html(data.lastLog);
+						var lastLog = data.lastLog;
+						if(data.lastLog == ''){
+							lastLog = "Oops.. sorry no data :)";
+						}
+						$('span#lastLog').html(lastLog);
 						
 
 						$('span.nik').html(data.dtEmp.emp_code);
@@ -748,7 +755,9 @@
 		var getUrl = window.location;
 		//local=> 
 		//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-		var baseUrl = getUrl.protocol + "//" + getUrl.host;
+		//var baseUrl = getUrl.protocol + "//" + getUrl.host;
+
+		var baseUrl = "<?php echo base_url($base_url); ?>";
 
 
 		let list_birthdays = $("#list_birthdays").val(); 
@@ -1554,5 +1563,4 @@
 
 
 </script>
-
 

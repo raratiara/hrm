@@ -25,7 +25,7 @@
 		        allowClear: true
 		    });*/
 
-
+			dailyAttSumm();
 			monthlyAttSumm();
 			attStatistic();
 			/*empbyDeptGender();*/
@@ -162,8 +162,263 @@
 	}
 
 
+	function dailyAttSumm() {
+	    var dateperiod = $("#fldashdateperiod").val();
+	    var employee = $("#fldashemp option:selected").val();
+
+	    $.ajax({
+	        type: "POST",
+	        url: module_path + '/get_data_dailyAttSumm',
+	        data: { dateperiod: dateperiod, employee: employee },
+	        cache: false,
+	        dataType: "JSON",
+	        success: function (data) {
+	            if (data != false) {console.log(data);
+
+	            	// ubah 0 jadi null supaya line chart tidak digambar di titik itu
+					const absenData = data.total_absen.map(v => v === 0 ? null : v);
+					const tidakAbsenData = data.total_tidak_absen.map(v => v === 0 ? null : v);
+
+	                const ctx = document.getElementById('daily_att_summ').getContext('2d');
+	                var chartExist = Chart.getChart("daily_att_summ");
+	                if (chartExist != undefined) chartExist.destroy();
+
+	                new Chart(ctx, {
+	                    type: 'line',
+	                    data: {
+	                        labels: data.date_attendance,
+	                        datasets: [
+	                            {
+	                                label: 'Absen',
+	                                /*data: data.total_absen,*/
+	                                data: absenData,
+	                                borderColor: '#53B0C9',
+	                                backgroundColor: '#53B0C9',
+	                                fill: false,
+	                                borderWidth: 2,
+	                                tension: 0.5,
+	                                pointRadius: 0,
+	                                pointHoverRadius: 4,
+	                                spanGaps: true,
+	                                yAxisID: 'y1'
+	                            },
+	                            {
+	                                label: 'Tidak Absen',
+	                                /*data: data.total_tidak_absen,*/
+	                                data: tidakAbsenData,
+	                                borderColor: '#FFD400',
+	                                backgroundColor: '#FFD400',
+	                                fill: false,
+	                                borderWidth: 2,
+	                                tension: 0.5,
+	                                pointRadius: 0,
+	                                pointHoverRadius: 4,
+	                                spanGaps: true,
+	                                yAxisID: 'y1'
+	                            }
+	                        ]
+	                    },
+	                    options: {
+	                        responsive: true,
+	                        maintainAspectRatio: false,
+	                        interaction: {
+	                            mode: 'index',
+	                            intersect: false
+	                        },
+	                        stacked: false,
+	                        plugins: {
+	                            datalabels: {
+	                                formatter: (value) => {
+	                                    if (parseFloat(value) === 0) {
+	                                        return ''; // hide kalau 0
+	                                    }
+	                                    return parseInt(value);
+	                                },
+	                                color: '#fff',
+	                                font: {
+	                                    size: 10,
+	                                }
+	                            },
+	                            legend: {
+	                                labels: {
+	                                    font: { size: 8 },
+	                                    boxWidth: 12,
+	                                    boxHeight: 8,
+	                                    borderRadius: 4,
+	                                    usePointStyle: true
+	                                },
+	                                position: 'bottom'
+	                            },
+	                            tooltip: {
+	                                callbacks: {
+	                                    label: function (context) {
+	                                        return context.dataset.label + ': ' + context.formattedValue;
+	                                    }
+	                                }
+	                            }
+	                        },
+	                        scales: {
+	                            x: {
+	                                /*ticks: {
+	                                    autoSkip: true,
+	                                    maxTicksLimit: 10,
+	                                    maxRotation: 0,
+	                                    minRotation: 0
+	                                },*/
+	                                grid: {
+	                                    display: true
+	                                }
+	                            },
+	                            y1: {
+	                                grid: {
+	                                    display: true
+	                                }
+	                            }
+	                        }
+	                    },
+	                    plugins: [] // bisa tambahkan ChartDataLabels kalau mau aktifkan
+	                });
+	            }
+	        },
+	        error: function (jqXHR, textStatus, errorThrown) {
+	            var dialog = bootbox.dialog({
+	                title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+	                message: jqXHR.responseText,
+	                buttons: {
+	                    confirm: {
+	                        label: 'Ok',
+	                        className: 'btn blue'
+	                    }
+	                }
+	            });
+	        }
+	    });
+	}
+
 
 	function monthlyAttSumm() {
+
+		var dateperiod = $("#fldashdateperiod").val();
+		var employee = $("#fldashemp option:selected").val();
+
+
+
+		$.ajax({
+			type: "POST",
+			url: module_path + '/get_data_monthlyAttSumm',
+			data: { dateperiod: dateperiod, employee: employee },
+			cache: false,
+			dataType: "JSON",
+			success: function (data) {
+				if (data != false) {
+
+					const ctx = document.getElementById('monthly_att_summ').getContext('2d');
+
+					var chartExist = Chart.getChart("monthly_att_summ"); // <canvas> id
+					if (chartExist != undefined)
+						chartExist.destroy();
+
+
+					const rawData = [
+						{ label: 'Absen', data: data.total_absen, backgroundColor: '#8ECDD2', borderRadius: 2 },
+						{ label: 'Tidak Absen', data: data.total_tidak_absen, backgroundColor: '#ffde70', borderRadius: 2 }
+					];
+
+					// Convert data to 100% scale per group
+					const percentageData = rawData.map(dataset => ({ ...dataset }));
+					const groupCount = rawData[0].data.length;
+
+					for (let i = 0; i < groupCount; i++) {
+						const groupTotal = rawData.reduce((sum, ds) => sum + ds.data[i], 0);
+						percentageData.forEach(ds => {
+							/*ds.data[i] = +(ds.data[i] / groupTotal * 100).toFixed(2);*/
+							ds.data[i] = +(ds.data[i]);
+						});
+					}
+
+					new Chart(ctx, {
+						type: 'bar',
+						data: {
+							/*labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10','11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'],*/
+							labels: data.periode,
+							datasets: percentageData
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							plugins: {
+								tooltip: {
+									callbacks: {
+										label: function (context) {
+											/*return `${context.dataset.label}: ${context.parsed.y}%`;*/
+											return `${context.dataset.label}: ${context.parsed.y}`;
+										}
+									}
+								},
+								legend: {
+									labels: {
+										font: {
+											size: 8  // kecilkan ukuran legend text
+										},
+										boxWidth: 12,        // kecilkan ukuran kotak warna
+										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4,     // ubah jadi bulat (opsional)
+										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
+									},
+									position: 'bottom'
+								},
+								title: {
+									display: false
+								}
+							},
+							scales: {
+								x: {
+									stacked: true,
+									ticks: {
+										color: '#333',
+										font: { size: 10 }
+									},
+									grid: { display: false }
+								},
+								y: {
+									stacked: true,
+									beginAtZero: true,
+									/*max: 20,*/
+									ticks: {
+										stepSize: 1, //kelipatan 1
+										/*callback: (value) => value + '%',*/
+										callback: (value) => value,
+										color: '#333',
+										font: { size: 10 }
+									},
+									grid: { color: '#eee' }
+								}
+							}
+						}
+					});
+
+				} else {
+
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
+
+	}
+
+
+	function monthlyAttSumm_old() {
 
 		var dateperiod = $("#fldashdateperiod").val();
 		var employee = $("#fldashemp option:selected").val();
@@ -998,7 +1253,7 @@
 
 
 	function setFilter() {
-
+		dailyAttSumm();
 		monthlyAttSumm();
 		attStatistic();
 		dataTotal();
@@ -1010,7 +1265,7 @@
 
 
 	$('#fldashemp').on('change', function () {
-
+		dailyAttSumm();
 		monthlyAttSumm();
 		attStatistic();
 		dataTotal();

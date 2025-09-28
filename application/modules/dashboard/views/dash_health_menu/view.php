@@ -102,10 +102,14 @@
 					<canvas id="canvas_vitalsigns" style="margin-top: 15px;"></canvas>
 				</div>
 			</div>
+
+
+
+
 			
 		</div>
 
-		<div class="right-container">
+		<!-- <div class="right-container">
 			<div class="summary-card grey">
 				<div class="card-content">
 					<div>
@@ -124,7 +128,7 @@
 					<i class="icon fas fa-droplet"></i>
 				</div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 	
 

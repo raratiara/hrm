@@ -290,7 +290,7 @@ class Dashboard_menu extends MY_Controller
  	}
 
 
- 	public function get_data_monthlyAttSumm(){
+ 	public function get_data_monthlyAttSumm_old(){
  		$post = $this->input->post(null, true);
  		$dateperiod = $post['dateperiod'];
 		$employee 	= $post['employee'];
@@ -327,6 +327,103 @@ class Dashboard_menu extends MY_Controller
 		$data = array(
 			'periode' 		=> $periode,
 			'total_absensi'	=> $total_absensi
+		);
+
+
+		echo json_encode($data);
+
+
+ 	}
+
+
+ 	public function get_data_monthlyAttSumm(){
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+		$dateNow = date("Y-m-d");
+
+		$where_date="";
+		if($dateperiod != ''){
+			$where_date = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
+		}
+		$where_emp="";
+		if($employee != ''){
+			$where_emp = " and employee_id = '".$employee."'";
+		}
+
+
+    	$rs = $this->db->query("select
+				    DATE_FORMAT(date_attendance, '%Y-%m') AS tahun_bulan,
+				    SUM(CASE WHEN date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
+				    SUM(CASE WHEN date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen
+				FROM
+				    time_attendances where 1=1 and date_attendance <= '".$dateNow."'
+				".$where_date.$where_emp."
+				GROUP BY
+				    DATE_FORMAT(date_attendance, '%Y-%m')
+				ORDER BY
+				    tahun_bulan ")->result(); 
+
+		$periode=[]; $total_tidak_absen=[]; $total_absen=[]; 
+		foreach($rs as $row){
+			$periode[] 				= $row->tahun_bulan;
+			$total_tidak_absen[] 	= $row->total_tidak_absen;
+			$total_absen[] 			= $row->total_absen;
+			
+		}
+
+
+		$data = array(
+			'periode' 			=> $periode,
+			'total_tidak_absen'	=> $total_tidak_absen,
+			'total_absen'		=> $total_absen
+		);
+
+
+		echo json_encode($data);
+
+
+ 	}
+
+
+ 	public function get_data_dailyAttSumm(){
+ 		$dateNow = date("Y-m-d");
+ 		$post = $this->input->post(null, true);
+ 		$dateperiod = $post['dateperiod'];
+		$employee 	= $post['employee'];
+
+		$where_date="";
+		if($dateperiod != ''){
+			$where_date = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
+		}
+		$where_emp="";
+		if($employee != ''){
+			$where_emp = " and employee_id = '".$employee."'";
+		}
+
+
+    	$rs = $this->db->query("select 
+					    a.date_attendance,
+					    SUM(CASE WHEN a.date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
+					    SUM(CASE WHEN a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen,
+					    COUNT(*) AS total_karyawan
+					FROM time_attendances a where a.date_attendance <= '".$dateNow."' ".$where_date.$where_emp."
+					GROUP BY a.date_attendance
+					ORDER BY a.date_attendance ")->result(); 
+
+		$date_attendance=[]; $total_tidak_absen=[]; $total_absen=[]; 
+		foreach($rs as $row){
+			$date_attendance[] 		= $row->date_attendance;
+			$total_tidak_absen[] 	= $row->total_tidak_absen;
+			$total_absen[] 			= $row->total_absen;
+			
+		}
+
+
+		$data = array(
+			'date_attendance' 	=> $date_attendance,
+			'total_tidak_absen'	=> $total_tidak_absen,
+			'total_absen'		=> $total_absen
 		);
 
 

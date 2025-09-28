@@ -193,94 +193,59 @@ class Candidates_menu extends MY_Controller
 	    $query = $this->db->query("select id, candidate_code, full_name, position_name, email, phone, cv, status_name, status_step FROM $sTable ORDER BY status_name ASC, full_name ASC")->result();
 
 	    // group kandidat
-	    $grouped = [];
-	    foreach ($query as $row) {
-	        if ($row->status_name === "In Process") {
-	            $grouped["In Process"][$row->status_step][] = [
-	                'id'       => $row->id,
-	                'code'     => $row->candidate_code,
-	                'name'     => $row->full_name,
-	                'position' => $row->position_name,
-	                'email'    => $row->email,
-	                'phone'    => $row->phone,
-	                'cv'       => $row->cv,
-	                'status'   => $row->status_step
-	            ];
-	        } else {
-	            $grouped[$row->status_name][] = [
-	                'id'       => $row->id,
-	                'code'     => $row->candidate_code,
-	                'name'     => $row->full_name,
-	                'position' => $row->position_name,
-	                'email'    => $row->email,
-	                'phone'    => $row->phone,
-	                'cv'       => $row->cv,
-	                'status'   => $row->status_name
-	            ];
-	        }
-	    }
+		$grouped = [];
+		foreach ($query as $row) {
+		    if ($row->status_name === "In Process" && !empty($row->status_step)) {
+		        // langsung treat step sebagai status utama
+		        $grouped[$row->status_step][] = [
+		            'id'       => $row->id,
+		            'code'     => $row->candidate_code,
+		            'name'     => $row->full_name,
+		            'position' => $row->position_name,
+		            'email'    => $row->email,
+		            'phone'    => $row->phone,
+		            'cv'       => $row->cv,
+		            'status'   => $row->status_step
+		        ];
+		    } else {
+		        $grouped[$row->status_name][] = [
+		            'id'       => $row->id,
+		            'code'     => $row->candidate_code,
+		            'name'     => $row->full_name,
+		            'position' => $row->position_name,
+		            'email'    => $row->email,
+		            'phone'    => $row->phone,
+		            'cv'       => $row->cv,
+		            'status'   => $row->status_name
+		        ];
+		    }
+		}
 
-	    // urutan custom status
-	    $custom_order = ["Not Started", "In Process", "Done", "Rejected"];
+		// urutan custom status
+		$custom_order = [
+		    "Not Started",
+		    "HR Interview",
+		    "User Interview",
+		    "Technical Test",
+		    "Psycho Test",
+		    "Medical Check",
+		    "Offering Letter",
+		    "Hired",        // langsung status sendiri
+		    "Not Passed",   // langsung status sendiri
+		    "Rejected"
+		];
 
-	    // urutan fixed untuk step recruitment
-	    $all_steps = [
-	        "HR Interview",
-	        "User Interview",
-	        "Technical Test",
-	        "Psychological Test",
-	        "Medical Check",
-	        "Offering Letter"
-	    ];
 
 	    $data = [];
-	    foreach ($custom_order as $st) {
-	        if ($st === "In Process") {
-	            $items = isset($grouped["In Process"]) ? $grouped["In Process"] : [];
-	            $step_data = [];
-	            foreach ($all_steps as $step) {
-	                $step_data[] = [
-	                    'step'  => $step,
-	                    'count' => isset($items[$step]) ? count($items[$step]) : 0,
-	                    'items' => isset($items[$step]) ? $items[$step] : []
-	                ];
-	            }
-	            $data[] = [
-	                'status' => $st,
-	                'count'  => array_sum(array_column($step_data, 'count')),
-	                'steps'  => $step_data
-	            ];
-	        } elseif ($st === "Done") {
-	            // gabungkan Hired + Not Passed
-	            $hired = isset($grouped["Hired"]) ? $grouped["Hired"] : [];
-	            $not_passed = isset($grouped["Not Passed"]) ? $grouped["Not Passed"] : [];
+		foreach ($custom_order as $st) {
+		    $items = isset($grouped[$st]) ? $grouped[$st] : [];
+		    $data[] = [
+		        'status' => $st,
+		        'count'  => count($items),
+		        'items'  => $items
+		    ];
+		}
 
-	            $groups = [];
-	            $groups[] = [
-	                'substatus' => "Hired",
-	                'count'     => count($hired),
-	                'items'     => $hired
-	            ];
-	            $groups[] = [
-	                'substatus' => "Not Passed",
-	                'count'     => count($not_passed),
-	                'items'     => $not_passed
-	            ];
-
-	            $data[] = [
-	                'status' => "Done",
-	                'count'  => count($hired) + count($not_passed),
-	                'groups' => $groups
-	            ];
-	        } else {
-	            $items = isset($grouped[$st]) ? $grouped[$st] : [];
-	            $data[] = [
-	                'status' => $st,
-	                'count'  => count($items),
-	                'items'  => $items
-	            ];
-	        }
-	    }
 
 	    echo json_encode([
 	        'success' => true,
@@ -390,6 +355,132 @@ class Candidates_menu extends MY_Controller
 
 
 
+	public function update_status_kanban() {
+	    $id = $this->input->post('id');
+	    $old_status = $this->input->post('old_status');
+	    $new_status = $this->input->post('new_status');
+
+	    if($id != '' && $new_status != ''){  
+
+    		$step_recruitment_id = ''; $status_progress='';
+
+    		/// NEW
+	    	if($new_status == 'HR Interview' || $new_status == 'User Interview' || $new_status == 'Technical Test' || $new_status == 'Psycho Test' || $new_status == 'Medical Check' || $new_status == 'Offering Letter'){
+	    		
+	    		$get_status = $this->db->query("select * from master_step_recruitment where name = '".$new_status."' ")->result();
+	    		$step_recruitment_id = $get_status[0]->id;
+	    		$status_progress = 2;
+
+	    	}else{
+	    		if($new_status == 'Not Started'){
+		    		$status_progress = '';
+		    	}else{
+		    		$get_status = $this->db->query("select * from master_status_candidates where name = '".$new_status."' ")->result();
+	    			$status_progress = $get_status[0]->id;
+		    	}
+	    	}
+
+	    	/// OLD
+	    	$status_before_inprocess="";
+	    	if($old_status == 'HR Interview' || $old_status == 'User Interview' || $old_status == 'Technical Test' || $old_status == 'Psycho Test' || $old_status == 'Medical Check' || $old_status == 'Offering Letter'){
+	    		$status_before_inprocess = 1;
+	    		$get_status_before_inprocess = $this->db->query("select * from master_step_recruitment where name = '".$old_status."' ")->result();
+	    		$id_before = $get_status_before_inprocess[0]->id;
+
+	    	}
+
+
+	    	if($step_recruitment_id != ''){ //update ke proses step
+	    		$getStep = $this->db->query("select * from candidates_step where candidates_id = '".$id."' and step_recruitment_id = '".$step_recruitment_id."'")->result();
+	    		if(!empty($getStep)){ //ada data stepnya, tinggal update
+	    			$getStepId = $getStep[0]->id;
+	    			$data = [
+						'status_id' => 2
+					];
+					$this->db->update('candidates_step', $data, "candidates_id = '".$id."' and id = '" . $getStepId . "'");
+
+					if($status_before_inprocess == 1){
+
+						$data_before = [
+							'status_id' => 5 //done
+						];
+						$this->db->update('candidates_step', $data_before, "candidates_id = '".$id."' and step_recruitment_id = '" . $id_before . "'");
+					}else{
+						//update status depan
+		        		$datahdr = [
+							'status_id' 	=> 2, //in process
+							'updated_date' 	=> date("Y-m-d H:i:s")
+						];
+						$this->db->update("candidates", $datahdr, "id = '".$id."'");
+					}
+
+	    		}else{ //blm ada data stepnya, maka insert dulu
+	    			$steps =  $this->db->query("select * from master_step_recruitment")->result();
+		        	if(!empty($steps)){
+		        		foreach($steps as $row_step){
+		        			$status_id = '';
+		        			if($row_step->id == $step_recruitment_id){
+		        				$status_id = 2; //in progress
+		        			}
+		        			$itemData2 = [
+								'candidates_id' => $id,
+								'step_recruitment_id' => $row_step->id,
+								'status_id' => $status_id
+							];
+
+							$this->db->insert('candidates_step', $itemData2);
+		        		}
+
+		        		//update status depan 
+		        		$datahdr = [
+							'status_id' 	=> 2, //in process
+							'updated_date' 	=> date("Y-m-d H:i:s")
+						];
+						$this->db->update("candidates", $datahdr, "id = '".$id."'");
+		        	}
+
+	    		}
+	    		
+	    	}else{ //update ke status depan
+	    		if($status_progress != ''){
+	    			$data = [
+						'status_id' 	=> $status_progress,
+						'updated_date' 	=> date("Y-m-d H:i:s")
+					];
+
+					$this->db->update("candidates", $data, "id = '".$id."'");
+	    		}else{
+	    			$datahdr = [
+						'status_id' 	=> "",
+						'updated_date' 	=> date("Y-m-d H:i:s")
+					];
+					$this->db->update("candidates", $datahdr, "id = '".$id."'");
+
+	    			$steps =  $this->db->query("select * from candidates_step where candidates_id = '".$id."' ")->result();
+	    			
+		        	if(!empty($steps)){
+		        		foreach($steps as $row_step){
+			        		$data = [
+								'status_id' 	=> 0
+							];
+							$this->db->update("candidates_step", $data, "candidates_id = '".$id."'");
+		        		}
+		        	}
+	    		}
+	    	}
+
+
+
+			echo json_encode(['success' => true]);
+
+
+	    }else{
+	    	echo json_encode(['success' => false]);
+	    }
+	   
+	    
+	    
+	}
 
 
 

@@ -924,15 +924,14 @@
     background-color: #25c87c;
     color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 12px;
     font-size: 13px;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.3s ease;
     margin-right: 8px;
-    width: 100px;
-    height: 50px;
     font-weight: bold;
+    margin-top: 10px;
   }
 
   .btn-checkin:hover {
@@ -943,14 +942,13 @@
     background-color: #c82571;
     color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 12px;
     font-size: 13px;
     border-radius: 50px;
     cursor: pointer;
     transition: background 0.3s ease;
-    width: 100px;
-    height: 50px;
     font-weight: bold;
+    margin-top: 10px;
   }
 
   .btn-checkout:hover {
@@ -959,14 +957,14 @@
 
   .health-card {
     min-width: 200px;
-    background: #005479;
+    /*background: #000000;*/ /*#D9FB60;*//*#000000;*//*#E9F3FF;*//*#005479;*/
     /* dark mode */
     padding: 10px;
     border-radius: 12px;
   }
 
   .card-box {
-    background: #dbdadaff;
+    /*background: #dbdadaff;*/
     border-radius: 12px !important;
     padding: 8px;
     text-align: center;
@@ -981,20 +979,20 @@
     font-size: 14px;
     /* lebih kecil */
     font-weight: bold;
-    color: #5c5c5cff;
+    color: #ffffff;/*#5c5c5cff;*/
   }
 
   .card-box p {
     margin: 5px;
     font-size: 10px;
     /* kecil */
-    color: #aaa;
+    color: #ffffff;/*#aaa;*/
   }
 
   .card-box small {
     font-size: 8px;
     /* kecil untuk teks tambahan */
-    color: #888;
+    color: #ffffff;/*#888;*/
   }
 
   .card-box .icon {
@@ -1008,6 +1006,8 @@
     /* badge kecil */
     padding: 3px 6px;
     border-radius: 8px;
+    /*color: #ffffff;
+    background: #000000;*/
   }
 
   .health-card .row {
@@ -1028,7 +1028,7 @@
     /* kecilkan tinggi & lebar */
     border-radius: 20px;
     /* biar oval */
-    background-color: #fac86bff;
+    background-color: #F7F3E6;/*#fac86bff;*/
   }
 
   /*.action-button {
@@ -1036,14 +1036,14 @@
   }*/
 
 
-  /* .quick-links {
+  .quick-links {
       background: #fff;
       padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  } */
+      border-radius: 12px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  } 
 
-  .quick-links {
+  .quick-links_old {
     position: fixed;
     /* biar selalu melayang */
     bottom: 20px;
@@ -1094,9 +1094,9 @@
     flex: 0 0 auto;
     width: 100px;
     height: 50px;
-    background: #fafafa;
+    background: #E9F3FF;/*#C9E6F0;*//*#BED2E1;*//*#fafafa;*/
     border: 1px solid #eee;
-    border-radius: 12px;
+    border-radius: 12px !important;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1110,9 +1110,11 @@
     /* biar gak ke-block teks pas di-swipe */
   }
 
+
   .quick-link-item icon {
     width: 100px;
     height: 30px;
+    background : #3062A4;
 
   }
 
@@ -1129,11 +1131,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 80px;
+    font-size: 10px;
   }
 
   /* hover effect */
   .quick-link-item:hover {
-    background: #f5f5f5;
+    background: #7096D1;/*#f5f5f5;*/
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   }
 
@@ -1156,6 +1160,6 @@
   }
 
   .card-information-health {
-    margin-top: 6px !important;
+    margin-top: 10px !important;
   }
 </style>

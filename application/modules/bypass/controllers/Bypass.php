@@ -110,9 +110,9 @@ class Bypass extends API_Controller
 		 //Send mail 
 		 if($this->email->send()) { echo 'sukses email'; die();
 			return true; 
-		 } else { echo 'gagal'; die();
-			return false; 
-			//show_error($this->email->print_debugger());
+		 } else { /*echo 'gagal'; die();*/
+			/*return false; */
+			show_error($this->email->print_debugger());
 		 }
 	}
 
