@@ -921,8 +921,8 @@
 
 
   .btn-checkin {
-    background-color: #25c87c;
-    color: white;
+    background-color: #E2EEDA;
+    color: #3D7B14;
     border: none;
     padding: 10px 12px;
     font-size: 13px;
@@ -936,11 +936,12 @@
 
   .btn-checkin:hover {
     background-color: #157347;
+    color: white;
   }
 
   .btn-checkout {
-    background-color: #c82571;
-    color: white;
+    background-color: #F9D1E6;
+    color: #7F0947;
     border: none;
     padding: 10px 12px;
     font-size: 13px;
@@ -952,12 +953,17 @@
   }
 
   .btn-checkout:hover {
-    background-color: #bb2d3b;
+    background-color: #7F0947;
+    color: white;
   }
 
   .health-card {
     min-width: 200px;
-    /*background: #000000;*/ /*#D9FB60;*//*#000000;*//*#E9F3FF;*//*#005479;*/
+    /*background: #000000;*/
+    /*#D9FB60;*/
+    /*#000000;*/
+    /*#E9F3FF;*/
+    /*#005479;*/
     /* dark mode */
     padding: 10px;
     border-radius: 12px;
@@ -979,20 +985,23 @@
     font-size: 14px;
     /* lebih kecil */
     font-weight: bold;
-    color: #ffffff;/*#5c5c5cff;*/
+    color: #ffffff;
+    /*#5c5c5cff;*/
   }
 
   .card-box p {
     margin: 5px;
     font-size: 10px;
     /* kecil */
-    color: #ffffff;/*#aaa;*/
+    color: #ffffff;
+    /*#aaa;*/
   }
 
   .card-box small {
     font-size: 8px;
     /* kecil untuk teks tambahan */
-    color: #ffffff;/*#888;*/
+    color: #ffffff;
+    /*#888;*/
   }
 
   .card-box .icon {
@@ -1008,6 +1017,74 @@
     border-radius: 8px;
     /*color: #ffffff;
     background: #000000;*/
+  }
+
+  /* Cardbox 1 */
+  .cardbox-1 {
+    background-color: #F7EDD4;
+    border: 1px solid #FFD05C;
+  }
+
+  .cardbox-1 h3,
+  .cardbox-1 p {
+    color: #e6b435ff;
+  }
+
+  .cardbox-1 .badge {
+    background-color: #FFD05C;
+    color: #fff;
+  }
+
+  /* Cardbox 2 */
+  .cardbox-2 {
+    background-color: #E6E0EA;
+    border: 1px solid #B458F2;
+  }
+
+  .cardbox-2 h3,
+  .cardbox-2 p {
+    color: #B458F2;
+  }
+
+  .cardbox-2 .badge {
+    background-color: #B458F2;
+    color: #fff;
+  }
+
+  /* Cardbox 3 */
+  .cardbox-3 {
+    background-color: #E2EEDA;
+    border: 1px solid #95F753;
+  }
+
+  .cardbox-3 h3,
+  .cardbox-3 p {
+    color: #52ad14ff;
+  }
+
+  .cardbox-3 small {
+    color: #414141ff;
+  }
+
+  .cardbox-3 .badge {
+    background-color: #95F753;
+    color: #fff;
+  }
+
+  /* Cardbox 4 */
+  .cardbox-4 {
+    background-color: #D0DBF7;
+    border: 1px solid #5C8AFF;
+  }
+
+  .cardbox-4 h3,
+  .cardbox-4 p {
+    color: #5C8AFF;
+  }
+
+  .cardbox-4 .badge {
+    background-color: #5C8AFF;
+    color: #fff;
   }
 
   .health-card .row {
@@ -1028,7 +1105,9 @@
     /* kecilkan tinggi & lebar */
     border-radius: 20px;
     /* biar oval */
-    background-color: #F7F3E6;/*#fac86bff;*/
+    background-color: #D4E7F5;
+    /*#fac86bff;*/
+    color: #074069 !important;
   }
 
   /*.action-button {
@@ -1037,11 +1116,11 @@
 
 
   .quick-links {
-      background: #fff;
-      padding: 15px;
-      border-radius: 12px !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  } 
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 
   .quick-links_old {
     position: fixed;
@@ -1094,7 +1173,10 @@
     flex: 0 0 auto;
     width: 100px;
     height: 50px;
-    background: #E9F3FF;/*#C9E6F0;*//*#BED2E1;*//*#fafafa;*/
+    background: #E9F3FF;
+    /*#C9E6F0;*/
+    /*#BED2E1;*/
+    /*#fafafa;*/
     border: 1px solid #eee;
     border-radius: 12px !important;
     display: flex;
@@ -1114,7 +1196,7 @@
   .quick-link-item icon {
     width: 100px;
     height: 30px;
-    background : #3062A4;
+    background: #3062A4;
 
   }
 
@@ -1137,7 +1219,8 @@
 
   /* hover effect */
   .quick-link-item:hover {
-    background: #7096D1;/*#f5f5f5;*/
+    background: #7096D1;
+    /*#f5f5f5;*/
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   }
 
@@ -1161,5 +1244,7 @@
 
   .card-information-health {
     margin-top: 10px !important;
+
+
   }
 </style>
