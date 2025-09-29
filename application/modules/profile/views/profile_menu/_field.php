@@ -5,6 +5,8 @@
 			<label class="col-md-4 control-label no-padding-right">Date Attendance</label>
 			<div class="col-md-8">
 				<?=$txtdateattendance;?>
+				<input type="hidden" id="latitude" name="latitude" />
+				<input type="hidden" id="longitude" name="longitude" />
 			</div>
 		</div>
 
