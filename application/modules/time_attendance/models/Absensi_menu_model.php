@@ -521,7 +521,9 @@ class Absensi_menu_model extends MY_Model
 							//'num_of_working_hours'		=> $num_of_working_hours,
 							'created_at'				=> date("Y-m-d H:i:s"),
 							'notes' 					=> trim($post['description']),
-							'work_location' 			=> trim($post['location'])
+							'work_location' 			=> trim($post['location']),
+							'lat_checkin' 				=> trim($post['latitude']),
+							'long_checkin' 				=> trim($post['longitude'])
 						];
 						$rs = $this->db->insert($this->table_name, $data);
 
@@ -618,7 +620,9 @@ class Absensi_menu_model extends MY_Model
 							'num_of_working_hours'		=> $num_of_working_hours,
 							'updated_at'				=> date("Y-m-d H:i:s"),
 							'notes' 					=> trim($post['description']),
-							'work_location' 			=> trim($post['location'])
+							'work_location' 			=> trim($post['location']),
+							'lat_checkout' 				=> trim($post['latitude']),
+							'long_checkout' 			=> trim($post['longitude'])
 						];
 
 						$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);

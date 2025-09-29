@@ -38,6 +38,8 @@ $( "#btnAddData" ).on('click', function(){
 	reset();
 	$('#mfdata').text('Add');
 	if(module_name == 'absensi_menu'){ 
+		getLocation();
+		
 		var hdnempid = $("#hdnempid").val();
 		$("#location ").prop('disabled', false);
 		$('#mfdata').text('Form Check-IN');
