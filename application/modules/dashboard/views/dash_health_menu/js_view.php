@@ -857,7 +857,7 @@
 	                                labels: {
 	                                    usePointStyle: true,
 	                                    pointStyle: 'circle',
-	                                    boxWidth: 8,
+	                                    boxWidth: 4,
 	                                    padding: 15,
 	                                    font: { size: 11 },
 

@@ -173,7 +173,7 @@
 	        cache: false,
 	        dataType: "JSON",
 	        success: function (data) {
-	            if (data != false) {console.log(data);
+	            if (data != false) {
 
 	            	// ubah 0 jadi null supaya line chart tidak digambar di titik itu
 					const absenData = data.total_absen.map(v => v === 0 ? null : v);
