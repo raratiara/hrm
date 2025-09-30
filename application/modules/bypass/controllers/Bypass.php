@@ -130,7 +130,7 @@ class Bypass extends API_Controller
 		$yearPrev = date("Y", strtotime("-1 month", $timestamp));
 		$monthPrev = date("m", strtotime("-1 month", $timestamp));
 		$dateFrom = $yearPrev . '-' . $monthPrev . '-24';
-		$dateTo = date('Y-m-24', strtotime($dateNow));
+		$dateTo = date('Y-m-25', strtotime($dateNow));
 
 		//tgl 24 bln kemarin SAMPAI tgl 24 bulan ini
 		$bln = date('F'); // July
