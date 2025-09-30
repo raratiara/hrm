@@ -118,7 +118,7 @@ class Bypass extends API_Controller
 
 
 
-	/// download report absensi stiap tgl 25 jam 8 pagi
+	/// download report absensi stiap tgl 26 jam 8 pagi
 	public function downloadAbsenceReport(){
 		/*error_reporting(E_ALL);
 		ini_set('display_errors', 1);*/
@@ -129,10 +129,10 @@ class Bypass extends API_Controller
 		$timestamp = strtotime($dateNow);
 		$yearPrev = date("Y", strtotime("-1 month", $timestamp));
 		$monthPrev = date("m", strtotime("-1 month", $timestamp));
-		$dateFrom = $yearPrev . '-' . $monthPrev . '-24';
+		$dateFrom = $yearPrev . '-' . $monthPrev . '-25';
 		$dateTo = date('Y-m-25', strtotime($dateNow));
 
-		//tgl 24 bln kemarin SAMPAI tgl 24 bulan ini
+		//tgl 25 bln kemarin SAMPAI tgl 25 bulan ini
 		$bln = date('F'); // July
 		$thn = date('Y'); // 2025
 		$periode = $bln.' '.$thn;
