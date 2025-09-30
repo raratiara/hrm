@@ -850,7 +850,7 @@ class Dash_health_menu extends MY_Controller
 			    LEFT JOIN health_raw_spo2 sp 
 			        ON hr.ts_utc = sp.ts_utc 
 			       AND hr.employee_id = sp.employee_id
-			    WHERE hr.employee_id = ".$employee_id.$whr_period."
+			    WHERE bpm != '' and hr.employee_id = ".$employee_id.$whr_period."
 
 			    UNION
 
@@ -859,7 +859,7 @@ class Dash_health_menu extends MY_Controller
 			    LEFT JOIN health_raw_hr hr 
 			        ON hr.ts_utc = sp.ts_utc 
 			       AND hr.employee_id = sp.employee_id
-			    WHERE sp.employee_id = ".$employee_id.$whr_period2."
+			    WHERE pct != '' and sp.employee_id = ".$employee_id.$whr_period2."
 
 			    ORDER BY ts_utc ASC
 			";
@@ -915,13 +915,13 @@ class Dash_health_menu extends MY_Controller
 	    }
 	    
 	    $sql = "
-	        SELECT hr.ts_utc, hr.bpm, sp.pct, hr.employee_id, e.full_name as empname
+	        select hr.ts_utc, hr.bpm, sp.pct, hr.employee_id, e.full_name as empname
 	        FROM health_raw_hr hr
 	        LEFT JOIN health_raw_spo2 sp 
 	            ON hr.ts_utc = sp.ts_utc 
 	           AND hr.employee_id = sp.employee_id
 	        LEFT JOIN employees e ON e.id = hr.employee_id
-	        WHERE 1=1 ".$whr_emp.$whr_period."
+	        WHERE bpm != '' ".$whr_emp.$whr_period."
 
 	        UNION
 
@@ -931,7 +931,7 @@ class Dash_health_menu extends MY_Controller
 	            ON hr.ts_utc = sp.ts_utc 
 	           AND hr.employee_id = sp.employee_id
 	        LEFT JOIN employees e ON e.id = sp.employee_id
-	        WHERE 1=1 ".$whr_emp2.$whr_period2."
+	        WHERE pct != '' ".$whr_emp2.$whr_period2."
 
 	        ORDER BY ts_utc ASC
 	    ";
@@ -978,9 +978,12 @@ class Dash_health_menu extends MY_Controller
 	            'yAxisID' => 'y',
 	            'tension' => 0.4,
 	            'fill' => false,
-	            'pointRadius' => 4,
-	            'pointHoverRadius' => 6
+	            'pointRadius' => 3,
+	            'pointHoverRadius' => 4,
+	            'borderWidth' => 2
 	        ];
+
+	       
 
 	        $datasets[] = [
 	            'label' => $g['name'].' - SpO2',
@@ -991,8 +994,9 @@ class Dash_health_menu extends MY_Controller
 	            'yAxisID' => 'y',
 	            'tension' => 0.4,
 	            'fill' => false,
-	            'pointRadius' => 4,
-	            'pointHoverRadius' => 6
+	            'pointRadius' => 3,
+	            'pointHoverRadius' => 4,
+	            'borderWidth' => 2
 	        ];
 	    }
 

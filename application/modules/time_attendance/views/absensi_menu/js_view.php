@@ -127,6 +127,8 @@ function load_data()
         {
 			if(data != false){
 				if(save_method == 'update'){  
+					getLocation();
+					 
 					var date_attendance_out = getFormattedDateTime();
 					/*if(data.date_attendance_out != null && data.date_attendance_out != '0000-00-00 00:00:00'){
 						var date_attendance_out = data.date_attendance_out;
@@ -364,6 +366,27 @@ function getFormattedDateTime() {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                // isi nilai ke input hidden
+                document.getElementById("latitude").value = position.coords.latitude;
+                document.getElementById("longitude").value = position.coords.longitude;
+
+            },
+            function(error) {
+                alert("Gagal mengambil lokasi: " + error.message);
+            }
+        );
+        return false; // cegah submit dulu, tunggu posisi
+    } else {
+        alert("Browser tidak mendukung geolocation.");
+        return false;
+    }
+}
 
 
 

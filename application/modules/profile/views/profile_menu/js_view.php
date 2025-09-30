@@ -1161,6 +1161,8 @@
 
 
 	$( "#btnAddData" ).on('click', function(){ 
+		getLocation();
+
 		form_check = $("#frmInputData").valid();
 		if(!form_check) return false;
 
@@ -1196,7 +1198,7 @@
 
 
 	function getdatacheckout()
-	{
+	{ 
 		//expire();
 	    save_method = 'update';
 		//idx = id;
@@ -1221,6 +1223,8 @@
 					if(save_method == 'update'){  
 
 						if(data.isupdate == 1){
+							getLocation();
+
 							var date_attendance_out = getFormattedDateTime();
 
 							$('[name="id"]').val(data.dataabsen[0].id);
@@ -1532,25 +1536,25 @@
 
 
 	            //if(res.length > 0){
-	                res.forEach(item => {
-    var url_menu = base_url + item.url;
+                res.forEach(item => {
+				    var url_menu = base_url + item.url;
 
-    // Ambil icon, kalau kosong fallback ke fa-link
-    let iconClass = item.icon ?? "fa-link";
+				    // Ambil icon, kalau kosong fallback ke fa-link
+				    let iconClass = item.icon ?? "fa-link";
 
-    // pastikan ada prefix "fa "
-    if (!iconClass.startsWith("fa ")) {
-        iconClass = "fa " + iconClass;
-    }
+				    // pastikan ada prefix "fa "
+				    if (!iconClass.startsWith("fa ")) {
+				        iconClass = "fa " + iconClass;
+				    }
 
-    let div = `
-        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
-            <i class="${iconClass}"></i>
-            <span title="${item.title}">${item.title}</span>
-        </div>
-    `;
-    container.append(div);
-});
+				    let div = `
+				        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
+				            <i class="${iconClass}"></i>
+				            <span title="${item.title}">${item.title}</span>
+				        </div>
+				    `;
+				    container.append(div);
+				});
 	            /*} else {
 	                container.html("<small class='text-muted'>Belum ada quick link</small>");
 	            }*/
@@ -1559,6 +1563,27 @@
 	            console.error(err);
 	        }
 	    });
+	}
+
+
+	function getLocation() {
+	    if (navigator.geolocation) {
+	        navigator.geolocation.getCurrentPosition(
+	            function(position) {
+	                // isi nilai ke input hidden
+	                document.getElementById("latitude").value = position.coords.latitude;
+	                document.getElementById("longitude").value = position.coords.longitude;
+
+	            },
+	            function(error) {
+	                alert("Gagal mengambil lokasi: " + error.message);
+	            }
+	        );
+	        return false; // cegah submit dulu, tunggu posisi
+	    } else {
+	        alert("Browser tidak mendukung geolocation.");
+	        return false;
+	    }
 	}
 
 
