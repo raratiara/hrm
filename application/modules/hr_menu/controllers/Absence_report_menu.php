@@ -131,7 +131,11 @@ class Absence_report_menu extends MY_Controller
 		}
 
 		$zip = new ZipArchive();
-		$zipFilename = FCPATH . 'uploads/export_absensi_' . date('Ymd_His') . '.zip';
+		/*$zipFilename = FCPATH . 'uploads/export_absensi_' . date('Ymd_His') . '.zip';
+		$zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);*/
+
+
+		$zipFilename = FCPATH . 'uploads/report_absensi_bulanan/export_absensi_' . date('Y-m') . '.zip';
 		$zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
 
