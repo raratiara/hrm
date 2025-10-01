@@ -9,9 +9,9 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Task</label>
+			<label class="col-md-4 control-label no-padding-right">Status</label>
 			<div class="col-md-8">
-				<?=$txttask;?>
+				<?=$selstatus;?>
 			</div>
 		</div>
 		
@@ -28,31 +28,42 @@
 				<?=$txtsolvedate;?>
 			</div>
 		</div>
+
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Description</label>
+			<div class="col-md-8">
+				<?=$txtdesc;?>
+			</div>
+		</div>
 	</div>
 
 	<div class="col-md-6 col-sm-12">
+		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Status</label>
+			<label class="col-md-4 control-label no-padding-right">Project </label>
 			<div class="col-md-8">
-				<?=$selstatus;?>
+				<?=$selproject;?>
 			</div>
 		</div>
+
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Task</label>
+			<div class="col-md-8">
+				<?=$txttask;?>
+			</div>
+		</div>
+
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Task Parent </label>
 			<div class="col-md-8">
 				<?=$seltaskparent;?>
 			</div>
 		</div>
+		
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Due Date </label>
 			<div class="col-md-8">
 				<?=$txtduedate;?>
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Project </label>
-			<div class="col-md-8">
-				<?=$selproject;?>
 			</div>
 		</div>
 		
