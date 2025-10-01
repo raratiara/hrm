@@ -19,8 +19,8 @@ class Tasklist_menu extends MY_Controller
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date", "Solve Date","Project"];
-	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date","solve_date","project_name"];
+	public $colnames 				= ["ID","Employee Name","Project","Task","Task Parent","Status","Progress (%)","Due Date", "Solve Date","Description"];
+	public $colfields 				= ["id","employee_name","project_name","task","parent_name","status_name","progress_percentage","due_date","solve_date","description"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -40,6 +40,8 @@ class Tasklist_menu extends MY_Controller
 		$field['txtprogress'] 	= $this->self_model->return_build_txt('','progress','progress');
 		$field['txtduedate'] 	= $this->self_model->return_build_txt('','due_date','due_date');
 		$field['txtsolvedate'] 	= $this->self_model->return_build_txt('','solve_date','solve_date','','','readonly');
+		$field['txtdesc'] 		= $this->self_model->return_build_txtarea('','description','description');
+		
 
 		$msstatus 				= $this->db->query("select * from master_tasklist_status")->result(); 
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
