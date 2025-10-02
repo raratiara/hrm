@@ -127,6 +127,7 @@ function load_data()
 					//$('[name="due_date"]').val(data.due_date);
 					//$('[name="solve_date"]').val(data.solve_date);
 					$('select#project').val(data.project_id).trigger('change.select2');
+					$('[name="description"]').val(data.description);
 
 					var due_date = dateFormat(data.due_date);
 					$('[name="due_date"]').datepicker('setDate', due_date);
@@ -144,9 +145,21 @@ function load_data()
 					$('span.progress').html(data.progress_percentage);
 					$('span.status').html(data.status_name);
 					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
-					$('span.solve_date').html(data.solve_date);
+
+					var due_date = "-";
+					if(data.due_date != '0000-00-00'){
+						due_date = data.due_date;
+					}
+					var solve_date = "-";
+					if(data.solve_date != '0000-00-00'){
+						solve_date = data.solve_date;
+					}
+
+					$('span.due_date').html(due_date);
+					$('span.solve_date').html(solve_date);
 					$('span.project').html(data.project_name);
+					$('span.description').html(data.description);
+					
 					
 					
 					$('#modal-view-data').modal('show');

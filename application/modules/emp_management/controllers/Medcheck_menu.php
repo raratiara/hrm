@@ -41,8 +41,18 @@ class Medcheck_menu extends MY_Controller
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
-		$msproject 				= $this->db->query("select * from data_project")->result(); 
-		$field['selstatus'] 	= $this->self_model->return_build_select2me($msproject,'','','','project','project','','','id','title',' ','','','',3,'-');
+		
+		$msstatus = [
+		    (object)[
+		        'id'    => 'OK',
+		        'title' => 'OK'
+		    ],
+		    (object)[
+		        'id'    => 'NOT OK',
+		        'title' => 'NOT OK'
+		    ]
+		];
+		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','title',' ','','','',1,'-');
 
 
 
@@ -108,6 +118,37 @@ class Medcheck_menu extends MY_Controller
 
 		echo json_encode($rs);
 	}
+
+
+
+	public function downloadFile(){ 
+
+		$filename 	= $_GET['file']; 
+		$empcode 	= $_GET['empcode'];
+
+		if($empcode != ''){
+			// Set the full file path
+			$filePath = "./uploads/employee/".$empcode."/medcheck/" . basename($filename);
+
+
+			if (file_exists($filePath)) {
+			    header('Content-Description: File Transfer');
+			    header('Content-Type: application/octet-stream');
+			    header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+			    header('Content-Length: ' . filesize($filePath));
+			    readfile($filePath);
+			    exit;
+			} else {
+			    http_response_code(404);
+			    echo "File not found.";
+			}
+		}else{
+			http_response_code(404);
+			echo "Employee not found.";
+		}
+		
+
+ 	}
 
 
 

@@ -8,16 +8,19 @@
 			</div>
 		</div>
 
+		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> File</label>
+			<label class="col-md-4 control-label no-padding-right">File</label>
 			<div class="col-md-8">
 				<?=$txtfile;?>
+				<input type="hidden" id="hdnfile" name="hdnfile"/>
+				<span class="file-link" id="file-link"></span>
 			</div>
 		</div>
 		
 	</div>
 
-	<div class="col-md-6 col-sm-12" id="divStatus" style="display: none;">
+	<div class="col-md-6 col-sm-12" id="divStatus">
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Status</label>
 			<div class="col-md-8">
