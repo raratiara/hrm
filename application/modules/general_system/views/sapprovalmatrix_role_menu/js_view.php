@@ -138,7 +138,7 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){
-					$('span.role_name').html(data.approval_name);
+					$('span.role_name').html(data.role_name);
 					$('span.location').html(data.work_location_name);
 					$('span.description').html(data.description);
 
