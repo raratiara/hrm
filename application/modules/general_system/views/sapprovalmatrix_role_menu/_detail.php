@@ -32,7 +32,7 @@
 <div class="row-flex">
 	<label class="col-md-3 control-label no-padding-right">Role Name</label>
 	<div class="col-md-9">
-		: <span class="approval_name"></span>
+		: <span class="role_name"></span>
 	</div>
 </div>
 <div class="row-flex">
