@@ -35,7 +35,18 @@ class Documents_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select * from documents)dt';
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$emp_id = $getdata[0]->id_karyawan;
+
+		$dtemp = $this->db->query("select * from employees where id = '".$emp_id."'")->result(); 
+		$whr ="";
+		if($dtemp[0]->company_id != 1){ //GDI
+			$whr = " where id != 8";
+		}
+
+
+		$sTable = '(select * from documents '.$whr.')dt';
 		
 
 		/* Paging */
