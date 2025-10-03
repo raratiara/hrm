@@ -1,41 +1,39 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Sadmin_tools_app_menu extends MY_Controller
+class Sapprovalmatrix_role_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "general_system_sadmin_tools_app_menu"; // identify menu
- 	const  LABELMASTER				= "Application Menu";
+ 	const  LABELMODULE				= "sapprovalmatrix_role_menu"; // identify menu
+ 	const  LABELMASTER				= "Approval Matrix Role";
  	const  LABELFOLDER				= "general_system"; // module folder
- 	const  LABELPATH				= "sadmin_tools_app_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "general_system_sadmin"; // adjusted 1st sub parent segment
- 	const  LABELSUBPARENTSEG1		= "Super Admin Tools"; // 
+ 	const  LABELPATH				= "sapprovalmatrix_role_menu"; // controller file (lowercase)
+ 	const  LABELNAVSEG1				= "general_system_role_matrix"; // adjusted 1st sub parent segment
+ 	const  LABELSUBPARENTSEG1		= "Setup Approval Matrix Role"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Title Menu","Module Name","Url","Parent ID","Is Parent","Show Menu","Order"];
+	public $tabel_header 			= ["ID","Role Name","Location","Description"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Title Menu","Link Type","Module Name","Url","Parent ID","Is Parent","Show Menu","Icon Class","Order"];
-	public $colfields 				= ["user_menu_id","title","link_type","module_name","url","parent_id","isparent","isshow","um_class","um_order"];
+	public $colnames 				= ["ID","Role Name","Location","Description"];
+	public $colfields 				= ["id","role_name","work_location_name","description"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
 		$field = [];
-		$field['txttitle'] 		= $this->self_model->return_build_txt('','title','title');
-		$field['radiolink'] 	= $this->self_model->return_build_radio('uri', [['page','page'],['uri','uri']], 'link_type', 'link_type', 'inline');
-		$field['txtmodule'] 	= $this->self_model->return_build_txt('','module_name','module_name');
-		$field['txturl'] 		= $this->self_model->return_build_txt('','url','url');
-		$oMenu 					= $this->self_model->return_build_tree(_PREFIX_TABLE."user_menu", 'user_menu_id', 'title', 'parent_id','', 'um_order');
-		$field['selparent'] 	= $this->self_model->return_build_select2me($oMenu,'','','','parent_id','parent_id','','','user_menu_id','user_menu_id',' ','title','','',3,'-');
-		$field['radioparent'] 	= $this->self_model->return_build_radio('0', [['0','No'],['1','Yes']], 'is_parent', 'is_parent', 'inline');
-		$field['radioshow'] 	= $this->self_model->return_build_radio('1', [['1','Yes'],['0','No']], 'show_menu', 'show_menu', 'inline');
-		$oUmClass				= ['fa-dashboard','fa-tachometer','fa-exchange','fa-shopping-cart','fa-archive','fa-money','fa-list','fa-list-alt','fa-gavel','fa-handshake-o'];
-		$field['selum_class'] 	= $this->self_model->return_build_simple_select2me($oUmClass,'',[],'um_class','um_class');
-		$field['txtorder'] 		= $this->self_model->return_build_txt('0','um_order','um_order');
+
+
+		$msloc 				= $this->db->query("select * from master_work_location order by name asc")->result(); 
+		$field['selloc'] 	= $this->self_model->return_build_select2me($msloc,'','','','location','location','','','id','name',' ','','','',3,'-');
+
+		$field['txtrolename'] 	= $this->self_model->return_build_txt('','role_name','role_name');
+		$field['txtdescription']= $this->self_model->return_build_txtarea('','description','description');
+		
+		
 		
 		return $field;
 	}
@@ -87,4 +85,45 @@ class Sadmin_tools_app_menu extends MY_Controller
  	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
 	//============================== Additional Method ==============================//
+
+
+
+
+ 	public function genpicrolerow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			$location = $post['location'];
+
+			if(isset($post['count']))
+			{  
+				$row = trim($post['count']); 
+				echo $this->self_model->getNewPicRoleRow($row);
+			} else if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				echo json_encode($this->self_model->getNewPicRoleRow($row,$id,$view));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+
+	public function delrowDetailPicRole(){ 
+		$post = $this->input->post(); 
+		$id = trim($post['id']); 
+		
+		if($id != ''){
+			$rs = $this->db->delete('approval_matrix_role_pic',"id = '".$id."'");
+		}
+		
+	}
+
+
+
 }
