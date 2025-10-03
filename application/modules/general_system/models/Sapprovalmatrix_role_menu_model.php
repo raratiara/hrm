@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Sapprovalmatrix_approval_menu_model extends MY_Model
+class Sapprovalmatrix_role_menu_model extends MY_Model
 {
 	/* Module */
-	protected $folder_name 	= "general_system/sapprovalmatrix_approval_menu";
-	protected $table_name 	= _PREFIX_TABLE . "approval_matrix";
+	protected $folder_name 	= "general_system/sapprovalmatrix_role_menu";
+	protected $table_name 	= _PREFIX_TABLE . "approval_matrix_role";
 	protected $primary_key 	= "id";
 
 	function __construct()
@@ -20,21 +20,14 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.approval_name',
-			'dt.approval_type_name',
+			'dt.role_name',
 			'dt.work_location_name',
-			'dt.leave_type_name',
-			'dt.min',
-			'dt.max',
 			'dt.description'
 		];
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.name as approval_type_name, c.name as work_location_name, d.name as leave_type_name
-					from approval_matrix a
-					left join approval_matrix_mstype b on b.id = a.approval_type_id
-					left join master_work_location c on c.id = a.work_location_id
-					left join master_leaves d on d.id = a.leave_type_id
+		$sTable = '(select a.*, b.name as work_location_name from approval_matrix_role a
+					left join master_work_location b on b.id = a.work_location_id
 				)dt';
 
 
@@ -195,12 +188,8 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 					' . $delete . '
 				</div>',
 				$row->id,
-				$row->approval_name,
-				$row->approval_type_name,
+				$row->role_name,
 				$row->work_location_name,
-				$row->leave_type_name,
-				$row->min,
-				$row->max,
 				$row->description
 
 			));
@@ -220,7 +209,8 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 		if (isset($id) && $id <> "") {
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
-			$this->db->where(['approval_matrix_id' => $id])->delete('approval_matrix_detail');
+			$this->db->where([$this->primary_key => $id])->delete($this->table_akses_name);
+			$this->db->where([$this->primary_key => $id])->delete($this->table_akses_role_name);
 			$this->db->where([$this->primary_key => $id])->delete($this->table_name);
 			$this->db->trans_complete();
 
@@ -237,7 +227,8 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 			foreach ($id as $pid) {
 				//$this->db->trans_off(); // Disable transaction
 				$this->db->trans_start(); // set "True" for query will be rolled back
-				$this->db->where(['approval_matrix_id' => $pid])->delete('approval_matrix_detail');
+				$this->db->where([$this->primary_key => $pid])->delete($this->table_akses_name);
+				$this->db->where([$this->primary_key => $pid])->delete($this->table_akses_role_name);
 				$this->db->where([$this->primary_key => $pid])->delete($this->table_name);
 				$this->db->trans_complete();
 				$deleted = $this->db->trans_status();
@@ -266,12 +257,8 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 		
 
 		$data = [
-			'approval_name' 	=> trim($post['approval_name']),
-			'approval_type_id' 	=> trim($post['approval_type']),
+			'role_name' 		=> trim($post['role_name']),
 			'work_location_id' 	=> trim($post['location']),
-			'leave_type_id' 	=> trim($post['absence_type']),
-			'min' => trim($post['min']),
-			'max' => trim($post['max']),
 			'description' 		=> trim($post['description']),
 			'created_date' 		=> date("Y-m-d H:i:s"),
 			'created_by' 		=> $_SESSION["username"]
@@ -281,10 +268,10 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 		$lastId = $this->db->insert_id();
 
 		if($rs){
-			if(isset($post['approval_level'])){
-				$item_num = count($post['approval_level']); // cek sum
-				$item_len_min = min(array_keys($post['approval_level'])); // cek min key index
-				$item_len = max(array_keys($post['approval_level'])); // cek max key index
+			if(isset($post['pic_role'])){
+				$item_num = count($post['pic_role']); // cek sum
+				$item_len_min = min(array_keys($post['pic_role'])); // cek min key index
+				$item_len = max(array_keys($post['pic_role'])); // cek max key index
 			} else {
 				$item_num = 0;
 			}
@@ -292,15 +279,13 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 			if($item_num>0){
 				for($i=$item_len_min;$i<=$item_len;$i++) 
 				{
-					if(isset($post['approval_level'][$i]) && isset($post['approval_role'][$i]) ){
+					if(isset($post['pic_role'][$i])){
 						$itemData = [
-							'approval_matrix_id'	=> $lastId,
-							'approval_level' 		=> trim($post['approval_level'][$i]),
-							'role_id' 				=> trim($post['approval_role'][$i]),
-							'approval_max_duration' => trim($post['approval_duration'][$i])
+							'approval_matrix_role_id'	=> $lastId,
+							'employee_id' 				=> trim($post['pic_role'][$i])
 						];
 
-						$this->db->insert('approval_matrix_detail', $itemData);
+						$this->db->insert('approval_matrix_role_pic', $itemData);
 					}
 				}
 			}
@@ -315,12 +300,8 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 	{
 		if (!empty($post['id'])) { 
 			$data = [
-				'approval_name' 	=> trim($post['approval_name']),
-				'approval_type_id' 	=> trim($post['approval_type']),
+				'role_name' 		=> trim($post['role_name']),
 				'work_location_id' 	=> trim($post['location']),
-				'leave_type_id' 	=> trim($post['absence_type']),
-				'min' => trim($post['min']),
-				'max' => trim($post['max']),
 				'description' 		=> trim($post['description']),
 				'updated_date' 		=> date("Y-m-d H:i:s"),
 				'updated_by' 		=> $_SESSION["username"]
@@ -329,14 +310,13 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if($rs){
-				if(isset($post['approval_level'])){
-					$item_num = count($post['approval_level']); // cek sum
-					$item_len_min = min(array_keys($post['approval_level'])); // cek min key index
-					$item_len = max(array_keys($post['approval_level'])); // cek max key index
+				if(isset($post['pic_role'])){
+					$item_num = count($post['pic_role']); // cek sum
+					$item_len_min = min(array_keys($post['pic_role'])); // cek min key index
+					$item_len = max(array_keys($post['pic_role'])); // cek max key index
 				} else {
 					$item_num = 0;
 				}
-
 
 				if($item_num>0){
 					for($i=$item_len_min;$i<=$item_len;$i++) 
@@ -344,25 +324,21 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 						$hdnid = trim($post['hdnid'][$i]);
 
 						if(!empty($hdnid)){ //update
-							if(isset($post['approval_level'][$i])){
+							if(isset($post['pic_role'][$i])){
 								$itemData = [
-									'approval_level'		=> trim($post['approval_level'][$i]),
-									'role_id' 				=> trim($post['approval_role'][$i]),
-									'approval_max_duration' => trim($post['approval_duration'][$i])
+									'employee_id'	=> trim($post['pic_role'][$i])
 								];
 
-								$this->db->update("approval_matrix_detail", $itemData, "id = '".$hdnid."'");
+								$this->db->update("approval_matrix_role_pic", $itemData, "id = '".$hdnid."'");
 							}
 						}else{ //insert
-							if(isset($post['approval_level'][$i])){
+							if(isset($post['pic_role'][$i])){
 								$itemData = [
-									'approval_matrix_id'	=> $post['id'],
-									'approval_level' 		=> trim($post['approval_level'][$i]),
-									'role_id' 				=> trim($post['approval_role'][$i]),
-									'approval_max_duration' => trim($post['approval_duration'][$i])
+									'approval_matrix_role_id'	=> $post['id'],
+									'employee_id' 				=> trim($post['pic_role'][$i]),
 								];
 
-								$this->db->insert('approval_matrix_detail', $itemData);
+								$this->db->insert('approval_matrix_role_pic', $itemData);
 							}
 						}
 					}
@@ -381,11 +357,8 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 
 	public function getRowData($id)
 	{
-		$mTable = '(select a.*, b.name as approval_type_name, c.name as work_location_name, d.name as leave_type_name
-					from approval_matrix a
-					left join approval_matrix_mstype b on b.id = a.approval_type_id
-					left join master_work_location c on c.id = a.work_location_id
-					left join master_leaves d on d.id = a.leave_type_id
+		$mTable = '(select a.*, b.name as work_location_name from approval_matrix_role a
+					left join master_work_location b on b.id = a.work_location_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -424,11 +397,8 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.name as approval_type_name, c.name as work_location_name, d.name as leave_type_name
-					from approval_matrix a
-					left join approval_matrix_mstype b on b.id = a.approval_type_id
-					left join master_work_location c on c.id = a.work_location_id
-					left join master_leaves d on d.id = a.leave_type_id
+		$sql = "select a.*, b.name as work_location_name from approval_matrix_role a
+					left join master_work_location b on b.id = a.work_location_id
 					order by a.id asc
 		";
 
@@ -438,25 +408,21 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 	}
 
 
-	public function getNewPicRow($work_location_id,$row,$id=0,$view=FALSE)
+	public function getNewPicRoleRow($row,$id=0,$view=FALSE)
 	{ 
 		if($id > 0){ 
-			$data = $this->getPicRows($work_location_id,$id,$view);
+			$data = $this->getPicRoleRows($id,$view);
 		} else { 
 			$data = '';
 			$no = $row+1;
-			$msPic = $this->db->query("select distinct(role_name),id from approval_matrix_role where work_location_id = '".$work_location_id."'")->result(); 
+			$msPic = $this->db->query("select id,full_name from employees where status_id = 1 order by full_name asc")->result(); 
 			
 			$data 	.= '<td>'.$no.'</td>';
 
-			$data 	.= '<td>'.$this->return_build_txt('','approval_level['.$row.']','','approval_level','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-			$data 	.= '<td>'.$this->return_build_chosenme($msPic,'','','','approval_role['.$row.']','approval_role','approval_role','','id','role_name','','','',' data-id="'.$row.'" ').'</td>';
-
-			$data 	.= '<td>'.$this->return_build_txt('','approval_duration['.$row.']','','approval_duration','text-align: right;','data-id="'.$row.'" ').'</td>';
+			$data 	.= '<td>'.$this->return_build_chosenme($msPic,'','','','pic_role['.$row.']','pic_role','pic_role','','id','full_name','','','',' data-id="'.$row.'" ').'</td>';
 
 			$hdnid='';
-			/*$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';*/
+			/*$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del(\''.$row.'\',\''.$hdnid.'\')" value="Delete"><input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';*/
 
 			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del(this,\''.$hdnid.'\')" value="Delete"><input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value=""/></td>';
 		}
@@ -465,13 +431,13 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function getPicRows($work_location_id,$id,$view,$print=FALSE){ 
+	public function getPicRoleRows($id,$view,$print=FALSE){ 
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.*, b.role_name from approval_matrix_detail a 
-								left join approval_matrix_role b on b.id = a.role_id
-								where a.approval_matrix_id = '".$id."' order by approval_level asc ")->result(); 
+		$rs = $this->db->query("select a.*, b.full_name from approval_matrix_role_pic a 
+								left join employees b on b.id = a.employee_id
+								where a.approval_matrix_role_id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
@@ -480,7 +446,7 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 			
 			foreach ($rd as $f){
 				$no = $row+1;
-				$msPic = $this->db->query("select distinct(role_name),id from approval_matrix_role where work_location_id = '".$work_location_id."'")->result(); 
+				$msPic = $this->db->query("select id,full_name from employees where status_id = 1 order by full_name asc")->result();
 				
 				if(!$view){ 
 
@@ -488,14 +454,10 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 
 					$dt .= '<td>'.$no.'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->approval_level,'approval_level['.$row.']','','approval_level','text-align: right;','data-id="'.$row.'" ').'</td>';
-				
-					$dt .= '<td>'.$this->return_build_chosenme($msPic,'',isset($f->role_id)?$f->role_id:1,'','approval_role['.$row.']','approval_role','approval_role','','id','role_name','','','',' data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_chosenme($msPic,'',isset($f->employee_id)?$f->employee_id:1,'','pic_role['.$row.']','pic_role','pic_role','','id','full_name','','','',' data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->approval_max_duration,'approval_duration['.$row.']','','approval_duration','text-align: right;','data-id="'.$row.'" ').'</td>';
+					/*$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" id="btndel" value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"><input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';*/
 
-					
-					/*$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" id="btndel" value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';*/
 					$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" id="btndel" value="Delete" onclick="del(this,\''.$f->id.'\')"><input type="hidden" id="hdnid'.$row.'" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
 
 					$dt .= '</tr>';
@@ -512,9 +474,7 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 					} 
 					
 					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->approval_level.'</td>';
-					$dt .= '<td>'.$f->role_name.'</td>';
-					$dt .= '<td>'.$f->approval_max_duration.'</td>';
+					$dt .= '<td>'.$f->full_name.'</td>';
 					$dt .= '</tr>';
 
 					

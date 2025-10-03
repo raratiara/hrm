@@ -8,7 +8,7 @@ var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
 var opsForm = 'form#frmInputData';
-var locate = 'table.approvalpic-list';
+var locate = 'table.rolepic-list';
 var wcount = 0; //for ca list row identify
 
 
@@ -113,24 +113,13 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){
 					$('[name="id"]').val(data.id);
-					$('[name="approval_name"]').val(data.approval_name);
+					$('[name="role_name"]').val(data.role_name);
 					$('select#location').val(data.work_location_id).trigger('change.select2');
-					$('select#approval_type').val(data.approval_type_id).trigger('change.select2');
-					
-					if(data.approval_type_id == 1){ //Absence
-				 		$('#divAbsenceType').show();
-				 		$('select#absence_type').val(data.leave_type_id).trigger('change.select2');
-				 	}else{
-				 		$('#divAbsenceType').hide();
-				 	}
-
-				 	$('[name="min"]').val(data.min);
-				 	$('[name="max"]').val(data.max);
 				 	$('[name="description"]').val(data.description);
 
 
-				 	var locate = 'table.approvalpic-list';
-					$.ajax({type: 'post',url: module_path+'/genpicrow',data: {location:data.work_location_id, id:data.id },success: function (response) {
+				 	var locate = 'table.rolepic-list';
+					$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -149,24 +138,13 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){
-					$('span.approval_name').html(data.approval_name);
+					$('span.role_name').html(data.approval_name);
 					$('span.location').html(data.work_location_name);
-					$('span.approval_type').html(data.approval_type_name);
-
-					if(data.approval_type_id == 1){ //Absence
-				 		$('#divAbsenceTypeView').show();
-				 		$('span.absence_type').html(data.leave_type_name);
-				 	}else{
-				 		$('#divAbsenceTypeView').hide();
-				 	}
-
-					$('span.min').html(data.min);
-					$('span.max').html(data.max);
 					$('span.description').html(data.description);
 
 					
-					var locate = 'table.approvalpic-list-view';
-					$.ajax({type: 'post',url: module_path+'/genpicrow',data: {location:data.work_location_id, id:data.id, view:true },success: function (response) { 
+					var locate = 'table.rolepic-list-view';
+					$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -214,39 +192,31 @@ function load_data()
 
 
 
-$("#addapprovalpicrow").on("click", function () { 
+$("#addrolepicrow").on("click", function () { 
 
-	var location	= $("#location").val();
-	if(location != ''){ 
-		expire();
-		var newRow = $("<tr>");
-		$.ajax({type: 'post',url: module_path+'/genpicrow',data: {location:location, count:wcount },success: function (response) {
-				newRow.append(response);
-				$(locate).append(newRow);
-				wcount++;
-				
-			}
-		}).done(function() {
-			tSawBclear('table.approvalpic-list');
-		});
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {count:wcount },success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.rolepic-list');
+	});
 
 
-		// re-index nomor urut di tbody
-	    var table = document.getElementById("tblDetailApprovalPic");
-	    var tbody = table.getElementsByTagName("tbody")[0];
-	    var rows = tbody.getElementsByTagName("tr");
+	// re-index nomor urut di tbody
+    var table = document.getElementById("tblDetailRolePic");
+    var tbody = table.getElementsByTagName("tbody")[0];
+    var rows = tbody.getElementsByTagName("tr");
 
-	    for (var i = 0; i < rows.length; i++) {
-	        rows[i].cells[0].innerHTML = i + 1; // kolom No diupdate mulai dari 1
-	    }
-
-
-	}else{
-		alert("Please choose Location");
-	}
+    for (var i = 0; i < rows.length; i++) {
+        rows[i].cells[0].innerHTML = i + 1; // kolom No diupdate mulai dari 1
+    }
 	
 	
-
 });
 
 
@@ -259,25 +229,25 @@ function del(btn, hdnid) {
     }
 
 	if(hdnid != ''){ 
-		$.ajax({type: 'post',url: module_path+'/delrowDetailPic',data: { id:hdnid },success: function (response) {}
+		$.ajax({type: 'post',url: module_path+'/delrowDetailPicRole',data: { id:hdnid },success: function (response) {}
 		}).done(function() {
-			tSawBclear('table.approvalpic-list');
+			tSawBclear('table.rolepic-list');
 
 		});
-
 	}
 
 
 	//delete tampilan row
-	/*var table = document.getElementById("tblDetailApprovalPic"); alert(idx);
+	/*var table = document.getElementById("tblDetailRolePic");
 	table.deleteRow(idx);*/
+
 
 	// hapus row dari tbody
     var row = btn.closest("tr");
     row.parentNode.removeChild(row);
 
     // re-index nomor urut di tbody
-    var table = document.getElementById("tblDetailApprovalPic");
+    var table = document.getElementById("tblDetailRolePic");
     var tbody = table.getElementsByTagName("tbody")[0];
     var rows = tbody.getElementsByTagName("tr");
 
@@ -287,81 +257,8 @@ function del(btn, hdnid) {
 
 
     wcount--;
-}
-
-
-function getRole(location){
-	if(location != ''){
- 		
- 		$.ajax({
-			type: "POST",
-	        url : module_path+'/getDataRole',
-			data: { location: location },
-			cache: false,		
-	        dataType: "JSON",
-	        success: function(data)
-	        {  
-				if(data != null){ 	
-					var $el = $(".approval_role");
-					$el.empty(); // remove old options
-					$el.append($("<option></option>").attr("value", "").text(""));
-					$.each(data.msrole, function(key,value) {
-					  	$el.append($("<option></option>")
-					     .attr("value", value.id).text(value.role_name));
-					});
-					//$('select#approval_role').val(joborderid).trigger('change.select2');
-
-				} else { 
-					
-
-				}
-
-	        },
-	        error: function (jqXHR, textStatus, errorThrown)
-	        {
-				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
-					buttons: {
-						confirm: {
-							label: 'Ok',
-							className: 'btn blue'
-						}
-					}
-				});
-	        }
-	    });
-
-
- 	}else{
- 		alert("Please choose Location");
- 	}
-
 
 }
-
-
-$('#location').on('change', function () { 
- 	var location = $("#location option:selected").val();
- 	
-
- 	getRole(location);
- 	
-
-});
-
-
-$('#approval_type').on('change', function () { 
- 	var approval_type = $("#approval_type option:selected").val();
- 	
-
- 	if(approval_type == 1){ //Absence
- 		$('#divAbsenceType').show();
- 	}else{
- 		$('#divAbsenceType').hide();
- 	}
-
-});
 
 
 
