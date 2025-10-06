@@ -2099,6 +2099,40 @@ class Api extends API_Controller
 		
     }
 
+
+    public function get_master_status_tasklist()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	/*$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}*/
+
+    	$datamaster = $this->db->query("select * from master_tasklist_status order by order_no asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
     public function get_master_leaves()
     { 
     	$this->verify_token();
@@ -2241,6 +2275,25 @@ class Api extends API_Controller
 				];
 				$this->db->insert("history_progress_tasklist", $data2);
 
+
+				if($status == 1){ //Open
+					$updDate = [
+						'open_date'		=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}else if($status == 2){ //Progress
+					$updDate = [
+						'progress_date'	=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}else if($status == 4){ //Request
+					$updDate = [
+						'request_date'	=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}
+
+
 				$response = [
 		    		'status' 	=> 200,
 					'message' 	=> 'Success'
@@ -2273,6 +2326,24 @@ class Api extends API_Controller
 						'submit_at'				=> date("Y-m-d H:i:s")
 					];
 					$this->db->insert("history_progress_tasklist", $data2);
+
+
+					if($status == 1){ //Open
+						$updDate = [
+							'open_date'		=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}else if($status == 2){ //Progress
+						$updDate = [
+							'progress_date'	=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}else if($status == 4){ //Request
+						$updDate = [
+							'request_date'	=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}
 
 
 					$response = [
