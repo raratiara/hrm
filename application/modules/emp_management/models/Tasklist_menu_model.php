@@ -318,6 +318,24 @@ class Tasklist_menu_model extends MY_Model
 					$this->db->insert("history_progress_tasklist", $data2);
 
 
+					if($post['status'] == 1){ //Open
+						$updDate = [
+							'open_date'		=> date("Y-m-d")
+						];
+						$this->db->update($this->table_name, $updDate, [$this->primary_key => $lastId]);
+					}else if($post['status'] == 2){ //Progress
+						$updDate = [
+							'progress_date'	=> date("Y-m-d")
+						];
+						$this->db->update($this->table_name, $updDate, [$this->primary_key => $lastId]);
+					}else if($post['status'] == 4){ //Request
+						$updDate = [
+							'request_date'	=> date("Y-m-d")
+						];
+						$this->db->update($this->table_name, $updDate, [$this->primary_key => $lastId]);
+					}
+
+
 					return $rs;
 				}else return null;
   			}else{
@@ -367,6 +385,26 @@ class Tasklist_menu_model extends MY_Model
 					'submit_at'				=> date("Y-m-d H:i:s")
 				];
 				$this->db->insert("history_progress_tasklist", $data2);
+
+
+				if($post['status'] == 1){ //Open
+					$updDate = [
+						'open_date'		=> date("Y-m-d")
+					];
+					$this->db->update($this->table_name, $updDate, [$this->primary_key => trim($post['id'])]);
+				}else if($post['status'] == 2){ //Progress
+					$updDate = [
+						'progress_date'	=> date("Y-m-d")
+					];
+					$this->db->update($this->table_name, $updDate, [$this->primary_key => trim($post['id'])]);
+				}else if($post['status'] == 4){ //Request
+					$updDate = [
+						'request_date'	=> date("Y-m-d")
+					];
+					$this->db->update($this->table_name, $updDate, [$this->primary_key => trim($post['id'])]);
+				}
+
+
 
 				return $rs;
 

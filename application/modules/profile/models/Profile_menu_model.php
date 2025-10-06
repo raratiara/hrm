@@ -732,7 +732,7 @@ class Profile_menu_model extends MY_Model
 					}
 
 					$no = $row+1;
-					$msStatus = $this->db->query("select * from master_tasklist_status ")->result(); 
+					$msStatus = $this->db->query("select * from master_tasklist_status order by order_no asc")->result(); 
 
 					
 					if($checkin){ 
