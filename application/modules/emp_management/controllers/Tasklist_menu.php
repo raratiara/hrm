@@ -43,7 +43,7 @@ class Tasklist_menu extends MY_Controller
 		$field['txtdesc'] 		= $this->self_model->return_build_txtarea('','description','description');
 		
 
-		$msstatus 				= $this->db->query("select * from master_tasklist_status")->result(); 
+		$msstatus 				= $this->db->query("select * from master_tasklist_status order by order_no asc")->result(); 
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
 		$mstask 				= $this->db->query("select * from tasklist")->result(); 
 		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');

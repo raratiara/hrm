@@ -122,7 +122,7 @@ class Profile_menu extends MY_Controller
 		$field['txtattendanceout'] 		= $this->self_model->return_build_txt('','attendance_out','attendance_out','','','readonly');
 		$field['txtleavingearlydesc']	= $this->self_model->return_build_txt('','leaving_early_desc','leaving_early_desc','','','readonly');
 		$field['txtdesc'] 				= $this->self_model->return_build_txtarea('','description','description');
-		$msstatus 				= $this->db->query("select * from master_tasklist_status order by id asc")->result();
+		$msstatus 				= $this->db->query("select * from master_tasklist_status order by order_no asc")->result();
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','flstatus','flstatus','','','id','name',' ','','','',3,'-');
 		
 		// menu daily absence sudah default muncul di quicklink, jd gausah dipilih lg
