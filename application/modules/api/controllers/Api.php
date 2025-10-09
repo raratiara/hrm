@@ -2099,6 +2099,40 @@ class Api extends API_Controller
 		
     }
 
+
+    public function get_master_status_tasklist()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	/*$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}*/
+
+    	$datamaster = $this->db->query("select * from master_tasklist_status order by order_no asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
     public function get_master_leaves()
     { 
     	$this->verify_token();
@@ -2241,6 +2275,25 @@ class Api extends API_Controller
 				];
 				$this->db->insert("history_progress_tasklist", $data2);
 
+
+				if($status == 1){ //Open
+					$updDate = [
+						'open_date'		=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}else if($status == 2){ //Progress
+					$updDate = [
+						'progress_date'	=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}else if($status == 4){ //Request
+					$updDate = [
+						'request_date'	=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}
+
+
 				$response = [
 		    		'status' 	=> 200,
 					'message' 	=> 'Success'
@@ -2273,6 +2326,24 @@ class Api extends API_Controller
 						'submit_at'				=> date("Y-m-d H:i:s")
 					];
 					$this->db->insert("history_progress_tasklist", $data2);
+
+
+					if($status == 1){ //Open
+						$updDate = [
+							'open_date'		=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}else if($status == 2){ //Progress
+						$updDate = [
+							'progress_date'	=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}else if($status == 4){ //Request
+						$updDate = [
+							'request_date'	=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}
 
 
 					$response = [
@@ -2313,7 +2384,7 @@ class Api extends API_Controller
     }
 
 
-     public function approval_ijin(){
+    public function approval_ijin(){
     	$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
@@ -3291,6 +3362,229 @@ class Api extends API_Controller
 		];
 
     	
+    	
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function upload_medcheck()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$employee	= $_POST['employee'];
+    	$file 		= isset($_FILES['file']) ? $_FILES['file'] : null;
+
+    	$dataEmp 	= $this->db->query("select * from employees where id = '".$employee."'")->result(); 
+    	$empcode = "";
+    	if(!empty($dataEmp)){
+    		$empcode = $dataEmp[0]->emp_code;
+    	} 
+
+    	if(!empty($empcode)){
+    		//upload 
+			$dataU = array();
+			$dataU['status'] = FALSE; 
+			$fieldname='file';
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+	        { 
+	        	///bikin folder medcheck
+		        $upload_dir = './uploads/employee/'.$empcode.'/medcheck/'; // nama folder
+				// Cek apakah folder sudah ada
+				if (!is_dir($upload_dir)) {
+				    // Jika belum ada, buat folder
+				    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+				}
+
+	           
+	            $config['upload_path']   = "uploads/employee/".$empcode."/medcheck/";
+	            $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+	            $config['max_size']      = "0"; 
+	            
+	            $this->load->library('upload', $config); 
+	            
+	            if(!$this->upload->do_upload($fieldname)){ 
+	                $err_msg = $this->upload->display_errors(); 
+	                $dataU['error_warning'] = strip_tags($err_msg);              
+	                $dataU['status'] = FALSE;
+	            } else { 
+	                $fileData = $this->upload->data();
+	                $dataU['upload_file'] = $fileData['file_name'];
+	                $dataU['status'] = TRUE;
+	            }
+	        }
+	        $document = '';
+			if($dataU['status']){ 
+				$document = $dataU['upload_file'];
+			} else if(isset($dataU['error_warning'])){ 
+				//echo $dataU['error_warning']; exit;
+				$document = 'ERROR : '.$dataU['error_warning'];
+			}
+	        //end upload
+
+
+
+	    	$data = [
+				'employee_id' 			=> $employee,
+				'file' 					=> $document,
+				'created_at'			=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert("medical_check", $data);
+			
+			if($rs){
+				
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+    	}else{
+    		
+	        $response = [
+	    		'status' 	=> 401,
+				'message' 	=> 'Employee Code not found'
+			];
+    	}
+
+    	
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function approval_medcheck(){
+    	$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+
+		if(!empty($_REQUEST)){
+			$status = $_REQUEST['status']; //OK or NOT OK
+			$id 	= $_REQUEST['id'];
+
+			if($status != ''){ 
+				if($id != ''){ 
+					$dataupd = [
+						'status' 		=> $status,
+						'approval_date'	=> date("Y-m-d H:i:s")
+					];
+					$rs = $this->db->update('medical_check', $dataupd, "id = '".$id."'");
+					if($rs){
+				
+						$response = [
+				    		'status' 	=> 200,
+							'message' 	=> 'Success'
+						];
+					}else{
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Error submit'
+						];
+					}
+				}else{
+					$response = [
+						'status' 	=> 400, // Bad Request
+						'message' 	=>'Failed',
+						'error' 	=> 'Require not satisfied'
+					];
+				}
+				
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Require not satisfied'
+				];
+			}
+
+		}else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+
+		
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+	}
+
+
+	public function get_data_medcheck()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	$employee			= $_REQUEST['employee']; //filter employee
+
+
+    	if($islogin_employee != ''){
+
+    		$where=""; 
+	    	if($employee != ''){
+	    		$where = " and a.employee_id = '".$employee."' ";
+	    	}
+
+	    	/*$datarow = $this->db->query("select a.*, b.full_name as employee_name, b.direct_id, 
+	    		concat('http://localhost/_hrm/uploads/employee/',b.emp_code,'/medcheck/',a.file) as url_file 
+	 	 	from medical_check a left join employees b on b.id = a.employee_id where (a.employee_id = '".$islogin_employee."' or b.direct_id = '".$islogin_employee."') ".$where." order by a.id desc")->result();  */
+
+	 	 	$datarow = $this->db->query("select a.*, b.full_name as employee_name, b.direct_id, 
+	    		concat('https://hrm.nathabuana.com/uploads/employee/',b.emp_code,'/medcheck/',a.file) as url_file 
+	 	 	from medical_check a left join employees b on b.id = a.employee_id where (a.employee_id = '".$islogin_employee."' or b.direct_id = '".$islogin_employee."') ".$where." order by a.id desc")->result();  
+
+
+	    	
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $datarow
+			];
+
+    	}else{
+    		$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Employee ID Login not found'
+			];
+    	}
+
     	
 
 		$this->output->set_header('Access-Control-Allow-Origin: *');

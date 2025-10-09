@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tasklist_menu extends MY_Controller
+class Medcheck_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "tasklist_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Tasklist Karyawan";
+ 	const  LABELMODULE				= "medcheck_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Medical CheckUp Karyawan";
  	const  LABELFOLDER				= "emp_management"; // module folder
- 	const  LABELPATH				= "tasklist_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "medcheck_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "emp_management"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -15,12 +15,12 @@ class Tasklist_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Task","Task Parent","Status","Progress (%)","Due Date","Solve Date","Project"];
+	public $tabel_header 			= ["ID","Employee Name","File","Submit Date","Status","Review Date"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Project","Task","Task Parent","Status","Progress (%)","Due Date", "Solve Date","Description"];
-	public $colfields 				= ["id","employee_name","project_name","task","parent_name","status_name","progress_percentage","due_date","solve_date","description"];
+	public $colnames 				= ["ID","Employee Name","File","Submit Date","Status","Review Date"];
+	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date","solve_date","project_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -36,22 +36,23 @@ class Tasklist_menu extends MY_Controller
 
 		$field = [];
 		
-		$field['txttask'] 		= $this->self_model->return_build_txt('','task','task');
-		$field['txtprogress'] 	= $this->self_model->return_build_txt('','progress','progress');
-		$field['txtduedate'] 	= $this->self_model->return_build_txt('','due_date','due_date');
-		$field['txtsolvedate'] 	= $this->self_model->return_build_txt('','solve_date','solve_date','','','readonly');
-		$field['txtdesc'] 		= $this->self_model->return_build_txtarea('','description','description');
+		$field['txtfile'] 		= $this->self_model->return_build_fileinput('file','file');
 		
-
-		$msstatus 				= $this->db->query("select * from master_tasklist_status order by order_no asc")->result(); 
-		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
-		$mstask 				= $this->db->query("select * from tasklist")->result(); 
-		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
-		$msproject 				= $this->db->query("select * from data_project")->result(); 
-		$field['selproject'] 	= $this->self_model->return_build_select2me($msproject,'','','','project','project','','','id','title',' ','','','',3,'-');
+		
+		$msstatus = [
+		    (object)[
+		        'id'    => 'OK',
+		        'title' => 'OK'
+		    ],
+		    (object)[
+		        'id'    => 'NOT OK',
+		        'title' => 'NOT OK'
+		    ]
+		];
+		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','title',' ','','','',1,'-');
 
 
 
@@ -117,6 +118,37 @@ class Tasklist_menu extends MY_Controller
 
 		echo json_encode($rs);
 	}
+
+
+
+	public function downloadFile(){ 
+
+		$filename 	= $_GET['file']; 
+		$empcode 	= $_GET['empcode'];
+
+		if($empcode != ''){
+			// Set the full file path
+			$filePath = "./uploads/employee/".$empcode."/medcheck/" . basename($filename);
+
+
+			if (file_exists($filePath)) {
+			    header('Content-Description: File Transfer');
+			    header('Content-Type: application/octet-stream');
+			    header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+			    header('Content-Length: ' . filesize($filePath));
+			    readfile($filePath);
+			    exit;
+			} else {
+			    http_response_code(404);
+			    echo "File not found.";
+			}
+		}else{
+			http_response_code(404);
+			echo "Employee not found.";
+		}
+		
+
+ 	}
 
 
 

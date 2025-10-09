@@ -732,7 +732,7 @@ class Profile_menu_model extends MY_Model
 					}
 
 					$no = $row+1;
-					$msStatus = $this->db->query("select * from master_tasklist_status ")->result(); 
+					$msStatus = $this->db->query("select * from master_tasklist_status order by order_no asc")->result(); 
 
 					
 					if($checkin){ 
@@ -895,7 +895,10 @@ class Profile_menu_model extends MY_Model
 							'is_late'					=> $is_late,
 							'created_at'				=> date("Y-m-d H:i:s"),
 							'notes' 					=> trim($post['description']),
-							'work_location' 			=> trim($post['location'])
+							'work_location' 			=> trim($post['location']),
+							'lat_checkin' 				=> trim($post['latitude']),
+							'long_checkin' 				=> trim($post['longitude'])
+
 						];
 						$rs = $this->db->insert("time_attendances", $data);
 
@@ -987,7 +990,9 @@ class Profile_menu_model extends MY_Model
 							'num_of_working_hours'		=> $num_of_working_hours,
 							'updated_at'				=> date("Y-m-d H:i:s"),
 							'notes' 					=> trim($post['description']),
-							'work_location' 			=> trim($post['location'])
+							'work_location' 			=> trim($post['location']),
+							'lat_checkout' 				=> trim($post['latitude']),
+							'long_checkout' 			=> trim($post['longitude'])
 						];
 
 						$rs = $this->db->update("time_attendances", $data, [$this->primary_key => trim($post['id'])]);

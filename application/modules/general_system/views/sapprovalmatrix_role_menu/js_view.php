@@ -1,20 +1,15 @@
 <script type="text/javascript">
+
+
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
 var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-
-
-
-$(document).ready(function() {
-   	$(function() {
-   		
-        $( "#due_date" ).datepicker();
-		
-   	});
-});
+var opsForm = 'form#frmInputData';
+var locate = 'table.rolepic-list';
+var wcount = 0; //for ca list row identify
 
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
@@ -116,52 +111,52 @@ function load_data()
         success: function(data)
         {
 			if(data != false){
-				if(save_method == 'update'){ 
+				if(save_method == 'update'){
 					$('[name="id"]').val(data.id);
-					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#status').val(data.status_id).trigger('change.select2');
-					$('[name="task"]').val(data.task);
-					$('select#task_parent').val(data.parent_id).trigger('change.select2');
-					$('[name="progress"]').val(data.progress_percentage);
-					//$('[name="due_date"]').val(data.due_date);
-					//$('[name="solve_date"]').val(data.solve_date);
-					$('select#project').val(data.project_id).trigger('change.select2');
-					$('[name="description"]').val(data.description);
+					$('[name="role_name"]').val(data.role_name);
+					$('select#location').val(data.work_location_id).trigger('change.select2');
+				 	$('[name="description"]').val(data.description);
 
-					var due_date = dateFormat(data.due_date);
-					$('[name="due_date"]').datepicker('setDate', due_date);
-					var solve_date = dateFormat(data.solve_date);
-					$('[name="solve_date"]').datepicker('setDate', solve_date);
+
+				 	var locate = 'table.rolepic-list';
+					$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {id:data.id },success: function (response) {
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
 
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
-				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-
-					var due_date = "-";
-					if(data.due_date != '0000-00-00'){
-						due_date = data.due_date;
-					}
-					var solve_date = "-";
-					if(data.solve_date != '0000-00-00'){
-						solve_date = data.solve_date;
-					}
-
-					$('span.due_date').html(due_date);
-					$('span.solve_date').html(solve_date);
-					$('span.project').html(data.project_name);
+				if(save_method == 'detail'){
+					$('span.role_name').html(data.role_name);
+					$('span.location').html(data.work_location_name);
 					$('span.description').html(data.description);
+
 					
-					
-					
+					var locate = 'table.rolepic-list-view';
+					$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+
 					$('#modal-view-data').modal('show');
 				}
 			} else {
@@ -196,18 +191,75 @@ function load_data()
 <?php } ?>
 
 
-function dateFormat(tanggal) {
-    if (!tanggal || tanggal === "0000-00-00") {
-        return ""; // kosongkan saja, jangan ditampilkan
+
+$("#addrolepicrow").on("click", function () { 
+
+	expire();
+	var newRow = $("<tr>");
+	$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {count:wcount },success: function (response) {
+			newRow.append(response);
+			$(locate).append(newRow);
+			wcount++;
+			
+		}
+	}).done(function() {
+		tSawBclear('table.rolepic-list');
+	});
+
+
+	// re-index nomor urut di tbody
+    var table = document.getElementById("tblDetailRolePic");
+    var tbody = table.getElementsByTagName("tbody")[0];
+    var rows = tbody.getElementsByTagName("tr");
+
+    for (var i = 0; i < rows.length; i++) {
+        rows[i].cells[0].innerHTML = i + 1; // kolom No diupdate mulai dari 1
+    }
+	
+	
+});
+
+
+/*function del(idx,hdnid){*/
+function del(btn, hdnid) {
+
+	// konfirmasi sebelum hapus
+    if (!confirm("Are you sure you want to delete this data?")) {
+        return; // batal hapus
     }
 
-    let parts = tanggal.split("-");
-    if (parts.length !== 3) {
-        return tanggal; // fallback kalau format aneh
+	if(hdnid != ''){ 
+		$.ajax({type: 'post',url: module_path+'/delrowDetailPicRole',data: { id:hdnid },success: function (response) {}
+		}).done(function() {
+			tSawBclear('table.rolepic-list');
+
+		});
+	}
+
+
+	//delete tampilan row
+	/*var table = document.getElementById("tblDetailRolePic");
+	table.deleteRow(idx);*/
+
+
+	// hapus row dari tbody
+    var row = btn.closest("tr");
+    row.parentNode.removeChild(row);
+
+    // re-index nomor urut di tbody
+    var table = document.getElementById("tblDetailRolePic");
+    var tbody = table.getElementsByTagName("tbody")[0];
+    var rows = tbody.getElementsByTagName("tr");
+
+    for (var i = 0; i < rows.length; i++) {
+        rows[i].cells[0].innerHTML = i + 1; // kolom No diupdate mulai dari 1
     }
 
-    return `${parts[1]}/${parts[2]}/${parts[0]}`;
+
+    wcount--;
+
 }
+
 
 
 </script>

@@ -1,19 +1,16 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Documents_menu_model extends MY_Model
+class Medcheck_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "documents/documents_menu";
- 	protected $table_name 				= _PREFIX_TABLE."documents";
+ 	protected $folder_name				= "emp_management/medcheck_menu";
+ 	protected $table_name 				= _PREFIX_TABLE."medical_check";
  	protected $primary_key 				= "id";
 
 
- 	/* upload */
- 	protected $attachment_folder	= "./uploads/documents";
-	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt|apk";
+ 	protected $allow_type			= "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
 	protected $allow_size			= "0"; // 0 for limit by default php conf (in Kb)
-
 
 
 	function __construct()
@@ -28,25 +25,28 @@ class Documents_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.name',
-			'dt.file'
+			'dt.employee_name',
+			'dt.file',
+			'dt.created_at',
+			'dt.status',
+			'dt.approval_date',
+			'dt.direct_id',
+			'dt.emp_code'
 		];
 		
-		
-
-		$sIndexColumn = $this->primary_key;
-
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$emp_id = $getdata[0]->id_karyawan;
-
-		$dtemp = $this->db->query("select * from employees where id = '".$emp_id."'")->result(); 
-		$whr ="";
-		if($dtemp[0]->company_id != 1){ //GDI
-			$whr = " where id != 8";
+		$karyawan_id = $getdata[0]->id_karyawan; 
+		$whr='';
+		if($getdata[0]->id_groups == 1){ //bukan super user
+			$whr=' and (a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'") ';
 		}
 
 
-		$sTable = '(select * from documents '.$whr.')dt';
+		$sIndexColumn = $this->primary_key;
+		$sTable = '(select a.*, b.full_name as employee_name, b.direct_id, b.emp_code
+					from medical_check a left join employees b on b.id = a.employee_id 
+					where 1=1 '.$whr.' order by a.id desc
+				)dt';
 		
 
 		/* Paging */
@@ -198,39 +198,28 @@ class Documents_menu_model extends MY_Model
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
-
-			$doc = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="downloadFile('."'".$row->file."'".')" role="button"><i class="fa fa-download"></i></a>';
-
-
-			if($delete_bulk == ""){
-				array_push($output["aaData"],array(
-					'<div class="action-buttons">
-						'.$detail.'
-						'.$edit.'
-						'.$delete.'
-					</div>',
-					$row->id,
-					$row->name,
-					$doc
-					
-
-				));
-			}else{
-				array_push($output["aaData"],array(
-					$delete_bulk,
-					'<div class="action-buttons">
-						'.$detail.'
-						'.$edit.'
-						'.$delete.'
-					</div>',
-					$row->id,
-					$row->name,
-					$doc
-					
-
-				));
-			}
 			
+
+			//$url_file 	= _URL.'/uploads/employee/'.$emp_code.'/medcheck/'.$row->file;
+
+			$url_file = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="downloadFile('."'".$row->emp_code."'".','."'".$row->file."'".')" role="button"><i class="fa fa-download"></i></a>';
+
+			array_push($output["aaData"],array(
+				$delete_bulk,
+				'<div class="action-buttons">
+					'.$detail.'
+					'.$edit.'
+					'.$delete.'
+				</div>',
+				$row->id,
+				$row->employee_name,
+				$url_file,
+				$row->created_at,
+				$row->status,
+				$row->approval_date
+
+
+			));
 		}
 
 		echo json_encode($output);
@@ -282,7 +271,7 @@ class Documents_menu_model extends MY_Model
 
 
 	// Upload file
-	public function upload_file($id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
+	public function upload_file($attachment_folder, $id = "", $fieldname= "", $replace=FALSE, $oldfilename= "", $array=FALSE, $i=0) { 
 		$data = array();
 		$data['status'] = FALSE; 
 		if(!empty($id) && !empty($fieldname)){ 
@@ -308,7 +297,8 @@ class Documents_menu_model extends MY_Model
 				if($replace){
 					$this->remove_file($id, $oldfilename);
 				}*/
-				$config['upload_path']   = $this->attachment_folder;
+				/*$config['upload_path']   = $this->attachment_folder;*/
+				$config['upload_path']   = $attachment_folder;
 				$config['allowed_types'] = $this->allow_type;
 				$config['max_size'] 	 = $this->allow_size;
 				
@@ -334,81 +324,175 @@ class Documents_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$name = trim($post['name']); 
+		$employee = trim($post['employee']); 
 		
 		
-  		if(!empty($post['name'])){ 
+  		if(!empty($post['employee'])){ 
 
-  			$upload_file = $this->upload_file('1', 'file', FALSE, '', TRUE, '');
-			$file = '';
-			if($upload_file['status']){
-				$file = $upload_file['upload_file'];
-			} else if(isset($upload_emp_photo['error_warning'])){
-				echo $upload_file['error_warning']; exit;
-			}	
+  			$dataEmp = $this->db->query("select * from employees where id = '".$employee."'")->result(); 
+  			$empcode = "";
+  			if(!empty($dataEmp)){
+  				$empcode = $dataEmp[0]->emp_code;
+  			}
+
+  			if(!empty($empcode)){ 
+  				$upload_dir = './uploads/employee/'.$empcode.'/medcheck/'; // nama folder
+				// Cek apakah folder sudah ada
+				if (!is_dir($upload_dir)) {
+				    // Jika belum ada, buat folder
+				    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+				}
 
 
-  			$data = [
-				'name' 			=> trim($post['name']),
-				'file' 			=> $file,
-				'created_at'	=> date("Y-m-d H:i:s")
-			];
-			return $rs = $this->db->insert($this->table_name, $data);
+				$upload_emp_photo = $this->upload_file($upload_dir, '1', 'file', FALSE, '', TRUE, '');
+				$file_medcek = '';
+				if($upload_emp_photo['status']){
+					$file_medcek = $upload_emp_photo['upload_file'];
+				} else if(isset($upload_emp_photo['error_warning'])){
+					echo $upload_emp_photo['error_warning']; exit;
+				}
+
+
+	  			$data = [
+					'employee_id' 	=> $employee,
+					'file' 			=> $file_medcek,
+					'created_at'	=> date("Y-m-d H:i:s")
+				];
+				return $rs = $this->db->insert($this->table_name, $data);
+  			}
+  			else return null;
+  			
   		}else return null;
 
 	}  
 
 	public function edit_data($post) { 
-		$name = trim($post['name']); 
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
-		if(!empty($post['id'])){ 
+		$employee = trim($post['employee']); 
 
-			$hdnfile 		= trim($post['hdnfile']);
-			$upload_file 	= $this->upload_file('1', 'file', FALSE, '', TRUE, '');
-			$file = '';
-			if($upload_file['status']){
-				$file = $upload_file['upload_file'];
-			} else if(isset($upload_file['error_warning'])){
-				echo $upload_file['error_warning']; exit;
+
+		if(!empty($post['id'])){  
+			$dtmedcek = $this->db->query("select * from medical_check where id = '".$post['id']."'")->result();
+
+			$dtemp = $this->db->query("select direct_id, emp_code from employees where id = '".$dtmedcek[0]->employee_id."'")->result();
+		
+			$direct_id =""; $empcode = "";
+			if(!empty($dtemp)){ 
+				if($dtemp[0]->direct_id != ''){ 
+					$direct_id = $dtemp[0]->direct_id;
+				}
+				if($dtemp[0]->emp_code != ''){
+					$empcode = $dtemp[0]->emp_code;
+				}
 			}
 
-			if($file == '' && $hdnfile != ''){
-				$file = $hdnfile;
+			$hdnfile 	= trim($post['hdnfile']);
+			$upload_dir = './uploads/employee/'.$empcode.'/medcheck/'; // nama folder
+
+			$upload_emp_photo = $this->upload_file($upload_dir, '1', 'file', FALSE, '', TRUE, '');
+				$file_medcek = '';
+			if($upload_emp_photo['status']){
+				$file_medcek = $upload_emp_photo['upload_file'];
+			} else if(isset($upload_emp_photo['error_warning'])){
+				echo $upload_emp_photo['error_warning']; exit;
+			}
+
+			if($file_medcek == '' && $hdnfile != ''){
+				$file_medcek = $hdnfile;
+			}
+
+
+			if($direct_id == $karyawan_id){ //approval
+				
+				$data = [
+					'status' 		=> trim($post['status']),
+					'approval_date'	=> date("Y-m-d H:i:s")
+				];
+			}else{ 
+				$data = [
+					'employee_id' 	=> trim($post['employee']),
+					'file' 			=> $file_medcek,
+					'updated_at'	=> date("Y-m-d H:i:s")
+				];
 			}
 
 		
-			$data = [
-				'name' 			=> trim($post['name']),
-				'file' 			=> $file,
-				'updated_at'	=> date("Y-m-d H:i:s")
-			];
 
 			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 		} else return null;
 	}
-	
+
 
 	public function getRowData($id) { 
-		$mTable = '(select * from documents)dt';
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
+		$mTable = '(select a.*, b.full_name as employee_name, b.direct_id, b.emp_code
+					from medical_check a left join employees b on b.id = a.employee_id 
+					
+			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
-		/*if(!empty($rs->provinsi_id)){
-			$ri = $this->db->select('name as parent_title')->where([$this->primary_key => $rs->provinsi_id])->get($this->table_name)->row();
-			$rs = (object) array_merge((array) $rs, (array) $ri);
-		} else {
-			$rs = (object) array_merge((array) $rs, ['parent_title'=>'-']);
-		}*/
+		$isdirect = 0;
+		if ($rs->direct_id == $karyawan_id) {
+			$isdirect = 1;
+		}
 		
-		return $rs;
+		$data = array(
+			'rowdata' 	=> $rs,
+			'isdirect' 	=> $isdirect
+		);
+		
+		return $data;
 	} 
 
-	
+	public function import_data($list_data)
+	{
+		$i = 0;
+
+		foreach ($list_data as $k => $v) {
+			$i += 1;
+
+			$data = [
+				'employee_id' 			=> $v["B"],
+				'task' 					=> $v["C"],
+				'progress_percentage' 	=> $v["D"],
+				'parent_id' 			=> $v["E"],
+				'due_date' 				=> $v["F"],
+				'status_id' 			=> $v["G"],
+				'solve_date' 			=> $v["H"]
+			];
+
+			$rs = $this->db->insert($this->table_name, $data);
+			if (!$rs) $error .=",baris ". $v["A"];
+		}
+
+		return $error;
+	}
+
 	public function eksport_data()
 	{
-		$sql = "select * from documents
-	   		ORDER BY id ASC
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
+		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date, e.title as project_name   
+			from tasklist a left join employees b on b.id = a.employee_id
+			left join tasklist c on c.id = a.parent_id
+			left join master_tasklist_status d on d.id = a.status_id 
+			left join data_project e on e.id = a.project_id
+			".$whr."
+			order by a.id asc
 		";
 
 		$res = $this->db->query($sql);
@@ -416,6 +500,5 @@ class Documents_menu_model extends MY_Model
 		return $rs;
 	}
 
-	
 
 }

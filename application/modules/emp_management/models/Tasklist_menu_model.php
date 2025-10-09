@@ -39,12 +39,12 @@ class Tasklist_menu_model extends MY_Model
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name 
+		$sTable = '(select dt.* from (select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name, if(a.parent_id = 0 and (select id from tasklist where parent_id = a.id limit 1) != "","yes","no") as is_parent 
 					from tasklist a left join employees b on b.id = a.employee_id
 					left join tasklist c on c.id = a.parent_id
 					left join master_tasklist_status d on d.id = a.status_id
 					left join data_project e on e.id = a.project_id
-					'.$whr.'
+					'.$whr.')dt where is_parent = "no"
 				)dt';
 		
 
@@ -201,6 +201,10 @@ class Tasklist_menu_model extends MY_Model
 			if($row->solve_date != '' && $row->solve_date != '0000-00-00'){
 				$solve_date = $row->solve_date;
 			}
+			$due_date ="";
+			if($row->due_date != '' && $row->due_date != '0000-00-00'){
+				$due_date = $row->due_date;
+			}
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -215,7 +219,7 @@ class Tasklist_menu_model extends MY_Model
 				$row->parent_name,
 				$row->status_name,
 				$row->progress_percentage,
-				$row->due_date,
+				$due_date,
 				$solve_date,
 				$row->project_name
 
@@ -284,35 +288,60 @@ class Tasklist_menu_model extends MY_Model
 
 		
   		if(!empty($post['task'])){ 
-  			$solve_date="";
-  			if($post['progress'] == 100){
-  				$solve_date = date("Y-m-d H:i:s");
-  			}
+  			$cekdata = $this->db->query("select * from tasklist where task = '".$post['task']."'")->result(); 
+  			if(empty($cekdata)){
+  				$solve_date="";
+	  			if($post['progress'] == 100){
+	  				$solve_date = date("Y-m-d H:i:s");
+	  			}
 
-  			$data = [
-				'employee_id' 			=> trim($post['employee'] ?? ''),
-				'task' 					=> trim($post['task'] ?? ''),
-				'progress_percentage'	=> trim($post['progress'] ?? ''),
-				'parent_id' 			=> trim($post['task_parent'] ?? ''),
-				'due_date' 				=> $f_due_date,
-				'status_id' 			=> trim($post['status'] ?? ''),
-				'created_at'			=> date("Y-m-d H:i:s"),
-				'solve_date' 			=> $solve_date,
-				'project_id' 			=> trim($post['project'] ?? '')
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-			$lastId = $this->db->insert_id();
-			if($rs){
-				$data2 = [
-					'tasklist_id' 			=> $lastId,
+	  			$data = [
+					'employee_id' 			=> trim($post['employee'] ?? ''),
+					'task' 					=> trim($post['task'] ?? ''),
 					'progress_percentage'	=> trim($post['progress'] ?? ''),
-					'submit_at'				=> date("Y-m-d H:i:s")
+					'parent_id' 			=> trim($post['task_parent'] ?? ''),
+					'due_date' 				=> $f_due_date,
+					'status_id' 			=> trim($post['status'] ?? ''),
+					'created_at'			=> date("Y-m-d H:i:s"),
+					'solve_date' 			=> $solve_date,
+					'project_id' 			=> trim($post['project'] ?? ''),
+					'description' 			=> trim($post['description'] ?? '')
 				];
-				$this->db->insert("history_progress_tasklist", $data2);
+				$rs = $this->db->insert($this->table_name, $data);
+				$lastId = $this->db->insert_id();
+				if($rs){
+					$data2 = [
+						'tasklist_id' 			=> $lastId,
+						'progress_percentage'	=> trim($post['progress'] ?? ''),
+						'submit_at'				=> date("Y-m-d H:i:s")
+					];
+					$this->db->insert("history_progress_tasklist", $data2);
 
 
-				return $rs;
-			}else return null;
+					if($post['status'] == 1){ //Open
+						$updDate = [
+							'open_date'		=> date("Y-m-d")
+						];
+						$this->db->update($this->table_name, $updDate, [$this->primary_key => $lastId]);
+					}else if($post['status'] == 2){ //Progress
+						$updDate = [
+							'progress_date'	=> date("Y-m-d")
+						];
+						$this->db->update($this->table_name, $updDate, [$this->primary_key => $lastId]);
+					}else if($post['status'] == 4){ //Request
+						$updDate = [
+							'request_date'	=> date("Y-m-d")
+						];
+						$this->db->update($this->table_name, $updDate, [$this->primary_key => $lastId]);
+					}
+
+
+					return $rs;
+				}else return null;
+  			}else{
+  				echo "Submit Failed. Data already exists"; die();
+  			}
+  			
 
   		}else return null;
 
@@ -344,7 +373,8 @@ class Tasklist_menu_model extends MY_Model
 				'status_id' 			=> trim($post['status'] ?? ''),
 				'updated_at'			=> date("Y-m-d H:i:s"),
 				'solve_date' 			=> $solve_date,
-				'project_id' 			=> trim($post['project'] ?? '')
+				'project_id' 			=> trim($post['project'] ?? ''),
+				'description' 			=> trim($post['description'] ?? '')
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -355,6 +385,26 @@ class Tasklist_menu_model extends MY_Model
 					'submit_at'				=> date("Y-m-d H:i:s")
 				];
 				$this->db->insert("history_progress_tasklist", $data2);
+
+
+				if($post['status'] == 1){ //Open
+					$updDate = [
+						'open_date'		=> date("Y-m-d")
+					];
+					$this->db->update($this->table_name, $updDate, [$this->primary_key => trim($post['id'])]);
+				}else if($post['status'] == 2){ //Progress
+					$updDate = [
+						'progress_date'	=> date("Y-m-d")
+					];
+					$this->db->update($this->table_name, $updDate, [$this->primary_key => trim($post['id'])]);
+				}else if($post['status'] == 4){ //Request
+					$updDate = [
+						'request_date'	=> date("Y-m-d")
+					];
+					$this->db->update($this->table_name, $updDate, [$this->primary_key => trim($post['id'])]);
+				}
+
+
 
 				return $rs;
 
@@ -412,14 +462,14 @@ class Tasklist_menu_model extends MY_Model
 
 
 
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date, e.title as project_name   
-			from tasklist a left join employees b on b.id = a.employee_id
-			left join tasklist c on c.id = a.parent_id
-			left join master_tasklist_status d on d.id = a.status_id 
-			left join data_project e on e.id = a.project_id
-			".$whr."
-			order by a.id asc
-		";
+		$sql = 'select dt.* from (select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name, if(a.parent_id = 0 and (select id from tasklist where parent_id = a.id limit 1) != "","yes","no") as is_parent 
+					from tasklist a left join employees b on b.id = a.employee_id
+					left join tasklist c on c.id = a.parent_id
+					left join master_tasklist_status d on d.id = a.status_id
+					left join data_project e on e.id = a.project_id
+					'.$whr.')dt where is_parent = "no"
+			order by dt.id asc
+		';
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();

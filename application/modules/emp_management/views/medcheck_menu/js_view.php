@@ -1,4 +1,5 @@
 <script type="text/javascript">
+var baseUrl = "<?php echo base_url($base_url); ?>";
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
 var validator;
@@ -33,7 +34,7 @@ jQuery(function($) {
 		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
 		],
 		"aaSorting": [
-		  	[2,'asc'] 
+		  	[5,'desc'] //submit date desc
 		],
 		"sAjaxSource": module_path+"/get_data",
 		"bProcessing": true,
@@ -117,48 +118,60 @@ function load_data()
         {
 			if(data != false){
 				if(save_method == 'update'){ 
-					$('[name="id"]').val(data.id);
+					$('[name="id"]').val(data.rowdata.id);
 					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
-					$('select#status').val(data.status_id).trigger('change.select2');
-					$('[name="task"]').val(data.task);
-					$('select#task_parent').val(data.parent_id).trigger('change.select2');
-					$('[name="progress"]').val(data.progress_percentage);
-					//$('[name="due_date"]').val(data.due_date);
-					//$('[name="solve_date"]').val(data.solve_date);
-					$('select#project').val(data.project_id).trigger('change.select2');
-					$('[name="description"]').val(data.description);
+					$('select#employee').val(data.rowdata.employee_id).trigger('change.select2');
+					$('select#status').val(data.rowdata.status).trigger('change.select2').prop('disabled', true);
+					
+					
+					$('[name="hdnfile"]').val(data.rowdata.file);
 
-					var due_date = dateFormat(data.due_date);
-					$('[name="due_date"]').datepicker('setDate', due_date);
-					var solve_date = dateFormat(data.solve_date);
-					$('[name="solve_date"]').datepicker('setDate', solve_date);
+					const fileName = data.rowdata.file; // ini bisa dari PHP atau hasil upload
+				    const fileUrl = baseUrl+"uploads/employee/"+data.rowdata.emp_code+"/medcheck/" + fileName;
 
+				    // CLEAR link sebelumnya
+					document.getElementById("file-link").innerHTML = '';
+
+				    const link = document.createElement('a');
+				    link.href = fileUrl;
+				    /*link.textContent = "Download " + fileName;*/
+				    link.textContent = "Download";
+				    link.target = "_blank";
+
+				    document.getElementById("file-link").appendChild(link);
+
+
+				    if (data.isdirect == 1) {
+				    	//$('#divStatus').show();
+
+				    	$('select#employee')
+						  .val(data.rowdata.employee_id)
+						  .trigger('change.select2')
+						  .prop('disabled', true);
+
+						$('select#status').val(data.rowdata.status).trigger('change.select2').prop('disabled', false);
+						$('#file').prop('disabled', true);
+				    }
+
+				   
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
+					$('span.employee').html(data.rowdata.employee_name);
+					$('span.status').html(data.rowdata.status);
 
-					var due_date = "-";
-					if(data.due_date != '0000-00-00'){
-						due_date = data.due_date;
-					}
-					var solve_date = "-";
-					if(data.solve_date != '0000-00-00'){
-						solve_date = data.solve_date;
-					}
+					const fileName 	= data.rowdata.file; 
+				    const fileUrl 	= baseUrl+"uploads/employee/"+data.rowdata.emp_code+"/medcheck/" + fileName;
 
-					$('span.due_date').html(due_date);
-					$('span.solve_date').html(solve_date);
-					$('span.project').html(data.project_name);
-					$('span.description').html(data.description);
+				    const link = document.createElement('a');
+				    link.href = fileUrl;
+				    link.textContent = 'Download';//fileName;
+				    link.target = "_blank";
+
+				    document.getElementById("file-link-view").appendChild(link);
 					
 					
 					
@@ -207,6 +220,17 @@ function dateFormat(tanggal) {
     }
 
     return `${parts[1]}/${parts[2]}/${parts[0]}`;
+}
+
+
+function downloadFile(empcode,filename) { 
+    const link = document.createElement('a');
+    link.href = module_path+'/downloadFile?empcode='+empcode+'&file=' + encodeURIComponent(filename);
+
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 
