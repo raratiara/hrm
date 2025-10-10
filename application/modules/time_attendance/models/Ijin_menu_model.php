@@ -91,44 +91,73 @@ class Ijin_menu_model extends MY_Model
 					'.$whr.'
 				)dt';*/
 
-			$sTable = '(select ao.* from (SELECT 
-							a.*, 
-							b.full_name, 
-							c.name AS leave_name,
-							CASE
-								WHEN a.status_approval = 1 THEN "Waiting Approval"
-								WHEN a.status_approval = 2 THEN "Approved"
-								WHEN a.status_approval = 3 THEN "Rejected"
-							END AS status,
-							b.direct_id,
-							d.current_approval_level,
-							h.role_id as current_role_id,
-							i.role_name as current_role_name,
-							GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
-							if(i.role_name = "Direct",b.direct_id, (select GROUP_CONCAT(employee_id) from approval_matrix_role_pic where approval_matrix_role_id = h.role_id)) as current_employeeid_approver,
-							CASE 
-								WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
-								ELSE 0 
-							END AS is_approver_view,
-					        CASE 
-								WHEN FIND_IN_SET('.$karyawan_id.', (select GROUP_CONCAT(employee_id) from approval_matrix_role_pic where approval_matrix_role_id = h.role_id)) > 0 THEN 1
-								when i.role_name = "Direct" and b.direct_id = '.$karyawan_id.' THEN 1  
-								ELSE 0 
-							END AS is_approver
-						FROM leave_absences a
-						LEFT JOIN employees b ON b.id = a.employee_id
-						LEFT JOIN master_leaves c ON c.id = a.masterleave_id
-						LEFT JOIN approval_path d ON d.trx_id = a.id AND d.approval_matrix_type_id = 1
-						left join approval_matrix bb on bb.id = d.approval_matrix_id
-						left join approval_matrix_detail cc on cc.approval_matrix_id = bb.id
-						left join approval_matrix_role dd on dd.id = cc.role_id
-						left join approval_path_detail ee on ee.approval_path_id = d.id and ee.approval_level = cc.approval_level
-						LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
-						left join approval_matrix_detail h on h.approval_matrix_id = d.approval_matrix_id and h.approval_level = d.current_approval_level
-						left join approval_matrix_role i on i.id = h.role_id
-						GROUP BY a.id) ao
+			$sTable = '(SELECT ao.* 
+						FROM (
+						    SELECT 
+						        a.id,
+						        a.employee_id,
+						        a.masterleave_id,
+						        a.date_leave_start,
+						        a.date_leave_end,
+						        a.reason,
+						        a.total_leave,
+						        a.status_approval,
+						        a.date_approval,
+						        a.photo,
+						        b.full_name, 
+						        c.name AS leave_name,
+						        CASE
+						            WHEN a.status_approval = 1 THEN "Waiting Approval"
+						            WHEN a.status_approval = 2 THEN "Approved"
+						            WHEN a.status_approval = 3 THEN "Rejected"
+						        END AS status,
+						        ANY_VALUE(b.direct_id) AS direct_id,
+						        ANY_VALUE(d.current_approval_level) AS current_approval_level,
+						        ANY_VALUE(h.role_id) AS current_role_id,
+						        ANY_VALUE(i.role_name) AS current_role_name,
+						        GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+						        ANY_VALUE(
+						            IF(
+						                i.role_name = "Direct",
+						                b.direct_id,
+						                (
+						                    SELECT GROUP_CONCAT(employee_id) 
+						                    FROM approval_matrix_role_pic 
+						                    WHERE approval_matrix_role_id = h.role_id
+						                )
+						            )
+						        ) AS current_employeeid_approver,
+						        CASE 
+						            WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						            ELSE 0 
+						        END AS is_approver_view,
+						        CASE 
+						            WHEN FIND_IN_SET(
+						                '.$karyawan_id.', 
+						                (
+						                    SELECT GROUP_CONCAT(employee_id) 
+						                    FROM approval_matrix_role_pic 
+						                    WHERE approval_matrix_role_id = ANY_VALUE(h.role_id)
+						                )
+						            ) > 0 THEN 1
+						            WHEN ANY_VALUE(i.role_name) = "Direct" AND ANY_VALUE(b.direct_id) = '.$karyawan_id.' THEN 1  
+						            ELSE 0 
+						        END AS is_approver
+						    FROM leave_absences a
+						    LEFT JOIN employees b ON b.id = a.employee_id
+						    LEFT JOIN master_leaves c ON c.id = a.masterleave_id
+						    LEFT JOIN approval_path d ON d.trx_id = a.id AND d.approval_matrix_type_id = 1
+						    LEFT JOIN approval_matrix bb ON bb.id = d.approval_matrix_id
+						    LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+						    LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+						    LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d.id AND ee.approval_level = cc.approval_level
+						    LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+						    LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d.approval_matrix_id AND h.approval_level = d.current_approval_level
+						    LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+						    GROUP BY a.id
+						) ao
 						'.$whr.'
-				)dt';
+					)dt';
 		
 
 		/* Paging */
