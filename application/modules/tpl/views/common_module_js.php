@@ -62,6 +62,13 @@ $( "#btnAddData" ).on('click', function(){
 
 
 	}
+
+	if(module_name == 'ijin_menu'){ 
+		document.getElementById('btnApprovalLog').style.display = 'none';
+	}
+
+
+
 	$('#modal-form-data').modal('show');
 });
 <?php } ?>

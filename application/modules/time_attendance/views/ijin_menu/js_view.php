@@ -1,3 +1,44 @@
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<!-- Modal Approval Log -->
+<div class="modal fade" id="modalApprovalLog" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Approval Log</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body" id="approvalLogContent">
+      	<input type="hidden" id="hdnid-approvallog" name="hdnid-approvallog">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <th style="width: 50px;">Level</th>
+              <th>Approver</th>
+              <th>Status</th>
+              <th>Approval Date</th>
+            </tr>
+          </thead>
+          <tbody>
+          
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
 <!-- Modal Reject Data -->
 <div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true">
 	<div class="vertical-alignment-helper">
@@ -14,6 +55,7 @@
 			<div class="modal-body" style="min-height:100px; margin:10px">
 				<p class="text-center">Are you sure to delete this Data?</p>
 				<input type="hidden" name="id" id="id" value="">
+				<input type="hidden" name="approval_level" id="approval_level" value="">
 			</div>
 			 </form>
 
@@ -51,6 +93,7 @@
 			<div class="modal-body" style="min-height:100px; margin:10px">
 				<p class="text-center">Are you sure to approve this Data?</p>
 				<input type="hidden" name="id" id="id" value="">
+				<input type="hidden" name="approval_level" id="approval_level" value="">
 			</div>
 			 </form>
 
@@ -138,7 +181,7 @@ jQuery(function($) {
 		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
 		],
 		"aaSorting": [
-		  	[2,'asc'] 
+		  	[2,'desc'] 
 		],
 		"sAjaxSource": module_path+"/get_data",
 		"bProcessing": true,
@@ -248,11 +291,17 @@ function load_data()
 					}
 
 					
+					$('[name="hdnid-approvallog"]').val(data.id);
+					document.getElementById('btnApprovalLog').style.display = 'block';
+
+
+					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
+					$('[name="id"]').val(data.id);
 					$('span.employee').html(data.full_name);
 					$('span.leave_type').html(data.leave_name);
 					$('span.date_start').html(data.date_leave_start);
@@ -264,6 +313,10 @@ function load_data()
 					}else{
 						$('span.attachment').html('');
 					}
+
+
+					$('[name="hdnid-approvallog"]').val(data.id);
+					document.getElementById('btnApprovalLogView').style.display = 'block';
 				
 					
 					$('#modal-view-data').modal('show');
@@ -346,23 +399,26 @@ $('#employee').on('change', function () {
 });
 
 
-function reject(id){
+function reject(id, approval_level){
 
 	$('#modal-reject-data').modal('show');
 	$('[name="id"]').val(id);
+	$('[name="approval_level"]').val(approval_level);
 
 }
 
-function approve(id){
+function approve(id,approval_level){
 
 	$('#modal-approve-data').modal('show');
 	$('[name="id"]').val(id);
+	$('[name="approval_level"]').val(approval_level);
 
 }
 
 
 function save_reject(){
 	var id 	= $("#id").val();
+	var approval_level 	= $("#approval_level").val();
 
 	$('#modal-reject-data').modal('hide');
 	
@@ -370,16 +426,38 @@ function save_reject(){
 		$.ajax({
 			type: "POST",
 	        url : module_path+'/rejectIjin',
-			data: { id: id },
+			data: { id: id, approval_level: approval_level },
 			cache: false,		
 	        dataType: "JSON",
 	        success: function(data)
 	        { 
 	        	
-				if(data != false){ 	
+				/*if(data != false){ 	
 					alert("The data has been successfully rejected.");
 				} else { 
 					alert("Failed to reject the data!");
+				}*/
+
+				if (data != false) {
+				    Swal.fire({
+				        icon: 'success',
+				        title: 'Success!',
+				        text: 'The data has been successfully rejected.',
+				        timer: 5000,
+				        showConfirmButton: false
+				    }).then(() => {
+				        location.reload();
+				    });
+				} else {
+				    Swal.fire({
+				        icon: 'error',
+				        title: 'Failed!',
+				        text: 'Failed to reject the data!',
+				        timer: 5000,
+				        showConfirmButton: false
+				    }).then(() => {
+				        location.reload();
+				    });
 				}
 
 
@@ -399,10 +477,20 @@ function save_reject(){
 	        }
 	    });
 	}else{
-		alert("Data not found!");
+		/*alert("Data not found!");*/
+
+		Swal.fire({
+	        icon: 'error',
+	        title: 'Failed!',
+	        text: 'Data not found!',
+	        timer: 5000,
+	        showConfirmButton: false
+	    }).then(() => {
+	        location.reload();
+	    });
 	}
 
-	location.reload();
+	//location.reload();
 
 
 }
@@ -410,24 +498,48 @@ function save_reject(){
 
 function save_approve(){
 	var id 	= $("#id").val();
+	var approval_level 	= $("#approval_level").val();
 
 	$('#modal-approve-data').modal('hide');
 	
-	if(id != ''){
+	if(id != ''){ 
 		$.ajax({
 			type: "POST",
 	        url : module_path+'/approveIjin',
-			data: { id: id },
+			data: { id: id, approval_level: approval_level },
 			cache: false,		
 	        dataType: "JSON",
 	        success: function(data)
 	        { 
 	        	
-				if(data != false){ 	
+				/*if(data != false){ 	
 					alert("The data has been successfully approved.");
 				} else { 
 					alert("Failed to approve the data!");
+				}*/
+
+				if (data != false) {
+				    Swal.fire({
+				        icon: 'success',
+				        title: 'Success!',
+				        text: 'The data has been successfully approved.',
+				        timer: 5000,
+				        showConfirmButton: false
+				    }).then(() => {
+				        location.reload();
+				    });
+				} else {
+				    Swal.fire({
+				        icon: 'error',
+				        title: 'Failed!',
+				        text: 'Failed to approve the data!',
+				        timer: 5000,
+				        showConfirmButton: false
+				    }).then(() => {
+				        location.reload();
+				    });
 				}
+
 
 
 	        },
@@ -446,13 +558,59 @@ function save_approve(){
 	        }
 	    });
 	}else{
-		alert("Data not found!");
+		/*alert("Data not found!");*/
+
+		Swal.fire({
+	        icon: 'error',
+	        title: 'Failed!',
+	        text: 'Data not found!',
+	        timer: 5000,
+	        showConfirmButton: false
+	    }).then(() => {
+	        location.reload();
+	    });
 	}
 
-	location.reload();
-
-
+	
 }
+
+
+function approvalLog() {
+    $('#modalApprovalLog').modal('show'); // buka modal
+
+    var id = $("#hdnid-approvallog").val();
+
+    if (id != '') { 
+        $.ajax({
+            type: "POST",
+            url: module_path + '/getApprovalLog',
+            data: { id: id },
+            cache: false,
+            dataType: "JSON",
+            success: function (response) {
+                console.log(response);
+                // tampilkan hasil ke tabel
+                $('#approvalLogContent tbody').html(response.html);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                var dialog = bootbox.dialog({
+                    title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+                    message: jqXHR.responseText,
+                    buttons: {
+                        confirm: {
+                            label: 'Ok',
+                            className: 'btn blue'
+                        }
+                    }
+                });
+            }
+        });
+    } else {
+        alert("Data not found");
+    }
+}
+
+
 
 
 $('#leave_type').on('change', function () { 

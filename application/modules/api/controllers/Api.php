@@ -1232,7 +1232,7 @@ class Api extends API_Controller
 					$response = [
 						'status' 	=> 401,
 						'message' 	=> 'Failed',
-						'error' 	=> 'Harap lampirkan file'
+						'error' 	=> 'Please attach file'
 					];
 				}
 				else if($rs == 'sisa_dayoff_tidak_cukup'){
@@ -1240,6 +1240,13 @@ class Api extends API_Controller
 						'status' 	=> 401,
 						'message' 	=> 'Failed',
 						'error' 	=> 'Sisa Dayoff tidak cukup'
+					];
+				}
+				else if($rs == 'work_location_not_found'){
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Work Location not found'
 					];
 				}
 				else{
@@ -1365,145 +1372,212 @@ class Api extends API_Controller
 	}
 
 
+	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $diff_day='', $trx_id){
+
+		if($work_location_id != '' && $approval_type_id != ''){
+			if($approval_type_id == 1){ ///Absence
+				if($leave_type_id != ''){ 
+					if($diff_day == ''){
+						$diff_day=0;
+					}
+					
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and leave_type_id = '".$leave_type_id."' and (
+							(".$diff_day." >= min and ".$diff_day." <= max and min != '' and max != '') or
+							(".$diff_day." >= min and min != '' and max = '') or
+							(".$diff_day." <= max and max != '' and min = '')
+						)  ")->result(); 
+
+					
+					if(!empty($getmatrix)){
+						$approvalMatrixId = $getmatrix[0]->id;
+						if($approvalMatrixId != ''){
+							$dataApproval = [
+								'approval_matrix_type_id' 	=> $approval_type_id, //Absence
+								'trx_id' 					=> $trx_id,
+								'approval_matrix_id' 		=> $approvalMatrixId,
+								'current_approval_level' 	=> 1
+							];
+							$rs = $this->db->insert("approval_path", $dataApproval);
+							$approval_path_id = $this->db->insert_id();
+							if($rs){
+								$dataApprovalDetail = [
+									'approval_path_id' 	=> $approval_path_id, 
+									'approval_level' 	=> 1
+								];
+								$this->db->insert("approval_path_detail", $dataApprovalDetail);
+							}
+						}
+					}
+
+				}
+			}
+
+		}
+
+	}
+
+
     public function insert_ijin($employee, $leave_type, $date_start, $date_end, $reason, $photo){
 
     	if($employee != '' && $date_start != '' && $date_end != '' && $leave_type != ''){ 
-			$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
-			$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+    		$dataEmp = $this->db->query("select * from employees where id = '".$employee."'")->result(); 
 
-			$diff_day		= $this->api->dayCount($date_start, $date_end);
+    		if(!empty($dataEmp)){
+    			if(!empty($dataEmp[0]->work_location)){
 
-			//upload 
-			$dataU = array();
-			$dataU['status'] = FALSE; 
-			$fieldname='photo';
-			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-            { 
-               
-                $config['upload_path']   = "uploads/ijin/";
-                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-                $config['max_size']      = "0"; 
-                
-                $this->load->library('upload', $config); 
-                
-                if(!$this->upload->do_upload($fieldname)){ 
-                    $err_msg = $this->upload->display_errors(); 
-                    $dataU['error_warning'] = strip_tags($err_msg);              
-                    $dataU['status'] = FALSE;
-                } else { 
-                    $fileData = $this->upload->data();
-                    $dataU['upload_file'] = $fileData['file_name'];
-                    $dataU['status'] = TRUE;
-                }
-            }
-            $document = '';
-			if($dataU['status']){ 
-				$document = $dataU['upload_file'];
-			} else if(isset($dataU['error_warning'])){ 
-				//echo $dataU['error_warning']; exit;
-				$document = 'ERROR : '.$dataU['error_warning'];
-			}
-            //end upload
+    				$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
+					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
 
+					$diff_day		= $this->api->dayCount($date_start, $date_end);
+					$diff_day 		= number_format($diff_day);
 
-			if($leave_type == '24'){ //DAY OFF
-				$ttl_dayoff = $this->cek_ttl_dayoff($employee);
-
-				if($diff_day <= $ttl_dayoff){
-
-					//insert table leave
-					$data = [
-						'employee_id' 				=> $employee,
-						'date_leave_start' 			=> $date_start,
-						'date_leave_end' 			=> $date_end,
-						'masterleave_id' 			=> $leave_type,
-						'reason' 					=> $reason,
-						'total_leave' 				=> $diff_day,
-						'status_approval' 			=> 1, //waiting approval
-						'created_at'				=> date("Y-m-d H:i:s"),
-						'photo' => $document
-					];
-					$rs = $this->db->insert("leave_absences", $data);
-
-					if($rs){
-						//update table overtimes
-						$this->update_table_overtimes($employee,$diff_day);
-
-						return $rs;
-					}else return null;
-
-				}else{
-					return 'sisa_dayoff_tidak_cukup';
-				}
-
-			}else{
-
-				if($leave_type == '6'){ //Half day leave
-					$diff_day = $diff_day*0.5;
-				}
-				if($leave_type == '5'){ //Sick Leave
-					$diff_day = 0 ;
-				}
-				
-
-				if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
-
-		            if($leave_type == 5 && ($document == '' || $document == null)){
-		            	return 'lampirkan_file';
-		            }else{
-		            	$data = [
-							'employee_id' 				=> $employee,
-							'date_leave_start' 			=> $date_start,
-							'date_leave_end' 			=> $date_end,
-							'masterleave_id' 			=> $leave_type,
-							'reason' 					=> $reason,
-							'total_leave' 				=> $diff_day,
-							'status_approval' 			=> 1, //waiting approval
-							'created_at'				=> date("Y-m-d H:i:s"),
-							'photo' => $document
-						];
-						$rs = $this->db->insert("leave_absences", $data);
-
-						if($rs){
-							//update sisa jatah cuti
-							/*if($leave_type != '2'){ //unpaid leave gak update sisa cuti
-								$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
-
-								$is_update_jatah_selanjutnya=0;
-								$sisa_cuti = $jatahcuti[0]->sisa_cuti-$diff_day;
-
-								if($diff_day > $jatahcuti[0]->sisa_cuti){ 
-									$is_update_jatah_selanjutnya=1;
-									$sisa_cuti = 0;
-									$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
-									$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;	
-								}
-								
-								$data2 = [
-									'sisa_cuti' 	=> $sisa_cuti,
-									'updated_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-
-								if($is_update_jatah_selanjutnya == 1){ 
-									$data3 = [
-										'sisa_cuti' 	=> $sisa_cuti2,
-										'updated_date'	=> date("Y-m-d H:i:s")
-									];
-									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-								}
-
-							}*/
-
-							return $rs;
-						}else return null;
+					//upload 
+					$dataU = array();
+					$dataU['status'] = FALSE; 
+					$fieldname='photo';
+					if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+		            { 
+		               
+		                $config['upload_path']   = "uploads/ijin/";
+		                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+		                $config['max_size']      = "0"; 
+		                
+		                $this->load->library('upload', $config); 
+		                
+		                if(!$this->upload->do_upload($fieldname)){ 
+		                    $err_msg = $this->upload->display_errors(); 
+		                    $dataU['error_warning'] = strip_tags($err_msg);              
+		                    $dataU['status'] = FALSE;
+		                } else { 
+		                    $fileData = $this->upload->data();
+		                    $dataU['upload_file'] = $fileData['file_name'];
+		                    $dataU['status'] = TRUE;
+		                }
 		            }
+		            $document = '';
+					if($dataU['status']){ 
+						$document = $dataU['upload_file'];
+					} else if(isset($dataU['error_warning'])){ 
+						//echo $dataU['error_warning']; exit;
+						$document = 'ERROR : '.$dataU['error_warning'];
+					}
+		            //end upload
 
-				}
-				else return 'sisa_cuti_tidak_cukup';
 
-			}
+					if($leave_type == '24'){ //DAY OFF
+						$ttl_dayoff = $this->cek_ttl_dayoff($employee);
+
+						if($diff_day <= $ttl_dayoff){
+
+							//insert table leave
+							$data = [
+								'employee_id' 				=> $employee,
+								'date_leave_start' 			=> $date_start,
+								'date_leave_end' 			=> $date_end,
+								'masterleave_id' 			=> $leave_type,
+								'reason' 					=> $reason,
+								'total_leave' 				=> $diff_day,
+								'status_approval' 			=> 1, //waiting approval
+								'created_at'				=> date("Y-m-d H:i:s"),
+								'photo' => $document
+							];
+							$rs = $this->db->insert("leave_absences", $data);
+							$lastId = $this->db->insert_id();
+
+							if($rs){
+								///insert approval path
+								$approval_type_id = 1; //Absence
+								$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, $leave_type, $diff_day, $lastId);
+
+								//update table overtimes
+								$this->update_table_overtimes($employee,$diff_day);
+
+								return $rs;
+							}else return null;
+
+						}else{
+							return 'sisa_dayoff_tidak_cukup';
+						}
+
+					}else{
+
+						if($leave_type == '6'){ //Half day leave
+							$diff_day = $diff_day*0.5;
+						}
+						if($leave_type == '5'){ //Sick Leave
+							$diff_day = 0 ;
+						}
+						
+
+						if($diff_day <= $sisa_cuti || $leave_type == '2'){ //unpaid leave gak ngecek sisa cuti
+
+				            if($leave_type == 5 && ($document == '' || $document == null)){
+				            	return 'lampirkan_file';
+				            }else{
+				            	$data = [
+									'employee_id' 				=> $employee,
+									'date_leave_start' 			=> $date_start,
+									'date_leave_end' 			=> $date_end,
+									'masterleave_id' 			=> $leave_type,
+									'reason' 					=> $reason,
+									'total_leave' 				=> $diff_day,
+									'status_approval' 			=> 1, //waiting approval
+									'created_at'				=> date("Y-m-d H:i:s"),
+									'photo' => $document
+								];
+								$rs = $this->db->insert("leave_absences", $data);
+								$lastId = $this->db->insert_id();
+
+								if($rs){
+									//update sisa jatah cuti
+									/*if($leave_type != '2'){ //unpaid leave gak update sisa cuti
+										$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
+
+										$is_update_jatah_selanjutnya=0;
+										$sisa_cuti = $jatahcuti[0]->sisa_cuti-$diff_day;
+
+										if($diff_day > $jatahcuti[0]->sisa_cuti){ 
+											$is_update_jatah_selanjutnya=1;
+											$sisa_cuti = 0;
+											$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
+											$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;	
+										}
+										
+										$data2 = [
+											'sisa_cuti' 	=> $sisa_cuti,
+											'updated_date'	=> date("Y-m-d H:i:s")
+										];
+										$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+
+										if($is_update_jatah_selanjutnya == 1){ 
+											$data3 = [
+												'sisa_cuti' 	=> $sisa_cuti2,
+												'updated_date'	=> date("Y-m-d H:i:s")
+											];
+											$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+										}
+
+									}*/
+
+									///insert approval path
+									$approval_type_id = 1; //Absence
+									$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, $leave_type, $diff_day, $lastId);
+
+
+
+									return $rs;
+								}else return null;
+				            }
+
+						}
+						else return 'sisa_cuti_tidak_cukup';
+
+					}
+    			}else{
+    				return 'work_location_not_found';
+    			}
+    		}
 
 		}else return null;
 
@@ -1517,6 +1591,7 @@ class Api extends API_Controller
 
 			if($date_start != '' && $date_end != '' && $leave_type != ''){ 
 				$diff_day		= $this->api->dayCount($date_start, $date_end);
+				$diff_day 		= number_format($diff_day);
 				$getcurrLeave 	= $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
 
 				if($getcurrLeave[0]->status_approval == 1){ //waiting approval
@@ -1810,10 +1885,11 @@ class Api extends API_Controller
 
     		$where=""; 
 	    	if($employee != ''){
-	    		$where = " and a.employee_id = '".$employee."' ";
+	    		/*$where = " and a.employee_id = '".$employee."' ";*/
+	    		$where = " and ao.employee_id = '".$employee."' ";
 	    	}
 
-	    	$dataijin = $this->db->query("select a.id, b.full_name, a.date_leave_start, a.date_leave_end, c.name as 			leave_name, a.reason, a.total_leave, 
+	    	/*$dataijin = $this->db->query("select a.id, b.full_name, a.date_leave_start, a.date_leave_end, c.name as 			leave_name, a.reason, a.total_leave, 
 							(case
 							when a.status_approval = 1 then 'Waiting Approval'
 							when a.status_approval = 2 then 'Approved'
@@ -1822,7 +1898,48 @@ class Api extends API_Controller
 						from leave_absences a left join employees b on b.id = a.employee_id
 						left join master_leaves c on c.id = a.masterleave_id
 						where (a.employee_id = '".$islogin_employee."' or b.direct_id = '".$islogin_employee."') 
-	                    ".$where." ")->result();  
+	                    ".$where." ")->result();  */
+
+
+	        $dataijin = $this->db->query('select ao.* from (SELECT 
+							a.*, 
+							b.full_name, 
+							c.name AS leave_name,
+							CASE
+								WHEN a.status_approval = 1 THEN "Waiting Approval"
+								WHEN a.status_approval = 2 THEN "Approved"
+								WHEN a.status_approval = 3 THEN "Rejected"
+							END AS status,
+							b.direct_id,
+							d.current_approval_level,
+							h.role_id as current_role_id,
+							i.role_name as current_role_name,
+							GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+							if(i.role_name = "Direct",b.direct_id,(select GROUP_CONCAT(employee_id) from approval_matrix_role_pic where approval_matrix_role_id = h.role_id)) as current_employeeid_approver,
+							CASE 
+								WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+								ELSE 0 
+							END AS is_approver_view,
+					        CASE 
+								WHEN FIND_IN_SET('.$islogin_employee.', (select GROUP_CONCAT(employee_id) from approval_matrix_role_pic where approval_matrix_role_id = h.role_id)) > 0 THEN 1
+								when i.role_name = "Direct" and b.direct_id = '.$islogin_employee.' THEN 1  
+								ELSE 0 
+							END AS is_approver
+						FROM leave_absences a
+						LEFT JOIN employees b ON b.id = a.employee_id
+						LEFT JOIN master_leaves c ON c.id = a.masterleave_id
+						LEFT JOIN approval_path d ON d.trx_id = a.id AND d.approval_matrix_type_id = 1
+						left join approval_matrix bb on bb.id = d.approval_matrix_id
+						left join approval_matrix_detail cc on cc.approval_matrix_id = bb.id
+						left join approval_matrix_role dd on dd.id = cc.role_id
+						left join approval_path_detail ee on ee.approval_path_id = d.id and ee.approval_level = cc.approval_level
+						LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+						left join approval_matrix_detail h on h.approval_matrix_id = d.approval_matrix_id and h.approval_level = d.current_approval_level
+						left join approval_matrix_role i on i.id = h.role_id
+						GROUP BY a.id) ao
+						where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
+	                    '.$where.' ')->result();  
+
 
 	    	$response = [
 	    		'status' 	=> 200,
@@ -2393,157 +2510,242 @@ class Api extends API_Controller
 		if(!empty($_REQUEST)){
 			$status = $_REQUEST['status']; //approve or reject
 			$id 	= $_REQUEST['id'];
+			$approval_level = $_REQUEST['approval_level'];
+			$employee_login = $_REQUEST['employee_login'];
+
+
 
 			if($status != ''){
 				if($id != ''){
-					if($status == 'approve'){ 
+					if($approval_level != ''){ 
+						$CurrApproval = $this->getCurrApproval($id, $approval_level);
+						if(!empty($CurrApproval)){ 
+							$CurrApprovalId		= $CurrApproval[0]->id;
+							$approval_path_id	= $CurrApproval[0]->approval_path_id;
 
-						$data1 = [
-							'status_approval' 	=> 2,
-							'date_approval'		=> date("Y-m-d H:i:s")
-						];
-						$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
-
-						if($rs){
-							$leaves = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
-							$total_leave = $leaves[0]->total_leave;
-
-							// update table jatah cuti
-							if($leaves[0]->masterleave_id != '2'){ //unpaid leave gak update sisa cuti
-								$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
-
-								$is_update_jatah_selanjutnya=0;
-								$sisa_cuti = $jatahcuti[0]->sisa_cuti-$total_leave;
-
-								if($total_leave > $jatahcuti[0]->sisa_cuti){ 
-									$is_update_jatah_selanjutnya=1;
-									$sisa_cuti = 0;
-									$diff_day2 = $total_leave-$jatahcuti[0]->sisa_cuti;
-									$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;	
-								}
-								
-								$data2 = [
-									'sisa_cuti' 	=> $sisa_cuti,
-									'updated_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-
-								if($is_update_jatah_selanjutnya == 1){ 
-									$data3 = [
-										'sisa_cuti' 	=> $sisa_cuti2,
-										'updated_date'	=> date("Y-m-d H:i:s")
+							$cekApproval = $this->db->query("select * from approval_path_detail where id = '".$CurrApprovalId."' ")->result(); 
+							if($cekApproval[0]->status != ''){
+								$response = [
+										'status' 	=> 401,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Cannot double approval'
 									];
-									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-								}
+							}else{
+								if($status == 'approve'){ 
 
-							}
+									$maxApproval = $this->getMaxApproval($id); 
+									if($approval_level == $maxApproval){   //last approver
+										$data1 = [
+											'status_approval' 	=> 2,
+											'date_approval'		=> date("Y-m-d H:i:s")
+										];
+										$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
+
+										if($rs){
+											$leaves = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
+											$total_leave = $leaves[0]->total_leave;
+
+											// update table jatah cuti
+											if($leaves[0]->masterleave_id != '2'){ //unpaid leave gak update sisa cuti
+												$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee."' and status = 1 order by period_start asc")->result(); 
+
+												$is_update_jatah_selanjutnya=0;
+												$sisa_cuti = $jatahcuti[0]->sisa_cuti-$total_leave;
+
+												if($total_leave > $jatahcuti[0]->sisa_cuti){ 
+													$is_update_jatah_selanjutnya=1;
+													$sisa_cuti = 0;
+													$diff_day2 = $total_leave-$jatahcuti[0]->sisa_cuti;
+													$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;	
+												}
+												
+												$data2 = [
+													'sisa_cuti' 	=> $sisa_cuti,
+													'updated_date'	=> date("Y-m-d H:i:s")
+												];
+												$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
 
 
-							// masukin ke table absensi
-							$employees = $this->db->query("select * from employees where id = '".$leaves[0]->employee_id."' ")->result(); 
+												if($is_update_jatah_selanjutnya == 1){ 
+													$data3 = [
+														'sisa_cuti' 	=> $sisa_cuti2,
+														'updated_date'	=> date("Y-m-d H:i:s")
+													];
+													$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+												}
 
-							$time_in 	= "";
-							$time_out 	= "";
-							if($employees[0]->shift_type == 'Reguler'){
-								$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
-								$time_in 	= $dt[0]->time_in;
-								$time_out 	= $dt[0]->time_out;
-							}
-							
-							
-							$date_att = $leaves[0]->date_leave_start;
-
-							for ($i=0; $i < $total_leave; $i++) { 
+											}
 
 
-								$data2 = [
-									'date_attendance' 			=> $date_att,
-									'employee_id' 				=> $leaves[0]->employee_id,
-									'attendance_type' 			=> $employees[0]->shift_type,
-									'time_in' 					=> $time_in,
-									'time_out' 					=> $time_out,
-									'date_attendance_in' 		=> $date_att,
-									'date_attendance_out'		=> $date_att,
-									'created_at'				=> date("Y-m-d H:i:s"),
-									'leave_type' 				=> $leaves[0]->masterleave_id,
-									'leave_absences_id' 		=> $leaves[0]->id
-								];
-								$this->db->insert("time_attendances", $data2);
+											// masukin ke table absensi
+											$employees = $this->db->query("select * from employees where id = '".$leaves[0]->employee_id."' ")->result(); 
 
-								
-								$date_att = date("Y-m-d", strtotime($date_att.'+ 1 days'));
+											$time_in 	= "";
+											$time_out 	= "";
+											if($employees[0]->shift_type == 'Reguler'){
+												$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+												$time_in 	= $dt[0]->time_in;
+												$time_out 	= $dt[0]->time_out;
+											}
+											
+											
+											$date_att = $leaves[0]->date_leave_start;
 
-							}
-						}
-						
-						$response = [
-							'status' 	=> 200,
-							'message' 	=> 'Success'
-						];
+											for ($i=0; $i < $total_leave; $i++) { 
 
-					}else if($status == 'reject'){
 
-						$leave = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
+												$data2 = [
+													'date_attendance' 			=> $date_att,
+													'employee_id' 				=> $leaves[0]->employee_id,
+													'attendance_type' 			=> $employees[0]->shift_type,
+													'time_in' 					=> $time_in,
+													'time_out' 					=> $time_out,
+													'date_attendance_in' 		=> $date_att,
+													'date_attendance_out'		=> $date_att,
+													'created_at'				=> date("Y-m-d H:i:s"),
+													'leave_type' 				=> $leaves[0]->masterleave_id,
+													'leave_absences_id' 		=> $leaves[0]->id
+												];
+												$this->db->insert("time_attendances", $data2);
 
-						$data1 = [
-							'status_approval' 	=> 3,
-							'date_approval'		=> date("Y-m-d H:i:s")
-						];
-						$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
+												
+												$date_att = date("Y-m-d", strtotime($date_att.'+ 1 days'));
 
-						if($rs){
-							/*if($leave[0]->masterleave_id != 2){ // tipenya bukan unpaid leave maka jatah cuti dikembalikan
-								//penambahan cuti
-								$jatahcuti 			= $this->db->query("select * from total_cuti_karyawan where employee_id = '".$leave[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
-								$jml_tambahan_cuti 	= $leave[0]->total_leave;
-								$sisa_cuti_1 		= $jatahcuti[0]->sisa_cuti+$jml_tambahan_cuti;
+											}
 
-								$tambah_selanjutnya=0;
-								if($sisa_cuti_1 > 12){
-									$tambah_selanjutnya = 1;
-									$slot_tambah 		= 12- $jatahcuti[0]->sisa_cuti;
-									$sisa_slot_tambah 	= $jml_tambahan_cuti-$slot_tambah;
-									$sisa_cuti_1 		= 12;
-								}
-								$data2 = [
-									'sisa_cuti' 	=> $sisa_cuti_1,
-									'updated_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
 
-								if($tambah_selanjutnya == 1){
-									$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti+$sisa_slot_tambah;
-									if($sisa_cuti_2 > 12){
-										$sisa_cuti_2 = 12;
+											//update approval path
+											$updApproval = [
+												'status' 		=> "Approved",
+												'approval_by' 	=> $employee_login,
+												'approval_date'	=> date("Y-m-d H:i:s")
+											];
+											$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
+												
+
+										}
+										
+										
+									}else{
+										$next_level = $approval_level+1;
+										//$nextApproval = getNextApproval($id, $next_level);
+										
+										$data2 = [
+											'current_approval_level' => $next_level
+										];
+										$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
+										
+										if($rs){
+											$data = [
+												'status' 		=> "Approved",
+												'approval_by' 	=> $employee_login,
+												'approval_date'	=> date("Y-m-d H:i:s")
+											];
+											$this->db->update("approval_path_detail", $data, "id = '".$CurrApprovalId."'");
+
+											$dataApprovalDetail = [
+												'approval_path_id' 	=> $approval_path_id, 
+												'approval_level' 	=> $next_level
+											];
+											$this->db->insert("approval_path_detail", $dataApprovalDetail);
+										}
+										
 									}
 
-									$data3 = [
-										'sisa_cuti' 	=> $sisa_cuti_2,
-										'updated_date'	=> date("Y-m-d H:i:s")
+									
+									$response = [
+										'status' 	=> 200,
+										'message' 	=> 'Success'
 									];
-									$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+
+								}else if($status == 'reject'){
+
+									$leave = $this->db->query("select * from leave_absences where id = '".$id."' ")->result(); 
+
+									$data1 = [
+										'status_approval' 	=> 3,
+										'date_approval'		=> date("Y-m-d H:i:s")
+									];
+									$rs = $this->db->update('leave_absences', $data1, "id = '".$id."'");
+
+									if($rs){
+										/*if($leave[0]->masterleave_id != 2){ // tipenya bukan unpaid leave maka jatah cuti dikembalikan
+											//penambahan cuti
+											$jatahcuti 			= $this->db->query("select * from total_cuti_karyawan where employee_id = '".$leave[0]->employee_id."' and status = 1 order by period_start asc")->result(); 
+											$jml_tambahan_cuti 	= $leave[0]->total_leave;
+											$sisa_cuti_1 		= $jatahcuti[0]->sisa_cuti+$jml_tambahan_cuti;
+
+											$tambah_selanjutnya=0;
+											if($sisa_cuti_1 > 12){
+												$tambah_selanjutnya = 1;
+												$slot_tambah 		= 12- $jatahcuti[0]->sisa_cuti;
+												$sisa_slot_tambah 	= $jml_tambahan_cuti-$slot_tambah;
+												$sisa_cuti_1 		= 12;
+											}
+											$data2 = [
+												'sisa_cuti' 	=> $sisa_cuti_1,
+												'updated_date'	=> date("Y-m-d H:i:s")
+											];
+											$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+											if($tambah_selanjutnya == 1){
+												$sisa_cuti_2 = $jatahcuti[1]->sisa_cuti+$sisa_slot_tambah;
+												if($sisa_cuti_2 > 12){
+													$sisa_cuti_2 = 12;
+												}
+
+												$data3 = [
+													'sisa_cuti' 	=> $sisa_cuti_2,
+													'updated_date'	=> date("Y-m-d H:i:s")
+												];
+												$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+											}
+										}*/
+
+
+										//update approval path
+										$dataapproval = [
+											'status' 		=> "Rejected",
+											'approval_by' 	=> $employee_login,
+											'approval_date'	=> date("Y-m-d H:i:s")
+										];
+										$this->db->update("approval_path_detail", $dataapproval, "id = '".$CurrApprovalId."'");
+
+
+
+										$response = [
+								    		'status' 	=> 200,
+											'message' 	=> 'Success'
+										];
+
+									}else{
+										$response = [
+											'status' 	=> 401,
+											'message' 	=> 'Failed'
+										];
+									}
+
+								}else{
+									$response = [
+										'status' 	=> 401,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Status not found'
+									];
 								}
-							}*/
-
-
-							$response = [
-					    		'status' 	=> 200,
-								'message' 	=> 'Success'
-							];
+							}
 
 						}else{
 							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed'
+								'status' 	=> 400, // Bad Request
+								'message' 	=>'Failed',
+								'error' 	=> 'Approval Level not found'
 							];
 						}
-
 					}else{
 						$response = [
-							'status' 	=> 401,
-							'message' 	=> 'Failed',
-							'error' 	=> 'Status not found'
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'Approval Level not found'
 						];
 					}
 				}else{
@@ -3594,6 +3796,123 @@ class Api extends API_Controller
 		$this->render_json($response, $response['status']);
 		
     }
+
+
+    public function getCurrApproval($trx_id, $approval_level){
+		$post 		= $this->input->post(null, true);
+		
+
+		$approval_matrix_type_id = 1;
+		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
+		
+
+		return $rs;
+	}
+
+	public function getMaxApproval($trx_id){ 
+		$post 		= $this->input->post(null, true);
+		
+
+		$approval_matrix_type_id = 1;
+		$rs =  $this->db->query("select b.*, a.current_approval_level, c.role_name from approval_path a 
+				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id
+				left join approval_matrix_role c on c.id = b.role_id
+				where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = ".$trx_id." 
+				order by b.approval_level desc limit 1 ")->result();
+		
+
+		return $rs[0]->approval_level;
+	}
+
+
+	public function get_approval_matrix_type()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+ 	 	$datarow = $this->db->query("select * from approval_matrix_mstype order by id asc ")->result();  
+
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datarow
+		];
+
+    	
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+	public function get_data_approvalLog()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	//$approval_matrix_type_id = 1; //absensi
+    	$id	= $_REQUEST['id'];
+    	$approval_matrix_type_id = $_REQUEST['approval_matrix_type_id'];
+    	
+
+
+    	if($id != ''){
+
+	 	 	$datarow = $this->db->query("select dt.approval_level, dt.approver_name, dt.status_name, dt.approval_date from (select a.*, c.approval_level, d.role_name, e.id as 'id_detail',
+				(case when e.id != '' and (e.status = '' or e.status is null) and a.current_approval_level = c.approval_level then 'Waiting Approval'
+				when e.id != '' and e.status != '' then e.status
+				else ''
+				end) as status_name,
+				IF(e.id != '' and e.status != '', (SELECT full_name FROM employees WHERE id = e.approval_by), d.role_name) AS approver_name,
+				if(e.approval_date is null or e.approval_date = '0000-00-00 00:00:00','',e.approval_date) as approval_date
+			from approval_path a 
+			left join approval_matrix b on b.id = a.approval_matrix_id
+			left join approval_matrix_detail c on c.approval_matrix_id = b.id
+			left join approval_matrix_role d on d.id = c.role_id
+			left join approval_path_detail e on e.approval_path_id = a.id and e.approval_level = c.approval_level
+				where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = '".$id."'
+			order by c.approval_level asc)dt ")->result();  
+
+
+	    	
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $datarow
+			];
+
+    	}else{
+    		$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Data not found'
+			];
+    	}
+
+    	
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
 
 }
 
