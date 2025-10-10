@@ -254,45 +254,47 @@ class Sapprovalmatrix_role_menu_model extends MY_Model
 
 	public function add_data($post)
 	{ 
-		
+		$cekdata = $this->db->query("select * from approval_matrix_role where role_name = '".trim($post['role_name'])."' and work_location_id = '".trim($post['location'])."' ")->result(); 
+		if(empty($cekdata)){
+				$data = [
+				'role_name' 		=> trim($post['role_name']),
+				'work_location_id' 	=> trim($post['location']),
+				'description' 		=> trim($post['description']),
+				'created_date' 		=> date("Y-m-d H:i:s"),
+				'created_by' 		=> $_SESSION["username"]
+			];
+			
+			$rs = $this->db->insert($this->table_name, $data);
+			$lastId = $this->db->insert_id();
 
-		$data = [
-			'role_name' 		=> trim($post['role_name']),
-			'work_location_id' 	=> trim($post['location']),
-			'description' 		=> trim($post['description']),
-			'created_date' 		=> date("Y-m-d H:i:s"),
-			'created_by' 		=> $_SESSION["username"]
-		];
-		
-		$rs = $this->db->insert($this->table_name, $data);
-		$lastId = $this->db->insert_id();
+			if($rs){
+				if(isset($post['pic_role'])){
+					$item_num = count($post['pic_role']); // cek sum
+					$item_len_min = min(array_keys($post['pic_role'])); // cek min key index
+					$item_len = max(array_keys($post['pic_role'])); // cek max key index
+				} else {
+					$item_num = 0;
+				}
 
-		if($rs){
-			if(isset($post['pic_role'])){
-				$item_num = count($post['pic_role']); // cek sum
-				$item_len_min = min(array_keys($post['pic_role'])); // cek min key index
-				$item_len = max(array_keys($post['pic_role'])); // cek max key index
-			} else {
-				$item_num = 0;
-			}
+				if($item_num>0){
+					for($i=$item_len_min;$i<=$item_len;$i++) 
+					{
+						if(isset($post['pic_role'][$i])){
+							$itemData = [
+								'approval_matrix_role_id'	=> $lastId,
+								'employee_id' 				=> trim($post['pic_role'][$i])
+							];
 
-			if($item_num>0){
-				for($i=$item_len_min;$i<=$item_len;$i++) 
-				{
-					if(isset($post['pic_role'][$i])){
-						$itemData = [
-							'approval_matrix_role_id'	=> $lastId,
-							'employee_id' 				=> trim($post['pic_role'][$i])
-						];
-
-						$this->db->insert('approval_matrix_role_pic', $itemData);
+							$this->db->insert('approval_matrix_role_pic', $itemData);
+						}
 					}
 				}
-			}
 
-			return $rs;
-		}else return null;
-
+				return $rs;
+			}else return null;
+		}else{
+			echo 'Gagal submit. Role name dengan lokasi tersebut sudah ada'; 
+		}
 
 	}
 

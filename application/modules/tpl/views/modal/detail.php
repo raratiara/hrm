@@ -7,6 +7,16 @@
 									<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 									<div class="table-header">
 										Detail <?php echo $smodul; ?>
+
+										<?php
+										if ($this->module_name == 'ijin_menu') {
+			                                ?>
+			                                <button type="button" style="display:none" id="btnApprovalLogView" class="btn-sm btn-circle btn-approvalLogView" onclick="approvalLog()">
+			                                    <i class="fa fa-history"></i> Approval Log
+			                                </button>
+			                                <?php
+			                            }
+										?>
 									</div>
 								</div>
 

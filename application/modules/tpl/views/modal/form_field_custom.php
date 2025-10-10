@@ -78,6 +78,13 @@
                             if ($this->module_name != 'absensi_menu') {
                                 echo $smodul;
                             }
+                            if ($this->module_name == 'ijin_menu') {
+                                ?>
+                                <button type="button" style="display:none" id="btnApprovalLog" class="btn-sm btn-circle btn-approvalLog" onclick="approvalLog()">
+                                    <i class="fa fa-history"></i> Approval Log
+                                </button>
+                                <?php
+                            }
                             ?>
                         </div>
                     </div>
