@@ -111,12 +111,12 @@ class Ijin_menu_model extends MY_Model
 						            WHEN a.status_approval = 2 THEN "Approved"
 						            WHEN a.status_approval = 3 THEN "Rejected"
 						        END AS status,
-						        ANY_VALUE(b.direct_id) AS direct_id,
-						        ANY_VALUE(d.current_approval_level) AS current_approval_level,
-						        ANY_VALUE(h.role_id) AS current_role_id,
-						        ANY_VALUE(i.role_name) AS current_role_name,
+						        max(b.direct_id) AS direct_id,
+						        max(d.current_approval_level) AS current_approval_level,
+						        max(h.role_id) AS current_role_id,
+						        max(i.role_name) AS current_role_name,
 						        GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
-						        ANY_VALUE(
+						        max(
 						            IF(
 						                i.role_name = "Direct",
 						                b.direct_id,
@@ -137,10 +137,10 @@ class Ijin_menu_model extends MY_Model
 						                (
 						                    SELECT GROUP_CONCAT(employee_id) 
 						                    FROM approval_matrix_role_pic 
-						                    WHERE approval_matrix_role_id = ANY_VALUE(h.role_id)
+						                    WHERE approval_matrix_role_id = max(h.role_id)
 						                )
 						            ) > 0 THEN 1
-						            WHEN ANY_VALUE(i.role_name) = "Direct" AND ANY_VALUE(b.direct_id) = '.$karyawan_id.' THEN 1  
+						            WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$karyawan_id.' THEN 1  
 						            ELSE 0 
 						        END AS is_approver
 						    FROM leave_absences a
@@ -524,6 +524,10 @@ class Ijin_menu_model extends MY_Model
 							(".$diff_day." >= min and min != '' and max = '') or
 							(".$diff_day." <= max and max != '' and min = '')
 						)  ")->result(); 
+
+					if(empty($getmatrix)){
+						$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and leave_type_id = '".$leave_type_id."' and (min is null and max is null)  ")->result(); 
+					}
 
 					
 					if(!empty($getmatrix)){
