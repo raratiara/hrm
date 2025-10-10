@@ -445,7 +445,12 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 		} else { 
 			$data = '';
 			$no = $row+1;
-			$msPic = $this->db->query("select distinct(role_name),id from approval_matrix_role where work_location_id = '".$work_location_id."'")->result(); 
+			$msPic = $this->db->query("select role_name,id from approval_matrix_role 
+										where work_location_id = '".$work_location_id."' 
+										union 
+										select role_name,id from approval_matrix_role 
+										where work_location_id = '0'
+										order by role_name asc")->result(); 
 			
 			$data 	.= '<td>'.$no.'</td>';
 
@@ -480,7 +485,12 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 			
 			foreach ($rd as $f){
 				$no = $row+1;
-				$msPic = $this->db->query("select distinct(role_name),id from approval_matrix_role where work_location_id = '".$work_location_id."'")->result(); 
+				$msPic = $this->db->query("select role_name,id from approval_matrix_role 
+											where work_location_id = '".$work_location_id."' 
+											union 
+											select role_name,id from approval_matrix_role 
+											where work_location_id = '0'
+											order by role_name asc")->result(); 
 				
 				if(!$view){ 
 

@@ -416,7 +416,7 @@ class Ijin_menu extends MY_Controller
 				else ''
 				end) as status_name,
 				IF(e.id != '' and e.status != '', (SELECT full_name FROM employees WHERE id = e.approval_by), d.role_name) AS approver_name,
-				if(e.approval_date is null or e.approval_date = '0000-00-00 00:00:00','',e.approval_date) as approval_date
+				e.approval_date
 			from approval_path a 
 			left join approval_matrix b on b.id = a.approval_matrix_id
 			left join approval_matrix_detail c on c.approval_matrix_id = b.id
@@ -431,12 +431,16 @@ class Ijin_menu extends MY_Controller
 	    $dt = '';
 	    if (!empty($rs)) {
 	        foreach ($rs as $row) {
+	        	$approval_date = $row->approval_date;
+	        	if($row->approval_date == '0000-00-00 00:00:00' || $row->approval_date == ''){
+	        		$approval_date = '';
+	        	}
 	        	
 	            $dt .= '<tr>';
 	            $dt .= '<td>'.$row->approval_level.'</td>';
 	            $dt .= '<td>'.$row->approver_name.'</td>';
 	            $dt .= '<td>'.$row->status_name.'</td>';
-	            $dt .= '<td>'.$row->approval_date.'</td>';
+	            $dt .= '<td>'.$approval_date.'</td>';
 	            $dt .= '</tr>';
 	        }
 	    } else {

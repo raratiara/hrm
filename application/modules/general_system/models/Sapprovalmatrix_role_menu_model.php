@@ -171,13 +171,23 @@ class Sapprovalmatrix_role_menu_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1") {
-				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-pencil"></i></a>';
+				if($row->role_name == 'Direct' || $row->role_name == 'Indirect'){
+					$edit = "";
+				}else{
+					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-pencil"></i></a>';
+				}
 			}
 			$delete_bulk = "";
 			$delete = "";
 			if (_USER_ACCESS_LEVEL_DELETE == "1") {
-				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="' . $row->id . '">';
-				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-trash"></i></a>';
+				if($row->role_name == 'Direct' || $row->role_name == 'Indirect'){
+					$delete_bulk = "";
+					$delete = "";
+				}else{
+					$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="' . $row->id . '">';
+					$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-trash"></i></a>';
+				}
+				
 			}
 
 			array_push($output["aaData"], array(

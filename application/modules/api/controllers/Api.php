@@ -1961,12 +1961,12 @@ class Api extends API_Controller
 						            WHEN a.status_approval = 2 THEN "Approved"
 						            WHEN a.status_approval = 3 THEN "Rejected"
 						        END AS status,
-						        ANY_VALUE(b.direct_id) AS direct_id,
-						        ANY_VALUE(d.current_approval_level) AS current_approval_level,
-						        ANY_VALUE(h.role_id) AS current_role_id,
-						        ANY_VALUE(i.role_name) AS current_role_name,
+						        max(b.direct_id) AS direct_id,
+						        max(d.current_approval_level) AS current_approval_level,
+						        max(h.role_id) AS current_role_id,
+						        max(i.role_name) AS current_role_name,
 						        GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
-						        ANY_VALUE(
+						        max(
 						            IF(
 						                i.role_name = "Direct",
 						                b.direct_id,
@@ -1987,10 +1987,10 @@ class Api extends API_Controller
 						                (
 						                    SELECT GROUP_CONCAT(employee_id) 
 						                    FROM approval_matrix_role_pic 
-						                    WHERE approval_matrix_role_id = ANY_VALUE(h.role_id)
+						                    WHERE approval_matrix_role_id = max(h.role_id)
 						                )
 						            ) > 0 THEN 1
-						            WHEN ANY_VALUE(i.role_name) = "Direct" AND ANY_VALUE(b.direct_id) = '.$islogin_employee.' THEN 1  
+						            WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$islogin_employee.' THEN 1  
 						            ELSE 0 
 						        END AS is_approver
 						    FROM leave_absences a
@@ -3946,7 +3946,7 @@ class Api extends API_Controller
 				else ''
 				end) as status_name,
 				IF(e.id != '' and e.status != '', (SELECT full_name FROM employees WHERE id = e.approval_by), d.role_name) AS approver_name,
-				if(e.approval_date is null or e.approval_date = '0000-00-00 00:00:00','',e.approval_date) as approval_date
+				e.approval_date
 			from approval_path a 
 			left join approval_matrix b on b.id = a.approval_matrix_id
 			left join approval_matrix_detail c on c.approval_matrix_id = b.id
