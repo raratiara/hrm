@@ -118,6 +118,7 @@ function load_data()
 				 	$('[name="description"]').val(data.description);
 
 
+
 				 	var locate = 'table.rolepic-list';
 					$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {id:data.id },success: function (response) {
 							var obj = JSON.parse(response);
@@ -155,6 +156,16 @@ function load_data()
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
+
+
+					if(data.role_name == 'Direct' || data.role_name == 'Indirect'){
+				 		document.getElementById("boxPic").style.display = "none";
+				 		document.getElementById("inpLocation").style.display = "none";
+				 		
+				 	}else{
+				 		document.getElementById("boxPic").style.display = "block";
+				 		document.getElementById("inpLocation").style.display = "block";
+				 	}
 
 
 					$('#modal-view-data').modal('show');

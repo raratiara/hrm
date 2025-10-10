@@ -35,7 +35,7 @@
 		: <span class="role_name"></span>
 	</div>
 </div>
-<div class="row-flex">
+<div class="row-flex" id="inpLocation">
 	<label class="col-md-3 control-label no-padding-right">Location</label>
 	<div class="col-md-9">
 		: <span class="location"></span>
@@ -50,7 +50,7 @@
 
 
 <br>
-<div>
+<div id="boxPic">
     <div class="col-md-12">
 		<div class="portlet box grey">
 			<div class="portlet-title">
