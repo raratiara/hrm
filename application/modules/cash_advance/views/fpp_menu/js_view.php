@@ -1,4 +1,37 @@
 
+<!-- Modal Approval Log -->
+<div class="modal fade" id="modalApprovalLog" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Approval Log</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body" id="approvalLogContent">
+      	<input type="hidden" id="hdnid-approvallog" name="hdnid-approvallog">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <th style="width: 50px;">Level</th>
+              <th>Approver</th>
+              <th>Status</th>
+              <th>Approval Date</th>
+            </tr>
+          </thead>
+          <tbody>
+          
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 <!-- Modal Reject Data -->
 <div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true" style="padding-left: 600px">
@@ -20,6 +53,7 @@
 					<div class="col-md-8">
 						<?=$rfu_reason;?>
 						<input type="hidden" name="id" id="id" value="">
+						<input type="hidden" name="approval_level" id="approval_level" value="">
 					</div>
 				</div>
 			</div>
@@ -64,6 +98,7 @@
 					<div class="col-md-8">
 						<?=$reject_reason;?>
 						<input type="hidden" name="id" id="id" value="">
+						<input type="hidden" name="approval_level" id="approval_level" value="">
 					</div>
 				</div>
 			</div>
@@ -222,7 +257,8 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 
-					if(data.rowdata.status_id == 1 && data.isdirect == 1){
+					// if(data.rowdata.status_id == 1 && data.isdirect == 1){
+					if(data.rowdata.status_id == 1 && (data.isdirect == 1 || data.rowdata.is_approver == 1)){
 						
 						$('[name="action_type"]').val('approval');
 						document.getElementById("submit-data").innerText = "Approve";
@@ -245,6 +281,7 @@ function load_data()
 							rfuButton.addEventListener('click', function() {
 								$('#modal-rfu-data').modal('show');
 								$('[name="id"]').val(data.rowdata.id);
+								$('[name="approval_level"]').val(data.rowdata.current_approval_level);
 							});
 						}
 						
@@ -264,6 +301,7 @@ function load_data()
 							rejectButton.addEventListener('click', function() {
 								$('#modal-reject-data').modal('show');
 								$('[name="id"]').val(data.rowdata.id);
+								$('[name="approval_level"]').val(data.rowdata.current_approval_level);
 							});
 						}
 						
@@ -332,6 +370,17 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
+
+					$('[name="hdnid-approvallog"]').val(data.rowdata.id);
+					document.getElementById('btnApprovalLog').style.display = 'block';
+
+					if(data.rowdata.status_id == 4){ //Request for update
+						document.getElementById('rfuReasonEdit').style.display = 'block';
+						$('span.rfu_reason_edit').html(data.rowdata.reject_reason);
+					}else{
+						document.getElementById('rfuReasonEdit').style.display = 'none';
+					}
+
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
@@ -395,6 +444,24 @@ function load_data()
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
+
+
+					$('[name="hdnid-approvallog"]').val(data.rowdata.id);
+					document.getElementById('btnApprovalLogView').style.display = 'block';
+
+					if(data.rowdata.status_id == 4){ //RFU
+						document.getElementById('rfuReason').style.display = 'block';
+						$('span.rfu_reason').html(data.rowdata.rfu_reason);
+					}else{
+						document.getElementById('rfuReason').style.display = 'none';
+					}
+
+					if(data.rowdata.status_id == 3){ //Reject
+						document.getElementById('rejectReason').style.display = 'block';
+						$('span.reject_reason').html(data.rowdata.reject_reason);
+					}else{
+						document.getElementById('rejectReason').style.display = 'none';
+					}
 
 					
 					$('#modal-view-data').modal('show');
@@ -584,6 +651,7 @@ function updateTerbilang() {
 function save_rfu(){
 	var id 		= $("#id").val();
 	var reason 	= $("#rfu_reason").val();
+	var approval_level 	= $("#approval_level").val();
 
 	$('#modal-rfu-data').modal('hide');
 	
@@ -591,7 +659,7 @@ function save_rfu(){
 		$.ajax({
 			type: "POST",
 	        url : module_path+'/rfu',
-			data: { id: id, reason:reason },
+			data: { id: id, reason:reason, approval_level: approval_level },
 			cache: false,		
 	        dataType: "JSON",
 	        success: function(data)
@@ -633,6 +701,8 @@ function save_rfu(){
 function save_reject(){
 	var id 		= $("#id").val();
 	var reason 	= $("#reject_reason").val();
+	var approval_level 	= $("#approval_level").val();
+
 
 	$('#modal-reject-data').modal('hide');
 	
@@ -640,7 +710,7 @@ function save_reject(){
 		$.ajax({
 			type: "POST",
 	        url : module_path+'/reject',
-			data: { id: id, reason:reason },
+			data: { id: id, reason:reason, approval_level:approval_level },
 			cache: false,		
 	        dataType: "JSON",
 	        success: function(data)
@@ -690,5 +760,41 @@ document.querySelectorAll('input[name="fpp_type"]').forEach(function(radio) {
     
   });
 });
+
+
+function approvalLog() {
+    $('#modalApprovalLog').modal('show'); // buka modal
+
+    var id = $("#hdnid-approvallog").val();
+
+    if (id != '') { 
+        $.ajax({
+            type: "POST",
+            url: module_path + '/getApprovalLog',
+            data: { id: id },
+            cache: false,
+            dataType: "JSON",
+            success: function (response) {
+                console.log(response);
+                // tampilkan hasil ke tabel
+                $('#approvalLogContent tbody').html(response.html);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                var dialog = bootbox.dialog({
+                    title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+                    message: jqXHR.responseText,
+                    buttons: {
+                        confirm: {
+                            label: 'Ok',
+                            className: 'btn blue'
+                        }
+                    }
+                });
+            }
+        });
+    } else {
+        alert("Data not found");
+    }
+}
 
 </script>

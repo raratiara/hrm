@@ -9,7 +9,7 @@
 										Detail <?php echo $smodul; ?>
 
 										<?php
-										if ($this->module_name == 'ijin_menu') {
+										if ($this->module_name == 'ijin_menu' || $this->module_name == 'fpu_menu' || $this->module_name == 'fpp_menu' || $this->module_name == 'settlement_menu') {
 			                                ?>
 			                                <button type="button" style="display:none" id="btnApprovalLogView" class="btn-sm btn-circle btn-approvalLogView" onclick="approvalLog()">
 			                                    <i class="fa fa-history"></i> Approval Log
