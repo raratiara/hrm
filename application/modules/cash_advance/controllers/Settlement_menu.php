@@ -154,10 +154,15 @@ class Settlement_menu extends MY_Controller
 
 
 
-	public function rfu(){
+	public function rfu(){ 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
 		$reason = $post['reason'];
+		$approval_level = $post['approval_level'];
 
 		if($id != ''){
 
@@ -167,6 +172,21 @@ class Settlement_menu extends MY_Controller
 				'approval_date'	=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->update('settlement', $data, "id = '".$id."'");
+			if($rs){ 
+				$CurrApproval = $this->getCurrApproval($id, $approval_level);
+				if(!empty($CurrApproval)){
+					$CurrApprovalId		= $CurrApproval[0]->id;
+					$CurrApprovalPathId = $CurrApproval[0]->approval_path_id;
+					
+					$updApproval = [
+						'status' 		=> "Request for Update",
+						'approval_by' 	=> $karyawan_id,
+						'approval_date'	=> date("Y-m-d H:i:s")
+					];
+					$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
+
+				}
+			}
 
 			return $rs;
 			
@@ -178,9 +198,14 @@ class Settlement_menu extends MY_Controller
 
 
 	public function reject(){
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
 		$reason = $post['reason'];
+		$approval_level = $post['approval_level'];
 
 		if($id != ''){
 
@@ -190,6 +215,18 @@ class Settlement_menu extends MY_Controller
 				'approval_date'	=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->update('settlement', $data, "id = '".$id."'");
+			if($rs){
+				$CurrApproval = $this->getCurrApproval($id, $approval_level);
+				if(!empty($CurrApproval)){
+					$CurrApprovalId		= $CurrApproval[0]->id;
+					$dataapproval = [
+						'status' 		=> "Rejected",
+						'approval_by' 	=> $karyawan_id,
+						'approval_date'	=> date("Y-m-d H:i:s")
+					];
+					$this->db->update("approval_path_detail", $dataapproval, "id = '".$CurrApprovalId."'");
+				}
+			}
 
 			return $rs;
 			
@@ -219,6 +256,65 @@ class Settlement_menu extends MY_Controller
 		
 
 		echo json_encode($rs);
+	}
+
+
+	public function getApprovalLog() {
+	    $post = $this->input->post(null, true);
+	    $id = $post['id'];
+	    $approval_matrix_type_id = 3; //settlement
+
+	   
+
+	    $query = "
+	        select a.*, c.approval_level, d.role_name, e.id as 'id_detail',
+				(case when e.id != '' and (e.status = '' or e.status is null) and a.current_approval_level = c.approval_level then 'Waiting Approval'
+				when e.id != '' and e.status != '' then e.status
+				else ''
+				end) as status_name,
+				IF(e.id != '' and e.status != '', (SELECT full_name FROM employees WHERE id = e.approval_by), d.role_name) AS approver_name,
+				e.approval_date
+			from approval_path a 
+			left join approval_matrix b on b.id = a.approval_matrix_id
+			left join approval_matrix_detail c on c.approval_matrix_id = b.id
+			left join approval_matrix_role d on d.id = c.role_id
+			left join approval_path_detail e on e.approval_path_id = a.id and e.approval_level = c.approval_level
+				where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = '".$id."'
+			order by c.approval_level asc
+	    ";
+
+	    $rs = $this->db->query($query)->result();
+
+	    $dt = '';
+	    if (!empty($rs)) {
+	        foreach ($rs as $row) {
+	        	$approval_date = $row->approval_date;
+	        	if($row->approval_date == '0000-00-00 00:00:00' || $row->approval_date == ''){
+	        		$approval_date = '';
+	        	}
+	        	
+	            $dt .= '<tr>';
+	            $dt .= '<td>'.$row->approval_level.'</td>';
+	            $dt .= '<td>'.$row->approver_name.'</td>';
+	            $dt .= '<td>'.$row->status_name.'</td>';
+	            $dt .= '<td>'.$approval_date.'</td>';
+	            $dt .= '</tr>';
+	        }
+	    } else {
+	        $dt .= '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
+	    }
+
+	    echo json_encode(['html' => $dt]);
+	}
+
+
+	public function getCurrApproval($trx_id, $approval_level){
+
+		$approval_matrix_type_id = 3; //settlement
+		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
+		
+
+		return $rs;
 	}
 
 }

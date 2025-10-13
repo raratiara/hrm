@@ -34,26 +34,83 @@ class Fpp_menu_model extends MY_Model
 			'dt.status_name',
 			'dt.direct_id',
 			'dt.prepared_by',
-			'dt.requested_by'
+			'dt.requested_by',
+			'dt.current_approval_level',
+			'dt.is_approver',
+			'dt.current_role_id',
+			'dt.current_role_name',
+			'dt.is_approver_view'
 		];
 
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
 		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';
+			// $whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';
+			$whr=' and (ao.prepared_by = "'.$karyawan_id.'" or ao.requested_by = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1) ';
 		}
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+		/*$sTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 					, d.name as status_name, c.direct_id   
 					from cash_advance a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
 					where a.ca_type = 2
 					'.$whr.'
+				)dt';*/
+
+
+		$sTable = '(select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+					, d.name as status_name, c.direct_id,
+					max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							c.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$karyawan_id.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$karyawan_id.' THEN 1  
+						ELSE 0 
+					END AS is_approver   
+					from cash_advance a left join employees b on b.id = a.prepared_by
+					left join employees c on c.id = a.requested_by
+					left join master_status_cashadvance d on d.id = a.status_id
+					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 2
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id)ao 
+					where ao.ca_type = 2
+					'.$whr.'
 				)dt';
+
 		
 
 		/* Paging */
@@ -191,11 +248,14 @@ class Fpp_menu_model extends MY_Model
 		);
 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
 
 		foreach($rResult as $row)
 		{
+			$is_approver = 0;
+			if($row->is_approver == 1){
+				$is_approver = 1;
+			}
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
@@ -220,7 +280,8 @@ class Fpp_menu_model extends MY_Model
 
 			$reject=""; 
 			$approve="";
-			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
+			// if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
+			if($row->status_name == 'Waiting Approval' && $is_approver == 1){
 				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
 				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';*/
 
@@ -373,6 +434,50 @@ class Fpp_menu_model extends MY_Model
 		
 	} 
 
+	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $amount='', $trx_id){
+
+		if($work_location_id != '' && $approval_type_id != ''){
+			if($approval_type_id == 2){ ///cash advance
+				if($amount == ''){
+					$amount=0;
+				}
+				
+				$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
+						(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
+						(".$amount." >= min and min != '' and max = '') or
+						(".$amount." <= max and max != '' and min = '')
+					)  ")->result(); 
+
+				if(empty($getmatrix)){
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
+				}
+
+				
+				if(!empty($getmatrix)){
+					$approvalMatrixId = $getmatrix[0]->id;
+					if($approvalMatrixId != ''){
+						$dataApproval = [
+							'approval_matrix_type_id' 	=> $approval_type_id, //cash advance
+							'trx_id' 					=> $trx_id,
+							'approval_matrix_id' 		=> $approvalMatrixId,
+							'current_approval_level' 	=> 1
+						];
+						$rs = $this->db->insert("approval_path", $dataApproval);
+						$approval_path_id = $this->db->insert_id();
+						if($rs){
+							$dataApprovalDetail = [
+								'approval_path_id' 	=> $approval_path_id, 
+								'approval_level' 	=> 1
+							];
+							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+						}
+					}
+				}
+			}
+		}
+
+	}
+
 
 	public function add_data($post) { 
 
@@ -390,62 +495,80 @@ class Fpp_menu_model extends MY_Model
 
 		
   		if(!empty($post['requested_by'])){ 
-  			$upload_doc = $this->upload_file('1', 'fpp_document', FALSE, '', TRUE);
-			$document = '';
-			if($upload_doc['status']){ 
-				$document = $upload_doc['upload_file'];
-			} else if(isset($upload_doc['error_warning'])){ 
-				echo $upload_doc['error_warning']; exit;
-			}
+  			$dataEmp = $this->db->query("select * from employees where id = '".$post['requested_by']."'")->result();
+  			if(!empty($dataEmp)){
+				if(!empty($dataEmp[0]->work_location)){
 
-			$data = [
-				'ca_number' 		=> $nextnum,
-				'ca_type' 			=> 2, //fpp
-				'request_date' 		=> trim($post['request_date']),
-				'prepared_by' 		=> $karyawan_id,
-				'requested_by'		=> trim($post['requested_by']),
-				'total_cost' 		=> trim($post['total_cost_fpp']),
-				'document' 			=> $document,
-				'fpp_type' 			=> trim($post['fpp_type']),
-				'no_rekening' 		=> trim($post['no_rekening']),
-				'vendor_name' 		=> trim($post['vendor_name']),
-				'invoice_number' 	=> trim($post['invoice_number']),
-				'invoice_date' 		=> date('Y-m-d', strtotime($post['invoice_date'])),
-				'status_id' 		=> 1, //waiting approval
-				'project_id' 		=> trim($post['project'])
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-			$lastId = $this->db->insert_id();
-
-			if($rs){
-				if(isset($post['post_budget_fpp'])){
-					$item_num = count($post['post_budget_fpp']); // cek sum
-					$item_len_min = min(array_keys($post['post_budget_fpp'])); // cek min key index
-					$item_len = max(array_keys($post['post_budget_fpp'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
-
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						if(isset($post['post_budget_fpp'][$i])){
-							$itemData = [
-								'cash_advance_id'	=> $lastId,
-								'post_budget_id' 	=> trim($post['post_budget_fpp'][$i]),
-								'amount' 			=> trim($post['amount_fpp'][$i]),
-								'ppn_pph' 			=> trim($post['ppn_pph_fpp'][$i]),
-								'total_amount'		=> trim($post['total_amount_fpp'][$i]),
-								'notes' 			=> trim($post['notes_fpp'][$i])
-							];
-
-							$this->db->insert('cash_advance_details', $itemData);
-						}
+					$upload_doc = $this->upload_file('1', 'fpp_document', FALSE, '', TRUE);
+					$document = '';
+					if($upload_doc['status']){ 
+						$document = $upload_doc['upload_file'];
+					} else if(isset($upload_doc['error_warning'])){ 
+						echo $upload_doc['error_warning']; exit;
 					}
-				}
 
-				return $rs;
-			}else return null;
+					$data = [
+						'ca_number' 		=> $nextnum,
+						'ca_type' 			=> 2, //fpp
+						'request_date' 		=> trim($post['request_date']),
+						'prepared_by' 		=> $karyawan_id,
+						'requested_by'		=> trim($post['requested_by']),
+						'total_cost' 		=> trim($post['total_cost_fpp']),
+						'document' 			=> $document,
+						'fpp_type' 			=> trim($post['fpp_type']),
+						'no_rekening' 		=> trim($post['no_rekening']),
+						'vendor_name' 		=> trim($post['vendor_name']),
+						'invoice_number' 	=> trim($post['invoice_number']),
+						'invoice_date' 		=> date('Y-m-d', strtotime($post['invoice_date'])),
+						'status_id' 		=> 1, //waiting approval
+						'project_id' 		=> trim($post['project'])
+					];
+					$rs = $this->db->insert($this->table_name, $data);
+					$lastId = $this->db->insert_id();
+
+					if($rs){
+
+						///insert approval path
+						$approval_type_id = 2; //Cash advance
+						$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', trim($post['total_cost_fpp']), $lastId);
+
+
+
+						if(isset($post['post_budget_fpp'])){
+							$item_num = count($post['post_budget_fpp']); // cek sum
+							$item_len_min = min(array_keys($post['post_budget_fpp'])); // cek min key index
+							$item_len = max(array_keys($post['post_budget_fpp'])); // cek max key index
+						} else {
+							$item_num = 0;
+						}
+
+						if($item_num>0){
+							for($i=$item_len_min;$i<=$item_len;$i++) 
+							{
+								if(isset($post['post_budget_fpp'][$i])){
+									$itemData = [
+										'cash_advance_id'	=> $lastId,
+										'post_budget_id' 	=> trim($post['post_budget_fpp'][$i]),
+										'amount' 			=> trim($post['amount_fpp'][$i]),
+										'ppn_pph' 			=> trim($post['ppn_pph_fpp'][$i]),
+										'total_amount'		=> trim($post['total_amount_fpp'][$i]),
+										'notes' 			=> trim($post['notes_fpp'][$i])
+									];
+
+									$this->db->insert('cash_advance_details', $itemData);
+								}
+							}
+						}
+
+						return $rs;
+					}else return null;
+
+				}else{
+					echo "Work Location not found"; 
+				}
+			}else{
+				echo "Employee not found"; 
+			}
 
   		}else return null;
 
@@ -455,24 +578,73 @@ class Fpp_menu_model extends MY_Model
 
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
+		$id = $post['id'];
 
+		if(!empty($post['id'])){ 
+			if($post['action_type'] == 'approval'){ 
+				$approval_matrix_type_id = 2; //cash advance
+				$getCurrApp = $this->db->query("select * from approval_path where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = '".$id."' ")->result();
+				$approval_level="";
+				if(!empty($getCurrApp)){
+					$approval_level = $getCurrApp[0]->current_approval_level;
+				}
 
+				$CurrApprovalId=""; $approval_path_id="";
+				$CurrApproval = $this->getCurrApproval($id, $approval_level);
+				if(!empty($CurrApproval)){
+					$CurrApprovalId		= $CurrApproval[0]->id;
+					$approval_path_id	= $CurrApproval[0]->approval_path_id;
+				}
 
-		if($post['action_type'] == 'approval'){
+				$maxApproval = $this->getMaxApproval($id); 
+				if($approval_level == $maxApproval){   //last approver
+					$data = [
+						'status_id'		=> 2, //approved
+						'approval_date'	=> date("Y-m-d H:i:s")
+					];
+					
+					$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+					if($rs){
+						//update approval path
+						if(!empty($CurrApprovalId)){
+							$updApproval = [
+								'status' 		=> "Approved",
+								'approval_by' 	=> $karyawan_id,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
+						}
+					}
 
-			if(!empty($post['id'])){ 
-				$data = [
-					'status_id'		=> 2, //approved
-					'approval_date'	=> date("Y-m-d H:i:s")
-				];
-				
-				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-				
-				return $rs;
-			}else return null;
+					return $rs;
+				}else{
+					$next_level = $approval_level+1;
+					
+					if(!empty($CurrApprovalId)){
+						$data2 = [
+							'current_approval_level' => $next_level
+						];
+						$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
+						
+						if($rs){
+							$data = [
+								'status' 		=> "Approved",
+								'approval_by' 	=> $karyawan_id,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $data, "id = '".$CurrApprovalId."'");
 
-		}else{
-			if(!empty($post['id'])){ 
+							$dataApprovalDetail = [
+								'approval_path_id' 	=> $approval_path_id, 
+								'approval_level' 	=> $next_level
+							];
+							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+						}
+						return $rs;
+					}else return null;
+				}
+
+			}else{
 
 				$upload_doc = $this->upload_file('1', 'fpp_document', FALSE, '', TRUE);
 				$document = '';
@@ -488,9 +660,10 @@ class Fpp_menu_model extends MY_Model
 				}
 
 
-
+				$is_rfu=0;
 				$getdata = $this->db->query("select * from cash_advance where id = '".$post['id']."'")->result(); 
 				if($getdata[0]->status_id == 4 && ($karyawan_id == $getdata[0]->prepared_by || $karyawan_id == $getdata[0]->requested_by)){ // edit RFU
+					$is_rfu=1;
 
 					$data = [
 						'requested_by'		=> trim($post['requested_by']),
@@ -524,6 +697,32 @@ class Fpp_menu_model extends MY_Model
 				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 				if($rs){
+
+					/// update approval path
+					$getapprovallevel = $this->db->query("select * from approval_path where approval_matrix_type_id = 2 and trx_id = '".$id."'")->result(); 
+					$approval_level = $getapprovallevel[0]->current_approval_level;
+					$CurrApproval 	= $this->getCurrApproval($id, $approval_level);
+					$CurrApprovalPathId	= $CurrApproval[0]->approval_path_id;
+
+					if($is_rfu == 1){
+						$updapproval_path = [
+							'current_approval_level' => 1
+						];
+						$this->db->update("approval_path", $updapproval_path, "id = '".$getapprovallevel[0]->id."' ");
+
+						$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
+
+						$updApproval2 = [
+							'status' 		=> "",
+							'approval_by' 	=> "",
+							'approval_date'	=> ""
+						];
+						$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
+						
+					}
+
+
+
 					if(isset($post['name'])){
 						$item_num = count($post['name']); // cek sum
 						$item_len_min = min(array_keys($post['name'])); // cek min key index
@@ -569,27 +768,79 @@ class Fpp_menu_model extends MY_Model
 					return $rs;
 				}else return null;	
 
-			} else return null;
-		}
-		
+			}
+		}else return null;
 
-		
+	
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
+		/*$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 						, d.name as status_name, c.direct_id, e.title as project_name     
 						from cash_advance a left join employees b on b.id = a.prepared_by
 						left join employees c on c.id = a.requested_by
 						left join master_status_cashadvance d on d.id = a.status_id
 						left join data_project e on e.id = a.project_id
 						where a.ca_type = 2
+					)dt';*/
+
+		$mTable = '(select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+					, d.name as status_name, c.direct_id,
+					max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							c.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$karyawan_id.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$karyawan_id.' THEN 1  
+						ELSE 0 
+					END AS is_approver   
+					from cash_advance a left join employees b on b.id = a.prepared_by
+					left join employees c on c.id = a.requested_by
+					left join master_status_cashadvance d on d.id = a.status_id
+					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 2
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id)ao 
+					where ao.ca_type = 2
+					and (ao.prepared_by = '.$karyawan_id.' or ao.requested_by = '.$karyawan_id.' or ao.direct_id = '.$karyawan_id.' or ao.is_approver_view = 1) 
 					)dt';
+
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
 
 
 		$isdirect = 0;
@@ -751,6 +1002,35 @@ class Fpp_menu_model extends MY_Model
 		}
 
 		return [$dt,$row];
+	}
+
+
+	public function getMaxApproval($trx_id){ 
+		$post 		= $this->input->post(null, true);
+		
+
+		$approval_matrix_type_id = 2; //cash advance
+		$rs =  $this->db->query("select b.*, a.current_approval_level, c.role_name from approval_path a 
+				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id
+				left join approval_matrix_role c on c.id = b.role_id
+				where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = ".$trx_id." 
+				order by b.approval_level desc limit 1 ")->result();
+		
+
+		return $rs[0]->approval_level;
+	}
+
+	public function getCurrApproval($trx_id, $approval_level){
+		$post 		= $this->input->post(null, true);
+		
+
+		$approval_matrix_type_id = 2; //cash advance
+
+		
+		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
+		
+
+		return $rs;
 	}
 
 
