@@ -26,6 +26,12 @@
 				<?=$txtnominalbilling;?>
 			</div>
 		</div>
+		<div class="form-group" id="rfuReasonEdit" style="display: none;">
+			<label class="col-md-4 control-label no-padding-right">RFU Reason </label>
+			<div class="col-md-8">
+				<span class="rfu_reason_edit"></span>
+			</div>
+		</div>
 		
 	</div>
 	<div class="col-md-6 col-sm-12">
