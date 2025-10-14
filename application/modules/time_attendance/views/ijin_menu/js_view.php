@@ -48,12 +48,12 @@
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
-					Delete Ijin
+					Reject Ijin
 				</div>
 			</div>
 
 			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center">Are you sure to delete this Data?</p>
+				<p class="text-center">Are you sure to reject this Data?</p>
 				<input type="hidden" name="id" id="id" value="">
 				<input type="hidden" name="approval_level" id="approval_level" value="">
 			</div>

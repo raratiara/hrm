@@ -3981,6 +3981,113 @@ class Api extends API_Controller
     }
 
 
+    public function get_data_overtime()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	$employee			= $_REQUEST['employee']; //filter employee
+
+
+    	if($islogin_employee != ''){
+
+    		$where=""; 
+	    	if($employee != ''){
+	    		/*$where = " and a.employee_id = '".$employee."' ";*/
+	    		$where = " and ao.employee_id = '".$employee."' ";
+	    	}
+
+	    	
+
+
+	        $dataijin = $this->db->query('select ao.* from (select a.*, b.full_name,  b.direct_id,
+					(case 
+					when a.status_id = 1 then "Waiting Approval"
+					when a.status_id = 2 then "Approved"
+					when a.status_id = 3 then "Rejected"
+					else ""
+					end) as status_name,
+					(case 
+					when a.type = 1 then "Lembur Hari Kerja"
+					when a.type = 2 then "Kerja di Hari Libur"
+					else ""
+					end) as type_name,
+				    max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							b.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$islogin_employee.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$islogin_employee.' THEN 1  
+						ELSE 0 
+					END AS is_approver   
+					from overtimes a left join employees b on b.id = a.employee_id
+				    LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND (d2.approval_matrix_type_id = 5 or d2.approval_matrix_type_id = 6)
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id) ao
+					where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
+	                    '.$where.' ')->result();  
+
+
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $dataijin
+			];
+
+    	}else{
+    		$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Employee ID Login not found'
+			];
+    	}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
 
 }
 

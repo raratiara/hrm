@@ -526,7 +526,7 @@ class Ijin_menu_model extends MY_Model
 						)  ")->result(); 
 
 					if(empty($getmatrix)){
-						$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and leave_type_id = '".$leave_type_id."' and (min is null and max is null)  ")->result(); 
+						$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and leave_type_id = '".$leave_type_id."' and ((min is null or min = '') and (max is null or max = ''))  ")->result(); 
 					}
 
 					
@@ -1152,7 +1152,7 @@ class Ijin_menu_model extends MY_Model
 	}
 
 
-	public function getDataApprovalPath($id){ 
+	/*public function getDataApprovalPath($id){ 
 
 		$approval_matrix_type_id = 1;
 		$rs =  $this->db->query("select b.*, a.current_approval_level, c.role_name from approval_path a 
@@ -1162,7 +1162,7 @@ class Ijin_menu_model extends MY_Model
 
 		return $rs;
 
-	}
+	}*/
 
 
 }

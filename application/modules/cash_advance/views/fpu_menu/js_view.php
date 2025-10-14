@@ -34,7 +34,7 @@
 
 
 
-<!-- Modal Reject Data -->
+<!-- Modal RFU Data -->
 <div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true" style="padding-left: 600px">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">

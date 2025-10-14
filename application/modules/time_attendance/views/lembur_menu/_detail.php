@@ -66,6 +66,12 @@
 				: <span class="status"></span>
 			</div>
 		</div>
+		<div class="row" id="rejectReason" style="display: none;">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Reject Reason</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="reject_reason"></span>
+			</div>
+		</div>
 		
 	</div>
 </div>
