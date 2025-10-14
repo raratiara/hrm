@@ -53,14 +53,21 @@
 		: <span class="absence_type"></span>
 	</div>
 </div>
+
 <div class="row-flex">
-	<label class="col-md-3 control-label no-padding-right">Min</label>
+	<label class="col-md-3 control-label no-padding-right"></label>
+	<div class="col-md-9">
+		<span id="hdnsatuanview" style="font-size:12px"></span>
+	</div>
+</div>
+<div class="row-flex">
+	<label class="col-md-3 control-label no-padding-right">Min Value</label>
 	<div class="col-md-9">
 		: <span class="min"></span>
 	</div>
 </div>
 <div class="row-flex">
-	<label class="col-md-3 control-label no-padding-right">Max</label>
+	<label class="col-md-3 control-label no-padding-right">Max Value</label>
 	<div class="col-md-9">
 		: <span class="max"></span>
 	</div>

@@ -30,19 +30,26 @@ class Lembur_menu_model extends MY_Model
 			'dt.status_name',
 			'dt.direct_id',
 			'dt.type_name',
-			'dt.count_day'
+			'dt.count_day',
+			'dt.current_approval_level',
+			'dt.is_approver',
+			'dt.current_role_id',
+			'dt.current_role_name',
+			'dt.is_approver_view',
+			'dt.employee_id'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
 		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+			/*$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';*/
+			$whr=' where ao.employee_id = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1  ';
 		}
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name,  b.direct_id,
+		/*$sTable = '(select a.*, b.full_name,  b.direct_id,
 					(case 
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
@@ -56,7 +63,65 @@ class Lembur_menu_model extends MY_Model
 					end) as type_name  
 					from overtimes a left join employees b on b.id = a.employee_id
 					'.$whr.'
+				)dt';*/
+
+
+		$sTable = '(select ao.* from (select a.*, b.full_name,  b.direct_id,
+					(case 
+					when a.status_id = 1 then "Waiting Approval"
+					when a.status_id = 2 then "Approved"
+					when a.status_id = 3 then "Rejected"
+					else ""
+					end) as status_name,
+					(case 
+					when a.type = 1 then "Lembur Hari Kerja"
+					when a.type = 2 then "Kerja di Hari Libur"
+					else ""
+					end) as type_name,
+				    max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							b.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$karyawan_id.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$karyawan_id.' THEN 1  
+						ELSE 0 
+					END AS is_approver   
+					from overtimes a left join employees b on b.id = a.employee_id
+				    LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND (d2.approval_matrix_type_id = 5 or d2.approval_matrix_type_id = 6)
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id) ao
+					'.$whr.'
 				)dt';
+
 		
 
 		/* Paging */
@@ -197,6 +262,12 @@ class Lembur_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
+			$is_approver = 0;
+			if($row->is_approver == 1){
+				$is_approver = 1;
+			}
+
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				
@@ -204,8 +275,9 @@ class Lembur_menu_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				
-				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				if($row->status_name == 'Waiting Approval' && $karyawan_id == $row->employee_id){
+					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				}
 			}
 			$delete_bulk = "";
 			$delete = "";
@@ -217,12 +289,11 @@ class Lembur_menu_model extends MY_Model
 
 			$reject=""; 
 			$approve="";
-			if($row->status_name == 'Waiting Approval' && $row->direct_id == $direct_karyawan_id){
-				/*$reject = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
-				$approve = '<a class="btn btn-xs btn-warning" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';*/
-
-				$reject = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
-				$approve = '<a class="btn btn-xs btn-warning" style="background-color: #2c9e1fff; border-color: #2c9e1fff;" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
+			/*if($row->status_name == 'Waiting Approval' && $row->direct_id == $direct_karyawan_id){*/
+			if($row->status_name == 'Waiting Approval' && $is_approver == 1){
+			
+				$reject = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="reject('."'".$row->id."'".','."'".$row->current_approval_level."'".')" role="button"><i class="fa fa-times"></i></a>';
+				$approve = '<a class="btn btn-xs btn-warning" style="background-color: #2c9e1fff; border-color: #2c9e1fff;" href="javascript:void(0);" onclick="approve('."'".$row->id."'".','."'".$row->current_approval_level."'".')" role="button"><i class="fa fa-check"></i></a>';
 			}
 			
 
@@ -302,62 +373,140 @@ class Lembur_menu_model extends MY_Model
 	    return date('d',$days_diff);
 	}
 
+
+	public function getApprovalMatrix($work_location_id, $approval_type_id, $type='', $diff_day='', $trx_id){
+
+		if($work_location_id != '' && $approval_type_id != ''){
+			if($approval_type_id == 5 || $approval_type_id == 6){ ///Overtime Lembur Hari Kerja/Kerja di Hari Libur
+				
+					if($diff_day == ''){
+						$diff_day=0;
+					}
+					
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
+							(".$diff_day." >= min and ".$diff_day." <= max and min != '' and max != '') or
+							(".$diff_day." >= min and min != '' and max = '') or
+							(".$diff_day." <= max and max != '' and min = '')
+						)  ")->result(); 
+
+					if(empty($getmatrix)){ 
+						
+						$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))  ")->result(); 
+					}
+
+					
+					if(!empty($getmatrix)){
+						$approvalMatrixId = $getmatrix[0]->id;
+						if($approvalMatrixId != ''){
+							$dataApproval = [
+								'approval_matrix_type_id' 	=> $approval_type_id, //Absence
+								'trx_id' 					=> $trx_id,
+								'approval_matrix_id' 		=> $approvalMatrixId,
+								'current_approval_level' 	=> 1
+							];
+							$rs = $this->db->insert("approval_path", $dataApproval);
+							$approval_path_id = $this->db->insert_id();
+							if($rs){
+								$dataApprovalDetail = [
+									'approval_path_id' 	=> $approval_path_id, 
+									'approval_level' 	=> 1
+								];
+								$this->db->insert("approval_path_detail", $dataApprovalDetail);
+							}
+						}
+					}
+
+				
+			}
+
+		}
+
+	}
+
+
 	public function add_data($post) { 
 
 		if($post['type'] != '' && $post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
 
-			if($post['type'] == '1'){ //lembur hari kerja
+			$dataEmp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result(); 
+			if(!empty($dataEmp)){
+				if(!empty($dataEmp[0]->work_location)){
+					if($post['type'] == '1'){ //lembur hari kerja
 
-				$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
-				$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
-				/*$date_overtime = date('Y-m-d', strtotime($post['date']));*/
+						$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
+						$datetime_end = date('Y-m-d H:i:s', strtotime($post['datetime_end']));
+						/*$date_overtime = date('Y-m-d', strtotime($post['date']));*/
 
-				$start = strtotime($datetime_start);
-				$end = strtotime($datetime_end);
+						$start = strtotime($datetime_start);
+						$end = strtotime($datetime_end);
 
-				$selisihDetik = $end - $start;
-				$num_of_hour = floor($selisihDetik / 3600);
-				/*$menit = floor(($selisihDetik % 3600) / 60);*/
+						$selisihDetik = $end - $start;
+						$num_of_hour = floor($selisihDetik / 3600);
+						/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-				$biaya='50000';
-				$amount = $num_of_hour*$biaya;
+						$biaya='50000';
+						$amount = $num_of_hour*$biaya;
 
 
-				$data = [
-					/*'date_overtime' 			=> $date_overtime,*/
-					'type' 						=> trim($post['type']),
-					'employee_id' 				=> trim($post['employee']),
-					'datetime_start' 			=> $datetime_start,
-					'datetime_end' 				=> $datetime_end,
-					'num_of_hour' 				=> $num_of_hour,
-					'amount' 					=> $amount,
-					'reason' 					=> trim($post['reason']),
-					'status_id' 				=> 1,
-					'created_at'				=> date("Y-m-d H:i:s")
-				];
-			}else if($post['type'] == '2'){ //masuk di hari libur
+						$data = [
+							/*'date_overtime' 			=> $date_overtime,*/
+							'type' 						=> trim($post['type']),
+							'employee_id' 				=> trim($post['employee']),
+							'datetime_start' 			=> $datetime_start,
+							'datetime_end' 				=> $datetime_end,
+							'num_of_hour' 				=> $num_of_hour,
+							'amount' 					=> $amount,
+							'reason' 					=> trim($post['reason']),
+							'status_id' 				=> 1,
+							'created_at'				=> date("Y-m-d H:i:s")
+						];
 
-				$datetime_start = date('Y-m-d', strtotime($post['datetime_start']));
-				$datetime_end = date('Y-m-d', strtotime($post['datetime_end']));
+						$diff = $num_of_hour;
+					}else if($post['type'] == '2'){ //masuk di hari libur
 
-				$count_day = $this->dayCount($datetime_start, $datetime_end);
-				$data = [
-					/*'date_overtime' 			=> $date_overtime,*/
-					'type' 						=> trim($post['type']),
-					'employee_id' 				=> trim($post['employee']),
-					'datetime_start' 			=> $datetime_start,
-					'datetime_end' 				=> $datetime_end,
-					'count_day' 				=> $count_day,
-					'reason' 					=> trim($post['reason']),
-					'status_id' 				=> 1,
-					'created_at'				=> date("Y-m-d H:i:s")
-				];
+						$datetime_start = date('Y-m-d', strtotime($post['datetime_start']));
+						$datetime_end = date('Y-m-d', strtotime($post['datetime_end']));
+
+						$count_day = $this->dayCount($datetime_start, $datetime_end);
+						$data = [
+							/*'date_overtime' 			=> $date_overtime,*/
+							'type' 						=> trim($post['type']),
+							'employee_id' 				=> trim($post['employee']),
+							'datetime_start' 			=> $datetime_start,
+							'datetime_end' 				=> $datetime_end,
+							'count_day' 				=> $count_day,
+							'reason' 					=> trim($post['reason']),
+							'status_id' 				=> 1,
+							'created_at'				=> date("Y-m-d H:i:s")
+						];
+
+						$diff = $count_day;
+					}
+					
+					
+					$rs = $this->db->insert($this->table_name, $data);
+					$lastId = $this->db->insert_id();
+
+					if($rs){
+						///insert approval path
+						if($post['type'] == 1){
+							$approval_type_id = 5; //Overtime - Lembur Hari Kerja
+						}else{
+							$approval_type_id = 6; //Overtime - Kerja di Hari Libur
+						}
+						
+						$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $diff, $lastId);
+					}
+
+					return $rs; 
+				}else{
+					echo "Work Location not found"; die();
+				}
+			}else{
+				echo "Employee not found"; die();
 			}
-			
-			
-			$rs = $this->db->insert($this->table_name, $data);
 
-			return $rs; 
+			
 
 		}else return null;
 		

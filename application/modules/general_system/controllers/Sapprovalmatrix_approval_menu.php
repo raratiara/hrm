@@ -144,5 +144,16 @@ class Sapprovalmatrix_approval_menu extends MY_Controller
 	}
 
 
+	public function getSatuan(){
+		$post = $this->input->post(null, true);
+		$approval_type = $post['approval_type'];
+
+		$rs =  $this->db->query("select * from approval_matrix_mstype where id = '".$approval_type."' ")->result(); 
+		
+
+		echo json_encode($rs);
+	}
+
+
 
 }

@@ -24,13 +24,21 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-md-3 control-label no-padding-right">Min </label>
+		<label class="col-md-3 control-label no-padding-right">
+		</label>
+		<div class="col-md-9">
+			<span id="hdnsatuan" style="font-size:12px"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-md-3 control-label no-padding-right">Min Value
+		</label>
 		<div class="col-md-9">
 			<?=$txtmin;?>
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-md-3 control-label no-padding-right">Max </label>
+		<label class="col-md-3 control-label no-padding-right">Max Value</label>
 		<div class="col-md-9">
 			<?=$txtmax;?>
 		</div>

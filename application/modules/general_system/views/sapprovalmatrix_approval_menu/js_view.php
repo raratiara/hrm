@@ -142,6 +142,9 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
+					setSatuan(data.approval_type_id,'update');
+
+					
 
 					
 					$.uniform.update();
@@ -177,6 +180,8 @@ function load_data()
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
+
+					setSatuan(data.approval_type_id,'view');
 
 
 					$('#modal-view-data').modal('show');
@@ -361,7 +366,50 @@ $('#approval_type').on('change', function () {
  		$('#divAbsenceType').hide();
  	}
 
+
+ 	setSatuan(approval_type);
+	
 });
+
+
+function setSatuan(approval_type, mode=''){
+	$.ajax({
+		type: "POST",
+        url : module_path+'/getSatuan',
+		data: { approval_type: approval_type },
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        {  
+			if(data != null){ 	
+				var satuan = data[0].satuan;
+				var title = '(value in '+satuan+')';
+			} else { 
+				var title = '';
+			}
+
+			if(mode == 'view'){
+				$('span#hdnsatuanview').html(title);
+			}else{
+				$('span#hdnsatuan').html(title);
+			}
+
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+}
 
 
 
