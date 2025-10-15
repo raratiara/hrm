@@ -36,19 +36,26 @@ class Training_menu_model extends MY_Model
 			'dt.status_name',
 			'dt.direct_id',
 			'dt.file_sertifikat',
-			'dt.emp_code'
+			'dt.emp_code',
+			'dt.current_approval_level',
+			'dt.is_approver',
+			'dt.current_role_id',
+			'dt.current_role_name',
+			'dt.is_approver_view',
+			'dt.employee_id'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
 		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+			/*$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';*/
+			$whr = ' where ao.employee_id = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
 		}
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name, b.direct_id, b.emp_code,
+		/*$sTable = '(select a.*, b.full_name, b.direct_id, b.emp_code,
 					(case
 					when a.status_id = 1 then "Waiting Approval"
 					when a.status_id = 2 then "Approved"
@@ -57,7 +64,59 @@ class Training_menu_model extends MY_Model
 					 end) as status_name
 					from employee_training a left join employees b on b.id = a.employee_id
 					'.$whr.'
-				)dt';
+				)dt';*/
+
+		$sTable = '(select ao.* from (select a.*, b.full_name, b.direct_id, b.emp_code,
+						(case
+						when a.status_id = 1 then "Waiting Approval"
+						when a.status_id = 2 then "Approved"
+						when a.status_id = 3 then "Rejected"
+						when a.status_id = 4 then "Request for Update"
+						else ""
+						 end) as status_name,
+						max(d2.current_approval_level) AS current_approval_level,
+						max(h.role_id) AS current_role_id,
+						max(i.role_name) AS current_role_name,
+						GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+						max(
+							IF(
+								i.role_name = "Direct",
+								b.direct_id,
+								(
+									SELECT GROUP_CONCAT(employee_id) 
+									FROM approval_matrix_role_pic 
+									WHERE approval_matrix_role_id = h.role_id
+								)
+							)
+						) AS current_employeeid_approver,
+						CASE 
+							WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+							ELSE 0 
+						END AS is_approver_view,
+						CASE 
+							WHEN FIND_IN_SET(
+								'.$karyawan_id.', 
+								(
+									SELECT GROUP_CONCAT(employee_id) 
+									FROM approval_matrix_role_pic 
+									WHERE approval_matrix_role_id = max(h.role_id)
+								)
+							) > 0 THEN 1
+							WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$karyawan_id.' THEN 1  
+							ELSE 0 
+						END AS is_approver  
+						from employee_training a left join employees b on b.id = a.employee_id
+						LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 8
+						LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+						LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+						LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+						LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+						LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+						LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+						LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+						GROUP BY a.id) ao
+						'.$whr.'
+					)dt';
 
 		
 
@@ -198,13 +257,22 @@ class Training_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
+			$is_approver = 0;
+			if($row->is_approver == 1){
+				$is_approver = 1;
+			}
+
+
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				if(($row->status_name == 'Waiting Approval' || $row->status_name == 'Request for Update') && $row->employee_id == $karyawan_id){
+					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				}
 			}
 			$delete_bulk = "";
 			$delete = "";
@@ -215,9 +283,12 @@ class Training_menu_model extends MY_Model
 
 			$reject=""; 
 			$approve="";
-			if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){
-				$reject = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="reject('."'".$row->id."'".')" role="button"><i class="fa fa-times"></i></a>';
-				$approve = '<a class="btn btn-xs btn-warning" style="background-color: #2c9e1fff; border-color: #2c9e1fff;" href="javascript:void(0);" onclick="approve('."'".$row->id."'".')" role="button"><i class="fa fa-check"></i></a>';
+			$rfu="";
+			/*if($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id){*/
+			if($row->status_name == 'Waiting Approval' && $is_approver == 1){
+				$reject = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="reject('."'".$row->id."'".','."'".$row->current_approval_level."'".')" role="button"><i class="fa fa-times"></i></a>';
+				$approve = '<a class="btn btn-xs btn-warning" style="background-color: #2c9e1fff; border-color: #2c9e1fff;" href="javascript:void(0);" onclick="approve('."'".$row->id."'".','."'".$row->current_approval_level."'".')" role="button"><i class="fa fa-check"></i></a>';
+				$rfu = '<a class="btn btn-xs btn-warning" style="background-color: #fd9b00; border-color: #fd9b00;" href="javascript:void(0);" onclick="rfu('."'".$row->id."'".','."'".$row->current_approval_level."'".')" role="button">RFU</a>';
 			}
 
 			$file_sertifikat ="";
@@ -233,6 +304,7 @@ class Training_menu_model extends MY_Model
 					'.$edit.'
 					'.$reject.'
 					'.$approve.'
+					'.$rfu.'
 				</div>',
 				$row->id,
 				$row->full_name,
@@ -347,6 +419,50 @@ class Training_menu_model extends MY_Model
 	}
 
 
+	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $amount='', $trx_id){
+
+		if($work_location_id != '' && $approval_type_id != ''){
+			if($approval_type_id == 8){ ///Training
+				if($amount == ''){
+					$amount=0;
+				}
+				
+				$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
+						(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
+						(".$amount." >= min and min != '' and max = '') or
+						(".$amount." <= max and max != '' and min = '')
+					)  ")->result(); 
+
+				if(empty($getmatrix)){
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
+				}
+
+				
+				if(!empty($getmatrix)){
+					$approvalMatrixId = $getmatrix[0]->id;
+					if($approvalMatrixId != ''){
+						$dataApproval = [
+							'approval_matrix_type_id' 	=> $approval_type_id, 
+							'trx_id' 					=> $trx_id,
+							'approval_matrix_id' 		=> $approvalMatrixId,
+							'current_approval_level' 	=> 1
+						];
+						$rs = $this->db->insert("approval_path", $dataApproval);
+						$approval_path_id = $this->db->insert_id();
+						if($rs){
+							$dataApprovalDetail = [
+								'approval_path_id' 	=> $approval_path_id, 
+								'approval_level' 	=> 1
+							];
+							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+						}
+					}
+				}
+			}
+		}
+
+	}
+
 
 	public function add_data($post) { 
 
@@ -358,51 +474,71 @@ class Training_menu_model extends MY_Model
   		if(!empty($post['employee'])){ 
   			$dataemp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result();
 
-  			$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
-			// Cek apakah folder sudah ada
-			if (!is_dir($upload_dir)) {
-			    // Jika belum ada, buat folder
-			    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+			if(!empty($dataemp)){
+				if(!empty($dataemp[0]->work_location)){
+
+					$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
+					// Cek apakah folder sudah ada
+					if (!is_dir($upload_dir)) {
+					    // Jika belum ada, buat folder
+					    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
+					}
+
+
+					$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'doc_sertifikat', FALSE, '', TRUE, '');
+					$file_sertifikat = '';
+					if($upload_file_sertifikat['status']){
+						$file_sertifikat = $upload_file_sertifikat['upload_file'];
+					} else if(isset($upload_file_sertifikat['error_warning'])){
+						echo $upload_file_sertifikat['error_warning']; exit;
+					}
+
+
+
+		  			$data = [
+						'employee_id' 			=> trim($post['employee']),
+						'training_name' 		=> trim($post['training_name']),
+						'training_date'			=> $f_training_date,
+						'location' 				=> trim($post['location']),
+						'trainer' 				=> trim($post['trainer']),
+						'notes' 				=> trim($post['notes']),
+						'status_id' 			=> 1, //waiting approval
+						'created_at'			=> date("Y-m-d H:i:s"),
+						'file_sertifikat' 		=> $file_sertifikat
+						
+					];
+					$rs = $this->db->insert($this->table_name, $data);
+					$lastId = $this->db->insert_id();
+
+					if($rs){
+						///insert approval path
+						$approval_type_id = 8; //Training
+						$this->getApprovalMatrix($dataemp[0]->work_location, $approval_type_id, '', '', $lastId);
+					}
+
+					return $rs; 
+				}else{
+					echo "Work Location not found";
+				}
+			}else{
+				echo "Employee not found"; 
 			}
-
-
-			$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'doc_sertifikat', FALSE, '', TRUE, '');
-			$file_sertifikat = '';
-			if($upload_file_sertifikat['status']){
-				$file_sertifikat = $upload_file_sertifikat['upload_file'];
-			} else if(isset($upload_file_sertifikat['error_warning'])){
-				echo $upload_file_sertifikat['error_warning']; exit;
-			}
-
-
-
-  			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'training_name' 		=> trim($post['training_name']),
-				'training_date'			=> $f_training_date,
-				'location' 				=> trim($post['location']),
-				'trainer' 				=> trim($post['trainer']),
-				'notes' 				=> trim($post['notes']),
-				'status_id' 			=> 1, //waiting approval
-				'created_at'			=> date("Y-m-d H:i:s"),
-				'file_sertifikat' 		=> $file_sertifikat
-				
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-
-			return $rs; 
 
   		}else return null;
 
 	}  
 
 	public function edit_data($post) { 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$id = trim($post['id']);
+
+
 		$training_date 		= date_create($post['training_date']); 
 		$f_training_date	= date_format($training_date,"Y-m-d H:i:s");
 
 
 		if(!empty($post['id'])){ 
-
 			$dataemp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result();
 
   			$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
@@ -426,20 +562,63 @@ class Training_menu_model extends MY_Model
 			}
 
 
+			$is_rfu=0;
+			$getdata = $this->db->query("select * from employee_training where id = '".$post['id']."' ")->result(); 
+			if($getdata[0]->status_id == 4 && $karyawan_id == $getdata[0]->employee_id){ // edit RFU
+				$is_rfu=1;
+				$data = [
+					'employee_id' 			=> trim($post['employee']),
+					'training_name' 		=> trim($post['training_name']),
+					'training_date'			=> $f_training_date,
+					'location' 				=> trim($post['location']),
+					'trainer' 				=> trim($post['trainer']),
+					'notes' 				=> trim($post['notes']),
+					'updated_at'			=> date("Y-m-d H:i:s"),
+					'file_sertifikat' 		=> $file_sertifikat,
+					'status_id' 			=> 1
+					
+				];
+			}else{
+				$data = [
+					'employee_id' 			=> trim($post['employee']),
+					'training_name' 		=> trim($post['training_name']),
+					'training_date'			=> $f_training_date,
+					'location' 				=> trim($post['location']),
+					'trainer' 				=> trim($post['trainer']),
+					'notes' 				=> trim($post['notes']),
+					'updated_at'			=> date("Y-m-d H:i:s"),
+					'file_sertifikat' 		=> $file_sertifikat
+					
+				];
+			}
 
 
-			$data = [
-				'employee_id' 			=> trim($post['employee']),
-				'training_name' 		=> trim($post['training_name']),
-				'training_date'			=> $f_training_date,
-				'location' 				=> trim($post['location']),
-				'trainer' 				=> trim($post['trainer']),
-				'notes' 				=> trim($post['notes']),
-				'updated_at'			=> date("Y-m-d H:i:s"),
-				'file_sertifikat' 		=> $file_sertifikat
-				
-			];
+			
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			if($rs){
+				/// update approval path
+				$getapprovallevel = $this->db->query("select * from approval_path where approval_matrix_type_id = 8 and trx_id = '".$id."'")->result(); 
+				$approval_level = $getapprovallevel[0]->current_approval_level;
+				$CurrApproval 	= $this->getCurrApproval($id, $approval_level);
+				$CurrApprovalPathId	= $CurrApproval[0]->approval_path_id;
+
+				if($is_rfu == 1){
+					$updapproval_path = [
+						'current_approval_level' => 1
+					];
+					$this->db->update("approval_path", $updapproval_path, "id = '".$getapprovallevel[0]->id."' ");
+
+					$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
+
+					$updApproval2 = [
+						'status' 		=> "",
+						'approval_by' 	=> "",
+						'approval_date'	=> ""
+					];
+					$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
+					
+				}
+			}
 
 
 			return $rs;
@@ -517,6 +696,18 @@ class Training_menu_model extends MY_Model
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
+		return $rs;
+	}
+
+
+	public function getCurrApproval($trx_id, $approval_level){
+		
+		$approval_matrix_type_id = 8; //training
+
+		
+		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
+		
+
 		return $rs;
 	}
 
