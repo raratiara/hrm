@@ -578,33 +578,33 @@ function save_reject(){
 	        success: function(data)
 	        { 
 	        	
-				/*if(data != false){ 	
-					alert("The data has been successfully rejected.");
-				} else { 
-					alert("Failed to reject the data!");
-				}*/
+							/*if(data != false){ 	
+								alert("The data has been successfully rejected.");
+							} else { 
+								alert("Failed to reject the data!");
+							}*/
 
-				if (data != false) {
-				    Swal.fire({
-				        icon: 'success',
-				        title: 'Success!',
-				        text: 'The data has been successfully rejected.',
-				        timer: 5000,
-				        showConfirmButton: false
-				    }).then(() => {
-				        location.reload();
-				    });
-				} else {
-				    Swal.fire({
-				        icon: 'error',
-				        title: 'Failed!',
-				        text: 'Failed to reject the data!',
-				        timer: 5000,
-				        showConfirmButton: false
-				    }).then(() => {
-				        location.reload();
-				    });
-				}
+							if (data != false) {
+							    Swal.fire({
+							        icon: 'success',
+							        title: 'Success!',
+							        text: 'The data has been successfully rejected.',
+							        timer: 5000,
+							        showConfirmButton: false
+							    }).then(() => {
+							        location.reload();
+							    });
+							} else {
+							    Swal.fire({
+							        icon: 'error',
+							        title: 'Failed!',
+							        text: 'Failed to reject the data!',
+							        timer: 5000,
+							        showConfirmButton: false
+							    }).then(() => {
+							        location.reload();
+							    });
+							}
 
 
 	        },

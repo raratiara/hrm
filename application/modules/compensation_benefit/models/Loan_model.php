@@ -27,20 +27,42 @@ class Loan_model extends MY_Model
 		$aColumns = [
 			NULL,
 			NULL,
-			'a.id',
-			'b.full_name',
-			'a.nominal_pinjaman', 
-			'a.tenor', 
-			'a.sisa_tenor', 
-			'a.bunga_per_bulan', 
-			'a.nominal_cicilan_per_bulan',  
-			'IF(a.date_start_cicilan IS NULL,"",a.date_start_cicilan) as date_start_cicilan' 
+			'dt.id',
+			'dt.full_name',
+			'dt.nominal_pinjaman', 
+			'dt.tenor', 
+			'dt.sisa_tenor', 
+			'dt.bunga_per_bulan', 
+			'dt.nominal_cicilan_per_bulan',  
+			'dt.date_start_cicilan' ,
+			'dt.direct_id',
+			'dt.id_employee'
 		];
 
-		$sIndexColumn = 'a.'.$this->primary_key;
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+			$whr = ' where ao.id_employee = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" ';
+		}
+
+		/*$sIndexColumn = 'a.'.$this->primary_key;
 		$sTable = ' '.$this->table_name.' a
 					LEFT JOIN '.$this->table_karyawan.' b ON b.id=a.id_employee  
-					';
+					'.$whr.'
+					';*/
+
+		$sIndexColumn = $this->primary_key;
+		$sTable = '(SELECT ao.* 
+					FROM (
+					    select a.id, a.nominal_pinjaman, a.tenor, a.sisa_tenor, a.bunga_per_bulan, a.nominal_cicilan_per_bulan, a.id_employee, b.full_name, IF(a.date_start_cicilan IS NULL,"",a.date_start_cicilan) as date_start_cicilan,
+							b.direct_id
+							from loan a 
+							left join employees b on b.id = a.id_employee
+					) ao
+					'.$whr.'
+				)dt';
 			 
 
 		
