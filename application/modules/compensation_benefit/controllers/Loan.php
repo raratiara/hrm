@@ -25,9 +25,17 @@ class Loan extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{ 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
+		}
+
+
 		$field = [];
 
-		$oKaryawan 									= $this->db->query("select * from employees where status_id = 1  order by full_name asc")->result(); 
+		$oKaryawan 									= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['seloPic'] 							= $this->self_model->return_build_select2me($oKaryawan,'','','','id_employee','id_employee','','','id','full_name',' ','','','',3,'-');
 
 		$field['txt_nominal_pinjaman']				= $this->self_model->return_build_txt('','nominal_pinjaman','nominal_pinjaman');
