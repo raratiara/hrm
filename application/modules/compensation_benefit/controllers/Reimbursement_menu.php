@@ -15,11 +15,11 @@ class Reimbursement_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Date","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs","Status"];
+	public $tabel_header 			= ["ID","Date of Treatment","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Date","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs","Status"];
+	public $colnames 				= ["ID","Date of Treatment","Employee Name","Reimburs For","Atas Nama","Diagnosa","Nominal Billing","Nominal Reimburs","Status"];
 	public $colfields 				= ["id","date_reimbursment","employee_name","reimburse_for_name","atas_nama","diagnosa","nominal_billing","nominal_reimburse","status_name"];
 
 	/* Form Field Asset */
