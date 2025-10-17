@@ -29,23 +29,96 @@ class Request_recruitment_menu_model extends MY_Model
 			'dt.job_level_name',
 			'dt.status_emp',
 			'dt.requested_by_name',
-			'dt.status_name'
+			'dt.status_name',
+			'dt.current_approval_level',
+			'dt.is_approver',
+			'dt.current_role_id',
+			'dt.current_role_name',
+			'dt.is_approver_view',
+			'dt.requested_by',
+			'dt.direct_id'
 		];
 		
-		/*$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;*/
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where (ao.requested_by = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1) ';
+		}
 
 		$sIndexColumn = $this->primary_key;
 
 		
 
-		$sTable = '(select a.*, b.name as section_name, c.name as job_level_name, 
+		/*$sTable = '(select a.*, b.name as section_name, c.name as job_level_name, 
 					e.full_name as requested_by_name, e.direct_id,
 					(case when a.status = "waiting_approval" then "Waiting Approval" else a.status end) as status_name 
 					from request_recruitment a 
 					left join sections b on b.id = a.section_id
 					left join master_job_level c on c.id = a.job_level_id
-					left join employees e on e.id = a.requested_by)dt';
+					left join employees e on e.id = a.requested_by)dt';*/
+
+
+		$sTable = '(select ao.* from (select a.*, b.name as section_name, c.name as job_level_name, 
+					e.full_name as requested_by_name, e.direct_id,
+					(case when a.status = "draft" then "Draft"
+					when a.status = "waiting_approval" then "Waiting Approval"
+					when a.status = "approved" then "Approved"
+					when a.status = "rejected" then "Rejected"
+					when a.status = "cancelled" then "Cancelled"
+					when a.status = "closed" then "Closed"
+					else ""
+					end) as status_name,
+					max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							e.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$karyawan_id.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(e.direct_id) = '.$karyawan_id.' THEN 1  
+						ELSE 0 
+					END AS is_approver  
+					from request_recruitment a 
+					left join sections b on b.id = a.section_id
+					left join master_job_level c on c.id = a.job_level_id
+					left join employees e on e.id = a.requested_by
+					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 10
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id)ao 
+					'.$whr.'
+				)dt';
+
+
+
+
 		
 
 		/* Paging */
@@ -183,20 +256,30 @@ class Request_recruitment_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
+			$is_approver = 0;
+			if($row->is_approver == 1){
+				$is_approver = 1;
+			}
+
+
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				/*if($row->status_name == 'Waiting Approval' && $row->requested_by == $karyawan_id){*/
+				if($row->status_name == 'Waiting Approval' && $is_approver == 1){
+					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				}
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			/*if (_USER_ACCESS_LEVEL_DELETE == "1")  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
-			}
+			}*/
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -215,7 +298,7 @@ class Request_recruitment_menu_model extends MY_Model
 				$row->job_level_name,
 				$row->status_emp,
 				$row->requested_by_name,
-				ucwords($row->status_name)
+				$row->status_name
 				
 
 			));
@@ -296,7 +379,56 @@ class Request_recruitment_menu_model extends MY_Model
 	} 
 
 
+	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $amount='', $trx_id){
+
+		if($work_location_id != '' && $approval_type_id != ''){
+			if($approval_type_id == 10){ ///Request Recruitment
+				if($amount == ''){
+					$amount=0;
+				}
+				
+				$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
+						(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
+						(".$amount." >= min and min != '' and max = '') or
+						(".$amount." <= max and max != '' and min = '')
+					)  ")->result(); 
+
+				if(empty($getmatrix)){
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
+				}
+
+				
+				if(!empty($getmatrix)){
+					$approvalMatrixId = $getmatrix[0]->id;
+					if($approvalMatrixId != ''){
+						$dataApproval = [
+							'approval_matrix_type_id' 	=> $approval_type_id, //cash advance
+							'trx_id' 					=> $trx_id,
+							'approval_matrix_id' 		=> $approvalMatrixId,
+							'current_approval_level' 	=> 1
+						];
+						$rs = $this->db->insert("approval_path", $dataApproval);
+						$approval_path_id = $this->db->insert_id();
+						if($rs){
+							$dataApprovalDetail = [
+								'approval_path_id' 	=> $approval_path_id, 
+								'approval_level' 	=> 1
+							];
+							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+
 	public function add_data($post) { 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
 		$request_date 	= trim($post['request_date']);
 		$required_date 	= trim($post['required_date']);
 
@@ -313,78 +445,96 @@ class Request_recruitment_menu_model extends MY_Model
 
 		
   		if(!empty($post['subject'])){ 
-  			$data = [
-  				'request_number' 	=> $nextnum,
-				'subject' 			=> trim($post['subject']),
-				'request_date' 		=> date("Y-m-d", strtotime($request_date)),
-				'required_date' 	=> date("Y-m-d", strtotime($required_date)),
-				'section_id' 		=> trim($post['section']),
-				'headcount' 		=> trim($post['headcount']),
-				'job_level_id' 		=> trim($post['joblevel']),
-				'status_emp'		=> trim($post['empstatus']),
-				'justification' 	=> trim($post['justification']),
-				'requested_by'		=> trim($post['request_by']),
-				'status'			=> trim($post['status']),
-				'created_at'		=> date("Y-m-d H:i:s")
-			]; 
+  			$dataEmp = $this->db->query("select * from employees where id = '".$post['request_by']."'")->result(); 
+			if(!empty($dataEmp)){
+				if(!empty($dataEmp[0]->work_location)){
 
-			$rs = $this->db->insert($this->table_name, $data);
-			$lastId = $this->db->insert_id();
+					$data = [
+		  				'request_number' 	=> $nextnum,
+						'subject' 			=> trim($post['subject']),
+						'request_date' 		=> date("Y-m-d", strtotime($request_date)),
+						'required_date' 	=> date("Y-m-d", strtotime($required_date)),
+						'section_id' 		=> trim($post['section']),
+						'headcount' 		=> trim($post['headcount']),
+						'job_level_id' 		=> trim($post['joblevel']),
+						'status_emp'		=> trim($post['empstatus']),
+						'justification' 	=> trim($post['justification']),
+						'requested_by'		=> trim($post['request_by']),
+						'status'			=> trim($post['status']),
+						'created_at'		=> date("Y-m-d H:i:s")
+					]; 
 
-			if($rs){
-				if(isset($post['type'])){
-					$item_num = count($post['type']); // cek sum
-					$item_len_min = min(array_keys($post['type'])); // cek min key index
-					$item_len = max(array_keys($post['type'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
+					$rs = $this->db->insert($this->table_name, $data);
+					$lastId = $this->db->insert_id();
 
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						if(isset($post['type'][$i])){
-							$itemData = [
-								'request_recruitment_id' 	=> $lastId,
-								'requirement_type' 			=> trim($post['type'][$i]),
-								'requirement_text' 			=> trim($post['description'][$i])
-							];
+					if($rs){
 
-							$this->db->insert('recruitment_requirements', $itemData);
+						///insert approval path
+						$approval_type_id = 10; //request recruitment
+						$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', '', $lastId);
+
+
+
+						if(isset($post['type'])){
+							$item_num = count($post['type']); // cek sum
+							$item_len_min = min(array_keys($post['type'])); // cek min key index
+							$item_len = max(array_keys($post['type'])); // cek max key index
+						} else {
+							$item_num = 0;
 						}
-					}
-				}
 
+						if($item_num>0){
+							for($i=$item_len_min;$i<=$item_len;$i++) 
+							{
+								if(isset($post['type'][$i])){
+									$itemData = [
+										'request_recruitment_id' 	=> $lastId,
+										'requirement_type' 			=> trim($post['type'][$i]),
+										'requirement_text' 			=> trim($post['description'][$i])
+									];
 
-				// add job
-				if(isset($post['level_job'])){
-					$item_num2 = count($post['level_job']); // cek sum
-					$item_len_min2 = min(array_keys($post['level_job'])); // cek min key index
-					$item_len2 = max(array_keys($post['level_job'])); // cek max key index
-				} else {
-					$item_num2 = 0;
-				}
-
-				if($item_num2>0){
-					for($j=$item_len_min2;$j<=$item_len2;$j++) 
-					{
-						if(isset($post['level_job'][$j])){
-							$itemData2 = [
-								'request_recruitment_id' 	=> $lastId,
-								'priority_level' 			=> trim($post['level_job'][$j]),
-								'responsibility' 			=> trim($post['description_job'][$j])
-							];
-
-							$this->db->insert('recruitment_job_descriptions', $itemData2);
+									$this->db->insert('recruitment_requirements', $itemData);
+								}
+							}
 						}
+
+
+						// add job
+						if(isset($post['level_job'])){
+							$item_num2 = count($post['level_job']); // cek sum
+							$item_len_min2 = min(array_keys($post['level_job'])); // cek min key index
+							$item_len2 = max(array_keys($post['level_job'])); // cek max key index
+						} else {
+							$item_num2 = 0;
+						}
+
+						if($item_num2>0){
+							for($j=$item_len_min2;$j<=$item_len2;$j++) 
+							{
+								if(isset($post['level_job'][$j])){
+									$itemData2 = [
+										'request_recruitment_id' 	=> $lastId,
+										'priority_level' 			=> trim($post['level_job'][$j]),
+										'responsibility' 			=> trim($post['description_job'][$j])
+									];
+
+									$this->db->insert('recruitment_job_descriptions', $itemData2);
+								}
+							}
+						}
+
+
+
 					}
+
+					return $rs;
+
+				}else{
+					echo "Work Location not found"; 
 				}
-
-
-
+			}else{
+				echo "Employee not found"; 
 			}
-
-			return $rs;
 
   		}else return null;
 
@@ -506,19 +656,79 @@ class Request_recruitment_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.name as section_name, c.name as job_level_name, 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
+
+		/*$mTable = '(select a.*, b.name as section_name, c.name as job_level_name, 
 					e.full_name as requested_by_name, e.direct_id,
 					(case when a.status = "waiting_approval" then "Waiting Approval" else a.status end) as status_name 
 					from request_recruitment a 
 					left join sections b on b.id = a.section_id
 					left join master_job_level c on c.id = a.job_level_id
 					left join employees e on e.id = a.requested_by
-			)dt';
+			)dt';*/
+
+		$mTable = '(select ao.* from (select a.*, b.name as section_name, c.name as job_level_name, 
+					e.full_name as requested_by_name, e.direct_id,
+					(case when a.status = "draft" then "Draft"
+					when a.status = "waiting_approval" then "Waiting Approval"
+					when a.status = "approved" then "Approved"
+					when a.status = "rejected" then "Rejected"
+					when a.status = "cancelled" then "Cancelled"
+					when a.status = "closed" then "Closed"
+					else ""
+					end) as status_name,
+					max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							e.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$karyawan_id.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(e.direct_id) = '.$karyawan_id.' THEN 1  
+						ELSE 0 
+					END AS is_approver  
+					from request_recruitment a 
+					left join sections b on b.id = a.section_id
+					left join master_job_level c on c.id = a.job_level_id
+					left join employees e on e.id = a.requested_by
+					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 10
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id)ao 
+				)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
 
 
 		$isdirect = 0;

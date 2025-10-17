@@ -881,4 +881,141 @@ class Profile_menu extends MY_Controller
 
 
 
+ 	public function getPendinganApproval() {
+	    $getdata = $this->db->query("SELECT * FROM user WHERE user_id = '".$_SESSION['id']."'")->result(); 
+	    $karyawan_id = $getdata[0]->id_karyawan;
+
+	    $rs = $this->db->query("
+	        select dt.*
+	        FROM (
+	            SELECT 
+	                MAX(a.id) AS id,
+	                MAX(a.approval_path_id) AS approval_path_id,
+	                MAX(a.approval_level) AS approval_level,
+	                MAX(a.status) AS status,
+	                MAX(a.approval_by) AS approval_by,
+	                MAX(a.notes) AS notes,
+	                MAX(a.approval_date) AS approval_date,
+	                b.approval_matrix_type_id, 
+	                b.trx_id, 
+	                MAX(b.approval_matrix_id) AS approval_matrix_id,
+	                MAX(b.current_approval_level) AS current_approval_level,
+	                MAX(h.role_id) AS current_role_id,
+	                MAX(i.role_name) AS current_role_name,
+	                GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+	                MAX(
+	                    IF(
+	                        i.role_name = 'Direct',
+	                        'Direct',
+	                        (
+	                            SELECT GROUP_CONCAT(employee_id) 
+	                            FROM approval_matrix_role_pic 
+	                            WHERE approval_matrix_role_id = h.role_id
+	                        )
+	                    )
+	                ) AS current_employeeid_approver,
+	                CASE 
+	                    WHEN FIND_IN_SET(".$karyawan_id.", GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+	                    ELSE 0 
+	                END AS is_approver_view,
+	                CASE 
+	                    WHEN FIND_IN_SET(
+	                        ".$karyawan_id.", 
+	                        (
+	                            SELECT GROUP_CONCAT(employee_id) 
+	                            FROM approval_matrix_role_pic 
+	                            WHERE approval_matrix_role_id = MAX(h.role_id)
+	                        )
+	                    ) > 0 THEN 1
+	                    ELSE 0 
+	                END AS is_approver, 
+	                j.name AS menu_name, 
+	                j.tbl,
+	                j.link
+	            FROM approval_path_detail a 
+	            LEFT JOIN approval_path b ON b.id = a.approval_path_id
+	            LEFT JOIN approval_matrix bb ON bb.id = b.approval_matrix_id
+	            LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+	            LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+	            LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+	            LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = b.approval_matrix_id 
+	                AND h.approval_level = b.current_approval_level
+	            LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+	            LEFT JOIN approval_matrix_mstype j ON j.id = b.approval_matrix_type_id
+	            WHERE a.status = '' OR a.status IS NULL
+	            GROUP BY b.trx_id, b.approval_matrix_type_id
+	        ) dt
+	        ORDER BY dt.approval_path_id ASC
+	    ")->result();
+
+	    $dt = "";
+
+	    if (!empty($rs)) { 
+	        // Kelompokkan berdasarkan menu_name
+	        $grouped = [];
+	        foreach ($rs as $row) {
+	            $menu = $row->menu_name ?: 'Other';
+	            if (!isset($grouped[$menu])) {
+	                $grouped[$menu] = [
+	                    'link' => $row->link, 
+	                    'items' => []
+	                ];
+	            }
+	            $grouped[$menu]['items'][] = $row;
+	        }
+
+	        $ttl_pendingan_approval = count($rs);
+
+	        $dt .= '<li class="dropdown dropdown-notification">';
+	        $dt .= '
+	            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+	                <i class="fa fa-bell"></i>
+	                <span class="badge badge-danger">'.$ttl_pendingan_approval.'</span>
+	            </a>
+	            <ul class="dropdown-menu" style="width:250px">
+	                <li class="external">
+	                    <span class="bold">'.$ttl_pendingan_approval.' Pending Approval</span> 
+	                    
+	                </li>
+	                <br>
+	                <li>
+	                    <ul class="dropdown-menu-list scroller" style="height: 250px;" data-handle-color="#637283">';
+
+	        // Loop per menu_name
+	        foreach ($grouped as $menu => $data) {
+	            $total_menu = count($data['items']);
+	            $link = !empty($data['link']) ? base_url($data['link']) : 'javascript:void(0);';
+
+	            $dt .= '
+	                <li>
+	                    <a href="'.$link.'">
+	                        <span class="time" style="font-size:8px">'.$total_menu.' pending</span>
+	                        <span class="details">
+	                            <span class="label label-sm label-icon label-info">
+	                                <i class="fa fa-folder-open"></i>
+	                            </span>
+	                            <span style="font-size:10px">'.$menu.'</span>
+	                        </span>
+	                    </a>
+	                </li>';
+	        }
+
+	        $dt .= '
+	                    </ul>
+	                </li>
+	            </ul>
+	        ';
+	        $dt .= '</li>';
+	    }
+
+	    header('Content-Type: application/json');
+	    echo json_encode(['html' => $dt]);
+	}
+
+
+
+ 	
+
+
+
 }
