@@ -1,10 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Loan_model extends MY_Model
+class Hr_employee_loans_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name			= "compensation_benefit/loan";
+ 	protected $folder_name			= "hr_menu/hr_employee_loans";
  	protected $table_name 			= _PREFIX_TABLE."loan"; 
  	protected $table_karyawan 		= _PREFIX_TABLE."employees"; 
  	protected $primary_key 			= "id"; 
@@ -75,15 +75,6 @@ class Loan_model extends MY_Model
 					) ao
 					'.$whr.'
 				)dt';*/
-
-				/*(case 
-					when a.status_id = 1 then "Waiting Approval"
-					when a.status_id = 3 then "Rejected"
-					when a.status_id = 4 then "Menunggu Pencairan"
-					when a.status_id = 5 then "Pinjaman Berjalan"
-					when a.status_id = 6 then "Pinjaman Selesai"
-					else ""
-				end) as status_name,*/
 
 
 		$sTable = '(SELECT ao.* 
@@ -291,18 +282,20 @@ class Loan_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				if($row->status_name == 'Waiting Approval' && $row->employee_id == $karyawan_id){
+				if($row->status_name == 'Pinjaman Berjalan' && ($getdata[0]->id_groups == 1 || $getdata[0]->id_groups == 4)){ //superadmin / HR
 					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 				}
+				/*if($row->status_name == 'Waiting Approval' && $row->employee_id == $karyawan_id){
+					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				}*/
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			/*if (_USER_ACCESS_LEVEL_DELETE == "1")  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
-				/*$delete = '<a class="btn btn-xs btn-danger" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';*/
-
+				
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
-			}
+			}*/
 
 
 			$reject = "";
@@ -313,18 +306,24 @@ class Loan_model extends MY_Model
 			}
 
 
+			if ($row->status_name == 'Menunggu Pencairan') {
+				$update_pencairan = '<a class="btn btn-xs btn-warning" style="background-color: #FFA500;" href="javascript:void(0);" onclick="upd_pencairan('."'".$row->id."'".')" role="button">Update Pencairan</a>';
+			}
+			
+
+
 			
 			$nominal_pinjaman = number_format($row->nominal_pinjaman, 0, ',', '.');
 			$nominal_cicilan_per_bulan = number_format($row->nominal_cicilan_per_bulan, 0, ',', '.');
 
 			array_push($output["aaData"],array(
-				$delete_bulk,
+				
 				'<div class="action-buttons">
 					'.$detail.'
+					'.$reject.'
+					'.$approve.'
 					'.$edit.'
-					
-					' . $reject . '
-					' . $approve . '
+					'.$update_pencairan.'
 				</div>',
 				$row->id,
 				$row->full_name,
@@ -431,66 +430,50 @@ class Loan_model extends MY_Model
 	}
 
   
-	public function add_data($post) {   
-		$dataEmp = $this->db->query("select * from employees where id = '".$post['id_employee']."'")->result(); 
-		if(!empty($dataEmp)){
-			if(!empty($dataEmp[0]->work_location)){
-
-				$data = [
-					'id_employee' 	 				=> trim($post['id_employee']),
-					'nominal_pinjaman' 				=> trim($post['nominal_pinjaman']), 
-					'tenor' 						=> trim($post['tenor']),
-					/*'sisa_tenor' 					=> trim($post['sisa_tenor']),*/
-					'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
-					'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   
-					/*'date_pengajuan' 				=> date("Y-m-d", strtotime(trim($post['date_pengajuan']))),   
-					'date_persetujuan' 				=> date("Y-m-d", strtotime(trim($post['date_persetujuan']))),  
-					'date_pencairan' 				=> date("Y-m-d", strtotime(trim($post['date_pencairan']))),  
-					'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))), */   
-					'insert_by'						=> $_SESSION["username"],    
-					'insert_date'					=> date("Y-m-d H:i:s"),
-					'date_pengajuan'				=> date("Y-m-d H:i:s"),
-					'status_id' 					=> 1 //waiting approval
-				];
-
-				$rs = $this->db->insert($this->table_name, $data);
-				$lastId = $this->db->insert_id();
-
-				if($rs){
-					///insert approval path
-					$approval_type_id = 9; //Loan
-					$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', trim($post['nominal_pinjaman']), $lastId);
-				}
-
-				return $rs;
-
-			}else{
-				echo "Work Location not found";
-			}
-		}else{
-			echo "Employee not found"; 
-		}
-
-	}  
+	
 
 	public function edit_data($post) {   
 		if(!empty($post['id'])){  
 			$data = [ 
-				'id_employee' 	 				=> trim($post['id_employee']),
-				'nominal_pinjaman' 				=> trim($post['nominal_pinjaman']), 
-				'tenor' 						=> trim($post['tenor']),
-				'sisa_tenor' 					=> trim($post['sisa_tenor']),
-				'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
-				'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   
-				'date_pengajuan' 				=> date("Y-m-d", strtotime(trim($post['date_pengajuan']))),   
-				'date_persetujuan' 				=> date("Y-m-d", strtotime(trim($post['date_persetujuan']))),  
-				'date_pencairan' 				=> date("Y-m-d", strtotime(trim($post['date_pencairan']))),  
-				'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))),    
-				'update_by'						=> $_SESSION["username"] ,    
-				'update_date'					=> date("Y-m-d H:i:s")
+				'sisa_tenor' 	=> trim($post['sisa_tenor'] ?? ''),
+				'status_id' 	=> trim($post['status'] ?? ''),   
+				'update_date'	=> date("Y-m-d H:i:s")
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]); 
+
+
+			/// update detail pembbayaran
+			if(isset($post['hdnid'])){
+				$item_num = count($post['hdnid']); // cek sum
+				$item_len_min = min(array_keys($post['hdnid'])); // cek min key index
+				$item_len = max(array_keys($post['hdnid'])); // cek max key index
+			} else {
+				$item_num = 0;
+			}
+
+			if($item_num>0){
+				for($i=$item_len_min;$i<=$item_len;$i++) 
+				{
+					$hdnid = trim($post['hdnid'][$i]);
+
+					if(!empty($hdnid)){ //update
+
+						if(isset($post['hdnid'][$i])){
+							$itemData = [
+								'status' 	=> trim($post['status_bayar'][$i]),
+								'tgl_bayar' => trim($post['tgl_bayar'][$i])
+							];
+
+							$this->db->update("loan_detail", $itemData, "id = '".$hdnid."'");
+						}
+
+					}
+					
+				}
+			}
+
+
 
 			return $rs;
 
@@ -671,7 +654,7 @@ class Loan_model extends MY_Model
 
 		return [$dt,$row];
 	}
-	
+
 
 	/*
 	public function import_data($list_data)

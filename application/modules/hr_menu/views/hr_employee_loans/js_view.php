@@ -37,6 +37,44 @@
 </div>
 
 
+
+<!-- Modal approve Data -->
+<div id="modal-pencairan-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-approve-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content">
+			<form class="form-horizontal" id="frmPencairanData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Konfirmasi Pencairan
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center"> Apakah sudah melakukan pencairan pada pinjaman ini?</p>
+				<input type="hidden" name="id" id="id" value="">
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-approve-data" onclick="save_pencairan()">
+					<i class="fa fa-check"></i>
+					Ya, sudah
+				</button>
+				<button class="btn red" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Belum
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
 <!-- Modal Reject Data -->
 <div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true" style="padding-left: 600px">
 	<div class="vertical-alignment-helper">
@@ -135,10 +173,7 @@ var wcount = 0; //for ca list row identify
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#date_pengajuan" ).datepicker();
-        $( "#date_persetujuan" ).datepicker();
-        $( "#date_pencairan" ).datepicker();
-        $( "#date_start_cicilan" ).datepicker();
+        $( ".tgl_bayar" ).datepicker();
 		
    	});
 });
@@ -257,7 +292,7 @@ function load_data()
 					$('[name="tenor"]').val(data.tenor); 
 					$('[name="sisa_tenor"]').val(data.sisa_tenor); 
 					$('[name="bunga_per_bulan"]').val(data.bunga_per_bulan); 
-					$('[name="nominal_cicilan_per_bulan"]').val(data.nominal_cicilan_per_bulan); 
+					$('[name="teks_nominal_cicilan_per_bulan"]').val(data.nominal_cicilan_per_bulan); 
 					$('[name="date_pengajuan"]').val(data.date_pengajuan);
 					$('[name="date_persetujuan"]').val(data.date_persetujuan);
 					$('[name="date_pencairan"]').val(data.date_pencairan);
@@ -268,11 +303,19 @@ function load_data()
 					document.getElementById('btnApprovalLog').style.display = 'block';
 
 
+					if(data.status_id == 5){ //pinjaman berjalan
+						document.getElementById('inpStatus').style.display = 'block';
+						$('select#status').val(data.status_id).trigger('change.select2');
+						document.getElementById('listPembayaran').style.display = 'block';
+					}
+
 					if(data.status_id == 5 || data.status_id == 6){
 						document.getElementById('listPembayaran').style.display = 'block'; 
 					}else{
 						document.getElementById('listPembayaran').style.display = 'none';
 					}
+					
+
 
 
 					$.ajax({type: 'post',url: module_path+'/genexpensesrow',data: { id:data.id},success: function (response) {
@@ -286,6 +329,7 @@ function load_data()
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
+					
 
 					
 					$.uniform.update();
@@ -318,7 +362,6 @@ function load_data()
 					}
 
 
-
 					if(data.status_id == 5 || data.status_id == 6){
 						document.getElementById('listPembayaranView').style.display = 'block'; 
 					}else{
@@ -338,7 +381,6 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
-					
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -372,37 +414,6 @@ function load_data()
     });
 }
 <?php } ?> 
-
-
-
-$(document).on("keyup", "#nominal_pinjaman", function() {
-	var nominal_pinjaman = parseFloat($("#nominal_pinjaman").val().replace(/,/g, '')) || 0;
-	var tenor = parseFloat($("#tenor").val()) || 1;
-	var bunga = parseFloat($("#bunga_per_bulan").val()) || 0; ///0.01; // 1% per bulan
-
-	// Rumus bunga flat
-	var total = nominal_pinjaman + (nominal_pinjaman * bunga * tenor);
-	var cicilan = total / tenor;
-
-	cicilan = Math.ceil(cicilan);
-	$("#teks_nominal_cicilan_per_bulan").val(cicilan.toLocaleString('id-ID'));
-	$("#nominal_cicilan_per_bulan").val(cicilan);
-});
-
-
-$(document).on("keyup", "#tenor", function() {
-	var nominal_pinjaman = parseFloat($("#nominal_pinjaman").val().replace(/,/g, '')) || 0;
-	var tenor = parseFloat($("#tenor").val()) || 1;
-	var bunga = parseFloat($("#bunga_per_bulan").val()) || 0; ///0.01; // 1% per bulan
-
-	// Rumus bunga flat
-	var total = nominal_pinjaman + (nominal_pinjaman * bunga * tenor);
-	var cicilan = total / tenor;
-
-	cicilan = Math.ceil(cicilan);
-	$("#teks_nominal_cicilan_per_bulan").val(cicilan.toLocaleString('id-ID'));
-	$("#nominal_cicilan_per_bulan").val(cicilan);
-});
 
 
 function reject(id, approval_level){
@@ -540,6 +551,88 @@ function save_approve(){
 				        icon: 'error',
 				        title: 'Failed!',
 				        text: 'Failed to approve the data!',
+				        timer: 5000,
+				        showConfirmButton: false
+				    }).then(() => {
+				        location.reload();
+				    });
+				}
+
+
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+	}else{
+		/*alert("Data not found!");*/
+
+		Swal.fire({
+	        icon: 'error',
+	        title: 'Failed!',
+	        text: 'Data not found!',
+	        timer: 5000,
+	        showConfirmButton: false
+	    }).then(() => {
+	        location.reload();
+	    });
+	}
+
+	
+}
+
+
+function upd_pencairan(id){
+
+	$('#modal-pencairan-data').modal('show');
+	$('[name="id"]').val(id);
+
+}
+
+
+
+function save_pencairan(){
+	var id 	= $("#id").val();
+	
+
+	$('#modal-pencairan-data').modal('hide');
+	
+	if(id != ''){ 
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/pencairan',
+			data: { id: id },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+
+				if (data != false) {
+				    Swal.fire({
+				        icon: 'success',
+				        title: 'Success!',
+				        text: 'The data has been successfully updated.',
+				        timer: 5000,
+				        showConfirmButton: false
+				    }).then(() => {
+				        location.reload();
+				    });
+				} else {
+				    Swal.fire({
+				        icon: 'error',
+				        title: 'Failed!',
+				        text: 'Failed to update the data!',
 				        timer: 5000,
 				        showConfirmButton: false
 				    }).then(() => {

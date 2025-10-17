@@ -715,7 +715,7 @@ class MY_Model extends CI_Model {
 		return $data;
 	}
 
-	public function return_build_txtdate($val='', $var_name, $id_name='', $addclass='', $addstyle='')
+	public function return_build_txtdate($val='', $var_name, $id_name='', $addclass='', $addstyle='', $attrib='')
 	{ 
 		if($var_name == 'date_pekerjaan'){
 			if($val == ''){
@@ -735,7 +735,7 @@ class MY_Model extends CI_Model {
 			$style = " style=\"".$addstyle."\"";
 		}
 			$data .= "<div class=\"input-group date date-picker\" data-date-format=\"dd-mm-yyyy\">
-					<input type=\"text\" class=\"form-control ".$addclass."\"".$style." name=\"".$var_name."\"".$idname." type=\"text\" value=\"".$val."\" >
+					<input type=\"text\" class=\"form-control ".$addclass."\"".$style." name=\"".$var_name."\"".$idname." type=\"text\" value=\"".$val."\" ".$attrib.">
 					<span class=\"input-group-btn picker\">
 						<button class=\"btn default\" type=\"button\">
 							<i class=\"fa fa-calendar\"></i>

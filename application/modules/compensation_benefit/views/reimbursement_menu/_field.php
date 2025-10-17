@@ -2,7 +2,7 @@
 	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Date</label>
+			<label class="col-md-4 control-label no-padding-right"> Date of Treatment</label>
 			<div class="col-md-8">
 				<?=$txtdate;?>
 			</div>

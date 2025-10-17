@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Loan extends MY_Controller
+class Hr_employee_loans extends MY_Controller
 { 
 	/* Module */
- 	const  LABELMODULE				= "loan"; // identify menu
- 	const  LABELMASTER				= "Pinjaman";
- 	const  LABELFOLDER				= "compensation_benefit"; // module folder
- 	const  LABELPATH				= "loan"; // controller file (lowercase)
+ 	const  LABELMODULE				= "hr_employee_loans"; // identify menu
+ 	const  LABELMASTER				= "Pinjaman Karyawan";
+ 	const  LABELFOLDER				= "hr_menu"; // module folder
+ 	const  LABELPATH				= "hr_employee_loans"; // controller file (lowercase)
  	const  LABELNAVSEG1				= ""; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= ""; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -38,18 +38,20 @@ class Loan extends MY_Controller
 		$bunga = 0;
 
 		$oKaryawan 									= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
-		$field['seloPic'] 							= $this->self_model->return_build_select2me($oKaryawan,'','','','id_employee','id_employee','','','id','full_name',' ','','','',3,'-');
+		$field['seloPic'] 							= $this->self_model->return_build_select2me($oKaryawan,'','','','id_employee','id_employee','','','id','full_name',' ','','','disabled',3,'-');
 
-		$field['txt_nominal_pinjaman']				= $this->self_model->return_build_txt('','nominal_pinjaman','nominal_pinjaman');
-		$field['txt_tenor'] 						= $this->self_model->return_build_txt('','tenor','tenor');
-		$field['txt_sisa_tenor'] 					= $this->self_model->return_build_txt('','sisa_tenor','sisa_tenor','','','readonly');
+		$field['txt_nominal_pinjaman']				= $this->self_model->return_build_txt('','nominal_pinjaman','nominal_pinjaman','','','readonly');
+		$field['txt_tenor'] 						= $this->self_model->return_build_txt('','tenor','tenor','','','readonly');
+		$field['txt_sisa_tenor'] 					= $this->self_model->return_build_txt('','sisa_tenor','sisa_tenor');
 		$field['txt_bunga_per_bulan'] 				= $this->self_model->return_build_txt($bunga,'bunga_per_bulan','bunga_per_bulan','','','readonly');
 		$field['txt_nominal_cicilan_per_bulan']  	= $this->self_model->return_build_txt('','teks_nominal_cicilan_per_bulan','teks_nominal_cicilan_per_bulan','','','readonly');
 		$field['txt_date_pengajuan'] 				= $this->self_model->return_build_txtdate('','date_pengajuan','date_pengajuan','','','disabled');
 		$field['txt_date_persetujuan'] 				= $this->self_model->return_build_txtdate('','date_persetujuan','date_persetujuan','','','disabled');
 		$field['txt_date_pencairan'] 				= $this->self_model->return_build_txtdate('','date_pencairan','date_pencairan','','','disabled');
 		$field['txt_date_start_cicilan'] 			= $this->self_model->return_build_txtdate('','date_start_cicilan','date_start_cicilan','','','disabled');
-		$field['reject_reason']	= $this->self_model->return_build_txtarea('','reject_reason','reject_reason');
+
+		$msStatusLoan 								= $this->db->query("select * from master_status_loan where id in ('5','6')")->result(); 
+		$field['selStatus'] 						= $this->self_model->return_build_select2me($msStatusLoan,'','','','status','status','','','id','name',' ','','','',3,'-');
 
 
   
@@ -103,7 +105,6 @@ class Loan extends MY_Controller
  	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
 	//============================== Additional Method ==============================//
-
 
 
  	public function reject(){
@@ -239,13 +240,62 @@ class Loan extends MY_Controller
 		return $rs;
 	}
 
+
+
+	public function pencairan(){
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+
+
+		$post = $this->input->post(null, true);
+		$id = $post['id'];
+		$date_pencairan = date("Y-m-d H:i:s");
+		$date_start_cicilan = date("Y-m-d", strtotime("+1 month", strtotime($date_pencairan)));
+		
+
+		if($id != ''){
+			$dataLoan 	= $this->db->query("select * from loan where id = '".$id."'")->result();
+			$tenor 		= $dataLoan[0]->tenor;
+
+			$data = [
+				'status_id' 			=> 5, //Pinjaman Berjalan
+				'date_pencairan'		=> $date_pencairan,
+				'date_start_cicilan'	=> $date_start_cicilan
+			];
+			$rs = $this->db->update('loan', $data, "id = '".$id."'");
+			if($rs){
+				for($i=1; $i<=$tenor; $i++){
+					$tgl_jatuh_tempo = date("Y-m-d", strtotime("+".$i." month", strtotime($date_pencairan)));
+
+					$data_detail = [
+						'loan_id' 	 		=> $id,
+						'cicilan_ke' 		=> $i, 
+						'tgl_jatuh_tempo' 	=> $tgl_jatuh_tempo,
+						'status' 			=> 'Belum'
+					];
+
+					$this->db->insert('loan_detail', $data_detail);
+				}
+			}
+			
+		}else{
+			$rs=null;
+		}
+
+		echo json_encode($rs);
+
+	}
+
+
 	public function getApprovalLog() {
 	    $post = $this->input->post(null, true);
 	    $id = $post['id'];
 	    $approval_matrix_type_id = 9; //Loan
 
 
-		$dataLoan = $this->db->query("select * from loan where id = '".$id."'")->result();
+
+	    $dataLoan = $this->db->query("select * from loan where id = '".$id."'")->result(); 
+	   
 
 	   
 	    $query = "
@@ -283,7 +333,6 @@ class Loan extends MY_Controller
 	            $dt .= '</tr>';
 	        }
 
-
 	        if($dataLoan[0]->status_id == '4'){ ///Menunggu Pencairan
 		    	$dt .= '<tr>';
 	            $dt .= '<td></td>';
@@ -300,7 +349,6 @@ class Loan extends MY_Controller
 	            $dt .= '<td>'.$dataLoan[0]->date_pencairan.'</td>';
 	            $dt .= '</tr>';
 		    }
-
 
 	    } else {
 	        $dt .= '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';

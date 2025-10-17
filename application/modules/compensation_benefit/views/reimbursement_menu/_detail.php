@@ -2,7 +2,7 @@
 	
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date of Treatment</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="date"></span>
 			</div>
