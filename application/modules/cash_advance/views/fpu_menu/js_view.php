@@ -316,10 +316,10 @@ function load_data()
 					$('select#requested_by').val(data.rowdata.requested_by).trigger('change.select2');
 					$('[name="total_cost"]').val(data.rowdata.total_cost);
 					var total_cost_terbilang = terbilang(data.rowdata.total_cost);
-      				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
-      				$('select#project').val(data.rowdata.project_id).trigger('change.select2');
+  				$('[name="total_cost_terbilang"]').val(total_cost_terbilang);
+  				$('select#project').val(data.rowdata.project_id).trigger('change.select2');
 
-      				$('[name="hdndoc"]').val(data.rowdata.document);
+  				$('[name="hdndoc"]').val(data.rowdata.document);
 					/*if(data.rowdata.document != '' && data.rowdata.document != null){
 						$('span.file_doc').html('<img src="'+baseUrl+'/uploads/cashadvance/fpu/'+data.rowdata.document+'" width="150" height="150" >');
 					}else{
@@ -681,7 +681,7 @@ function save_reject(){
 	if(id != ''){
 		$.ajax({
 			type: "POST",
-	        url : module_path+'/reject',
+	    url : module_path+'/reject',
 			data: { id: id, reason:reason, approval_level:approval_level },
 			cache: false,		
 	        dataType: "JSON",
