@@ -83,7 +83,7 @@
 
 <button href="#tabrequirement" data-toggle="tab" class="accordion" id="accordion_requirement">Requirement Details</button>
 
-<div class="panel" id="tabrequirement">
+<div class="panel" id="tabrequirement" style="margin-top: 10px;">
 	<div class="row requirement">
 	    <div class="col-md-12">
 			<div class="portlet box">
