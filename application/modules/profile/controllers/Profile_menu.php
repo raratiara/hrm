@@ -881,8 +881,9 @@ class Profile_menu extends MY_Controller
 
 
 
- 	public function getPendinganApproval() {
-	    $getdata = $this->db->query("SELECT * FROM user WHERE user_id = '".$_SESSION['id']."'")->result(); 
+ 	public function getPendinganApproval()
+	{
+	    $getdata = $this->db->query("select * FROM user WHERE user_id = ?", [$_SESSION['id']])->result(); 
 	    $karyawan_id = $getdata[0]->id_karyawan;
 
 	    $rs = $this->db->query("
@@ -930,7 +931,7 @@ class Profile_menu extends MY_Controller
 	                    ELSE 0 
 	                END AS is_approver, 
 	                j.name AS menu_name, 
-	                j.tbl,
+	                j.tbl, j.tbl_employee_id,
 	                j.link
 	            FROM approval_path_detail a 
 	            LEFT JOIN approval_path b ON b.id = a.approval_path_id
@@ -951,20 +952,40 @@ class Profile_menu extends MY_Controller
 	    $dt = "";
 
 	    if (!empty($rs)) { 
-	        // Kelompokkan berdasarkan menu_name
 	        $grouped = [];
-	        foreach ($rs as $row) {
-	            $menu = $row->menu_name ?: 'Other';
-	            if (!isset($grouped[$menu])) {
-	                $grouped[$menu] = [
-	                    'link' => $row->link, 
-	                    'items' => []
-	                ];
+	        foreach ($rs as $row) { 
+
+	            // Ambil data sumber dari tabel terkait
+	            $dataSrc = $this->db->query("
+	                select a.*, b.direct_id 
+	                FROM {$row->tbl} a 
+	                LEFT JOIN employees b ON b.id = {$row->tbl_employee_id}
+	                WHERE a.id = ?
+	            ", [$row->trx_id])->result();
+
+	            // Pastikan ada data
+	            if (!empty($dataSrc)) {
+	                $direct_id = $dataSrc[0]->direct_id ?? null;
+
+	                //FILTER: hanya tampilkan jika direct_id = karyawan_id ATAU is_approver = 1
+	                if (($row->current_role_name == 'Direct' && $direct_id == $karyawan_id) || $row->is_approver == 1) {
+
+	                    $menu = $row->menu_name ?: 'Other';
+	                    if (!isset($grouped[$menu])) {
+	                        $grouped[$menu] = [
+	                            'link' => $row->link, 
+	                            'items' => []
+	                        ];
+	                    }
+	                    $grouped[$menu]['items'][] = $row;
+	                }
 	            }
-	            $grouped[$menu]['items'][] = $row;
 	        }
 
-	        $ttl_pendingan_approval = count($rs);
+	        $ttl_pendingan_approval = 0;
+	        foreach ($grouped as $menu => $data) {
+	            $ttl_pendingan_approval += count($data['items']);
+	        }
 
 	        $dt .= '<li class="dropdown dropdown-notification">';
 	        $dt .= '
@@ -975,13 +996,11 @@ class Profile_menu extends MY_Controller
 	            <ul class="dropdown-menu" style="width:250px">
 	                <li class="external">
 	                    <span class="bold">'.$ttl_pendingan_approval.' Pending Approval</span> 
-	                    
 	                </li>
 	                <br>
 	                <li>
 	                    <ul class="dropdown-menu-list scroller" style="height: 250px;" data-handle-color="#637283">';
 
-	        // Loop per menu_name
 	        foreach ($grouped as $menu => $data) {
 	            $total_menu = count($data['items']);
 	            $link = !empty($data['link']) ? base_url($data['link']) : 'javascript:void(0);';
@@ -1011,10 +1030,6 @@ class Profile_menu extends MY_Controller
 	    header('Content-Type: application/json');
 	    echo json_encode(['html' => $dt]);
 	}
-
-
-
- 	
 
 
 
