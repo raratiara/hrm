@@ -2285,6 +2285,39 @@ class Api extends API_Controller
     }
 
 
+    public function get_data_project()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	/*$employee	= $_REQUEST['employee'];
+
+    	$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}*/
+
+    	$datamaster = $this->db->query("select * from data_project ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
     public function get_master_status_tasklist()
     { 
     	$this->verify_token();

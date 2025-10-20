@@ -104,8 +104,11 @@
     });
 
 
-    function getPendinganApproval(){
-        path = 'http://localhost/_hrm/profile/profile_menu';
+    function getPendinganApproval(){ 
+        var baseUrl = "<?php echo base_url($base_url); ?>"; 
+        var path = baseUrl+'profile/profile_menu';
+
+
 
         $.ajax({
             type: "POST",
