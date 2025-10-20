@@ -2228,10 +2228,11 @@ class Api extends API_Controller
     		$where = " where a.employee_id = '".$employee."' ";
     	}
 
-    	$datatasklist = $this->db->query("select a.id, a.employee_id, b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.status_id, a.parent_id, b.direct_id
+    	$datatasklist = $this->db->query("select a.id, a.employee_id, b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.status_id, a.parent_id, b.direct_id, a.solve_date, a.project_id, e.title as project_name, a.open_date, a.progress_date, a.description
 					from tasklist a left join employees b on b.id = a.employee_id
 					left join tasklist c on c.id = a.parent_id
 					left join master_tasklist_status d on d.id = a.status_id
+					left join data_project e on e.id = a.project_id
 				
                     ".$where." ")->result();  
 
@@ -2935,7 +2936,7 @@ class Api extends API_Controller
 
 	}
 
-	public function get_pendingan_approval(){
+	public function get_pendingan_approval_old(){
 
 		$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
@@ -2969,6 +2970,151 @@ class Api extends API_Controller
 					'message' 			=> 'Success',
 					'data_pendingan' 	=> $data_pendingan
 				];
+				
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Require not satisfied'
+				];
+			}
+
+		}else{
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+	}
+
+
+	public function get_pendingan_approval(){
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+
+		if(!empty($_REQUEST)){
+			$employee 	= $_REQUEST['employee'];
+
+			if($employee != ''){
+				
+				$rs = $this->db->query("select dt.*
+								        FROM (
+								            SELECT 
+								                MAX(a.id) AS id,
+								                MAX(a.approval_path_id) AS approval_path_id,
+								                MAX(a.approval_level) AS approval_level,
+								                MAX(a.status) AS status,
+								                MAX(a.approval_by) AS approval_by,
+								                MAX(a.notes) AS notes,
+								                MAX(a.approval_date) AS approval_date,
+								                b.approval_matrix_type_id, 
+								                b.trx_id, 
+								                MAX(b.approval_matrix_id) AS approval_matrix_id,
+								                MAX(b.current_approval_level) AS current_approval_level,
+								                MAX(h.role_id) AS current_role_id,
+								                MAX(i.role_name) AS current_role_name,
+								                GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+								                MAX(
+								                    IF(
+								                        i.role_name = 'Direct',
+								                        'Direct',
+								                        (
+								                            SELECT GROUP_CONCAT(employee_id) 
+								                            FROM approval_matrix_role_pic 
+								                            WHERE approval_matrix_role_id = h.role_id
+								                        )
+								                    )
+								                ) AS current_employeeid_approver,
+								                CASE 
+								                    WHEN FIND_IN_SET(".$employee.", GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+								                    ELSE 0 
+								                END AS is_approver_view,
+								                CASE 
+								                    WHEN FIND_IN_SET(
+								                        ".$employee.", 
+								                        (
+								                            SELECT GROUP_CONCAT(employee_id) 
+								                            FROM approval_matrix_role_pic 
+								                            WHERE approval_matrix_role_id = MAX(h.role_id)
+								                        )
+								                    ) > 0 THEN 1
+								                    ELSE 0 
+								                END AS is_approver, 
+								                j.name AS menu_name, 
+								                j.tbl, j.tbl_employee_id,
+								                j.link
+								            FROM approval_path_detail a 
+								            LEFT JOIN approval_path b ON b.id = a.approval_path_id
+								            LEFT JOIN approval_matrix bb ON bb.id = b.approval_matrix_id
+								            LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+								            LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+								            LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+								            LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = b.approval_matrix_id 
+								                AND h.approval_level = b.current_approval_level
+								            LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+								            LEFT JOIN approval_matrix_mstype j ON j.id = b.approval_matrix_type_id
+								            WHERE a.status = '' OR a.status IS NULL
+								            GROUP BY b.trx_id, b.approval_matrix_type_id
+								        ) dt
+								        ORDER BY dt.approval_path_id ASC")->result(); 
+
+
+
+
+				
+	             $grouped = [];
+
+	            foreach ($rs as $row) {
+	                // Ambil data sumber tabel dinamis
+	                $dataSrc = $this->db->query("
+	                    SELECT a.id, b.direct_id
+	                    FROM {$row->tbl} a
+	                    LEFT JOIN employees b ON b.id = {$row->tbl_employee_id}
+	                    WHERE a.id = ?
+	                ", [$row->trx_id])->result();
+
+	                if (!empty($dataSrc)) {
+	                    $direct_id = $dataSrc[0]->direct_id ?? null;
+
+	                    // Filter sesuai kondisi Direct dan approver
+	                    if (($row->current_role_name == 'Direct' && $direct_id == $employee) || $row->is_approver == 1) {
+	                        $menu = $row->menu_name ?: 'Other';
+	                        if (!isset($grouped[$menu])) {
+	                            $grouped[$menu] = 0;
+	                        }
+	                        $grouped[$menu]++;
+	                    }
+	                }
+	            }	
+
+	             // Ubah ke format array sederhana
+	            $result = [];
+	            foreach ($grouped as $menu => $count) {
+	                $result[] = [
+	                    'description' => $menu,
+	                    'total_pendingan_approval' => $count
+	                ];
+	            }
+				
+				$response = [
+	                'status' => 200,
+	                'message' => 'Success',
+	                'data' => $result
+	            ];
 				
 			}else{
 				$response = [
