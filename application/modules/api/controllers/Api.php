@@ -1375,24 +1375,34 @@ class Api extends API_Controller
 	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $diff_day='', $trx_id){
 
 		if($work_location_id != '' && $approval_type_id != ''){
-			if($approval_type_id == 1){ ///Absence
-				if($leave_type_id != ''){ 
+			//if($approval_type_id == 1){ ///Absence
+				//if($leave_type_id != ''){ 
+					$whr_leavetype = "";
+					if($approval_type_id == 1){ ///Absence
+						$whr_leavetype = " and leave_type_id = '".$leave_type_id."'";
+					}
+
 					if($diff_day == ''){
 						$diff_day=0;
 					}
+
 					
-					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and leave_type_id = '".$leave_type_id."' and (
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' ".$whr_leavetype." and (
 							(".$diff_day." >= min and ".$diff_day." <= max and min != '' and max != '') or
 							(".$diff_day." >= min and min != '' and max = '') or
 							(".$diff_day." <= max and max != '' and min = '')
 						)  ")->result(); 
+
+					if(empty($getmatrix)){
+						$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' ".$whr_leavetype."  and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
+					}
 
 					
 					if(!empty($getmatrix)){
 						$approvalMatrixId = $getmatrix[0]->id;
 						if($approvalMatrixId != ''){
 							$dataApproval = [
-								'approval_matrix_type_id' 	=> $approval_type_id, //Absence
+								'approval_matrix_type_id' 	=> $approval_type_id, 
 								'trx_id' 					=> $trx_id,
 								'approval_matrix_id' 		=> $approvalMatrixId,
 								'current_approval_level' 	=> 1
@@ -1409,8 +1419,8 @@ class Api extends API_Controller
 						}
 					}
 
-				}
-			}
+				//}
+			//}
 
 		}
 
