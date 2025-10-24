@@ -27,7 +27,8 @@ class Tasklist_menu_model extends MY_Model
 			'dt.progress_percentage',
 			'dt.due_date',
 			'dt.solve_date',
-			'dt.project_name'
+			'dt.project_name',
+			'dt.employee_id'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -189,7 +190,11 @@ class Tasklist_menu_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				/*$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';*/
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="load_gantt('."'".$row->employee_id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+
+
+				
 			}
 			$delete_bulk = "";
 			$delete = "";

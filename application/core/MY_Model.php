@@ -668,6 +668,21 @@ class MY_Model extends CI_Model {
 		return $data;
 	}
 
+	public function return_build_type_date($val='', $var_name, $id_name='', $addclass='', $addstyle='', $attrib='')
+	{ 
+		$data = "";
+		$idname = "";
+		if(!empty($id_name)){
+			$idname = " id=\"".$id_name."\"";
+		}
+		$style = "";
+		if(!empty($addstyle)){
+			$style = " style=\"".$addstyle."\"";
+		}
+		$data .= "<input class=\"form-control ".$addclass."\"".$style." name=\"".$var_name."\"".$idname." type=\"date\" value=\"".$val."\" ".$attrib."/>";
+		return $data;
+	}
+
 	public function return_build_txtstatic($val='')
 	{ 
 		$data = "<p class=\"form-control-static\"> ".$val." </p>";
