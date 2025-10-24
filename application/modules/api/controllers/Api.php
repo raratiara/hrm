@@ -2424,9 +2424,30 @@ class Api extends API_Controller
 						,(select sum(total_leave) from leave_absences where employee_id = a.id) as ttl_ijin
 						,(select count(id) from time_attendances where employee_id = a.id and leave_type is null) as ttl_hadir
 						,a.direct_id, a.emp_code
+						,a.date_of_birth
+                        ,(case when a.gender = 'M' then 'Male'
+					    when a.gender = 'F' then 'Female'
+					    else ''
+					    end) as gender_name
+                        ,a.personal_phone
+                        ,a.personal_email
+                        ,a.address_ktp
+                        ,a.address_residen
+                        ,h.name AS department_name
+                        ,i.name AS emp_status_name
+                        ,p.full_name AS direct_name
+                        ,q.name as job_level_name
+                        ,a.date_of_hire
 						from employees a
 						left join divisions b on b.id = a.division_id
 						left join master_shift_time c on c.shift_type = a.shift_type
+						LEFT JOIN
+					    departments h ON h.id = a.department_id
+                        LEFT JOIN
+					    master_emp_status i ON i.id = a.employment_status_id
+                        LEFT JOIN
+					    employees p ON p.id = a.direct_id
+                        left join master_job_level q on q.id = a.job_level_id
                     	".$where." ")->result();  
     	}else if($empType[0]->shift_type == 'Shift'){
     		if($employee == null || $employee == ''){
@@ -2438,11 +2459,32 @@ class Api extends API_Controller
     		$dataemp = $this->db->query("select d.id, d.full_name, e.name as division_name,d.shift_type, c.time_in, c.time_out, d.direct_id
 				,(select sum(total_leave) from leave_absences where employee_id = d.id) as ttl_ijin
 				,(select count(id) from time_attendances where employee_id = d.id and leave_type is null) as ttl_hadir, d.emp_code
+				,d.date_of_birth
+                ,(case when d.gender = 'M' then 'Male'
+			    when d.gender = 'F' then 'Female'
+			    else ''
+			    end) as gender_name
+                ,d.personal_phone
+                ,d.personal_email
+                ,d.address_ktp
+                ,d.address_residen
+                ,h.name AS department_name
+                ,i.name AS emp_status_name
+                ,p.full_name AS direct_name
+                ,q.name as job_level_name
+                ,d.date_of_hire
 				from shift_schedule a
 				left join group_shift_schedule b on b.shift_schedule_id = a.id
 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
 				left join employees d on d.id = b.employee_id
 				left join divisions e on e.id = d.division_id
+				LEFT JOIN
+			    departments h ON h.id = d.department_id
+                LEFT JOIN
+			    master_emp_status i ON i.id = d.employment_status_id
+                LEFT JOIN
+			    employees p ON p.id = d.direct_id
+                left join master_job_level q on q.id = d.job_level_id
 				".$where." ")->result();  
     	} 
     	
