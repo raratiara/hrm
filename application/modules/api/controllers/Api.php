@@ -2423,7 +2423,7 @@ class Api extends API_Controller
     		$dataemp = $this->db->query("select a.id, a.full_name, b.name as division_name, a.shift_type, 					c.time_in, c.time_out 
 						,(select sum(total_leave) from leave_absences where employee_id = a.id) as ttl_ijin
 						,(select count(id) from time_attendances where employee_id = a.id and leave_type is null) as ttl_hadir
-						,a.direct_id
+						,a.direct_id, a.emp_code
 						from employees a
 						left join divisions b on b.id = a.division_id
 						left join master_shift_time c on c.shift_type = a.shift_type
@@ -2437,7 +2437,7 @@ class Api extends API_Controller
 
     		$dataemp = $this->db->query("select d.id, d.full_name, e.name as division_name,d.shift_type, c.time_in, c.time_out, d.direct_id
 				,(select sum(total_leave) from leave_absences where employee_id = d.id) as ttl_ijin
-				,(select count(id) from time_attendances where employee_id = d.id and leave_type is null) as ttl_hadir
+				,(select count(id) from time_attendances where employee_id = d.id and leave_type is null) as ttl_hadir, d.emp_code
 				from shift_schedule a
 				left join group_shift_schedule b on b.shift_schedule_id = a.id
 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
