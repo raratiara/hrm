@@ -38,12 +38,14 @@ class Tasklist_menu extends MY_Controller
 		
 		$field['txttask'] 		= $this->self_model->return_build_txt('','task','task');
 		$field['txtprogress'] 	= $this->self_model->return_build_txt('','progress','progress');
-		$field['txtduedate'] 	= $this->self_model->return_build_txt('','due_date','due_date');
+		$field['txtduedate'] 	= $this->self_model->return_build_type_date('','due_date','due_date','due_date');
 		$field['txtsolvedate'] 	= $this->self_model->return_build_txt('','solve_date','solve_date','','','readonly');
+		$field['txtprogressdate'] 	= $this->self_model->return_build_txt('','progress_date','progress_date','','','readonly');
+		$field['txtrequestdate'] 	= $this->self_model->return_build_txt('','request_date','request_date','','','readonly');
 		$field['txtdesc'] 		= $this->self_model->return_build_txtarea('','description','description');
 		
 
-		$msstatus 				= $this->db->query("select * from master_tasklist_status order by order_no asc")->result(); 
+		$msstatus 				= $this->db->query("select * from master_tasklist_status where name != 'Open' order by order_no asc")->result(); 
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
 		$mstask 				= $this->db->query("select * from tasklist")->result(); 
 		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
@@ -118,6 +120,308 @@ class Tasklist_menu extends MY_Controller
 		echo json_encode($rs);
 	}
 
+
+
+	public function get_tasklist_gantt(){
+		$post 		= $this->input->post(null, true);
+		$employee_id 	= $post['employee_id'];
+
+
+		/*$whr = '';
+		if($employee_id != ''){
+			$whr = ' where a.employee_id = "'.$employee_id.'" ';
+		}*/
+
+
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		}
+
+
+
+		
+		
+
+		$rs =  $this->db->query('select dt.* from (select a.*, b.full_name as employee_name, c.task as parent_name, d.name as status_name, e.title as project_name, if(a.parent_id = 0 and (select id from tasklist where parent_id = a.id limit 1) != "","yes","no") as is_parent, b.direct_id, DATE_FORMAT(a.created_at, "%Y-%m-%d") as date_create
+					from tasklist a left join employees b on b.id = a.employee_id
+					left join tasklist c on c.id = a.parent_id
+					left join master_tasklist_status d on d.id = a.status_id
+					left join data_project e on e.id = a.project_id
+					'.$whr.' )dt where is_parent = "no"')->result(); 
+		
+
+		echo json_encode($rs);
+	}
+
+
+	public function save_task() { 
+
+		$table_name = "tasklist";
+		$post = $this->input->post(null, true);
+
+	    /*$data = [
+	        'task' => $this->input->post('name'),
+	        'status_name' => $this->input->post('status'),
+	        'progress_percentage' => $this->input->post('progress'),
+	        'progress_date' => $this->input->post('start'),
+	        'solve_date' => $this->input->post('end'),
+	        'project_name' => $this->input->post('project'),
+	        'parent_name' => $this->input->post('parent'),
+	        'description' => $this->input->post('description')
+	    ];*/
+
+	    if ($post['id'] == '') {  //add
+
+	    	if(!empty($post['task']) && !empty($post['status']) && !empty($post['due_date'])){  
+	  			$cekdata = $this->db->query("select * from tasklist where task = '".$post['task']."'")->result(); 
+	  			if(empty($cekdata)){ 
+	  				$solve_date="";
+		  			if($post['progress'] == 100){
+		  				$solve_date = date("Y-m-d H:i:s");
+		  			}
+		  			$request_date="";
+		  			if($post['status'] == 4){ //request
+		  				$request_date = date("Y-m-d H:i:s");
+		  			}
+		  			$progress_date="";
+		  			if($post['status'] == 2){ //progress
+		  				$progress_date = date("Y-m-d H:i:s");
+		  			}
+
+		  			$data = [
+						'employee_id' 			=> trim($post['employee'] ?? ''),
+						'task' 					=> trim($post['task'] ?? ''),
+						'status_id' 			=> trim($post['status'] ?? ''),
+						'progress_percentage'	=> trim($post['progress'] ?? ''),
+						'due_date' 				=> trim($post['due_date'] ?? ''), //$f_due_date,
+						'project_id' 			=> trim($post['project'] ?? ''),
+						'parent_id' 			=> trim($post['task_parent'] ?? ''),
+						'description' 			=> trim($post['description'] ?? ''),
+						'created_at'			=> date("Y-m-d H:i:s"),
+						'request_date' 			=> $request_date,
+						'progress_date' 		=> $progress_date,
+						'solve_date' 			=> $solve_date
+						
+						
+					];
+					$rs = $this->db->insert($table_name, $data);
+					$lastId = $this->db->insert_id();
+					if($rs){
+						$data2 = [
+							'tasklist_id' 			=> $lastId,
+							'progress_percentage'	=> trim($post['progress'] ?? ''),
+							'submit_at'				=> date("Y-m-d H:i:s")
+						];
+						$this->db->insert("history_progress_tasklist", $data2);
+
+
+						// if($post['status'] == 1){ //Open
+						// 	$updDate = [
+						// 		'open_date'		=> date("Y-m-d")
+						// 	];
+						// 	$this->db->update($table_name, $updDate, "id = '".$lastId."'");
+						// } 
+						if($post['status'] == 2){ //Progress
+							$updDate = [
+								'progress_date'	=> date("Y-m-d")
+							];
+							$this->db->update($table_name, $updDate, "id = '".$lastId."'");
+						}else if($post['status'] == 4){ //Request
+							$updDate = [
+								'request_date'	=> date("Y-m-d")
+							];
+							$this->db->update($table_name, $updDate, "id = '".$lastId."'");
+						}
+
+
+						echo json_encode(['success' => true, 'id' => $lastId]);
+					}else{
+						$id=0;
+	  					echo json_encode(['failed' => true, 'id' => $id]);
+					}
+	  			}else{
+	  				///echo "Submit Failed. Data already exists"; die();
+	  				$id=0;
+	  				echo json_encode(['failed' => true, 'id' => $id]);
+	  			}
+	  			
+
+	  		}else{
+	  			$id=0;
+	  			echo json_encode(['failed' => true, 'id' => $id]);
+	  		}
+
+
+
+
+	        /*$this->db->insert('tasklist', $data);
+	        $id = $this->db->insert_id();*/
+
+	    } 
+	    else { //update
+
+	        /*$id = $this->input->post('id');
+	        $this->db->where('id', $id);
+	        $this->db->update('tasklist', $data);
+
+	        echo json_encode(['success' => true, 'id' => $id]);*/
+
+	        $id = $post['id'];
+	        $dataTasklist = $this->db->query("select * from tasklist where id = '".$id."'")->result(); 
+
+	        $is_request = 0; $is_progress = 0; $is_closed = 0;
+	        //$request_date = $dataTasklist[0]->request_date;
+	        if($post['status'] == 4 && ($dataTasklist[0]->request_date == '' || $dataTasklist[0]->request_date == null || $dataTasklist[0]->request_date == '0000-00-00')){
+	        	//$request_date = date("Y-m-d H:i:s");
+	        	$is_request = 1;
+	        }
+	        //$progress_date = $dataTasklist[0]->progress_date;
+	        if($post['status'] == 2 && ($dataTasklist[0]->progress_date == '' || $dataTasklist[0]->progress_date == null || $dataTasklist[0]->progress_date == '0000-00-00')){
+	        	//$progress_date = date("Y-m-d H:i:s");
+	        	$is_progress = 1;
+	        }
+
+	        //$solve_date = $dataTasklist[0]->solve_date;
+  			if(($post['progress'] == 100 || $post['status'] == 3) && ($dataTasklist[0]->solve_date == '' || $dataTasklist[0]->solve_date == null || $dataTasklist[0]->solve_date == '0000-00-00') ){
+  				//$solve_date = date("Y-m-d H:i:s");
+  				$is_closed = 1;
+  			}
+		
+			$data = [
+				'employee_id' 			=> trim($post['employee'] ?? ''),
+				'task' 					=> trim($post['task'] ?? ''),
+				'progress_percentage'	=> trim($post['progress'] ?? ''),
+				'parent_id' 			=> trim($post['task_parent'] ?? ''),
+				'status_id' 			=> trim($post['status'] ?? ''),
+				'due_date' 				=> trim($post['due_date'] ?? ''), 
+				'project_id' 			=> trim($post['project'] ?? ''),
+				'description' 			=> trim($post['description'] ?? ''),
+				'updated_at'			=> date("Y-m-d H:i:s")
+			];
+
+			$rs = $this->db->update($table_name, $data, "id = '".$id."'");
+			if($rs){
+				$data2 = [
+					'tasklist_id' 			=> $post['id'],
+					'progress_percentage'	=> trim($post['progress'] ?? ''),
+					'submit_at'				=> date("Y-m-d H:i:s")
+				];
+				$this->db->insert("history_progress_tasklist", $data2);
+
+
+				if($is_request == 1){ //Request
+					$updDate = [
+						'request_date'	=> date("Y-m-d")
+					];
+					$this->db->update($table_name, $updDate, "id = '".$id."'");
+				}
+				if($is_progress == 1){ //Progress
+					$updDate = [
+						'progress_date'	=> date("Y-m-d")
+					];
+					$this->db->update($table_name, $updDate, "id = '".$id."'");
+				}
+				if($is_closed == 1){ //Closed
+					$updDate = [
+						'solve_date'	=> date("Y-m-d")
+					];
+					$this->db->update($table_name, $updDate, "id = '".$id."'");
+				}
+
+
+				echo json_encode(['success' => true, 'id' => $id]);
+
+			}else{
+				echo json_encode(['failed' => true, 'id' => $id]);
+			}
+
+
+
+	    }
+
+	    
+	}
+
+
+	public function delete_task() { 
+
+		$table_name = "tasklist";
+		$post = $this->input->post(null, true);
+		$id = trim($post['id']); 
+
+		if($id != ''){
+			$rs = $this->db->delete('tasklist',"id = '".$id."'");
+			if($rs){
+				echo json_encode(['success' => true, 'id' => $id]);
+			}else{
+				echo json_encode(['failed' => true, 'id' => $id]);
+			}
+		}else{
+			echo json_encode(['failed' => true, 'id' => $id]);
+		}
+
+	    
+	}
+
+
+	public function update_task_dates(){
+		$post = $this->input->post(null, true);
+
+		$id 		= trim($post['id']); 
+		$start_date = trim($post['start_date']); 
+		$end_date 	= trim($post['end_date']); 
+
+
+
+		if($id != ''){
+			$data = [
+				'progress_date' => $start_date,
+				'due_date' 		=> $end_date,
+				'updated_at'	=> date("Y-m-d H:i:s")
+			];
+
+			$rs = $this->db->update("tasklist", $data, "id = '".$id."'");
+
+			if($rs){
+				echo json_encode(['success' => true, 'id' => $id]);
+			}else{
+				echo json_encode(['failed' => true, 'id' => $id]);
+			}
+		}else{
+			echo json_encode(['failed' => true, 'id' => $id]);
+		}
+
+	}
+
+	public function update_task_progress(){
+		$post = $this->input->post(null, true);
+
+		$id 		= trim($post['id']); 
+		$progress 	= trim($post['progress']); 
+
+
+
+		if($id != ''){
+			$data = [
+				'progress_percentage' 	=> $progress,
+				'updated_at'			=> date("Y-m-d H:i:s")
+			];
+
+			$rs = $this->db->update("tasklist", $data, "id = '".$id."'");
+
+			if($rs){
+				echo json_encode(['success' => true, 'id' => $id]);
+			}else{
+				echo json_encode(['failed' => true, 'id' => $id]);
+			}
+		}else{
+			echo json_encode(['failed' => true, 'id' => $id]);
+		}
+
+	}
 
 
 }
