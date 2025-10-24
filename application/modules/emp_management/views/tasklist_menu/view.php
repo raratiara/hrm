@@ -1,6 +1,7 @@
 <?php 
 if  (_USER_ACCESS_LEVEL_VIEW == "1") {
-	$this->load->view(_TEMPLATE_PATH . "module_datatable_list_view"); // standard
+	/*$this->load->view(_TEMPLATE_PATH . "module_datatable_list_view");*/ // standard
+	$this->load->view(_TEMPLATE_PATH . "tasklist_ganttchart_view");
 }
 
 if  (_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_DETAIL == "1") {
