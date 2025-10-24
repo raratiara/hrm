@@ -22,7 +22,7 @@
     <!-- <button onclick="addRow()">➕ Add Row</button> -->
     <!-- <table id="taskTable" class="table table-bordered table-striped mt-3" style="width:98%; margin: 0 auto;"> -->
     <span style="font-size: 10px; color: red;">*Data will be saved if the <b>task</b>, <b>status</b> and <b>due date</b> are filled in.</span>
-    <table id="taskTable" class="display table table-bordered table-striped" style="width:98%;">
+    <table id="taskTable" class="display table table-bordered table-striped" style="width:98% !important; overflow:auto !important; ">
       <thead>
         <tr>
           <th>ID</th>
