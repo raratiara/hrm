@@ -51,9 +51,12 @@ class Tasklist_menu extends MY_Controller
 		$field['seltaskparent'] = $this->self_model->return_build_select2me($mstask,'','','','task_parent','task_parent','','','id','task',' ','','','',3,'-');
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
+		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
 
 		$msproject 				= $this->db->query("select * from data_project")->result(); 
 		$field['selproject'] 	= $this->self_model->return_build_select2me($msproject,'','','','project','project','','','id','title',' ','','','',3,'-');
+
+		$field['selflproject'] 	= $this->self_model->return_build_select2me($msproject,'','','','flproject','flproject','','','id','title',' ','','','',3,'-');
 
 
 
@@ -125,7 +128,7 @@ class Tasklist_menu extends MY_Controller
 	public function get_tasklist_gantt(){
 		$post 		= $this->input->post(null, true);
 		$employee_id 	= $post['employee_id'];
-
+		$project_id 	= $post['project_id'];
 
 		/*$whr = '';
 		if($employee_id != ''){
@@ -137,7 +140,16 @@ class Tasklist_menu extends MY_Controller
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
 		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+			$whr=' and (a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'") ';
+		}
+
+		$whr_emp = '';
+		if($employee_id != ''){
+			$whr_emp = ' and a.employee_id = "'.$employee_id.'" ';
+		}
+		$whr_project = '';
+		if($project_id != ''){
+			$whr_project = ' and a.project_id = "'.$project_id.'" ';
 		}
 
 
@@ -149,8 +161,8 @@ class Tasklist_menu extends MY_Controller
 					from tasklist a left join employees b on b.id = a.employee_id
 					left join tasklist c on c.id = a.parent_id
 					left join master_tasklist_status d on d.id = a.status_id
-					left join data_project e on e.id = a.project_id
-					'.$whr.' )dt where is_parent = "no"')->result(); 
+					left join data_project e on e.id = a.project_id where 1=1
+					'.$whr.$whr_emp.$whr_project.' )dt where is_parent = "no"')->result(); 
 		
 
 		echo json_encode($rs);
