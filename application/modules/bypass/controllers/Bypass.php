@@ -57,7 +57,9 @@ class Bypass extends API_Controller
 		$mail['from_name'] = 'HR System';//_MAIL_SYSTEM_NAME;
 		$mail['from_email'] = 'noreply-billing@huma.net.id';//_MAIL_SYSTEM_EMAIL;
 		$mail['to_name'] = 'HR Team';
-		$mail['to_email'] = 'niar@nathabuana.id';
+		//$mail['to_email'] = 'niar@nathabuana.id';
+		$mail['to_email'] = 'yehezkielsimbuang@nathabuana.id';
+		
 		$mail['template'] = 'report-absensi';
 		/*$path = WRITEPATH . 'uploads/user_manual_billing.docx';*/
 		$path = _URL.'uploads/report_absensi_bulanan/export_absensi_' . date('Y-m') . '.zip'; 
@@ -97,7 +99,8 @@ class Bypass extends API_Controller
 		
 
 		$message = $this->load->view(_TEMPLATE_EMAIL.$mail['template'],$data,TRUE); // load email message using view template
-		$cc = 'kuswarno@nathabuana.id';
+		/*$cc = 'kuswarno@nathabuana.id';*/
+		$cc = '';
 		$bcc = 'tiarasanir@gmail.com';
 		$this->email->from($mail['from_email'], $mail['from_name']); 
 		$this->email->to($mail['to_email'], $mail['to_name']);
