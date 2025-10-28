@@ -198,10 +198,9 @@ button {
 #paginationContainer .paginate_button {
   padding: 2px 6px !important;
   margin: 0 2px !important;
-  /*width: 22px !important;*/
   min-width: 26px !important;
   line-height: 1 !important;
-  height: 26px !important;
+  height: 30px !important;
   border: none !important;
   background: transparent !important;
   color: #007bff !important;
@@ -501,12 +500,12 @@ $(document).on('change', '#viewModeSelect', function () {
 });
 
 
-function load_gantt(employee_id = '') {
+function load_gantt(employee_id = '',project_id = '') {
   $.ajax({
     url: module_path + '/get_tasklist_gantt',
     type: "POST",
     dataType: "JSON",
-    data: { employee_id: employee_id },
+    data: { employee_id: employee_id, project_id: project_id },
     cache: false,
     success: function (data) {
       console.log(data);
@@ -640,7 +639,20 @@ function load_gantt(employee_id = '') {
         // });
 
       } else {
-        $("#gantt").html("<p class='text-center'>Tidak ada data tasklist.</p>");
+        /*$("#gantt").html("<p class='text-center'>Tidak ada data tasklist.</p>");*/
+
+        // Kosongkan semua area kalau data kosong
+        $("#gantt").html("<p class='text-center text-muted mt-3'>Tidak ada data tasklist.</p>");
+        $("#taskTable tbody").empty();
+
+        // Hapus DataTable kalau ada
+        if ($.fn.DataTable.isDataTable('#taskTable')) {
+          $('#taskTable').DataTable().clear().destroy();
+        }
+
+        // Hapus tombol Add Row dan pagination
+        $(".table-footer").remove();
+
       }
     },
     error: function (xhr, status, error) {
@@ -1458,7 +1470,20 @@ function updateTaskProgress(task, progress) {
 }
 
 
+$('#flemployee').on('change', function () { 
+  var empid = $("#flemployee option:selected").val();
+  var projectid = $("#flproject option:selected").val();
+  
+  load_gantt(empid, projectid);
 
+});
+
+$('#flproject').on('change', function () { 
+  var projectid = $("#flproject option:selected").val();
+  var empid = $("#flemployee option:selected").val();  
+  load_gantt(empid, projectid);
+
+});
 
 
 
