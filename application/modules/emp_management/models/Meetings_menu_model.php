@@ -546,21 +546,43 @@ class Meetings_menu_model extends MY_Model
 	public function eksport_data()
 	{
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
-		$whr='';
+		$karyawan_id = $getdata[0]->id_karyawan; 
+		$whr="";
 		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+			$whr=" and (ao.created_by = ".$karyawan_id." or ao.direct_id = ".$karyawan_id." or ao.is_participant = 1) ";
 		}
 
 
 
-		$sql = "select b.full_name as employee_name, a.task, c.task as parent_name, d.name as status_name, a.progress_percentage, a.due_date, a.solve_date, e.title as project_name   
-			from tasklist a left join employees b on b.id = a.employee_id
-			left join tasklist c on c.id = a.parent_id
-			left join master_tasklist_status d on d.id = a.status_id 
-			left join data_project e on e.id = a.project_id
-			".$whr."
-			order by a.id asc
+		$sql = "select ao.* from (SELECT 
+				  a.*, 
+				  b.room_name, 
+				  c.direct_id, 
+				  c.full_name AS created_by_name,
+				  IF(
+					a.type = 'custom',
+					CONCAT(
+					  DATE_FORMAT(a.start_time, '%l:%i %p'),
+					  ' - ',
+					  DATE_FORMAT(a.end_time, '%l:%i %p')
+					),
+					'Full Day'
+				  ) AS meeting_times,
+				  DATE_FORMAT(a.start_time, '%l:%i %p') AS start_time_display,
+				  DATE_FORMAT(a.end_time, '%l:%i %p') AS end_time_display,
+				  (
+					SELECT GROUP_CONCAT(e.full_name SEPARATOR ', ')
+					FROM employees e
+					WHERE FIND_IN_SET(e.id, a.participants)
+				  ) AS participants_name,
+				  CASE 
+					WHEN FIND_IN_SET(".$karyawan_id.", a.participants) > 0 THEN 1 
+					ELSE 0 
+					END AS is_participant
+				FROM meetings a
+				LEFT JOIN master_meeting_room b ON b.id = a.meeting_room_id
+				LEFT JOIN employees c ON c.id = a.created_by) ao
+				where 1=1 ".$whr."
 		";
 
 		$res = $this->db->query($sql);
