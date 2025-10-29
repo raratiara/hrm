@@ -32,43 +32,49 @@ class Meetings_menu_model extends MY_Model
 			'dt.created_by_name',
 			'dt.description',
 			'dt.participants',
-			'dt.participants_name'
+			'dt.participants_name',
+			'dt.is_participant'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan; 
-		$whr='';
-		if($getdata[0]->id_groups == 1){ //bukan super user
-			$whr=' and (a.created_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';
+		$whr="";
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=" and (ao.created_by = ".$karyawan_id." or ao.direct_id = ".$karyawan_id." or ao.is_participant = 1) ";
 		}
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = "(SELECT 
+		$sTable = "(select ao.* from (SELECT 
 					  a.*, 
 					  b.room_name, 
 					  c.direct_id, 
 					  c.full_name AS created_by_name,
 					  IF(
-					    a.type = 'custom',
-					    CONCAT(
-					      DATE_FORMAT(a.start_time, '%l:%i %p'),
-					      ' - ',
-					      DATE_FORMAT(a.end_time, '%l:%i %p')
-					    ),
-					    'Full Day'
+						a.type = 'custom',
+						CONCAT(
+						  DATE_FORMAT(a.start_time, '%l:%i %p'),
+						  ' - ',
+						  DATE_FORMAT(a.end_time, '%l:%i %p')
+						),
+						'Full Day'
 					  ) AS meeting_times,
 					  DATE_FORMAT(a.start_time, '%l:%i %p') AS start_time_display,
 					  DATE_FORMAT(a.end_time, '%l:%i %p') AS end_time_display,
 					  (
-					    SELECT GROUP_CONCAT(e.full_name SEPARATOR ', ')
-					    FROM employees e
-					    WHERE FIND_IN_SET(e.id, a.participants)
-					  ) AS participants_name
+						SELECT GROUP_CONCAT(e.full_name SEPARATOR ', ')
+						FROM employees e
+						WHERE FIND_IN_SET(e.id, a.participants)
+					  ) AS participants_name,
+					  CASE 
+						WHEN FIND_IN_SET(".$karyawan_id.", a.participants) > 0 THEN 1 
+						ELSE 0 
+						END AS is_participant
 					FROM meetings a
 					LEFT JOIN master_meeting_room b ON b.id = a.meeting_room_id
-					LEFT JOIN employees c ON c.id = a.created_by
-			where 1=1 ".$whr." )dt";
+					LEFT JOIN employees c ON c.id = a.created_by) ao
+					where 1=1 ".$whr."
+             		 )dt";
 		
 
 		/* Paging */
