@@ -20,7 +20,9 @@ class Meetings_menu extends MY_Controller
 	
 	/* Export */
 	public $colnames 				= ["ID","Meeting Name","Meeting Date","Meeting Time","Meeting Room","Status","Booking Date","Booking By","Description","Participants"];
-	public $colfields 				= ["id","employee_name","task","parent_name","status_name","progress_percentage","due_date","solve_date","project_name"];
+	public $colfields 				= ["id","meeting_name","meeting_date","meeting_times","room_name","status","booking_date","created_by_name","description","participants_name"];
+
+
 
 	/* Form Field Asset */
 	public function form_field_asset()
