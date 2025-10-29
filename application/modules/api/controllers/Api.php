@@ -4319,6 +4319,156 @@ class Api extends API_Controller
     }
 
 
+    /*public function save_meetings()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$type			= $_REQUEST['type']; // insert or update
+    	$id 			= $_REQUEST['id'];
+    	$employee		= $_REQUEST['employee_id'];
+    	$task			= $_REQUEST['task'];
+    	$progress		= $_REQUEST['progress'];
+    	$task_parent	= $_REQUEST['task_parent_id'];
+    	$due_date		= $_REQUEST['due_date'];
+    	$status 		= $_REQUEST['status_id'];
+
+
+    	if($type == 'insert'){
+
+    		$data = [
+				'employee_id' 			=> $employee,
+				'task' 					=> $task,
+				'progress_percentage'	=> $progress,
+				'parent_id' 			=> $task_parent,
+				'due_date' 				=> $due_date,
+				'status_id' 			=> $status,
+				'created_at'			=> date("Y-m-d H:i:s")
+			];
+			$rs = $this->db->insert("tasklist", $data);
+			$lastId = $this->db->insert_id();
+
+			if($rs){
+				$data2 = [
+					'tasklist_id' 			=> $lastId,
+					'progress_percentage'	=> $progress,
+					'submit_at'				=> date("Y-m-d H:i:s")
+				];
+				$this->db->insert("history_progress_tasklist", $data2);
+
+
+				if($status == 1){ //Open
+					$updDate = [
+						'open_date'		=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}else if($status == 2){ //Progress
+					$updDate = [
+						'progress_date'	=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}else if($status == 4){ //Request
+					$updDate = [
+						'request_date'	=> date("Y-m-d")
+					];
+					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
+				}
+
+
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+
+    	}else if($type == 'update'){
+    		if($id != ''){
+    			$data = [
+					'employee_id' 			=> $employee,
+					'task' 					=> $task,
+					'progress_percentage'	=> $progress,
+					'parent_id' 			=> $task_parent,
+					'due_date' 				=> $due_date,
+					'status_id' 			=> $status,
+					'updated_at'			=> date("Y-m-d H:i:s")
+				];
+				$rs = $this->db->update("tasklist", $data, "id = '".$id."'");
+				if($rs){
+
+					$data2 = [
+						'tasklist_id' 			=> $id,
+						'progress_percentage'	=> $progress,
+						'submit_at'				=> date("Y-m-d H:i:s")
+					];
+					$this->db->insert("history_progress_tasklist", $data2);
+
+
+					if($status == 1){ //Open
+						$updDate = [
+							'open_date'		=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}else if($status == 2){ //Progress
+						$updDate = [
+							'progress_date'	=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}else if($status == 4){ //Request
+						$updDate = [
+							'request_date'	=> date("Y-m-d")
+						];
+						$this->db->update("tasklist", $updDate, "id = '".$id."'");
+					}
+
+
+					$response = [
+			    		'status' 	=> 200,
+						'message' 	=> 'Success'
+					];
+				}else{
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Error submit'
+					];
+				}
+
+    		}else{
+    			$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'ID not found'
+				];
+    		}
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Type not found'
+			];
+    	}
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }*/
+
+
 
 }
 
