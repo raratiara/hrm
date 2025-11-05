@@ -2313,7 +2313,16 @@ class Api extends API_Controller
     		$where = " where a.employee_id = '".$employee."' ";
     	}*/
 
-    	$datamaster = $this->db->query("select * from data_project ")->result();  
+    	$datamaster = $this->db->query("select 
+                a.*, b.full_name as name_pic, c.full_name as name_pm, d.full_name as name_gm, 
+                e.full_name as name_adm, f.description as status_name, g.name as customer_name 
+            from data_project a
+            left join employees b on b.id = a.id_pic
+            left join employees c on c.id = a.id_pm
+            left join employees d on d.id = a.id_gm
+            left join employees e on e.id = a.id_adm
+            left join option_project_status f on f.id = a.id_status
+            left join data_customer g on g.id = a.id_customer ")->result();  
 
     	$response = [
     		'status' 	=> 200,
@@ -2346,7 +2355,7 @@ class Api extends API_Controller
     		$where = " where a.employee_id = '".$employee."' ";
     	}*/
 
-    	$datamaster = $this->db->query("select * from master_tasklist_status order by order_no asc ")->result();  
+    	$datamaster = $this->db->query("select * from master_tasklist_status where name != 'Open' order by order_no asc ")->result();  
 
     	$response = [
     		'status' 	=> 200,
@@ -4320,68 +4329,75 @@ class Api extends API_Controller
     }
 
 
-    /*public function save_meetings()
-    { 
-    	$this->verify_token();
+
+    public function revisi_absen() /// DH
+    {
+    	//$this->verify_token();
+
+    	$employee_id		= $_POST['employee_id'];
+    	$date_attendance	= $_POST['date_attendance'];
+    	$datetime_checkin	= $_POST['datetime_checkin'];
+    	$datetime_checkout	= $_POST['datetime_checkout'];
+    	$description		= $_POST['description'];
+    	$attachment			= $_FILES['attachment'];
+    	
 
 
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
+		if($employee_id != '' && $date_attendance != ''){
+			/*$dataAbsensi = $this->db->query("select * from time_attendances where employee_id = '".$employee_id."' and date_attendance = '".$date_attendance."' ")->result(); */
+			
 
-    	$type			= $_REQUEST['type']; // insert or update
-    	$id 			= $_REQUEST['id'];
-    	$employee		= $_REQUEST['employee_id'];
-    	$task			= $_REQUEST['task'];
-    	$progress		= $_REQUEST['progress'];
-    	$task_parent	= $_REQUEST['task_parent_id'];
-    	$due_date		= $_REQUEST['due_date'];
-    	$status 		= $_REQUEST['status_id'];
+			//upload 
+			$dataU = array();
+			$dataU['status'] = FALSE; 
+			$fieldname='attachment';
+			if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+            { 
+               
+                
+            	$config['upload_path']   = "uploads/absensi/";
+                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+                $config['max_size']      = "0"; 
+                
+                $this->load->library('upload', $config); 
+                
+                if(!$this->upload->do_upload($fieldname)){ 
+                    $err_msg = $this->upload->display_errors(); 
+                    $dataU['error_warning'] = strip_tags($err_msg);              
+                    $dataU['status'] = FALSE;
+                } else { 
+                    $fileData = $this->upload->data();
+                    $dataU['upload_file'] = $fileData['file_name'];
+                    $dataU['status'] = TRUE;
+                }
+            }
+            $document = '';
+			if($dataU['status']){ 
+				$document = $dataU['upload_file'];
+			} else if(isset($dataU['error_warning'])){ 
+				//echo $dataU['error_warning']; exit;
+
+				$document = 'ERROR : '.$dataU['error_warning'];
+			}
+            //end upload
 
 
-    	if($type == 'insert'){
-
-    		$data = [
-				'employee_id' 			=> $employee,
-				'task' 					=> $task,
-				'progress_percentage'	=> $progress,
-				'parent_id' 			=> $task_parent,
-				'due_date' 				=> $due_date,
-				'status_id' 			=> $status,
-				'created_at'			=> date("Y-m-d H:i:s")
+			$data = [
+				'employee_id' 		=> $employee_id,
+				'date_attendance' 	=> $date_attendance,
+				'datetime_checkin' 	=> $datetime_checkin,
+				'datetime_checkout' => $datetime_checkout,
+				'description' 		=> $description,
+				'attachment' 		=> $document,
+				'created_date'		=> date("Y-m-d H:i:s"),
+				'status' 			=> 'pending'
+				
 			];
-			$rs = $this->db->insert("tasklist", $data);
-			$lastId = $this->db->insert_id();
 
+			$rs = $this->db->insert("time_attendances_revision", $data);
 			if($rs){
-				$data2 = [
-					'tasklist_id' 			=> $lastId,
-					'progress_percentage'	=> $progress,
-					'submit_at'				=> date("Y-m-d H:i:s")
-				];
-				$this->db->insert("history_progress_tasklist", $data2);
-
-
-				if($status == 1){ //Open
-					$updDate = [
-						'open_date'		=> date("Y-m-d")
-					];
-					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
-				}else if($status == 2){ //Progress
-					$updDate = [
-						'progress_date'	=> date("Y-m-d")
-					];
-					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
-				}else if($status == 4){ //Request
-					$updDate = [
-						'request_date'	=> date("Y-m-d")
-					];
-					$this->db->update("tasklist", $updDate, "id = '".$lastId."'");
-				}
-
-
 				$response = [
-		    		'status' 	=> 200,
+					'status' 	=> 200,
 					'message' 	=> 'Success'
 				];
 			}else{
@@ -4392,7 +4408,248 @@ class Api extends API_Controller
 				];
 			}
 
-    	}else if($type == 'update'){
+			
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+    public function update_revisi_absen() /// DH
+    {
+    	//$this->verify_token();
+
+    	$id_data= $_POST['id_data'];
+    	$status	= $_POST['status'];
+    	
+    	
+
+		if($id_data != '' && $status != ''){
+			$dataRevisi = $this->db->query("select * from time_attendances_revision where id = '".$id_data."' ")->result(); 
+			if(!empty($dataRevisi)){ /// update status
+				$data = [
+					'status' 			=> $status,
+					'datetime_approval'	=> date("Y-m-d H:i:s")
+					
+				];
+				$rs = $this->db->update("time_attendances_revision", $data, "id='".$id_data."'");
+				if($rs){ 
+					if($status == 'approved'){
+						$dataAbsensi = $this->db->query("select * from time_attendances where employee_id = '".$dataRevisi[0]->employee_id."' and date_attendance = '".$dataRevisi[0]->date_attendance."'")->result(); 
+
+						if(empty($dataAbsensi)){ //insert
+							$dataUpd = [
+								'employee_id' 		=> $dataRevisi[0]->employee_id,
+								'date_attendance' 	=> $dataRevisi[0]->date_attendance,
+								'date_attendance_in' 	=> $dataRevisi[0]->datetime_checkin,
+								'date_attendance_out' => $dataRevisi[0]->datetime_checkout
+							];
+
+							$this->db->insert("time_attendances", $dataUpd);
+						}else{  //update
+							if($dataRevisi[0]->datetime_checkin != "" && $dataRevisi[0]->datetime_checkin != "0000-00-00 00:00:00" && $dataRevisi[0]->datetime_checkout != "" && $dataRevisi[0]->datetime_checkout != "0000-00-00 00:00:00"){
+								$dataUpd = [
+									'date_attendance_in' 	=> $dataRevisi[0]->datetime_checkin,
+									'date_attendance_out'	=> $dataRevisi[0]->datetime_checkout
+								];
+								$this->db->update("time_attendances", $dataUpd, "id='".$dataAbsensi[0]->id."'");
+							}
+							else if($dataRevisi[0]->datetime_checkin != "" && $dataRevisi[0]->datetime_checkin != "0000-00-00 00:00:00" && ($dataRevisi[0]->datetime_checkout == "" || $dataRevisi[0]->datetime_checkout == "0000-00-00 00:00:00")){ 
+								$dataUpd = [
+									'date_attendance_in' 	=> $dataRevisi[0]->datetime_checkin
+								];
+								$this->db->update("time_attendances", $dataUpd, "id='".$dataAbsensi[0]->id."'");
+							}
+							else if($dataRevisi[0]->datetime_checkout != "" && $dataRevisi[0]->datetime_checkout != "0000-00-00 00:00:00" && ($dataRevisi[0]->datetime_checkin == "" || $dataRevisi[0]->datetime_checkin == "0000-00-00 00:00:00")){ 
+								$dataUpd = [
+									'date_attendance_out' 	=> $dataRevisi[0]->datetime_checkout
+								];
+								$this->db->update("time_attendances", $dataUpd, "id='".$dataAbsensi[0]->id."'");
+							}
+						}
+						
+						
+					}
+
+
+
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success'
+					];
+				}else{
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Error submit'
+					];
+				}
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Data not found'
+				];
+			}
+
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+
+    public function generate_unique_meeting_code() { 
+	    do {
+	        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+	        $exists = $this->db->query("select id from meetings where code = '$code'")->num_rows();
+	    } while ($exists > 0);
+
+	    return $code;
+	}	
+
+    public function save_meetings()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$meeting_name	= $_REQUEST['meeting_name']; 
+    	$meeting_date 	= $_REQUEST['meeting_date'];
+    	$type			= $_REQUEST['type'];
+    	$meeting_room	= $_REQUEST['meeting_room_id'];
+    	$participants	= $_REQUEST['participants'];
+    	$start_time		= $_REQUEST['start_time'];
+    	$end_time		= $_REQUEST['end_time'];
+    	$description 	= $_REQUEST['description'];
+    	$created_by 	= $_REQUEST['created_by'];
+    	$action 		= $_REQUEST['action']; //insert or update
+    	
+
+
+
+    	if($action == 'insert'){
+
+    		if($post['meeting_name'] != '' && $post['meeting_date'] != '' && $post['type'] != '' && $post['meeting_room'] != ''){
+				$get_meeting_date 		= trim($post['meeting_date'] ?? '');
+				$meeting_date 	= date("Y-m-d", strtotime($get_meeting_date));
+				if($meeting_date == '1970-01-01'){
+					$meeting_date='';
+				}
+
+
+				// pastikan participants berupa string koma
+			    $participants = '';
+			    if (!empty($post['participants'])) {
+			        if (is_array($post['participants'])) {
+			            $participants = implode(',', $post['participants']); // ubah array jadi string
+			        } else {
+			            $participants = trim($post['participants']);
+			        }
+			    }
+
+			    $meeting_code = $this->generate_unique_meeting_code();
+
+			    $whr="";
+				if(trim($post['type']) == 'custom'){
+					$start_time = date("H:i:s", strtotime($post['start_time']));
+					$end_time   = date("H:i:s", strtotime($post['end_time']));
+					$whr = " and ((type = 'custom' and (start_time < '".$end_time."' AND end_time > '".$start_time."')) or type = 'full day')";
+				}
+				
+				
+				$cekdata = $this->db->query("select * from meetings where meeting_date = '".$meeting_date."' and meeting_room_id = '".trim($post['meeting_room'])."' and (status = 'booked' and check_in_time is null and expired_time > '".date("H:i:s")."') ".$whr." ")->result();
+
+		  		if(empty($cekdata)){
+		  			if(trim($post['type']) == 'custom'){
+						$expired_time = date("H:i:s", strtotime($post['start_time'] . ' +30 minutes'));
+
+						$data = [
+							'meeting_name' 		=> trim($post['meeting_name']),
+							'meeting_date' 		=> $meeting_date,
+							'type'				=> trim($post['type']),
+							'start_time' 		=> $start_time,
+							'end_time' 			=> $end_time,
+							'meeting_room_id' 	=> trim($post['meeting_room']),
+							'description' 		=> trim($post['description']),
+							'participants' 		=> $participants,
+							'created_by' 		=> $karyawan_id,
+							'status' 			=> 'Booked',
+							'booking_date' 		=> date("Y-m-d H:i:s"),
+							'code' 				=> $meeting_code,
+							'expired_time' 		=> $meeting_date.' '.$expired_time
+						];
+
+					}else{
+						$expired_time = '09:30:00';
+						$data = [
+							'meeting_name' 		=> trim($post['meeting_name']),
+							'meeting_date' 		=> $meeting_date,
+							'type'				=> trim($post['type']),
+							'meeting_room_id' 	=> trim($post['meeting_room']),
+							'description' 		=> trim($post['description']),
+							'participants' 		=> $participants,
+							'created_by' 		=> $karyawan_id,
+							'status' 			=> 'Booked',
+							'booking_date' 		=> date("Y-m-d H:i:s"),
+							'code' 				=> $meeting_code,
+							'expired_time' 		=> $meeting_date.' '.$expired_time
+						];
+					}
+		  			
+					//return $rs = $this->db->insert($this->table_name, $data);
+					$rs = $this->db->insert($this->table_name, $data);
+					if($rs){
+						$response = [
+				    		'status' 	=> 200,
+							'message' 	=> 'Success',
+							'code' 	=> $meeting_code
+						];
+					}else{
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Error submit'
+						];
+					}
+				else{
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'No room available'
+					];
+				}
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Meeting Name, Date, Type dan Room harus diisi'
+				];
+			}
+			
+
+    	}/*else if($type == 'update'){
     		if($id != ''){
     			$data = [
 					'employee_id' 			=> $employee,
@@ -4455,9 +4712,9 @@ class Api extends API_Controller
     		$response = [
 				'status' 	=> 400, // Bad Request
 				'message' 	=>'Failed',
-				'error' 	=> 'Type not found'
+				'error' 	=> 'Action not found'
 			];
-    	}
+    	}*/
 
 
 
@@ -4467,7 +4724,177 @@ class Api extends API_Controller
 		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 		$this->render_json($response, $response['status']);
 		
-    }*/
+    }
+
+
+
+    public function presensi_meeting()
+    { 
+    	//$this->verify_token();
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$id				= $_REQUEST['id']; 
+    	$code_checkin 	= $_REQUEST['code_checkin'];
+    	$check_in_by 	= $_REQUEST['check_in_by'];
+    	
+
+		if($id != '' && $code_checkin != ''){ 
+			$cekdata = $this->db->query("select * from meetings where id = '".$id."'")->result();
+			if(date("Y-m-d H:i:s") <= $cekdata[0]->expired_time){ 
+				if($cekdata[0]->code == $code_checkin){
+					if($cekdata[0]->status == 'booked'){
+						$datainp = [
+							'status' 		=> 'check in',
+							'check_in_time'	=> date("Y-m-d H:i:s"),
+							'check_in_by'	=> $check_in_by
+						];
+						$this->db->update('meetings', $datainp, "id = '".$id."'");
+					}
+					
+					// add absensi kehadiran meeting
+					$data_ins = [
+						'meetings_id' 	=> $id,
+						'checkin_time'	=> date("Y-m-d H:i:s"),
+						'employee_id'	=> $check_in_by
+					];
+					$rs = $this->db->insert('presensi_meeting', $data_ins);
+
+					if($rs){
+						$response = [
+				    		'status' 	=> 200,
+							'message' 	=> 'Success'
+						];
+					}else{
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Error submit'
+						];
+					}
+					
+				}else{
+					$response = [
+						'status' 	=> 400, // Bad Request
+						'message' 	=>'Failed',
+						'error' 	=> 'code not valid'
+					];
+				}
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'the check-in time has expired'
+				];
+			}
+			
+		}else{
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'ID / Code not found'
+			];
+		}
+			
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+
+    public function get_data_meetings()
+    { 
+    	//$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	$employee			= $_REQUEST['employee']; //filter employee
+
+
+    	if($islogin_employee != ''){
+    		$getdata = $this->db->query("select * from user where user_id = '".$islogin_employee."'")->result(); 
+			$karyawan_id = $getdata[0]->id_karyawan; 
+
+    		$where=""; 
+	    	if($employee != ''){
+	    		$where = " and ao.created_by = '".$employee."' ";
+	    	}
+
+
+	    	$whr="";
+			if($getdata[0]->id_groups != 1){ //bukan super user
+				$whr=" and (ao.created_by = ".$islogin_employee." or ao.direct_id = ".$islogin_employee." or ao.is_participant = 1) ";
+			}
+	    	
+
+
+	        $datameetings = $this->db->query("select ao.* from (SELECT 
+					  a.*, 
+					  b.room_name, 
+					  c.direct_id, 
+					  c.full_name AS created_by_name,
+					  IF(
+						a.type = 'custom',
+						CONCAT(
+						  DATE_FORMAT(a.start_time, '%l:%i %p'),
+						  ' - ',
+						  DATE_FORMAT(a.end_time, '%l:%i %p')
+						),
+						'Full Day'
+					  ) AS meeting_times,
+					  DATE_FORMAT(a.start_time, '%l:%i %p') AS start_time_display,
+					  DATE_FORMAT(a.end_time, '%l:%i %p') AS end_time_display,
+					  (
+						SELECT GROUP_CONCAT(e.full_name SEPARATOR ', ')
+						FROM employees e
+						WHERE FIND_IN_SET(e.id, a.participants)
+					  ) AS participants_name,
+					  CASE 
+						WHEN FIND_IN_SET(".$islogin_employee.", a.participants) > 0 THEN 1 
+						ELSE 0 
+						END AS is_participant
+					FROM meetings a
+					LEFT JOIN master_meeting_room b ON b.id = a.meeting_room_id
+					LEFT JOIN employees c ON c.id = a.created_by) ao
+					where 1=1 ".$where.$whr."")->result();  
+
+
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $datameetings
+			];
+
+    	}else{
+    		$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Employee ID Login not found'
+			];
+    	}
+
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
 
 
 

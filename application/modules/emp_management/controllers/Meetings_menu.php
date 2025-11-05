@@ -137,12 +137,23 @@ class Meetings_menu extends MY_Controller
 			$cekdata = $this->db->query("select * from meetings where id = '".$id."'")->result();
 			if(date("Y-m-d H:i:s") <= $cekdata[0]->expired_time){
 				if($cekdata[0]->code == $code_checkin){
-					$data = [
-						'status' 		=> 'check in',
-						'check_in_time'	=> date("Y-m-d H:i:s"),
-						'check_in_by'	=> $karyawan_id
+					if($cekdata[0]->status == 'booked'){
+						$data = [
+							'status' 		=> 'check in',
+							'check_in_time'	=> date("Y-m-d H:i:s"),
+							'check_in_by'	=> $karyawan_id
+						];
+						$this->db->update('meetings', $data, "id = '".$id."'");
+					}
+					
+					// add absensi kehadiran meeting
+					$data_ins = [
+						'meetings_id' 	=> $id,
+						'checkin_time'	=> date("Y-m-d H:i:s"),
+						'employee_id'	=> $karyawan_id
 					];
-					$rs = $this->db->update('meetings', $data, "id = '".$id."'");
+					$rs = $this->db->insert('presensi_meeting', $data_ins);
+					
 				}else{
 					$rs='code not valid';
 				}

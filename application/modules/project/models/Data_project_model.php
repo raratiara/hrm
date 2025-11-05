@@ -320,7 +320,7 @@ class Data_project_model extends MY_Model
 				'date_actual_start' 	=> date("Y-m-d", strtotime(trim($post['date_actual_start']))),  
 				'date_actual_finish'	=> date("Y-m-d", strtotime(trim($post['date_actual_finish']))),   
 				'id_status' 			=> $id_status,
-				'insert_by'				=> $_SESSION["username"]
+				'update_by'				=> $_SESSION["username"]
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]); 
