@@ -33,7 +33,8 @@ class Meetings_menu_model extends MY_Model
 			'dt.description',
 			'dt.participants',
 			'dt.participants_name',
-			'dt.is_participant'
+			'dt.is_participant',
+			'dt.created_by'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
@@ -228,13 +229,20 @@ class Meetings_menu_model extends MY_Model
 			}
 
 			$cancel=""; $checkin=""; $checkout="";
-			if($row->status == 'booked'){
+			if($row->status == 'booked' || $row->status == 'check in'){
 				$cancel = '<a class="btn btn-xs btn-danger" style="background-color: #ff7600;" href="javascript:void(0);" onclick="cancel('."'".$row->id."'".')" role="button">Cancel</a>';
 				$checkin = '<a class="btn btn-xs btn-success" style="background-color: #33b300;" href="javascript:void(0);" onclick="checkin('."'".$row->id."'".')" role="button">Check-IN</a>';
 			}
 
-			if($row->status == 'check in'){
+			if($row->status == 'check in' && $karyawan_id == $row->created_by){
 				$checkout = '<a class="btn btn-xs btn-success" style="background-color: #33b300;" href="javascript:void(0);" onclick="checkout('."'".$row->id."'".')" role="button">Check-OUT</a>';
+			}
+
+
+			if($karyawan_id != $row->created_by){
+				$edit="";
+				$delete="";
+				$cancel="";
 			}
 			
 			
@@ -405,8 +413,8 @@ class Meetings_menu_model extends MY_Model
 				return $dataInput;
 
 
-	  		}else echo 'tidak ada ruangan';
-		}else echo 'Meeting Name, Date, Type dan Room harus diisi';
+	  		}else return 'tidak ada ruangan';
+		}else return 'Meeting Name, Date, Type dan Room harus diisi';
 
   			
 	}  
