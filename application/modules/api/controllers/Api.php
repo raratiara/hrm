@@ -4980,7 +4980,7 @@ class Api extends API_Controller
 			'datetime_attendance'	=> $datetime_attendance,
 			'work_location'	=> $work_location,
 			'notes'			=> $notes,
-			'photo'			=> $photo
+			'photo'			=> $document
 		];
 		$rs = $this->db->insert("tracker_history", $data);
 		
