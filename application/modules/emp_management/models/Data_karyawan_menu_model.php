@@ -599,7 +599,8 @@ class Data_karyawan_menu_model extends MY_Model
 				'foto_npwp' 					=> $foto_npwp,
 				'foto_bpjs' 					=> $foto_bpjs,
 				'foto_sima' 					=> $foto_sima,
-				'foto_simc' 					=> $foto_simc
+				'foto_simc' 					=> $foto_simc,
+				'is_tracking' 					=> trim($post['is_tracking'] ?? '')
 			];
  
 			$rs = $this->db->insert($this->table_name, $data);
@@ -959,7 +960,8 @@ class Data_karyawan_menu_model extends MY_Model
 				'foto_npwp' 					=> $foto_npwp,
 				'foto_bpjs' 					=> $foto_bpjs,
 				'foto_sima' 					=> $foto_sima,
-				'foto_simc' 					=> $foto_simc
+				'foto_simc' 					=> $foto_simc,
+				'is_tracking' 					=> trim($post['is_tracking'] ?? '')
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
