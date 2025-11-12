@@ -29,6 +29,12 @@
 				<?=$txtemail;?>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Is Tracking</label>
+			<div class="col-md-8">
+				<?=$txtistracking;?>
+			</div>
+		</div>
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">

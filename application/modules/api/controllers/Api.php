@@ -1,8 +1,12 @@
 
-
-
-
 <?php
+/*error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Content-Type: application/json');*/
+
+
+
+
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Api extends API_Controller
@@ -35,19 +39,6 @@ class Api extends API_Controller
 		$this->render_json($response, 400);
 		exit;
 	}
-
-
-	public function tes(){
-		$j=28;
-		$field = sprintf("%02d", $j);
-
-
-		echo $field; die();
-
-
-	}
-
-	
 
 	
 	// register basic example
@@ -2408,7 +2399,7 @@ class Api extends API_Controller
 
     public function get_data_employee()
     { 
-    	$this->verify_token();
+    	#$this->verify_token();
 
 
 		$jsonData = file_get_contents('php://input');
@@ -2447,6 +2438,7 @@ class Api extends API_Controller
                         ,p.full_name AS direct_name
                         ,q.name as job_level_name
                         ,a.date_of_hire
+                        ,a.is_tracking
 						from employees a
 						left join divisions b on b.id = a.division_id
 						left join master_shift_time c on c.shift_type = a.shift_type
@@ -2482,6 +2474,7 @@ class Api extends API_Controller
                 ,p.full_name AS direct_name
                 ,q.name as job_level_name
                 ,d.date_of_hire
+                ,d.is_tracking
 				from shift_schedule a
 				left join group_shift_schedule b on b.shift_schedule_id = a.id
 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
@@ -2498,11 +2491,14 @@ class Api extends API_Controller
     	} 
     	
 
+    	$interval = $this->db->query("select * from tracker_setup_interval")->result();  
+
     	
 
     	$response = [
     		'status' 	=> 200,
 			'message' 	=> 'Success',
+			'interval' 	=> $interval,
 			'data' 		=> $dataemp
 		];
 
@@ -4531,115 +4527,202 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	$meeting_name	= $_REQUEST['meeting_name']; 
-    	$meeting_date 	= $_REQUEST['meeting_date'];
-    	$type			= $_REQUEST['type'];
-    	$meeting_room	= $_REQUEST['meeting_room_id'];
-    	$participants	= $_REQUEST['participants'];
-    	$start_time		= $_REQUEST['start_time'];
-    	$end_time		= $_REQUEST['end_time'];
-    	$description 	= $_REQUEST['description'];
-    	$created_by 	= $_REQUEST['created_by'];
-    	$action 		= $_REQUEST['action']; //insert or update
+    	$islogin_employee 	= $_POST['islogin_employee'];
+    	$save_method 	= $_POST['save_method']; //insert or update
+    	$id 			= $_POST['id']; 
+    	$meeting_name	= $_POST['meeting_name']; 
+    	$meeting_date 	= $_POST['meeting_date'];
+    	$type			= $_POST['type'];
+    	$meeting_room_id	= $_POST['meeting_room_id'];
+    	$participants	= $_POST['participants'];
+    	$start_time		= $_POST['start_time'];
+    	$end_time		= $_POST['end_time'];
+    	$description 	= $_POST['description'];
     	
 
 
+    	if($save_method != ''){
+    		if($meeting_name != '' && $meeting_date != '' && $type != '' && $meeting_room_id != ''){
 
-    	if($action == 'insert'){
-
-    		if($post['meeting_name'] != '' && $post['meeting_date'] != '' && $post['type'] != '' && $post['meeting_room'] != ''){
-				$get_meeting_date 		= trim($post['meeting_date'] ?? '');
+				$get_meeting_date 		= $meeting_date ?? '';
 				$meeting_date 	= date("Y-m-d", strtotime($get_meeting_date));
 				if($meeting_date == '1970-01-01'){
 					$meeting_date='';
 				}
 
-
 				// pastikan participants berupa string koma
 			    $participants = '';
-			    if (!empty($post['participants'])) {
-			        if (is_array($post['participants'])) {
-			            $participants = implode(',', $post['participants']); // ubah array jadi string
+			    if (!empty($participants)) {
+			        if (is_array($participants)) {
+			            $participants = implode(',', $participants); // ubah array jadi string
 			        } else {
-			            $participants = trim($post['participants']);
+			            $participants = trim($participants);
 			        }
 			    }
 
-			    $meeting_code = $this->generate_unique_meeting_code();
 
-			    $whr="";
-				if(trim($post['type']) == 'custom'){
-					$start_time = date("H:i:s", strtotime($post['start_time']));
-					$end_time   = date("H:i:s", strtotime($post['end_time']));
-					$whr = " and ((type = 'custom' and (start_time < '".$end_time."' AND end_time > '".$start_time."')) or type = 'full day')";
-				}
-				
-				
-				$cekdata = $this->db->query("select * from meetings where meeting_date = '".$meeting_date."' and meeting_room_id = '".trim($post['meeting_room'])."' and (status = 'booked' and check_in_time is null and expired_time > '".date("H:i:s")."') ".$whr." ")->result();
+				if($save_method == 'insert'){
 
-		  		if(empty($cekdata)){
-		  			if(trim($post['type']) == 'custom'){
-						$expired_time = date("H:i:s", strtotime($post['start_time'] . ' +30 minutes'));
+				    $meeting_code = $this->generate_unique_meeting_code();
 
-						$data = [
-							'meeting_name' 		=> trim($post['meeting_name']),
-							'meeting_date' 		=> $meeting_date,
-							'type'				=> trim($post['type']),
-							'start_time' 		=> $start_time,
-							'end_time' 			=> $end_time,
-							'meeting_room_id' 	=> trim($post['meeting_room']),
-							'description' 		=> trim($post['description']),
-							'participants' 		=> $participants,
-							'created_by' 		=> $karyawan_id,
-							'status' 			=> 'Booked',
-							'booking_date' 		=> date("Y-m-d H:i:s"),
-							'code' 				=> $meeting_code,
-							'expired_time' 		=> $meeting_date.' '.$expired_time
-						];
-
-					}else{
-						$expired_time = '09:30:00';
-						$data = [
-							'meeting_name' 		=> trim($post['meeting_name']),
-							'meeting_date' 		=> $meeting_date,
-							'type'				=> trim($post['type']),
-							'meeting_room_id' 	=> trim($post['meeting_room']),
-							'description' 		=> trim($post['description']),
-							'participants' 		=> $participants,
-							'created_by' 		=> $karyawan_id,
-							'status' 			=> 'Booked',
-							'booking_date' 		=> date("Y-m-d H:i:s"),
-							'code' 				=> $meeting_code,
-							'expired_time' 		=> $meeting_date.' '.$expired_time
-						];
+				    $whr="";
+					if(trim($type) == 'custom'){
+						$start_time = date("H:i:s", strtotime($start_time));
+						$end_time   = date("H:i:s", strtotime($end_time));
+						$whr = " and ((type = 'custom' and (start_time < '".$end_time."' AND end_time > '".$start_time."')) or type = 'full day')";
 					}
-		  			
-					//return $rs = $this->db->insert($this->table_name, $data);
-					$rs = $this->db->insert($this->table_name, $data);
-					if($rs){
-						$response = [
-				    		'status' 	=> 200,
-							'message' 	=> 'Success',
-							'code' 	=> $meeting_code
-						];
-					}else{
+					
+					
+					$cekdata = $this->db->query("select * from meetings where meeting_date = '".$meeting_date."' and meeting_room_id = '".$meeting_room_id."' and (status = 'booked' and check_in_time is null and expired_time > '".date("H:i:s")."') ".$whr." ")->result();
+
+			  		if(empty($cekdata)){
+			  			if(trim($type) == 'custom'){
+							$expired_time = date("H:i:s", strtotime($start_time . ' +30 minutes'));
+
+							$data = [
+								'meeting_name' 		=> $meeting_name,
+								'meeting_date' 		=> $meeting_date,
+								'type'				=> $type,
+								'start_time' 		=> $start_time,
+								'end_time' 			=> $end_time,
+								'meeting_room_id' 	=> $meeting_room_id,
+								'description' 		=> $description,
+								'participants' 		=> $participants,
+								'status' 			=> 'Booked',
+								'booking_date' 		=> date("Y-m-d H:i:s"),
+								'code' 				=> $meeting_code,
+								'expired_time' 		=> $meeting_date.' '.$expired_time,
+								'created_by' 		=> $islogin_employee,
+								'created_date' 		=> date("Y-m-d H:i:s")
+							];
+
+						}else{
+							$expired_time = '09:30:00';
+							$data = [
+								'meeting_name' 		=> $meeting_name,
+								'meeting_date' 		=> $meeting_date,
+								'type'				=> $type,
+								'meeting_room_id' 	=> $meeting_room_id,
+								'description' 		=> $description,
+								'participants' 		=> $participants,
+								'status' 			=> 'Booked',
+								'booking_date' 		=> date("Y-m-d H:i:s"),
+								'code' 				=> $meeting_code,
+								'expired_time' 		=> $meeting_date.' '.$expired_time,
+								'created_by' 		=> $islogin_employee,
+								'created_date' 		=> date("Y-m-d H:i:s")
+							];
+						}
+			  			
+						//return $rs = $this->db->insert($this->table_name, $data);
+						$rs = $this->db->insert($this->table_name, $data);
+						if($rs){
+							$response = [
+					    		'status' 	=> 200,
+								'message' 	=> 'Success',
+								'code' 	=> $meeting_code
+							];
+						}else{
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Error submit'
+							];
+						}
+					}
+					else{
 						$response = [
 							'status' 	=> 401,
 							'message' 	=> 'Failed',
-							'error' 	=> 'Error submit'
+							'error' 	=> 'No room available'
 						];
 					}
-				else{
-					$response = [
-						'status' 	=> 401,
-						'message' 	=> 'Failed',
-						'error' 	=> 'No room available'
+				}/*else if($save_method == 'update'){
+					if($id != ''){
+						$dataMeetings = $this->db->query("select * from meetings where id = '".$id."' ")->result();
+						$meeting_code = $dataMeetings[0]->code;
+
+					    $whr="";
+						if(trim($type) == 'custom'){
+							$start_time = date("H:i:s", strtotime($start_time));
+							$end_time   = date("H:i:s", strtotime($end_time));
+							$whr = " and ((type = 'custom' and (start_time < '".$end_time."' AND end_time > '".$start_time."')) or type = 'full day')";
+						}
+						
+						
+						$cekdata = $this->db->query("select * from meetings where meeting_date = '".$meeting_date."' and meeting_room_id = '".$meeting_room_id."' and (status = 'booked' and check_in_time is null and expired_time > '".date("H:i:s")."') ".$whr." ")->result();
+
+				  		if(empty($cekdata)){
+				  			if(trim($type) == 'custom'){
+								$expired_time = date("H:i:s", strtotime($start_time . ' +30 minutes'));
+
+								$data = [
+									'meeting_name' 		=> $meeting_name,
+									'meeting_date' 		=> $meeting_date,
+									'type'				=> $type,
+									'start_time' 		=> $start_time,
+									'end_time' 			=> $end_time,
+									'meeting_room_id' 	=> $meeting_room_id,
+									'description' 		=> $description,
+									'participants' 		=> $participants,
+									'expired_time' 		=> $meeting_date.' '.$expired_time,
+									'updated_by' 		=> $islogin_employee,
+									'updated_date' 		=> date("Y-m-d H:i:s")
+								];
+
+							}else{
+								$expired_time = '09:30:00';
+								$data = [
+									'meeting_name' 		=> $meeting_name,
+									'meeting_date' 		=> $meeting_date,
+									'type'				=> $type,
+									'meeting_room_id' 	=> $meeting_room_id,
+									'description' 		=> $description,
+									'participants' 		=> $participants,
+									'expired_time' 		=> $meeting_date.' '.$expired_time,
+									'updated_by' 		=> $islogin_employee,
+									'updated_date' 		=> date("Y-m-d H:i:s")
+								];
+							}
+				  			
+							$rs = $this->db->update("meetings", $data, "id='".$id."'");
+							if($rs){
+								$response = [
+						    		'status' 	=> 200,
+									'message' 	=> 'Success',
+									'code' 	=> $meeting_code
+								];
+							}else{
+								$response = [
+									'status' 	=> 401,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Error submit'
+								];
+							}
+						}
+						else{
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'No room available'
+							];
+						}
+					}else{
+						$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'ID not found'
+						];		
+					}
+					
+				}else{
+		    		$response = [
+						'status' 	=> 400, // Bad Request
+						'message' 	=>'Failed',
+						'error' 	=> 'Save Method not found'
 					];
-				}
+		    	}*/
+
 			}else{
 				$response = [
 					'status' 	=> 401,
@@ -4647,74 +4730,15 @@ class Api extends API_Controller
 					'error' 	=> 'Meeting Name, Date, Type dan Room harus diisi'
 				];
 			}
-			
-
-    	}/*else if($type == 'update'){
-    		if($id != ''){
-    			$data = [
-					'employee_id' 			=> $employee,
-					'task' 					=> $task,
-					'progress_percentage'	=> $progress,
-					'parent_id' 			=> $task_parent,
-					'due_date' 				=> $due_date,
-					'status_id' 			=> $status,
-					'updated_at'			=> date("Y-m-d H:i:s")
-				];
-				$rs = $this->db->update("tasklist", $data, "id = '".$id."'");
-				if($rs){
-
-					$data2 = [
-						'tasklist_id' 			=> $id,
-						'progress_percentage'	=> $progress,
-						'submit_at'				=> date("Y-m-d H:i:s")
-					];
-					$this->db->insert("history_progress_tasklist", $data2);
-
-
-					if($status == 1){ //Open
-						$updDate = [
-							'open_date'		=> date("Y-m-d")
-						];
-						$this->db->update("tasklist", $updDate, "id = '".$id."'");
-					}else if($status == 2){ //Progress
-						$updDate = [
-							'progress_date'	=> date("Y-m-d")
-						];
-						$this->db->update("tasklist", $updDate, "id = '".$id."'");
-					}else if($status == 4){ //Request
-						$updDate = [
-							'request_date'	=> date("Y-m-d")
-						];
-						$this->db->update("tasklist", $updDate, "id = '".$id."'");
-					}
-
-
-					$response = [
-			    		'status' 	=> 200,
-						'message' 	=> 'Success'
-					];
-				}else{
-					$response = [
-						'status' 	=> 401,
-						'message' 	=> 'Failed',
-						'error' 	=> 'Error submit'
-					];
-				}
-
-    		}else{
-    			$response = [
-					'status' 	=> 400, // Bad Request
-					'message' 	=>'Failed',
-					'error' 	=> 'ID not found'
-				];
-    		}
     	}else{
     		$response = [
 				'status' 	=> 400, // Bad Request
 				'message' 	=>'Failed',
-				'error' 	=> 'Action not found'
+				'error' 	=> 'Save Method not found'
 			];
-    	}*/
+    	}
+
+
 
 
 
@@ -4727,7 +4751,7 @@ class Api extends API_Controller
     }
 
 
-
+	/*
     public function presensi_meeting()
     { 
     	//$this->verify_token();
@@ -4886,6 +4910,50 @@ class Api extends API_Controller
     	}
 
 
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }*/
+
+
+
+    public function save_tracker()
+    { 
+    	$this->verify_token();
+
+    	$employee_id	= $_POST['employee_id']; 
+    	$latitude 		= $_POST['latitude'];
+    	$longitude		= $_POST['longitude'];
+    	
+
+
+		$data = [
+			'emp_id' 		=> $employee_id,
+			'latitude' 		=> $latitude,
+			'longitude'		=> $longitude,
+			'submit_date'	=> date("Y-m-d H:i:s")
+		];
+		$rs = $this->db->insert("tracker_history", $data);
+		
+		if($rs){
+			$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success'
+			];
+		}else{
+			$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Error submit'
+			];
+		}
+
+    	
 
 
 		$this->output->set_header('Access-Control-Allow-Origin: *');
