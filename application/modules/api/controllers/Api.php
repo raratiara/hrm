@@ -4926,77 +4926,40 @@ class Api extends API_Controller
     { 
     	$this->verify_token();
 
-    	$tipe 			= $_POST['tipe']; 
     	$employee_id	= $_POST['employee_id']; 
     	$latitude 		= $_POST['latitude'];
     	$longitude		= $_POST['longitude'];
-    	$datetime_attendance = $_POST['datetime_attendance'];
-    	$work_location 	= $_POST['work_location'];
-    	$notes 			= $_POST['notes'];
-    	$photo			= $_FILES['photo'];
+    	$datetime 		= $_POST['datetime'];
 
 
-
-    	//upload 
-		$dataU = array();
-		$dataU['status'] = FALSE; 
-		$fieldname='photo';
-		if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-        { 
-           
-            
-        	$config['upload_path']   = "uploads/absensi/";
-            $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-            $config['max_size']      = "0"; 
-            
-            $this->load->library('upload', $config); 
-            
-            if(!$this->upload->do_upload($fieldname)){ 
-                $err_msg = $this->upload->display_errors(); 
-                $dataU['error_warning'] = strip_tags($err_msg);              
-                $dataU['status'] = FALSE;
-            } else { 
-                $fileData = $this->upload->data();
-                $dataU['upload_file'] = $fileData['file_name'];
-                $dataU['status'] = TRUE;
-            }
-        }
-        $document = '';
-		if($dataU['status']){ 
-			$document = $dataU['upload_file'];
-		} else if(isset($dataU['error_warning'])){ 
-			//echo $dataU['error_warning']; exit;
-
-			$document = 'ERROR : '.$dataU['error_warning'];
-		}
-        //end upload
-
-
-		$data = [
-			'tipe' 			=> $tipe,
-			'emp_id' 		=> $employee_id,
-			'latitude' 		=> $latitude,
-			'longitude'		=> $longitude,
-			'submit_date'	=> date("Y-m-d H:i:s"),
-			'datetime_attendance'	=> $datetime_attendance,
-			'work_location'	=> $work_location,
-			'notes'			=> $notes,
-			'photo'			=> $document
-		];
-		$rs = $this->db->insert("tracker_history", $data);
-		
-		if($rs){
-			$response = [
-	    		'status' 	=> 200,
-				'message' 	=> 'Success'
+    	if($employee_id != '' && $latitude != '' && $longitude != '' && $datetime != ''){
+    		$data = [
+				'emp_id' 		=> $employee_id,
+				'latitude' 		=> $latitude,
+				'longitude'		=> $longitude,
+				'datetime'		=> $datetime
 			];
-		}else{
-			$response = [
+			$rs = $this->db->insert("tracker_history", $data);
+			
+			if($rs){
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
+    	}else{
+    		$response = [
 				'status' 	=> 401,
 				'message' 	=> 'Failed',
-				'error' 	=> 'Error submit'
+				'error' 	=> 'Bad Request'
 			];
-		}
+    	}
 
     	
 
