@@ -177,6 +177,7 @@ function load_data()
 					$('[name="gender"][value="'+data.gender+'"]').prop('checked', true);
 					$('[name="status"][value="'+data.status_id+'"]').prop('checked', true);
 					$('[name="shift_type"][value="'+data.shift_type+'"]').prop('checked', true);
+					$('[name="is_tracking"][value="'+data.is_tracking+'"]').prop('checked', true);
 					
 					$('[name="hdnempphoto"]').val(data.emp_photo);
 					if(data.emp_photo != '' && data.emp_photo != null){
