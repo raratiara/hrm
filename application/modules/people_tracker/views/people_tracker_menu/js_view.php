@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
 
 
 
@@ -20,39 +21,83 @@
 
 
 <script type="text/javascript">
+var baseUrl = "<?php echo base_url($base_url); ?>";
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 
+// $(document).ready(function() {
+//    	$(function() {
+
+//    		initMap();       // inisialisasi map satu kali
+//   		getMaps();       // panggil data awal
+
+
+//    		/*$('input[name="fldashperiod"]').daterangepicker();*/
+//    		$('input[name="fldashperiod"]').daterangepicker({
+// 		    autoUpdateInput: false, // <-- ini kuncinya
+// 		    /*locale: {
+// 		        cancelLabel: 'Clear'
+// 		    }*/
+// 		});
+
+// 		// Event saat user memilih tanggal
+// 		$('input[name="fldashperiod"]').on('apply.daterangepicker', function(ev, picker) { 
+// 		    $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+
+// 		    var fldashemp = $('#fldashemp').val();
+// 		    var fldashperiod = $('#fldashperiod').val();
+// 		    getMaps(fldashemp,fldashperiod);
+// 		});
+
+// 		// Event saat user klik tombol "Cancel" (Clear)
+// 		$('input[name="fldashperiod"]').on('cancel.daterangepicker', function(ev, picker) {
+// 		    $(this).val('');
+// 		});
+
+//    	});
+// });
+
+
+
 $(document).ready(function() {
-   	$(function() {
+    $(function() {
 
-   		initMap();       // inisialisasi map satu kali
-  		getMaps();       // panggil data awal
+        initMap();       // inisialisasi map satu kali
+        getMaps();       // panggil data awal
 
+        // Aktifkan date range picker dengan time picker
+        $('input[name="fldashperiod"]').daterangepicker({
+            autoUpdateInput: false,
+            timePicker: true,
+            timePicker24Hour: true,
+            timePickerSeconds: false, // kalau mau sampai detik, ubah jadi true
+            locale: {
+                format: 'YYYY-MM-DD HH:mm',
+                cancelLabel: 'Clear',
+                applyLabel: 'Apply'
+            }
+        });
 
-   		/*$('input[name="fldashperiod"]').daterangepicker();*/
-   		$('input[name="fldashperiod"]').daterangepicker({
-		    autoUpdateInput: false, // <-- ini kuncinya
-		    /*locale: {
-		        cancelLabel: 'Clear'
-		    }*/
-		});
+        // Event saat user memilih tanggal & jam
+        $('input[name="fldashperiod"]').on('apply.daterangepicker', function(ev, picker) {
+            // Format dengan jam dan menit
+            $(this).val(
+                picker.startDate.format('YYYY-MM-DD HH:mm') + ' - ' +
+                picker.endDate.format('YYYY-MM-DD HH:mm')
+            );
 
-		// Event saat user memilih tanggal
-		$('input[name="fldashperiod"]').on('apply.daterangepicker', function(ev, picker) { 
-		    $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            var fldashemp = $('#fldashemp').val();
+            var fldashperiod = $('#fldashperiod').val();
+            getMaps(fldashemp, fldashperiod);
+        });
 
-		    var fldashemp = $('#fldashemp').val();
-		    var fldashperiod = $('#fldashperiod').val();
-		    getMaps(fldashemp,fldashperiod);
-		});
+        // Event saat user klik tombol "Cancel" (Clear)
+        $('input[name="fldashperiod"]').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+        });
 
-		// Event saat user klik tombol "Cancel" (Clear)
-		$('input[name="fldashperiod"]').on('cancel.daterangepicker', function(ev, picker) {
-		    $(this).val('');
-		});
-
-   	});
+    });
 });
+
 
 
 
@@ -109,11 +154,106 @@ function adjustTooltipPosition(el) {
 
 
 
+// Icon biru (default)
+var blueIcon = L.icon({
+  iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
+// Icon merah (untuk tanggal bukan hari ini)
+var redIcon = L.icon({
+  iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
+
 
 // Buat clusterGroup di luar ajax
 var markersCluster = L.markerClusterGroup();
 
-function getMaps(empid = '', period = '') {
+function getMaps_new(empid = '', period = '') { 
+  $.ajax({
+    type: "POST",
+    url: module_path + '/get_maps',
+    data: { empid: empid, period: period },
+    cache: false,
+    dataType: "JSON",
+    success: function (data) {
+      if (data !== false) {
+        markersCluster.clearLayers(); // hapus cluster lama
+
+        // kelompokkan data berdasarkan koordinat
+        let coordMap = {};
+        data.forEach(titik => {
+          const key = `${titik.lat},${titik.lng}`;
+          if (!coordMap[key]) coordMap[key] = [];
+          coordMap[key].push(titik);
+        });
+
+        Object.keys(coordMap).forEach(key => {
+          const group = coordMap[key];
+          const lat = parseFloat(group[0].lat);
+          const lng = parseFloat(group[0].lng);
+
+          group.forEach((titik, index) => {
+            const url_photo = `http://localhost/_hrm/uploads/absensi/${titik.photo}`;
+
+            // cek apakah tanggal attendance = hari ini
+            const today = moment().format('YYYY-MM-DD');
+            const dateAttendance = moment(titik.date_attendance).format('YYYY-MM-DD');
+
+            // pilih warna icon (biru = hari ini, merah = bukan hari ini)
+            const icon = (dateAttendance === today) ? blueIcon : redIcon;
+
+            // tambahkan jitter halus supaya marker dan tooltip tidak numpuk
+            const latJitter = (Math.random() - 0.5) * 0.00005; // ±5 meter
+            const lngJitter = (Math.random() - 0.5) * 0.00005;
+
+            const marker = L.marker([lat + latJitter, lng + lngJitter], { icon: icon });
+
+            // offset tooltip di atas icon, dengan sedikit variasi biar gak numpuk
+            const jitterX = (Math.random() - 0.5) * 10; // ±5 px horizontal
+            const jitterY = (Math.random() - 0.5) * 5;  // ±2.5 px vertical
+
+            marker.bindTooltip(titik.nama, {
+              permanent: true,
+              direction: 'top',
+              offset: L.point(jitterX, -25 + jitterY), // posisi tepat di atas icon
+              className: 'tooltip-nama',
+            });
+
+            // popup detail + foto di kiri
+            marker.bindPopup(`
+              <div style="display: flex; align-items: flex-start; gap: 10px; min-width: 300px;">
+                <div style="flex: 0 0 100px;">
+                  <img src="${url_photo}" alt="photo"
+                       style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;">
+                </div>
+                <div style="flex: 1;">
+                  <strong>${titik.nama}</strong><br>
+                  <b>Date:</b> ${titik.datetime_attendance}<br>
+                  <b>Type:</b> ${titik.tipe}<br>
+                  <b>Location:</b> ${titik.work_location}
+                </div>
+              </div>
+            `);
+
+            // tambahkan ke cluster
+            markersCluster.addLayer(marker);
+          });
+        });
+
+        map.addLayer(markersCluster);
+      }
+    }
+  });
+}
+
+
+function getMaps(empid = '', period = '') { 
   $.ajax({
     type: "POST",
     url: module_path + '/get_maps',
@@ -140,6 +280,7 @@ function getMaps(empid = '', period = '') {
           const lng = parseFloat(group[0].lng);
 
           group.forEach((titik, index) => {
+            url_photo = 'http://localhost/_hrm/uploads/absensi/'+titik.photo+'';
             // pilih arah bergantian
             const dir = directions[index % directions.length];
 
@@ -165,19 +306,52 @@ function getMaps(empid = '', period = '') {
             const jitterY = (Math.random() - 0.5) * 15;
             offset = offset.add(L.point(jitterX, jitterY));
 
-            const marker = L.marker([lat, lng])
+
+            // Cek apakah tanggal attendance = hari ini
+            const today = moment().format('YYYY-MM-DD');
+            const dateAttendance = moment(titik.date_attendance).format('YYYY-MM-DD');
+            // Tentukan warna icon
+            const icon = (dateAttendance === today) ? blueIcon : redIcon;
+            const tooltipClass = (dateAttendance === today) ? 'tooltip-nama tooltip-blue' : 'tooltip-nama tooltip-red';
+
+
+            const marker = L.marker([lat, lng], { icon: icon })
             .bindTooltip(titik.nama, {
               permanent: true,
               direction: dir,
-              offset: offset,
-              className: 'tooltip-nama',
+              /*offset: offset,*/
+              offset: [0, -25], // semakin kecil, semakin dekat ke icon
+              /*className: 'tooltip-nama',*/
+              className: tooltipClass, // warna sesuai tanggal
               interactive: true // penting biar tooltip bisa diklik
             })
-            .bindPopup(
-              "<strong>" + titik.nama + "</strong><br>" +
-              "<b>Date:</b> " + titik.date_attendance + "<br>" +
-              "<b>Location:</b> " + titik.work_location
-            );
+            /*.bindPopup(`
+              <div style="display: flex; align-items: flex-start; gap: 10px; min-width: 300px;">
+                <div style="flex: 0 0 100px;">
+                  <img src="${url_photo}" alt="photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;">
+                </div>
+                <div style="flex: 1;">
+                  <strong>${titik.nama}</strong><br>
+                  <b>Date:</b> ${titik.datetime_attendance}<br>
+                  <b>Type:</b> ${titik.tipe}<br>
+                  <b>Location:</b> ${titik.work_location}
+                </div>
+              </div>
+            `);*/
+            .bindPopup(`
+              <div class="popup-card">
+                <div class="popup-image">
+                  <img src="${url_photo}" alt="photo">
+                </div>
+                <div class="popup-info">
+                  <h4>${titik.nama}</h4>
+                  <p><b>Date:</b> ${titik.datetime_attendance}</p>
+                  <p><b>Type:</b> ${titik.tipe}</p>
+                  <p><b>Location:</b> ${titik.work_location}</p>
+                </div>
+              </div>
+            `)
+
               
 
             markersCluster.addLayer(marker);
@@ -202,223 +376,6 @@ function getMaps(empid = '', period = '') {
 
         map.addLayer(markersCluster);
       }
-    }
-  });
-}
-
-
-
-// function getMaps_old3(empid = '', period = '') {
-//   $.ajax({
-//     type: "POST",
-//     url: module_path + '/get_maps',
-//     data: { empid: empid, period: period },
-//     cache: false,
-//     dataType: "JSON",
-//     success: function (data) {
-//       if (data !== false) {
-//         markersCluster.clearLayers(); // hapus cluster lama
-
-//         // kelompokkan data berdasarkan koordinat
-//         let coordMap = {};
-//         data.forEach(titik => {
-//           const key = `${titik.lat},${titik.lng}`;
-//           if (!coordMap[key]) coordMap[key] = [];
-//           coordMap[key].push(titik);
-//         });
-
-//         const directions = ['top', 'right', 'bottom', 'left']; // arah tooltip bergantian
-
-//         Object.keys(coordMap).forEach(key => {
-//           const group = coordMap[key];
-//           const lat = parseFloat(group[0].lat);
-//           const lng = parseFloat(group[0].lng);
-
-//           group.forEach((titik, index) => {
-//             // pilih arah bergantian
-//             const dir = directions[index % directions.length];
-
-//             // offset bertingkat per marker
-//             let offset;
-//             switch(dir) {
-//               case 'top':
-//                 offset = L.point(0, -30 * Math.floor(index / directions.length) - 20);
-//                 break;
-//               case 'bottom':
-//                 offset = L.point(0, 30 * Math.floor(index / directions.length) + 20);
-//                 break;
-//               case 'right':
-//                 offset = L.point(60 * Math.floor(index / directions.length) + 20, 0);
-//                 break;
-//               case 'left':
-//                 offset = L.point(-60 * Math.floor(index / directions.length) - 20, 0);
-//                 break;
-//             }
-//             // === Tambahin jitter acak biar makin jarang nabrak ===
-//             const jitterX = (Math.random() - 0.5) * 15; // -7.5 s/d +7.5
-//             const jitterY = (Math.random() - 0.5) * 15;
-//             offset = offset.add(L.point(jitterX, jitterY));
-
-//             const marker = L.marker([lat, lng])
-//               .bindTooltip(titik.nama, {
-//                 permanent: true,
-//                 direction: dir,
-//                 offset: offset,
-//                 className: 'tooltip-nama',
-//                 interactive: true
-//               })
-//               .bindPopup(
-//                 "<strong>" + titik.nama + "</strong><br>" +
-//                 "<b>Tanggal:</b> " + titik.date_attendance + "<br>" +
-//                 "<b>Lokasi:</b> " + titik.work_location
-//               );
-
-//             markersCluster.addLayer(marker);
-
-//             /*marker.on('add', function () {
-//               setTimeout(() => {
-//                 const el = marker.getTooltip().getElement();
-//                 if (!el) return;
-//                 adjustTooltipPosition(el);
-//               }, 100);
-//             });*/
-
-//             marker.on('add', function () {
-//               setTimeout(() => {
-//                 const tooltip = marker.getTooltip();
-//                 if (!tooltip) return;
-
-//                 const el = tooltip.getElement();
-//                 if (!el) return;
-
-//                 // atur posisi biar gak nabrak
-//                 adjustTooltipPosition(el);
-
-//                 // tambahin event klik di tooltip
-//                 el.style.cursor = "pointer"; // biar kelihatan bisa di-klik
-//                 el.addEventListener("click", function () {
-//                   marker.openPopup();
-//                 });
-//               }, 100);
-//             });
-
-//             marker.on("tooltipclick", function () {
-//               marker.openPopup();
-//             });
-
-
-//           });
-//         });
-
-//         map.addLayer(markersCluster);
-//       }
-//     }
-//   });
-// }
-
-
-function getMaps_old2(empid = '',period='') {
-  $.ajax({
-    type: "POST",
-    url: module_path + '/get_maps',
-    data: { empid: empid, period: period },
-    cache: false,
-    dataType: "JSON",
-    success: function (data) {
-      if (data !== false) {
-        markersCluster.clearLayers(); // hapus cluster lama
-
-        data.forEach(function (titik,i) {
-          var marker = L.marker([titik.lat, titik.lng])
-            .bindPopup(
-              "<div>" +
-                "<strong>" + titik.nama + "</strong><br>" +
-                "<b>Tanggal:</b> " + titik.date_attendance + "<br>" +
-               /* "<b>Lokasi:</b> " + titik.lat + ", " + titik.lng +*/
-                 "<b>Lokasi:</b> " + titik.work_location +
-              "</div>"
-            )
-            //.bindTooltip(titik.nama, { permanent: true, direction: "top" });
-            .bindTooltip(titik.nama, { 
-				      permanent: true,
-				      direction: i % 2 === 0 ? "left" : "right",  // ganti arah kiri/kanan biar gak tabrakan
-				      offset: L.point(0, -15 * (i % 5))           // geser tiap tooltip biar tidak numpuk
-				    });
-
-          markersCluster.addLayer(marker);
-        });
-
-
-        map.addLayer(markersCluster);
-
-      } else {
-        bootbox.dialog({
-          message: '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>' +
-                   '<center><p>Gagal peroleh data.</p><br/><button class="btn blue" data-dismiss="modal">OK</button></center>'
-        });
-      }
-    }
-  });
-}
-
-
-function getMaps_old(empid = '',period='') {
-  $.ajax({
-    type: "POST",
-    url: module_path + '/get_maps',
-    data: { empid: empid, period: period },
-    cache: false,
-    dataType: "JSON",
-    success: function (data) {
-      if (data !== false) {
-        console.log(data);
-
-        // Bersihkan marker lama
-        markers.forEach(function(marker) {
-          map.removeLayer(marker);
-        });
-        markers = [];
-
-        // Tambah marker baru
-        data.forEach(function (titik) {
-          var marker = L.marker([titik.lat, titik.lng])
-          .addTo(map)
-          /*.bindPopup("<b>" + titik.date_attendance + "</b>")*/
-          .bindPopup(
-					    "<div>" +
-					        "<strong>" + titik.nama + "</strong><br>" +
-					        "<b>Tanggal:</b> " + titik.date_attendance + "<br>" +
-					        /*"<b>Jam:</b> " + titik.jam + "<br>" +*/
-					        "<b>Lokasi:</b> " + titik.lat + ", " + titik.lng +
-					    "</div>"
-					)
-          .bindTooltip(titik.nama, { permanent: true, direction: "top" })
-					.openTooltip();
-        	markers.push(marker);
-
-
- 
-
-        });
-
-      } else {
-        bootbox.dialog({
-          message: '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>' +
-                   '<center><p>Gagal peroleh data.</p><br/><button class="btn blue" data-dismiss="modal">OK</button></center>'
-        });
-      }
-    },
-    error: function (jqXHR, textStatus, errorThrown) {
-      bootbox.dialog({
-        title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-        message: jqXHR.responseText,
-        buttons: {
-          confirm: {
-            label: 'Ok',
-            className: 'btn blue'
-          }
-        }
-      });
     }
   });
 }
