@@ -4920,10 +4920,98 @@ class Api extends API_Controller
     }*/
 
 
-
     public function save_tracker()
+	{
+	    // --- Basic Auth Validation ---
+	    $headers = $this->input->request_headers();
+	    if (!isset($headers['Authorization'])) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Missing Authorization header'
+	        ], 401);
+	        return;
+	    }
+
+	    // Ambil header Authorization: "Basic base64(username:password)"
+	    $authHeader = $headers['Authorization'];
+	    if (strpos($authHeader, 'Basic ') !== 0) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Invalid Authorization format'
+	        ], 401);
+	        return;
+	    }
+
+	    // Decode username & password
+	    $encoded = substr($authHeader, 6); // hapus "Basic "
+	    $decoded = base64_decode($encoded);
+	    list($username, $password) = explode(':', $decoded, 2);
+
+	    // --- Ganti ini dengan kredensial yang kamu tentukan sendiri ---
+	    $valid_username = "adminGDI!@";
+	    $valid_password = "12345GDI!@";
+
+	    if ($username !== $valid_username || $password !== $valid_password) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Unauthorized'
+	        ], 401);
+	        return;
+	    }
+
+	    // --- Jika lolos Basic Auth ---
+	    $employee_id = $this->input->post('employee_id');
+	    $latitude    = $this->input->post('latitude');
+	    $longitude   = $this->input->post('longitude');
+	    $datetime    = $this->input->post('datetime');
+
+	    if ($employee_id && $latitude && $longitude && $datetime) {
+	        $data = [
+	            'emp_id'    => $employee_id,
+	            'latitude'  => $latitude,
+	            'longitude' => $longitude,
+	            'datetime'  => $datetime
+	        ];
+
+	        $rs = $this->db->insert("tracker_history", $data);
+
+	        if ($rs) {
+	            $response = [
+	                'status'  => 200,
+	                'message' => 'Success'
+	            ];
+	        } else {
+	            $response = [
+	                'status'  => 401,
+	                'message' => 'Failed',
+	                'error'   => 'Error submit'
+	            ];
+	        }
+	    } else {
+	        $response = [
+	            'status'  => 401,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+	    }
+
+	    // --- Response Headers ---
+	    $this->output->set_header('Access-Control-Allow-Origin: *');
+	    $this->output->set_header('Access-Control-Allow-Methods: POST');
+	    $this->output->set_header('Access-Control-Max-Age: 3600');
+	    $this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+
+	    $this->render_json($response, $response['status']);
+	}
+
+
+
+    public function save_tracker_old()
     { 
-    	##$this->verify_token();
+    	
 
     	$employee_id	= $_POST['employee_id']; 
     	$latitude 		= $_POST['latitude'];
