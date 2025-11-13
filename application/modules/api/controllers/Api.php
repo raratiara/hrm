@@ -4923,7 +4923,7 @@ class Api extends API_Controller
 
     public function save_tracker()
     { 
-    	$this->verify_token();
+    	##$this->verify_token();
 
     	$employee_id	= $_POST['employee_id']; 
     	$latitude 		= $_POST['latitude'];
