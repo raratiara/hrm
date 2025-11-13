@@ -250,7 +250,7 @@ h2 {
 
 
 
-.tooltip-nama {
+/*.tooltip-nama {
   background: white;
   border: 1px solid #666;
   border-radius: 3px;
@@ -260,14 +260,105 @@ h2 {
   white-space: nowrap;
   pointer-events: none;
 
-  /*max-width: 100px;*/
-  white-space: normal; /* boleh pecah baris */
+ 
+  white-space: normal; 
   word-wrap: break-word;
   text-align: center;
 
 
 
+}*/
+
+
+
+/* Default tooltip style */
+.leaflet-tooltip.tooltip-nama {
+  border: none;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  pointer-events: none;
 }
+
+/* Tooltip biru transparan */
+.leaflet-tooltip.tooltip-blue {
+  background: rgba(0, 123, 255, 0.85); /* biru transparan */
+}
+
+/* Tooltip merah transparan */
+.leaflet-tooltip.tooltip-red {
+  background: rgba(220, 53, 69, 0.85); /* merah transparan */
+}
+
+/* ==== POPUP CARD SUPER COMPACT ==== */
+.leaflet-popup-content-wrapper {
+  border-radius: 14px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #ffffff, #f5f7fa);
+  border: none;
+}
+
+.leaflet-popup-tip {
+  background: #fff;
+}
+
+.popup-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 260px;
+  font-family: "Segoe UI", sans-serif;
+  color: #333;
+}
+
+.popup-image img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.popup-info h4 {
+  margin: 0 !important;
+  font-size: 13px;
+  font-weight: 600;
+  color: black;/*#007bff;*/
+  line-height: 0.5 !important;
+}
+
+.popup-info p {
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+  line-height: 0.5 !important;
+}
+
+.popup-info b {
+  margin: 0 !important;
+  padding: 0;
+  font-weight: 600;
+}
+
+.leaflet-popup-content {
+  margin: 6px 8px;
+  padding: 0;
+}
+
+.leaflet-popup-close-button {
+  color: #999 !important;
+  font-size: 14px;
+  top: 4px;
+  right: 6px;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #333 !important;
+}
+
 
 
 
