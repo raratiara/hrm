@@ -51,12 +51,12 @@
       background-color: #f8fafb;
       padding: 5px 10px;
       box-sizing: border-box;
-      border-radius: 10px;
+      border-radius: 8px !important;
       box-shadow: 0 0 6px rgba(0,0,0,0.15);
       z-index: 1000;
       transition: left 0.3s ease;
       width: 250px;
-      height: 120px;
+      height: 150px;
     }
 
     .video-container.collapsed {
@@ -119,6 +119,20 @@
       font-size: 10px;
       color: #888;
       position: absolute;
+      top: 90px;
+      left: 8px;
+      
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+      
+    }
+
+    .box-title3 {
+     
+      font-size: 10px;
+      color: #888;
+      position: absolute;
       top: 60px;
       left: 8px;
       
@@ -158,6 +172,102 @@
       color: white;
     }
 
+
+    .video-container-tracker {
+      position: fixed;
+      top: 250px;
+      right: 10px;
+      display: flex;
+      /*justify-content: space-around;*/
+      flex-direction: column;
+      background-color: #f8fafb;
+      padding: 5px 10px;
+      box-sizing: border-box;
+      border-radius: 8px !important;
+      box-shadow: 0 0 6px rgba(0,0,0,0.15);
+      z-index: 1000;
+      transition: left 0.3s ease;
+      width: 250px;
+      min-height: 50px;
+      max-height: 300px;
+
+
+      /*max-width: 500px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-family: "Segoe UI", sans-serif;*/
+    }
+
+    .box-title-tracker {
+      /*font-weight: 100;*/
+      font-size: 12px;
+      /*margin-bottom: 10px;*/
+      color: #333;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .box-value-tracker {
+      width: 100%;
+      position: relative;
+    }
+
+    .table-container {
+      top: 10px;
+      max-height: 250px; /* ubah sesuai kebutuhan (misal 300px) */
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background-color: #343a40;
+      color: #fff;
+      font-size: 11px !important;
+      text-align: left;
+    }
+
+    tbody td {
+      font-size: 11px;
+      padding: 6px;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .info-footer-tracker {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+    }
+
+    /*.video-container-tracker.collapsed {
+      left: 10px;
+    }
+
+    .video-container-tracker.hidden {
+      display: none !important;
+    }
+
+    .video-container-tracker h4 { margin: 10px 0 5px; }
+    .video-container-tracker p { margin: 0; font-size: 14px; }*/
+
 </style>
 
 
@@ -183,12 +293,63 @@
         ?>
       </select>
     </div>
+    <div class="box-title3">
+      <select id="fltipe" name="fltipe">
+        <option value="absensi">Absensi</option>
+        <option value="tracker">Tracker</option>
+      </select>
+    </div>
     <div class="box-title2">Select Period
       <input type="text" class="form-control" id="fldashperiod" name="fldashperiod">
     </div>
     
 
     <div class="info-footer"></div>
+</div>
+
+
+
+<!-- <div class="video-container-tracker" id="videoContainerTracker" >
+    <div class="box-title">Detail Tracking</div>
+    <div class="box-value">
+      <span id="tblTracker">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <th style="font-size:10px; width:70%">Name</th>
+              <th style="font-size:10px; width:30%">Datetime</th>
+            </tr>
+          </thead>
+          <tbody>
+          
+          </tbody>
+        </table>
+
+      </span>
+    </div>
+    <div class="info-footer"></div>
+</div> -->
+
+
+<div class="video-container-tracker" id="videoContainerTracker" style="display: none;">
+  <div class="box-title-tracker">Detail Tracking</div>
+
+  <div class="box-value-tracker">
+    <div class="table-container">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thead-dark">
+          <tr>
+            <th style="width:70%;">Name</th>
+            <th style="width:30%">Datetime</th>
+          </tr>
+        </thead>
+        <tbody id="tblTracker">
+          <!-- data akan ditambahkan di sini -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="info-footer-tracker"></div>
 </div>
 
 

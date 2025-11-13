@@ -301,6 +301,23 @@ h2 {
   border: none;
 }
 
+
+.leaflet-popup-content-wrapper {
+  max-width: 300px !important;
+  /*padding: 10px !important;*/
+}
+
+/* Popup lebih kecil untuk tracker */
+body.tracker-mode .leaflet-popup-content-wrapper {
+  max-width: 200px !important;
+  /*padding: 8px !important;*/
+}
+
+body.tracker-mode .leaflet-popup-content {
+  font-size: 12px;
+  line-height: 1.3;
+}
+
 .leaflet-popup-tip {
   background: #fff;
 }
@@ -360,6 +377,15 @@ h2 {
 }
 
 
+/*.leaflet-marker-icon.marker-bounce {
+  animation: bounceMarker 0.6s ease-in-out infinite alternate;
+  z-index: 9999 !important;
+}
+
+@keyframes bounceMarker {
+  0%   { margin-top: 0; }
+  100% { margin-top: -10px; }
+}*/
 
 
 
