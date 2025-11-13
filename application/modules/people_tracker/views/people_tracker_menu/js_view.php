@@ -199,7 +199,8 @@ function getMaps_new(empid = '', period = '') {
           const lng = parseFloat(group[0].lng);
 
           group.forEach((titik, index) => {
-            const url_photo = baseUrl+`uploads/absensi/${titik.photo}`;
+            /*const url_photo = baseUrl+`uploads/absensi/${titik.photo}`;*/
+            const url_photo = `https://hrm.nathabuana.com/uploads/absensi/${titik.photo}`;
            
 
             // cek apakah tanggal attendance = hari ini
