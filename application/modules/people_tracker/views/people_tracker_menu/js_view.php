@@ -282,7 +282,7 @@ function getMaps(empid = '', period = '') {
           const lng = parseFloat(group[0].lng);
 
           group.forEach((titik, index) => {
-            url_photo = 'http://localhost/_hrm/uploads/absensi/'+titik.photo+'';
+            const url_photo = baseUrl+`uploads/absensi/${titik.photo}`;
             // pilih arah bergantian
             const dir = directions[index % directions.length];
 
