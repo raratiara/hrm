@@ -21,7 +21,8 @@
 
 
 <script type="text/javascript">
-var baseUrl = "<?php echo base_url($base_url); ?>";
+/*var baseUrl = "<?php echo base_url($base_url); ?>";*/
+var baseUrl = "https://mas.gerbangdata.co.id/"; 
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 
 // $(document).ready(function() {
