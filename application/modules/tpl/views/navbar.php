@@ -105,7 +105,8 @@
 
 
     function getPendinganApproval(){ 
-        var baseUrl = "<?php echo base_url($base_url); ?>"; 
+        /*var baseUrl = "<?php echo base_url($base_url); ?>"; */
+        var baseUrl = "https://mas.gerbangdata.co.id/"; 
         var path = baseUrl+'profile/profile_menu';
 
 
