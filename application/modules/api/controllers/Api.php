@@ -4968,13 +4968,23 @@ class Api extends API_Controller
 	    $latitude    = $this->input->post('latitude');
 	    $longitude   = $this->input->post('longitude');
 	    $datetime    = $this->input->post('datetime');
+	    $altitude    = $this->input->post('altitude');
+	    $speed    	 = $this->input->post('speed');
+	    $speed_accuracy    	= $this->input->post('speed_accuracy');
+	    $heading    		= $this->input->post('heading');
+	    $heading_accuracy	= $this->input->post('heading_accuracy');
 
 	    if ($employee_id && $latitude && $longitude && $datetime) {
 	        $data = [
 	            'emp_id'    => $employee_id,
 	            'latitude'  => $latitude,
 	            'longitude' => $longitude,
-	            'datetime'  => $datetime
+	            'datetime'  => $datetime,
+	            'altitude' 	=> $altitude,
+	            'speed' 	=> $speed,
+	            'speed_accuracy' 	=> $speed_accuracy,
+	            'heading' 			=> $heading,
+	            'heading_accuracy' 	=> $heading_accuracy
 	        ];
 
 	        $rs = $this->db->insert("tracker_history", $data);
