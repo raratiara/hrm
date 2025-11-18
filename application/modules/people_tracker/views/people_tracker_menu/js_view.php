@@ -13,6 +13,7 @@
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://rawcdn.githack.com/bbecquet/Leaflet.RotatedMarker/master/leaflet.rotatedMarker.js"></script>
 
 
 
@@ -243,13 +244,13 @@ function getMaps(empid = '', period = '', tipe) {
                   : 'tooltip-nama tooltip-red';
 
                 const marker = L.marker([lat, lng], { icon: icon })
-                  .bindTooltip(titik.nama, {
+                  /*.bindTooltip(titik.nama, {
                     permanent: true,
                     direction: dir,
                     offset: [0, -25],
                     className: tooltipClass,
                     interactive: true
-                  })
+                  })*/
                   .bindPopup(`
                     <div class="popup-card">
                       <div class="popup-image"><img src="${url_photo}" alt="photo"></div>
@@ -311,23 +312,30 @@ function getMaps(empid = '', period = '', tipe) {
                 ? 'tooltip-nama tooltip-blue'
                 : 'tooltip-nama tooltip-red';
 
-              const marker = L.marker([lat, lng], { icon: icon })
-                .addTo(map)
-                .bindTooltip(titik.nama, {
-                  permanent: true,
-                  direction: 'top',
-                  offset: [0, -25],
-                  className: tooltipClass,
-                  interactive: true
-                })
-                .bindPopup(`
-                  <div class="popup-card">
-                    <div class="popup-info">
-                      <h4>${titik.nama}</h4>
-                      <p><b>Date:</b> ${titik.datetime_attendance}</p>
-                    </div>
+              /*const marker = L.marker([lat, lng], { icon: icon })*/
+              const marker = L.marker([lat, lng], { 
+                icon: icon,
+                rotationAngle: titik.heading ? parseFloat(titik.heading) : 0,
+                rotationOrigin: 'center center'
+              })
+              .addTo(map)
+              /*.bindTooltip(titik.nama, {
+                permanent: true,
+                direction: 'top',
+                offset: [0, -25],
+                className: tooltipClass,
+                interactive: true
+              })*/
+              .bindPopup(`
+                <div class="popup-card">
+                  <div class="popup-info">
+                    <h4>${titik.nama}</h4>
+                    <p><b>Date:</b> ${titik.datetime_attendance}</p>
                   </div>
-                `);
+                </div>
+              `);
+
+
 
               marker.on("tooltipclick", () => marker.openPopup());
               markersMap[titik.id] = marker;

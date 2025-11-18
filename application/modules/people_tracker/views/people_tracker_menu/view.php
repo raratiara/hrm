@@ -339,8 +339,8 @@
       <table class="table table-striped table-bordered table-hover">
         <thead class="thead-dark">
           <tr>
-            <th style="width:70%;">Name</th>
-            <th style="width:30%">Datetime</th>
+            <th style="width:50%;">Name</th>
+            <th style="width:50%">Datetime</th>
           </tr>
         </thead>
         <tbody id="tblTracker">
