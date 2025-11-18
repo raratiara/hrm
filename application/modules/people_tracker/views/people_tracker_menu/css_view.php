@@ -381,6 +381,29 @@ body.tracker-mode .leaflet-popup-content {
 }
 
 
+.fa-marker {
+    font-size: 30px;
+    color: #007bff; /* biru */
+    -webkit-text-stroke: 1px black; /* outline */
+    text-stroke: 1px black;
+}
+.fa-marker-red {
+    font-size: 30px;
+    color: #ff3333; /* merah */
+    -webkit-text-stroke: 1px black; /* outline */
+    text-stroke: 1px black;
+}
+
+/* Biar icon bisa muncul sebagai marker */
+.leaflet-fa-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 35px;
+}
+
+
 
 /*.leaflet-marker-icon.marker-bounce {
   animation: bounceMarker 0.6s ease-in-out infinite alternate;

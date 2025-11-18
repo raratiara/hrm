@@ -263,7 +263,11 @@ class People_tracker_menu extends MY_Controller
 							'' as photo, 
 							'' as work_location,
 							'tracker_history' as source,
-							a.heading
+							a.heading,
+							a.altitude,
+							a.speed,
+							a.speed_accuracy,
+							a.heading_accuracy
 						from tracker_history a
 						left join employees b on b.id = a.emp_id
 						where ((a.latitude is not null or a.latitude != '') and (a.longitude is not null or a.longitude != ''))
