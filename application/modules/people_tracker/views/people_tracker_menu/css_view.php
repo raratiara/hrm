@@ -376,6 +376,11 @@ body.tracker-mode .leaflet-popup-content {
   color: #333 !important;
 }
 
+.leaflet-marker-icon.rotate {
+    transform-origin: center;
+}
+
+
 
 /*.leaflet-marker-icon.marker-bounce {
   animation: bounceMarker 0.6s ease-in-out infinite alternate;
