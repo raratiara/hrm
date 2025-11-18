@@ -2439,6 +2439,12 @@ class Api extends API_Controller
                         ,q.name as job_level_name
                         ,a.date_of_hire
                         ,a.is_tracking
+                        ,(case 
+						when a.is_tracking = 1 then 'Track anytime'
+						when a.is_tracking = 2 then 'Track during working hours'
+						when a.is_tracking = 0 then 'No tracking'
+						else ''
+						end) as is_tracking_desc
 						from employees a
 						left join divisions b on b.id = a.division_id
 						left join master_shift_time c on c.shift_type = a.shift_type
