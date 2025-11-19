@@ -810,7 +810,7 @@ class Fpu_menu_model extends MY_Model
 						) > 0 THEN 1
 						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$karyawan_id.' THEN 1  
 						ELSE 0 
-					END AS is_approver   
+					END AS is_approver, j.title as project_name      
 					from cash_advance a left join employees b on b.id = a.prepared_by
 					left join employees c on c.id = a.requested_by
 					left join master_status_cashadvance d on d.id = a.status_id
@@ -822,6 +822,7 @@ class Fpu_menu_model extends MY_Model
 					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
 					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
 					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					left join data_project j on j.id = a.project_id
 					GROUP BY a.id)ao 
 					where ao.ca_type = 1
 					and (ao.prepared_by = '.$karyawan_id.' or ao.requested_by = '.$karyawan_id.' or ao.direct_id = '.$karyawan_id.' or ao.is_approver_view = 1) 
