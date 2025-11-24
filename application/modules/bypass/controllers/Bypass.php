@@ -445,7 +445,9 @@ class Bypass extends API_Controller
 			foreach ($rs as $row) {
 				$cek = $this->db->query("select a.* from total_cuti_karyawan a left join employees b on b.id = a.employee_id where b.status_id = 1 and a.employee_id = '".$row->employee_id."' and a.period_start = '".$dateNow."' ")->result(); 
 				if(empty($cek)){
-					$period_end = date('Y-m-d', strtotime('+1 year', strtotime($dateNow)) );
+					/*$period_end = date('Y-m-d', strtotime('+1 year', strtotime($dateNow)) );*/
+					//kurangin 1 hari, bair period start di selanjutnya bagus, ganti tahun aja
+					$period_end = date('Y-m-d', strtotime('-1 day', strtotime('+1 year', strtotime($dateNow))));
 					$data = [
 
 							'employee_id' 	=> $row->employee_id,
@@ -464,7 +466,9 @@ class Bypass extends API_Controller
 
 						$data2 = [
 
-							'expired_date' 	=> $exp_date,
+							/*'expired_date' 	=> $exp_date,*/
+							//sisa cuti period sebelumnya ga bisa dipakai, jadi expired date samain aja kyk period end
+							'expired_date' 	=> $dateYesterday,
 							'updated_date'	=> date("Y-m-d H:i:s")
 							
 						];

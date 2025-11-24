@@ -394,12 +394,15 @@ class Data_karyawan_menu_model extends MY_Model
 			$rs = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$employee_id."' ")->result(); 
 
 			if(empty($rs)){
-				$period_end = date('Y-m-d', strtotime('+1 year', strtotime($period_start)) );
+				/*$period_end = date('Y-m-d', strtotime('+1 year', strtotime($period_start)) );*/
+				//kurangin 1 hari, bair period start di selanjutnya bagus, ganti tahun aja
+				$period_end = date('Y-m-d', strtotime('-1 day', strtotime('+1 year', strtotime($period_start))));
 				$data = [
 						'employee_id' 	=> $employee_id,
 						'period_start' 	=> $period_start,
 						'period_end' 	=> $period_end,
-						'sisa_cuti' 	=> 12,
+						/*'sisa_cuti' 	=> 12,*/
+						'sisa_cuti' 	=> 0, //belum 1 tahun, tidak dapat cuti
 						'status' 		=> 1,
 						'created_date'	=> date("Y-m-d H:i:s")
 					];
@@ -770,7 +773,7 @@ class Data_karyawan_menu_model extends MY_Model
 				// end add ke table user //
 
 
-				//add jatah cuti
+				//add jatah cuti (kalau belum 1 thn, cuti jadiin 0 dulu)
 				$this->generate_jatah_cuti_karyawan_baru($lastId,$dateofHired);
 				//end add jatah cuti
 
