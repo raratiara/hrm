@@ -109,7 +109,8 @@
 
 <script type="text/javascript">
 	var module_path = "<?php echo base_url($folder_name); ?>";
-	var base_url = "<?php echo base_url($base_url); ?>";
+	/*var base_url = "<?php echo base_url($base_url); ?>";*/
+	var base_url = "<?php echo base_url(); ?>";
 
 	$(document).ready(function () { 
 		$(function () {
@@ -159,7 +160,8 @@
 			//var baseUrl = getUrl.protocol + "//" + getUrl.host;
 
 
-			var baseUrl = "<?php echo base_url($base_url); ?>";
+			/*var baseUrl = "<?php echo base_url($base_url); ?>";*/
+			var baseUrl = "<?php echo base_url(); ?>";
 
 
 			$.ajax({
@@ -757,7 +759,8 @@
 		//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
 		//var baseUrl = getUrl.protocol + "//" + getUrl.host;
 
-		var baseUrl = "<?php echo base_url($base_url); ?>";
+		/*var baseUrl = "<?php echo base_url($base_url); ?>";*/
+		var baseUrl = "<?php echo base_url(); ?>"; 
 
 
 		let list_birthdays = $("#list_birthdays").val(); 
@@ -1437,7 +1440,8 @@
 	}
 
 	function goHealthDetails(){
-		var base_url = "<?php echo base_url($base_url); ?>";
+		/*var base_url = "<?php echo base_url($base_url); ?>";*/
+		var base_url = "<?php echo base_url(); ?>"; 
 	 
 		
 		window.open(base_url+"profile/detail_health_menu", "_blank");
@@ -1498,7 +1502,8 @@
 
 
 	function loadQuickLinks() { 
-		var base_url = "<?php echo base_url($base_url); ?>"; 
+		/*var base_url = "<?php echo base_url($base_url); ?>"; */
+		var base_url = "<?php echo base_url(); ?>";
 
 
 	    $.ajax({
