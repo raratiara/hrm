@@ -601,9 +601,9 @@ class Api extends API_Controller
     	$work_location	= $_POST['work_location'];
     	$notes		= $_POST['notes'];
     	$photo		= $_FILES['photo'];
-    	$utc_time	= $_POST['utc_time'];
+    	/*$utc_time	= $_POST['utc_time'];
     	$time_zone	= $_POST['time_zone'];
-    	$utc_offset	= $_POST['utc_offset'];
+    	$utc_offset	= $_POST['utc_offset'];*/
     
 
 
@@ -860,10 +860,10 @@ class Api extends API_Controller
 									'long_checkin' 				=> $longitude,
 									'work_location' 			=> $work_location,
 									'notes' 					=> $notes,
-									'photo' 					=> $document,
+									'photo' 					=> $document/*,
 									'utc_time_checkin' 			=> $utc_time,
 									'time_zone_checkin' 		=> $time_zone,
-									'utc_offset_checkin' 		=> $utc_offset
+									'utc_offset_checkin' 		=> $utc_offset*/
 								];
 
 								$rs = $this->db->insert("time_attendances", $data);
@@ -943,9 +943,9 @@ class Api extends API_Controller
     	$latitude	= $_POST['latitude'];
     	$longitude	= $_POST['longitude'];
     	$work_location	= $_POST['work_location'];
-    	$utc_time	= $_POST['utc_time'];
+    	/*$utc_time	= $_POST['utc_time'];
     	$time_zone	= $_POST['time_zone'];
-    	$utc_offset	= $_POST['utc_offset'];
+    	$utc_offset	= $_POST['utc_offset'];*/
 
 
 		if($employee != '' && $datetime != ''){
@@ -1087,10 +1087,10 @@ class Api extends API_Controller
 									'photo' 					=> $document,
 									'lat_checkout' 				=> $latitude,
 									'long_checkout' 			=> $longitude,
-									'work_location' 			=> $work_location,
+									'work_location' 			=> $work_location/*,
 									'utc_time_checkout' 		=> $utc_time,
 									'time_zone_checkout' 		=> $time_zone,
-									'utc_offset_checkout' 		=> $utc_offset
+									'utc_offset_checkout' 		=> $utc_offset*/
 								];
 								$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
 
