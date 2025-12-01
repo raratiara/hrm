@@ -198,10 +198,18 @@ class Api_model extends MY_Model
         $user   = "u1647144_hrm";
         $pass   = "HRM_NBID@2025!";*/
 
-        $host   = "localhost";
+        /// Nathabuana
+        /*$host   = "localhost";
         $dbname = "hrm";
         $user   = "hrm";
-        $pass   = "HRM_NBID@2025!";
+        $pass   = "HRM_NBID@2025!";*/
+
+        
+        /// MAS
+        $host   = "172.30.2.93";
+        $dbname = "hrm";
+        $user   = "hrm";
+        $pass   = "Nbid@2025!";
         
 
         try {
