@@ -101,7 +101,7 @@ class People_tracker_menu extends MY_Controller
 		{ 
 			if($tipe == 'absensi'){
 				if($empid == '' && $period == ''){
-			
+					$start = microtime(true);                      // mulai stopwatch
 					$rs =  $this->db->query("
 							select 
 								a.id,
@@ -141,6 +141,15 @@ class People_tracker_menu extends MY_Controller
 								AND a.last_long IS NOT NULL AND a.last_long != ''
 							")->result();
 
+					$afterQuery = microtime(true);                 // setelah SQL
+
+					$json = json_encode($rs);                        // proses encode JSON
+					$afterJson = microtime(true);                  // setelah JSON encode
+
+					log_message('error', 'Query time A: ' . ($afterQuery - $start));
+					log_message('error', 'JSON encode time A: ' . ($afterJson - $afterQuery));
+					log_message('error', 'Total time A: ' . ($afterJson - $start));
+
 				}else{
 					$whr_emp=""; $whr_period=""; $whr_emp2=""; $whr_period2="";
 					if($empid != ''){
@@ -159,7 +168,7 @@ class People_tracker_menu extends MY_Controller
 						$whr_period2 = " and (a.datetime between '".$start."' and '".$end."')";
 					}
 
-
+					$start = microtime(true);                      // mulai stopwatch
 					$rs =  $this->db->query("
 						select a.id,a.employee_id, b.full_name as nama,
 							 a.date_attendance,  a.date_attendance_in, a.date_attendance_out
@@ -230,9 +239,19 @@ class People_tracker_menu extends MY_Controller
 								
 					")->result();*/
 
+					$afterQuery = microtime(true);                 // setelah SQL
+
+					$json = json_encode($rs);                        // proses encode JSON
+					$afterJson = microtime(true);                  // setelah JSON encode
+
+					log_message('error', 'Query time B: ' . ($afterQuery - $start));
+					log_message('error', 'JSON encode time B: ' . ($afterJson - $afterQuery));
+					log_message('error', 'Total time B: ' . ($afterJson - $start));
+
 				}
 
-				echo json_encode($rs);
+				/*echo json_encode($rs);*/
+				echo $json; // output ke frontend
 
 			}else{ //tracker
 				$whr_emp2=""; $whr_period2="";
@@ -248,7 +267,7 @@ class People_tracker_menu extends MY_Controller
 					$whr_period2 = " and (a.datetime between '".$start."' and '".$end."')";
 				}	
 
-
+				$start = microtime(true);                      // mulai stopwatch
 				$rs =  $this->db->query("
 						select a.id, 
 							a.emp_id as employee_id, 
@@ -301,7 +320,17 @@ class People_tracker_menu extends MY_Controller
 
 
 
-				echo json_encode($valResult);
+				/*echo json_encode($valResult);*/
+				$afterQuery = microtime(true);                 // setelah SQL
+
+				$json = json_encode($valResult);                        // proses encode JSON
+				$afterJson = microtime(true);                  // setelah JSON encode
+
+				log_message('error', 'Query time C: ' . ($afterQuery - $start));
+				log_message('error', 'JSON encode time C: ' . ($afterJson - $afterQuery));
+				log_message('error', 'Total time C: ' . ($afterJson - $start));
+
+				echo $json; // output ke frontend
 
 			}
 			
