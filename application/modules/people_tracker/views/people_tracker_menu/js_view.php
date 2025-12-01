@@ -378,9 +378,9 @@ function getMaps(empid = '', period = '', tipe) {
                     <p><b>Date:</b> ${titik.datetime_attendance}</p>
                     <p><b>Altitude:</b> ${altitude}</p>
                     <p><b>Speed:</b> ${speed}</p>
-                    <p><b>Speed Accuracy:</b> ${speed_accuracy}</p>
                     <p><b>Heading:</b> ${heading}</p>
-                    <p><b>Heading Accuracy:</b> ${heading_accuracy}</p>
+                    <p><b>Latitude:</b> ${lat}</p>
+                    <p><b>Longitude:</b> ${lng}</p>
                   </div>
                 </div>
               `);
