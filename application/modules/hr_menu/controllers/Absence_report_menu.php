@@ -172,16 +172,23 @@ class Absence_report_menu extends MY_Controller
 	                                  when a.is_leaving_office_early = "Y" then "Leaving Office Early"
 	                                  else "" end) as is_leaving_office_early_desc,
 	                            d.name as branch_name, e.full_name as direct_name,
-	                            (case when a.leave_absences_id is not null then "1" else "" end) as cuti,
+	                            (case when a.leave_absences_id is not null and leave_type != 5 then "1" else "" end) as cuti,
 	                            (case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk,
 	                            (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket,
 	                            (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
 	                            a.notes as keterangan
+	                            ,b.emp_code, f.name as dept_name, g.name as work_location_name,
+							    (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo,
+								(case when a.leave_absences_id is not null and leave_type = 5 then "1" else "" end) as sakit,
+								(case when a.is_late = "Y" then "1" else "" end) as late,
+    							(case when a.is_leaving_office_early = "Y" then "1" else "" end) as leaving_early
 	                        from time_attendances a 
 	                        left join employees b on b.id = a.employee_id
 	                        left join master_leaves c on c.id = a.leave_type
 	                        left join branches d on d.id = b.branch_id
 	                        left join employees e on e.id = b.direct_id
+	                        left join departments f on f.id = b.department_id
+							left join master_work_location g on g.id = b.work_location
 	                        where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
 	                        ORDER BY id ASC';
 
@@ -189,15 +196,26 @@ class Absence_report_menu extends MY_Controller
 	                $data = $res->result();
 
 	                $ttl_cuti=0; $ttl_masuk=0; $ttl_piket=0; $ttl_wfh=0;
+	                $ttl_wfo=0; $ttl_sakit=0; $ttl_working_hours=0; $ttl_late=0; $ttl_leaving_early=0;
 	                $valrows=[]; $valfooter=[];
 
 	                foreach($data as $rowdata){
 	                    $valrows[] = [
+	                    	'',
 	                        $rowdata->date_attendance,
-	                        $rowdata->cuti,
-	                        $rowdata->masuk,
-	                        $rowdata->piket,
+	                        $rowdata->attendance_type,
+	                        $rowdata->wfo,
 	                        $rowdata->wfh,
+	                        '',
+	                        $rowdata->sakit,
+	                        $rowdata->cuti,
+	                        $rowdata->date_attendance_in,
+	                        $rowdata->date_attendance_out,
+	                        $rowdata->num_of_working_hours,
+	                        $rowdata->late,
+	                        $rowdata->leaving_early,
+	                        '',
+	                        '',
 	                        $rowdata->keterangan
 	                    ];
 
@@ -205,25 +223,45 @@ class Absence_report_menu extends MY_Controller
 	                    $ttl_masuk += ($rowdata->masuk != '' ? $rowdata->masuk : 0);
 	                    $ttl_piket += ($rowdata->piket != '' ? $rowdata->piket : 0);
 	                    $ttl_wfh   += ($rowdata->wfh != '' ? $rowdata->wfh : 0);
+	                    $ttl_wfo   += ($rowdata->wfo != '' ? $rowdata->wfo : 0);
+	                    $ttl_sakit += ($rowdata->sakit != '' ? $rowdata->sakit : 0);
+	                    $ttl_working_hours += ($rowdata->num_of_working_hours != '' ? $rowdata->num_of_working_hours : 0);
+	                    $ttl_late += ($rowdata->late != '' ? $rowdata->late : 0);
+	                    $ttl_leaving_early += ($rowdata->leaving_early != '' ? $rowdata->leaving_early : 0);
 	                }
 
 	                $valSummary[] = [
 	                    $no,
+	                    $data[0]->emp_code,
 	                    $data[0]->full_name,
+	                    $data[0]->dept_name,
+	                    $data[0]->work_location_name,
+	                    $data[0]->attendance_type,
+	                    $ttl_wfo,
+	                    $ttl_wfh,
+	                    '', //onsite,
+	                    $ttl_sakit,
 	                    $ttl_cuti,
-	                    $ttl_masuk,
-	                    $ttl_piket,
-	                    $ttl_wfh
+	                    $ttl_working_hours, 
+	                    $ttl_late,
+	                    $ttl_leaving_early,
+	                    '', //lembur jam
+	                    '', //lembur rp
+	                    '' //keterangan
 	                ];
 
 	                $valfooter[] = ['Total', $ttl_cuti, $ttl_masuk, $ttl_piket, $ttl_wfh];
 
+	   
+
 	                $dataSheets[$data[0]->full_name] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
-	                    'headers' => ['Tanggal', 'Cuti', 'Masuk', 'Piket', 'WFH', 'Keterangan'],
+	                    'headers' => ['No', 'Tanggal', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit', 'Ijin/Cuti', 'Jam Masuk', 'Jam Pulang', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
 	                    'rows' => $valrows,
 	                    'subtitle' => [
+	                    	['NIK', $data[0]->emp_code],
 	                        ['Nama', $data[0]->full_name],
+	                        ['Departemen', $data[0]->dept_name],
 	                        ['Area', $data[0]->branch_name],
 	                        ['Leader', $data[0]->direct_name],
 	                        ['Periode', $filter_periode],
@@ -235,9 +273,10 @@ class Absence_report_menu extends MY_Controller
 	            }
 
 	            if($where_emp==""){
+	               
 	                $dataSheets['Summary'] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
-	                    'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+	                    'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
 	                    'rows' => $valSummary,
 	                    'subtitle' => [
 	                        ['Division', $rowemp_absen->division_name],
@@ -259,8 +298,8 @@ class Absence_report_menu extends MY_Controller
 	        } else {
 	            $dataSheets['Summary'] = [
 	                'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
-	                'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
-	                'rows' => [['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data']],
+	                'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                'rows' => [['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data','No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data','No Data', 'No Data', 'No Data', 'No Data', 'No Data']],
 	                'subtitle' => [
 	                    ['Area', 'All'],
 	                    ['Leader', 'All'],
@@ -288,11 +327,63 @@ class Absence_report_menu extends MY_Controller
 
 	            echo '<Row></Row><Row></Row>';
 
-	            echo '<Row>';
-	            foreach ($sheetData['headers'] as $headerCell) {
-	                echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . htmlspecialchars($headerCell) . '</Data></Cell>';
-	            }
-	            echo '</Row>';
+	           
+
+
+				echo '<Row>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">No</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">NIK</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Nama</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Departemen</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Lokasi Kerja</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Shift</Data></Cell>';
+
+				/* Merged Header "Masuk" */
+				echo '<Cell ss:MergeAcross="2" ss:StyleID="HeaderStyle"><Data ss:Type="String">Masuk</Data></Cell>';
+
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Sakit</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Ijin/Cuti</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Jam Masuk</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Jam Pulang</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Total Jam</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Datang Terlambat</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Pulang Cepat</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Lembur (jam)</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Lembur (Rp)</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Keterangan</Data></Cell>';
+				echo '</Row>';
+
+				/* HEADER BARIS 2 */
+				echo '<Row>';
+				/*echo '<Cell/><Cell/><Cell/><Cell/><Cell/><Cell/>';*/  // 6 kolom awal kosong (No, NIK, Nama, Departemen, Lokasi Kerja, Shift)
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">WFO</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">WFH</Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Onsite</Data></Cell>';
+				/*echo '<Cell/><Cell/><Cell/><Cell/><Cell/><Cell/><Cell/><Cell/>';*/ // sisanya tetap 8 kolom
+
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
+
+
+				echo '</Row>';
+
+
+
 
 	            foreach ($sheetData['rows'] as $row) {
 	                echo '<Row>';
