@@ -252,7 +252,18 @@ class Absence_report_menu extends MY_Controller
 
 	                $valfooter[] = ['Total', $ttl_cuti, $ttl_masuk, $ttl_piket, $ttl_wfh];
 
-	   
+	                /*$dataSheets[$data[0]->full_name] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['Tanggal', 'Cuti', 'Masuk', 'Piket', 'WFH', 'Keterangan'],
+	                    'rows' => $valrows,
+	                    'subtitle' => [
+	                        ['Nama', $data[0]->full_name],
+	                        ['Area', $data[0]->branch_name],
+	                        ['Leader', $data[0]->direct_name],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => $valfooter
+	                ];*/
 
 	                $dataSheets[$data[0]->full_name] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
@@ -273,7 +284,18 @@ class Absence_report_menu extends MY_Controller
 	            }
 
 	            if($where_emp==""){
-	               
+	                /*$dataSheets['Summary'] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+	                    'rows' => $valSummary,
+	                    'subtitle' => [
+	                        ['Division', $rowemp_absen->division_name],
+	                        ['Area', 'All'],
+	                        ['Leader', 'All'],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => []
+	                ];*/
 	                $dataSheets['Summary'] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
 	                    'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
@@ -327,63 +349,11 @@ class Absence_report_menu extends MY_Controller
 
 	            echo '<Row></Row><Row></Row>';
 
-	           
-
-
-				echo '<Row>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">No</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">NIK</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Nama</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Departemen</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Lokasi Kerja</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Shift</Data></Cell>';
-
-				/* Merged Header "Masuk" */
-				echo '<Cell ss:MergeAcross="2" ss:StyleID="HeaderStyle"><Data ss:Type="String">Masuk</Data></Cell>';
-
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Sakit</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Ijin/Cuti</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Jam Masuk</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Jam Pulang</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Total Jam</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Datang Terlambat</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Pulang Cepat</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Lembur (jam)</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Lembur (Rp)</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Keterangan</Data></Cell>';
-				echo '</Row>';
-
-				/* HEADER BARIS 2 */
-				echo '<Row>';
-				/*echo '<Cell/><Cell/><Cell/><Cell/><Cell/><Cell/>';*/  // 6 kolom awal kosong (No, NIK, Nama, Departemen, Lokasi Kerja, Shift)
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">WFO</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">WFH</Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Onsite</Data></Cell>';
-				/*echo '<Cell/><Cell/><Cell/><Cell/><Cell/><Cell/><Cell/><Cell/>';*/ // sisanya tetap 8 kolom
-
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-				echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String"></Data></Cell>';
-
-
-				echo '</Row>';
-
-
-
+	            echo '<Row>';
+	            foreach ($sheetData['headers'] as $headerCell) {
+	                echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . htmlspecialchars($headerCell) . '</Data></Cell>';
+	            }
+	            echo '</Row>';
 
 	            foreach ($sheetData['rows'] as $row) {
 	                echo '<Row>';
