@@ -963,7 +963,7 @@ class Api extends API_Controller
     	$utc_offset = $_POST['utc_offset']; //MAS
 
     	$utc_time = $datetime;
-    	
+
 
 		if($employee != '' && $datetime != ''){
 
@@ -2473,18 +2473,22 @@ class Api extends API_Controller
 						when a.is_tracking = 2 then 'Track during working hours'
 						when a.is_tracking = 0 then 'No tracking'
 						else ''
-						end) as is_tracking_desc
-						from employees a
-						left join divisions b on b.id = a.division_id
-						left join master_shift_time c on c.shift_type = a.shift_type
-						LEFT JOIN
-					    departments h ON h.id = a.department_id
-                        LEFT JOIN
-					    master_emp_status i ON i.id = a.employment_status_id
-                        LEFT JOIN
-					    employees p ON p.id = a.direct_id
-                        left join master_job_level q on q.id = a.job_level_id
-                    	".$where." ")->result();  
+						end) as is_tracking_desc,
+						r.name as work_location_name,
+					    r.time_zone as work_location_time_zone,
+					    r.utc_offset as work_location_utc_offset
+					from employees a
+					left join divisions b on b.id = a.division_id
+					left join master_shift_time c on c.shift_type = a.shift_type
+					LEFT JOIN
+				    departments h ON h.id = a.department_id
+                    LEFT JOIN
+				    master_emp_status i ON i.id = a.employment_status_id
+                    LEFT JOIN
+				    employees p ON p.id = a.direct_id
+                    left join master_job_level q on q.id = a.job_level_id
+                    left join master_work_location r on r.id = a.work_location
+                	".$where." ")->result();  
     	}else if($empType[0]->shift_type == 'Shift'){
     		if($employee == null || $employee == ''){
 	    		$where=''; 
@@ -2509,20 +2513,29 @@ class Api extends API_Controller
                 ,p.full_name AS direct_name
                 ,q.name as job_level_name
                 ,d.date_of_hire
-                ,d.is_tracking
-				from shift_schedule a
-				left join group_shift_schedule b on b.shift_schedule_id = a.id
-				left join master_shift_time c on c.shift_id = b.`".$tgl."`
-				left join employees d on d.id = b.employee_id
-				left join divisions e on e.id = d.division_id
-				LEFT JOIN
-			    departments h ON h.id = d.department_id
-                LEFT JOIN
-			    master_emp_status i ON i.id = d.employment_status_id
-                LEFT JOIN
-			    employees p ON p.id = d.direct_id
-                left join master_job_level q on q.id = d.job_level_id
-				".$where." ")->result();  
+                ,d.is_tracking,
+                when d.is_tracking = 1 then 'Track anytime'
+					when d.is_tracking = 2 then 'Track during working hours'
+					when d.is_tracking = 0 then 'No tracking'
+					else ''
+					end) as is_tracking_desc,
+                r.name as work_location_name,
+			    r.time_zone as work_location_time_zone,
+			    r.utc_offset as work_location_utc_offset
+			from shift_schedule a
+			left join group_shift_schedule b on b.shift_schedule_id = a.id
+			left join master_shift_time c on c.shift_id = b.`".$tgl."`
+			left join employees d on d.id = b.employee_id
+			left join divisions e on e.id = d.division_id
+			LEFT JOIN
+		    departments h ON h.id = d.department_id
+            LEFT JOIN
+		    master_emp_status i ON i.id = d.employment_status_id
+            LEFT JOIN
+		    employees p ON p.id = d.direct_id
+            left join master_job_level q on q.id = d.job_level_id
+            left join master_work_location r on r.id = d.work_location
+			".$where." ")->result();  
     	} 
     	
 
