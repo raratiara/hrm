@@ -154,30 +154,40 @@ class Api extends API_Controller
 
     	$username	= $_REQUEST['username'];
     	$password 	= $_REQUEST['password'];
+    	$uid 		= $_REQUEST['uid'];
 
 
-		if($username != '' && $password != ''){
+		if($username != '' && $password != '' && $uid != ''){
 			
 			$cek_login = $this->api->cek_login($username, $password);	
 			
 			if($cek_login != '')
 			{ 
-				$data = array(
-					"id" 			=> $cek_login->user_id,
-					"name" 			=> $cek_login->name,
-					"email" 		=> $cek_login->email,
-					"employee_id" 	=> $cek_login->id_karyawan
-				);
-	 
-				$token = $this->genJWTdata($data);	 
-				$response = [
-					'status' 		=> 200,
-					'message' 		=> 'Success',
-					"token" 		=> $token[0],
-					"expire" 		=> $token[1],
-					"email" 		=> $cek_login->email,
-					"employee_id" 	=> $cek_login->id_karyawan 
-				];
+				if($uid == $cek_login->uid){
+					$data = array(
+						"id" 			=> $cek_login->user_id,
+						"name" 			=> $cek_login->name,
+						"email" 		=> $cek_login->email,
+						"employee_id" 	=> $cek_login->id_karyawan
+					);
+		 
+					$token = $this->genJWTdata($data);	 
+					$response = [
+						'status' 		=> 200,
+						'message' 		=> 'Success',
+						"token" 		=> $token[0],
+						"expire" 		=> $token[1],
+						"email" 		=> $cek_login->email,
+						"employee_id" 	=> $cek_login->id_karyawan 
+					];
+				}else{
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'This account is already active on another device.'
+					];
+				}
+				
 			} else { 
 				$response = [
 					'status' 	=> 401,
@@ -213,63 +223,97 @@ class Api extends API_Controller
     	$url		= $_REQUEST['url'];
     	$username	= $_REQUEST['username'];
     	$password 	= $_REQUEST['password'];
+    	$uid 		= $_REQUEST['uid'];
 
 
-    	//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
-    	$sql = "select * from companies where website = '".$url."'";
-    	//$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
-    	$cek_url = $this->api->query_db($sql); 
-    
-    	if(!empty($cek_url)){ 
-    		$url_app 			= $cek_url['url_app'];
-    		
-    		$cek_login = $this->api->cek_login($username, $password);
-    	
-    		if(!empty($cek_login)){ 
-    			$logo 				= $cek_login->logo;
-    			$nama_perusahaan 	= $cek_login->name;
-    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
+    	try {
 
-				$version 	= $getversion[0]->version;
-    			$urllogo 	= $url.'/uploads/logo/'.$logo;
+    		//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
+	    	$sql = "select * from companies where website = '".$url."'";
+	    	//$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
+	    	$cek_url = $this->api->query_db($sql); 
+	    
+	    	if(!empty($cek_url)){ 
+	    		/*$url_app 			= $cek_url['url_app'];*/
+	    		// kalau bentuk object → convert ke array
+			    if (is_object($cek_url)) {
+			        $cek_url = (array) $cek_url;
+			    }
 
-				$data = array(
-					"nama_perusahaan" => $nama_perusahaan,
-					"logo_perusahaan" => $urllogo,
-					"version" => $version,
-					"url_app" => $url_app
-				);
-	 
-				$response = [
-					'status' 	=> 200,
-					'message' 	=> 'Success',
-					"data" 		=> $data
-				];
-    		}else{ 
-    			$response = [
+			    // kalau string JSON → decode
+			    if (is_string($cek_url)) {
+			        $cek_url = json_decode($cek_url, true);
+			    }
+
+			    $url_app = $cek_url['url_app'] ?? null;
+	    		
+	    		$cek_login = $this->api->cek_login($username, $password);
+	    	
+	    		if(!empty($cek_login)){ 
+	    			$logo 				= $cek_login->logo;
+	    			$nama_perusahaan 	= $cek_login->name;
+	    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
+
+					$version 	= $getversion[0]->version;
+	    			$urllogo 	= $url.'/uploads/logo/'.$logo;
+
+					$data = array(
+						"nama_perusahaan" => $nama_perusahaan,
+						"logo_perusahaan" => $urllogo,
+						"version" => $version,
+						"url_app" => $url_app
+					);
+
+					/// update UID
+					$upduid = [
+						'uid' => $uid
+					];
+					$this->db->update("user", $upduid, "user_id='".$cek_login->user_id."'");
+		 
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success',
+						"data" 		=> $data
+					];
+	    		}else{ 
+	    			$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'User not found'
+					];
+	    		}
+	    		
+	    	}else{ 
+	    		$response = [
 					'status' 	=> 401,
 					'message' 	=> 'Failed',
-					'error' 	=> 'User not found'
+					'error' 	=> 'URL not found x'
 				];
-    		}
-    		
-    	}else{ 
-    		$response = [
-				'status' 	=> 401,
-				'message' 	=> 'Failed',
-				'error' 	=> 'URL not found x'
-			];
-    	}
+	    	}
 
-		
+			
 
-		
-		
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
+			
+			
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+		}
+		catch (Throwable $e) {
+		    $response = [
+		        'status' => 500,
+		        'message' => 'Server Error',
+		        'error' => $e->getMessage(),          // pesan error
+		        'line'  => $e->getLine(),             // baris error
+		        'file'  => $e->getFile()              // file error
+		    ];
+		    return $this->render_json($response, 500);
+		}
+
+    	
     }
 
 
