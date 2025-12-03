@@ -603,11 +603,11 @@ class Api extends API_Controller
 	    	$work_location	= $_POST['work_location'];
 	    	$notes		= $_POST['notes'];
 	    	$photo		= $_FILES['photo'];
-	    	$utc_time 	= $_POST['utc_time']; //MAS
+	    	/*$utc_time 	= $_POST['utc_time']; *///MAS
 	    	$time_zone 	= $_POST['time_zone']; //MAS
 	    	$utc_offset = $_POST['utc_offset']; //MAS
 	    	
-
+	    	$utc_time = $datetime;
 
 			if($employee != '' && $datetime != ''){
 
@@ -958,10 +958,12 @@ class Api extends API_Controller
     	$latitude	= $_POST['latitude'];
     	$longitude	= $_POST['longitude'];
     	$work_location	= $_POST['work_location'];
-    	$utc_time 	= $_POST['utc_time']; //MAS
+    	/*$utc_time 	= $_POST['utc_time'];*/ //MAS
     	$time_zone 	= $_POST['time_zone']; //MAS
     	$utc_offset = $_POST['utc_offset']; //MAS
 
+    	$utc_time = $datetime;
+    	
 
 		if($employee != '' && $datetime != ''){
 
