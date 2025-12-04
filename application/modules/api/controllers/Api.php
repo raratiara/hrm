@@ -680,6 +680,13 @@ class Api extends API_Controller
 	    return $utc->format('Y-m-d H:i:s');
 	}
 
+	function convertLocalToUTC($localDatetime, $timezone)
+	{
+	    $dt = new DateTime($localDatetime, new DateTimeZone($timezone));
+	    $dt->setTimezone(new DateTimeZone('UTC'));
+	    return $dt->format('Y-m-d H:i:s');
+	}
+
 
 
     public function absen_checkin()
@@ -735,17 +742,10 @@ class Api extends API_Controller
 				      	////masukin data absen
 
 				      	//convert 
-				      	/*if ($utc_offset == $data_work_location[0]->utc_offset) {
-						    $datetime_local = $datetime; // sudah lokal
-						} else {
-						    $datetime_local = convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
-						}*/
-
-				      	$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
-
-						/*$utcTime = new DateTime($datetime, new DateTimeZone('UTC'));
-						$utcTime->setTimezone(new DateTimeZone($data_work_location[0]->time_zone));
-						$datetime_local = $utcTime->format('Y-m-d H:i:s');*/
+				      	//$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
+				      	$datetime_local = $datetime;
+						$datetime_utc 	= $this->convertLocalToUTC($datetime, $data_work_location[0]->time_zone);
+						
 				      	//end convert
 
 				  		$exp 			= explode(" ",$datetime);
@@ -1002,7 +1002,8 @@ class Api extends API_Controller
 												'photo' 					=> $document,
 												'time_zone_checkin' 		=> $data_work_location[0]->time_zone,
 												'utc_offset_checkin' 		=> $data_work_location[0]->utc_offset,
-												'datetime_local_checkin' 	=> $datetime_local
+												'datetime_local_checkin' 	=> $datetime_local,
+												'utc_time_checkin' 			=> $datetime_utc
 											];
 
 											$rs = $this->db->insert("time_attendances", $data);
@@ -1140,7 +1141,9 @@ class Api extends API_Controller
 
 				  	}else{ ///masukin absen
 
-				  		$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
+				  		/*$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);*/
+				  		$datetime_local = $datetime;
+						$datetime_utc 	= $this->convertLocalToUTC($datetime, $data_work_location[0]->time_zone);
 
 					  	$exp 			= explode(" ",$datetime);
 						$date 			= $exp[0];
@@ -1282,7 +1285,8 @@ class Api extends API_Controller
 												'work_location' 			=> $work_location,
 												'time_zone_checkout' 		=> $data_work_location[0]->time_zone,
 												'utc_offset_checkout' 		=> $data_work_location[0]->utc_offset,
-												'datetime_local_checkout' 	=> $datetime_local
+												'datetime_local_checkout' 	=> $datetime_local,
+												'utc_time_checkin' 			=> $datetime_utc
 											];
 											$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
 
