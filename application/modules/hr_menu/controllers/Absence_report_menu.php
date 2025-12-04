@@ -168,36 +168,62 @@ class Absence_report_menu extends MY_Controller
 	            foreach($emp_absen as $rowemp_absen){
 
 	                $sql = 'select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
-	                            (case when a.leave_type != "" then concat("(",c.name,")") 
-	                                  when a.is_leaving_office_early = "Y" then "Leaving Office Early"
-	                                  else "" end) as is_leaving_office_early_desc,
-	                            d.name as branch_name, e.full_name as direct_name,
-	                            (case when a.leave_absences_id is not null then "1" else "" end) as cuti,
-	                            (case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk,
-	                            (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket,
-	                            (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
-	                            a.notes as keterangan
-	                        from time_attendances a 
-	                        left join employees b on b.id = a.employee_id
-	                        left join master_leaves c on c.id = a.leave_type
-	                        left join branches d on d.id = b.branch_id
-	                        left join employees e on e.id = b.direct_id
-	                        where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
-	                        ORDER BY id ASC';
+								(case when a.leave_type != "" then concat("(",c.name,")") 
+									  when a.is_leaving_office_early = "Y" then "Leaving Office Early"
+									  else "" end) as is_leaving_office_early_desc,
+								d.name as branch_name, e.full_name as direct_name,
+								(case when a.leave_absences_id is not null and a.leave_type != 5 and h.status_approval = 2 then "1" else "" end) as cuti,
+								(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk,
+								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket,
+								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
+								a.notes as keterangan
+								,b.emp_code, f.name as dept_name, g.name as work_location_name,
+								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo,
+								(case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit,
+								(case when a.is_late = "Y" then "1" else "" end) as late,
+								(case when a.is_leaving_office_early = "Y" then "1" else "" end) as leaving_early,
+							    i.num_of_hour as overtime_num_of_hour,
+							    i.amount as overtime_amount
+							from time_attendances a 
+							left join employees b on b.id = a.employee_id
+							left join master_leaves c on c.id = a.leave_type
+							left join branches d on d.id = b.branch_id
+							left join employees e on e.id = b.direct_id
+							left join departments f on f.id = b.department_id
+							left join master_work_location g on g.id = b.work_location
+							left join leave_absences h on h.id = a.leave_absences_id
+							left join overtimes i on i.employee_id = a.employee_id 
+							and (a.date_attendance = DATE_FORMAT(i.datetime_start, "%Y-%m-%d"))
+							and i.type = 1 and i.status_id = 2
+							where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
+							ORDER BY id ASC';
 
 	                $res = $this->db->query($sql);
 	                $data = $res->result();
 
 	                $ttl_cuti=0; $ttl_masuk=0; $ttl_piket=0; $ttl_wfh=0;
+	                $ttl_wfo=0; $ttl_sakit=0; $ttl_working_hours=0; $ttl_late=0; $ttl_leaving_early=0;
+	                $ttl_overtime_num_of_hour=0; $ttl_overtime_amount=0;
 	                $valrows=[]; $valfooter=[];
 
+	                $no_dtl = 1;
 	                foreach($data as $rowdata){
 	                    $valrows[] = [
+	                    	$no_dtl,
 	                        $rowdata->date_attendance,
-	                        $rowdata->cuti,
-	                        $rowdata->masuk,
-	                        $rowdata->piket,
+	                        $rowdata->attendance_type,
+	                        $rowdata->wfo,
 	                        $rowdata->wfh,
+	                        $rowdata->piket,
+	                        $rowdata->sakit,
+	                        $rowdata->cuti,
+	                        $rowdata->date_attendance_in,
+	                        $rowdata->date_attendance_out,
+	                        $rowdata->num_of_working_hours,
+	                        $rowdata->late,
+	                        $rowdata->leaving_early,
+	                        $rowdata->overtime_num_of_hour,
+	                        $rowdata->overtime_amount,
 	                        $rowdata->keterangan
 	                    ];
 
@@ -205,25 +231,61 @@ class Absence_report_menu extends MY_Controller
 	                    $ttl_masuk += ($rowdata->masuk != '' ? $rowdata->masuk : 0);
 	                    $ttl_piket += ($rowdata->piket != '' ? $rowdata->piket : 0);
 	                    $ttl_wfh   += ($rowdata->wfh != '' ? $rowdata->wfh : 0);
+	                    $ttl_wfo   += ($rowdata->wfo != '' ? $rowdata->wfo : 0);
+	                    $ttl_sakit += ($rowdata->sakit != '' ? $rowdata->sakit : 0);
+	                    $ttl_working_hours += ($rowdata->num_of_working_hours != '' ? $rowdata->num_of_working_hours : 0);
+	                    $ttl_late += ($rowdata->late != '' ? $rowdata->late : 0);
+	                    $ttl_leaving_early += ($rowdata->leaving_early != '' ? $rowdata->leaving_early : 0);
+	                    $ttl_overtime_num_of_hour += ($rowdata->overtime_num_of_hour != '' ? $rowdata->overtime_num_of_hour : 0);
+	                    $ttl_overtime_amount += ($rowdata->overtime_amount != '' ? $rowdata->overtime_amount : 0);
+
+
+	                    $no_dtl++;
 	                }
 
 	                $valSummary[] = [
 	                    $no,
+	                    $data[0]->emp_code,
 	                    $data[0]->full_name,
+	                    $data[0]->dept_name,
+	                    $data[0]->work_location_name,
+	                    $data[0]->attendance_type,
+	                    $ttl_wfo,
+	                    $ttl_wfh,
+	                    $ttl_piket, //onsite,
+	                    $ttl_sakit,
 	                    $ttl_cuti,
-	                    $ttl_masuk,
-	                    $ttl_piket,
-	                    $ttl_wfh
+	                    $ttl_working_hours, 
+	                    $ttl_late,
+	                    $ttl_leaving_early,
+	                    $ttl_overtime_num_of_hour, //lembur jam
+	                    $ttl_overtime_amount, //lembur rp
+	                    '' //keterangan
 	                ];
 
-	                $valfooter[] = ['Total', $ttl_cuti, $ttl_masuk, $ttl_piket, $ttl_wfh];
+	                $valfooter[] = ['Total','','', $ttl_wfo, $ttl_wfh, $ttl_piket, $ttl_sakit, $ttl_cuti, '', '', $ttl_working_hours, $ttl_late, $ttl_leaving_early ];
 
-	                $dataSheets[$data[0]->full_name] = [
+	                /*$dataSheets[$data[0]->full_name] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
 	                    'headers' => ['Tanggal', 'Cuti', 'Masuk', 'Piket', 'WFH', 'Keterangan'],
 	                    'rows' => $valrows,
 	                    'subtitle' => [
 	                        ['Nama', $data[0]->full_name],
+	                        ['Area', $data[0]->branch_name],
+	                        ['Leader', $data[0]->direct_name],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => $valfooter
+	                ];*/
+
+	                $dataSheets[$data[0]->full_name] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['No', 'Tanggal', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit', 'Ijin/Cuti', 'Jam Masuk', 'Jam Pulang', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                    'rows' => $valrows,
+	                    'subtitle' => [
+	                    	['NIK', $data[0]->emp_code],
+	                        ['Nama', $data[0]->full_name],
+	                        ['Departemen', $data[0]->dept_name],
 	                        ['Area', $data[0]->branch_name],
 	                        ['Leader', $data[0]->direct_name],
 	                        ['Periode', $filter_periode],
@@ -235,9 +297,21 @@ class Absence_report_menu extends MY_Controller
 	            }
 
 	            if($where_emp==""){
-	                $dataSheets['Summary'] = [
+	                /*$dataSheets['Summary'] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
 	                    'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+	                    'rows' => $valSummary,
+	                    'subtitle' => [
+	                        ['Division', $rowemp_absen->division_name],
+	                        ['Area', 'All'],
+	                        ['Leader', 'All'],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => []
+	                ];*/
+	                $dataSheets['Summary'] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
 	                    'rows' => $valSummary,
 	                    'subtitle' => [
 	                        ['Division', $rowemp_absen->division_name],
@@ -259,8 +333,8 @@ class Absence_report_menu extends MY_Controller
 	        } else {
 	            $dataSheets['Summary'] = [
 	                'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
-	                'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
-	                'rows' => [['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data']],
+	                'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                'rows' => [['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data','No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data','No Data', 'No Data', 'No Data', 'No Data', 'No Data']],
 	                'subtitle' => [
 	                    ['Area', 'All'],
 	                    ['Leader', 'All'],
