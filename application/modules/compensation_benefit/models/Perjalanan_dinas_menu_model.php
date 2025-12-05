@@ -483,6 +483,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 		$diff_day 		= number_format($diff_day);
 
 
+		$different_work_location = trim($post['different_work_location'] ?? '');
+		$bustrip_loc = trim($post['bustrip_loc'] ?? '');
+
 
 		if (!empty($post['employee'])) {
 			$dataEmp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result(); 
@@ -497,7 +500,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 						'status_id' 	=> 1, //waiting approval
 						'created_date' 	=> date("Y-m-d H:i:s"),
 						'ttl_days' 		=> $diff_day,
-						'ttl_cost' 		=> trim($post['total_amount'])
+						'ttl_cost' 		=> trim($post['total_amount']),
+						'is_different_work_location' 	=> $different_work_location,
+						'work_location_id' 				=> $bustrip_loc
 
 					];
 					$rs = $this->db->insert($this->table_name, $data);
@@ -542,6 +547,32 @@ class Perjalanan_dinas_menu_model extends MY_Model
 								}
 							}
 						}
+
+						/// add bustrip location
+						if($different_work_location == 1){
+							if ($diff_day > 0) {
+							    $workLocation = $this->db->query("select * from master_work_location where id = '".$bustrip_loc."'")->result();
+
+							    $dateLoop = $start_date;
+
+							    for ($i = 0; $i < $diff_day; $i++) {
+							        $bustrip_date = $dateLoop->format("Y-m-d");
+
+							        $dataLoc = [
+							            'business_trip_id'  => $lastId,
+							            'employee_id'       => trim($post['employee']),
+							            'bustrip_date'      => $bustrip_date,
+							            'work_location_id' 		=> $bustrip_loc
+							        ];
+
+							        $this->db->insert('business_trip_location', $dataLoc);
+
+							        // Next date
+							        $dateLoop->modify('+1 day');
+							    }
+							}
+						}
+
 
 						return $rs;
 					} else
