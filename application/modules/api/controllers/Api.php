@@ -146,6 +146,164 @@ class Api extends API_Controller
 		$this->render_json($response, $response['status']);
     }
 
+
+    function getWorkLocationInfo($modul, $employee_id, $dateNow)
+	{
+		if($modul == 'login'){
+
+			// Cek business trip location
+		    $bustrip_q = $this->db->query("
+		        select c.time_zone, c.utc_offset 
+		        from business_trip_location a 
+		        left join business_trip b on b.id = a.business_trip_id
+		        left join master_work_location c on c.id = b.work_location_id
+		        where a.employee_id = '".$employee_id."' 
+		        and a.bustrip_date = '".$dateNow."' 
+		        and b.status_id = 2
+		    ")->result();
+
+		    $any_work_location = 0;
+		    $bustrip_time_zone = '-';
+		    $bustrip_utc_offset = '-';
+
+		    if (!empty($bustrip_q)) {
+		        $bustrip_time_zone = $bustrip_q[0]->time_zone;
+		        $bustrip_utc_offset = $bustrip_q[0]->utc_offset;
+		        $any_work_location = 1;
+		    }
+
+		    // Ambil timezone berdasarkan lokasi kerja employee
+		    $emp_q = $this->db->query("
+		        select b.time_zone, b.utc_offset 
+		        from employees a
+		        left join master_work_location b on b.id = a.work_location
+		        where a.id = '".$employee_id."'
+		    ")->result();
+
+		    $emp_time_zone = '-';
+		    $emp_utc_offset = '-';
+
+		    if (!empty($emp_q)) {
+		        $emp_time_zone = $emp_q[0]->time_zone;
+		        $emp_utc_offset = $emp_q[0]->utc_offset;
+		        $any_work_location = 1;
+		    }
+
+		    return [
+		        "any_work_location"   => $any_work_location,
+		        "bustrip_time_zone"   => $bustrip_time_zone,
+		        "bustrip_utc_offset"  => $bustrip_utc_offset,
+		        "emp_time_zone"       => $emp_time_zone,
+		        "emp_utc_offset"      => $emp_utc_offset
+		    ];
+
+		}else if($modul == 'absen'){
+
+			// Cek business trip location
+		    $bustrip_q = $this->db->query("
+		        select c.time_zone, c.utc_offset 
+		        from business_trip_location a 
+		        left join business_trip b on b.id = a.business_trip_id
+		        left join master_work_location c on c.id = b.work_location_id
+		        where a.employee_id = '".$employee_id."' 
+		        and a.bustrip_date = '".$dateNow."' 
+		        and b.status_id = 2
+		    ")->result();
+
+		    $any_work_location = 0;
+		    $work_location_time_zone = '-';
+		    $work_location_utc_offset = '-';
+
+		    if (!empty($bustrip_q)) {
+		        $work_location_time_zone = $bustrip_q[0]->time_zone;
+		        $work_location_utc_offset = $bustrip_q[0]->utc_offset;
+		        $any_work_location = 1;
+		    }else{
+		    	// Ambil timezone berdasarkan lokasi kerja employee
+			    $emp_q = $this->db->query("
+			        select b.time_zone, b.utc_offset 
+			        from employees a
+			        left join master_work_location b on b.id = a.work_location
+			        where a.id = '".$employee_id."'
+			    ")->result();
+
+			    $work_location_time_zone = $emp_q[0]->time_zone;
+		        $work_location_utc_offset = $emp_q[0]->utc_offset;
+		        $any_work_location = 1;
+		    }
+
+		   
+
+		    return [
+		        "any_work_location"   			=> $any_work_location,
+		        "work_location_time_zone"   	=> $work_location_time_zone,
+		        "work_location_utc_offset"  	=> $work_location_utc_offset
+		    ];
+
+		}else{
+			return '';
+		}
+	    
+	}
+
+
+	function checkReportUtcTimezone(
+		$modul,
+	    $time_zone, 
+	    $utc_offset, 
+	    $bustrip_time_zone, 
+	    $bustrip_utc_offset, 
+	    $emp_time_zone, 
+	    $emp_utc_offset
+	){
+		if($modul == 'login'){
+
+			$report_utctimezone = 'match';
+	    	$report_utctimezone_desc = "Timezone & UTC Offset check: MATCH";
+
+		    // jika timezone lokasi scan beda dengan timezone business trip → reject dulu
+		    if ($time_zone != $bustrip_time_zone || $utc_offset != $bustrip_utc_offset) {
+		        $report_utctimezone = 'reject';
+		        $report_utctimezone_desc = "(Reject) Timezone/UTC Offset check: NOT MATCH";
+
+		        // jika scan timezone sama dengan lokasi kerja employee → match lagi (valid)
+		        if ($time_zone == $emp_time_zone && $utc_offset == $emp_utc_offset) {
+		            $report_utctimezone = 'match';
+		            $report_utctimezone_desc = "Timezone & UTC Offset check: MATCH";
+		        }
+		    }
+
+		    return [
+		        "report_utctimezone"      => $report_utctimezone,
+		        "report_utctimezone_desc" => $report_utctimezone_desc
+		    ];
+
+		}else if($modul == 'absen'){
+
+			$work_location_time_zone = $bustrip_time_zone; //pake field yg ke 4
+			$work_location_utc_offset = $bustrip_utc_offset; //pake field yg ke 5
+
+			$report_utctimezone = 'match';
+		    $report_utctimezone_desc = "Timezone & UTC Offset check: MATCH";
+
+		    // jika timezone/utc lokasi  beda 
+		    if ($time_zone != $work_location_time_zone || $utc_offset != $work_location_utc_offset) {
+		        $report_utctimezone = 'reject';
+		        $report_utctimezone_desc = "(Reject) Timezone/UTC Offset check: NOT MATCH";
+		    }
+
+		    return [
+		        "report_utctimezone"      => $report_utctimezone,
+		        "report_utctimezone_desc" => $report_utctimezone_desc
+		    ];
+
+		}else{
+			return '';
+		}
+	    
+	}
+
+
     public function login()
     {
     	$jsonData = file_get_contents('php://input');
@@ -158,6 +316,7 @@ class Api extends API_Controller
     	$time_zone 	= $_REQUEST['time_zone'];
     	$utc_offset = $_REQUEST['utc_offset'];
 
+ 		$dateNow = date("Y-m-d"); 
 
 		if($username != '' && $password != '' && $uid != ''){
 			
@@ -166,13 +325,17 @@ class Api extends API_Controller
 			if($cek_login != '')
 			{ 
 				if($uid == $cek_login->uid){
-					//get utc timezone from work location
-					$work_location = $this->db->query("select a.id, a.full_name, a.work_location, 
-						b.time_zone, b.utc_offset from employees a
-						left join master_work_location b on b.id = a.work_location
-						where a.id = '".$cek_login->id_karyawan."' ")->result();
 
-					if(empty($work_location)){
+					$info = $this->getWorkLocationInfo('login', $cek_login->id_karyawan, $dateNow);
+
+					$any_work_location  = $info['any_work_location'];
+					$bustrip_time_zone  = $info['bustrip_time_zone'];
+					$bustrip_utc_offset = $info['bustrip_utc_offset'];
+					$emp_time_zone      = $info['emp_time_zone'];
+					$emp_utc_offset     = $info['emp_utc_offset'];
+
+
+					if($any_work_location == 0){
 						$response = [
 							'status' 	=> 401,
 							'message' 	=> 'Failed',
@@ -180,15 +343,20 @@ class Api extends API_Controller
 						];
 					}else{
 
-						$report_utctimezone = 'match'; $report_utctimezone_desc="Timezone & UTC Offset check: MATCH";
-						if($time_zone != $work_location[0]->time_zone){ 
-							$report_utctimezone = 'reject'; //'warning'; 
-							$report_utctimezone_desc = '(Reject) Timezone check: NOT MATCH';
-						}
-						if($utc_offset != $work_location[0]->utc_offset){ 
-							$report_utctimezone = 'reject';  ///(indikasi ubah timezone manual)
-							$report_utctimezone_desc = '(Reject) UTC Offset check: NOT MATCH';
-						}
+						// cek timezone
+						$ReportUtcTimezone = $this->checkReportUtcTimezone(
+							'login',
+						    $time_zone,               
+						    $utc_offset,              
+						    $bustrip_time_zone,
+						    $bustrip_utc_offset,
+						    $emp_time_zone,
+						    $emp_utc_offset
+						);
+						$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
+						$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
+						
+
 
 						if($report_utctimezone == 'reject'){
 							$response = [
@@ -213,9 +381,11 @@ class Api extends API_Controller
 								"expire" 		=> $token[1],
 								"email" 		=> $cek_login->email,
 								"employee_id" 	=> $cek_login->id_karyawan,
-								"work_location_time_zone" => $work_location[0]->time_zone,
-								"work_location_utc_offset" => $work_location[0]->utc_offset,
-								"report_utctimezone" => $report_utctimezone_desc
+								"work_location_time_zone" 	=> $emp_time_zone,
+								"work_location_utc_offset" 	=> $emp_utc_offset,
+								"bustrip_time_zone" 		=> $bustrip_time_zone,
+								"bustrip_utc_offset" 		=> $bustrip_utc_offset,
+								"report_utctimezone" 		=> $report_utctimezone_desc
 							];
 						}
 
@@ -710,27 +880,40 @@ class Api extends API_Controller
 
 			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
 
-				$data_work_location = $this->db->query("select a.id, a.full_name, a.work_location, 
-				            b.time_zone, b.utc_offset from employees a
-				            left join master_work_location b on b.id = a.work_location
-				            where a.id = '".$employee."' ")->result();
+				$exp 			= explode(" ",$datetime);
+				$date 			= $exp[0];
+				$time 			= $exp[1];
 
-				if(empty($data_work_location)){
+				
+				// cek work location
+				$info = $this->getWorkLocationInfo('absen', $employee, $date);
+
+				$any_work_location  = $info['any_work_location'];
+				$work_location_time_zone  = $info['work_location_time_zone'];
+				$work_location_utc_offset = $info['work_location_utc_offset'];
+
+
+				if(empty($any_work_location)){
 				  $response = [
 				    'status'  => 401,
 				    'message'   => 'Failed',
 				    'error'   => 'Work Location not found'
 				  ];
 				}else{
-				  	$report_utctimezone = 'match'; $report_utctimezone_desc="Timezone & UTC Offset check: MATCH";
-				  	if($time_zone != $data_work_location[0]->time_zone){
-					    $report_utctimezone = 'reject'; //'warning'; 
-					    $report_utctimezone_desc = '(Reject) Timezone check: NOT MATCH';
-				  	}
-				  	if($utc_offset != $data_work_location[0]->utc_offset){
-					    $report_utctimezone = 'reject';  ///(indikasi ubah timezone manual)
-					    $report_utctimezone_desc = '(Reject) UTC Offset check: NOT MATCH';
-				  	}
+
+					// cek timezone
+					$ReportUtcTimezone = $this->checkReportUtcTimezone(
+						'absen',
+					    $time_zone,               
+					    $utc_offset,              
+					    $work_location_time_zone,
+					    $work_location_utc_offset,
+					    '',
+					    ''
+					);
+					$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
+					$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
+
 
 				  	if($report_utctimezone == 'reject'){
 					    $response = [
@@ -744,13 +927,11 @@ class Api extends API_Controller
 				      	//convert 
 				      	//$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
 				      	$datetime_local = $datetime;
-						$datetime_utc 	= $this->convertLocalToUTC($datetime, $data_work_location[0]->time_zone);
+						$datetime_utc 	= $this->convertLocalToUTC($datetime, $work_location_time_zone);
 						
 				      	//end convert
 
-				  		$exp 			= explode(" ",$datetime);
-						$date 			= $exp[0];
-						$time 			= $exp[1];
+
 						$timestamp_time = strtotime($time); 
 						$year = date("Y", strtotime($date));
 						$month = date("m", strtotime($date));
@@ -1000,8 +1181,8 @@ class Api extends API_Controller
 												'work_location' 			=> $work_location,
 												'notes' 					=> $notes,
 												'photo' 					=> $document,
-												'time_zone_checkin' 		=> $data_work_location[0]->time_zone,
-												'utc_offset_checkin' 		=> $data_work_location[0]->utc_offset,
+												'time_zone_checkin' 		=> $work_location_time_zone,
+												'utc_offset_checkin' 		=> $work_location_utc_offset,
 												'datetime_local_checkin' 	=> $datetime_local,
 												'utc_time_checkin' 			=> $datetime_utc
 											];
@@ -1110,27 +1291,38 @@ class Api extends API_Controller
 
 			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
 
-				$data_work_location = $this->db->query("select a.id, a.full_name, a.work_location, 
-	                    b.time_zone, b.utc_offset from employees a
-	                    left join master_work_location b on b.id = a.work_location
-	                    where a.id = '".$employee."' ")->result();
+				$exp 			= explode(" ",$datetime);
+				$date 			= $exp[0];
+				$time 			= $exp[1];
 
-				if(empty($data_work_location)){
+
+				$info = $this->getWorkLocationInfo('absen', $employee, $date);
+
+				$any_work_location  		= $info['any_work_location'];
+				$work_location_time_zone  	= $info['work_location_time_zone'];
+				$work_location_utc_offset 	= $info['work_location_utc_offset'];
+
+
+				if(empty($any_work_location)){
 				  $response = [
 				    'status'  => 401,
 				    'message'   => 'Failed',
 				    'error'   => 'Work Location not found'
 				  ];
 				}else{
-				  	$report_utctimezone = 'match'; $report_utctimezone_desc="Timezone & UTC Offset check: MATCH";
-				  	if($time_zone != $data_work_location[0]->time_zone){
-					    $report_utctimezone = 'reject'; //'warning'; 
-					    $report_utctimezone_desc = '(Reject) Timezone check: NOT MATCH';
-				  	}
-				  	if($utc_offset != $data_work_location[0]->utc_offset){
-					    $report_utctimezone = 'reject';  ///(indikasi ubah timezone manual)
-					    $report_utctimezone_desc = '(Reject) UTC Offset check: NOT MATCH';
-				  	}
+				  	// cek timezone
+					$ReportUtcTimezone = $this->checkReportUtcTimezone(
+						'absen',
+					    $time_zone,               
+					    $utc_offset,              
+					    $work_location_time_zone,
+					    $work_location_utc_offset,
+					    '',
+					    ''
+					);
+					$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
+					$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
+
 
 				  	if($report_utctimezone == 'reject'){
 					    $response = [
@@ -1143,11 +1335,9 @@ class Api extends API_Controller
 
 				  		/*$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);*/
 				  		$datetime_local = $datetime;
-						$datetime_utc 	= $this->convertLocalToUTC($datetime, $data_work_location[0]->time_zone);
+						$datetime_utc 	= $this->convertLocalToUTC($datetime, $work_location_time_zone);
 
-					  	$exp 			= explode(" ",$datetime);
-						$date 			= $exp[0];
-						$time 			= $exp[1];
+					  	
 						$timestamp_time = strtotime($time); 
 						$year 			= date("Y", strtotime($date));
 						$month 			= date("m", strtotime($date));
@@ -1283,10 +1473,10 @@ class Api extends API_Controller
 												'lat_checkout' 				=> $latitude,
 												'long_checkout' 			=> $longitude,
 												'work_location' 			=> $work_location,
-												'time_zone_checkout' 		=> $data_work_location[0]->time_zone,
-												'utc_offset_checkout' 		=> $data_work_location[0]->utc_offset,
+												'time_zone_checkout' 		=> $work_location_time_zone,
+												'utc_offset_checkout' 		=> $work_location_utc_offset,
 												'datetime_local_checkout' 	=> $datetime_local,
-												'utc_time_checkin' 			=> $datetime_utc
+												'utc_time_checkout' 		=> $datetime_utc
 											];
 											$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
 
