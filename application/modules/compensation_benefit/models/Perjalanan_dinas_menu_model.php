@@ -748,8 +748,10 @@ class Perjalanan_dinas_menu_model extends MY_Model
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "Rejected"
 					else ""
-					end) as status_name 
+					end) as status_name,
+				    if(a.is_different_work_location =1, "Yes","No") as is_different_work_location_desc, c.name as location_name
 					from business_trip a left join employees b on b.id = a.employee_id
+				    left join master_work_location c on c.id = a.work_location_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
