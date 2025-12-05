@@ -20,6 +20,18 @@
 				: <span class="reason"></span>
 			</div>
 		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Different from current work location?</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="different_work_location"></span>
+			</div>
+		</div>
+		<div class="row" id="inpLocationView" style="display: none;">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Location</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="bustrip_loc"></span>
+			</div>
+		</div>
 	</div>
 
 
