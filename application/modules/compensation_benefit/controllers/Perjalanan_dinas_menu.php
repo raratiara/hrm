@@ -48,6 +48,11 @@ class Perjalanan_dinas_menu extends MY_Controller
 		$field['rfu_reason']	= $this->self_model->return_build_txtarea('','rfu_reason','rfu_reason');
 		$field['txttotalamount'] 	= $this->self_model->return_build_txt('','total_amount','total_amount','','','readonly');
 
+		$field['different_work_location'] 	= $this->self_model->return_build_radio('', [['1','Yes'],['0','No']], 'different_work_location', 'different_work_location', 'inline');
+		
+		$msloc 					= $this->db->query("select * from master_work_location order by name asc")->result(); 
+		$field['selbustriploc'] = $this->self_model->return_build_select2me($msloc,'','','','bustrip_loc','bustrip_loc','','','id','name',' ','','','',3,'-');
+
 
 		
 		return $field;
