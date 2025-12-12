@@ -1807,8 +1807,8 @@ class Api extends API_Controller
 	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $diff_day='', $trx_id){
 
 		if($work_location_id != '' && $approval_type_id != ''){
-			//if($approval_type_id == 1){ ///Absence
-				//if($leave_type_id != ''){ 
+			if($approval_type_id == 1){ ///Absence
+				if($leave_type_id != ''){ 
 					$whr_leavetype = "";
 					if($approval_type_id == 1){ ///Absence
 						$whr_leavetype = " and leave_type_id = '".$leave_type_id."'";
@@ -1851,8 +1851,50 @@ class Api extends API_Controller
 						}
 					}
 
-				//}
-			//}
+				}
+			}else if($approval_type_id == 4){ ///Reimburs
+				$amount = $diff_day;
+				if($work_location_id != '' && $approval_type_id != ''){
+					
+					if($amount == ''){
+						$amount=0;
+					}
+					
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
+							(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
+							(".$amount." >= min and min != '' and max = '') or
+							(".$amount." <= max and max != '' and min = '')
+						)  ")->result(); 
+
+					if(empty($getmatrix)){
+						$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
+					}
+
+					
+					if(!empty($getmatrix)){
+						$approvalMatrixId = $getmatrix[0]->id;
+						if($approvalMatrixId != ''){
+							$dataApproval = [
+								'approval_matrix_type_id' 	=> $approval_type_id, 
+								'trx_id' 					=> $trx_id,
+								'approval_matrix_id' 		=> $approvalMatrixId,
+								'current_approval_level' 	=> 1
+							];
+							$rs = $this->db->insert("approval_path", $dataApproval);
+							$approval_path_id = $this->db->insert_id();
+							if($rs){
+								$dataApprovalDetail = [
+									'approval_path_id' 	=> $approval_path_id, 
+									'approval_level' 	=> 1
+								];
+								$this->db->insert("approval_path_detail", $dataApprovalDetail);
+							}
+						}
+					}
+					
+				}
+
+			}
 
 		}
 
@@ -3138,7 +3180,8 @@ class Api extends API_Controller
 			if($status != ''){
 				if($id != ''){
 					if($approval_level != ''){ 
-						$CurrApproval = $this->getCurrApproval($id, $approval_level);
+						$matrix_type_id = 1;
+						$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);
 						if(!empty($CurrApproval)){ 
 							$CurrApprovalId		= $CurrApproval[0]->id;
 							$approval_path_id	= $CurrApproval[0]->approval_path_id;
@@ -3153,7 +3196,7 @@ class Api extends API_Controller
 							}else{
 								if($status == 'approve'){ 
 
-									$maxApproval = $this->getMaxApproval($id); 
+									$maxApproval = $this->getMaxApproval($matrix_type_id, $id); 
 									if($approval_level == $maxApproval){   //last approver
 										$data1 = [
 											'status_approval' 	=> 2,
@@ -4563,22 +4606,22 @@ class Api extends API_Controller
     }
 
 
-    public function getCurrApproval($trx_id, $approval_level){
+    public function getCurrApproval($approval_matrix_type_id, $trx_id, $approval_level){
 		$post 		= $this->input->post(null, true);
 		
 
-		$approval_matrix_type_id = 1;
+		//$approval_matrix_type_id = 1;
 		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
 		
 
 		return $rs;
 	}
 
-	public function getMaxApproval($trx_id){ 
+	public function getMaxApproval($approval_matrix_type_id, $trx_id){ 
 		$post 		= $this->input->post(null, true);
 		
 
-		$approval_matrix_type_id = 1;
+		//$approval_matrix_type_id = 1;
 		$rs =  $this->db->query("select b.*, a.current_approval_level, c.role_name from approval_path a 
 				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id
 				left join approval_matrix_role c on c.id = b.role_id
@@ -5480,47 +5523,610 @@ class Api extends API_Controller
 
 
 
-    public function save_tracker_old()
+   	public function get_data_reimburs()
     { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
     	
-
-    	$employee_id	= $_POST['employee_id']; 
-    	$latitude 		= $_POST['latitude'];
-    	$longitude		= $_POST['longitude'];
-    	$datetime 		= $_POST['datetime'];
+    	$islogin_employee	= $_GET['islogin_employee'];
+    	$filter_employee	= $_GET['filter_employee'];
 
 
-    	if($employee_id != '' && $latitude != '' && $longitude != '' && $datetime != ''){
-    		$data = [
-				'emp_id' 		=> $employee_id,
-				'latitude' 		=> $latitude,
-				'longitude'		=> $longitude,
-				'datetime'		=> $datetime
+    	if($islogin_employee != ''){
+
+    		$whr='';
+	    	if($filter_employee != ''){
+	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+	    	}
+
+	    	$dataReimburs = $this->db->query('select ao.* from (select a.*, b.full_name as employee_name, c.name as reimburse_for_name,
+							(case 
+								when a.status_id = 1 then "Waiting Approval"
+								when a.status_id = 2 then "Approved"
+								when a.status_id = 3 then "Rejected"
+								when a.status_id = 4 then "Request for Update"
+								else ""
+							end) as status_name, b.direct_id,
+							max(d2.current_approval_level) AS current_approval_level,
+							max(h.role_id) AS current_role_id,
+							max(i.role_name) AS current_role_name,
+							GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+							max(
+								IF(
+									i.role_name = "Direct",
+									b.direct_id,
+									(
+										SELECT GROUP_CONCAT(employee_id) 
+										FROM approval_matrix_role_pic 
+										WHERE approval_matrix_role_id = h.role_id
+									)
+								)
+							) AS current_employeeid_approver,
+							CASE 
+								WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+								ELSE 0 
+							END AS is_approver_view,
+							CASE 
+								WHEN FIND_IN_SET(
+									'.$islogin_employee.', 
+									(
+										SELECT GROUP_CONCAT(employee_id) 
+										FROM approval_matrix_role_pic 
+										WHERE approval_matrix_role_id = max(h.role_id)
+									)
+								) > 0 THEN 1
+								WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$islogin_employee.' THEN 1  
+								ELSE 0 
+							END AS is_approver  
+							from medicalreimbursements a left join employees b on b.id = a.employee_id
+							left join master_reimbursfor_type c on c.id = a.reimburse_for
+							LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 4
+							LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+							LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+							LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+							LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+							LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+							LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+							LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+							GROUP BY a.id) ao
+							where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
+						'.$whr.' ')->result();  
+
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $dataReimburs
 			];
-			$rs = $this->db->insert("tracker_history", $data);
-			
-			if($rs){
-				$response = [
-		    		'status' 	=> 200,
-					'message' 	=> 'Success'
-				];
-			}else{
-				$response = [
-					'status' 	=> 401,
-					'message' 	=> 'Failed',
-					'error' 	=> 'Error submit'
-				];
-			}
+
+	    	
+	    	
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
     	}else{
     		$response = [
-				'status' 	=> 401,
-				'message' 	=> 'Failed',
-				'error' 	=> 'Bad Request'
+	            'status'  => 401,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+		
+		
+    }
+
+
+    public function get_sisa_plafon($emp_id, $type_id){
+		$year = date("Y");
+
+		$getplafon = $this->db->query("select a.id, b.nominal_plafon, b.reimburs_type_id 
+				from employees a left join master_plafon b on b.grade_id = a.grade_id and b.reimburs_type_id = '".$type_id."' where a.id = '".$emp_id."' ")->result(); 
+		$plafon=0;
+		if($getplafon != ''){
+			$plafon = $getplafon[0]->nominal_plafon;
+		}
+
+		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' and (DATE_FORMAT(date_reimbursment, '%Y')) = '".$year."' ")->result(); 
+		$pemakaian=0;
+		if($getpemakaian != ''){
+			$pemakaian = $getpemakaian[0]->total_pemakaian;
+		}
+
+		$sisa = $plafon-$pemakaian;
+		if($sisa <= 0){
+			$sisa=0;
+		} 
+
+
+		return $sisa;
+	}
+
+
+	public function uploadFiles($fieldname, $upload_path){
+		$dataU = array();
+		$dataU['status'] = FALSE; 
+		
+		if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+        { 
+           
+            
+        	$config['upload_path']   = $upload_path;
+            $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+            $config['max_size']      = "0"; 
+            
+            $this->load->library('upload', $config); 
+            
+            if(!$this->upload->do_upload($fieldname)){ 
+                $err_msg = $this->upload->display_errors(); 
+                $dataU['error_warning'] = strip_tags($err_msg);              
+                $dataU['status'] = FALSE;
+            } else { 
+                $fileData = $this->upload->data();
+                $dataU['upload_file'] = $fileData['file_name'];
+                $dataU['status'] = TRUE;
+            }
+        }
+        $document = '';
+		if($dataU['status']){ 
+			$document = $dataU['upload_file'];
+		} else if(isset($dataU['error_warning'])){ 
+			//echo $dataU['error_warning']; exit;
+
+			$document = 'ERROR : '.$dataU['error_warning'];
+		}
+		
+
+		return $document;
+	}
+
+
+
+    public function save_reimburs()
+    { 
+    	$this->verify_token();
+
+    	$islogin_employee	= $_POST['islogin_employee'];
+    	$method_save		= $_POST['method_save'];
+    	$id 				= $_POST['id'];
+    	$date_reimbursment	= $_POST['date_reimbursment'];
+    	$employee_id 		= $_POST['employee_id'];
+    	$type_id			= $_POST['type_id'];
+    	$reimburs_for_id	= $_POST['reimburs_for_id'];
+    	$atas_nama 			= $_POST['atas_nama'];
+    	$diagnosa			= $_POST['diagnosa'];
+    	
+
+    	///detail
+    	$id_detail 	= $_POST['id_detail'];
+    	$subtype	= $_POST['subtype_id'];
+    	$biaya		= $_POST['biaya'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['document'];
+
+
+    	// HITUNG TOTAL DETAIL
+		$total_biaya = 0;
+		if (!empty($biaya)) {
+		    foreach ($biaya as $b) {
+		        $total_biaya += (int)$b;
+		    }
+		}
+
+		$nominal_billing  = $total_biaya;
+		$nominal_reimburs = $total_biaya;
+				
+		$sisa_plafon = $this->get_sisa_plafon($employee_id, $type_id);
+
+
+    	if($method_save == 'insert'){
+
+	  		if(!empty($date_reimbursment) && !empty($employee_id)){ 
+	  			if($nominal_reimburs <= $sisa_plafon){ //jika masih ada plafon
+	  				$dataEmp = $this->db->query("select * from employees where id = '".$employee_id."'")->result(); 
+					if(!empty($dataEmp)){
+						if(!empty($dataEmp[0]->work_location)){
+
+							$data = [
+								'date_reimbursment' 	=> $date_reimbursment,
+								'employee_id' 			=> $employee_id,
+								'reimburs_type_id' 		=> $type_id,
+								'reimburse_for'			=> $reimburs_for_id,
+								'atas_nama' 			=> $atas_nama,
+								'diagnosa' 				=> $diagnosa,
+								'nominal_billing' 		=> $nominal_billing,
+								'nominal_reimburse' 	=> $nominal_reimburs, 
+								'created_at'			=> date("Y-m-d H:i:s"),
+								'status_id' 			=> 1 //waiting approval
+							];
+							$rs = $this->db->insert('medicalreimbursements', $data);
+							$lastId = $this->db->insert_id();
+
+							if($rs){
+								///insert approval path
+								$approval_type_id = 4; //Reimbursement
+								$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $nominal_reimburs, $lastId);
+
+
+								if(isset($subtype)){
+									$item_num = count($subtype); // cek sum
+									$item_len_min = min(array_keys($subtype)); // cek min key index
+									$item_len = max(array_keys($subtype)); // cek max key index
+								} else {
+									$item_num = 0;
+								}
+
+								if($item_num>0){
+									for($i=$item_len_min;$i<=$item_len;$i++) 
+									{
+										
+										//START UPLOAD 
+										$fieldname 		= 'document'.$i.'';
+										$upload_path 	= "uploads/reimbursement/";
+							            $document 		= $this->uploadFiles($fieldname, $upload_path);
+							            //END UPLOAD
+
+
+										if(isset($subtype[$i])){
+											$itemData = [
+												'reimbursement_id' 	=> $lastId,
+												'subtype_id' 		=> $subtype[$i],
+												'document' 			=> $document,
+												'biaya' 			=> $biaya[$i],
+												'notes' 			=> $notes[$i]
+											];
+
+											$this->db->insert('reimbursement_detail', $itemData);
+										}
+									}
+								}
+
+								$response = [
+					                'status'  => 200,
+					                'message' => 'Success'
+					            ];
+							}else{
+								$response = [
+					                'status'  => 401,
+					                'message' => 'Failed',
+					                'error'   => 'Error submit'
+					            ];
+							}
+
+						}else{
+							
+							$response = [
+				                'status'  => 401,
+				                'message' => 'Failed',
+				                'error'   => 'Work Location not found'
+				            ];
+						}
+					}else{
+						
+						$response = [
+			                'status'  => 401,
+			                'message' => 'Failed',
+			                'error'   => 'Employee not found'
+			            ];
+					}
+
+	  			}else{
+	  				
+	  				$response = [
+		                'status'  => 401,
+		                'message' => 'Failed',
+		                'error'   => 'Tidak ada sisa plafon reimburs'
+		            ];
+	  			}
+
+	  		}else{
+	  			 $response = [
+	                'status'  => 401,
+	                'message' => 'Failed',
+	                'error'   => 'Error submit'
+	            ];
+	  		}
+			
+
+    	}else if($method_save == 'update'){
+    		
+    		if(!empty($id)){ 
+				$is_rfu=0;
+				$getdata = $this->db->query("select * from medicalreimbursements where id = '".$id."' ")->result(); 
+
+				$curr_nominal_reimburs = $getdata[0]->nominal_reimburse;
+				$sisa_plafon = $sisa_plafon+$curr_nominal_reimburs;
+
+				if($nominal_reimburs <= $sisa_plafon){ //jika masih ada plafon
+					if($getdata[0]->status_id == 4 && $islogin_employee == $getdata[0]->employee_id){ // edit RFU
+						$is_rfu=1;
+
+						$data = [
+							'date_reimbursment' 	=> $date_reimbursment,
+							'employee_id' 			=> $employee_id,
+							'reimburs_type_id' 		=> $type_id,
+							'reimburse_for'			=> $reimburs_for_id,
+							'atas_nama' 			=> $atas_nama,
+							'diagnosa' 				=> $diagnosa,
+							'nominal_billing' 		=> $nominal_billing,
+							'nominal_reimburse' 	=> $nominal_reimburs,
+							'updated_at'			=> date("Y-m-d H:i:s"),
+							'status_id' 			=> 1
+						];
+					}else{
+						$data = [
+							'date_reimbursment' 	=> $date_reimbursment,
+							'employee_id' 			=> $employee_id,
+							'reimburs_type_id' 		=> $type_id,
+							'reimburse_for'			=> $reimburs_for_id,
+							'atas_nama' 			=> $atas_nama,
+							'diagnosa' 				=> $diagnosa,
+							'nominal_billing' 		=> $nominal_billing,
+							'nominal_reimburse' 	=> $nominal_reimburs,
+							'updated_at'			=> date("Y-m-d H:i:s")
+						];
+					}
+
+					$rs = $this->db->update('medicalreimbursements', $data, "id='".$id."'");
+
+					if($rs){
+
+						/// update approval path
+						$matrix_type_id = 4;
+						$getapprovallevel = $this->db->query("select * from approval_path where approval_matrix_type_id = ".$matrix_type_id." and trx_id = '".$id."'")->result(); 
+						$approval_level = $getapprovallevel[0]->current_approval_level;
+						$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id, $approval_level);
+						$CurrApprovalPathId	= $CurrApproval[0]->approval_path_id;
+
+						if($is_rfu == 1){
+							$updapproval_path = [
+								'current_approval_level' => 1
+							];
+							$this->db->update("approval_path", $updapproval_path, "id = '".$getapprovallevel[0]->id."' ");
+
+							$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
+
+							$updApproval2 = [
+								'status' 		=> "",
+								'approval_by' 	=> "",
+								'approval_date'	=> ""
+							];
+							$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
+							
+						}
+
+
+
+						if(isset($subtype)){
+							$item_num = count($subtype); // cek sum
+							$item_len_min = min(array_keys($subtype)); // cek min key index
+							$item_len = max(array_keys($subtype)); // cek max key index
+						} else {
+							$item_num = 0;
+						}
+
+						if($item_num>0){
+							for($i=$item_len_min;$i<=$item_len;$i++) 
+							{
+								$hdnid = $id_detail[$i];
+
+								if(!empty($hdnid)){ //update
+
+									//START UPLOAD 
+									$fieldname 		= 'document'.$i.'';
+									$upload_path 	= "uploads/reimbursement/";
+						            $document 		= $this->uploadFiles($fieldname, $upload_path);
+						            //END UPLOAD
+
+
+									if(isset($subtype[$i])){
+										if($document == ''){
+											$itemData = [
+												'subtype_id' 		=> $subtype[$i],
+												'biaya' 			=> $biaya[$i],
+												'notes' 			=> $notes[$i]
+											];
+										}else{
+											$itemData = [
+												'subtype_id' 		=> $subtype[$i],
+												'document' 			=> $document,
+												'biaya' 			=> $biaya[$i],
+												'notes' 			=> $notes[$i]
+											];
+										}
+										
+										$this->db->update("reimbursement_detail", $itemData, "id = '".$hdnid."'");
+									}
+
+								}else{ //insert
+
+									//START UPLOAD 
+									$fieldname 		= 'document'.$i.'';
+									$upload_path 	= "uploads/reimbursement/";
+						            $document 		= $this->uploadFiles($fieldname, $upload_path);
+						            //END UPLOAD
+
+									if(isset($subtype[$i])){
+										$itemData = [
+											'reimbursement_id' 	=> $id,
+											'subtype_id' 		=> $subtype[$i],
+											'document' 			=> $document,
+											'biaya' 			=> $biaya[$i],
+											'notes' 			=> $notes[$i]
+										];
+
+										$this->db->insert('reimbursement_detail', $itemData);
+									}
+
+								}
+								
+							}
+						}
+
+						$response = [
+						    'status'  => 200,
+						    'message' => 'Success'
+						];
+
+
+					}else{
+						$response = [
+						    'status'  => 401,
+						    'message' => 'Failed',
+						    'error'   => 'Error submit'
+						];
+					}
+
+				}else{
+					$response = [
+					    'status'  => 401,
+					    'message' => 'Failed',
+					    'error'   => 'Tidak ada sisa plafon reimburs'
+					];
+				}
+
+			} else{
+				$response = [
+				    'status'  => 401,
+				    'message' => 'Failed',
+				    'error'   => 'Data not found'
+				];
+			}
+
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Method Save not found'
 			];
     	}
 
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_master_reimburs_type()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
     	
 
+    	$datamaster = $this->db->query("select * from master_reimburs_type order by name asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+    public function get_master_reimburs_subtype()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$type	= $_GET['type'];
+
+    	$where = "";
+    	if($type != ""){
+    		$where = " where reimburs_type_id = ".$type." ";
+    	}
+    	
+
+    	$datamaster = $this->db->query("select * from master_reimburs_subtype ".$where." order by name asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_master_reimburs_for()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+
+    	$datamaster = $this->db->query("select * from master_reimbursfor_type order by name asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_list_employee()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+
+    	$datamaster = $this->db->query("select id, full_name from employees where status_id = 1 order by full_name asc ")->result();  
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $datamaster
+		];
 
 		$this->output->set_header('Access-Control-Allow-Origin: *');
 		$this->output->set_header('Access-Control-Allow-Methods: POST');
