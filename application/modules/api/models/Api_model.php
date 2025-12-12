@@ -233,6 +233,19 @@ class Api_model extends MY_Model
     }
 
 
+    public function cek_user_device($user_id, $type)
+    { 
+        
+        $sql = "select * from user_devices where user_id = '".$user_id."' and type = '".$type."' and is_active = 1
+                ORDER BY id DESC LIMIT 1";
+
+        $user = $this->db->query($sql)->row();
+
+        if($user){
+            return $user;
+        }else return null;
+    }
+
     
 
 }
