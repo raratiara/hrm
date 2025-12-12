@@ -310,93 +310,103 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$username	= $_REQUEST['username'];
-    	$password 	= $_REQUEST['password'];
-    	$uid 		= $_REQUEST['uid'];
-    	$time_zone 	= $_REQUEST['time_zone'];
-    	$utc_offset = $_REQUEST['utc_offset'];
+    	$username		= $_REQUEST['username'];
+    	$password 		= $_REQUEST['password'];
+    	$device_uuid	= $_REQUEST['device_uuid'];
+    	$time_zone 		= $_REQUEST['time_zone'];
+    	$utc_offset 	= $_REQUEST['utc_offset'];
 
  		$dateNow = date("Y-m-d"); 
 
-		if($username != '' && $password != '' && $uid != ''){
+		if($username != '' && $password != '' && $device_uuid != ''){
 			
 			$cek_login = $this->api->cek_login($username, $password);	
 			
 			if($cek_login != '')
 			{ 
-				if($uid == $cek_login->uid){
-
-					$info = $this->getWorkLocationInfo('login', $cek_login->id_karyawan, $dateNow);
-
-					$any_work_location  = $info['any_work_location'];
-					$bustrip_time_zone  = $info['bustrip_time_zone'];
-					$bustrip_utc_offset = $info['bustrip_utc_offset'];
-					$emp_time_zone      = $info['emp_time_zone'];
-					$emp_utc_offset     = $info['emp_utc_offset'];
-
-
-					if($any_work_location == 0){
-						$response = [
-							'status' 	=> 401,
-							'message' 	=> 'Failed',
-							'error' 	=> 'Work Location not found'
-						];
-					}else{
-
-						// cek timezone
-						$ReportUtcTimezone = $this->checkReportUtcTimezone(
-							'login',
-						    $time_zone,               
-						    $utc_offset,              
-						    $bustrip_time_zone,
-						    $bustrip_utc_offset,
-						    $emp_time_zone,
-						    $emp_utc_offset
-						);
-						$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
-						$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
-						
-
-
-						if($report_utctimezone == 'reject'){
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Timezone/UTC Offset not valid'
-							];
-						}else{
-
-							$data = array(
-								"id" 			=> $cek_login->user_id,
-								"name" 			=> $cek_login->name,
-								"email" 		=> $cek_login->email,
-								"employee_id" 	=> $cek_login->id_karyawan
-							);
-				 
-							$token = $this->genJWTdata($data);	 
-							$response = [
-								'status' 		=> 200,
-								'message' 		=> 'Success',
-								"token" 		=> $token[0],
-								"expire" 		=> $token[1],
-								"email" 		=> $cek_login->email,
-								"employee_id" 	=> $cek_login->id_karyawan,
-								"work_location_time_zone" 	=> $emp_time_zone,
-								"work_location_utc_offset" 	=> $emp_utc_offset,
-								"bustrip_time_zone" 		=> $bustrip_time_zone,
-								"bustrip_utc_offset" 		=> $bustrip_utc_offset,
-								"report_utctimezone" 		=> $report_utctimezone_desc
-							];
-						}
-
-					}
-
-				}else{
+				$dataDevice = $this->api->cek_user_device($cek_login->user_id, 'mobile');
+				if(empty($dataDevice)){
 					$response = [
 						'status' 	=> 401,
 						'message' 	=> 'Failed',
-						'error' 	=> 'This account is already active on another device.'
+						'error' 	=> 'User Device not found, please re-Sync.'
 					];
+				}else{
+					if($device_uuid == $dataDevice->device_uuid){
+
+						$info = $this->getWorkLocationInfo('login', $cek_login->id_karyawan, $dateNow);
+
+						$any_work_location  = $info['any_work_location'];
+						$bustrip_time_zone  = $info['bustrip_time_zone'];
+						$bustrip_utc_offset = $info['bustrip_utc_offset'];
+						$emp_time_zone      = $info['emp_time_zone'];
+						$emp_utc_offset     = $info['emp_utc_offset'];
+
+
+						if($any_work_location == 0){
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Work Location not found'
+							];
+						}else{
+
+							// cek timezone
+							$ReportUtcTimezone = $this->checkReportUtcTimezone(
+								'login',
+							    $time_zone,               
+							    $utc_offset,              
+							    $bustrip_time_zone,
+							    $bustrip_utc_offset,
+							    $emp_time_zone,
+							    $emp_utc_offset
+							);
+							$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
+							$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
+							
+
+
+							if($report_utctimezone == 'reject'){
+								$response = [
+									'status' 	=> 401,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Timezone/UTC Offset not valid'
+								];
+							}else{
+
+								$data = array(
+									"id" 			=> $cek_login->user_id,
+									"name" 			=> $cek_login->name,
+									"email" 		=> $cek_login->email,
+									"employee_id" 	=> $cek_login->id_karyawan,
+									"device_uuid" 	=> $device_uuid
+								);
+					 
+								$token = $this->genJWTdata($data);	 
+								$response = [
+									'status' 		=> 200,
+									'message' 		=> 'Success',
+									"token" 		=> $token[0],
+									"expire" 		=> $token[1],
+									"email" 		=> $cek_login->email,
+									"employee_id" 	=> $cek_login->id_karyawan,
+									"work_location_time_zone" 	=> $emp_time_zone,
+									"work_location_utc_offset" 	=> $emp_utc_offset,
+									"bustrip_time_zone" 		=> $bustrip_time_zone,
+									"bustrip_utc_offset" 		=> $bustrip_utc_offset,
+									"report_utctimezone" 		=> $report_utctimezone_desc
+								];
+							}
+
+						}
+
+					}else{
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'This account is already active on another device.'
+						];
+					}
 				}
 				
 			} else { 
@@ -431,10 +441,10 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$url		= $_REQUEST['url'];
-    	$username	= $_REQUEST['username'];
-    	$password 	= $_REQUEST['password'];
-    	$uid 		= $_REQUEST['uid'];
+    	$url			= $_REQUEST['url'];
+    	$username		= $_REQUEST['username'];
+    	$password 		= $_REQUEST['password'];
+    	$device_uuid 	= $_REQUEST['device_uuid'];
 
 
     	try {
@@ -476,10 +486,26 @@ class Api extends API_Controller
 					);
 
 					/// update UID
-					$upduid = [
-						'uid' => $uid
-					];
-					$this->db->update("user", $upduid, "user_id='".$cek_login->user_id."'");
+					$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and type = 'mobile' and is_active = 1")->result();
+					if(empty($data_uuid)){
+						$ins_uuid = [
+							'user_id' 			=> $cek_login->user_id,
+							'type' 				=> 'mobile',
+							'device_uuid' 		=> $device_uuid,
+							'is_active' 		=> 1,
+							'created_at'		=> date("Y-m-d H:i:s")
+						];
+
+						$this->db->insert("user_devices", $ins_uuid);
+
+					}else{
+						$upduid = [
+							'device_uuid' => $device_uuid
+						];
+						$this->db->update("user_devices", $upduid, "user_id='".$cek_login->user_id."'");
+					}
+
+					
 		 
 					$response = [
 						'status' 	=> 200,
