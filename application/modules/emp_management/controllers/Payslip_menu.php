@@ -158,17 +158,32 @@ class Payslip_menu extends MY_Controller
 	    // ===============================
 	    // 1. Ambil data slip gaji
 	    // ===============================
-	    $slip = $this->db->query("select a.*, b.full_name, c.period_name, b.emp_code, d.name as dept_name, b.date_of_birth, c.year as year_period, c.month as month_period, e.name as job_level_name, 
-	    	f.name as work_location_name, g.name as grade_name, b.no_npwp, h.name as marital_status_name
-			from payroll_slip a 
-			left join employees b on b.id = a.employee_id 
-			left join payroll_periods c on c.id = a.payroll_periods_id
-			left join departments d on d.id = b.department_id
-		    left join master_job_level e on e.id = b.job_level_id
-		    left join master_work_location f on f.id = b.work_location
-		    left join master_grade g on g.id = b.grade_id
-		    left join master_marital_status h on h.id = b.marital_status_id
-			where a.id = ".$payroll_slip_id."")->result(); 
+	    $slip = $this->db->query("select a.*, b.full_name, c.period_name, b.emp_code, d.name as dept_name, b.date_of_birth, 
+			c.year as year_period, c.month as month_period,
+			(case when c.month = 1 then 'January'
+			when c.month = 2 then 'Februari'
+			when c.month = 3 then 'March'
+			when c.month = 4 then 'April'
+			when c.month = 5 then 'May'
+			when c.month = 6 then 'June'
+			when c.month = 7 then 'July'
+			when c.month = 8 then 'August'
+			when c.month = 9 then 'September'
+			when c.month = 10 then 'October'
+			when c.month = 11 then 'November'
+			when c.month = 12 then 'December'
+			else '' end) as month_period_name,
+			e.name as job_level_name, f.name as work_location_name,
+			g.name as grade_name, b.no_npwp, h.name as marital_status_name
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join payroll_periods c on c.id = a.payroll_periods_id
+				left join departments d on d.id = b.department_id
+			    left join master_job_level e on e.id = b.job_level_id
+			    left join master_work_location f on f.id = b.work_location
+			    left join master_grade g on g.id = b.grade_id
+			    left join master_marital_status h on h.id = b.marital_status_id
+				where a.id = ".$payroll_slip_id."")->result(); 
 
 	    if (!$slip) {
 	        show_error('Payslip not found');
