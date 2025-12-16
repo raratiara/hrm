@@ -3,29 +3,46 @@
 <head>
     <meta charset="utf-8">
     <title>Payslip</title>
+    <?=$slip->period_name?>
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             color: #000;
         }
         h2 {
             text-align: center;
-            margin-bottom: 5px;
+            margin: 5px 0;
         }
         hr {
-            margin: 10px 0;
+            margin: 8px 0;
         }
         table {
             width: 100%;
             border-collapse: collapse;
         }
         .info td {
-            padding: 4px;
+            padding: 3px;
+        }
+
+        /* ===== Salary Layout ===== */
+        .salary-wrapper {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .salary-box {
+            width: 48%;
+            vertical-align: top;
+            display: inline-block;
+        }
+
+        .salary {
+            width: 100%;
+            border: 1px solid #000;
         }
         .salary th, .salary td {
-            border: 1px solid #000;
-            padding: 6px;
+            padding: 5px;
+            border-bottom: 1px solid #000;
         }
         .salary th {
             background: #f2f2f2;
@@ -34,6 +51,14 @@
         .text-right {
             text-align: right;
         }
+
+        .summary {
+            margin-top: 10px;
+        }
+        .summary td {
+            padding: 4px;
+        }
+
         .footer {
             margin-top: 15px;
             font-size: 10px;
@@ -51,61 +76,92 @@
     <tr>
         <td width="20%">Employee Name</td>
         <td width="30%">: <?= htmlspecialchars($slip->full_name) ?></td>
-        <td width="20%">Period</td>
-        <td width="30%">: <?= htmlspecialchars($slip->period_name) ?></td>
+        <td width="20%">Position</td>
+        <td width="30%">: <?=$slip->job_level_name?></td>
     </tr>
     <tr>
-        <td>Employee ID</td>
+        <td>NIK</td>
         <td>: <?= htmlspecialchars($slip->emp_code) ?></td>
-        <td>Payslip Number</td>
-        <td>: <?= htmlspecialchars($slip->payslip_number) ?></td>
+        <td>Work Location</td>
+        <td>: <?=$slip->work_location_name?></td>
     </tr>
     <tr>
-        <td>Department</td>
-        <td>: <?= htmlspecialchars($slip->dept_name) ?></td>
-        <td>Print Date</td>
-        <td>: <?= date('d M Y', strtotime($slip->payslip_print_date)) ?></td>
+        <td>Tax Marital / Ter / Tarif</td>
+        <td>: <?=$slip->marital_status_name?></td>
+        <td>Grade</td>
+        <td>: <?=$slip->grade_name?></td>
+    </tr>
+    <tr>
+        <td>NPWP</td>
+        <td>: <?=$slip->no_npwp?></td>
+       
     </tr>
 </table>
 
-<br>
+<?php
+$earnings   = [];
+$deductions = [];
+$totalEarning = 0;
+$totalDeduction = 0;
 
-<table class="salary">
-    <tr>
-        <th>Description</th>
-        <th class="text-right">Amount</th>
-    </tr>
+foreach ($details as $row) {
+    if ($row->component_type === 'earning') {
+        $earnings[] = $row;
+        $totalEarning += $row->amount;
+    } else {
+        $deductions[] = $row;
+        $totalDeduction += $row->amount;
+    }
+}
+?>
 
-    <?php 
-    $totalEarning   = 0;
-    $totalDeduction = 0;
-    foreach ($details as $row): 
-    ?>
-    <tr>
-        <td><?= htmlspecialchars($row->component_name) ?></td>
-        <td class="text-right"><?= number_format($row->amount, 2) ?></td>
-    </tr>
+<div class="salary-wrapper">
 
-    <?php 
-        if ($row->component_type === 'earning') {
-            $totalEarning += $row->amount;
-        } else {
-            $totalDeduction += $row->amount;
-        }
-    endforeach; 
-    ?>
+    <!-- ===== INCOME ===== -->
+    <div class="salary-box">
+        <table class="salary">
+            <tr>
+                <th colspan="2">INCOME</th>
+            </tr>
+            <?php foreach ($earnings as $row): ?>
+            <tr>
+                <td><?= htmlspecialchars($row->component_name) ?></td>
+                <td class="text-right"><?= number_format($row->amount, 2) ?></td>
+            </tr>
+            <?php endforeach; ?>
+            <tr>
+                <th>Total Income</th>
+                <th class="text-right"><?= number_format($totalEarning, 2) ?></th>
+            </tr>
+        </table>
+    </div>
 
+    <!-- ===== DEDUCTION ===== -->
+    <div class="salary-box" style="float:right;">
+        <table class="salary">
+            <tr>
+                <th colspan="2">DEDUCTION</th>
+            </tr>
+            <?php foreach ($deductions as $row): ?>
+            <tr>
+                <td><?= htmlspecialchars($row->component_name) ?></td>
+                <td class="text-right"><?= number_format($row->amount, 2) ?></td>
+            </tr>
+            <?php endforeach; ?>
+            <tr>
+                <th>Total Deduction</th>
+                <th class="text-right"><?= number_format($totalDeduction, 2) ?></th>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+<!-- ===== SUMMARY ===== -->
+<table class="summary">
     <tr>
-        <td><strong>Total Earnings</strong></td>
-        <td class="text-right"><strong><?= number_format($totalEarning, 2) ?></strong></td>
-    </tr>
-    <tr>
-        <td><strong>Total Deductions</strong></td>
-        <td class="text-right"><strong><?= number_format($totalDeduction, 2) ?></strong></td>
-    </tr>
-    <tr>
-        <td><strong>Net Pay</strong></td>
-        <td class="text-right">
+        <td width="70%"><strong>Take Home Pay</strong></td>
+        <td width="30%" class="text-right">
             <strong><?= number_format($slip->take_home_pay, 2) ?></strong>
         </td>
     </tr>

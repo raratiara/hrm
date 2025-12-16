@@ -158,13 +158,17 @@ class Payslip_menu extends MY_Controller
 	    // ===============================
 	    // 1. Ambil data slip gaji
 	    // ===============================
-	    $slip = $this->db->query("select a.*, b.full_name, c.period_name, b.emp_code
-	    						, d.name as dept_name, b.date_of_birth, c.year as year_period, c.month as month_period 
-								from payroll_slip a 
-								left join employees b on b.id = a.employee_id 
-								left join payroll_periods c on c.id = a.payroll_periods_id
-								left join departments d on d.id = b.department_id
-								where a.id = ".$payroll_slip_id."")->result(); 
+	    $slip = $this->db->query("select a.*, b.full_name, c.period_name, b.emp_code, d.name as dept_name, b.date_of_birth, c.year as year_period, c.month as month_period, e.name as job_level_name, 
+	    	f.name as work_location_name, g.name as grade_name, b.no_npwp, h.name as marital_status_name
+			from payroll_slip a 
+			left join employees b on b.id = a.employee_id 
+			left join payroll_periods c on c.id = a.payroll_periods_id
+			left join departments d on d.id = b.department_id
+		    left join master_job_level e on e.id = b.job_level_id
+		    left join master_work_location f on f.id = b.work_location
+		    left join master_grade g on g.id = b.grade_id
+		    left join master_marital_status h on h.id = b.marital_status_id
+			where a.id = ".$payroll_slip_id."")->result(); 
 
 	    if (!$slip) {
 	        show_error('Payslip not found');
@@ -187,73 +191,79 @@ class Payslip_menu extends MY_Controller
 	    // ===============================
 	    // 4. Generate HTML (Slip Gaji)
 	    // ===============================
-	    $html = '
-	    <h2 style="text-align:center;">PAYSLIP</h2>
-	    <hr>
-	    <table width="100%" cellpadding="4">
-	        <tr>
-	            <td>Employee Name</td>
-	            <td>: '.$slip[0]->full_name.'</td>
-	            <td>Period</td>
-	            <td>: '.$slip[0]->period_name.'</td>
-	        </tr>
-	        <tr>
-	            <td>Employee ID</td>
-	            <td>: '.$slip[0]->emp_code.'</td>
-	            <td>Payslip Number</td>
-	            <td>: '.$slip[0]->payslip_number.'</td>
-	        </tr>
-	        <tr>
-	            <td>Department</td>
-	            <td>: '.$slip[0]->dept_name.'</td>
-	            <td>Print Date</td>
-	            <td>: '.date('d M Y', strtotime($slip[0]->payslip_print_date)).'</td>
-	        </tr>
-	    </table>
+	    // $html = '
+	    // <h2 style="text-align:center;">PAYSLIP</h2>
+	    // <hr>
+	    // <table width="100%" cellpadding="4">
+	    //     <tr>
+	    //         <td>Employee Name</td>
+	    //         <td>: '.$slip[0]->full_name.'</td>
+	    //         <td>Position</td>
+	    //         <td>: </td>
+	    //     </tr>
+	    //     <tr>
+	    //         <td>NIK</td>
+	    //         <td>: '.$slip[0]->emp_code.'</td>
+	    //         <td>Work Location</td>
+	    //         <td>: </td>
+	    //     </tr>
+	    //     <tr>
+	    //         <td>Tax Marital / Ter /Tarif</td>
+	    //         <td>: </td>
+	    //         <td>Grade</td>
+	    //         <td>: </td>
+	    //     </tr>
+	    //     <tr>
+	    //         <td>NPWP</td>
+	    //         <td>: </td>
+	    //         <td>Payslip Number</td>
+	    //         <td>: '.$slip[0]->payslip_number.'</td>
+	    //     </tr>
+	    // </table>
 
-	    <br>
+	    // <br>
 
-	    <table width="100%" border="1" cellpadding="6" cellspacing="0">
-	        <tr style="background:#f0f0f0;">
-	            <th align="left">Description</th>
-	            <th align="right">Amount</th>
-	        </tr>';
+	    // <table width="100%" border="1" cellpadding="6" cellspacing="0">
+	    //     <tr style="background:#f0f0f0;">
+	    //         <th align="left">Description</th>
+	    //         <th align="right">Amount</th>
+	    //     </tr>';
 
-	    $totalEarning   = 0;
-	    $totalDeduction = 0;
+	    // $totalEarning   = 0;
+	    // $totalDeduction = 0;
 
-	    foreach ($details as $row) {
-	        $html .= '
-	        <tr>
-	            <td>'.$row->component_name.'</td>
-	            <td align="right">'.number_format($row->amount, 2).'</td>
-	        </tr>';
+	    // foreach ($details as $row) {
+	    //     $html .= '
+	    //     <tr>
+	    //         <td>'.$row->component_name.'</td>
+	    //         <td align="right">'.number_format($row->amount, 2).'</td>
+	    //     </tr>';
 
-	        if ($row->component_type === 'earning') {
-	            $totalEarning += $row->amount;
-	        } else {
-	            $totalDeduction += $row->amount;
-	        }
-	    }
+	    //     if ($row->component_type === 'earning') {
+	    //         $totalEarning += $row->amount;
+	    //     } else {
+	    //         $totalDeduction += $row->amount;
+	    //     }
+	    // }
 
-	    $html .= '
-	        <tr>
-	            <td><strong>Total Earnings</strong></td>
-	            <td align="right"><strong>'.number_format($totalEarning, 2).'</strong></td>
-	        </tr>
-	        <tr>
-	            <td><strong>Total Deductions</strong></td>
-	            <td align="right"><strong>'.number_format($totalDeduction, 2).'</strong></td>
-	        </tr>
-	        <tr style="background:#e8e8e8;">
-	            <td><strong>Net Pay</strong></td>
-	            <td align="right"><strong>'.number_format($slip[0]->take_home_pay, 2).'</strong></td>
-	        </tr>
-	    </table>
+	    // $html .= '
+	    //     <tr>
+	    //         <td><strong>Total Earnings</strong></td>
+	    //         <td align="right"><strong>'.number_format($totalEarning, 2).'</strong></td>
+	    //     </tr>
+	    //     <tr>
+	    //         <td><strong>Total Deductions</strong></td>
+	    //         <td align="right"><strong>'.number_format($totalDeduction, 2).'</strong></td>
+	    //     </tr>
+	    //     <tr style="background:#e8e8e8;">
+	    //         <td><strong>Net Pay</strong></td>
+	    //         <td align="right"><strong>'.number_format($slip[0]->take_home_pay, 2).'</strong></td>
+	    //     </tr>
+	    // </table>
 
-	    <br>
-	    <small>This payslip is generated automatically by the system.</small>
-	    ';
+	    // <br>
+	    // <small>This payslip is generated automatically by the system.</small>
+	    // ';
 
 	    // ===============================
 	    // 5. Setup mPDF + Password
