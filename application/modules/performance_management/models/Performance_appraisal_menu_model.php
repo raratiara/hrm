@@ -283,6 +283,50 @@ class Performance_appraisal_menu_model extends MY_Model
 	}
 
 
+	public function send_email_to_direct($employee_id){ 
+		
+		///DIRECT
+        $approver = $this->db->query("
+                select 
+                    c.full_name AS approver_name,
+                    c.personal_email AS emails
+                FROM employees b
+                LEFT JOIN employees c ON c.id = b.direct_id
+                WHERE b.id = ?
+            ", [$employee_id])->row();
+
+        if (!$approver || empty($approver->emails)) {
+            return false;
+        }
+
+        
+        // ===============================
+        // SEND EMAIL
+        // ===============================
+        $link = _URL . 'performance_management/performance_appraisal_menu';
+        $subject    = 'Pending Approval - Performance Appraisal';
+        $app        = 'Performance Appraisal';
+        $doc_num = '';
+
+        $mail = [
+            'subject'   => $subject,
+            'to_name'   => $approver->approver_name,
+            'to_email'  => $approver->emails,
+            'template'  => 'approval'
+        ];
+
+        $emailData = [
+            'approver_name' => $approver->approver_name,
+            'app'           => $app,
+            'doc_num'       => $doc_num,
+            'link'          => $link
+        ];
+
+        $this->emailing->send($mail, $emailData);
+
+	}
+
+
 	public function add_data($post)
 	{
 
@@ -414,6 +458,12 @@ class Performance_appraisal_menu_model extends MY_Model
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if ($rs) {
+
+				if($next_status == 1){ //waiting approval direct
+					$this->send_email_to_direct($post['employee']);
+				}
+
+
 				if (isset($post['hardskill'])) {
 					$item_num = count($post['hardskill']); // cek sum
 					$item_len_min = min(array_keys($post['hardskill'])); // cek min key index

@@ -386,6 +386,34 @@ class Loan_model extends MY_Model
 	}  
 
 
+
+	// Get next number 
+	public function getNextNumber() { 
+		
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+		
+
+		$cek = $this->db->query("select * from loan where SUBSTRING(loan_no, 4, 4) = '".$period."'");
+		$rs_cek = $cek->result_array();
+
+		if(empty($rs_cek)){
+			$num = '0001';
+		}else{
+			$cek2 = $this->db->query("select max(loan_no) as maxnum from loan where SUBSTRING(loan_no, 4, 4) = '".$period."'");
+			$rs_cek2 = $cek2->result_array();
+			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,7); 
+			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
+			
+		}
+
+		return $num;
+		
+	} 
+
+
 	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $amount='', $trx_id){
 
 		if($work_location_id != '' && $approval_type_id != ''){
@@ -422,6 +450,9 @@ class Loan_model extends MY_Model
 								'approval_level' 	=> 1
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('loan', $trx_id, $approval_path_id);
 						}
 					}
 				}
@@ -432,11 +463,21 @@ class Loan_model extends MY_Model
 
   
 	public function add_data($post) {   
+		$lettercode = ('LOA'); // code
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+		
+		$runningnumber = $this->getNextNumber(); // next count number
+		$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
+
+
 		$dataEmp = $this->db->query("select * from employees where id = '".$post['id_employee']."'")->result(); 
 		if(!empty($dataEmp)){
 			if(!empty($dataEmp[0]->work_location)){
 
 				$data = [
+					'loan_no' 						=> $nextnum,
 					'id_employee' 	 				=> trim($post['id_employee']),
 					'nominal_pinjaman' 				=> trim($post['nominal_pinjaman']), 
 					'tenor' 						=> trim($post['tenor']),

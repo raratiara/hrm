@@ -415,6 +415,33 @@ class Perjalanan_dinas_menu_model extends MY_Model
 	}
 
 
+	// Get next number 
+	public function getNextNumber() { 
+		
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+		
+
+		$cek = $this->db->query("select * from business_trip where SUBSTRING(bustrip_no, 4, 4) = '".$period."'");
+		$rs_cek = $cek->result_array();
+
+		if(empty($rs_cek)){
+			$num = '0001';
+		}else{
+			$cek2 = $this->db->query("select max(bustrip_no) as maxnum from business_trip where SUBSTRING(bustrip_no, 4, 4) = '".$period."'");
+			$rs_cek2 = $cek2->result_array();
+			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,7); 
+			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
+			
+		}
+
+		return $num;
+		
+	} 
+
+
 	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $amount='', $trx_id){
 
 		if($work_location_id != '' && $approval_type_id != ''){
@@ -451,6 +478,10 @@ class Perjalanan_dinas_menu_model extends MY_Model
 								'approval_level' 	=> 1
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('business_trip', $trx_id, $approval_path_id);
 						}
 					}
 				}
@@ -482,6 +513,13 @@ class Perjalanan_dinas_menu_model extends MY_Model
 		$diff_day		= $this->dayCount($f_start_date, $f_end_date);
 		$diff_day 		= number_format($diff_day);
 
+		$lettercode = ('BTR'); // ca code
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+		
+		$runningnumber = $this->getNextNumber(); // next count number
+		$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
 
 
 		if (!empty($post['employee'])) {
@@ -489,6 +527,7 @@ class Perjalanan_dinas_menu_model extends MY_Model
 			if(!empty($dataEmp)){
 				if(!empty($dataEmp[0]->work_location)){
 					$data = [
+						'bustrip_no' 	=> $nextnum,
 						'employee_id' 	=> trim($post['employee']),
 						'destination' 	=> trim($post['destination']),
 						'start_date' 	=> $f_start_date,

@@ -470,6 +470,9 @@ class Fpp_menu_model extends MY_Model
 								'approval_level' 	=> 1
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('cash_advance', $trx_id, $approval_path_id);
 						}
 					}
 				}
@@ -639,6 +642,9 @@ class Fpp_menu_model extends MY_Model
 								'approval_level' 	=> $next_level
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('cash_advance', $id, $approval_path_id);
 						}
 						return $rs;
 					}else return null;
