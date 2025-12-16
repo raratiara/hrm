@@ -282,6 +282,50 @@ class Performance_plan_menu_model extends MY_Model
 	}
 
 
+	public function send_email_to_direct($employee_id){ 
+		
+		///DIRECT
+        $approver = $this->db->query("
+                select 
+                    c.full_name AS approver_name,
+                    c.personal_email AS emails
+                FROM employees b
+                LEFT JOIN employees c ON c.id = b.direct_id
+                WHERE b.id = ?
+            ", [$employee_id])->row();
+
+        if (!$approver || empty($approver->emails)) {
+            return false;
+        }
+
+        
+        // ===============================
+        // SEND EMAIL
+        // ===============================
+        $link = _URL . 'performance_management/performance_plan_menu';
+        $subject    = 'Pending Approval - Performance Plan';
+        $app        = 'Performance Plan';
+        $doc_num = '';
+
+        $mail = [
+            'subject'   => $subject,
+            'to_name'   => $approver->approver_name,
+            'to_email'  => $approver->emails,
+            'template'  => 'approval'
+        ];
+
+        $emailData = [
+            'approver_name' => $approver->approver_name,
+            'app'           => $app,
+            'doc_num'       => $doc_num,
+            'link'          => $link
+        ];
+
+        $this->emailing->send($mail, $emailData);
+
+	}
+
+
 	public function add_data($post)
 	{
 
@@ -325,6 +369,8 @@ class Performance_plan_menu_model extends MY_Model
 							}
 						}
 					}
+
+					$this->send_email_to_direct($post['employee']);
 
 					return $rs;
 				} else {

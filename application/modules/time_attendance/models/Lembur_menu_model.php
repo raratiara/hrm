@@ -412,6 +412,9 @@ class Lembur_menu_model extends MY_Model
 									'approval_level' 	=> 1
 								];
 								$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+								// send emailing to approver
+								$this->approvalemailservice->sendApproval('overtimes', $trx_id, $approval_path_id);
 							}
 						}
 					}

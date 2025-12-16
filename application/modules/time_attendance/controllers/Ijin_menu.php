@@ -322,6 +322,10 @@ class Ijin_menu extends MY_Controller
 							'approval_level' 	=> $next_level
 						];
 						$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+						// send emailing to approver
+						$this->approvalemailservice->sendApproval('leave_absences', $id, $approval_path_id);
+								
 					}
 				}
 			}
