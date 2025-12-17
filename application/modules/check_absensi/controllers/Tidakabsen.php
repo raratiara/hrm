@@ -33,10 +33,9 @@ class Tidakabsen extends MY_Controller
 		$dateTomorrow='';
 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		/*$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
 		}*/
 

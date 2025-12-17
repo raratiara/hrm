@@ -46,7 +46,7 @@ class Group_shift_schedule_menu extends MY_Controller
 		$akses = $this->self_model->user_akses($this->module_name); 
 		
 		$getdata = $this->db->query("select a.*, b.shift_type from user a left join employees b on b.id = a.id_karyawan where a.user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$shift_type = $getdata[0]->shift_type; 
 		if($akses['role_id'] == '3'){ //user biasa
 			if($shift_type == 'Shift'){ //karyawan shift

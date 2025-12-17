@@ -125,8 +125,8 @@ class Meetings_menu extends MY_Controller
 
 
 	public function checkin(){
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
  		
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
@@ -171,8 +171,8 @@ class Meetings_menu extends MY_Controller
 
 
 	public function checkout(){
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
  		
 		$post = $this->input->post(null, true);
 		$id = $post['id'];

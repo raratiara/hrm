@@ -34,10 +34,10 @@ class Medcheck_menu_model extends MY_Model
 			'dt.emp_code'
 		];
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan; 
+		
+		$karyawan_id = $_SESSION['worker']; 
 		$whr='';
-		if($getdata[0]->id_groups == 1){ //bukan super user
+		if($_SESSION['role'] == 1){ //bukan super user
 			$whr=' and (a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'") ';
 		}
 
@@ -367,8 +367,8 @@ class Medcheck_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 
 		$employee = trim($post['employee']); 
@@ -427,8 +427,8 @@ class Medcheck_menu_model extends MY_Model
 
 
 	public function getRowData($id) { 
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 
 		$mTable = '(select a.*, b.full_name as employee_name, b.direct_id, b.emp_code
@@ -477,10 +477,10 @@ class Medcheck_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 

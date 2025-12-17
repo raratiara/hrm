@@ -39,10 +39,10 @@ class Request_recruitment_menu_model extends MY_Model
 			'dt.direct_id'
 		];
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		 
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' where (ao.requested_by = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1) ';
 		}
 
@@ -425,8 +425,8 @@ class Request_recruitment_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 
 		$request_date 	= trim($post['request_date']);
@@ -656,8 +656,8 @@ class Request_recruitment_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 
 

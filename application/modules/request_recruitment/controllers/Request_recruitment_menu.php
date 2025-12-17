@@ -63,7 +63,7 @@ class Request_recruitment_menu extends MY_Controller
 		$akses = $this->self_model->user_akses($this->module_name);
 		
 		$getdata = $this->db->query("select a.*, b.job_level_id from user a left join employees b on b.id = a.id_karyawan where a.user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$job_level_id = $getdata[0]->job_level_id; 
 
 		// if($akses['role_id'] == '3'){ //user biasa
@@ -188,8 +188,8 @@ class Request_recruitment_menu extends MY_Controller
 
 
 	public function reject(){
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
@@ -229,8 +229,8 @@ class Request_recruitment_menu extends MY_Controller
 
 
 	public function approve(){
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 		$post = $this->input->post(null, true);
 		$id = $post['id'];

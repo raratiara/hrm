@@ -33,8 +33,8 @@ class Absence_report_menu_model extends MY_Model
 			'dt.holiday_flag'
 		];
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 		$sIndexColumn = $this->primary_key;
 
