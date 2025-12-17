@@ -1237,7 +1237,7 @@ class Bypass extends API_Controller
 	        'approver_name' => 'Rara Tiara',
 	        'app' => 'Cash Advance',
 	        'ca_num' => 'fpu323123',
-	        'link' => 'http://localhost/_hrm/general_system/sadmin_tools_access_menu_role/'
+	        'link' => 'https://hrm.nathabuana.com/general_system/sadmin_tools_access_menu_role/'
 	    ];
 
 	    if ($this->emailing->send($mail, $data)) {
