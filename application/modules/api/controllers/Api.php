@@ -3168,25 +3168,33 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
+    	$matrix_type_id = 1;
 
 		if(!empty($_REQUEST)){
 			$status = $_REQUEST['status']; //approve or reject
 			$id 	= $_REQUEST['id'];
-			$approval_level = $_REQUEST['approval_level'];
+			//$approval_level = $_REQUEST['approval_level'];
 			$employee_login = $_REQUEST['employee_login'];
 
 
 
 			if($status != ''){
 				if($id != ''){
-					if($approval_level != ''){ 
-						$matrix_type_id = 1;
-						$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);
-						if(!empty($CurrApproval)){ 
-							$CurrApprovalId		= $CurrApproval[0]->id;
-							$approval_path_id	= $CurrApproval[0]->approval_path_id;
+					$is_approver = $this->checkApprover($matrix_type_id, $id, $employee_login);
 
-							$cekApproval = $this->db->query("select * from approval_path_detail where id = '".$CurrApprovalId."' ")->result(); 
+					if($is_approver == 1){
+
+					//if($approval_level != ''){ 
+						
+						/*$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);*/
+						$CurrApproval = $this->getCurrApproval($matrix_type_id, $id);
+						if(!empty($CurrApproval)){ 
+							
+							$approval_path_id		= $CurrApproval[0]->id;
+							$current_approval_level = $CurrApproval[0]->current_approval_level;
+
+							$cekApproval = $this->db->query("select * from approval_path_detail where approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ")->result(); 
+
 							if($cekApproval[0]->status != ''){
 								$response = [
 										'status' 	=> 401,
@@ -3197,7 +3205,7 @@ class Api extends API_Controller
 								if($status == 'approve'){ 
 
 									$maxApproval = $this->getMaxApproval($matrix_type_id, $id); 
-									if($approval_level == $maxApproval){   //last approver
+									if($current_approval_level == $maxApproval){   //last approver
 										$data1 = [
 											'status_approval' 	=> 2,
 											'date_approval'		=> date("Y-m-d H:i:s")
@@ -3283,14 +3291,14 @@ class Api extends API_Controller
 												'approval_by' 	=> $employee_login,
 												'approval_date'	=> date("Y-m-d H:i:s")
 											];
-											$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
+											$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
 												
 
 										}
 										
 										
 									}else{
-										$next_level = $approval_level+1;
+										$next_level = $current_approval_level+1;
 										//$nextApproval = getNextApproval($id, $next_level);
 										
 										$data2 = [
@@ -3304,7 +3312,7 @@ class Api extends API_Controller
 												'approval_by' 	=> $employee_login,
 												'approval_date'	=> date("Y-m-d H:i:s")
 											];
-											$this->db->update("approval_path_detail", $data, "id = '".$CurrApprovalId."'");
+											$this->db->update("approval_path_detail", $data, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
 
 											$dataApprovalDetail = [
 												'approval_path_id' 	=> $approval_path_id, 
@@ -3372,7 +3380,7 @@ class Api extends API_Controller
 											'approval_by' 	=> $employee_login,
 											'approval_date'	=> date("Y-m-d H:i:s")
 										];
-										$this->db->update("approval_path_detail", $dataapproval, "id = '".$CurrApprovalId."'");
+										$this->db->update("approval_path_detail", $dataapproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
 
 
 
@@ -3404,11 +3412,19 @@ class Api extends API_Controller
 								'error' 	=> 'Approval Level not found'
 							];
 						}
-					}else{
+					/*}else{
 						$response = [
 							'status' 	=> 400, // Bad Request
 							'message' 	=>'Failed',
 							'error' 	=> 'Approval Level not found'
+						];
+					}*/
+
+					}else{
+						$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'You are not authorized to approve this data'
 						];
 					}
 				}else{
@@ -4606,7 +4622,7 @@ class Api extends API_Controller
     }
 
 
-    public function getCurrApproval($approval_matrix_type_id, $trx_id, $approval_level){
+    /*public function getCurrApproval($approval_matrix_type_id, $trx_id, $approval_level){
 		$post 		= $this->input->post(null, true);
 		
 
@@ -4615,13 +4631,21 @@ class Api extends API_Controller
 		
 
 		return $rs;
+	}*/
+
+
+	public function getCurrApproval($approval_matrix_type_id, $trx_id){
+		$rs =  $this->db->query("select * from approval_path where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = ".$trx_id." ")->result();
+		
+
+		return $rs;
 	}
+
+
 
 	public function getMaxApproval($approval_matrix_type_id, $trx_id){ 
 		$post 		= $this->input->post(null, true);
 		
-
-		//$approval_matrix_type_id = 1;
 		$rs =  $this->db->query("select b.*, a.current_approval_level, c.role_name from approval_path a 
 				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id
 				left join approval_matrix_role c on c.id = b.role_id
@@ -4630,6 +4654,42 @@ class Api extends API_Controller
 		
 
 		return $rs[0]->approval_level;
+	}
+
+
+	public function checkApprover($approval_matrix_type_id, $trx_id, $employee_id){
+
+		$dataApproval = $this->db->query("select a.*, b.role_id, c.role_name from approval_path a
+				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id and b.approval_level = a.current_approval_level
+				left join approval_matrix_role c on c.id = b.role_id
+				where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id." ")->result();
+
+		$approver = 0;
+
+		if($dataApproval[0]->role_name == 'Direct'){ 
+			$getTbl = $this->db->query("select * from approval_matrix_mstype where id = ".$approval_matrix_type_id."
+				")->result();
+			$getDirect = $this->db->query("select b.direct_id from ".$getTbl[0]->tbl." a left join employees b on b.id = a.".$getTbl[0]->tbl_employee_id." where a.id = ".$trx_id."
+				")->result();
+			if($getDirect[0]->direct_id == $employee_id){
+				$approver = 1;
+			}
+		}else{
+			$rs =  $this->db->query("select a.*, b.role_id, c.employee_id 
+				from approval_path a
+				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id and b.approval_level = a.current_approval_level
+				left join approval_matrix_role_pic c on c.approval_matrix_role_id = b.role_id
+				where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."
+				and c.employee_id = ".$employee_id." ")->result();
+
+			if(!empty($rs)){
+				$approver = 1;
+			}
+		}
+
+		
+
+		return $approver;
 	}
 
 
@@ -5881,16 +5941,14 @@ class Api extends API_Controller
 
 						/// update approval path
 						$matrix_type_id = 4;
-						$getapprovallevel = $this->db->query("select * from approval_path where approval_matrix_type_id = ".$matrix_type_id." and trx_id = '".$id."'")->result(); 
-						$approval_level = $getapprovallevel[0]->current_approval_level;
-						$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id, $approval_level);
-						$CurrApprovalPathId	= $CurrApproval[0]->approval_path_id;
+						$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
+						$CurrApprovalPathId	= $CurrApproval[0]->id;
 
 						if($is_rfu == 1){
 							$updapproval_path = [
 								'current_approval_level' => 1
 							];
-							$this->db->update("approval_path", $updapproval_path, "id = '".$getapprovallevel[0]->id."' ");
+							$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
 
 							$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
 
@@ -6133,6 +6191,204 @@ class Api extends API_Controller
 		$this->output->set_header('Access-Control-Max-Age: 3600');
 		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function approval_reimburs()
+    { 
+    	$this->verify_token();
+
+    	$islogin_employee	= $_POST['islogin_employee'];
+    	$status				= $_POST['status']; // approve / reject /rfu
+    	$id 				= $_POST['id'];
+    	$reason				= $_POST['reason']; // for reject or rfu
+    	
+    	$matrix_type_id = 4; //reimbursement
+
+    	if($islogin_employee != '' && $status != '' && $id != ''){ 
+    		$is_approver = $this->checkApprover($matrix_type_id, $id, $islogin_employee); 
+    		if($is_approver == 1){
+
+				$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id); 
+	  			$maxApproval 	= $this->getMaxApproval($matrix_type_id, $id); 
+	  			$current_approval_level = $CurrApproval[0]->current_approval_level;
+	  			$next_level 		= $current_approval_level+1;
+				$approval_path_id	= $CurrApproval[0]->id;
+
+
+				$cekApproval = $this->db->query("select * from approval_path_detail where approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ")->result(); 
+
+				if($cekApproval[0]->status != ''){
+					$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Cannot double approval'
+						];
+				}else{
+
+					if($status == 'approve'){
+
+						if($current_approval_level == $maxApproval){   //last approver
+							$data = [
+								'status_id' 	=> 2, //approved
+								'date_approved'	=> date("Y-m-d H:i:s")
+							];
+							$rs = $this->db->update('medicalreimbursements', $data, "id = '".$id."'");
+
+							if($rs){
+								
+								$updApproval = [
+									'status' 		=> "Approved",
+									'approval_by' 	=> $islogin_employee,
+									'approval_date'	=> date("Y-m-d H:i:s")
+								];
+								$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+
+
+								$response = [
+					                'status'  => 200,
+					                'message' => 'Success'
+					            ];
+							}else{
+								$response = [
+								    'status'  => 401,
+								    'message' => 'Failed',
+								    'error'   => 'Error submit'
+								];
+							}
+
+						}else{  
+							
+							$data2 = [
+								'current_approval_level' => $next_level
+							];
+							$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
+							
+							if($rs){
+								$data = [
+									'status' 		=> "Approved",
+									'approval_by' 	=> $islogin_employee,
+									'approval_date'	=> date("Y-m-d H:i:s")
+								];
+								$this->db->update("approval_path_detail", $data, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ");
+
+								$dataApprovalDetail = [
+									'approval_path_id' 	=> $approval_path_id, 
+									'approval_level' 	=> $next_level
+								];
+								$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+
+								$response = [
+					                'status'  => 200,
+					                'message' => 'Success'
+					            ];
+							}else{
+								$response = [
+								    'status'  => 401,
+								    'message' => 'Failed',
+								    'error'   => 'Error submit'
+								];
+							}
+							
+						}
+					
+
+			    	}else if($status == 'reject'){
+			    		
+			    		$data = [
+							'status_id' 	=> 3, //Rejected
+							'date_approved'	=> date("Y-m-d H:i:s"),
+							'reject_reason' => $reason
+						];
+						$rs = $this->db->update('medicalreimbursements', $data, "id = '".$id."'");
+
+						
+						if($rs){
+							$dataapproval = [
+								'status' 		=> "Rejected",
+								'approval_by' 	=> $islogin_employee,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $dataapproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ");
+
+
+							$response = [
+				                'status'  => 200,
+				                'message' => 'Success'
+				            ];
+						}else{
+							$response = [
+							    'status'  => 401,
+							    'message' => 'Failed',
+							    'error'   => 'Error submit'
+							];
+						}
+
+			    	}else if($status == 'rfu'){
+
+			    		$data = [
+							'status_id' 	=> 4, //rfu
+							'rfu_reason' 	=> $reason,
+							'date_approved'	=> date("Y-m-d H:i:s")
+						];
+						$rs = $this->db->update('medicalreimbursements', $data, "id = '".$id."'");
+
+						if($rs){
+							$updApproval = [
+								'status' 		=> "Request for Update",
+								'approval_by' 	=> $islogin_employee,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+
+
+							$response = [
+				                'status'  => 200,
+				                'message' => 'Success'
+				            ];
+						}else{
+							$response = [
+							    'status'  => 401,
+							    'message' => 'Failed',
+							    'error'   => 'Error submit'
+							];
+						}
+
+			    	}else{
+			    		$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'Status not found'
+						];
+			    	}
+				}
+	    		
+    		}else{
+    			$response = [
+		            'status'  => 401,
+		            'message' => 'Failed',
+		            'error'   => 'You are not authorized to approve this data'
+		        ];
+    		}
+
+    	}else{
+    		$response = [
+	            'status'  => 401,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+
+
+    	$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
 		
     }
 
