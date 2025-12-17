@@ -32,10 +32,10 @@ class Performance_appraisal_menu_model extends MY_Model
 			'dt.score'
 		];
 
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr = '';
-		if ($getdata[0]->id_groups != 1) { //bukan super user
+		if ($_SESSION['role'] != 1) { //bukan super user
 			$whr = ' where a.employee_id = "' . $karyawan_id . '" or b.direct_id = "' . $karyawan_id . '" ';
 		}
 
@@ -526,8 +526,8 @@ class Performance_appraisal_menu_model extends MY_Model
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+	
+		$karyawan_id = $_SESSION['worker'];
 
 		$absensi = $this->db->query("select * from time_attendances where employee_id = '" . $rs->employee_id . "' and year(date_attendance) = '" . $rs->year . "' and leave_absences_id is null ")->result();
 		$ttl_kehadiran = 0;
@@ -591,10 +591,10 @@ class Performance_appraisal_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr = '';
-		if ($getdata[0]->id_groups != 1) { //bukan super user
+		if ($_SESSION['role'] != 1) { //bukan super user
 			$whr = ' where a.employee_id = "' . $karyawan_id . '" or b.direct_id = "' . $karyawan_id . '" ';
 		}
 
@@ -649,8 +649,7 @@ class Performance_appraisal_menu_model extends MY_Model
 	public function getHardskillRows($id, $view, $print = FALSE)
 	{
 
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 
 		$dt = '';
 
@@ -746,8 +745,7 @@ class Performance_appraisal_menu_model extends MY_Model
 	public function getDataSoftskill($employee, $id, $save_method)
 	{
 
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 
 		if ($save_method == 'detail') { //VIEW
 			$datasoftskill = $this->db->query("select a.*, b.name, b.weight_percentage from performance_appraisal_softskill a left join master_softskill b on b.id = a.softskill_id where a.performance_appraisal_id = '" . $id . "' ")->result();

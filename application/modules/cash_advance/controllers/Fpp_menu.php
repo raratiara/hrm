@@ -27,10 +27,10 @@ class Fpp_menu extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' AND (id = "'.$karyawan_id.'" OR id = (SELECT direct_id FROM employees WHERE id = "'.$karyawan_id.'" ))';
 		}
 
@@ -38,8 +38,7 @@ class Fpp_menu extends MY_Controller
 
 		$field = [];
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
 		$login_name = $this->db->query("select * from employees where id = '".$karyawan_id."'")->result(); 
 		$datenow = date("Y-m-d");
 		
@@ -155,8 +154,8 @@ class Fpp_menu extends MY_Controller
 
 
 	public function rfu(){
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
@@ -197,8 +196,8 @@ class Fpp_menu extends MY_Controller
 
 
 	public function reject(){
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 		$post = $this->input->post(null, true);
 		$id = $post['id'];

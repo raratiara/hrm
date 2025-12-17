@@ -43,10 +43,10 @@ class Settlement_menu_model extends MY_Model
 			'dt.is_approver_view'
 		];
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			/*$whr=' where (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or d.direct_id = "'.$karyawan_id.'") ';*/
 			$whr=' where (ao.prepared_by = "'.$karyawan_id.'" or ao.requested_by = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1) ';
 		}
@@ -485,8 +485,7 @@ class Settlement_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 
 		$lettercode = ('STL'); // code
 		$yearcode = date("y");
@@ -588,8 +587,7 @@ class Settlement_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$id = $post['id'];
 
 		if(!empty($post['id'])){ 
@@ -804,8 +802,7 @@ class Settlement_menu_model extends MY_Model
 
 	public function getRowData($id) { 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 
 
 		/*$mTable = '(select a.*, b.ca_number, c.full_name as prepared_by_name, d.full_name as requested_by_name, e.name as status_name, d.direct_id, b.total_cost as total_cost_ca
@@ -869,8 +866,7 @@ class Settlement_menu_model extends MY_Model
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 
 
 		$isdirect = 0;
@@ -914,10 +910,9 @@ class Settlement_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or d.direct_id = "'.$karyawan_id.'") ';
 		}
 

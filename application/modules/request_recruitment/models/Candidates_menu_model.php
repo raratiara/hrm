@@ -339,8 +339,8 @@ class Candidates_menu_model extends MY_Model
 
 	// public function add_data($post)
 	// {
-	// 	$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-	// 	$karyawan_id = $getdata[0]->id_karyawan;
+	
+	// 	$karyawan_id = $_SESSION['worker'];
 
 	// 	if (!empty($post['year'])) {
 	// 		$data = [

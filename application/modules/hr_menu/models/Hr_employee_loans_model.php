@@ -46,10 +46,9 @@ class Hr_employee_loans_model extends MY_Model
 		];
 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			$whr = ' where ao.id_employee = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
 		}
 
@@ -282,7 +281,7 @@ class Hr_employee_loans_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				if($row->status_name == 'Pinjaman Berjalan' && ($getdata[0]->id_groups == 1 || $getdata[0]->id_groups == 4)){ //superadmin / HR
+				if($row->status_name == 'Pinjaman Berjalan' && ($_SESSION['role'] == 1 || $_SESSION['role'] == 4)){ //superadmin / HR
 					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 				}
 				/*if($row->status_name == 'Waiting Approval' && $row->employee_id == $karyawan_id){
@@ -482,10 +481,10 @@ class Hr_employee_loans_model extends MY_Model
 
 	public function getRowData($id) {
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			$whr = ' where ao.id_employee = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
 		}
 
@@ -685,10 +684,10 @@ class Hr_employee_loans_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 

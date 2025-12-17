@@ -35,10 +35,10 @@ class Ijin_menu_model extends MY_Model
 			'dt.is_approver_view'
 		];
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			//$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 			$whr=' where ao.employee_id = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1 ';
 		}
@@ -259,8 +259,8 @@ class Ijin_menu_model extends MY_Model
 			}
 		}
 
-		$getdirect = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$direct_karyawan_id = $getdirect[0]->id_karyawan;
+		
+		$direct_karyawan_id = $_SESSION['worker'];
 
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
@@ -1099,10 +1099,10 @@ class Ijin_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 

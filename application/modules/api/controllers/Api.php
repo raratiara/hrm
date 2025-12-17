@@ -6394,5 +6394,71 @@ class Api extends API_Controller
 
 
 
+    public function get_data_payslip()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+    	$islogin_employee	= $_GET['islogin_employee'];
+    	$link_url = _URL;
+
+    	if($islogin_employee != ''){
+
+	    	$dataSlip = $this->db->query('select b.full_name, b.emp_code 
+	    				, c.year as year_period, c.month as month_period,
+						(case when c.month = 1 then "January"
+						when c.month = 2 then "Februari"
+						when c.month = 3 then "March"
+						when c.month = 4 then "April"
+						when c.month = 5 then "May"
+						when c.month = 6 then "June"
+						when c.month = 7 then "July"
+						when c.month = 8 then "August"
+						when c.month = 9 then "September"
+						when c.month = 10 then "October"
+						when c.month = 11 then "November"
+						when c.month = 12 then "December"
+						else "" end) as month_period_name,
+						CONCAT("'.$link_url.'", a.payslip_pdf_path) AS pdf_path
+	    				from payroll_slip a 
+						left join employees b on b.id = a.employee_id 
+						left join payroll_periods c on c.id = a.payroll_periods_id
+						where a.employee_id = "'.$islogin_employee.'"
+						')->result();  
+
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $dataSlip
+			];
+
+	    	
+	    	
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+    	}else{
+    		$response = [
+	            'status'  => 401,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+		
+		
+    }
+
+
+
 }
 

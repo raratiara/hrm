@@ -25,10 +25,10 @@ class Hr_employee_loans extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{ 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
 		}
 
@@ -108,8 +108,8 @@ class Hr_employee_loans extends MY_Controller
 
 
  	public function reject(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		 
+		$karyawan_id = $_SESSION['worker'];
 
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
@@ -147,7 +147,7 @@ class Hr_employee_loans extends MY_Controller
 
 	public function approve(){
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 
 
 		$post = $this->input->post(null, true);
@@ -243,8 +243,8 @@ class Hr_employee_loans extends MY_Controller
 
 
 	public function pencairan(){
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 
 		$post = $this->input->post(null, true);

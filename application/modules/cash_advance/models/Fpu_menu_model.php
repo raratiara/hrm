@@ -42,10 +42,9 @@ class Fpu_menu_model extends MY_Model
 			'dt.is_approver_view'
 		];
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			/*$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';*/
 			$whr=' and (ao.prepared_by = "'.$karyawan_id.'" or ao.requested_by = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1) ';
 		}
@@ -484,8 +483,7 @@ class Fpu_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 
 		$lettercode = ('FPU'); // ca code
 		$yearcode = date("y");
@@ -575,8 +573,7 @@ class Fpu_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$id = trim($post['id']);
 
 		if(!empty($id)){ 
@@ -766,8 +763,8 @@ class Fpu_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 		/*$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 					, d.name as status_name, c.direct_id, e.title as project_name  
@@ -872,10 +869,10 @@ class Fpu_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';
 		}
 
