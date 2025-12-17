@@ -274,16 +274,16 @@ class Unbind_devices_menu_model extends MY_Model
 	// getting row data for update / detail view
 	public function getRowData($id)
 	{
-		$rs = $this->db->select('user_id,name,username,id_karyawan,email,id_groups,base_menu,(CASE WHEN base_menu="custom" THEN "User" WHEN base_menu="role" THEN "Role" ELSE "Default" END) as bmenu,isaktif')->where([$this->primary_key => $id])->get($this->table_name)->row();
-		if (!empty($rs->id_karyawan)) {
-			$rd = $this->db->select('CONCAT(a.full_name," - ",b.name) as link')->join($this->table_jabatan . ' b', 'b.id=a.job_title_id', 'left')->where(['a.' . $this->general_key => $rs->id_karyawan])->get($this->table_karyawan . ' a')->row();
-			$rs = (object) array_merge((array) $rs, (array) $rd);
-		}
-		if (!empty($rs->id_groups)) {
-			$rd = $this->db->select('description as role')->where([$this->general_key => $rs->id_groups])->get($this->table_role)->row();
-			$rs = (object) array_merge((array) $rs, (array) $rd);
-		}
+		
+		$mTable = '(select a.*, b.id_karyawan, c.full_name
+					from user_devices a left join user b on b.user_id = a.user_id
+					left join employees c on c.id = b.id_karyawan
+					where is_active = 1
+					)dt';
 
+		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
+		
+		
 		return $rs;
 	}
 

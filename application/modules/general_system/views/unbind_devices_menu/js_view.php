@@ -174,46 +174,18 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){
 					// disabling required password field
-					$(".mk").hide();
-					$('[name="passwd"]').rules('remove',  'required')
-					$('[name="username"]').rules('remove',  'required')
-					$('[name="username"]').rules('remove',  'remote')
-
-					$('[name="id"]').val(data.user_id);
-					$('[name="name"]').val(data.name);
-					$('[name="username"]').prop("readonly", true);
-					$('[name="username"]').val(data.username);
-					$('select#id_karyawan').val(data.id_karyawan).trigger('change.select2');
-					$('[name="email"]').val(data.email);
-					$('select#id_groups').val(data.id_groups).trigger('change.select2');
-					$('[name="base_menu"][value="'+data.base_menu+'"]').prop('checked', true);
-					$('[name="isaktif"][value="'+data.isaktif+'"]').prop('checked', true);
+					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){
-					$('span.name').html(data.name);
-					$('span.username').html(data.username);
-					$('span.link').html(data.link);
-					$('span.email').html(data.email);
-					$('span.id_groups').html(data.role);
-					var bmenu = 'Default';
-					if (data.base_menu == 'custom'){
-						bmenu = 'User';
-					} else if (data.base_menu == 'role'){
-						bmenu = 'Role';
-					}
-					$('span.bmenu').html(bmenu);
-					var isaktif = 'New - Non Aktif';
-					if (data.isaktif == 2){
-						isaktif = 'Aktif';
-					} else if (data.isaktif == 3){
-						isaktif = 'Non Aktif';
-					} else if (data.isaktif == 4){
-						isaktif = 'Suspended';
-					}
-					$('span.isaktif').html(isaktif);
+					$('span.employee').html(data.full_name);
+					$('span.type').html(data.type);
+					$('span.device_uuid').html(data.device_uuid);
+					
+
+					
 					$('#modal-view-data').modal('show');
 				}
 			} else {
