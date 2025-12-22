@@ -15,21 +15,21 @@ class Training_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Training Name","Training Date","Location","Trainer","Notes","Status","Sertifikat"];
+	public $tabel_header 			= ["ID","Training Name","Training Date","Location","Trainer","Notes","Status","Participants","Created By"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Employee Name","Training Name","Training Date","Location","Trainer","Notes","Status"];
-	public $colfields 				= ["id","full_name","training_name","training_date","location","trainer","notes","status_name"];
+	public $colnames 				= ["ID","Training Name","Training Date","Location","Trainer","Notes","Status","Participants","Created By"];
+	public $colfields 				= ["id","training_name","training_date","location","trainer","notes","status_name","participant_names","created_by_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		//$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
+		if($_SESSION['role'] != 1 || $_SESSION['role'] != 4){ //bukan super user
+			$whr=' and id = "'.$karyawan_id.'" ';
 		}
 
 
@@ -41,14 +41,16 @@ class Training_menu extends MY_Controller
 		$field['txttrainer'] 		= $this->self_model->return_build_txt('','trainer','trainer');
 		$field['txttrainingname'] 	= $this->self_model->return_build_txt('','training_name','training_name');
 		$field['txtlocation'] 		= $this->self_model->return_build_txt('','location','location');
-		$field['txtdocsertifikat'] 	= $this->self_model->return_build_fileinput('doc_sertifikat','doc_sertifikat');
+		/*$field['txtdocsertifikat'] 	= $this->self_model->return_build_fileinput('doc_sertifikat','doc_sertifikat');*/
 		
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
-		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
+		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 
 		$field['reject_reason']	= $this->self_model->return_build_txtarea('','reject_reason','reject_reason');
 		$field['rfu_reason']	= $this->self_model->return_build_txtarea('','rfu_reason','rfu_reason');
 
+		$mslmscourse 			= $this->db->query("select * from lms_course where is_active = 1 order by course_name asc")->result(); 
+		$field['sellmscourse'] 	= $this->self_model->return_build_select2me($mslmscourse,'','','','lms_course','lms_course','','','id','course_name',' ','','','',3,'-');
 
 		
 		return $field;
