@@ -2361,16 +2361,22 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$islogin_employee	= $_REQUEST['islogin_employee'];
-    	$employee			= $_REQUEST['employee']; //filter employee
+    
+    	
+    	$islogin_employee	= $_GET['islogin_employee'];
+    	$filter_employee	= $_GET['filter_employee'];
+    	$filter_isapprover	= $_GET['filter_isapprover'];
 
 
     	if($islogin_employee != ''){
 
-    		$where=""; 
+    		$where=""; $whr_isapprover="";
 	    	if($employee != ''){
 	    		/*$where = " and a.employee_id = '".$employee."' ";*/
 	    		$where = " and ao.employee_id = '".$employee."' ";
+	    	}
+	    	if($filter_isapprover != ''){
+	    		$whr_isapprover=' and ao.is_approver = 1 ';
 	    	}
 
 	    	/*$dataijin = $this->db->query("select a.id, b.full_name, a.date_leave_start, a.date_leave_end, c.name as 			leave_name, a.reason, a.total_leave, 
@@ -2491,7 +2497,7 @@ class Api extends API_Controller
 						    GROUP BY a.id
 						) ao
 						where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
-	                    '.$where.' ')->result();  
+	                    '.$where.$whr_isapprover.' ')->result();  
 
 
 	    	$response = [
@@ -5595,13 +5601,17 @@ class Api extends API_Controller
     	
     	$islogin_employee	= $_GET['islogin_employee'];
     	$filter_employee	= $_GET['filter_employee'];
+    	$filter_isapprover	= $_GET['filter_isapprover'];
 
 
     	if($islogin_employee != ''){
 
-    		$whr='';
+    		$whr=''; $whr_isapprover='';
 	    	if($filter_employee != ''){
 	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+	    	}
+	    	if($filter_isapprover != ''){
+	    		$whr_isapprover=' and ao.is_approver = 1 ';
 	    	}
 
 	    	$dataReimburs = $this->db->query('select ao.* from (select a.*, b.full_name as employee_name, c.name as reimburse_for_name,
@@ -5655,7 +5665,7 @@ class Api extends API_Controller
 							LEFT JOIN approval_matrix_role i ON i.id = h.role_id
 							GROUP BY a.id) ao
 							where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
-						'.$whr.' ')->result();  
+						'.$whr.$whr_isapprover.' ')->result();  
 
 	    	if (!empty($dataReimburs)) {
 			    foreach ($dataReimburs as $key => $row) {
