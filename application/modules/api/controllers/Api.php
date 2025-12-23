@@ -5657,6 +5657,24 @@ class Api extends API_Controller
 							where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
 						'.$whr.' ')->result();  
 
+	    	if (!empty($dataReimburs)) {
+			    foreach ($dataReimburs as $key => $row) {
+
+			        $detail = $this->db->query("
+			            select a.id as id_detail, b.name as subtype_name, a.biaya, a.document, a.notes
+			            from reimbursement_detail a
+			            left join master_reimburs_subtype b 
+			                on b.id = a.subtype_id
+			            where a.reimbursement_id = ?
+			        ", [$row->id])->result();
+
+			        // inject ke object reimburs
+			        $dataReimburs[$key]->details = $detail;
+			    }
+			}
+
+
+
 	    	$response = [
 	    		'status' 	=> 200,
 				'message' 	=> 'Success',
