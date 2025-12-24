@@ -29,13 +29,9 @@ class Lms_course_progress_menu extends MY_Controller
 		$field = [];
 
 
-		$field['txtxcoursename'] 	= $this->self_model->return_build_txt('','course_name','course_name');
-		$field['txtdesc'] 			= $this->self_model->return_build_txtarea('','desc','desc');
-
-		$msdept 					= $this->db->query("select * from departments order by name asc")->result(); 
-		$field['seldept'] 			= $this->self_model->return_build_select2me($msdept,'multiple','','','departments','departments','','','id','name',' ','','','',3,'-');
-		$field['txtisactive'] 		= $this->self_model->return_build_radio('1', [['1','Active'],['0','Not Active']], 'is_active', '', 'inline');
-		$field['txtcategory'] 		= $this->self_model->return_build_radio('', [['Hardskill','Hardskill'],['Softskill','Softskill']], 'category', '', 'inline');
+		$field['txtxcoursename'] 	= $this->self_model->return_build_txt('','course_name','course_name','','','disabled');
+		$field['txtemp'] 			= $this->self_model->return_build_txt('','employee','employee','','','disabled');
+		$field['txtprogress'] 		= $this->self_model->return_build_txt('','progress','progress');
 
 
 		

@@ -280,38 +280,79 @@ class Lms_course_menu_model extends MY_Model
 
 
 
-	public function add_data($post) { 
-		
-  		if(!empty($post['course_name'])){ 
-  		
-  			$data = [
-				'course_name' 		=> trim($post['course_name']),
-				'description' 		=> trim($post['desc']),
-				'category'			=> trim($post['category']),
-				'department_ids' 	=> trim($post['departments']),
-				'is_active' 		=> trim($post['is_active'])
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-			
+	public function add_data($post)
+	{ 
+	    if (!empty($post['course_name'])) {
 
-			return $rs; 
-				
-			
+	        $department_ids = [];
+	        if (isset($post['departments']) && is_array($post['departments'])) {
+	            $department_ids = $post['departments'];
+	        }
 
-  		}else return null;
 
-	}  
+	        $data = [
+	            'course_name'     => trim($post['course_name']),
+	            'description'     => trim($post['desc']),
+	            'category'        => trim($post['category']),
+	            'department_ids'  => implode(',', $department_ids),
+	            'is_active'       => trim($post['is_active'])
+	        ];
+
+	        $rs = $this->db->insert($this->table_name, $data);
+	        $lastId = $this->db->insert_id();
+
+	        if ($rs && !empty($department_ids)) {
+
+	           
+	            $employees = $this->db
+	                ->select('id')
+	                ->from('employees')
+	                ->where_in('department_id', $department_ids)
+	                ->get()
+	                ->result();
+
+	            if (!empty($employees)) {
+	                foreach ($employees as $emp) {
+
+	                    $exists = $this->db
+	                        ->where('course_id', $lastId)
+	                        ->where('employee_id', $emp->id)
+	                        ->get('lms_course_progress')
+	                        ->num_rows();
+
+	                    if ($exists == 0) {
+	                        $dataprogress = [
+	                            'course_id'   => $lastId,
+	                            'employee_id' => $emp->id
+	                        ];
+	                        $this->db->insert('lms_course_progress', $dataprogress);
+	                    }
+	                }
+	            }
+	        }
+
+	        return $rs;
+	    }
+
+	    return null;
+	}
+
 
 	public function edit_data($post) { 
 		
 		if(!empty($post['id'])){ 
 			
+			$department_ids = '';
+		    if (isset($post['departments']) && is_array($post['departments'])) {
+		        $department_ids = implode(',', $post['departments']);
+		    }
+
 			
 			$data = [
 				'course_name' 		=> trim($post['course_name']),
 				'description' 		=> trim($post['desc']),
 				'category'			=> trim($post['category']),
-				'department_ids' 	=> trim($post['departments']),
+				'department_ids' 	=> $department_ids,
 				'is_active' 		=> trim($post['is_active'])
 				
 			];

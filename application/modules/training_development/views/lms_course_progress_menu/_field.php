@@ -3,43 +3,28 @@
 	<div class="col-md-6 col-sm-12">
 
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Course Name</label>
+			<label class="col-md-4 control-label no-padding-right">Course</label>
 			<div class="col-md-8">
 				<?=$txtxcoursename;?>
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Departments</label>
+			<label class="col-md-4 control-label no-padding-right"> Employee</label>
 			<div class="col-md-8">
-				<?=$seldept;?>
+				<?=$txtemp;?>
 			</div>
 		</div>
 
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Is Active</label>
+			<label class="col-md-4 control-label no-padding-right"> Progress</label>
 			<div class="col-md-8">
-				<?=$txtisactive;?>
+				<?=$txtprogress;?>
 			</div>
 		</div>
 		
 	</div>
-	<div class="col-md-6 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Category</label>
-			<div class="col-md-8">
-				<?=$txtcategory;?>
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Description</label>
-			<div class="col-md-8">
-				<?=$txtdesc;?>
-			</div>
-		</div>	
-		
-	</div>
+	
 </div>
 
 

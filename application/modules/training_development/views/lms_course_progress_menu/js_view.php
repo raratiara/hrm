@@ -125,23 +125,10 @@ function load_data()
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					
-					////$('select#departments').val(data.department_ids).trigger('change.select2');
+					
 					$('[name="course_name"]').val(data.course_name);
-					$('[name="desc"]').val(data.description);
-					$('[name="is_active"][value="'+data.is_active+'"]').prop('checked', true);
-					$('[name="category"][value="'+data.category+'"]').prop('checked', true);
-
-					var deptIds = [];
-					if (data.department_ids) {
-					    deptIds = data.department_ids.split(','); // ["1","3"]
-					}
-
-					$('select#departments')
-					    .val(deptIds)
-					    .trigger('change');
-
-
-
+					$('[name="employee"]').val(data.full_name);
+					$('[name="progress"]').val(data.progress_percentage);
 					
 					
 					$.uniform.update();
@@ -149,12 +136,11 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.departments').html(data.department_names);
-					$('span.course_name').html(data.course_name);
-					$('span.description').html(data.description);
-					$('span.category').html(data.category);
-					$('span.is_active').html(data.is_active_desc);
 					
+					$('span.course_name').html(data.course_name);
+					$('span.employee').html(data.full_name);
+					$('span.progress').html(data.progress_percentage);
+					$('span.completed_at').html(data.completed_at);
 
 					
 					$('#modal-view-data').modal('show');

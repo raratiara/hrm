@@ -5,7 +5,7 @@ class Lms_course_progress_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "training_development/lms_course_progress_menu";
- 	protected $table_name 				= _PREFIX_TABLE."lms_course";
+ 	protected $table_name 				= _PREFIX_TABLE."lms_course_progress";
  	protected $primary_key 				= "id";
 
  	
@@ -34,21 +34,22 @@ class Lms_course_progress_menu_model extends MY_Model
 			'dt.file_sertifikat'
 		];
 		
-		/*$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['id_karyawan'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr = ' where ao.created_by = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
-		}*/
+		if($_SESSION['role'] != 1){ //bukan super user
+			$whr = ' where a.employee_id = "' . $karyawan_id . '" or c.direct_id = "' . $karyawan_id . '" ';
+		}
 		
 
 		$sIndexColumn = $this->primary_key;
 		
 		
-		$sTable = '(select a.*, b.course_name, c.full_name 
+		$sTable = '(select a.*, b.course_name, c.full_name, c.direct_id
 					from lms_course_progress a 
 					left join lms_course b on b.id = a.course_id
 					left join employees c on c.id = a.employee_id
+					'.$whr.'
 					)dt';
 
 		
@@ -279,39 +280,29 @@ class Lms_course_progress_menu_model extends MY_Model
 
 	public function add_data($post) { 
 		
-  		if(!empty($post['course_name'])){ 
   		
-  			$data = [
-				'course_name' 		=> trim($post['course_name']),
-				'description' 		=> trim($post['desc']),
-				'category'			=> trim($post['category']),
-				'department_ids' 	=> trim($post['departments']),
-				'is_active' 		=> trim($post['is_active'])
-			];
-			$rs = $this->db->insert($this->table_name, $data);
-			
-
-			return $rs; 
-				
-			
-
-  		}else return null;
 
 	}  
 
 	public function edit_data($post) { 
 		
 		if(!empty($post['id'])){ 
+			$currData = $this->db->query("select * from lms_course_progress where id = ".$post['id']." ")->result(); 
 			
-			
-			$data = [
-				'course_name' 		=> trim($post['course_name']),
-				'description' 		=> trim($post['desc']),
-				'category'			=> trim($post['category']),
-				'department_ids' 	=> trim($post['departments']),
-				'is_active' 		=> trim($post['is_active'])
+			if(trim($post['progress']) == 100 && $currData[0]->progress_percentage < 100){
 				
-			];
+				$data = [
+					'progress_percentage' => trim($post['progress']),
+					'completed_at' => date("Y-m-d H:i:s")
+				];
+			}else{
+				$data = [
+					'progress_percentage' => trim($post['progress'])
+				];
+			}
+			
+			
+			
 			
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 			
@@ -337,34 +328,24 @@ class Lms_course_progress_menu_model extends MY_Model
 
 	public function import_data($list_data)
 	{
-		$i = 0;
-
-		foreach ($list_data as $k => $v) {
-			$i += 1;
-
-			$data = [
-				'course_name' 		=> $v["B"],
-				'category' 			=> $v["C"],
-				'department_ids' 	=> $v["D"],
-				'description' 		=> $v["E"],
-				'is_active' 		=> $v["F"]
-				
-			];
-
-			$rs = $this->db->insert($this->table_name, $data);
-			if (!$rs) $error .=",baris ". $v["A"];
-		}
-
-		return $error;
+		
 	}
 
 	public function eksport_data()
 	{
+
+		$karyawan_id = $_SESSION['id_karyawan'];
+		$whr='';
+		if($_SESSION['role'] != 1){ //bukan super user
+			$whr = ' where a.employee_id = "' . $karyawan_id . '" or c.direct_id = "' . $karyawan_id . '" ';
+		}
+
 		
 		$sql = 'select a.*, b.course_name, c.full_name 
 				from lms_course_progress a 
 				left join lms_course b on b.id = a.course_id
 				left join employees c on c.id = a.employee_id
+				'.$whr.'
 				order by a.id asc
 		';
 
