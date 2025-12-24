@@ -300,12 +300,12 @@ function load_data()
 					$('[name="trainer"]').val(data.trainer);
 					$('[name="notes"]').val(data.notes);
 
-					$('[name="hdndoc_sertifikat"]').val(data.file_sertifikat);
+					/*$('[name="hdndoc_sertifikat"]').val(data.file_sertifikat);
 					if(data.file_sertifikat != '' && data.file_sertifikat != null){
 						$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
 					}else{
 						$('span.file_sertifikat').html('');
-					}
+					}*/
 
 
 					$('[name="hdnid-approvallog"]').val(data.id);
@@ -325,18 +325,20 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.full_name);
+					$('span.participant').html(data.participant_names);
 					$('span.training_name').html(data.training_name);
 					$('span.training_date').html(data.training_date);
 					$('span.location').html(data.location);
 					$('span.trainer').html(data.trainer);
 					$('span.notes').html(data.notes);
+					$('span.created_by_name').html(data.created_by_name);
+					
 
-					if(data.file_sertifikat != '' && data.file_sertifikat != null){
-						$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
-					}else{
-						$('span.file_sertifikat').html('');
-					}
+					// if(data.file_sertifikat != '' && data.file_sertifikat != null){
+					// 	$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
+					// }else{
+					// 	$('span.file_sertifikat').html('');
+					// }
 
 
 
