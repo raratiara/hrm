@@ -154,6 +154,10 @@ class Payslip_menu extends MY_Controller
 
  	public function generate_payslip_pdf()
 	{ 
+
+		error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    
 		$payroll_slip_id = 1;
 	    // ===============================
 	    // 1. Ambil data slip gaji
