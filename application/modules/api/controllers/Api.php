@@ -2692,7 +2692,8 @@ class Api extends API_Controller
 			if($status != ''){
 				if($id != ''){
 					if($approval_level != ''){ 
-						$CurrApproval = $this->getCurrApproval($id, $approval_level);
+						$matrix_type_id = 1;
+						$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);
 						if(!empty($CurrApproval)){ 
 							$CurrApprovalId		= $CurrApproval[0]->id;
 							$approval_path_id	= $CurrApproval[0]->approval_path_id;
@@ -2706,8 +2707,8 @@ class Api extends API_Controller
 									];
 							}else{
 								if($status == 'approve'){ 
-
-									$maxApproval = $this->getMaxApproval($id); 
+									$matrix_type_id = 1;
+									$maxApproval = $this->getMaxApproval($matrix_type_id, $id); 
 									if($approval_level == $maxApproval){   //last approver
 										$data1 = [
 											'status_approval' 	=> 2,
@@ -4116,23 +4117,32 @@ class Api extends API_Controller
 		
     }
 
-
-    public function getCurrApproval($trx_id, $approval_level){
+    public function getApprovalLevel($approval_matrix_type_id, $trx_id){
 		$post 		= $this->input->post(null, true);
 		
 
-		$approval_matrix_type_id = 1;
+		$rs =  $this->db->query("select * from approval_path where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = ".$trx_id." ")->result();
+		
+
+		return $rs[0]->current_approval_level;
+	}
+
+
+    public function getCurrApproval($approval_matrix_type_id, $trx_id, $approval_level){
+		$post 		= $this->input->post(null, true);
+		
+
 		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
 		
 
 		return $rs;
 	}
 
-	public function getMaxApproval($trx_id){ 
+	public function getMaxApproval($approval_matrix_type_id, $trx_id){ 
 		$post 		= $this->input->post(null, true);
 		
 
-		$approval_matrix_type_id = 1;
+		
 		$rs =  $this->db->query("select b.*, a.current_approval_level, c.role_name from approval_path a 
 				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id
 				left join approval_matrix_role c on c.id = b.role_id
@@ -4237,20 +4247,23 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	$islogin_employee	= $_REQUEST['islogin_employee'];
-    	$employee			= $_REQUEST['employee']; //filter employee
+    	$islogin_employee	= $_GET['islogin_employee'];
+    	$filter_employee	= $_GET['filter_employee']; //filter employee
+    	$filter_isapprover	= $_GET['filter_isapprover']; //filter employee
 
 
     	if($islogin_employee != ''){
 
     		$where=""; 
-	    	if($employee != ''){
+	    	if($filter_employee != ''){
 	    		/*$where = " and a.employee_id = '".$employee."' ";*/
-	    		$where = " and ao.employee_id = '".$employee."' ";
+	    		$where = " and ao.employee_id = '".$filter_employee."' ";
+	    	}
+
+	    	$where_isapprover=""; 
+	    	if($filter_isapprover != ''){
+	    		/*$where = " and a.employee_id = '".$employee."' ";*/
+	    		$where_isapprover = " and ao.is_approver = ".$filter_isapprover." ";
 	    	}
 
 	    	
@@ -4310,7 +4323,7 @@ class Api extends API_Controller
 					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
 					GROUP BY a.id) ao
 					where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
-	                    '.$where.' ')->result();  
+	                    '.$where.$where_isapprover.' ')->result();  
 
 
 	    	$response = [
@@ -5000,14 +5013,14 @@ class Api extends API_Controller
 	            ];
 	        } else {
 	            $response = [
-	                'status'  => 401,
+	                'status'  => 400,
 	                'message' => 'Failed',
 	                'error'   => 'Error submit'
 	            ];
 	        }
 	    } else {
 	        $response = [
-	            'status'  => 401,
+	            'status'  => 400,
 	            'message' => 'Failed',
 	            'error'   => 'Bad Request'
 	        ];
@@ -5050,14 +5063,14 @@ class Api extends API_Controller
 				];
 			}else{
 				$response = [
-					'status' 	=> 401,
+					'status' 	=> 400,
 					'message' 	=> 'Failed',
 					'error' 	=> 'Error submit'
 				];
 			}
     	}else{
     		$response = [
-				'status' 	=> 401,
+				'status' 	=> 400,
 				'message' 	=> 'Failed',
 				'error' 	=> 'Bad Request'
 			];
@@ -5256,7 +5269,7 @@ class Api extends API_Controller
 
 					if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
 						$response = [
-							'status' 	=> 401,
+							'status' 	=> 400,
 							'message' 	=> 'Failed',
 							'error' 	=> 'Check-in time has expired'
 						];
@@ -5273,7 +5286,7 @@ class Api extends API_Controller
 
 						if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
 							$response = [
-								'status' 	=> 401,
+								'status' 	=> 400,
 								'message' 	=> 'Failed',
 								'error' 	=> 'Cannot double checkin'
 							];
@@ -5406,14 +5419,14 @@ class Api extends API_Controller
 									];
 								}else{
 									$response = [
-										'status' 	=> 401,
+										'status' 	=> 400,
 										'message' 	=> 'Failed',
 										'error' 	=> 'Error submit checkin'
 									];
 								}
 							}else{
 								$response = [
-									'status' 	=> 401,
+									'status' 	=> 400,
 									'message' 	=> 'Failed',
 									'error' 	=> $error
 								];
@@ -5425,7 +5438,7 @@ class Api extends API_Controller
 					
 				}else{
 					$response = [
-						'status' 	=> 401,
+						'status' 	=> 400,
 						'message' 	=> 'Failed',
 						'error' 	=> 'Data Shift not found'
 					];
@@ -5433,7 +5446,7 @@ class Api extends API_Controller
 				
 			} else {
 				$response = [
-					'status' 	=> 401,
+					'status' 	=> 400,
 					'message' 	=> 'Failed',
 					'error' 	=> 'Employee not found'
 				];
@@ -5725,6 +5738,371 @@ class Api extends API_Controller
 		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 		$this->render_json($response, $response['status']);
     }
+
+
+    public function dayCount($from, $to) {
+	    $first_date = strtotime($from);
+	    $second_date = strtotime($to);
+	    $days_diff = $second_date - $first_date;
+	    return date('d',$days_diff);
+	}
+
+
+    public function save_overtime() { 
+
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$method_save	= $_REQUEST['method_save']; // insert or update
+    	$type			= $_REQUEST['type']; 
+    	$id 			= $_REQUEST['id'];
+    	$employee		= $_REQUEST['employee'];
+    	$datetime_start	= $_REQUEST['datetime_start'];
+    	$datetime_end	= $_REQUEST['datetime_end'];
+    	$reason			= $_REQUEST['reason'];
+    	
+
+
+		if($method_save != '' && $type != '' && $employee != '' && $datetime_start != ''){
+			if($method_save == 'insert'){
+				$dataEmp = $this->db->query("select * from employees where id = '".$employee."'")->result(); 
+				if(!empty($dataEmp)){ 
+					if(!empty($dataEmp[0]->work_location)){
+						if($type == '1'){ //lembur hari kerja
+
+							$datetime_start = date('Y-m-d H:i:s', strtotime($datetime_start));
+							$datetime_end = date('Y-m-d H:i:s', strtotime($datetime_end));
+							/*$date_overtime = date('Y-m-d', strtotime($post['date']));*/
+
+							$start = strtotime($datetime_start);
+							$end = strtotime($datetime_end);
+
+							$selisihDetik = $end - $start;
+							$num_of_hour = floor($selisihDetik / 3600);
+							/*$menit = floor(($selisihDetik % 3600) / 60);*/
+
+							$biaya='50000';
+							$amount = $num_of_hour*$biaya;
+
+
+							$data = [
+								/*'date_overtime' 			=> $date_overtime,*/
+								'type' 						=> $type,
+								'employee_id' 				=> $employee,
+								'datetime_start' 			=> $datetime_start,
+								'datetime_end' 				=> $datetime_end,
+								'num_of_hour' 				=> $num_of_hour,
+								'amount' 					=> $amount,
+								'reason' 					=> $reason,
+								'status_id' 				=> 1,
+								'created_at'				=> date("Y-m-d H:i:s")
+							];
+
+							$diff = $num_of_hour;
+						}else if($type == '2'){ //masuk di hari libur
+
+							$datetime_start = date('Y-m-d', strtotime($datetime_start));
+							$datetime_end = date('Y-m-d', strtotime($datetime_end));
+
+							$count_day = $this->dayCount($datetime_start, $datetime_end); 
+							$data = [
+								/*'date_overtime' 			=> $date_overtime,*/
+								'type' 						=> $type,
+								'employee_id' 				=> $employee,
+								'datetime_start' 			=> $datetime_start,
+								'datetime_end' 				=> $datetime_end,
+								'count_day' 				=> $count_day,
+								'reason' 					=> $reason,
+								'status_id' 				=> 1,
+								'created_at'				=> date("Y-m-d H:i:s")
+							];
+
+							$diff = $count_day;
+						}
+						
+						
+						$rs = $this->db->insert("overtimes", $data);
+						$lastId = $this->db->insert_id();
+
+						if($rs){
+							///insert approval path
+							if($type == 1){
+								$approval_type_id = 5; //Overtime - Lembur Hari Kerja
+							}else{
+								$approval_type_id = 6; //Overtime - Kerja di Hari Libur
+							}
+							
+							$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $diff, $lastId);
+						}
+
+						$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success'
+						];
+					}else{
+					
+						$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'Work Location not found'
+						];
+					}
+				}else{
+					
+					$response = [
+						'status' 	=> 400, // Bad Request
+						'message' 	=>'Failed',
+						'error' 	=> 'Employee not found'
+					];
+				}
+			}else if($method_save == 'update'){ //update
+				if(!empty($id)){
+
+					if($type == '1'){ //lembur hari kerja
+
+						$datetime_start = date('Y-m-d H:i:s', strtotime($datetime_start));
+						$datetime_end = date('Y-m-d H:i:s', strtotime($datetime_end));
+						/*$date_overtime = date('Y-m-d', strtotime($post['date']));*/
+
+						$start = strtotime($datetime_start);
+						$end = strtotime($datetime_end);
+
+						$selisihDetik = $end - $start;
+						$num_of_hour = floor($selisihDetik / 3600);
+						/*$menit = floor(($selisihDetik % 3600) / 60);*/
+
+						$biaya='50000';
+						$amount = $num_of_hour*$biaya;
+
+						$data = [
+							/*'date_overtime' 			=> $date_overtime,*/
+							'employee_id' 				=> $employee,
+							'datetime_start' 			=> $datetime_start,
+							'datetime_end' 				=> $datetime_end,
+							'num_of_hour' 				=> $num_of_hour,
+							'amount' 					=> $amount,
+							'reason' 					=> $reason,
+							'updated_at'				=> date("Y-m-d H:i:s")
+						];
+					}else if($type == '2'){ //masuk di hari libur
+						$datetime_start = date('Y-m-d', strtotime($datetime_start));
+						$datetime_end = date('Y-m-d', strtotime($datetime_end));
+
+						$count_day = $this->dayCount($datetime_start, $datetime_end);
+						$data = [
+							/*'date_overtime' 			=> $date_overtime,*/
+							'employee_id' 				=> $employee,
+							'datetime_start' 			=> $datetime_start,
+							'datetime_end' 				=> $datetime_end,
+							'count_day' 				=> $count_day,
+							'reason' 					=> $reason,
+							'updated_at'				=> date("Y-m-d H:i:s"),
+							'status_dayoff_available' 	=> 1 //available
+						];
+					}
+
+				
+					
+					$rs = $this->db->update("overtimes", $data, "id = ".$id."");
+
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success'
+					];
+					
+
+				} else{
+					$response = [
+						'status' 	=> 400,
+						'message' 	=> 'Failed',
+						'error' 	=> 'ID not found'
+					];
+				}
+
+			}else{
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Method Save not found'
+				];
+			}
+
+		}else{
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+	} 
+
+
+	public function approval_overtime(){
+
+		$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	$status				= $_REQUEST['status']; // reject / approve
+    	$id 				= $_REQUEST['id'];
+    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	$reason				= $_REQUEST['reason'];
+
+
+    	if($status != '' && $id != '' && $islogin_employee != ''){
+    		$getData = $this->db->query("select * from overtimes where id = '".$id."'")->result(); 
+    		$matrix_type_id = 0;
+    		if($getData[0]->type == 1){
+    			$matrix_type_id = 5;
+    		}else if($getData[0]->type == 2){
+    			$matrix_type_id = 6;
+    		}
+    		$approval_level = $this->getApprovalLevel($matrix_type_id, $id);
+    		$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);
+
+    		if($status == 'reject'){
+    			$data = [
+					'status_id' 	=> 3,
+					'approval_date'	=> date("Y-m-d H:i:s"),
+					'reject_reason' => $reason
+				];
+				$rs = $this->db->update('overtimes', $data, "id = '".$id."'");
+				if($rs){
+					
+					
+					if(!empty($CurrApproval)){
+						$CurrApprovalId		= $CurrApproval[0]->id;
+						$dataapproval = [
+							'status' 		=> "Rejected",
+							'approval_by' 	=> $islogin_employee,
+							'approval_date'	=> date("Y-m-d H:i:s")
+						];
+						$this->db->update("approval_path_detail", $dataapproval, "id = '".$CurrApprovalId."'");
+					}
+
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success'
+					];
+
+				}else{
+					$response = [
+						'status' 	=> 400, // Bad Request
+						'message' 	=>'Failed',
+						'error' 	=> 'Require not satisfied'
+					];
+				}
+    		}else if($status == 'approve'){
+    			
+    			$maxApproval = $this->getMaxApproval($matrix_type_id, $id); 
+				if($approval_level == $maxApproval){   //last approver
+					$data = [
+						'status_id' 	=> 2, 
+						'approval_date'	=> date("Y-m-d H:i:s")
+					];
+					$rs = $this->db->update('overtimes', $data, "id = '".$id."'");
+					
+					if($rs){
+						if(!empty($CurrApproval)){
+							$CurrApprovalId		= $CurrApproval[0]->id;
+							
+							$updApproval = [
+								'status' 		=> "Approved",
+								'approval_by' 	=> $islogin_employee,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
+						}
+
+						$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success'
+						];
+					}else{
+						$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'Require not satisfied'
+						];
+					}
+				}else{
+					$next_level = $approval_level+1;
+					
+					if(!empty($CurrApproval)){
+						$CurrApprovalId		= $CurrApproval[0]->id;
+						$approval_path_id	= $CurrApproval[0]->approval_path_id;
+
+						$data2 = [
+							'current_approval_level' => $next_level
+						];
+						$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
+						
+						if($rs){
+							$data = [
+								'status' 		=> "Approved",
+								'approval_by' 	=> $islogin_employee,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $data, "id = '".$CurrApprovalId."'");
+
+							$dataApprovalDetail = [
+								'approval_path_id' 	=> $approval_path_id, 
+								'approval_level' 	=> $next_level
+							];
+							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('overtimes', $id, $approval_path_id);
+
+
+							$response = [
+								'status' 	=> 200,
+								'message' 	=> 'Success'
+							];
+						}else{
+							$response = [
+								'status' 	=> 400, // Bad Request
+								'message' 	=>'Failed',
+								'error' 	=> 'Require not satisfied'
+							];
+						}
+					}
+				}
+
+    		}else{
+    			$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Status not found'
+				];
+    		}
+    	}
+
+
+
+    	$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+
+	}
 
 
 
