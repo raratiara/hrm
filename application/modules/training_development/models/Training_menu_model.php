@@ -27,7 +27,7 @@ class Training_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.full_name',
+			'dt.created_by_name',
 			'dt.training_name',
 			'dt.training_date',
 			'dt.location',
@@ -35,22 +35,21 @@ class Training_menu_model extends MY_Model
 			'dt.notes',
 			'dt.status_name',
 			'dt.direct_id',
-			'dt.file_sertifikat',
+			'dt.participant_names',
 			'dt.emp_code',
 			'dt.current_approval_level',
 			'dt.is_approver',
 			'dt.current_role_id',
 			'dt.current_role_name',
 			'dt.is_approver_view',
-			'dt.employee_id'
+			'dt.created_by'
 		];
 		
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($_SESSION['role'] != 1){ //bukan super user
-			/*$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';*/
-			$whr = ' where ao.employee_id = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr = ' where ao.created_by = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
 		}
 		
 
@@ -66,7 +65,7 @@ class Training_menu_model extends MY_Model
 					'.$whr.'
 				)dt';*/
 
-		$sTable = '(select ao.* from (select a.*, b.full_name, b.direct_id, b.emp_code,
+		$sTable = '(select ao.* from (select a.*, b.full_name as created_by_name, b.direct_id, b.emp_code,
 						(case
 						when a.status_id = 1 then "Waiting Approval"
 						when a.status_id = 2 then "Approved"
@@ -104,8 +103,11 @@ class Training_menu_model extends MY_Model
 							) > 0 THEN 1
 							WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$karyawan_id.' THEN 1  
 							ELSE 0 
-						END AS is_approver  
-						from employee_training a left join employees b on b.id = a.employee_id
+						END AS is_approver,
+						max(p.participant_ids) AS participants,
+			            max(p.participant_names) AS participant_names,
+			            max(q.course_name) as course_name
+						from employee_training a left join employees b on b.id = a.created_by
 						LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 8
 						LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
 						LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
@@ -114,6 +116,16 @@ class Training_menu_model extends MY_Model
 						LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
 						LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
 						LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+						LEFT JOIN (SELECT 
+								        et.employee_training_id,
+								            GROUP_CONCAT(DISTINCT e.id) AS participant_ids,
+								            GROUP_CONCAT(DISTINCT e.full_name
+								                SEPARATOR ", ") AS participant_names
+								    FROM
+								        employee_training_emp et
+								    JOIN employees e ON e.id = et.employee_id
+								    GROUP BY et.employee_training_id) p ON p.employee_training_id = a.id
+						LEFT join lms_course q on q.id = a.lms_course_id
 						GROUP BY a.id) ao
 						'.$whr.'
 					)dt';
@@ -270,7 +282,7 @@ class Training_menu_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				if(($row->status_name == 'Waiting Approval' || $row->status_name == 'Request for Update') && $row->employee_id == $karyawan_id){
+				if(($row->status_name == 'Waiting Approval' || $row->status_name == 'Request for Update') && $row->created_by == $karyawan_id){
 					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 				}
 			}
@@ -291,10 +303,10 @@ class Training_menu_model extends MY_Model
 				$rfu = '<a class="btn btn-xs btn-warning" style="background-color: #fd9b00; border-color: #fd9b00;" href="javascript:void(0);" onclick="rfu('."'".$row->id."'".','."'".$row->current_approval_level."'".')" role="button">RFU</a>';
 			}
 
-			$file_sertifikat ="";
+			/*$file_sertifikat ="";
 			if($row->file_sertifikat != ''){
 				$file_sertifikat = '<a href="'.base_url().'uploads/'.$row->emp_code.'/'.$row->file_sertifikat.'" target="_blank">View</a>';
-			}
+			}*/
 			
 
 			array_push($output["aaData"],array(
@@ -307,14 +319,14 @@ class Training_menu_model extends MY_Model
 					'.$rfu.'
 				</div>',
 				$row->id,
-				$row->full_name,
 				$row->training_name,
 				$row->training_date,
 				$row->location,
 				$row->trainer,
 				$row->notes,
 				$row->status_name,
-				$file_sertifikat
+				$row->participant_names,
+				$row->created_by_name
 
 			));
 		}
@@ -455,6 +467,10 @@ class Training_menu_model extends MY_Model
 								'approval_level' 	=> 1
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('training', $trx_id, $approval_path_id);
 						}
 					}
 				}
@@ -529,8 +545,8 @@ class Training_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$id = trim($post['id']);
 
 
@@ -627,14 +643,28 @@ class Training_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name, b.emp_code,
-					(case
-					when a.status_id = 1 then "Waiting Approval"
-					when a.status_id = 2 then "Approved"
-					when a.status_id = 3 then "Rejected"
-					else ""
-					 end) as status_name
-					from employee_training a left join employees b on b.id = a.employee_id
+		$mTable = '(select a.*, b.full_name as created_by_name, b.direct_id, b.emp_code,
+						(case
+						when a.status_id = 1 then "Waiting Approval"
+						when a.status_id = 2 then "Approved"
+						when a.status_id = 3 then "Rejected"
+						when a.status_id = 4 then "Request for Update"
+						else ""
+						 end) as status_name,
+						p.participant_ids AS participants,
+						p.participant_names AS participant_names,
+						q.course_name 
+					from employee_training a left join employees b on b.id = a.created_by
+					LEFT JOIN (SELECT 
+								et.employee_training_id,
+									GROUP_CONCAT(DISTINCT e.id) AS participant_ids,
+									GROUP_CONCAT(DISTINCT e.full_name
+										SEPARATOR ", ") AS participant_names
+							FROM
+								employee_training_emp et
+							JOIN employees e ON e.id = et.employee_id
+							GROUP BY et.employee_training_id) p ON p.employee_training_id = a.id
+					LEFT join lms_course q on q.id = a.lms_course_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -652,7 +682,7 @@ class Training_menu_model extends MY_Model
 			$i += 1;
 
 			$data = [
-				'employee_id' 	=> $v["B"],
+				'created_by' 	=> $v["B"],
 				'training_name' => $v["C"],
 				'training_date' => $v["D"],
 				'location' 		=> $v["E"],
@@ -672,23 +702,36 @@ class Training_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($_SESSION['role'] != 1){ //bukan super user
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		if($getdata[0]->id_groups != 1){ //bukan super user
+			$whr=' where a.created_by = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 
 
 		
-		$sql = 'select a.*, b.full_name, b.direct_id, b.emp_code,
-				(case
-				when a.status_id = 1 then "Waiting Approval"
-				when a.status_id = 2 then "Approved"
-				when a.status_id = 3 then "Rejected"
-				else ""
-				 end) as status_name
-				from employee_training a left join employees b on b.id = a.employee_id
+		$sql = 'select a.*, b.full_name as created_by_name, b.direct_id, b.emp_code,
+					(case
+					when a.status_id = 1 then "Waiting Approval"
+					when a.status_id = 2 then "Approved"
+					when a.status_id = 3 then "Rejected"
+					when a.status_id = 4 then "Request for Update"
+					else ""
+					 end) as status_name,
+					p.participant_names AS participant_names,
+					q.course_name 
+				from employee_training a left join employees b on b.id = a.created_by
+				LEFT JOIN (SELECT 
+							et.employee_training_id,
+								GROUP_CONCAT(DISTINCT e.id) AS participant_ids,
+								GROUP_CONCAT(DISTINCT e.full_name
+									SEPARATOR ", ") AS participant_names
+						FROM
+							employee_training_emp et
+						JOIN employees e ON e.id = et.employee_id
+						GROUP BY et.employee_training_id) p ON p.employee_training_id = a.id
+				LEFT join lms_course q on q.id = a.lms_course_id
 				'.$whr.'
 				order by a.id asc
 
