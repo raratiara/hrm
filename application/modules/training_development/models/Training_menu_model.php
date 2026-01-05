@@ -104,9 +104,9 @@ class Training_menu_model extends MY_Model
 							WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$karyawan_id.' THEN 1  
 							ELSE 0 
 						END AS is_approver,
-						p.participant_ids AS participants,
-			            p.participant_names AS participant_names,
-			            q.course_name 
+						max(p.participant_ids) AS participants,
+			            max(p.participant_names) AS participant_names,
+			            max(q.course_name) as course_name
 						from employee_training a left join employees b on b.id = a.created_by
 						LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 8
 						LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
