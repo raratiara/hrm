@@ -27,16 +27,17 @@
 		</div>
 		<div id="mapContainer_checkin" style="margin-top:10px;"></div>
 
+		
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Photo Checkin</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="photo_checkin"></span>
+			</div>
+		</div>
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Description</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="description"></span>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Photo</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="photo"></span>
 			</div>
 		</div>
 	</div>
@@ -81,7 +82,12 @@
 			</div>
 		</div> -->
 		<div id="mapContainer" style="margin-top:10px;"></div>
-		
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Photo Checkout</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="photo_checkout"></span>
+			</div>
+		</div>
 	</div>
 </div>
 

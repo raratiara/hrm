@@ -161,10 +161,16 @@ function load_data()
 
 
 
-					if(data.photo != '' && data.photo != null){
-						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
+					if(data.photo_checkin != '' && data.photo_checkin != null){
+						$('span.photo_checkin').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo_checkin+'" width="150" height="150" >');
 					}else{
-						$('span.photo').html('');
+						$('span.photo_checkin').html('');
+					}
+
+					if(data.photo_checkout != '' && data.photo_checkout != null){
+						$('span.photo_checkout').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo_checkout+'" width="150" height="150" >');
+					}else{
+						$('span.photo_checkout').html('');
 					}
 					
 					var locate = 'table.task-list';
@@ -247,10 +253,16 @@ function load_data()
 					//end maps
 
 
-					if(data.photo != '' && data.photo != null){ 
-						$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo+'" width="150" height="150" >');
+					if(data.photo_checkin != '' && data.photo_checkin != null){ 
+						$('span.photo_checkin').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo_checkin+'" width="150" height="150" >');
 					}else{
-						$('span.photo').html('');
+						$('span.photo_checkin').html('');
+					}
+
+					if(data.photo_checkout != '' && data.photo_checkout != null){ 
+						$('span.photo_checkout').html('<img src="'+baseUrl+'/uploads/absensi/'+data.photo_checkout+'" width="150" height="150" >');
+					}else{
+						$('span.photo_checkout').html('');
 					}
 
 					var locate = 'table.task-list-view';

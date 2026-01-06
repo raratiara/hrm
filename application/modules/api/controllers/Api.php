@@ -884,8 +884,372 @@ class Api extends API_Controller
 	}
 
 
+	public function absen_checkin()
+    {
+    	try {
 
-    public function absen_checkin()
+    		$this->verify_token();
+
+	    	$employee	= $_POST['employee_id'];
+	    	$tipe 		= 'checkin';
+	    	$datetime	= $_POST['datetime_attendance'];
+	    	$latitude	= $_POST['latitude'];
+	    	$longitude	= $_POST['longitude'];
+	    	$work_location	= $_POST['work_location'];
+	    	$notes		= $_POST['notes'];
+	    	$photo		= $_FILES['photo'];
+	    	$time_zone 	= $_POST['time_zone']; //MAS
+	    	$utc_offset = $_POST['utc_offset']; //MAS
+	    	
+	    	
+
+			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
+
+				$exp 			= explode(" ",$datetime);
+				$date 			= $exp[0];
+				$time 			= $exp[1];
+
+				
+				// cek work location
+				$info = $this->getWorkLocationInfo('absen', $employee, $date);
+
+				$any_work_location  = $info['any_work_location'];
+				$work_location_time_zone  = $info['work_location_time_zone'];
+				$work_location_utc_offset = $info['work_location_utc_offset'];
+
+
+				if(empty($any_work_location)){
+				  $response = [
+				    'status'  => 401,
+				    'message'   => 'Failed',
+				    'error'   => 'Work Location not found'
+				  ];
+				}else{
+
+					// cek timezone
+					$ReportUtcTimezone = $this->checkReportUtcTimezone(
+						'absen',
+					    $time_zone,               
+					    $utc_offset,              
+					    $work_location_time_zone,
+					    $work_location_utc_offset,
+					    '',
+					    ''
+					);
+					$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
+					$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
+
+
+				  	if($report_utctimezone == 'reject'){
+					    $response = [
+					      'status'  => 401,
+					      'message'   => 'Failed',
+					      'error'   => 'Timezone/UTC Offset not valid'
+					    ];
+					}else{
+				      	////masukin data absen
+
+				      	//convert 
+				      	//$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
+				      	$datetime_local = $datetime;
+						$datetime_utc 	= $this->convertLocalToUTC($datetime, $work_location_time_zone);
+						
+				      	//end convert
+
+
+						$timestamp_time = strtotime($time); 
+						$year = date("Y", strtotime($date));
+						$month = date("m", strtotime($date));
+						$timestamp_datetime = strtotime($datetime);
+						$period = date("Y-m", strtotime($date));
+						$tgl = date("d", strtotime($date));
+
+						$cek_emp = $this->api->cek_employee($employee);	
+
+						if($cek_emp['shift_type'] != '')
+						{
+							$emp_shift_type=1;
+							if($cek_emp['shift_type'] == 'Reguler'){ 
+								$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+								
+							}else if($cek_emp['shift_type'] == 'Shift'){ 
+							
+
+								/// NEW SCRIPT
+								$datetimemax_shift3 = $date.' 08:00:00';
+								if($datetime < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
+									$dateYesterday = date("Y-m-d", strtotime($date . " -1 day"));
+									$period  = date('Y-m', strtotime($dateYesterday));
+								 	$tgl = date('d', strtotime($dateYesterday));
+								 	$date = $dateYesterday;
+								}
+
+
+								$dt = $this->db->query("select 
+								    a.*, 
+								    b.periode, 
+								    b.`".$tgl."` as 'shift', 
+								    c.name,
+								    case 
+								        when c.shift_id = 3 then 
+								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
+								        else 
+								            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
+								    end as expected_checkin,
+								    case 
+								        when c.shift_id = 2 then 
+								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
+								        when c.shift_id = 3 then 
+								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
+								        else 
+								            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
+								    end as expected_checkout,
+								    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
+								from shift_schedule a
+								left join group_shift_schedule b on b.shift_schedule_id = a.id 
+								left join master_shift_time c on c.shift_id = b.`".$tgl."`
+								where b.employee_id = '".$employee."'
+								and a.period = '".$period."'
+								")->result(); 
+
+
+								if($dt[0]->shift == ""){
+									$emp_shift_type=0;
+								}
+
+								/// END NEW SCRIPT
+
+							}else{ //tidak ada shift type
+								$emp_shift_type=0;
+							} 
+
+
+							if($emp_shift_type == 1){ 
+								$attendance_type 	= $dt[0]->name;
+								$time_in 			= $dt[0]->time_in;
+								$time_out 			= $dt[0]->time_out;
+								//$post_timein 		= strtotime($time_in);
+								//$post_timeout 		= strtotime($time_out);
+
+								if($attendance_type == 'Shift 3'){
+									$date2 = date("Y-m-d", strtotime($date . " +1 day"));
+								}else{
+									$date2 = $date;
+								}
+
+								$schedule 			= $date2.' '.$time_in;
+								$post_timein 		= strtotime($schedule); 
+								$schedule_out 		= $date2.' '.$time_out;
+								$post_timeout 		= strtotime($schedule_out); 
+
+								
+
+								if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
+									$response = [
+										'status' 	=> 401,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Check-in time has expired'
+									];
+
+								}else{
+
+									$is_late=''; 
+									if($timestamp_time > $post_timein){
+										$is_late='Y';
+									}
+
+									$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+
+
+									// if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
+									// 	$response = [
+									// 		'status' 	=> 401,
+									// 		'message' 	=> 'Failed',
+									// 		'error' 	=> 'Cannot double checkin'
+									// 	];
+									// }else{ //insert
+										$error=0; 
+										if($cek_emp['shift_type'] == 'Shift'){ 
+											/*if(!empty($cek_data)){  
+												
+												$error='Cannot double checkin';
+											}else{ */
+												$dt = $this->db->query("select a.*, b.periode
+														, b.`".$tgl."` as 'shift' 
+														, c.time_in, c.time_out, c.name 
+														from shift_schedule a
+														left join group_shift_schedule b on b.shift_schedule_id = a.id 
+														left join master_shift_time c on c.shift_id = b.`".$tgl."`
+														where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+												if(empty($dt)){
+													$error='Checkin Date not valid';
+												}
+											//}
+									
+										}
+
+										if($error==0){
+
+											//upload 
+											$dataU = array();
+					        				$dataU['status'] = FALSE; 
+											$fieldname='photo';
+											if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+								            { 
+								               
+								                
+								            	$config['upload_path']   = "uploads/absensi/";
+								                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+								                $config['max_size']      = "0"; 
+								                
+								                $this->load->library('upload', $config); 
+								                
+								                if(!$this->upload->do_upload($fieldname)){ 
+								                    $err_msg = $this->upload->display_errors(); 
+								                    $dataU['error_warning'] = strip_tags($err_msg);              
+								                    $dataU['status'] = FALSE;
+								                } else { 
+								                    $fileData = $this->upload->data();
+								                    $dataU['upload_file'] = $fileData['file_name'];
+								                    $dataU['status'] = TRUE;
+								                }
+								            }
+								            $document = '';
+											if($dataU['status']){ 
+												$document = $dataU['upload_file'];
+											} else if(isset($dataU['error_warning'])){ 
+												//echo $dataU['error_warning']; exit;
+
+												$document = 'ERROR : '.$dataU['error_warning'];
+											}
+								            //end upload
+
+
+											$data = [
+												'date_attendance' 			=> $date,
+												'employee_id' 				=> $employee,
+												'date_attendance_in' 		=> $datetime,
+												'is_late'					=> $is_late,
+												'created_at'				=> date("Y-m-d H:i:s"),
+												'lat_checkin' 				=> $latitude,
+												'long_checkin' 				=> $longitude,
+												'work_location' 			=> $work_location,
+												'notes' 					=> $notes,
+												'photo_checkin' 			=> $document,
+												'time_zone_checkin' 		=> $work_location_time_zone,
+												'utc_offset_checkin' 		=> $work_location_utc_offset,
+												'datetime_local_checkin' 	=> $datetime_local,
+												'utc_time_checkin' 			=> $datetime_utc
+											];
+
+											$rs = $this->db->insert("time_attendances_log", $data);
+
+											if($rs){
+												/// yg dimasukin ke table time_attendances yg checkin pertama kalii aja, kalo yg log bisa kapanpun
+												if(empty($cek_data)){
+													$data2 = [
+														'date_attendance' 			=> $date,
+														'employee_id' 				=> $employee,
+														'attendance_type' 			=> $attendance_type,
+														'time_in' 					=> $time_in,
+														'time_out' 					=> $time_out,
+														'date_attendance_in' 		=> $datetime,
+														'is_late'					=> $is_late,
+														'created_at'				=> date("Y-m-d H:i:s"),
+														'lat_checkin' 				=> $latitude,
+														'long_checkin' 				=> $longitude,
+														'work_location' 			=> $work_location,
+														'notes' 					=> $notes,
+														'photo_checkin' 			=> $document,
+														'time_zone_checkin' 		=> $work_location_time_zone,
+														'utc_offset_checkin' 		=> $work_location_utc_offset,
+														'datetime_local_checkin' 	=> $datetime_local,
+														'utc_time_checkin' 			=> $datetime_utc
+													];
+
+													$this->db->insert("time_attendances", $data2);
+												}
+
+												$upd_emp = [
+													'last_lat' 				=> $latitude,
+													'last_long' 			=> $longitude
+												];
+												$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+
+												$response = [
+													'status' 	=> 200,
+													'message' 	=> 'Success'
+												];
+											}else{
+												$response = [
+													'status' 	=> 401,
+													'message' 	=> 'Failed',
+													'error' 	=> 'Error submit checkin'
+												];
+											}
+										}else{
+											$response = [
+												'status' 	=> 401,
+												'message' 	=> 'Failed',
+												'error' 	=> $error
+											];
+										}
+
+									///}
+								}
+
+								
+							}else{
+								$response = [
+									'status' 	=> 401,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Data Shift not found'
+								];
+							}
+							
+						} else {
+							$response = [
+								'status' 	=> 401,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Employee not found'
+							];
+						}
+
+				  }
+
+				}
+
+			} else {
+				$response = [
+					'status' 	=> 400, // Bad Request
+					'message' 	=>'Failed',
+					'error' 	=> 'Require not satisfied'
+				];
+			}
+			
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+    	}
+    	catch (Throwable $e) {
+	        $response = [
+	            'status' => 500,
+	            'message' => 'Server Error',
+	            'error' => $e->getMessage(),          // pesan error
+	            'line'  => $e->getLine(),             // baris error
+	            'file'  => $e->getFile()              // file error
+	        ];
+	        return $this->render_json($response, 500);
+	    }
+    	
+    }
+
+
+    public function absen_checkin_old()
     {
     	try {
 
@@ -1495,7 +1859,7 @@ class Api extends API_Controller
 												'num_of_working_hours'		=> $num_of_working_hours,
 												'updated_at'				=> date("Y-m-d H:i:s"),
 												'notes' 					=> $notes,
-												'photo' 					=> $document,
+												'photo_checkout' 			=> $document,
 												'lat_checkout' 				=> $latitude,
 												'long_checkout' 			=> $longitude,
 												'work_location' 			=> $work_location,
@@ -1507,6 +1871,28 @@ class Api extends API_Controller
 											$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
 
 											if($rs){
+												/// tambahin log
+												$data2 = [
+													'date_attendance' 			=> $cek_data[0]->date_attendance,
+													'employee_id' 				=> $cek_data[0]->employee_id,
+													'date_attendance_out' 		=> $datetime,
+													'is_leaving_office_early'	=> $is_leaving_office_early,
+													'num_of_working_hours'		=> $num_of_working_hours,
+													'updated_at'				=> date("Y-m-d H:i:s"),
+													'notes' 					=> $notes,
+													'photo_checkout' 			=> $document,
+													'lat_checkout' 				=> $latitude,
+													'long_checkout' 			=> $longitude,
+													'work_location' 			=> $work_location,
+													'time_zone_checkout' 		=> $work_location_time_zone,
+													'utc_offset_checkout' 		=> $work_location_utc_offset,
+													'datetime_local_checkout' 	=> $datetime_local,
+													'utc_time_checkout' 		=> $datetime_utc
+												];
+
+												$this->db->insert("time_attendances_log", $data2);
+
+
 												$upd_emp = [
 													'last_lat' 				=> $latitude,
 													'last_long' 			=> $longitude
@@ -2557,10 +2943,13 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		$jsonData = file_get_contents('php://input');
+		/*$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
-    	$employee = $_REQUEST['employee']; //filter employee
+    	$employee = $_REQUEST['employee'];*/ //filter employee
+
+
+    	$employee = $_GET['employee'];
 
 		$where=''; 
     	if($employee != ''){
@@ -2633,6 +3022,124 @@ class Api extends API_Controller
 					        ELSE ''
 					    END AS overtime_flag
 					FROM time_attendances a
+					LEFT JOIN employees b ON b.id = a.employee_id
+					LEFT JOIN master_holidays h ON h.date = a.date_attendance
+					LEFT JOIN overtimes o 
+					       ON o.employee_id = a.employee_id
+					      AND a.date_attendance BETWEEN DATE(o.datetime_start) AND DATE(o.datetime_end)
+					      AND o.status_id = 2 
+					      AND o.type = 2
+					LEFT JOIN group_shift_schedule gss 
+					       ON gss.employee_id = a.employee_id
+					      AND gss.periode = DATE_FORMAT(a.date_attendance, '%Y-%m')
+					     	".$where."
+					 ")->result();
+				
+			
+
+    	$response = [
+    		'status' 	=> 200,
+			'message' 	=> 'Success',
+			'data' 		=> $dataabsen
+		];
+
+    	
+
+    
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function get_data_absen_log()
+    { 
+    	$this->verify_token();
+
+
+		/*$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+    	$employee = $_REQUEST['employee'];*/ //filter employee
+
+
+    	$employee = $_GET['employee'];
+
+		$where=''; 
+    	if($employee != ''){
+    		$where = " where a.employee_id = '".$employee."' ";
+    	}
+
+    	
+		/*$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
+			if(a.is_leaving_office_early = 'Y','Leaving Office Early','') as 'is_leaving_office_early_desc', b.direct_id from time_attendances a left join employees b on b.id = a.employee_id ".$where." ")->result();  */
+
+		$dataabsen = $this->db->query("select 
+					    a.id,
+					    a.date_attendance,
+					    b.full_name,
+					    a.date_attendance_in,
+					    a.date_attendance_out,
+					    a.num_of_working_hours,
+					    IF(a.is_late = 'Y', 'Late', '') AS is_late_desc,
+					    IF(a.is_leaving_office_early = 'Y','Leaving Office Early','') AS is_leaving_office_early_desc,
+					    b.direct_id,
+					    b.shift_type,
+					    CASE 
+					     	WHEN a.date_attendance_in IS NOT NULL THEN ''
+					        WHEN o.id IS NOT NULL THEN '' 
+					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Holiday'
+					        WHEN h.date IS NOT NULL THEN 'Holiday'
+					        WHEN a.leave_absences_id IS NOT NULL THEN 'Holiday'
+					        WHEN b.shift_type = 'Shift' AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN 'Holiday'
+					        ELSE ''
+					    END AS holiday_flag,
+					    CASE 
+					    	WHEN a.date_attendance_in IS NOT NULL THEN ''  
+					        WHEN o.id IS NOT NULL THEN ''  
+					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Weekend'
+					        WHEN h.date IS NOT NULL THEN h.description
+					        WHEN a.leave_absences_id IS NOT NULL THEN 'Leave'
+					        WHEN b.shift_type = 'Shift' AND (
+					            CASE DAY(a.date_attendance)
+					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
+					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
+					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
+					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
+					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
+					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
+					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
+					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
+					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
+					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
+					                WHEN 31 THEN gss.`31`
+					            END
+					        ) IS NULL THEN 'No Shift'
+					        ELSE ''
+					    END AS holiday_type,
+					    CASE 
+					        WHEN o.id IS NOT NULL THEN 'Y'
+					        ELSE ''
+					    END AS overtime_flag
+					FROM time_attendances_log a
 					LEFT JOIN employees b ON b.id = a.employee_id
 					LEFT JOIN master_holidays h ON h.date = a.date_attendance
 					LEFT JOIN overtimes o 
