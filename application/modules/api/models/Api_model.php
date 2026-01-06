@@ -49,7 +49,7 @@ class Api_model extends MY_Model
     { 
         /*$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";*/
 
-        $sql = "select a.*, b.emp_code, c.logo, c.name
+        $sql = "select a.*, b.emp_code, c.logo, c.name, b.id as emp_id, b.emp_source
                 from user a left join employees b on b.id = a.id_karyawan
                 left join companies c on c.id = b.company_id
                 where (a.username = '".$username."' or b.emp_code = '".$username."') AND a.passwd = '".md5($password)."'
