@@ -26,8 +26,9 @@ class Unbind_devices_menu_model extends MY_Model
 			NULL,
 			'dt.id',
 			'dt.full_name',
-			'dt.type',
-			'dt.device_uuid'
+			'dt.device_uuid',
+			'dt.device_name',
+			'dt.device_type'
 		];
 
 		$sIndexColumn = $this->primary_key;
@@ -200,8 +201,9 @@ class Unbind_devices_menu_model extends MY_Model
 				</div>',
 				$row->id,
 				$row->full_name,
-				$row->type,
-				$row->device_uuid
+				$row->device_uuid,
+				$row->device_type,
+				$row->device_name
 			));
 		}
 

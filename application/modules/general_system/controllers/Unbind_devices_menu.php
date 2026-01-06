@@ -15,11 +15,11 @@ class Unbind_devices_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Name","Type","Device UUID"];
+	public $tabel_header 			= ["ID","Name","Device UUID", "Device Type", "Device Name"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Name","Type","Device UUID"];
-	public $colfields 				= ["id","full_name","type","device_uuid"];
+	public $colnames 				= ["ID","Name","Device UUID", "Device Type", "Device Name"];
+	public $colfields 				= ["id","full_name","device_uuid", "device_type", "device_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
