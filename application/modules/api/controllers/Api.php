@@ -445,8 +445,9 @@ class Api extends API_Controller
     	$username		= $_REQUEST['username'];
     	$password 		= $_REQUEST['password'];
     	$device_uuid 	= $_REQUEST['device_uuid'];
-    	$android_type 	= $_REQUEST['android_type'];
     	$device_type 	= $_REQUEST['device_type'];
+    	$device_name 	= $_REQUEST['device_name'];
+    	
 
 
     	try {
@@ -480,23 +481,31 @@ class Api extends API_Controller
 					$version 	= $getversion[0]->version;
 	    			$urllogo 	= $url.'/uploads/logo/'.$logo;
 
+	    			$data_radius = $this->db->query("select * from global_radius_location where employee_type = '".$cek_login->emp_source."' ")->result();
+	    			$location_type = $data_radius[0]->location_type ?? '-';
+	    			$radius = $data_radius[0]->radius ?? '-';
+	    			$unit = $data_radius[0]->unit ?? '-';
+
 					$data = array(
 						"nama_perusahaan" => $nama_perusahaan,
 						"logo_perusahaan" => $urllogo,
 						"version" => $version,
-						"url_app" => $url_app
+						"url_app" => $url_app,
+						"employee_type" => $cek_login->emp_source,
+						"location_type" => $location_type,
+						"radius" => $radius,
+						"unit" => $unit
 					);
 
 					/// update UID
-					$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and type = 'mobile' and is_active = 1")->result();
+					$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and device_type = '".$device_type."' and is_active = 1")->result();
 					if(empty($data_uuid)){
 						$ins_uuid = [
 							'user_id' 			=> $cek_login->user_id,
-							'type' 				=> 'mobile',
 							'device_uuid' 		=> $device_uuid,
 							'is_active' 		=> 1,
 							'created_at'		=> date("Y-m-d H:i:s"),
-							'android_type' 		=> $android_type,
+							'device_name' 		=> $device_name,
 							'device_type' 		=> $device_type
 						];
 
@@ -505,7 +514,7 @@ class Api extends API_Controller
 					}else{
 						$upduid = [
 							'device_uuid' 	=> $device_uuid,
-							'android_type' 	=> $android_type,
+							'device_name' 	=> $device_name,
 							'device_type' 	=> $device_type
 						];
 						$this->db->update("user_devices", $upduid, "user_id='".$cek_login->user_id."'");
@@ -515,23 +524,35 @@ class Api extends API_Controller
 					/// insert ke log
 					$ins_log = [
 						'user_id' 			=> $cek_login->user_id,
-						'type' 				=> 'mobile',
 						'device_uuid' 		=> $device_uuid,
 						/*'is_active' 		=> 1,*/
 						'created_at'		=> date("Y-m-d H:i:s"),
-						'android_type' 		=> $android_type,
+						'device_name' 		=> $android_type,
 						'device_type' 		=> $device_type
 					];
 
 					$this->db->insert("user_devices_log", $ins_log);
 
+					if($cek_login->emp_source == 'outsource'){
+						$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
+							left join attendance_location b on b.id = a.attendance_location_id
+							where a.employee_id = ".$cek_login->emp_id."")->result();
+
+						$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success',
+							"data" 		=> $data,
+							"attendance_location" => $data_loc
+						];
+					}else{
+						$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success',
+							"data" 		=> $data
+						];
+					}
 					
-		 
-					$response = [
-						'status' 	=> 200,
-						'message' 	=> 'Success',
-						"data" 		=> $data
-					];
+					
 	    		}else{ 
 	    			$response = [
 						'status' 	=> 401,
