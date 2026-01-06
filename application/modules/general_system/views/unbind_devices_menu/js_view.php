@@ -215,9 +215,13 @@ function load_data()
 				}
 				if(save_method == 'detail'){
 					$('span.employee').html(data.full_name);
-					$('span.type').html(data.type);
+					$('span.device_type').html(data.device_type);
+					$('span.device_name').html(data.device_name);
 					$('span.device_uuid').html(data.device_uuid);
 					
+
+					$('[name="hdnid-log"]').val(data.id);
+					document.getElementById('btnLogView').style.display = 'block';
 
 					
 					$('#modal-view-data').modal('show');

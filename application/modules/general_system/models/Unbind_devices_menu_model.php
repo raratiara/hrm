@@ -299,7 +299,7 @@ class Unbind_devices_menu_model extends MY_Model
 	// Need use GET for accept parameter
 	public function eksport_data()
 	{
-		$sql = "select c.full_name, a.type, a.device_uuid
+		$sql = "select c.full_name, a.device_uuid, a.device_type, a.device_name
 					from user_devices a left join user b on b.user_id = a.user_id
 					left join employees c on c.id = b.id_karyawan
 					where is_active = 1 order by c.full_name asc
