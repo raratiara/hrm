@@ -114,4 +114,38 @@ class Unbind_devices_menu extends MY_Controller
 	}
 
 
+	public function getLog() {
+	    $post = $this->input->post(null, true);
+	    $id = $post['id'];
+	    
+	   
+
+	    $query = "
+	        select a.*, b.id_karyawan, c.full_name
+			from user_devices_log a left join user b on b.user_id = a.user_id
+			left join employees c on c.id = b.id_karyawan where a.id = ".$id."
+			order by a.created_at desc
+	    ";
+
+	    $rs = $this->db->query($query)->result();
+
+	    $dt = '';
+	    if (!empty($rs)) {
+	        foreach ($rs as $row) {
+	        	
+	            $dt .= '<tr>';
+	            $dt .= '<td>'.$row->created_at.'</td>';
+	            $dt .= '<td>'.$row->device_type.'</td>';
+	            $dt .= '<td>'.$row->device_name.'</td>';
+	            $dt .= '<td>'.$row->device_uuid.'</td>';
+	            $dt .= '</tr>';
+	        }
+	    } else {
+	        $dt .= '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
+	    }
+
+	    echo json_encode(['html' => $dt]);
+	}
+
+
 }
