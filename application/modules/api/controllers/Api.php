@@ -445,6 +445,8 @@ class Api extends API_Controller
     	$username		= $_REQUEST['username'];
     	$password 		= $_REQUEST['password'];
     	$device_uuid 	= $_REQUEST['device_uuid'];
+    	$android_type 	= $_REQUEST['android_type'];
+    	$device_type 	= $_REQUEST['device_type'];
 
 
     	try {
@@ -493,17 +495,35 @@ class Api extends API_Controller
 							'type' 				=> 'mobile',
 							'device_uuid' 		=> $device_uuid,
 							'is_active' 		=> 1,
-							'created_at'		=> date("Y-m-d H:i:s")
+							'created_at'		=> date("Y-m-d H:i:s"),
+							'android_type' 		=> $android_type,
+							'device_type' 		=> $device_type
 						];
 
 						$this->db->insert("user_devices", $ins_uuid);
 
 					}else{
 						$upduid = [
-							'device_uuid' => $device_uuid
+							'device_uuid' 	=> $device_uuid,
+							'android_type' 	=> $android_type,
+							'device_type' 	=> $device_type
 						];
 						$this->db->update("user_devices", $upduid, "user_id='".$cek_login->user_id."'");
 					}
+
+
+					/// insert ke log
+					$ins_log = [
+						'user_id' 			=> $cek_login->user_id,
+						'type' 				=> 'mobile',
+						'device_uuid' 		=> $device_uuid,
+						/*'is_active' 		=> 1,*/
+						'created_at'		=> date("Y-m-d H:i:s"),
+						'android_type' 		=> $android_type,
+						'device_type' 		=> $device_type
+					];
+
+					$this->db->insert("user_devices_log", $ins_log);
 
 					
 		 
