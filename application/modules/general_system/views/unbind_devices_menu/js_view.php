@@ -1,4 +1,38 @@
 
+<!-- Modal Approval Log -->
+<div class="modal fade" id="modalLog" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Log</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body" id="LogContent">
+      	<input type="hidden" id="hdnid-log" name="hdnid-log">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Name</th>
+              <th>UUID</th>
+            </tr>
+          </thead>
+          <tbody>
+          
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 <div id="modal-unbind" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-unbind" aria-hidden="true" style="padding-left: 600px">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
@@ -278,6 +312,41 @@ function save_unbind(){
 
 }
 
+
+function Log() {
+    $('#modalLog').modal('show'); // buka modal
+
+    var id = $("#hdnid-log").val();
+
+    if (id != '') { 
+        $.ajax({
+            type: "POST",
+            url: module_path + '/getLog',
+            data: { id: id },
+            cache: false,
+            dataType: "JSON",
+            success: function (response) {
+                console.log(response);
+                // tampilkan hasil ke tabel
+                $('#LogContent tbody').html(response.html);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                var dialog = bootbox.dialog({
+                    title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+                    message: jqXHR.responseText,
+                    buttons: {
+                        confirm: {
+                            label: 'Ok',
+                            className: 'btn blue'
+                        }
+                    }
+                });
+            }
+        });
+    } else {
+        alert("Data not found");
+    }
+}
 
 
 </script>
