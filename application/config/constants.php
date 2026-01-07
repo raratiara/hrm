@@ -126,9 +126,14 @@ defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSE
 defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.PNG");  
 defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gerbangdata.PNG");*/
 defined('_ASSET_ILUSTRASI_LOGIN') OR define('_ASSET_ILUSTRASI_LOGIN', _ASSET_IMG . "login/ilustrasi.png");
-defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.jpg");  
-defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.jpg");  
-defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gdi_inside.png");  
+/*defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.jpg");  
+defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.jpg"); */
+defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/mas_logo.png");  
+defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/mas_logo.png"); 
+
+/*defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gdi_inside.png");*/
+defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/mas_inside.png");
+
 defined('_ASSET_LOGO_2022_SURAT')     OR define('_ASSET_LOGO_2022_SURAT',_ASSET_IMG."logo/nbid_new_logo_surat.png");
 defined('_ASSET_PROFILE_PICTURE') OR define('_ASSET_PROFILE_PICTURE', _ASSET_IMG . "logo/profile.jpg");  
 defined('_ASSET_LOGO_TSP')        	OR define('_ASSET_LOGO_TSP',_ASSET_IMG."logo/gerbangdata.PNG"); 
