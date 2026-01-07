@@ -447,6 +447,7 @@ class Api extends API_Controller
     	$device_uuid 	= $_REQUEST['device_uuid'];
     	$device_type 	= $_REQUEST['device_type'];
     	$device_name 	= $_REQUEST['device_name'];
+    	$type = "mobile";
     	
 
 
@@ -500,7 +501,7 @@ class Api extends API_Controller
 						);
 
 						/// update UID
-						$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and device_type = '".$device_type."' and is_active = 1")->result();
+						$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and type = '".$type."' and is_active = 1")->result();
 						if(empty($data_uuid)){
 							$ins_uuid = [
 								'user_id' 			=> $cek_login->user_id,
@@ -530,7 +531,8 @@ class Api extends API_Controller
 							/*'is_active' 		=> 1,*/
 							'created_at'		=> date("Y-m-d H:i:s"),
 							'device_name' 		=> $android_type,
-							'device_type' 		=> $device_type
+							'device_type' 		=> $device_type,
+							'type' => $type
 						];
 
 						$this->db->insert("user_devices_log", $ins_log);
