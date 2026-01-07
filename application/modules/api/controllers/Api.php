@@ -452,124 +452,134 @@ class Api extends API_Controller
 
     	try {
 
-    		//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
-	    	$sql = "select * from companies where website = '".$url."'";
-	    	//$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
-	    	$cek_url = $this->api->query_db($sql); 
-	    
-	    	if(!empty($cek_url)){ 
-	    		/*$url_app 			= $cek_url['url_app'];*/
-	    		// kalau bentuk object → convert ke array
-			    if (is_object($cek_url)) {
-			        $cek_url = (array) $cek_url;
-			    }
+    		if($url != '' && $username != '' && $password != '' && $device_uuid != '' && $device_type != '' && $device_name != ''){
 
-			    // kalau string JSON → decode
-			    if (is_string($cek_url)) {
-			        $cek_url = json_decode($cek_url, true);
-			    }
+    			//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
+		    	$sql = "select * from companies where website = '".$url."'";
+		    	//$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
+		    	$cek_url = $this->api->query_db($sql); 
+		    
+		    	if(!empty($cek_url)){ 
+		    		/*$url_app 			= $cek_url['url_app'];*/
+		    		// kalau bentuk object → convert ke array
+				    if (is_object($cek_url)) {
+				        $cek_url = (array) $cek_url;
+				    }
 
-			    $url_app = $cek_url['url_app'] ?? null;
-	    		
-	    		$cek_login = $this->api->cek_login($username, $password);
-	    	
-	    		if(!empty($cek_login)){ 
-	    			$logo 				= $cek_login->logo;
-	    			$nama_perusahaan 	= $cek_login->name;
-	    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
+				    // kalau string JSON → decode
+				    if (is_string($cek_url)) {
+				        $cek_url = json_decode($cek_url, true);
+				    }
 
-					$version 	= $getversion[0]->version;
-	    			$urllogo 	= $url.'/uploads/logo/'.$logo;
+				    $url_app = $cek_url['url_app'] ?? null;
+		    		
+		    		$cek_login = $this->api->cek_login($username, $password);
+		    	
+		    		if(!empty($cek_login)){ 
+		    			$logo 				= $cek_login->logo;
+		    			$nama_perusahaan 	= $cek_login->name;
+		    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
 
-	    			$data_radius = $this->db->query("select * from global_radius_location where employee_type = '".$cek_login->emp_source."' ")->result();
-	    			$location_type = $data_radius[0]->location_type ?? '-';
-	    			$radius = $data_radius[0]->radius ?? '-';
-	    			$unit = $data_radius[0]->unit ?? '-';
+						$version 	= $getversion[0]->version;
+		    			$urllogo 	= $url.'/uploads/logo/'.$logo;
 
-					$data = array(
-						"nama_perusahaan" => $nama_perusahaan,
-						"logo_perusahaan" => $urllogo,
-						"version" => $version,
-						"url_app" => $url_app,
-						"employee_type" => $cek_login->emp_source,
-						"location_type" => $location_type,
-						"radius" => $radius,
-						"unit" => $unit
-					);
+		    			$data_radius = $this->db->query("select * from global_radius_location where employee_type = '".$cek_login->emp_source."' ")->result();
+		    			$location_type = $data_radius[0]->location_type ?? '-';
+		    			$radius = $data_radius[0]->radius ?? '-';
+		    			$unit = $data_radius[0]->unit ?? '-';
 
-					/// update UID
-					$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and device_type = '".$device_type."' and is_active = 1")->result();
-					if(empty($data_uuid)){
-						$ins_uuid = [
+						$data = array(
+							"nama_perusahaan" => $nama_perusahaan,
+							"logo_perusahaan" => $urllogo,
+							"version" => $version,
+							"url_app" => $url_app,
+							"employee_type" => $cek_login->emp_source,
+							"location_type" => $location_type,
+							"radius" => $radius,
+							"unit" => $unit
+						);
+
+						/// update UID
+						$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and device_type = '".$device_type."' and is_active = 1")->result();
+						if(empty($data_uuid)){
+							$ins_uuid = [
+								'user_id' 			=> $cek_login->user_id,
+								'device_uuid' 		=> $device_uuid,
+								'is_active' 		=> 1,
+								'created_at'		=> date("Y-m-d H:i:s"),
+								'device_name' 		=> $device_name,
+								'device_type' 		=> $device_type
+							];
+
+							$this->db->insert("user_devices", $ins_uuid);
+
+						}else{
+							$upduid = [
+								'device_uuid' 	=> $device_uuid,
+								'device_name' 	=> $device_name,
+								'device_type' 	=> $device_type
+							];
+							$this->db->update("user_devices", $upduid, "user_id='".$cek_login->user_id."'");
+						}
+
+
+						/// insert ke log
+						$ins_log = [
 							'user_id' 			=> $cek_login->user_id,
 							'device_uuid' 		=> $device_uuid,
-							'is_active' 		=> 1,
+							/*'is_active' 		=> 1,*/
 							'created_at'		=> date("Y-m-d H:i:s"),
-							'device_name' 		=> $device_name,
+							'device_name' 		=> $android_type,
 							'device_type' 		=> $device_type
 						];
 
-						$this->db->insert("user_devices", $ins_uuid);
+						$this->db->insert("user_devices_log", $ins_log);
 
-					}else{
-						$upduid = [
-							'device_uuid' 	=> $device_uuid,
-							'device_name' 	=> $device_name,
-							'device_type' 	=> $device_type
+						if($cek_login->emp_source == 'outsource'){
+							$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
+								left join attendance_location b on b.id = a.attendance_location_id
+								where a.employee_id = ".$cek_login->emp_id."")->result();
+
+							$response = [
+								'status' 	=> 200,
+								'message' 	=> 'Success',
+								"data" 		=> $data,
+								"attendance_location" => $data_loc
+							];
+						}else{
+							$response = [
+								'status' 	=> 200,
+								'message' 	=> 'Success',
+								"data" 		=> $data
+							];
+						}
+						
+						
+		    		}else{ 
+		    			$response = [
+							'status' 	=> 400,
+							'message' 	=> 'Failed',
+							'error' 	=> 'User not found'
 						];
-						$this->db->update("user_devices", $upduid, "user_id='".$cek_login->user_id."'");
-					}
-
-
-					/// insert ke log
-					$ins_log = [
-						'user_id' 			=> $cek_login->user_id,
-						'device_uuid' 		=> $device_uuid,
-						/*'is_active' 		=> 1,*/
-						'created_at'		=> date("Y-m-d H:i:s"),
-						'device_name' 		=> $android_type,
-						'device_type' 		=> $device_type
-					];
-
-					$this->db->insert("user_devices_log", $ins_log);
-
-					if($cek_login->emp_source == 'outsource'){
-						$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
-							left join attendance_location b on b.id = a.attendance_location_id
-							where a.employee_id = ".$cek_login->emp_id."")->result();
-
-						$response = [
-							'status' 	=> 200,
-							'message' 	=> 'Success',
-							"data" 		=> $data,
-							"attendance_location" => $data_loc
-						];
-					}else{
-						$response = [
-							'status' 	=> 200,
-							'message' 	=> 'Success',
-							"data" 		=> $data
-						];
-					}
-					
-					
-	    		}else{ 
-	    			$response = [
-						'status' 	=> 401,
+		    		}
+		    		
+		    	}else{ 
+		    		$response = [
+						'status' 	=> 400,
 						'message' 	=> 'Failed',
-						'error' 	=> 'User not found'
+						'error' 	=> 'URL not found'
 					];
-	    		}
-	    		
-	    	}else{ 
-	    		$response = [
-					'status' 	=> 401,
-					'message' 	=> 'Failed',
-					'error' 	=> 'URL not found x'
-				];
-	    	}
+		    	}
 
-			
+    		}else{
+    			$response = [
+					'status' 	=> 400,
+					'message' 	=> 'Failed',
+					'error' 	=> 'URL, Username, Password, UUID, Device Type & Name must be filled'
+				];
+    		}
+
+    		
 
 			
 			
