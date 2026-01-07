@@ -147,8 +147,13 @@ class Api extends API_Controller
     }
 
 
-    function getWorkLocationInfo($modul, $employee_id, $dateNow)
+    function getWorkLocationInfo($modul, $employee_id, $emp_source, $dateNow)
 	{
+		$tbl = 'master_work_location';
+		if($emp_source == 'outsource'){
+			$tbl = 'master_work_location_outsource';
+		}
+
 		if($modul == 'login'){
 
 			// Cek business trip location
@@ -156,7 +161,7 @@ class Api extends API_Controller
 		        select c.time_zone, c.utc_offset 
 		        from business_trip_location a 
 		        left join business_trip b on b.id = a.business_trip_id
-		        left join master_work_location c on c.id = b.work_location_id
+		        left join ".$tbl." c on c.id = b.work_location_id
 		        where a.employee_id = '".$employee_id."' 
 		        and a.bustrip_date = '".$dateNow."' 
 		        and b.status_id = 2
@@ -176,7 +181,7 @@ class Api extends API_Controller
 		    $emp_q = $this->db->query("
 		        select b.time_zone, b.utc_offset 
 		        from employees a
-		        left join master_work_location b on b.id = a.work_location
+		        left join ".$tbl." b on b.id = a.work_location
 		        where a.id = '".$employee_id."'
 		    ")->result();
 
@@ -204,7 +209,7 @@ class Api extends API_Controller
 		        select c.time_zone, c.utc_offset 
 		        from business_trip_location a 
 		        left join business_trip b on b.id = a.business_trip_id
-		        left join master_work_location c on c.id = b.work_location_id
+		        left join ".$tbl." c on c.id = b.work_location_id
 		        where a.employee_id = '".$employee_id."' 
 		        and a.bustrip_date = '".$dateNow."' 
 		        and b.status_id = 2
@@ -223,7 +228,7 @@ class Api extends API_Controller
 			    $emp_q = $this->db->query("
 			        select b.time_zone, b.utc_offset 
 			        from employees a
-			        left join master_work_location b on b.id = a.work_location
+			        left join ".$tbl." b on b.id = a.work_location
 			        where a.id = '".$employee_id."'
 			    ")->result();
 
@@ -334,7 +339,7 @@ class Api extends API_Controller
 				}else{
 					if($device_uuid == $dataDevice->device_uuid){
 
-						$info = $this->getWorkLocationInfo('login', $cek_login->id_karyawan, $dateNow);
+						$info = $this->getWorkLocationInfo('login', $cek_login->id_karyawan, $cek_login->emp_source, $dateNow);
 
 						$any_work_location  = $info['any_work_location'];
 						$bustrip_time_zone  = $info['bustrip_time_zone'];
@@ -548,11 +553,21 @@ class Api extends API_Controller
 								"data" 		=> $data,
 								"attendance_location" => $data_loc
 							];
-						}else{
+						}else if($cek_login->emp_source == 'outsource'){ /// hanya 1 lokasi berdasarkan work location
+
+							$data_loc = $this->db->query("select id, name, latitude, longitude from master_work_location_outsource where cust_id = ".$cek_login->cust_id." and id = ".$cek_login->work_location." ")->result();
+
 							$response = [
 								'status' 	=> 200,
 								'message' 	=> 'Success',
-								"data" 		=> $data
+								"data" 		=> $data,
+								"attendance_location" => $data_loc
+							];
+						}else{
+							$response = [
+								'status' 	=> 400,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Emp Source not found'
 							];
 						}
 						
@@ -958,13 +973,15 @@ class Api extends API_Controller
 
 			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
 
+				$cek_emp = $this->api->cek_employee($employee);
+
 				$exp 			= explode(" ",$datetime);
 				$date 			= $exp[0];
 				$time 			= $exp[1];
 
 				
 				// cek work location
-				$info = $this->getWorkLocationInfo('absen', $employee, $date);
+				$info = $this->getWorkLocationInfo('absen', $employee, $cek_emp['emp_source'], $date);
 
 				$any_work_location  = $info['any_work_location'];
 				$work_location_time_zone  = $info['work_location_time_zone'];
@@ -1323,13 +1340,15 @@ class Api extends API_Controller
 
 			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
 
+				$cek_emp = $this->api->cek_employee($employee);
+
 				$exp 			= explode(" ",$datetime);
 				$date 			= $exp[0];
 				$time 			= $exp[1];
 
 				
 				// cek work location
-				$info = $this->getWorkLocationInfo('absen', $employee, $date);
+				$info = $this->getWorkLocationInfo('absen', $employee, $cek_emp['emp_source'], $date);
 
 				$any_work_location  = $info['any_work_location'];
 				$work_location_time_zone  = $info['work_location_time_zone'];
@@ -1734,12 +1753,14 @@ class Api extends API_Controller
 
 			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
 
+				$cek_emp = $this->api->cek_employee($employee);
+
 				$exp 			= explode(" ",$datetime);
 				$date 			= $exp[0];
 				$time 			= $exp[1];
 
 
-				$info = $this->getWorkLocationInfo('absen', $employee, $date);
+				$info = $this->getWorkLocationInfo('absen', $employee, $cek_emp['emp_source'], $date);
 
 				$any_work_location  		= $info['any_work_location'];
 				$work_location_time_zone  	= $info['work_location_time_zone'];
