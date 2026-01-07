@@ -537,7 +537,7 @@ class Api extends API_Controller
 
 						$this->db->insert("user_devices_log", $ins_log);
 
-						if($cek_login->emp_source == 'outsource'){
+						if($cek_login->emp_source == 'internal'){
 							$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
 								left join attendance_location b on b.id = a.attendance_location_id
 								where a.employee_id = ".$cek_login->emp_id."")->result();
