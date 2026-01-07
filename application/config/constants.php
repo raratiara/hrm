@@ -97,12 +97,19 @@ defined('_SUB_DOMAIN')        	OR define('_SUB_DOMAIN',''); #localhost
 #defined('_PREFIX_TABLE')        OR define('_PREFIX_TABLE','erp_');
 defined('_PREFIX_TABLE')        OR define('_PREFIX_TABLE','');
  
-defined('_APP_NAME')        	OR define('_APP_NAME','PT. Gerbang Data Indonesia - HR System');
+/*defined('_APP_NAME')        	OR define('_APP_NAME','PT. Gerbang Data Indonesia - HR System');
 defined('_SUP_APP_NAME')        OR define('_SUP_APP_NAME','PT. Gerbang Data Indonesia');
 defined('_TITLE')        		OR define('_TITLE', 'PT. Gerbang Data Indonesia - HR System');
 defined('_COMPANY_NAME')        OR define('_COMPANY_NAME','PT. Gerbang Data Indonesia');
 defined('_COMPANY_NAME_ABBR')   OR define('_COMPANY_NAME_ABBR','GDI');
-defined('_COPYRIGHT')        	OR define('_COPYRIGHT','Copyright &copy; PT. Gerbang Data Indonesia');
+defined('_COPYRIGHT')        	OR define('_COPYRIGHT','Copyright &copy; PT. Gerbang Data Indonesia');*/
+
+defined('_APP_NAME')        	OR define('_APP_NAME','PT. Mandiri Agangta Sejahtera - HR System');
+defined('_SUP_APP_NAME')        OR define('_SUP_APP_NAME','PT. Mandiri Agangta Sejahtera');
+defined('_TITLE')        		OR define('_TITLE', 'PT. Mandiri Agangta Sejahtera - HR System');
+defined('_COMPANY_NAME')        OR define('_COMPANY_NAME','PT. Mandiri Agangta Sejahtera');
+defined('_COMPANY_NAME_ABBR')   OR define('_COMPANY_NAME_ABBR','MAS');
+defined('_COPYRIGHT')        	OR define('_COPYRIGHT','Copyright &copy; PT. Mandiri Agangta Sejahtera');
  
 defined('_URL_ADMIN')        	OR define('_URL_ADMIN','http://localhost/_hrm/');
 defined('_URL')        			OR define('_URL','http://localhost/_hrm/');
