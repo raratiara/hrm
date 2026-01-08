@@ -2371,6 +2371,43 @@ class Api extends API_Controller
 						}
 					}
 				}
+			}else if($approval_type_id == 3){ ///settlement
+				$amount = $diff_day;
+				if($amount == ''){
+					$amount=0;
+				}
+				
+				$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
+						(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
+						(".$amount." >= min and min != '' and max = '') or
+						(".$amount." <= max and max != '' and min = '')
+					)  ")->result(); 
+
+				if(empty($getmatrix)){
+					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
+				}
+
+				
+				if(!empty($getmatrix)){
+					$approvalMatrixId = $getmatrix[0]->id;
+					if($approvalMatrixId != ''){
+						$dataApproval = [
+							'approval_matrix_type_id' 	=> $approval_type_id, 
+							'trx_id' 					=> $trx_id,
+							'approval_matrix_id' 		=> $approvalMatrixId,
+							'current_approval_level' 	=> 1
+						];
+						$rs = $this->db->insert("approval_path", $dataApproval);
+						$approval_path_id = $this->db->insert_id();
+						if($rs){
+							$dataApprovalDetail = [
+								'approval_path_id' 	=> $approval_path_id, 
+								'approval_level' 	=> 1
+							];
+							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+						}
+					}
+				}
 			}
 
 		}
@@ -8612,6 +8649,699 @@ class Api extends API_Controller
 		
     }
 
+
+    public function get_data_settlement()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+    	$islogin_employee	= $_GET['islogin_employee'];
+    	$filter_employee	= $_GET['filter_employee'];
+    	$filter_isapprover	= $_GET['filter_isapprover'];
+
+
+    	if($islogin_employee != ''){
+
+			$whr=''; $whr_isapprover='';
+	    	if($filter_employee != ''){
+	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+	    	}
+	    	if($filter_isapprover != ''){
+	    		$whr_isapprover=' and ao.is_approver = 1 ';
+	    	}
+
+	    	$dataCA = $this->db->query('select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+					, d.name as status_name, c.direct_id, ab.ca_number,
+					max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							c.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$islogin_employee.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$islogin_employee.' THEN 1  
+						ELSE 0 
+					END AS is_approver   
+					from settlement a left join employees b on b.id = a.prepared_by
+					left join cash_advance ab on ab.id = a.cash_advance_id
+					left join employees c on c.id = a.requested_by
+					left join master_status_cashadvance d on d.id = a.status_id
+					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 3
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id)ao 
+					'.$whr.$whr_isapprover.' ')->result();  
+
+	    	if (!empty($dataCA)) {
+			    foreach ($dataCA as $key => $row) {
+			    	$data_sett = $this->db->query("select * from settlement where id = '".$row->id."' ")->result();
+
+			        if(!empty($data_sett)){ 
+						$detail = $this->db->query("select a.*, b.name as post_budget_name from settlement_details a left join master_post_budget b on b.id = a.post_budget_id where a.settlement_id = '".$row->id."' ")->result(); 
+					}else{ 
+						$detail = $this->db->query("select a.*, b.name as post_budget_name from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id where a.cash_advance_id = '".$row->id."' ")->result(); 
+					}
+
+			        // inject ke object reimburs
+			        $dataCA[$key]->details = $detail;
+			    }
+			}
+
+
+
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $dataCA
+			];
+
+    		
+	    	
+	    	
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+    	}else{
+    		$response = [
+	            'status'  => 400,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+		
+		
+    }
+
+
+
+    public function save_settlement()
+    { 
+    	$this->verify_token();
+
+    	$islogin_employee	= $_POST['islogin_employee'];
+    	$method_save		= $_POST['method_save'];
+    	$id 				= $_POST['id'];
+    	$request_date		= $_POST['request_date'];
+    	$requested_by 		= $_POST['requested_by'];
+    	$cash_advance_id	= $_POST['cash_advance_id'];
+    	$total_cost_sett	= $_POST['total_cost'];
+    	$settlement_amount 	= $_POST['settlement_amount'];
+    	$no_rekening 		= $_POST['no_rekening'];
+    	$nama_rekening 		= $_POST['nama_rekening'];
+    	$bank 				= $_POST['bank'];
+    	$settlement_document 	= $_FILES['settlement_document'];
+    	$bukti_transfer 		= $_FILES['bukti_transfer'];
+
+    	
+
+    	///detail
+    	$id_detail 		= $_POST['id_detail'];
+    	$post_budget	= $_POST['post_budget_id'];
+    	$amount			= $_POST['amount'];
+    	$ppn_pph		= $_POST['ppn_pph'];
+    	$total_amount	= $_POST['total_amount'];
+    	$notes 			= $_POST['ppn_pph'];
+
+    	
+
+    	if($method_save == 'insert'){ 
+
+    		$lettercode = ('STL'); // ca code
+			$yearcode = date("y");
+			$monthcode = date("m");
+			$period = $yearcode.$monthcode; 
+			
+			$runningnumber = $this->getNextNumber(1); // next count number
+			$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
+
+
+			if(!empty($islogin_employee)){ 
+
+  				$dataEmp = $this->db->query("select * from employees where id = '".$islogin_employee."'")->result(); 
+				if(!empty($dataEmp)){
+					if(!empty($dataEmp[0]->work_location)){
+
+						//START UPLOAD 
+						$fieldname 		= 'settlement_document';
+						$upload_path 	= "uploads/cashadvance/settlement/";
+			            $document 		= $this->uploadFiles($fieldname, $upload_path);
+
+
+			            $fieldname2 	= 'bukti_transfer';
+						$upload_path2 	= "uploads/cashadvance/settlement/";
+			            $document_buktitransfer = $this->uploadFiles($fieldname2, $upload_path2);
+			            //END UPLOAD
+
+
+						$data = [
+							'settlement_number'	=> $nextnum,
+							'settlement_date' 	=> $request_date,
+							'cash_advance_id' 	=> $cash_advance_id, 
+							'prepared_by' 		=> $islogin_employee,
+							'requested_by'		=> $requested_by,
+							'total_cost' 		=> $total_cost_sett,
+							'settlement_amount' => $settlement_amount,
+							'document' 			=> $document,
+							'status_id' 		=> 1, //waiting approval
+							'bukti_transfer' 	=> $document_buktitransfer,
+							'no_rekening' 		=> $no_rekening,
+							'nama_rekening' 	=> $nama_rekening,
+							'bank_rekening' 	=> $bank
+						];
+						$rs = $this->db->insert("settlement", $data);
+						$lastId = $this->db->insert_id();
+
+						if($rs){
+							if(isset($post_budget)){
+								$item_num = count($post_budget); // cek sum
+								$item_len_min = min(array_keys($post_budget)); // cek min key index
+								$item_len = max(array_keys($post_budget)); // cek max key index
+							} else {
+								$item_num = 0;
+							}
+
+							if($item_num>0){
+								for($i=$item_len_min;$i<=$item_len;$i++) 
+								{
+									if(isset($post_budget[$i])){ 
+										$itemData = [
+											'settlement_id'		=> $lastId,
+											'post_budget_id' 	=> $post_budget[$i],
+											'amount' 			=> $amount[$i],
+											'ppn_pph' 			=> $ppn_pph[$i],
+											'total_amount'		=> $total_amount[$i],
+											'notes' 			=> $notes[$i]
+										];
+
+										$this->db->insert('settlement_details', $itemData);
+									}
+								}
+							}
+
+							///insert approval path
+							$approval_type_id = 3; //settlement
+							$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $total_cost, $lastId);
+
+							$upd_ca = [
+								'settlement_id' => $lastId
+							];
+							$this->db->update("cash_advance", $upd_ca, "id = '".$cash_advance_id."' ");
+
+
+							$response = [
+					            'status'  => 200,
+					            'message' => 'Success'
+					        ];
+
+						}else{
+							$response = [
+					            'status'  => 400,
+					            'message' => 'Failed',
+					            'error'   => 'Error Submit'
+					        ];
+						}
+
+					}else{
+						
+						$response = [
+				            'status'  => 400,
+				            'message' => 'Failed',
+				            'error'   => 'Work Location not found'
+				        ];
+					}
+				}else{
+					
+					$response = [
+			            'status'  => 400,
+			            'message' => 'Failed',
+			            'error'   => 'Employee not found'
+			        ];
+				}
+
+	  		}else{
+	  			$response = [
+		            'status'  => 400,
+		            'message' => 'Failed',
+		            'error'   => 'Error Submit'
+		        ];
+	  		}
+	  		
+			
+
+    	}else if($method_save == 'update'){
+    		
+    		if(!empty($id)){ 
+				
+				//START UPLOAD 
+				$fieldname 		= 'settlement_document';
+				$upload_path 	= "uploads/cashadvance/settlement/";
+	            $document 		= $this->uploadFiles($fieldname, $upload_path);
+
+
+	            $fieldname2 	= 'bukti_transfer';
+				$upload_path2 	= "uploads/cashadvance/settlement/";
+	            $document_buktitransfer = $this->uploadFiles($fieldname2, $upload_path2);
+	            //END UPLOAD
+
+	            $getdata = $this->db->query("select * from settlement where id = '".$id."'")->result(); 
+				$hdndoc = $getdata[0]->document;
+				$hdndoc_buktitransfer = $getdata[0]->bukti_transfer;
+
+				if($document == '' && $hdndoc != ''){
+					$document = $hdndoc;
+				}
+
+				if($document_buktitransfer == '' && $hdndoc_buktitransfer != ''){
+					$document_buktitransfer = $hdndoc_buktitransfer;
+				}
+
+
+				$is_rfu=0;
+				
+				if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
+					$is_rfu=1;
+
+					$data = [
+						'requested_by'		=> $requested_by,
+						'total_cost' 		=> $total_cost_sett,
+						'settlement_amount' => $settlement_amount,
+						'document' 			=> $document,
+						'updated_at'		=> date("Y-m-d H:i:s"),
+						'status_id' 		=> 1,
+						'bukti_transfer' 	=> $document_buktitransfer,
+						'no_rekening' 		=> $no_rekening,
+						'nama_rekening' 	=> $nama_rekening,
+						'bank_rekening' 	=> $bank
+					];
+				}else{
+					$data = [
+						'requested_by'		=> $requested_by,
+						'total_cost' 		=> $total_cost_sett,
+						'settlement_amount' => $settlement_amount,
+						'document' 			=> $document,
+						'updated_at'		=> date("Y-m-d H:i:s"),
+						'bukti_transfer' 	=> $document_buktitransfer,
+						'no_rekening' 		=> $no_rekening,
+						'nama_rekening' 	=> $nama_rekening,
+						'bank_rekening' 	=> $bank
+					];
+				}
+
+				
+				$rs = $this->db->update("settlement", $data, "id = ".$id."");
+
+				if($rs){
+					/// update approval path
+					$matrix_type_id = 3;
+					$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
+					$CurrApprovalPathId	= $CurrApproval[0]->id;
+
+					if($is_rfu == 1){ 
+						$updapproval_path = [
+							'current_approval_level' => 1
+						];
+						$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
+
+						$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
+
+						$updApproval2 = [
+							'status' 		=> "",
+							'approval_by' 	=> "",
+							'approval_date'	=> ""
+						];
+						$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
+						
+					}
+
+
+
+					if(isset($post_budget)){
+						$item_num = count($post_budget); // cek sum
+						$item_len_min = min(array_keys($post_budget)); // cek min key index
+						$item_len = max(array_keys($post_budget)); // cek max key index
+					} else {
+						$item_num = 0;
+					}
+
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+							$hdnid = $id_detail[$i];
+
+							if(!empty($hdnid)){ //update
+								if(isset($post_budget[$i])){
+									$itemData = [
+										'post_budget_id'	=> $post_budget[$i],
+										'amount' 		=> $amount[$i],
+										'ppn_pph' 		=> $ppn_pph[$i],
+										'total_amount'	=> $total_amount[$i],
+										'notes' 		=> $notes[$i]
+									];
+
+									$this->db->update("settlement_details", $itemData, "id = '".$hdnid."'");
+								}
+							}else{ //insert
+								if(isset($post_budget[$i])){
+									$itemData = [
+										'settlement_id'	=> $id,
+										'post_budget_id' 	=> $post_budget[$i],
+										'amount' 			=> $amount[$i],
+										'ppn_pph' 			=> $ppn_pph[$i],
+										'total_amount'		=> $total_amount[$i],
+										'notes' 			=> $notes[$i]
+									];
+
+									$this->db->insert('settlement_details', $itemData);
+								}
+							}
+						}
+					}
+
+					$response = [
+			            'status'  => 200,
+			            'message' => 'Success'
+			        ];
+
+				}else{
+					$response = [
+			            'status'  => 400,
+			            'message' => 'Failed',
+			            'error'   => 'Error Submit'
+			        ];
+				}
+
+			} else{
+				$response = [
+				    'status'  => 400,
+				    'message' => 'Failed',
+				    'error'   => 'Data not found'
+				];
+			}
+
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Method Save not found'
+			];
+    	}
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+    public function list_cashadvance_no_settlement()
+    { 
+    	$this->verify_token();
+
+
+		$dataCA = $this->db->query("select * from cash_advance where status_id in ('2','5') and settlement_id is null 
+			")->result(); 
+
+		if(!empty($dataCA)){
+		    foreach ($dataCA as $key => $row) {
+
+		        $detail = $this->db->query("
+		            select a.*, b.name as post_budget_name 
+					from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id 
+					where a.cash_advance_id = ?
+		        ", [$row->id])->result();
+
+		        // inject ke object reimburs
+		        $dataCA[$key]->details = $detail;
+		    }
+			
+			
+			$response = [
+				'status' 	=> 200,
+				'message' 	=> 'Success',
+				"data" 		=> $dataCA
+			];
+
+		}else{
+			$response = [
+	            'status'  => 400,
+	            'message' => 'Failed',
+	            'error'   => 'No Data'
+	        ];
+		}
+
+    
+    	
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+    	
+    }
+
+
+    public function approval_settlement()
+    { 
+    	$this->verify_token();
+
+    	$islogin_employee	= $_POST['islogin_employee'];
+    	$status				= $_POST['status']; // approve / reject /rfu
+    	$id 				= $_POST['id'];
+    	$reason				= $_POST['reason']; // for reject or rfu
+    	
+    	$matrix_type_id = 3; //settlement
+
+    	if($islogin_employee != '' && $status != '' && $id != ''){ 
+    		$is_approver = $this->checkApprover($matrix_type_id, $id, $islogin_employee); 
+    		if($is_approver == 1){
+
+				$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id); 
+	  			$maxApproval 	= $this->getMaxApproval($matrix_type_id, $id); 
+	  			$current_approval_level = $CurrApproval[0]->current_approval_level;
+	  			$next_level 		= $current_approval_level+1;
+				$approval_path_id	= $CurrApproval[0]->id;
+				
+
+				$cekApproval = $this->db->query("select * from approval_path_detail where approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ")->result(); 
+
+				if($cekApproval[0]->status != ''){
+					$response = [
+						'status' 	=> 400,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Cannot double approval'
+					];
+				}else{
+
+					if($status == 'approve'){
+						if($current_approval_level == $maxApproval){   //last approver
+							$data = [
+								'status_id'		=> 2, //approved
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							
+							$rs = $this->db->update("settlement", $data, "id = ".$id."");
+
+							if($rs){
+								//update approval path
+								$updApproval = [
+									'status' 		=> "Approved",
+									'approval_by' 	=> $islogin_employee,
+									'approval_date'	=> date("Y-m-d H:i:s")
+								];
+								$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+
+
+								$response = [
+									'status' 	=> 200,
+									'message' 	=> 'Success'
+								];
+								
+							}else{
+								$response = [
+									'status' 	=> 400,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Failed'
+								];
+							}
+							
+							
+						}else{
+
+							$data2 = [
+								'current_approval_level' => $next_level
+							];
+							$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
+							
+							if($rs){
+								$data = [
+									'status' 		=> "Approved",
+									'approval_by' 	=> $karyawan_id,
+									'approval_date'	=> date("Y-m-d H:i:s")
+								];
+								$this->db->update("approval_path_detail", $data, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+
+								$dataApprovalDetail = [
+									'approval_path_id' 	=> $approval_path_id, 
+									'approval_level' 	=> $next_level
+								];
+								$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+
+								$response = [
+									'status' 	=> 200,
+									'message' 	=> 'Success'
+								];
+
+							}
+							else{
+								$response = [
+									'status' 	=> 400,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Failed'
+								];
+							}
+							
+						}
+					
+
+			    	}else if($status == 'reject'){
+			    		
+			    		$data = [
+							'status_id' 	=> 3, //Rejected
+							'approval_date'	=> date("Y-m-d H:i:s"),
+							'reject_reason' => $reason
+						];
+						$rs = $this->db->update('settlement', $data, "id = '".$id."'");
+
+						
+						if($rs){
+							$dataapproval = [
+								'status' 		=> "Rejected",
+								'approval_by' 	=> $islogin_employee,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $dataapproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ");
+
+
+							$response = [
+				                'status'  => 200,
+				                'message' => 'Success'
+				            ];
+						}else{
+							$response = [
+							    'status'  => 400,
+							    'message' => 'Failed',
+							    'error'   => 'Failed'
+							];
+						}
+
+			    	}else if($status == 'rfu'){
+
+			    		$data = [
+							'status_id' 	=> 4, //rfu
+							'rfu_reason' 	=> $reason,
+							'approval_date'	=> date("Y-m-d H:i:s")
+						];
+						$rs = $this->db->update('settlement', $data, "id = '".$id."'");
+
+						if($rs){
+							$updApproval = [
+								'status' 		=> "Request for Update",
+								'approval_by' 	=> $islogin_employee,
+								'approval_date'	=> date("Y-m-d H:i:s")
+							];
+							$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+
+
+							$response = [
+				                'status'  => 200,
+				                'message' => 'Success'
+				            ];
+						}else{
+							$response = [
+							    'status'  => 400,
+							    'message' => 'Failed',
+							    'error'   => 'Failed'
+							];
+						}
+
+			    	}else{
+			    		$response = [
+							'status' 	=> 400, // Bad Request
+							'message' 	=>'Failed',
+							'error' 	=> 'Status not found'
+						];
+			    	}
+				}
+	    		
+    		}else{
+    			$response = [
+		            'status'  => 400,
+		            'message' => 'Failed',
+		            'error'   => 'You are not authorized to approve this data'
+		        ];
+    		}
+
+    	}else{
+    		$response = [
+	            'status'  => 400,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+
+
+    	$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+		
+    }
 
 
 
