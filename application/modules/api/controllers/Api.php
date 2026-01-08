@@ -7408,6 +7408,80 @@ class Api extends API_Controller
 
 	}
 
+	public function get_attendance_location()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+    	$employee	= $_GET['employee'];
+    	
+
+    	if($employee != ''){
+
+    		$dataEmp = $this->db->query('select emp_source, cust_id, work_location from employees where id = '.$employee.' ')->result(); 
+    		if(!empty($dataEmp)){
+    			
+    			if($dataEmp[0]->emp_source == 'internal'){
+					$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
+						left join attendance_location b on b.id = a.attendance_location_id
+						where a.employee_id = ".$employee."")->result();
+
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success',
+						"attendance_location" => $data_loc
+					];
+				}else if($dataEmp[0]->emp_source == 'outsource'){ /// hanya 1 lokasi berdasarkan work location
+
+					$data_loc = $this->db->query("select id, name, latitude, longitude from master_work_location_outsource where cust_id = ".$dataEmp[0]->cust_id." and id = ".$dataEmp[0]->work_location." ")->result();
+
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success',
+						"attendance_location" => $data_loc
+					];
+				}else{
+					$response = [
+						'status' 	=> 400,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Emp Source not found'
+					];
+				}
+
+    		}else{
+    			$response = [
+		            'status'  => 400,
+		            'message' => 'Failed',
+		            'error'   => 'Emp not found'
+		        ];
+    		}
+
+	    
+	    	
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+    	}else{
+    		$response = [
+	            'status'  => 400,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+		
+		
+    }
+
 
 	public function get_data_cashadvance()
     { 
@@ -7542,77 +7616,317 @@ class Api extends API_Controller
     }
 
 
-    public function get_attendance_location()
+    // Get next number 
+	public function getNextNumber($ca_type) { 
+		
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+		
+
+		$cek = $this->db->query("select * from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 4, 4) = '".$period."'");
+		$rs_cek = $cek->result_array();
+
+		if(empty($rs_cek)){
+			$num = '0001';
+		}else{
+			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 4, 4) = '".$period."'");
+			$rs_cek2 = $cek2->result_array();
+			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,7); 
+			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
+			
+		}
+
+		return $num;
+		
+	} 
+
+
+    public function save_fpu()
     { 
     	$this->verify_token();
 
+    	$islogin_employee	= $_POST['islogin_employee'];
+    	$method_save		= $_POST['method_save'];
+    	$id 				= $_POST['id'];
+    	$request_date		= $_POST['request_date'];
+    	$requested_by 		= $_POST['requested_by'];
+    	$total_cost			= $_POST['total_cost'];
+    	$project			= $_POST['project_id'];
+    	$fpu_document		= $_FILES['fpu_document'];
+    	
 
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
+    	///detail
+    	$id_detail 		= $_POST['id_detail'];
+    	$post_budget	= $_POST['post_budget_id'];
+    	$amount			= $_POST['amount'];
+    	$ppn_pph		= $_POST['ppn_pph'];
+    	$total_amount	= $_POST['total_amount'];
+    	$notes 			= $_POST['ppn_pph'];
 
     	
-    	$employee	= $_GET['employee'];
-    	
 
-    	if($employee != ''){
+    	if($method_save == 'insert'){
 
-    		$dataEmp = $this->db->query('select emp_source, cust_id, work_location from employees where id = '.$employee.' ')->result(); 
-    		if(!empty($dataEmp)){
-    			
-    			if($dataEmp[0]->emp_source == 'internal'){
-					$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
-						left join attendance_location b on b.id = a.attendance_location_id
-						where a.employee_id = ".$employee."")->result();
+    		$lettercode = ('FPU'); // ca code
+			$yearcode = date("y");
+			$monthcode = date("m");
+			$period = $yearcode.$monthcode; 
+			
+			$runningnumber = $this->getNextNumber(1); // next count number
+			$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
 
-					$response = [
-						'status' 	=> 200,
-						'message' 	=> 'Success',
-						"attendance_location" => $data_loc
-					];
-				}else if($dataEmp[0]->emp_source == 'outsource'){ /// hanya 1 lokasi berdasarkan work location
 
-					$data_loc = $this->db->query("select id, name, latitude, longitude from master_work_location_outsource where cust_id = ".$dataEmp[0]->cust_id." and id = ".$dataEmp[0]->work_location." ")->result();
+			if(!empty($islogin_employee)){ 
 
-					$response = [
-						'status' 	=> 200,
-						'message' 	=> 'Success',
-						"attendance_location" => $data_loc
-					];
+  				$dataEmp = $this->db->query("select * from employees where id = '".$islogin_employee."'")->result(); 
+				if(!empty($dataEmp)){
+					if(!empty($dataEmp[0]->work_location)){
+
+						//START UPLOAD 
+						$fieldname 		= 'fpu_document';
+						$upload_path 	= "uploads/cashadvance/fpu/";
+			            $document 		= $this->uploadFiles($fieldname, $upload_path);
+			            //END UPLOAD
+
+
+						$data = [
+							'ca_number' 	=> $nextnum,
+							'ca_type' 		=> 1, //fpu
+							'request_date' 	=> $request_date,
+							'prepared_by' 	=> $islogin_employee,
+							'requested_by'	=> $requested_by,
+							'total_cost' 	=> $total_cost,
+							'document' 		=> $document,
+							'status_id' 	=> 1, //waiting approval
+							'project_id' 	=> $project
+						];
+						$rs = $this->db->insert("cash_advance", $data);
+						$lastId = $this->db->insert_id();
+
+						if($rs){
+							if(isset($post_budget)){
+								$item_num = count($post_budget); // cek sum
+								$item_len_min = min(array_keys($post_budget)); // cek min key index
+								$item_len = max(array_keys($post_budget)); // cek max key index
+							} else {
+								$item_num = 0;
+							}
+
+							if($item_num>0){
+								for($i=$item_len_min;$i<=$item_len;$i++) 
+								{
+									if(isset($post_budget[$i])){ 
+										$itemData = [
+											'cash_advance_id'	=> $lastId,
+											'post_budget_id' 	=> $post_budget[$i],
+											'amount' 			=> $amount[$i],
+											'ppn_pph' 			=> $ppn_pph[$i],
+											'total_amount'		=> $total_amount[$i],
+											'notes' 			=> $notes[$i]
+										];
+
+										$this->db->insert('cash_advance_details', $itemData);
+									}
+								}
+							}
+
+							///insert approval path
+							$approval_type_id = 2; //Cash advance
+							$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $total_cost, $lastId);
+
+
+
+							$response = [
+					            'status'  => 200,
+					            'message' => 'Success'
+					        ];
+
+						}else{
+							$response = [
+					            'status'  => 400,
+					            'message' => 'Failed',
+					            'error'   => 'Error Submit'
+					        ];
+						}
+
+					}else{
+						
+						$response = [
+				            'status'  => 400,
+				            'message' => 'Failed',
+				            'error'   => 'Work Location not found'
+				        ];
+					}
 				}else{
+					
 					$response = [
-						'status' 	=> 400,
-						'message' 	=> 'Failed',
-						'error' 	=> 'Emp Source not found'
-					];
+			            'status'  => 400,
+			            'message' => 'Failed',
+			            'error'   => 'Employee not found'
+			        ];
 				}
 
-    		}else{
-    			$response = [
+	  		}else{
+	  			$response = [
 		            'status'  => 400,
 		            'message' => 'Failed',
-		            'error'   => 'Emp not found'
+		            'error'   => 'Error Submit'
 		        ];
-    		}
+	  		}
+	  		
+			
 
-	    
-	    	
+    	}else if($method_save == 'update'){
+    		
+    		if(!empty($id)){ 
+				
 
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
+			} else{
+				$response = [
+				    'status'  => 400,
+				    'message' => 'Failed',
+				    'error'   => 'Data not found'
+				];
+			}
+
+			//START UPLOAD 
+			$fieldname 		= 'fpu_document';
+			$upload_path 	= "uploads/cashadvance/fpu/";
+            $document 		= $this->uploadFiles($fieldname, $upload_path);
+            //END UPLOAD
+
+            $getdata = $this->db->query("select * from cash_advance where id = '".$id."'")->result(); 
+			$hdndoc = $getdata[0]->document;
+
+			if($document == '' && $hdndoc != ''){
+				$document = $hdndoc;
+			}
+
+
+			$is_rfu=0;
+			
+			if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
+				$is_rfu=1;
+
+				$data = [
+					'requested_by'	=> $requested_by,
+					'total_cost' 	=> $total_cost,
+					'document' 		=> $document,
+					'updated_at'	=> date("Y-m-d H:i:s"),
+					'status_id' 	=> 1,
+					'project_id' 	=> $project
+				];
+			}else{
+				$data = [
+					'requested_by'	=> $requested_by,
+					'total_cost' 	=> $total_cost,
+					'document' 		=> $document,
+					'updated_at'	=> date("Y-m-d H:i:s"),
+					'project_id' 	=> $project
+				];
+			}
+
+			
+			$rs = $this->db->update("cash_advance", $data, "id = ".$id."");
+
+			if($rs){
+				/// update approval path
+				$getapprovallevel = $this->db->query("select * from approval_path where approval_matrix_type_id = 2 and trx_id = '".$id."'")->result(); 
+				$approval_level = $getapprovallevel[0]->current_approval_level;
+				$CurrApproval 	= $this->getCurrApproval(2,$id);
+				$CurrApprovalPathId	= $CurrApproval[0]->approval_path_id;
+
+				if($is_rfu == 1){
+					$updapproval_path = [
+						'current_approval_level' => 1
+					];
+					$this->db->update("approval_path", $updapproval_path, "id = '".$getapprovallevel[0]->id."' ");
+
+					$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
+
+					$updApproval2 = [
+						'status' 		=> "",
+						'approval_by' 	=> "",
+						'approval_date'	=> ""
+					];
+					$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
+					
+				}
+
+
+
+				if(isset($post_budget)){
+					$item_num = count($post_budget); // cek sum
+					$item_len_min = min(array_keys($post_budget)); // cek min key index
+					$item_len = max(array_keys($post_budget)); // cek max key index
+				} else {
+					$item_num = 0;
+				}
+
+				if($item_num>0){
+					for($i=$item_len_min;$i<=$item_len;$i++) 
+					{
+						$hdnid = $id_detail[$i];
+
+						if(!empty($hdnid)){ //update
+							if(isset($post_budget[$i])){
+								$itemData = [
+									'post_budget_id'	=> $post_budget[$i],
+									'amount' 		=> $amount[$i],
+									'ppn_pph' 		=> $ppn_pph[$i],
+									'total_amount'	=> $total_amount[$i],
+									'notes' 		=> $notes[$i]
+								];
+
+								$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
+							}
+						}else{ //insert
+							if(isset($post_budget[$i])){
+								$itemData = [
+									'cash_advance_id'	=> $id,
+									'post_budget_id' 	=> $post_budget[$i],
+									'amount' 			=> $amount[$i],
+									'ppn_pph' 			=> $ppn_pph[$i],
+									'total_amount'		=> $total_amount[$i],
+									'notes' 			=> $notes[$i]
+								];
+
+								$this->db->insert('cash_advance_details', $itemData);
+							}
+						}
+					}
+				}
+
+				$response = [
+		            'status'  => 200,
+		            'message' => 'Success'
+		        ];
+
+			}else{
+				$response = [
+		            'status'  => 400,
+		            'message' => 'Failed',
+		            'error'   => 'Error Submit'
+		        ];
+			}	
 
     	}else{
     		$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Method Save not found'
+			];
     	}
 
-		
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
 		
     }
 
