@@ -419,16 +419,16 @@ class Settlement_menu_model extends MY_Model
 		$period = $yearcode.$monthcode; 
 		
 
-		$cek = $this->db->query("select * from settlement where SUBSTRING(settlement_number, 4, 4) = '".$period."'");
+		$cek = $this->db->query("select * from settlement where SUBSTRING(settlement_number, 5, 4) = '".$period."'");
 		$rs_cek = $cek->result_array();
 
 		if(empty($rs_cek)){
 			$num = '0001';
 		}else{
-			$cek2 = $this->db->query("select max(settlement_number) as maxnum from settlement where SUBSTRING(settlement_number, 4, 4) = '".$period."'");
+			$cek2 = $this->db->query("select max(settlement_number) as maxnum from settlement where SUBSTRING(settlement_number, 5, 4) = '".$period."'");
 			$rs_cek2 = $cek2->result_array();
 			$dt = $rs_cek2[0]['maxnum']; 
-			$getnum = substr($dt,7); 
+			$getnum = substr($dt,9); 
 			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
 			
 		}

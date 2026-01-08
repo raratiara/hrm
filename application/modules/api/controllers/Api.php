@@ -7624,16 +7624,16 @@ class Api extends API_Controller
 		$period = $yearcode.$monthcode; 
 		
 
-		$cek = $this->db->query("select * from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 4, 4) = '".$period."'");
+		$cek = $this->db->query("select * from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
 		$rs_cek = $cek->result_array();
 
 		if(empty($rs_cek)){
 			$num = '0001';
 		}else{
-			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 4, 4) = '".$period."'");
+			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
 			$rs_cek2 = $cek2->result_array();
 			$dt = $rs_cek2[0]['maxnum']; 
-			$getnum = substr($dt,7); 
+			$getnum = substr($dt,9); 
 			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
 			
 		}
