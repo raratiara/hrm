@@ -514,7 +514,8 @@ class Api extends API_Controller
 								'is_active' 		=> 1,
 								'created_at'		=> date("Y-m-d H:i:s"),
 								'device_name' 		=> $device_name,
-								'device_type' 		=> $device_type
+								'device_type' 		=> $device_type,
+								'type' => $type
 							];
 
 							$this->db->insert("user_devices", $ins_uuid);
