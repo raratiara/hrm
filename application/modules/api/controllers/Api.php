@@ -543,35 +543,14 @@ class Api extends API_Controller
 
 						$this->db->insert("user_devices_log", $ins_log);
 
-						if($cek_login->emp_source == 'internal'){
-							$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
-								left join attendance_location b on b.id = a.attendance_location_id
-								where a.employee_id = ".$cek_login->emp_id."")->result();
 
-							$response = [
-								'status' 	=> 200,
-								'message' 	=> 'Success',
-								"data" 		=> $data,
-								"attendance_location" => $data_loc
-							];
-						}else if($cek_login->emp_source == 'outsource'){ /// hanya 1 lokasi berdasarkan work location
 
-							$data_loc = $this->db->query("select id, name, latitude, longitude from master_work_location_outsource where cust_id = ".$cek_login->cust_id." and id = ".$cek_login->work_location." ")->result();
+						$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success',
+							"data" 		=> $data
+						];
 
-							$response = [
-								'status' 	=> 200,
-								'message' 	=> 'Success',
-								"data" 		=> $data,
-								"attendance_location" => $data_loc
-							];
-						}else{
-							$response = [
-								'status' 	=> 400,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Emp Source not found'
-							];
-						}
-						
 						
 		    		}else{ 
 		    			$response = [
@@ -7429,6 +7408,213 @@ class Api extends API_Controller
 
 	}
 
+
+	public function get_data_cashadvance()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+    	$islogin_employee	= $_GET['islogin_employee'];
+    	$type				= $_GET['type']; // fpu or fpp
+    	$filter_employee	= $_GET['filter_employee'];
+    	$filter_isapprover	= $_GET['filter_isapprover'];
+
+
+    	if($islogin_employee != ''){
+
+    		if($type == 'fpu' || $type == 'fpp'){
+
+    			if($type == 'fpu'){
+    				$whr_type = ' ao.ca_type = 1';
+    			}else{
+    				$whr_type = ' ao.ca_type = 2';
+    			}
+
+    			$whr=''; $whr_isapprover='';
+		    	if($filter_employee != ''){
+		    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+		    	}
+		    	if($filter_isapprover != ''){
+		    		$whr_isapprover=' and ao.is_approver = 1 ';
+		    	}
+
+		    	$dataCA = $this->db->query('select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+						, d.name as status_name, c.direct_id,
+						max(d2.current_approval_level) AS current_approval_level,
+						max(h.role_id) AS current_role_id,
+						max(i.role_name) AS current_role_name,
+						GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+						max(
+							IF(
+								i.role_name = "Direct",
+								c.direct_id,
+								(
+									SELECT GROUP_CONCAT(employee_id) 
+									FROM approval_matrix_role_pic 
+									WHERE approval_matrix_role_id = h.role_id
+								)
+							)
+						) AS current_employeeid_approver,
+						CASE 
+							WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+							ELSE 0 
+						END AS is_approver_view,
+						CASE 
+							WHEN FIND_IN_SET(
+								'.$islogin_employee.', 
+								(
+									SELECT GROUP_CONCAT(employee_id) 
+									FROM approval_matrix_role_pic 
+									WHERE approval_matrix_role_id = max(h.role_id)
+								)
+							) > 0 THEN 1
+							WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$islogin_employee.' THEN 1  
+							ELSE 0 
+						END AS is_approver   
+						from cash_advance a left join employees b on b.id = a.prepared_by
+						left join employees c on c.id = a.requested_by
+						left join master_status_cashadvance d on d.id = a.status_id
+						LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 2
+						LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+						LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+						LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+						LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+						LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+						LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+						LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+						GROUP BY a.id)ao 
+						where '.$whr_type.'
+						'.$whr.$whr_isapprover.' ')->result();  
+
+		    	if (!empty($dataCA)) {
+				    foreach ($dataCA as $key => $row) {
+
+				        $detail = $this->db->query("
+				            select a.*, b.name as post_budget_name 
+							from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id 
+							where a.cash_advance_id = ?
+				        ", [$row->id])->result();
+
+				        // inject ke object reimburs
+				        $dataCA[$key]->details = $detail;
+				    }
+				}
+
+
+
+		    	$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success',
+					'data' 		=> $dataCA
+				];
+
+    		}else{
+    			$response = [
+		            'status'  => 400,
+		            'message' => 'Failed',
+		            'error'   => 'Type not found'
+		        ];
+    		}
+	    	
+	    	
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+    	}else{
+    		$response = [
+	            'status'  => 400,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+		
+		
+    }
+
+
+    public function get_attendance_location()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+    	$employee	= $_GET['employee'];
+    	
+
+    	if($employee != ''){
+
+    		$dataEmp = $this->db->query('select emp_source, cust_id, work_location from employees where id = '.$employee.' ')->result(); 
+    		if(!empty($dataEmp)){
+    			
+    			if($dataEmp[0]->emp_source == 'internal'){
+					$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
+						left join attendance_location b on b.id = a.attendance_location_id
+						where a.employee_id = ".$employee."")->result();
+
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success',
+						"attendance_location" => $data_loc
+					];
+				}else if($dataEmp[0]->emp_source == 'outsource'){ /// hanya 1 lokasi berdasarkan work location
+
+					$data_loc = $this->db->query("select id, name, latitude, longitude from master_work_location_outsource where cust_id = ".$dataEmp[0]->cust_id." and id = ".$dataEmp[0]->work_location." ")->result();
+
+					$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success',
+						"attendance_location" => $data_loc
+					];
+				}else{
+					$response = [
+						'status' 	=> 400,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Emp Source not found'
+					];
+				}
+
+    		}else{
+    			$response = [
+		            'status'  => 400,
+		            'message' => 'Failed',
+		            'error'   => 'Emp not found'
+		        ];
+    		}
+
+	    
+	    	
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+    	}else{
+    		$response = [
+	            'status'  => 400,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+		
+		
+    }
 
 
 }
