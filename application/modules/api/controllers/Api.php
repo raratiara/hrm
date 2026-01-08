@@ -7554,6 +7554,32 @@ class Api extends API_Controller
     	
     }
 
+    // Get next number 
+	public function getNextNumber($ca_type) { 
+		
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+		
+
+		$cek = $this->db->query("select * from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
+		$rs_cek = $cek->result_array();
+
+		if(empty($rs_cek)){
+			$num = '0001';
+		}else{
+			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
+			$rs_cek2 = $cek2->result_array();
+			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,9); 
+			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
+			
+		}
+
+		return $num;
+		
+	} 
+
 
 	public function get_data_fpu()
     { 
@@ -7671,33 +7697,6 @@ class Api extends API_Controller
 		
 		
     }
-
-
-    // Get next number 
-	public function getNextNumber($ca_type) { 
-		
-		$yearcode = date("y");
-		$monthcode = date("m");
-		$period = $yearcode.$monthcode; 
-		
-
-		$cek = $this->db->query("select * from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
-		$rs_cek = $cek->result_array();
-
-		if(empty($rs_cek)){
-			$num = '0001';
-		}else{
-			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
-			$rs_cek2 = $cek2->result_array();
-			$dt = $rs_cek2[0]['maxnum']; 
-			$getnum = substr($dt,9); 
-			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
-			
-		}
-
-		return $num;
-		
-	} 
 
 
     public function save_fpu()
@@ -7839,6 +7838,125 @@ class Api extends API_Controller
     		
     		if(!empty($id)){ 
 				
+				//START UPLOAD 
+				$fieldname 		= 'fpu_document';
+				$upload_path 	= "uploads/cashadvance/fpu/";
+	            $document 		= $this->uploadFiles($fieldname, $upload_path);
+	            //END UPLOAD
+
+	            $getdata = $this->db->query("select * from cash_advance where id = '".$id."'")->result(); 
+				$hdndoc = $getdata[0]->document;
+
+				if($document == '' && $hdndoc != ''){
+					$document = $hdndoc;
+				}
+
+
+				$is_rfu=0;
+				
+				if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
+					$is_rfu=1;
+
+					$data = [
+						'requested_by'	=> $requested_by,
+						'total_cost' 	=> $total_cost,
+						'document' 		=> $document,
+						'updated_at'	=> date("Y-m-d H:i:s"),
+						'status_id' 	=> 1,
+						'project_id' 	=> $project
+					];
+				}else{
+					$data = [
+						'requested_by'	=> $requested_by,
+						'total_cost' 	=> $total_cost,
+						'document' 		=> $document,
+						'updated_at'	=> date("Y-m-d H:i:s"),
+						'project_id' 	=> $project
+					];
+				}
+
+				
+				$rs = $this->db->update("cash_advance", $data, "id = ".$id."");
+
+				if($rs){
+					/// update approval path
+					$matrix_type_id = 2;
+					$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
+					$CurrApprovalPathId	= $CurrApproval[0]->id;
+
+					if($is_rfu == 1){ 
+						$updapproval_path = [
+							'current_approval_level' => 1
+						];
+						$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
+
+						$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
+
+						$updApproval2 = [
+							'status' 		=> "",
+							'approval_by' 	=> "",
+							'approval_date'	=> ""
+						];
+						$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
+						
+					}
+
+
+
+					if(isset($post_budget)){
+						$item_num = count($post_budget); // cek sum
+						$item_len_min = min(array_keys($post_budget)); // cek min key index
+						$item_len = max(array_keys($post_budget)); // cek max key index
+					} else {
+						$item_num = 0;
+					}
+
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+							$hdnid = $id_detail[$i];
+
+							if(!empty($hdnid)){ //update
+								if(isset($post_budget[$i])){
+									$itemData = [
+										'post_budget_id'	=> $post_budget[$i],
+										'amount' 		=> $amount[$i],
+										'ppn_pph' 		=> $ppn_pph[$i],
+										'total_amount'	=> $total_amount[$i],
+										'notes' 		=> $notes[$i]
+									];
+
+									$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
+								}
+							}else{ //insert
+								if(isset($post_budget[$i])){
+									$itemData = [
+										'cash_advance_id'	=> $id,
+										'post_budget_id' 	=> $post_budget[$i],
+										'amount' 			=> $amount[$i],
+										'ppn_pph' 			=> $ppn_pph[$i],
+										'total_amount'		=> $total_amount[$i],
+										'notes' 			=> $notes[$i]
+									];
+
+									$this->db->insert('cash_advance_details', $itemData);
+								}
+							}
+						}
+					}
+
+					$response = [
+			            'status'  => 200,
+			            'message' => 'Success'
+			        ];
+
+				}else{
+					$response = [
+			            'status'  => 400,
+			            'message' => 'Failed',
+			            'error'   => 'Error Submit'
+			        ];
+				}
 
 			} else{
 				$response = [
@@ -7847,126 +7965,6 @@ class Api extends API_Controller
 				    'error'   => 'Data not found'
 				];
 			}
-
-			//START UPLOAD 
-			$fieldname 		= 'fpu_document';
-			$upload_path 	= "uploads/cashadvance/fpu/";
-            $document 		= $this->uploadFiles($fieldname, $upload_path);
-            //END UPLOAD
-
-            $getdata = $this->db->query("select * from cash_advance where id = '".$id."'")->result(); 
-			$hdndoc = $getdata[0]->document;
-
-			if($document == '' && $hdndoc != ''){
-				$document = $hdndoc;
-			}
-
-
-			$is_rfu=0;
-			
-			if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
-				$is_rfu=1;
-
-				$data = [
-					'requested_by'	=> $requested_by,
-					'total_cost' 	=> $total_cost,
-					'document' 		=> $document,
-					'updated_at'	=> date("Y-m-d H:i:s"),
-					'status_id' 	=> 1,
-					'project_id' 	=> $project
-				];
-			}else{
-				$data = [
-					'requested_by'	=> $requested_by,
-					'total_cost' 	=> $total_cost,
-					'document' 		=> $document,
-					'updated_at'	=> date("Y-m-d H:i:s"),
-					'project_id' 	=> $project
-				];
-			}
-
-			
-			$rs = $this->db->update("cash_advance", $data, "id = ".$id."");
-
-			if($rs){
-				/// update approval path
-				$matrix_type_id = 2;
-				$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
-				$CurrApprovalPathId	= $CurrApproval[0]->id;
-
-				if($is_rfu == 1){ 
-					$updapproval_path = [
-						'current_approval_level' => 1
-					];
-					$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
-
-					$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
-
-					$updApproval2 = [
-						'status' 		=> "",
-						'approval_by' 	=> "",
-						'approval_date'	=> ""
-					];
-					$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
-					
-				}
-
-
-
-				if(isset($post_budget)){
-					$item_num = count($post_budget); // cek sum
-					$item_len_min = min(array_keys($post_budget)); // cek min key index
-					$item_len = max(array_keys($post_budget)); // cek max key index
-				} else {
-					$item_num = 0;
-				}
-
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						$hdnid = $id_detail[$i];
-
-						if(!empty($hdnid)){ //update
-							if(isset($post_budget[$i])){
-								$itemData = [
-									'post_budget_id'	=> $post_budget[$i],
-									'amount' 		=> $amount[$i],
-									'ppn_pph' 		=> $ppn_pph[$i],
-									'total_amount'	=> $total_amount[$i],
-									'notes' 		=> $notes[$i]
-								];
-
-								$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
-							}
-						}else{ //insert
-							if(isset($post_budget[$i])){
-								$itemData = [
-									'cash_advance_id'	=> $id,
-									'post_budget_id' 	=> $post_budget[$i],
-									'amount' 			=> $amount[$i],
-									'ppn_pph' 			=> $ppn_pph[$i],
-									'total_amount'		=> $total_amount[$i],
-									'notes' 			=> $notes[$i]
-								];
-
-								$this->db->insert('cash_advance_details', $itemData);
-							}
-						}
-					}
-				}
-
-				$response = [
-		            'status'  => 200,
-		            'message' => 'Success'
-		        ];
-
-			}else{
-				$response = [
-		            'status'  => 400,
-		            'message' => 'Failed',
-		            'error'   => 'Error Submit'
-		        ];
-			}	
 
     	}else{
     		$response = [
@@ -7987,7 +7985,8 @@ class Api extends API_Controller
     }
 
 
-    public function approval_fpu()
+
+    public function approval_cashadvance()
     { 
     	$this->verify_token();
 
@@ -8187,6 +8186,434 @@ class Api extends API_Controller
 
 		
     }
+
+
+    public function get_data_fpp()
+    { 
+    	$this->verify_token();
+
+
+		$jsonData = file_get_contents('php://input');
+    	$data = json_decode($jsonData, true);
+    	$_REQUEST = $data;
+
+    	
+    	$islogin_employee	= $_GET['islogin_employee'];
+    	$filter_employee	= $_GET['filter_employee'];
+    	$filter_isapprover	= $_GET['filter_isapprover'];
+
+
+    	if($islogin_employee != ''){
+
+			$whr=''; $whr_isapprover='';
+	    	if($filter_employee != ''){
+	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+	    	}
+	    	if($filter_isapprover != ''){
+	    		$whr_isapprover=' and ao.is_approver = 1 ';
+	    	}
+
+	    	$dataCA = $this->db->query('select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
+					, d.name as status_name, c.direct_id,
+					max(d2.current_approval_level) AS current_approval_level,
+					max(h.role_id) AS current_role_id,
+					max(i.role_name) AS current_role_name,
+					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+					max(
+						IF(
+							i.role_name = "Direct",
+							c.direct_id,
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = h.role_id
+							)
+						)
+					) AS current_employeeid_approver,
+					CASE 
+						WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
+						ELSE 0 
+					END AS is_approver_view,
+					CASE 
+						WHEN FIND_IN_SET(
+							'.$islogin_employee.', 
+							(
+								SELECT GROUP_CONCAT(employee_id) 
+								FROM approval_matrix_role_pic 
+								WHERE approval_matrix_role_id = max(h.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$islogin_employee.' THEN 1  
+						ELSE 0 
+					END AS is_approver   
+					from cash_advance a left join employees b on b.id = a.prepared_by
+					left join employees c on c.id = a.requested_by
+					left join master_status_cashadvance d on d.id = a.status_id
+					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 2
+					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
+					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
+					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
+					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+					GROUP BY a.id)ao 
+					where ao.ca_type = 2
+					'.$whr.$whr_isapprover.' ')->result();  
+
+	    	if (!empty($dataCA)) {
+			    foreach ($dataCA as $key => $row) {
+
+			        $detail = $this->db->query("
+			            select a.*, b.name as post_budget_name 
+						from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id 
+						where a.cash_advance_id = ?
+			        ", [$row->id])->result();
+
+			        // inject ke object reimburs
+			        $dataCA[$key]->details = $detail;
+			    }
+			}
+
+
+
+	    	$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $dataCA
+			];
+
+    		
+	    	
+	    	
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+
+    	}else{
+    		$response = [
+	            'status'  => 400,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+    	}
+
+		
+		
+    }
+
+
+
+    public function save_fpp()
+    { 
+    	$this->verify_token();
+
+    	$islogin_employee	= $_POST['islogin_employee'];
+    	$method_save		= $_POST['method_save'];
+    	$id 				= $_POST['id'];
+    	$request_date		= $_POST['request_date'];
+    	$requested_by 		= $_POST['requested_by'];
+    	$total_cost			= $_POST['total_cost'];
+    	$project			= $_POST['project_id'];
+    	$fpp_document		= $_FILES['fpp_document'];
+    	$fpp_type 			= $_POST['fpp_type'];
+    	$no_rekening 		= $_POST['no_rekening'];
+    	$vendor_name 		= $_POST['vendor_name'];
+    	$invoice_number 	= $_POST['invoice_number'];
+    	$invoice_date 		= $_POST['invoice_date'];
+    	
+
+    	///detail
+    	$id_detail 		= $_POST['id_detail'];
+    	$post_budget	= $_POST['post_budget_id'];
+    	$amount			= $_POST['amount'];
+    	$ppn_pph		= $_POST['ppn_pph'];
+    	$total_amount	= $_POST['total_amount'];
+    	$notes 			= $_POST['ppn_pph'];
+
+    	
+
+    	if($method_save == 'insert'){ 
+
+    		$lettercode = ('FPP'); // ca code
+			$yearcode = date("y");
+			$monthcode = date("m");
+			$period = $yearcode.$monthcode; 
+			
+			$runningnumber = $this->getNextNumber(1); // next count number
+			$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
+
+
+			if(!empty($islogin_employee)){ 
+
+  				$dataEmp = $this->db->query("select * from employees where id = '".$islogin_employee."'")->result(); 
+				if(!empty($dataEmp)){
+					if(!empty($dataEmp[0]->work_location)){
+
+						//START UPLOAD 
+						$fieldname 		= 'fpp_document';
+						$upload_path 	= "uploads/cashadvance/fpp/";
+			            $document 		= $this->uploadFiles($fieldname, $upload_path);
+			            //END UPLOAD
+
+
+						$data = [
+							'ca_number' 	=> $nextnum,
+							'ca_type' 		=> 2, //fpp
+							'request_date' 	=> $request_date,
+							'prepared_by' 	=> $islogin_employee,
+							'requested_by'	=> $requested_by,
+							'total_cost' 	=> $total_cost,
+							'document' 		=> $document,
+							'status_id' 	=> 1, //waiting approval
+							'project_id' 	=> $project,
+							'fpp_type' 			=> $fpp_type,
+							'no_rekening' 		=> $no_rekening,
+							'vendor_name' 		=> $vendor_name,
+							'invoice_number' 	=> $invoice_number,
+							'invoice_date' 		=> $invoice_date
+						];
+						$rs = $this->db->insert("cash_advance", $data);
+						$lastId = $this->db->insert_id();
+
+						if($rs){
+							if(isset($post_budget)){
+								$item_num = count($post_budget); // cek sum
+								$item_len_min = min(array_keys($post_budget)); // cek min key index
+								$item_len = max(array_keys($post_budget)); // cek max key index
+							} else {
+								$item_num = 0;
+							}
+
+							if($item_num>0){
+								for($i=$item_len_min;$i<=$item_len;$i++) 
+								{
+									if(isset($post_budget[$i])){ 
+										$itemData = [
+											'cash_advance_id'	=> $lastId,
+											'post_budget_id' 	=> $post_budget[$i],
+											'amount' 			=> $amount[$i],
+											'ppn_pph' 			=> $ppn_pph[$i],
+											'total_amount'		=> $total_amount[$i],
+											'notes' 			=> $notes[$i]
+										];
+
+										$this->db->insert('cash_advance_details', $itemData);
+									}
+								}
+							}
+
+							///insert approval path
+							$approval_type_id = 2; //Cash advance
+							$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $total_cost, $lastId);
+
+
+
+							$response = [
+					            'status'  => 200,
+					            'message' => 'Success'
+					        ];
+
+						}else{
+							$response = [
+					            'status'  => 400,
+					            'message' => 'Failed',
+					            'error'   => 'Error Submit'
+					        ];
+						}
+
+					}else{
+						
+						$response = [
+				            'status'  => 400,
+				            'message' => 'Failed',
+				            'error'   => 'Work Location not found'
+				        ];
+					}
+				}else{
+					
+					$response = [
+			            'status'  => 400,
+			            'message' => 'Failed',
+			            'error'   => 'Employee not found'
+			        ];
+				}
+
+	  		}else{
+	  			$response = [
+		            'status'  => 400,
+		            'message' => 'Failed',
+		            'error'   => 'Error Submit'
+		        ];
+	  		}
+	  		
+			
+
+    	}else if($method_save == 'update'){
+    		
+    		if(!empty($id)){ 
+				
+				//START UPLOAD 
+				$fieldname 		= 'fpp_document';
+				$upload_path 	= "uploads/cashadvance/fpp/";
+	            $document 		= $this->uploadFiles($fieldname, $upload_path);
+	            //END UPLOAD
+
+	            $getdata = $this->db->query("select * from cash_advance where id = '".$id."'")->result(); 
+				$hdndoc = $getdata[0]->document;
+
+				if($document == '' && $hdndoc != ''){
+					$document = $hdndoc;
+				}
+
+
+				$is_rfu=0;
+				
+				if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
+					$is_rfu=1;
+
+					$data = [
+						'requested_by'	=> $requested_by,
+						'total_cost' 	=> $total_cost,
+						'document' 		=> $document,
+						'updated_at'	=> date("Y-m-d H:i:s"),
+						'status_id' 	=> 1,
+						'project_id' 	=> $project,
+						'fpp_type' 			=> $fpp_type,
+						'no_rekening' 		=> $no_rekening,
+						'vendor_name' 		=> $vendor_name,
+						'invoice_number' 	=> $invoice_number,
+						'invoice_date' 		=> $invoice_date
+					];
+				}else{
+					$data = [
+						'requested_by'	=> $requested_by,
+						'total_cost' 	=> $total_cost,
+						'document' 		=> $document,
+						'updated_at'	=> date("Y-m-d H:i:s"),
+						'project_id' 	=> $project,
+						'fpp_type' 			=> $fpp_type,
+						'no_rekening' 		=> $no_rekening,
+						'vendor_name' 		=> $vendor_name,
+						'invoice_number' 	=> $invoice_number,
+						'invoice_date' 		=> $invoice_date
+					];
+				}
+
+				
+				$rs = $this->db->update("cash_advance", $data, "id = ".$id."");
+
+				if($rs){
+					/// update approval path
+					$matrix_type_id = 2;
+					$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
+					$CurrApprovalPathId	= $CurrApproval[0]->id;
+
+					if($is_rfu == 1){ 
+						$updapproval_path = [
+							'current_approval_level' => 1
+						];
+						$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
+
+						$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
+
+						$updApproval2 = [
+							'status' 		=> "",
+							'approval_by' 	=> "",
+							'approval_date'	=> ""
+						];
+						$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
+						
+					}
+
+
+
+					if(isset($post_budget)){
+						$item_num = count($post_budget); // cek sum
+						$item_len_min = min(array_keys($post_budget)); // cek min key index
+						$item_len = max(array_keys($post_budget)); // cek max key index
+					} else {
+						$item_num = 0;
+					}
+
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+							$hdnid = $id_detail[$i];
+
+							if(!empty($hdnid)){ //update
+								if(isset($post_budget[$i])){
+									$itemData = [
+										'post_budget_id'	=> $post_budget[$i],
+										'amount' 		=> $amount[$i],
+										'ppn_pph' 		=> $ppn_pph[$i],
+										'total_amount'	=> $total_amount[$i],
+										'notes' 		=> $notes[$i]
+									];
+
+									$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
+								}
+							}else{ //insert
+								if(isset($post_budget[$i])){
+									$itemData = [
+										'cash_advance_id'	=> $id,
+										'post_budget_id' 	=> $post_budget[$i],
+										'amount' 			=> $amount[$i],
+										'ppn_pph' 			=> $ppn_pph[$i],
+										'total_amount'		=> $total_amount[$i],
+										'notes' 			=> $notes[$i]
+									];
+
+									$this->db->insert('cash_advance_details', $itemData);
+								}
+							}
+						}
+					}
+
+					$response = [
+			            'status'  => 200,
+			            'message' => 'Success'
+			        ];
+
+				}else{
+					$response = [
+			            'status'  => 400,
+			            'message' => 'Failed',
+			            'error'   => 'Error Submit'
+			        ];
+				}
+
+			} else{
+				$response = [
+				    'status'  => 400,
+				    'message' => 'Failed',
+				    'error'   => 'Data not found'
+				];
+			}
+
+    	}else{
+    		$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Method Save not found'
+			];
+    	}
+
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+		
+    }
+
+
+
 
 
 }
