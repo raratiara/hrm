@@ -178,7 +178,16 @@
                                 Report
                             </a>
                             <?php
-                        } else {
+                        }
+                        else if ($this->module_name == 'hitung_summary_absen_os_menu') {
+                            ?>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportOS()">
+                                <i class="fa fa-download"></i>
+                                Report
+                            </a>
+                            <?php
+                        }
+                        else {
                             ?>
                             <a class="btn btn-default btn-sm btn-circle" id="btnEksportData">
                                 <i class="fa fa-download"></i>
@@ -211,7 +220,11 @@
                             <?php
                             if ($this->module_name == 'absensi_menu') {
                                 ?>Check-IN<?php
-                            } else {
+                            }
+                            else if ($this->module_name == 'hitung_summary_absen_os_menu') {
+                                ?>Hitung Absen<?php
+                            }
+                            else {
                                 ?>Add Data<?php
                             }
                             ?>
