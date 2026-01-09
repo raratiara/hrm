@@ -441,10 +441,24 @@ class Lembur_menu_model extends MY_Model
 						$end = strtotime($datetime_end);
 
 						$selisihDetik = $end - $start;
-						$num_of_hour = floor($selisihDetik / 3600);
+
+						// total menit
+						$totalMenit = floor($selisihDetik / 60);
+
+						// aturan lembur (dibulatkan keatas)
+						if ($totalMenit < 30) {
+						    $num_of_hour = 0;
+						} else {
+						    $num_of_hour = ceil($totalMenit / 60);
+						}
+
+
+						//$num_of_hour = floor($selisihDetik / 3600);
 						/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-						$biaya='50000';
+						$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result(); 
+
+						$biaya=$getbiaya[0]->value;
 						$amount = $num_of_hour*$biaya;
 
 
@@ -528,10 +542,24 @@ class Lembur_menu_model extends MY_Model
 					$end = strtotime($datetime_end);
 
 					$selisihDetik = $end - $start;
-					$num_of_hour = floor($selisihDetik / 3600);
+
+					// total menit
+					$totalMenit = floor($selisihDetik / 60);
+
+					// aturan lembur (dibulatkan keatas)
+					if ($totalMenit < 30) {
+					    $num_of_hour = 0;
+					} else {
+					    $num_of_hour = ceil($totalMenit / 60);
+					}
+
+
+					//$num_of_hour = floor($selisihDetik / 3600);
 					/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-					$biaya='50000';
+					$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result(); 
+					
+					$biaya = $getbiaya[0]->value;
 					$amount = $num_of_hour*$biaya;
 
 					$data = [

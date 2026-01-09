@@ -20,6 +20,14 @@ function expire()
 /* open add form modal */
 $( "#btnAddData" ).on('click', function(){
 	var module_name = '<?=$this->module_name?>'; 
+
+	if(module_name == 'hitung_summary_absen_os_menu'){
+		document.getElementById("inp_is_all_employee").style.display = "block";
+		document.getElementById("inpEmp").style.display = "none";
+		document.getElementById("inputEmployee").style.display = "none";
+
+	}
+
 	if(module_name == 'request_recruitment_menu'){
 		document.getElementById("btnDraft").style.display = "";
 		document.getElementById("submit-data").style.display = "";
