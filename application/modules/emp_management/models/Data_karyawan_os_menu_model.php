@@ -2,10 +2,10 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 				
-class Data_karyawan_menu_model extends MY_Model
+class Data_karyawan_os_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "emp_management/data_karyawan_menu";
+ 	protected $folder_name				= "emp_management/data_karyawan_os_menu";
  	protected $table_name 				= _PREFIX_TABLE."employees";
  	protected $primary_key 				= "id";
 
@@ -47,7 +47,7 @@ class Data_karyawan_menu_model extends MY_Model
 
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name
-			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id where a.emp_source != "outsource"
+			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id where a.emp_source = "outsource"
 			'.$whr.' )dt';
 		
 
