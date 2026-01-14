@@ -11,11 +11,12 @@
 	</div>
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gender</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Source</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="gender"></span>
+				: <span class="emp_source"></span>
 			</div>
 		</div>
+		
 	</div>
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
@@ -30,9 +31,21 @@
 				: <span class="phone"></span>
 			</div>
 		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Is Tracking</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="is_tracking"></span>
+			</div>
+		</div>
 		
 	</div>
 	<div class="col-md-6 col-sm-12 col-xs-12">
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gender</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="gender"></span>
+			</div>
+		</div>
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">NickName</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
@@ -96,18 +109,6 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No NPWP</label>
-					<div class="col-md-5 col-sm-5 col-xs-5">
-						: <span class="no_npwp"></span>
-					</div>
-				</div>
-				<div class="row" id="view_foto_npwp" style="display: none;">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
-					<div class="col-md-5 col-sm-5 col-xs-5">
-						<span class="foto_npwp"></span>
-					</div>
-				</div>
-				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">SIM A</label>
 					<div class="col-md-5 col-sm-5 col-xs-5">
 						: <span class="sim_a"></span>
@@ -119,6 +120,31 @@
 						<span class="foto_sima"></span>
 					</div>
 				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS Ketenagakerjaan</label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						: <span class="no_bpjs_ketenagakerjaan"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_bpjs_ketenagakerjaan" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_bpjs_ketenagakerjaan"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No NPWP</label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						: <span class="no_npwp"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_npwp" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_npwp"></span>
+					</div>
+				</div>
+				
 			</div>
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
@@ -141,18 +167,6 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS</label>
-					<div class="col-md-5 col-sm-5 col-xs-5">
-						: <span class="no_bpjs"></span>
-					</div>
-				</div>
-				<div class="row" id="view_foto_bpjs" style="display: none;">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
-					<div class="col-md-5 col-sm-5 col-xs-5">
-						<span class="foto_bpjs"></span>
-					</div>
-				</div>
-				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">SIM C</label>
 					<div class="col-md-5 col-sm-5 col-xs-5">
 						: <span class="sim_c"></span>
@@ -164,6 +178,19 @@
 						<span class="foto_simc"></span>
 					</div>
 				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS Kesehatan</label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						: <span class="no_bpjs"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_bpjs" style="display: none;">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						<span class="foto_bpjs"></span>
+					</div>
+				</div>
+				
 			</div>
 
 		</div>

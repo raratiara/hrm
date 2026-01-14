@@ -30,6 +30,8 @@ $(document).ready(function() {
         $( "#date_of_birth" ).datepicker();
         $( "#date_of_hire" ).datepicker();
         $( "#date_permanent" ).datepicker();
+        $( "#start_pkwt" ).datepicker();
+        $( "#end_pkwt" ).datepicker();
 		
    	});
 });
@@ -220,6 +222,15 @@ function load_data()
 						$('span.file_bpjs').html('');
 					}
 
+					$('[name="hdnfotobpjs_ketenagakerjaan"]').val(data.foto_bpjs_ketenagakerjaan);
+					if(data.foto_bpjs_ketenagakerjaan != '' && data.foto_bpjs_ketenagakerjaan != null){
+						document.getElementById("form_file_bpjs_ketenagakerjaan").style.display = "";
+						$('span.file_bpjs_ketenagakerjaan').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs_ketenagakerjaan+'" width="150" height="150" >');
+					}else{
+						document.getElementById("form_file_bpjs_ketenagakerjaan").style.display = "none";
+						$('span.file_bpjs_ketenagakerjaan').html('');
+					}
+
 					$('[name="hdnfotosima"]').val(data.foto_sima);
 					if(data.foto_sima != '' && data.foto_sima != null){
 						document.getElementById("form_file_sima").style.display = "";
@@ -250,7 +261,10 @@ function load_data()
 					$('[name="date_resign_active"]').datepicker('setDate', date_resign_active);
 					var date_end_prob = dateFormat(data.date_end_probation);
 					$('[name="date_end_prob"]').datepicker('setDate', date_end_prob);
-
+					var date_of_start_pkwt = dateFormat(data.start_pkwt);
+					$('[name="start_pkwt"]').datepicker('setDate', date_of_start_pkwt);
+					var date_of_end_pkwt = dateFormat(data.end_pkwt);
+					$('[name="end_pkwt"]').datepicker('setDate', date_of_end_pkwt);
 
 					//$('[name="date_of_hire"]').val(data.date_of_hire);
 					//$('[name="date_permanent"]').val(data.date_permanent);
@@ -285,6 +299,13 @@ function load_data()
 					getRegency(data.province_id_residen,'2','selected',data.regency_id_residen);
 					getDistrict(data.regency_id_residen,data.province_id_residen,'2','selected',data.district_id_residen);
 					getVillage(data.district_id_residen,data.regency_id_residen,data.province_id_residen,'2','selected',data.village_id_residen);
+
+					$('select#customer').val(data.cust_id).trigger('change.select2');
+					getProject(data.cust_id,'selected',data.project_id);
+					$('[name="ttl_hari_kerja"]').val(data.total_hari_kerja);
+					$('[name="status_bpjs_kes"][value="'+data.status_bpjs_kesehatan+'"]').prop('checked', true);
+					$('[name="status_bpjs_ket"][value="'+data.status_bpjs_ketenagakerjaan+'"]').prop('checked', true);
+					$('[name="no_bpjs_ketenagakerjaan"]').val(data.no_bpjs_ketenagakerjaan);
 
 
 					var locate = 'table.ca-list';
@@ -412,6 +433,18 @@ function load_data()
 					$('span.job_level').html(data.job_level_name);
 					$('span.grade').html(data.grade_name);
 
+					$('span.emp_source').html(data.emp_source);
+					$('span.start_pkwt').html(data.start_pkwt);
+					$('span.end_pkwt').html(data.end_pkwt);
+					$('span.is_tracking').html(data.is_tracking_name);
+					$('span.customer').html(data.customer_name);
+					$('span.project').html(data.project_name);
+					$('span.ttl_hari_kerja').html(data.total_hari_kerja);
+					$('span.status_bpjs_kes').html(data.status_bpjs_kesehatan_desc);
+					$('span.status_bpjs_ket').html(data.status_bpjs_ketenagakerjaan_desc);
+					$('span.no_bpjs_ketenagakerjaan').html(data.no_bpjs_ketenagakerjaan);
+					
+
 
 					if(data.emp_photo != '' && data.emp_photo != null){
 						$('span.emp_photo').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.emp_photo+'" width="150" height="150" >');
@@ -450,6 +483,14 @@ function load_data()
 					}else{
 						document.getElementById("view_foto_bpjs").style.display = "none";
 						$('span.foto_bpjs').html('');
+					}
+
+					if(data.foto_bpjs_ketenagakerjaan != '' && data.foto_bpjs_ketenagakerjaan != null){
+						document.getElementById("view_foto_bpjs_ketenagakerjaan").style.display = "";
+						$('span.foto_bpjs_ketenagakerjaan').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs_ketenagakerjaan+'" width="150" height="150" >');
+					}else{
+						document.getElementById("view_foto_bpjs_ketenagakerjaan").style.display = "none";
+						$('span.foto_bpjs_ketenagakerjaan').html('');
 					}
 
 						
@@ -975,6 +1016,77 @@ $('#village1').on('change', function () {
  	}
  	
 });
+
+
+$('#customer').on('change', function () {
+    var customer = $(this).val();
+
+    $('#project')
+        .val(null)
+        .empty()
+        .append('<option value=""></option>')
+        .trigger('change.select2');
+
+    if (customer) {
+        getProject(customer);
+    }
+});
+
+
+
+function getProject(customer,selected='',idVal=''){ 
+
+	if(customer != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataProject',
+			data: { customer: customer },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					
+					var $el = $("#project");
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.msproject, function(key,value) {
+						$el.append($("<option></option>")
+				     	.attr("value", value.id).text(value.project_desc));
+					  	
+					});
+
+					if(selected=='selected'){
+						$('select#project').val(idVal).trigger('change.select2');
+					}
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
 
 
 
