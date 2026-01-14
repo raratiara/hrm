@@ -9344,6 +9344,41 @@ class Api extends API_Controller
     }
 
 
+    public function master_overtime_type()
+    { 
+    	$this->verify_token();
+
+		
+		$response = [
+			'status' 	=> 200,
+			'message' 	=> 'Success',
+			"data" 		=> [
+	            [
+	                "id"=> "1",
+	                "name"=> "Lembur hari kerja"
+	            ],
+	            [
+	                "id"=> "2",
+	                "name"=> "Masuk di hari libur"
+	            ]
+	        ]
+		];
+
+		
+
+    
+    	
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+
+    	
+    }
+
+
 
 
 }
