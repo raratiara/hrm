@@ -429,8 +429,10 @@ class Data_karyawan_menu_model extends MY_Model
 		$date_permanent 	= trim($post['date_permanent'] ?? '');
 		$date_resign_letter = trim($post['date_resign_letter'] ?? '');
 		$date_resign_active = trim($post['date_resign_active'] ?? '');
+		
 
-		$dateofHired = date("Y-m-d", strtotime($date_of_hire));
+		$dateofHired 		= date("Y-m-d", strtotime($date_of_hire));
+		
 
 		if($post['company'] == ''){
 			echo "Please fill the Company"; die();
@@ -450,12 +452,11 @@ class Data_karyawan_menu_model extends MY_Model
 				$YMdateofHired = $yearcode.$monthcode;
     		}
 
-			if($post['company'] == '2'){ //NBID
-				$lettercode 	= ('NBI'); 
-			}else if ($post['company'] == '1'){
-				$lettercode 	= ('GDI'); 
-			}else{ //selain 1 atau 2, value tidak diketahui
-				$lettercode 	= ('NNN'); 
+    		$getcomp = $this->db->query("select * from companies where id = '".$post['company']."' ")->result(); 
+			if(!empty($getcomp)){ 
+				$lettercode 	= $getcomp[0]->emp_code; 
+			}else{ //value tidak diketahui
+				$lettercode 	= 'NNN'; 
 			}
 			
 			$code = $lettercode.$YMdateofHired; 
@@ -511,6 +512,14 @@ class Data_karyawan_menu_model extends MY_Model
 				$foto_bpjs = $upload_foto_bpjs['upload_file'];
 			} else if(isset($upload_foto_bpjs['error_warning'])){
 				echo $upload_foto_bpjs['error_warning']; exit;
+			}
+
+			$upload_foto_bpjs_ketenagakerjaan = $this->upload_file($upload_dir, '1', 'foto_bpjs_ketenagakerjaan', FALSE, '', TRUE, '');
+			$foto_bpjs_ketenagakerjaan = '';
+			if($upload_foto_bpjs_ketenagakerjaan['status']){
+				$foto_bpjs_ketenagakerjaan = $upload_foto_bpjs_ketenagakerjaan['upload_file'];
+			} else if(isset($upload_foto_bpjs_ketenagakerjaan['error_warning'])){
+				echo $upload_foto_bpjs_ketenagakerjaan['error_warning']; exit;
 			}
 
 			$upload_foto_sima = $this->upload_file($upload_dir, '1', 'foto_sima', FALSE, '', TRUE, '');
@@ -600,7 +609,10 @@ class Data_karyawan_menu_model extends MY_Model
 				'foto_bpjs' 					=> $foto_bpjs,
 				'foto_sima' 					=> $foto_sima,
 				'foto_simc' 					=> $foto_simc,
-				'is_tracking' 					=> trim($post['is_tracking'] ?? '')
+				'is_tracking' 					=> trim($post['is_tracking'] ?? ''),
+				'emp_source' 					=> 'internal',
+				'foto_bpjs_ketenagakerjaan' 	=> $foto_bpjs_ketenagakerjaan,
+				'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? '')
 			];
  
 			$rs = $this->db->insert($this->table_name, $data);
@@ -811,6 +823,7 @@ class Data_karyawan_menu_model extends MY_Model
 			$hdnfotobpjs 		= trim($post['hdnfotobpjs'] ?? '');
 			$hdnfotosima 		= trim($post['hdnfotosima'] ?? '');
 			$hdnfotosimc 		= trim($post['hdnfotosimc'] ?? '');
+			$hdnfotobpjs_ketenagakerjaan = trim($post['hdnfotobpjs_ketenagakerjaan'] ?? '');
 			
 
 			$upload_emp_photo = $this->upload_file($upload_dir, '1', 'emp_photo', FALSE, '', TRUE, '');
@@ -853,6 +866,14 @@ class Data_karyawan_menu_model extends MY_Model
 				echo $upload_foto_bpjs['error_warning']; exit;
 			}
 
+			$upload_foto_bpjs_ketenagakerjaan = $this->upload_file($upload_dir, '1', 'foto_bpjs_ketenagakerjaan', FALSE, '', TRUE, '');
+			$foto_bpjs_ketenagakerjaan = '';
+			if($upload_foto_bpjs_ketenagakerjaan['status']){
+				$foto_bpjs_ketenagakerjaan = $upload_foto_bpjs_ketenagakerjaan['upload_file'];
+			} else if(isset($upload_foto_bpjs_ketenagakerjaan['error_warning'])){
+				echo $upload_foto_bpjs_ketenagakerjaan['error_warning']; exit;
+			}
+
 			$upload_foto_sima = $this->upload_file($upload_dir, '1', 'foto_sima', FALSE, '', TRUE, '');
 			$foto_sima = '';
 			if($upload_foto_sima['status']){
@@ -883,6 +904,9 @@ class Data_karyawan_menu_model extends MY_Model
 			}
 			if($foto_bpjs == '' && $hdnfotobpjs != ''){
 				$foto_bpjs = $hdnfotobpjs;
+			}
+			if($foto_bpjs_ketenagakerjaan == '' && $hdnfotobpjs_ketenagakerjaan != ''){
+				$foto_bpjs_ketenagakerjaan = $hdnfotobpjs_ketenagakerjaan;
 			}
 			if($foto_sima == '' && $hdnfotosima != ''){
 				$foto_sima = $hdnfotosima;
@@ -961,7 +985,9 @@ class Data_karyawan_menu_model extends MY_Model
 				'foto_bpjs' 					=> $foto_bpjs,
 				'foto_sima' 					=> $foto_sima,
 				'foto_simc' 					=> $foto_simc,
-				'is_tracking' 					=> trim($post['is_tracking'] ?? '')
+				'is_tracking' 					=> trim($post['is_tracking'] ?? ''),
+				'foto_bpjs_ketenagakerjaan' 	=> $foto_bpjs_ketenagakerjaan,
+				'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? '')
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -1240,7 +1266,12 @@ class Data_karyawan_menu_model extends MY_Model
 					    end) as gender_name,
 					    if(a.status_id = "1","Active","Not Active") as status_name,
 					    q.name as job_level_name,
-					    r.name as grade_name
+					    r.name as grade_name,
+					    (case when a.is_tracking = "1" then "Track anytime"
+					    when a.is_tracking = "2" then "Track during working hours"
+					    when a.is_tracking = "0" then "No tracking"
+					    else ""
+					    end) as is_tracking_name
 					FROM
 					    employees a
 					        LEFT JOIN
@@ -1313,7 +1344,7 @@ class Data_karyawan_menu_model extends MY_Model
          		$getID = $this->db->query("select id, full_name, branch_id, personal_email from employees where emp_code = '".$row[58]."'")->result();
             	$employee_id = $getID[0]->id;
 
-         		if($employee_id != ''){ echo 'tes 11'; die();
+         		if($employee_id != ''){ 
             		$data = [
 		                'full_name' 		=> trim($row[0]),
 		                'nick_name' 		=> trim($row[1]),
@@ -1511,7 +1542,8 @@ class Data_karyawan_menu_model extends MY_Model
 				                'resign_category' 		=> trim($row[54]),
 				                'resign_reason' 		=> trim($row[55]),
 				                'resign_exit_interview_feedback' => trim($row[56]),
-				                'company_id' 	=> trim($row[57])
+				                'company_id' 	=> trim($row[57]),
+				                'emp_source' 	=> 'internal'
 				            ];
 
 				            $rs = $this->db->insert($this->table_name, $data);
@@ -1613,7 +1645,11 @@ class Data_karyawan_menu_model extends MY_Model
 		}
 
 		
-		$sql = 'select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name
+		$sql = 'select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name, (case when a.is_tracking = "1" then "Track anytime"
+		    when a.is_tracking = "2" then "Track during working hours"
+		    when a.is_tracking = "0" then "No tracking"
+		    else ""
+		    end) as is_tracking_name
 			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id
 			'.$whr.'
 	   		ORDER BY a.full_name ASC

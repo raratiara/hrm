@@ -10,11 +10,12 @@
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Gender </label>
+			<label class="col-md-4 control-label no-padding-right">Emp Source </label>
 			<div class="col-md-8">
-				<?=$txtgender;?>
+				<?=$txtempsource;?>
 			</div>
 		</div>
+		
 	</div>
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
@@ -37,6 +38,12 @@
 		</div>
 	</div>
 	<div class="col-md-6 col-sm-12">
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Gender </label>
+			<div class="col-md-8">
+				<?=$txtgender;?>
+			</div>
+		</div>
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">NickName </label>
 			<div class="col-md-8">
@@ -103,22 +110,6 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">No NPWP</label>
-				<div class="col-md-5">
-					<?=$txtnonpwp;?>
-				</div>
-				<div class="col-md-3">
-					<?=$txtfotonpwp;?>
-					<input type="hidden" id="hdnfotonpwp" name="hdnfotonpwp"/>
-				</div>
-			</div>
-			<div class="form-group" id="form_file_npwp" style="display: none;">
-				<label class="col-md-4 control-label no-padding-right"> </label>
-				<div class="col-md-4">
-					<span class="file_npwp"></span>
-				</div>
-			</div>
-			<div class="form-group">
 				<label class="col-md-4 control-label no-padding-right">SIM A</label>
 				<div class="col-md-5">
 					<?=$txtsima;?>
@@ -134,6 +125,39 @@
 					<span class="file_sima"></span>
 				</div>
 			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No BPJS Ketenagakerjaan</label>
+				<div class="col-md-5">
+					<?=$txtnobpjs_ketenagakerjaan;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotobpjs_ketenagakerjaan;?>
+					<input type="hidden" id="hdnfotobpjs_ketenagakerjaan" name="hdnfotobpjs_ketenagakerjaan"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_bpjs_ketenagakerjaan" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_bpjs_ketenagakerjaan"></span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No NPWP</label>
+				<div class="col-md-5">
+					<?=$txtnonpwp;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotonpwp;?>
+					<input type="hidden" id="hdnfotonpwp" name="hdnfotonpwp"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_npwp" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_npwp"></span>
+				</div>
+			</div>
+			
 	      </div>
 
 	      <div class="col-md-6 col-sm-12">
@@ -156,22 +180,6 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">No BPJS </label>
-				<div class="col-md-5">
-					<?=$txtnobpjs;?>
-				</div>
-				<div class="col-md-3">
-					<?=$txtfotobpjs;?>
-					<input type="hidden" id="hdnfotobpjs" name="hdnfotobpjs"/>
-				</div>
-			</div>
-			<div class="form-group" id="form_file_bpjs" style="display: none;">
-				<label class="col-md-4 control-label no-padding-right"> </label>
-				<div class="col-md-4">
-					<span class="file_bpjs"></span>
-				</div>
-			</div>
-			<div class="form-group">
 				<label class="col-md-4 control-label no-padding-right">SIM C </label>
 				<div class="col-md-5">
 					<?=$txtsimc;?>
@@ -187,6 +195,23 @@
 					<span class="file_simc"></span>
 				</div>
 			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No BPJS Kesehatan</label>
+				<div class="col-md-5">
+					<?=$txtnobpjs;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotobpjs;?>
+					<input type="hidden" id="hdnfotobpjs" name="hdnfotobpjs"/>
+				</div>
+			</div>
+			<div class="form-group" id="form_file_bpjs" style="display: none;">
+				<label class="col-md-4 control-label no-padding-right"> </label>
+				<div class="col-md-4">
+					<span class="file_bpjs"></span>
+				</div>
+			</div>
+			
 	      </div>
 
       </div>
@@ -256,6 +281,7 @@
 							<span class="file_emp_photo"></span>
 						</div>
 					</div>
+					
 				</div>
 
 				<div class="col-md-6 col-sm-12">
@@ -319,6 +345,7 @@
 							<span class="file_emp_sign"></span>
 						</div>
 					</div>
+					
 				</div>
 
     	</div>

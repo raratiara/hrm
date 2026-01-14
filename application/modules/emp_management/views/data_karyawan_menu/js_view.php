@@ -166,6 +166,7 @@ function load_data()
 					$('[name="no_ktp"]').val(data.no_ktp);
 					$('[name="sim_c"]').val(data.sim_c);
 					$('[name="no_bpjs"]').val(data.no_bpjs);
+					$('[name="no_bpjs_ketenagakerjaan"]').val(data.no_bpjs_ketenagakerjaan);
 					
 					$('[name="emergency_name"]').val(data.emergency_contact_name);
 					$('[name="emergency_email"]').val(data.emergency_contact_email);
@@ -218,6 +219,15 @@ function load_data()
 					}else{
 						document.getElementById("form_file_bpjs").style.display = "none";
 						$('span.file_bpjs').html('');
+					}
+
+					$('[name="hdnfotobpjs_ketenagakerjaan"]').val(data.foto_bpjs_ketenagakerjaan);
+					if(data.foto_bpjs_ketenagakerjaan != '' && data.foto_bpjs_ketenagakerjaan != null){
+						document.getElementById("form_file_bpjs_ketenagakerjaan").style.display = "";
+						$('span.file_bpjs_ketenagakerjaan').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs_ketenagakerjaan+'" width="150" height="150" >');
+					}else{
+						document.getElementById("form_file_bpjs_ketenagakerjaan").style.display = "none";
+						$('span.file_bpjs_ketenagakerjaan').html('');
 					}
 
 					$('[name="hdnfotosima"]').val(data.foto_sima);
@@ -377,6 +387,7 @@ function load_data()
 					$('span.no_ktp').html(data.no_ktp);
 					$('span.sim_c').html(data.sim_c);
 					$('span.no_bpjs').html(data.no_bpjs);
+					$('span.no_bpjs_ketenagakerjaan').html(data.no_bpjs_ketenagakerjaan);
 					$('span.date_of_birth').html(data.date_of_birth);
 					$('span.address2').html(data.address_2);
 					$('span.date_of_hire').html(data.date_of_hire);
@@ -411,6 +422,8 @@ function load_data()
 					$('span.status').html(data.status_name);
 					$('span.job_level').html(data.job_level_name);
 					$('span.grade').html(data.grade_name);
+					$('span.emp_source').html(data.emp_source);
+					$('span.is_tracking').html(data.is_tracking_name);
 
 
 					if(data.emp_photo != '' && data.emp_photo != null){
@@ -450,6 +463,14 @@ function load_data()
 					}else{
 						document.getElementById("view_foto_bpjs").style.display = "none";
 						$('span.foto_bpjs').html('');
+					}
+
+					if(data.foto_bpjs_ketenagakerjaan != '' && data.foto_bpjs_ketenagakerjaan != null){
+						document.getElementById("view_foto_bpjs_ketenagakerjaan").style.display = "";
+						$('span.foto_bpjs_ketenagakerjaan').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs_ketenagakerjaan+'" width="150" height="150" >');
+					}else{
+						document.getElementById("view_foto_bpjs_ketenagakerjaan").style.display = "none";
+						$('span.foto_bpjs_ketenagakerjaan').html('');
 					}
 
 						

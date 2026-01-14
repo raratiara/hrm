@@ -138,6 +138,7 @@ class Data_karyawan_menu extends MY_Controller
 		$field['selgrade'] 			= $this->self_model->return_build_select2me($msgrade,'','','','grade','grade','','','id','name',' ','','','',1,'-');
 
 		$field['txtshifttype'] 			= $this->self_model->return_build_radio('', [['Reguler','Reguler'],['Shift','Shift']], 'shift_type', '', 'inline');
+		
 
 		$field['txtfotoktp'] 			= $this->self_model->return_build_fileinput('foto_ktp','foto_ktp');
 		$field['txtfotonpwp'] 			= $this->self_model->return_build_fileinput('foto_npwp','foto_npwp');
@@ -147,7 +148,10 @@ class Data_karyawan_menu extends MY_Controller
 		
 		$field['txtistracking'] 		= $this->self_model->return_build_radio('', [['1','Track anytime'],['2','Track during working hours'],['0','No tracking']], 'is_tracking', '', 'inline');
 
-
+		$field['txtempsource'] 			= $this->self_model->return_build_radio('internal', [['internal','Internal','disabled'],['outsource','Outsource','disabled']], 'emp_source', '', 'inline');
+		
+		$field['txtnobpjs_ketenagakerjaan'] 	= $this->self_model->return_build_txt('','no_bpjs_ketenagakerjaan','no_bpjs_ketenagakerjaan');
+		$field['txtfotobpjs_ketenagakerjaan'] 	= $this->self_model->return_build_fileinput('foto_bpjs_ketenagakerjaan','foto_bpjs_ketenagakerjaan');
 
 		
 		return $field;
@@ -387,6 +391,8 @@ class Data_karyawan_menu extends MY_Controller
             redirect('emp_management/data_karyawan_menu');
         }
     }
+
+
 
 
 
