@@ -454,12 +454,11 @@ class Data_karyawan_os_menu_model extends MY_Model
 				$YMdateofHired = $yearcode.$monthcode;
     		}
 
-			if($post['company'] == '2'){ //NBID
-				$lettercode 	= ('NBI'); 
-			}else if ($post['company'] == '1'){
-				$lettercode 	= ('GDI'); 
-			}else{ //selain 1 atau 2, value tidak diketahui
-				$lettercode 	= ('NNN'); 
+			$getcomp = $this->db->query("select * from companies where id = '".$post['company']."' ")->result(); 
+			if(!empty($getcomp)){ 
+				$lettercode 	= $getcomp[0]->emp_code; 
+			}else{ //value tidak diketahui
+				$lettercode 	= 'NNN'; 
 			}
 			
 			$code = $lettercode.$YMdateofHired; 
@@ -782,7 +781,7 @@ class Data_karyawan_os_menu_model extends MY_Model
 					'username'		=> $username,
 					'passwd' 		=> $password,
 					'id_karyawan'	=> $lastId,
-					'id_groups' 	=> 3, //user
+					'id_groups' 	=> 5, //user outsource
 					'base_menu'		=> 'role',
 					'id_branch'		=> trim($post['branch']),
 					'isaktif' 		=> 2,
