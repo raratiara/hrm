@@ -300,9 +300,18 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
   		if(!empty($post['penggajian_month']) && !empty($post['penggajian_year']) && !empty($period_start) && !empty($period_end)){ 
   			$where_date = " and (date_attendance between '".$period_start."' and '".$period_end."')";
 
-  			if ($post['is_all_employee'] == 'Tidak') {
+  			/*if ($post['is_all_employee'] == 'Tidak') {
 			    if (!empty($post['employeeIds']) && is_array($post['employeeIds'])) {
 			        $this->db->where_in('id', $post['employeeIds']);
+			    }
+			}*/
+			if ($post['is_all_project'] == 'Karyawan') {
+			    if (!empty($post['employeeIds']) && is_array($post['employeeIds'])) {
+			        $this->db->where_in('id', $post['employeeIds']);
+			    }
+			}else if ($post['is_all_project'] == 'Sebagian') {
+			    if (!empty($post['projectIds']) && is_array($post['projectIds'])) {
+			        $this->db->where_in('project_id', $post['projectIds']);
 			    }
 			}
 
@@ -627,6 +636,218 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 		return $dataX;
 
+	}
+
+
+	public function getNewAbsenOSRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getAbsenOSRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_hari_kerja','ttl_hari_kerja','ttl_hari_kerja','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid" name="hdnid" value=""/></td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_masuk','ttl_masuk','ttl_masuk','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_ijin','ttl_ijin','ttl_ijin','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_cuti','ttl_cuti','ttl_cuti','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_alfa','ttl_alfa','ttl_alfa','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_lembur','ttl_lembur','ttl_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_jam_kerja','ttl_jam_kerja','ttl_jam_kerja','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_jam_lembur','ttl_jam_lembur','ttl_jam_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del_fpp(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
+		}
+
+		return $data;
+	} 
+	
+	// Generate expenses item rows for edit & view
+	public function getAbsenOSRows($id,$view,$print=FALSE){ 
+
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from summary_absen_outsource where id = '".$id."' ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			foreach ($rd as $f){
+				$no = $row+1;
+				
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_hari_kerja,'ttl_hari_kerja','ttl_hari_kerja','ttl_hari_kerja','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid" name="hdnid" value="'.$f->id.'"/></td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'ttl_masuk','ttl_masuk','ttl_masuk','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_ijin,'ttl_ijin','ttl_ijin','ttl_ijin','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_cuti,'ttl_cuti','ttl_cuti','ttl_cuti','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa','ttl_alfa','ttl_alfa','text-align: right;','data-id="'.$row.'" onkeyup="set_total_amount2_fpp(this)" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur','ttl_lembur','ttl_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'ttl_jam_kerja','ttl_jam_kerja','ttl_jam_kerja','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'ttl_jam_lembur','ttl_jam_lembur','ttl_jam_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					
+					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
+					$dt .= '<td>'.$f->total_masuk.'</td>';
+					$dt .= '<td>'.$f->total_ijin.'</td>';
+					$dt .= '<td>'.$f->total_cuti.'</td>';
+					$dt .= '<td>'.$f->total_alfa.'</td>';
+					$dt .= '<td>'.$f->total_lembur.'</td>';
+					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
+					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
+	}
+
+
+
+	public function getAbsenProject($project, $bln, $thn){ 
+
+		$rs = $this->db->query("select a.*, b.project_id from summary_absen_outsource a 
+								left join employees b on b.id = a.emp_id
+								where a.bulan = '".$bln."' and a.tahun = '".$thn."' and b.project_id = '".$project."'")->result(); 
+
+		/*$rs = $this->db->query("select a.emp_code, a.full_name, b.* from employees a 
+			left join summary_absen_outsource b on b.emp_id = a.id and b.bulan = '".$bln."' and b.tahun = '".$thn."'
+			where a.emp_source = 'outsource' and a.project_id = '".$project."'
+			and a.status_id = 1 ")->result(); */
+
+		
+
+		return $rs;
+
+	}
+
+
+	public function getNewEditAbsenRow($row,$id=0,$bln,$thn,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getEditAbsenRow($id,$bln,$thn,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+
+			$data 	.= '<td>No Data</td>';
+
+			
+		}
+
+		return $data;
+	} 
+	
+	// Generate expenses item rows for edit & view
+	public function getEditAbsenRow($id,$bln,$thn,$view,$print=FALSE){ 
+
+		$dt = ''; 
+		
+		$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.* from employees a 
+								left join summary_absen_outsource b on b.emp_id = a.id and b.bulan = '".$bln."' and b.tahun = '".$thn."'
+								where a.emp_source = 'outsource' and a.project_id = '".$id."'
+								and a.status_id = 1 ")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			foreach ($rd as $f){
+				$no = $row+1;
+				
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$f->emp_code.'</td>';
+					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_hari_kerja,'ttl_hari_kerja_edit['.$row.']','','ttl_hari_kerja_edit','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_edit" name="hdnid_edit['.$row.']" value="'.$f->id.'"/></td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'ttl_masuk_edit['.$row.']','','ttl_masuk_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_ijin,'ttl_ijin_edit['.$row.']','','ttl_ijin_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_cuti,'ttl_cuti_edit['.$row.']','','ttl_cuti_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa_edit['.$row.']','','ttl_alfa_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur_edit['.$row.']','','ttl_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'ttl_jam_kerja_edit['.$row.']','','ttl_jam_kerja_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'ttl_jam_lembur_edit['.$row.']','','ttl_jam_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					
+					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
+					$dt .= '<td>'.$f->total_masuk.'</td>';
+					$dt .= '<td>'.$f->total_ijin.'</td>';
+					$dt .= '<td>'.$f->total_cuti.'</td>';
+					$dt .= '<td>'.$f->total_alfa.'</td>';
+					$dt .= '<td>'.$f->total_lembur.'</td>';
+					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
+					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
 	}
 
 }

@@ -231,6 +231,20 @@
 
                         </a>
                     <?php } ?>
+
+                    <?php if (_USER_ACCESS_LEVEL_UPDATE == "1") { ?>
+
+                        <a class="btn btn-default btn-sm btn-circle" id="btnEditPerProject">
+                            <i class="fa fa-pencil"></i>
+                            <?php
+                            if ($this->module_name == 'hitung_summary_absen_os_menu') {
+                                ?>Edit Perhitungan per Project<?php
+                            }
+                            ?>
+
+                        </a>
+                    <?php } ?>
+
                     <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
 
                         <a class="btn btn-default btn-sm btn-circle" id="btnBulkData">

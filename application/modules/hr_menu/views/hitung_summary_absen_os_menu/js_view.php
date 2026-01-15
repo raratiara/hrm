@@ -6,6 +6,44 @@
 
 
 
+<div id="modal-rekapitulasi-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rekapitulasi-data" aria-hidden="true" style="padding-left: 600px">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:80%; text-align:center;">
+			<form class="form-horizontal" id="frmRekapitulasiData">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Rekapitulasi 
+				</div>
+			</div>
+
+			<div class="modal-body" style="min-height:100px; margin:10px">
+				<p class="text-center">Apakah anda yakin akan merekapitulasi data absen ini?</p>
+				<div class="form-group">
+					<input type="hidden" name="id" id="id" value="">
+					
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				<button class="btn blue" id="submit-rfu-data" onclick="save_rekapitulasi()">
+					<i class="fa fa-check"></i>
+					Ya
+				</button>
+				<button class="btn blue" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Tidak
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
 
 <div id="modal-report-data-os" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-data-os" aria-hidden="true">
 	<div class="vertical-alignment-helper">
@@ -56,6 +94,8 @@ $(document).ready(function() {
    	$('input[name="period_start"]').datepicker();
    	$('input[name="period_end"]').datepicker();
    	//$('input[name="perioddate"]').daterangepicker();
+   	$('input[name="period_start_edit"]').datepicker();
+   	$('input[name="period_end_edit"]').datepicker();
    	
    	
 });
@@ -284,10 +324,51 @@ function load_data()
 					$('[name="period_end"]').datepicker('setDate', tgl_end);
 
 					
-					document.getElementById("inp_is_all_employee").style.display = "none";
+					/*document.getElementById("inp_is_all_employee").style.display = "none";*/
+					document.getElementById("inp_is_all_project").style.display = "none";
 					document.getElementById("inputEmployee").style.display = "none";
+					document.getElementById("inputProject").style.display = "none";
+					
 					document.getElementById("inpEmp").style.display = "block";
 					$('span.employee_name').html(data.full_name);
+
+					
+					document.getElementById("inpAbsenOS").style.display = "block";
+					document.getElementById("inpAbsenOS_edit").style.display = "none";
+
+					var locate = 'table.absenos-list';
+					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id },success: function (response) { 
+							var obj = JSON.parse(response); console.log(obj);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+
+					// Create a new button
+					var submitBtn = document.getElementById('submit-data');
+					if (!document.getElementById('idbtnRekapitulasi')) {
+						var rekapitulasiButton = document.createElement('button');
+						rekapitulasiButton.innerText = 'Rekapitulasi';
+						rekapitulasiButton.className = 'btn btn-success btnRekapitulasi';
+						rekapitulasiButton.id = 'idbtnRekapitulasi';
+						// Append the button to the footer
+						/*modalFooter.appendChild(rfuButton);*/
+						// Sisipkan setelah Save
+    					/*submitBtn.insertAdjacentElement('afterend', rekapitulasiButton);*/
+    					submitBtn.insertAdjacentElement('beforebegin', rekapitulasiButton);
+
+
+						rekapitulasiButton.addEventListener('click', function() {
+							$('#modal-rekapitulasi-data').modal('show');
+							$('[name="id"]').val(data.id);
+						});
+					}
 				
 					
 					$.uniform.update();
@@ -300,6 +381,22 @@ function load_data()
 					$('span.period_start').html(data.tgl_start);
 					$('span.period_end').html(data.tgl_end);
 					$('span.employee').html(data.full_name);
+
+					document.getElementById("inpAbsenOSView").style.display = "block";
+					document.getElementById("inpAbsenOS_edit").style.display = "none";
+
+					var locate = 'table.absenos-list-view';
+					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 				
 					
 					$('#modal-view-data').modal('show');
@@ -350,7 +447,7 @@ function dateFormat(tanggal) {
 }
 
 
-document.querySelectorAll('input[name="is_all_employee"]').forEach(function(radio) {
+/*document.querySelectorAll('input[name="is_all_employee"]').forEach(function(radio) {
   radio.addEventListener('click', function() {
   	
 	  	if(this.value == 'Tidak'){
@@ -360,7 +457,284 @@ document.querySelectorAll('input[name="is_all_employee"]').forEach(function(radi
 	  	}
     
   });
+});*/
+
+document.querySelectorAll('input[name="is_all_project"]').forEach(function(radio) {
+  radio.addEventListener('click', function() {
+  	
+	  	if(this.value == 'Karyawan'){
+	  		document.getElementById("inputEmployee").style.display = "block";
+	  		document.getElementById("inputProject").style.display = "none";
+	  	}else if(this.value == 'Sebagian'){
+	  		document.getElementById("inputProject").style.display = "block";
+	  		document.getElementById("inputEmployee").style.display = "none";
+	  	}else{
+	  		document.getElementById("inputEmployee").style.display = "none";
+	  		document.getElementById("inputProject").style.display = "none";
+	  	}
+    
+  });
 });
 
+
+
+function save_rekapitulasi(){
+	var id = $("#id").val();
+	var penggajian_month 	= $("#penggajian_month").val();
+	var penggajian_year 	= $("#penggajian_year").val();
+	var period_start 		= $("#period_start").val();
+	var period_end 			= $("#period_end").val();
+	var ttl_hari_kerja 		= $("#ttl_hari_kerja").val();
+	var ttl_masuk 			= $("#ttl_masuk").val();
+	var ttl_ijin 			= $("#ttl_ijin").val();
+	var ttl_cuti 			= $("#ttl_cuti").val();
+	var ttl_alfa 			= $("#ttl_alfa").val();
+	var ttl_lembur 			= $("#ttl_lembur").val();
+	var ttl_jam_kerja 		= $("#ttl_jam_kerja").val();
+	var ttl_jam_lembur 		= $("#ttl_jam_lembur").val();
+
+
+
+	$('#modal-rekapitulasi-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/rekapitulasi',
+			data: { id: id, penggajian_month: penggajian_month, penggajian_year: penggajian_year, period_start: period_start, period_end: period_end, ttl_hari_kerja: ttl_hari_kerja, ttl_masuk: ttl_masuk, ttl_ijin: ttl_ijin, ttl_cuti: ttl_cuti, ttl_alfa: ttl_alfa, ttl_lembur: ttl_lembur, ttl_jam_kerja: ttl_jam_kerja, ttl_jam_lembur: ttl_jam_lembur},
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+	        	
+				if(data != false){ 	
+					alert("Data berhasil di rekapitulasi.");
+				} else { 
+					alert("Data gagal di rekapitulasi!");
+				}
+
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+	}else{
+		alert("Data tidak ditemukan!");
+	}
+
+	location.reload();
+
+
+}
+
+
+
+$('#project_edit').on('change', function () { 
+ 	var project = $("#project_edit option:selected").val();
+ 	var bln 	= $("#penggajian_month_edit option:selected").val();
+	var thn 	= $("#penggajian_year_edit").val();
+ 	
+ 	if(project != '' && bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getAbsenProject',
+			data: { project: project, bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					document.getElementById("inpAbsenOS_edit").style.display = "block";
+
+					var locate = 'table.absenos_edit-list';
+					$.ajax({type: 'post',url: module_path+'/geneditabsenrow',data: { project: project, bln: bln, thn: thn },success: function (response) {
+						var obj = JSON.parse(response);
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+				} else {  
+					document.getElementById("inpAbsenOS_edit").style.display = "none";
+					alert("Data Absen di data Project, Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Absen terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+
+$('#penggajian_month_edit').on('change', function () { 
+ 	var project = $("#project_edit option:selected").val();
+ 	var bln 	= $("#penggajian_month_edit option:selected").val();
+	var thn 	= $("#penggajian_year_edit").val();
+ 	
+ 	if(project != '' && bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getAbsenProject',
+			data: { project: project, bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					document.getElementById("inpAbsenOS_edit").style.display = "block";
+
+					var locate = 'table.absenos_edit-list';
+					$.ajax({type: 'post',url: module_path+'/geneditabsenrow',data: { project: project, bln: bln, thn: thn },success: function (response) {
+						var obj = JSON.parse(response);
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+				} else {  
+					document.getElementById("inpAbsenOS_edit").style.display = "none";
+					alert("Data Absen di data Project, Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Absen terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+$('#penggajian_year_edit').on('keyup', function () { 
+ 	var project = $("#project_edit option:selected").val();
+ 	var bln 	= $("#penggajian_month_edit option:selected").val();
+	var thn 	= $("#penggajian_year_edit").val();
+ 	
+ 	if(project != '' && bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getAbsenProject',
+			data: { project: project, bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					document.getElementById("inpAbsenOS_edit").style.display = "block";
+
+					var locate = 'table.absenos_edit-list';
+					$.ajax({type: 'post',url: module_path+'/geneditabsenrow',data: { project: project, bln: bln, thn: thn },success: function (response) {
+						var obj = JSON.parse(response);
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+				} else {  
+					document.getElementById("inpAbsenOS_edit").style.display = "none";
+					alert("Data Absen di data Project, Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Absen terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+
+function edit_per_project() {
+    var formData = $('#frmInputDataEditProject').serialize();
+
+    $.ajax({
+        url : module_path+'/save_edit_per_project',
+        type: 'POST',
+        data: formData,
+        success: function (res) {
+		    var data = JSON.parse(res);
+
+		    if (data.status) {
+		        alert(data.message);
+		    } else {
+		        alert('Error: ' + data.message);
+		    }
+
+		    location.reload();
+		}
+    });
+}
 
 </script>

@@ -167,3 +167,131 @@
         </div>
     </div>
 </div>
+
+
+
+
+<!-- Modal Form Data -->
+<div id="modal-form-editperproject" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-data" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+    <div class="modal-dialog modal-full vertical-align-center">
+        <div class="modal-content">
+            <form class="form-horizontal" id="frmInputDataEditProject" enctype="multipart/form-data">
+            <div class="modal-header bg-blue bg-font-blue no-padding">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <div class="table-header">
+                    <span id="mfdata"></span> Edit Perhitungan Absen per Project
+                </div>
+            </div>
+
+            <div class="modal-body" style="min-height:100px; margin:10px">
+                <input type="hidden" name="id" value="">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="col-md-2 control-label no-padding-right">Project</label>
+                            <div class="col-md-4">
+                                <?=$selproject_edit;?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label no-padding-right">Penggajian Bulan</label>
+                            <div class="col-md-8">
+                                <?=$selmonth_edit;?>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-md-4 control-label no-padding-right">Periode Absen Start</label>
+                            <div class="col-md-8">
+                                <?=$txtperiodstart_edit;?>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label class="col-md-4 control-label no-padding-right">Tahun</label>
+                            <div class="col-md-8">
+                                <?=$txtyear_edit;?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-4 control-label no-padding-right">End </label>
+                            <div class="col-md-8">
+                                <?=$txtperiodend_edit;?>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+
+
+
+
+                <div class="row absenos_edit" id="inpAbsenOS_edit" style="display:none;">
+                    <div class="col-md-12">
+                        <div class="portlet box">
+                            <div class="portlet-title">
+                                <div class="caption">Details </div>
+                                <div class="tools">
+                                   
+                                </div>
+                            </div>
+                            <div class="portlet-body">
+                                <div class="table-scrollable tablesaw-cont">
+                                <table class="table table-striped table-bordered table-hover absenos_edit-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenOSEdit">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">NIK</th>
+                                            <th scope="col">Karyawan</th>
+                                            <th scope="col">Total Hari Kerja</th>
+                                            <th scope="col">Total Masuk</th>
+                                            <th scope="col">Total Ijin</th>
+                                            <th scope="col">Total Cuti</th>
+                                            <th scope="col">Total Alfa</th>
+                                            <th scope="col">Total Lembur</th>
+                                            <th scope="col">Total Jam Kerja</th>
+                                            <th scope="col">Total Jam Lembur</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                    </tbody>
+                                    <tfoot>
+                                    </tfoot>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                                
+            </div>
+            </form>
+
+            <div class="modal-footer no-margin-top">
+                <span class="act-container-btn">
+                    <button class="btn btn-info" id="submit-data" onclick="edit_per_project()">
+                        <i class="fa fa-check"></i>
+                        Update
+                    </button>
+                    <button class="btn" onclick="reset()">
+                        <i class="fa fa-undo"></i>
+                        Reset
+                    </button>
+                </span>
+                <button class="btn red" data-dismiss="modal">
+                    <i class="fa fa-times"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
