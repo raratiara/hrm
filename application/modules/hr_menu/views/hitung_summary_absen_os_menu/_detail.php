@@ -40,3 +40,41 @@
 		
 	</div>
 </div>
+
+
+
+<div class="row absenosview" id="inpAbsenOSView" style="display:none;">
+    <div class="col-md-12">
+		<div class="portlet box">
+			<div class="portlet-title">
+				<div class="caption">Details </div>
+				<div class="tools">
+					<!-- <input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addabsenosrow" value="Add Row" /> -->
+				</div>
+			</div>
+			<div class="portlet-body">
+				<div class="table-scrollable tablesaw-cont">
+				<table class="table table-striped table-bordered table-hover absenos-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenOS">
+					<thead>
+						<tr>
+							<th scope="col">Total Hari Kerja</th>
+							<th scope="col">Total Masuk</th>
+							<th scope="col">Total Ijin</th>
+							<th scope="col">Total Cuti</th>
+							<th scope="col">Total Alfa</th>
+							<th scope="col">Total Lembur</th>
+							<th scope="col">Total Jam Kerja</th>
+							<th scope="col">Total Jam Lembur</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

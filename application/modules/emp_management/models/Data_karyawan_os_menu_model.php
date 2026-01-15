@@ -1289,9 +1289,11 @@ class Data_karyawan_os_menu_model extends MY_Model
 					    else ""
 					    end) as is_tracking_name,
 					    s.name as customer_name,
-					    if(t.jenis_pekerjaan != "", 
-						concat(t.code," (",t.lokasi," - ",t.jenis_pekerjaan,")"), 
-						concat(t.code," (",t.lokasi,")")) as project_name,
+					    (case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
+						when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
+						when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
+						else code end
+						) as project_name
 						(case when a.status_bpjs_kesehatan = "ditanggung_pribadi" then "Ditanggung Pribadi"
 					    when a.status_bpjs_kesehatan = "ditanggung_perusahaan" then "Ditanggung Perusahaan"
 					    else ""
@@ -2096,9 +2098,11 @@ class Data_karyawan_os_menu_model extends MY_Model
 	public function getDataProject($customer){ 
 
 		$rs = $this->db->query("select *, 
-								if(jenis_pekerjaan != '', 
-								concat(code,' (',lokasi,' - ',jenis_pekerjaan,')'), 
-								concat(code,' (',lokasi,')')) as project_desc
+								(case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
+								when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
+								when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
+								else code end
+								) as project_desc
 								from project_outsource 
 								where customer_id = ".$customer."
 								order by code asc")->result(); 

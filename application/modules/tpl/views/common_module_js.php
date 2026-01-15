@@ -22,9 +22,14 @@ $( "#btnAddData" ).on('click', function(){
 	var module_name = '<?=$this->module_name?>'; 
 
 	if(module_name == 'hitung_summary_absen_os_menu'){
-		document.getElementById("inp_is_all_employee").style.display = "block";
+		<!-- document.getElementById("inp_is_all_employee").style.display = "block"; -->
+		document.getElementById("inp_is_all_project").style.display = "block";
 		document.getElementById("inpEmp").style.display = "none";
 		document.getElementById("inputEmployee").style.display = "none";
+		document.getElementById("inputProject").style.display = "none";
+
+		document.getElementById("inpAbsenOS").style.display = "none";
+		document.getElementById("inpAbsenOS_edit").style.display = "none";
 
 	}
 
@@ -90,7 +95,19 @@ function edit(id)
 	idx = id;
 	reset();
 }
-<?php } ?>
+
+$( "#btnEditPerProject" ).on('click', function(){
+	var module_name = '<?=$this->module_name?>'; 
+
+	if(module_name == 'hitung_summary_absen_os_menu'){ 
+		$('#mfdata').text('Edit Perhitungan');
+		$('#modal-form-editperproject').modal('show');
+	}
+});
+
+<?php 
+
+} ?>
 
 
 <?php if  (_USER_ACCESS_LEVEL_DETAIL == "1") { ?>
