@@ -395,7 +395,7 @@ class Data_karyawan_os_menu extends MY_Controller
                 $this->session->set_flashdata('gagal', 'Terjadi kesalahan: ' . $e->getMessage());
             }
 
-            redirect('emp_management/data_karyawan_menu');
+            redirect('emp_management/data_karyawan_os_menu');
         }
     }
 

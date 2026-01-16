@@ -9,7 +9,7 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
-var modloc = '/_hrm/emp_management/data_karyawan_menu/';
+var modloc = '/_hrm/emp_management/data_karyawan_os_menu/';
 var opsForm = 'form#frmInputData';
 
 var dlocate = 'table.dca-list';
