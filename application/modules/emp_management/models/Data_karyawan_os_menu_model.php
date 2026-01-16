@@ -47,7 +47,7 @@ class Data_karyawan_os_menu_model extends MY_Model
 
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name
-			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id where a.emp_source = "outsource"
+			from employees a LEFT JOIN master_job_title_os o ON o.id = a.job_title_id where a.emp_source = "outsource"
 			'.$whr.' )dt';
 		
 
@@ -1337,7 +1337,7 @@ class Data_karyawan_os_menu_model extends MY_Model
                         LEFT JOIN
 					    districts n2 ON n2.id = a.district_id_residen
 					        LEFT JOIN
-					    master_job_title o ON o.id = a.job_title_id
+					    master_job_title_os o ON o.id = a.job_title_id
 					        LEFT JOIN
 					    employees p ON p.id = a.direct_id
 					    left join master_job_level q on q.id = a.job_level_id
@@ -1677,7 +1677,7 @@ class Data_karyawan_os_menu_model extends MY_Model
 
 		
 		$sql = 'select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name
-			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id
+			from employees a LEFT JOIN master_job_title_os o ON o.id = a.job_title_id
 			'.$whr.'
 	   		ORDER BY a.full_name ASC
 		';
