@@ -42,7 +42,7 @@ class Data_karyawan_os_menu_model extends MY_Model
 		$karyawan_id = $_SESSION['worker'];
 		$whr='';
 		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' and a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'" ';
+			$whr=' and (a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'") ';
 		}
 
 		$sIndexColumn = $this->primary_key;
@@ -1289,11 +1289,11 @@ class Data_karyawan_os_menu_model extends MY_Model
 					    else ""
 					    end) as is_tracking_name,
 					    s.name as customer_name,
-					    (case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
-						when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
-						when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
-						else code end
-						) as project_name
+					    (case when t.jenis_pekerjaan != "" and t.lokasi != "" then concat(t.code," (",t.lokasi," - ",t.jenis_pekerjaan,")")
+						when t.jenis_pekerjaan != "" and t.lokasi = "" then concat(t.code," (",t.jenis_pekerjaan,")")
+						when t.lokasi != "" and t.jenis_pekerjaan = "" then concat(t.code," (",t.lokasi,")")
+						else t.code end
+						) as project_name,
 						(case when a.status_bpjs_kesehatan = "ditanggung_pribadi" then "Ditanggung Pribadi"
 					    when a.status_bpjs_kesehatan = "ditanggung_perusahaan" then "Ditanggung Perusahaan"
 					    else ""
@@ -2098,9 +2098,9 @@ class Data_karyawan_os_menu_model extends MY_Model
 	public function getDataProject($customer){ 
 
 		$rs = $this->db->query("select *, 
-								(case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
-								when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
-								when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
+								(case when jenis_pekerjaan != '' and lokasi != '' then concat(code,' (',lokasi,' - ',jenis_pekerjaan,')')
+								when jenis_pekerjaan != '' and lokasi = '' then concat(code,' (',jenis_pekerjaan,')')
+								when lokasi != '' and jenis_pekerjaan = '' then concat(code,' (',lokasi,')')
 								else code end
 								) as project_desc
 								from project_outsource 
