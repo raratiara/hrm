@@ -73,7 +73,7 @@ class Data_karyawan_os_menu extends MY_Controller
 		$msmaritalstatus 				= $this->db->query("select * from master_marital_status")->result(); 
 		$field['selmaritalstatus'] 		= $this->self_model->return_build_select2me($msmaritalstatus,'','','','marital_status','marital_status','','','id','name',' ','','','',3,'-');
 
-		$msworkloc 						= $this->db->query("select * from master_work_location")->result(); 
+		$msworkloc 						= $this->db->query("select * from master_work_location_outsource")->result(); 
 		$field['selworkloc'] 			= $this->self_model->return_build_select2me($msworkloc,'','','','work_loc','work_loc','','','id','name',' ','','','',3,'-');
 
 		$mseducation 					= $this->db->query("select * from master_education")->result(); 
@@ -98,7 +98,7 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['selvillage1'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village1','village1','village1','','id','name',' ','','','',3,'-');
 		$field['selvillage2'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village2','village2','village2','','id','name',' ','','','',3,'-');
 
-		$msjobtitle 					= $this->db->query("select * from master_job_title")->result(); 
+		$msjobtitle 					= $this->db->query("select * from master_job_title_os")->result(); 
 		$field['seljobtitle'] 			= $this->self_model->return_build_select2me($msjobtitle,'','','','job_title','job_title','','','id','name',' ','','','',3,'-');
 
 		$msdept 						= $this->db->query("select * from departments")->result(); 
