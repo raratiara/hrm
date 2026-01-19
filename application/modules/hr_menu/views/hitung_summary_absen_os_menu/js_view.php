@@ -737,4 +737,48 @@ function edit_per_project() {
     });
 }
 
+
+$('#modal-form-editperproject').on('shown.bs.modal', function () {
+  initSelect2(this);
+});
+
+
+function initSelect2(scope) {
+  $(scope).find('.select2me').each(function () {
+
+    if ($(this).hasClass("select2-hidden-accessible")) {
+      $(this).select2('destroy');
+    }
+
+    $(this).select2({
+      theme: 'bootstrap',
+      width: '100%',
+      dropdownParent: $(scope) 
+    });
+  });
+}
+
+
+function resetEditProjectForm() {
+  var modal = $('#modal-form-editperproject');
+
+  // 1. Clear input text, number, date, dll
+  modal.find('input[type="text"], input[type="number"], input[type="date"], textarea').val('');
+
+  // 2. Clear select biasa
+  modal.find('select').val('');
+
+  // 3. Clear Select2
+  modal.find('.select2me').each(function () {
+    if ($(this).hasClass('select2-hidden-accessible')) {
+      $(this).val(null).trigger('change'); // reset value + UI
+    }
+  });
+
+  // 4. (Opsional) Clear hidden id / mode edit
+  modal.find('input[type="hidden"]').val('');
+}
+
+
+
 </script>
