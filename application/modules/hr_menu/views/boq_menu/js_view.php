@@ -261,8 +261,8 @@ $('#project_boq').on('change', function () {
  		document.getElementById("divBoq").style.display = "block";
 
 		var locate = 'table.boq-list';
-		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0},success: function (response) {
-			var obj = JSON.parse(response); console.log(obj);
+		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project},success: function (response) {
+			var obj = JSON.parse(response); 
 			$(locate+' tbody').html(obj[0]);
 			
 			wcount=obj[1];
@@ -289,7 +289,7 @@ $('#customer_boq').on('change', function () {
  		document.getElementById("divBoq").style.display = "block";
 
 		var locate = 'table.boq-list';
-		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0},success: function (response) {
+		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project},success: function (response) {
 			var obj = JSON.parse(response);
 			$(locate+' tbody').html(obj[0]);
 			
@@ -304,6 +304,158 @@ $('#customer_boq').on('change', function () {
  	}
 
 });
+
+
+
+
+function parseNumber(val){
+  if(!val) return 0;
+  return parseFloat(val.toString().replace(/,/g, '')) || 0;
+}
+
+function formatNumber(num){
+  return num.toLocaleString('en-US');
+}
+
+
+function set_jumlah_harga(el){
+  let row = $(el).data('id');
+
+  let jumlah        = parseNumber($(`input[name="jumlah[${row}]"]`).val());
+  let satuan_harga  = parseNumber($(`input[name="satuan_harga[${row}]"]`).val());
+
+  let total = jumlah * satuan_harga;
+
+  $(`input[name="jumlah_harga[${row}]"]`).val(formatNumber(total));
+
+  recalcBoqTotals();
+}
+
+
+function set_jumlah_harga2(el){
+  let row = $(el).data('id');
+
+  let jumlah        = parseNumber($(`input[name="jumlah[${row}]"]`).val());
+  let satuan_harga  = parseNumber($(`input[name="satuan_harga[${row}]"]`).val());
+
+  let total = jumlah * satuan_harga;
+
+  $(`input[name="jumlah_harga[${row}]"]`).val(formatNumber(total));
+
+  recalcBoqTotals();
+}
+
+
+
+
+function recalcBoqTotals(){
+
+	let headerTotals = {};
+	let parentTotals = {};
+	let grandTotalJumlah = 0;
+	let grandTotalHarga  = 0;
+
+  	$('.boq-item').each(function(){
+
+	    let header = $(this).data('header') || '';
+	    let parent = $(this).data('parent') || '';
+
+	    let jumlahVal = parseNumber($(this).find('input[name^="jumlah["]').val());
+	    let hargaVal  = parseNumber($(this).find('input[name^="jumlah_harga["]').val());
+
+	    // parent key unik per header
+	    let parentKey = header + '||' + parent;
+
+	    if(!parentTotals[parentKey]){
+	      parentTotals[parentKey] = { jumlah: 0, harga: 0 };
+	    }
+
+	    if(!headerTotals[header]){
+	      headerTotals[header] = { jumlah: 0, harga: 0 };
+	    }
+
+	    parentTotals[parentKey].jumlah += jumlahVal;
+	    parentTotals[parentKey].harga  += hargaVal;
+
+	    headerTotals[header].jumlah += jumlahVal;
+	    headerTotals[header].harga  += hargaVal;
+
+	    grandTotalJumlah += jumlahVal;
+	    grandTotalHarga  += hargaVal;
+
+  	});
+
+	 // render ke row total parent
+  	$('.boq-total-parent').each(function(){
+
+	  let parent = $(this).data('parent') || '';
+	  let header = $(this).data('header') || '';
+
+	  let key = header + '||' + parent;
+
+	  let t = parentTotals[key] || { jumlah: 0, harga: 0 };
+
+	  // kolom ke-3 & ke-5 (index 2 dan 4)
+	  $(this).find('td:eq(1)').text(formatNumber(t.jumlah));
+	  $(this).find('td:eq(3)').text(formatNumber(t.harga));
+	});
+
+  	// render ke row total header
+  	$('.boq-total-header').each(function(){
+	    let header = $(this).data('header');
+
+	    let t = headerTotals[header] || { jumlah: 0, harga: 0 };
+
+	    $(this).find('td:eq(1)').text(formatNumber(t.jumlah));
+	    $(this).find('td:eq(3)').text(formatNumber(t.harga));
+  	});
+
+  	// render grand total
+  	$('.boq-total-all[data-type="grand"]').each(function(){
+	    $(this).find('td:eq(1)').text(formatNumber(grandTotalJumlah));
+	    $(this).find('td:eq(3)').text(formatNumber(grandTotalHarga));
+  	});
+
+  	var hdnmanagementfee_percen = $("#hdnmanagementfee_percen").val();
+  	var percen = hdnmanagementfee_percen/100;
+  	
+  	var total_management_fee = Number((percen*grandTotalHarga));
+  	$('[name="hdnmanagement_fee"]').val(total_management_fee);
+  	$('span#management_fee').html(formatNumber(total_management_fee));
+
+  	var jml_total = Number(grandTotalHarga)+Number(total_management_fee);
+  	$('[name="hdnjumlah_total"]').val(jml_total);
+  	$('span#jumlah_total').html(formatNumber(jml_total));
+
+
+
+  	var hdnppn_percen = $("#hdnppn_percen").val();
+  	var percen_ppn = hdnppn_percen/100;
+  	
+  	var total_ppn = Number((percen_ppn*jml_total));
+  	$('[name="hdnppn_harga"]').val(total_ppn);
+  	$('span#ppn_harga').html(formatNumber(total_ppn));
+
+
+
+  	var hdnpph_percen = $("#hdnpph_percen").val();
+  	var percen_pph = hdnpph_percen/100;
+  	
+  	var total_pph = Number((percen_pph*jml_total));
+  	$('[name="hdnpph_harga"]').val(total_pph);
+  	$('span#pph_harga').html(formatNumber(total_pph));
+  	
+
+
+  	var jml_grand_total = Number(jml_total)+Number(total_ppn)+Number(total_pph);
+  	$('[name="hdngrand_total"]').val(jml_grand_total);
+  	$('span#grand_total').html(formatNumber(jml_grand_total));
+  	
+  	
+
+}
+
+
 
 
 

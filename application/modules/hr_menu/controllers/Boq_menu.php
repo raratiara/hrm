@@ -15,12 +15,12 @@ class Boq_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Type","Label 1","Label 2","Title","Description","Show Date Start","Show Date End"];
+	public $tabel_header 			= ["ID","Customer","Project","Tahun"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Type","Label 1","Label 2","Title","Description","Show Date Start","Show Date End"];
-	public $colfields 				= ["id","type","label1","label2","title","description","show_date_start","show_date_end"];
+	public $colnames 				= ["ID","Customer","Project","Tahun"];
+	public $colfields 				= ["id","customer_name","project_name","tahun"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -109,6 +109,8 @@ class Boq_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
+			$customer = trim($post['customer']);
+			$project = trim($post['project']);
 
 			if(isset($post['count']))
 			{  
@@ -118,7 +120,7 @@ class Boq_menu extends MY_Controller
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewBoqRow($row,$id,$view));
+				echo json_encode($this->self_model->getNewBoqRow($row,$id,$customer,$project,$view));
 			}
 		}
 		else
