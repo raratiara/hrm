@@ -96,6 +96,10 @@ $(document).ready(function() {
    	//$('input[name="perioddate"]').daterangepicker();
    	$('input[name="period_start_edit"]').datepicker();
    	$('input[name="period_end_edit"]').datepicker();
+
+
+   	initFilterEmployee();
+
    	
    	
 });
@@ -738,12 +742,24 @@ function edit_per_project() {
 }
 
 
+function initFilterEmployee() {
+  if ($('#flemployee').hasClass('select2-hidden-accessible')) {
+    $('#flemployee').select2('destroy');
+  }
+
+  $('#flemployee').select2({
+    theme: 'bootstrap',
+    width: '100%'
+  });
+}
+
+
 $('#modal-form-editperproject').on('shown.bs.modal', function () {
   initSelect2(this);
 });
 
 
-function initSelect2(scope) {
+function initSelect2(scope) { 
   $(scope).find('.select2me').each(function () {
 
     if ($(this).hasClass("select2-hidden-accessible")) {
@@ -779,6 +795,8 @@ function resetEditProjectForm() {
   modal.find('input[type="hidden"]').val('');
 }
 
-
+$('#modal-form-data').on('hide.bs.modal', function () {
+  initFilterEmployee();
+});
 
 </script>
