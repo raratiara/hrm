@@ -127,9 +127,11 @@ function load_data()
 					$('[name="lokasi"]').val(data.name);
 					$('select#customer').val(data.cust_id).trigger('change.select2');
 					$('[name="zona_waktu"]').val(data.time_zone);
-					$('[name="selisih_waktu"]').val(data.utc_offset);
+					/*$('[name="selisih_waktu"]').val(data.utc_offset);*/
 					$('[name="latitude"]').val(data.latitude); 
 					$('[name="longitude"]').val(data.longitude); 
+
+					$('select#selisih_waktu').val(data.utc_offset).trigger('change.select2');
 					
 					
 					

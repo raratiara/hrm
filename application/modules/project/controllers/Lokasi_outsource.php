@@ -30,11 +30,14 @@ class Lokasi_outsource extends MY_Controller
 		$field['txtlokasi'] 	= $this->self_model->return_build_txt('','lokasi','lokasi');
 		$field['txtzonawaktu'] 	= $this->self_model->return_build_txt('','zona_waktu','zona_waktu');
 		$field['txtlatitude'] 	= $this->self_model->return_build_txt('','latitude','latitude');
-		$field['txtselisihwaktu'] = $this->self_model->return_build_txt('','selisih_waktu','selisih_waktu');
+		/*$field['txtselisihwaktu'] = $this->self_model->return_build_txt('','selisih_waktu','selisih_waktu');*/
 		$field['txtlongitude'] 	= $this->self_model->return_build_txt('','longitude','longitude');
 		
 		$mscust 				= $this->db->query("select *, if(code != '', concat(code,' - ',name),name) as customer_name from data_customer order by name asc")->result(); 
 		$field['seloCustomer'] 	= $this->self_model->return_build_select2me($mscust,'','','','customer','customer','','','id','customer_name',' ','','','',3,'-');
+
+		$msselisihwaktu 			= $this->db->query("select name from master_selisih_waktu order by no_urut asc")->result(); 
+		$field['selselisihwaktu'] 	= $this->self_model->return_build_select2me($msselisihwaktu,'','','','selisih_waktu','selisih_waktu','','','name','name',' ','','','',3,'-');
 		
 		
 		return $field;
