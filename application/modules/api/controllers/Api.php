@@ -487,8 +487,9 @@ class Api extends API_Controller
 		    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
 
 						$version 	= $getversion[0]->version;
-		    			$urllogo 	= $url.'/uploads/logo/'.$logo;
-
+		    			/*$urllogo 	= $url.'/uploads/logo/'.$logo;*/
+		    			$urllogo 	= $url.'/public/assets/images/logo/'.$logo;
+		    			
 		    			$data_radius = $this->db->query("select * from global_radius_location where employee_type = '".$cek_login->emp_source."' ")->result();
 		    			$location_type = $data_radius[0]->location_type ?? '-';
 		    			$radius = $data_radius[0]->radius ?? '-';
