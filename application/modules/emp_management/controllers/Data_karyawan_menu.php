@@ -146,7 +146,7 @@ class Data_karyawan_menu extends MY_Controller
 		$field['txtfotosima'] 			= $this->self_model->return_build_fileinput('foto_sima','foto_sima');
 		$field['txtfotosimc'] 			= $this->self_model->return_build_fileinput('foto_simc','foto_simc');
 		
-		$field['txtistracking'] 		= $this->self_model->return_build_radio('', [['1','Track anytime'],['2','Track during working hours'],['0','No tracking']], 'is_tracking', '', 'inline');
+		$field['txtistracking'] 		= $this->self_model->return_build_radio('', [['1','Always'],['2','Working hours'],['0','No']], 'is_tracking', '', 'inline');
 
 		$field['txtempsource'] 			= $this->self_model->return_build_radio('internal', [['internal','Internal','disabled'],['outsource','Outsource','disabled']], 'emp_source', '', 'inline');
 		
