@@ -100,9 +100,19 @@ $( "#btnEditPerProject" ).on('click', function(){
 	var module_name = '<?=$this->module_name?>'; 
 
 	if(module_name == 'hitung_summary_absen_os_menu'){ 
+
+		<!-- tutup semua dropdown aktif dulu -->
+		$('.select2me').select2('close');
+
+		<!-- clear semua field dulu -->
+    	resetEditProjectForm();
+
 		$('#mfdata').text('Edit Perhitungan');
 		$('#modal-form-editperproject').modal('show');
+
 	}
+
+
 });
 
 <?php 
