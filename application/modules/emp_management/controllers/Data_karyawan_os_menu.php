@@ -145,7 +145,7 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['txtfotosima'] 			= $this->self_model->return_build_fileinput('foto_sima','foto_sima');
 		$field['txtfotosimc'] 			= $this->self_model->return_build_fileinput('foto_simc','foto_simc');
 		
-		$field['txtistracking'] 		= $this->self_model->return_build_radio('', [['1','Track anytime'],['2','Track during working hours'],['0','No tracking']], 'is_tracking', '', 'inline');
+		$field['txtistracking'] 		= $this->self_model->return_build_radio('', [['1','Always'],['2','Working hours'],['0','No']], 'is_tracking', '', 'inline');
 
 
 		$field['txtempsource'] 			= $this->self_model->return_build_radio('outsource', [['internal','Internal','disabled'],['outsource','Outsource','disabled']], 'emp_source', '', 'inline');
@@ -156,8 +156,8 @@ class Data_karyawan_os_menu extends MY_Controller
 		$msproject 						= array();
 		$field['selproject'] 			= $this->self_model->return_build_select2me($msproject,'','','','project','project','project','','id','project_desc',' ','','','',1,'-');
 		$field['txtttlharikerja'] 		= $this->self_model->return_build_txt('','ttl_hari_kerja','ttl_hari_kerja');
-		$field['txtstatusbpjskes'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Ditanggung Pribadi'],['ditanggung_perusahaan','Ditanggung Perusahaan']], 'status_bpjs_kes', '', 'inline');
-		$field['txtstatusbpjsket'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Ditanggung Pribadi'],['ditanggung_perusahaan','Ditanggung Perusahaan']], 'status_bpjs_ket', '', 'inline');
+		$field['txtstatusbpjskes'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_kes', '', 'inline');
+		$field['txtstatusbpjsket'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_ket', '', 'inline');
 		$field['txtnobpjs_ketenagakerjaan'] = $this->self_model->return_build_txt('','no_bpjs_ketenagakerjaan','no_bpjs_ketenagakerjaan');
 		$field['txtfotobpjs_ketenagakerjaan'] = $this->self_model->return_build_fileinput('foto_bpjs_ketenagakerjaan','foto_bpjs_ketenagakerjaan');
 		

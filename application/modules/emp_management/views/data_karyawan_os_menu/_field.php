@@ -127,7 +127,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">Status BPJS Kesehatan </label>
+				<label class="col-md-4 control-label no-padding-right">BPJS Kesehatan </label>
 				<div class="col-md-8">
 					<?=$txtstatusbpjskes;?>
 				</div>
@@ -204,7 +204,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">Status BPJS Ketenagakerjaan </label>
+				<label class="col-md-4 control-label no-padding-right">BPJS Ketenagakerjaan </label>
 				<div class="col-md-8">
 					<?=$txtstatusbpjsket;?>
 				</div>
