@@ -45,7 +45,7 @@
                         <div class="table-header">
                             <span id="mfdata"></span> <!-- <?php echo $smodul; ?>  -->
                             <?php
-                            if ($this->module_name != 'absensi_menu') {
+                            if ($this->module_name != 'absensi_menu' && $this->module_name != 'absensi_os_menu') {
                                 echo $smodul;
                             }
                             ?>
