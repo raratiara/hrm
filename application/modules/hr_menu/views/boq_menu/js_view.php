@@ -429,22 +429,31 @@ function recalcBoqTotals(){
 
 
 
-  	var hdnppn_percen = $("#hdnppn_percen").val();
-  	var percen_ppn = hdnppn_percen/100;
-  	
-  	var total_ppn = Number((percen_ppn*jml_total));
-  	$('[name="hdnppn_harga"]').val(total_ppn);
-  	$('span#ppn_harga').html(formatNumber(total_ppn));
+  	var total_ppn = 0; var total_pph = 0;
+  	var with_ppn = $('#with_ppn').is(':checked');
+  	var with_pph = $('#with_pph').is(':checked');
+
+  	if(with_ppn){
+  		var hdnppn_percen = $("#hdnppn_percen").val();
+	  	var percen_ppn = hdnppn_percen/100;
+	  	
+	  	var total_ppn = Number((percen_ppn*jml_total));
+	  	$('[name="hdnppn_harga"]').val(total_ppn);
+	  	$('span#ppn_harga').html(formatNumber(total_ppn));
+  	}
 
 
+  	if(with_pph){
+  		var hdnpph_percen = $("#hdnpph_percen").val();
+	  	var percen_pph = hdnpph_percen/100;
+	  	
+	  	var total_pph = Number((percen_pph*jml_total));
+	  	$('[name="hdnpph_harga"]').val(total_pph);
+	  	$('span#pph_harga').html(formatNumber(total_pph));
+  	}
+  	
+  	
 
-  	var hdnpph_percen = $("#hdnpph_percen").val();
-  	var percen_pph = hdnpph_percen/100;
-  	
-  	var total_pph = Number((percen_pph*jml_total));
-  	$('[name="hdnpph_harga"]').val(total_pph);
-  	$('span#pph_harga').html(formatNumber(total_pph));
-  	
 
 
   	var jml_grand_total = Number(jml_total)+Number(total_ppn)+Number(total_pph);
@@ -453,6 +462,111 @@ function recalcBoqTotals(){
   	
   	
 
+}
+
+
+function set_harga_ppn(){
+  
+	var hdnppn_percen = $("#hdnppn_percen").val();
+  	var percen_ppn = hdnppn_percen/100;
+
+  	var jml_total = $("#hdnjumlah_total").val();
+  	var total_pph = $("#hdnpph_harga").val();
+
+  	
+  	var total_ppn = Number((percen_ppn*jml_total));
+  	$('[name="hdnppn_harga"]').val(total_ppn);
+  	$('span#ppn_harga').html(formatNumber(total_ppn));
+
+
+  	var jml_grand_total = Number(jml_total)+Number(total_ppn)+Number(total_pph);
+  	$('[name="hdngrand_total"]').val(jml_grand_total);
+  	$('span#grand_total').html(formatNumber(jml_grand_total));
+
+
+}
+
+
+function set_harga_pph(){
+  
+	var hdnpph_percen = $("#hdnpph_percen").val();
+  	var percen_pph = hdnpph_percen/100;
+
+  	var jml_total = $("#hdnjumlah_total").val();
+  	var total_ppn = $("#hdnppn_harga").val();
+  	
+  	var total_pph = Number((percen_pph*jml_total));
+  	$('[name="hdnpph_harga"]').val(total_pph);
+  	$('span#pph_harga').html(formatNumber(total_pph));
+
+
+  	var jml_grand_total = Number(jml_total)+Number(total_ppn)+Number(total_pph); 
+  	$('[name="hdngrand_total"]').val(jml_grand_total);
+  	$('span#grand_total').html(formatNumber(jml_grand_total));
+
+
+}
+ 
+function set_with_ppn(){
+	var isChecked = $('#with_ppn').is(':checked');
+
+    if (isChecked) { 
+        // munculkan input persen
+        /*$('#hdnppn_percen').show();*/
+        document.getElementById("hdnppn_percen").style.display = "block";
+
+        // default 11 kalau kosong
+        if ($('#hdnppn_percen').val() === '') {
+            $('#hdnppn_percen').val(11);
+        }
+
+        set_harga_ppn();
+
+    } else { 
+        // sembunyikan input persen
+        document.getElementById("hdnppn_percen").style.display = "none";
+        /*$('#hdnppn_percen').hide();*/
+        $('#hdnppn_percen').val('');
+        $('span#ppn_harga').html('');
+
+
+        // reset nilai PPN
+        $('#ppn_harga').text('0');
+        $('#hdnppn_harga').val(0);
+
+        set_harga_ppn();
+    }
+}
+
+
+function set_with_pph(){
+	var isChecked = $('#with_pph').is(':checked');
+
+    if (isChecked) { 
+        // munculkan input persen
+        /*$('#hdnppn_percen').show();*/
+        document.getElementById("hdnpph_percen").style.display = "block";
+
+        // default 11 kalau kosong
+        if ($('#hdnpph_percen').val() === '') {
+            $('#hdnpph_percen').val(11);
+        }
+
+        set_harga_pph();
+
+    } else { 
+        // sembunyikan input persen
+        document.getElementById("hdnpph_percen").style.display = "none";
+        /*$('#hdnppn_percen').hide();*/
+        $('#hdnpph_percen').val('');
+        $('span#pph_harga').html('');
+
+        // reset nilai PPN
+        $('#pph_harga').text('0');
+        $('#hdnpph_harga').val(0);
+
+        set_harga_pph();
+    }
 }
 
 
