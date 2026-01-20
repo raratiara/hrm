@@ -218,7 +218,7 @@
                         <a class="btn btn-default btn-sm btn-circle" id="btnAddData">
                             <i class="fa fa-floppy-o"></i>
                             <?php
-                            if ($this->module_name == 'absensi_menu') {
+                            if ($this->module_name == 'absensi_menu' || $this->module_name == 'absensi_os_menu') {
                                 ?>Check-IN<?php
                             }
                             else if ($this->module_name == 'hitung_summary_absen_os_menu') {
@@ -248,7 +248,7 @@
                         
                     <?php } ?>
 
-                    <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
+                    <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu" && $this->module_name != "absensi_os_menu") { ?>
 
                         <a class="btn btn-default btn-sm btn-circle" id="btnBulkData">
                             <i class="fa fa-times"></i>
@@ -266,7 +266,7 @@
                                 style="width:100%;">
                                 <thead>
                                     <tr>
-                                        <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
+                                        <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu" && $this->module_name != "absensi_os_menu") { ?>
                                             <!-- <th width="15px"><input type="checkbox" id="check-all"></th> -->
                                             <th><input type="checkbox" id="check-all"></th>
                                         <?php } ?>

@@ -75,7 +75,7 @@
                         <div class="table-header">
                             <span id="mfdata"></span> <!-- <?php echo $smodul; ?>  -->
                             <?php
-                            if ($this->module_name != 'absensi_menu') {
+                            if ($this->module_name != 'absensi_menu' && $this->module_name != 'absensi_os_menu') {
                                 echo $smodul;
                             }
                             if ($this->module_name == 'ijin_menu' || $this->module_name == 'fpu_menu' || $this->module_name == 'fpp_menu' || $this->module_name == 'settlement_menu' || $this->module_name == 'reimbursement_menu' || $this->module_name == 'lembur_menu' || $this->module_name == 'perjalanan_dinas_menu' || $this->module_name == 'training_menu' || $this->module_name == 'loan' || $this->module_name == 'hr_employee_loans' || $this->module_name == 'request_recruitment_menu') {

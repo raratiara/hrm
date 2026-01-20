@@ -50,7 +50,7 @@ $( "#btnAddData" ).on('click', function(){
 	save_method = 'add'; 
 	reset();
 	$('#mfdata').text('Add');
-	if(module_name == 'absensi_menu'){ 
+	if(module_name == 'absensi_menu' || module_name == 'absensi_os_menu'){ 
 		getLocation();
 		
 		var hdnempid = $("#hdnempid").val();

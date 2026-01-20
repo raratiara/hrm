@@ -5,7 +5,7 @@ class Boq_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "hr_menu/boq_menu";
- 	protected $table_name 				= _PREFIX_TABLE."boq";
+ 	protected $table_name 				= _PREFIX_TABLE."project_outsource_boq";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -33,7 +33,7 @@ class Boq_menu_model extends MY_Model
 					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
 					else c.code end
 					) as project_name
-					from boq a left join data_customer b on b.id = a.customer_id
+					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
 					left join project_outsource c on c.id = a.project_id)dt';
 		
 
@@ -291,7 +291,7 @@ class Boq_menu_model extends MY_Model
 								'jumlah_harga'		=> trim($post['jumlah_harga'][$i])
 							];
 
-							$this->db->insert('boq_detail', $itemData);
+							$this->db->insert('project_outsource_boq_detail', $itemData);
 						}
 					}
 				}
@@ -452,7 +452,7 @@ class Boq_menu_model extends MY_Model
 		if($id > 0){ 
 			$rs = $this->db->query("select 
 										a.*,
-										b.name AS header_name,
+										b.name AS header_name, b.id as header_id,
 										c.name AS parent_name, b.no_urut as no_urut_header, c.no_urut as no_urut_parent
 									FROM master_boq_detail a
 									LEFT JOIN master_boq_header b ON b.id = a.master_header_boq_id
@@ -466,7 +466,7 @@ class Boq_menu_model extends MY_Model
 
 			$rs = $this->db->query("select 
 										a.*,
-										b.name AS header_name,
+										b.name AS header_name, b.id as header_id,
 										c.name AS parent_name, b.no_urut as no_urut_header, c.no_urut as no_urut_parent
 									FROM master_boq_detail a
 									LEFT JOIN master_boq_header b ON b.id = a.master_header_boq_id
@@ -484,7 +484,7 @@ class Boq_menu_model extends MY_Model
 		$row = 0; 
 		if(!empty($rd)){ 
 			$rs_num = count($rd); 
-			
+			$last_header_id = '';
 			$last_header = '';
 			$last_parent = '';
 			$header_parent_count = [];
@@ -542,7 +542,7 @@ class Boq_menu_model extends MY_Model
 					        </td>';
 					$dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah).'</td>';
 					$dt .= '<td style="background:#91f560;"></td>';
-					$dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah_harga).'</td>';
+					$dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah_harga).'<input type="hidden" id="header_id" name="header_id[]" value="'.$f->header_id.'"/><input type="hidden" id="header_jumlah_harga" name="header_jumlah_harga[]" value="'.$sum_header_jumlah_harga.'"/></td>';
 					$dt .= '</tr>';
 
 					// akumulasi ke grand total
@@ -586,6 +586,7 @@ class Boq_menu_model extends MY_Model
 				         '</td>';
 				    $dt .= '</tr>';
 
+				    $last_header_id   = $f->header_id;
 				    $last_header   = $f->header_name;
 				    $last_parent   = '';
 				    $no_in_header  = 0; // reset nomor tiap ganti header
@@ -698,7 +699,7 @@ class Boq_menu_model extends MY_Model
 			            </td>';
 			    $dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah).'</td>';
 			    $dt .= '<td style="background:#91f560;"></td>';
-			    $dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah_harga).'</td>';
+			    $dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah_harga).'<input type="hidden" id="header_id" name="header_id[]" value="'.$last_header_id.'"/><input type="hidden" id="header_jumlah_harga" name="header_jumlah_harga[]" value="'.$sum_header_jumlah_harga.'"/></td>';
 			    $dt .= '</tr>';
 
 			    // akumulasi ke total semua header
