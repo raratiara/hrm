@@ -190,6 +190,7 @@ class Boq_menu_model extends MY_Model
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 			
+			$print_pdf = '<a class="btn btn-xs btn-success" style="background-color: #18a11d;" href="javascript:void(0);" onclick="print_pdf('."'".$row->id."'".')" role="button"><i class="fa fa-download"></i></a>';
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -197,6 +198,7 @@ class Boq_menu_model extends MY_Model
 					'.$detail.'
 					'.$edit.'
 					'.$delete.'
+					'.$print_pdf.'
 				</div>',
 				$row->id,
 				$row->customer_name,
@@ -263,11 +265,12 @@ class Boq_menu_model extends MY_Model
   			$data = [
 				'customer_id' 	=> trim($post['customer_boq']),
 				'project_id' 	=> trim($post['project_boq']),
-				'tahun'			=> trim($post['tahun_boq']),
+				/*'tahun'			=> trim($post['tahun_boq']),*/
 				'created_at'	=> date("Y-m-d H:i:s"),
 				'created_by' 	=> $_SESSION['worker']
 			];
 			$rs = $this->db->insert($this->table_name, $data);
+			$lastId = $this->db->insert_id();
 
 			if($rs){
 
@@ -283,12 +286,14 @@ class Boq_menu_model extends MY_Model
 					for($i=$item_len_min;$i<=$item_len;$i++) 
 					{
 						if(isset($post['hdnid_dtlboq'][$i])){
+							$jumlah_harga = str_replace(',', '', trim($post['jumlah_harga'][$i]));
+
 							$itemData = [
-								'boq_id'	=> $lastId,
+								'boq_id'			=> $lastId,
 								'ms_boq_detail_id' 	=> trim($post['hdnid_dtlboq'][$i]),
 								'jumlah' 			=> trim($post['jumlah'][$i]),
 								'harga_satuan' 		=> trim($post['satuan_harga'][$i]),
-								'jumlah_harga'		=> trim($post['jumlah_harga'][$i])
+								'jumlah_harga'		=> $jumlah_harga
 							];
 
 							$this->db->insert('project_outsource_boq_detail', $itemData);
@@ -437,6 +442,7 @@ class Boq_menu_model extends MY_Model
 		return $data;
 	} 
 	
+
 	// Generate expenses item rows for edit & view
 	public function getBoqRows($id,$customer,$project,$view,$print=FALSE){ 
 
@@ -746,21 +752,21 @@ class Boq_menu_model extends MY_Model
 
 	            $dt .= '<tr class="boq-ppn">';
 	            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
-	                        PPN 11%
+	                       <input type="checkbox" id="with_ppn" name="with_ppn" onclick="set_with_ppn()"/> &nbsp; include PPN 
 	                    </td>';
-	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;">11 % <input type="hidden" id="hdnppn_percen" name="hdnppn_percen" value="11"/></td>';
+	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="text" id="hdnppn_percen" name="hdnppn_percen" value="11" onkeyup="set_harga_ppn()" style="display:none; text-align:right" class="form-control"/></td>';
 	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
-                $dt .= '<td style="font-weight:bold;text-align:right;background:##606cf5;"><input type="hidden" id="hdnppn_harga" name="hdnppn_harga" /><span id="ppn_harga"></span></td>';
+                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="hidden" id="hdnppn_harga" name="hdnppn_harga" /><span id="ppn_harga"></span></td>';
 	            $dt .= '</tr>';
 
 
 	            $dt .= '<tr class="boq-pph">';
 	            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
-	                        PPH 23 2%
+	                        <input type="checkbox" id="with_pph" name="with_pph" onclick="set_with_pph()"/> &nbsp; incude PPH 23
 	                    </td>';
-	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;">2 % <input type="hidden" id="hdnpph_percen" name="hdnpph_percen" value="2"/></td>';
+	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="text" id="hdnpph_percen" name="hdnpph_percen" value="2" onkeyup="set_harga_pph()" style="display:none; text-align:right" class="form-control"/> </td>';
 	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
-                $dt .= '<td style="font-weight:bold;text-align:right;background:##606cf5;"><input type="hidden" id="hdnpph_harga" name="hdnpph_harga" /><span id="pph_harga"></span></td>';
+                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="hidden" id="hdnpph_harga" name="hdnpph_harga" /><span id="pph_harga"></span></td>';
 	            $dt .= '</tr>';
 
 
@@ -781,5 +787,8 @@ class Boq_menu_model extends MY_Model
 	}
 
 
+
+
+	
 
 }

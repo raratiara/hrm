@@ -9,9 +9,9 @@
 		</div>
 
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Tahun</label>
+			<label class="col-md-4 control-label no-padding-right">Periode</label>
 			<div class="col-md-8">
-				<?=$txttahun;?>
+				<?=$txtperiode;?>
 			</div>
 		</div>
 		

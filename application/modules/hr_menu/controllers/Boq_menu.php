@@ -15,11 +15,11 @@ class Boq_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Customer","Project","Tahun"];
+	public $tabel_header 			= ["ID","Customer","Project","Periode"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Customer","Project","Tahun"];
+	public $colnames 				= ["ID","Customer","Project","Periode"];
 	public $colfields 				= ["id","customer_name","project_name","tahun"];
 
 	/* Form Field Asset */
@@ -35,7 +35,7 @@ class Boq_menu extends MY_Controller
 		$field['selproject'] 		= $this->self_model->return_build_select2me($msproject,'','','','project_boq','project_boq','project_boq','','id','project_desc',' ','','','',1,'-');
 		
 
-		$field['txttahun'] 			= $this->self_model->return_build_txt('','tahun_boq','tahun_boq');
+		$field['txtperiode'] 		= $this->self_model->return_build_txt('','periode','periode','','','readonly');
 
 
 		
