@@ -137,13 +137,11 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
-					$('span.solve_date').html(data.solve_date);
+					$('span.penggajian_month_fcast').html(data.bulan_penggajian_name);
+					$('span.penggajian_year_fcast').html(data.tahun_penggajian);
+					
+
+					list_fcast_view(data.id, data.bulan_penggajian, data.tahun_penggajian, project='');
 					
 					
 					$('#modal-view-data').modal('show');
@@ -196,35 +194,103 @@ function getFormattedDateTime(inputDate) {
 }
 
 
+function resetTableFcast() {
+    $('#tblDetailListFcast tbody').html('');
+    $('#listFcast').hide(); // sekalian sembunyikan
+}
+
+
 
 $('input[name="is_all_project_fcast"]').on('change', function () {
+
     let val = $(this).val();
-    
-    var period_start = $("#period_start_fcast").val();
-    var period_end = $("#period_end_fcast").val();
+    let penggajian_month = $("#penggajian_month_fcast").val();
+    let penggajian_year  = $("#penggajian_year_fcast").val();
 
-
-    if(period_start != '' && period_end != ''){
-    	if(val === 'Sebagian'){
-	        document.getElementById("inputProject_fcast").style.display = "block";
-	    }else{
-	        document.getElementById("inputProject_fcast").style.display = "none";
-
-	        list_fcast(period_start, period_end);
-
-	    }
+    if (penggajian_month === '' || penggajian_year === '') {
+        alert('Bulan & Tahun Penggajian harap diisi terlebih dahulu');
+        $(this).prop('checked', false);
+        return;
     }
-    
+
+    // RESET setiap ganti radio
+    resetTableFcast();
+
+    if (val === 'Sebagian') {
+
+        // tampilkan select project
+        $("#inputProject_fcast").show();
+
+        // reset pilihan project
+        $('#projectIds_fcast').val(null).trigger('change');
+
+    } else {
+
+        // SEMUA
+        $("#inputProject_fcast").hide();
+
+        let project = '';
+        list_fcast(penggajian_month, penggajian_year, project);
+    }
 });
 
 
-function list_fcast(period_start, period_end){
+
+
+$('#projectIds_fcast').on('change', function () {
+
+    let val = $(this).val(); // array project_id
+
+    if (!val || val.length === 0) {
+        resetTableFcast();
+        return;
+    }
+
+    let penggajian_month = $("#penggajian_month_fcast").val();
+    let penggajian_year  = $("#penggajian_year_fcast").val();
+
+    if (penggajian_month === '' || penggajian_year === '') {
+        alert('Bulan & Tahun Penggajian harap diisi terlebih dahulu');
+        $(this).val(null).trigger('change');
+        resetTableFcast();
+        return;
+    }
+
+    list_fcast(penggajian_month, penggajian_year, val);
+});
+
+
+
+
+function list_fcast(penggajian_month, penggajian_year, project){
 
 
 	document.getElementById("listFcast").style.display = "block";
 
+
 	var locate = 'table.listfcast-list';
-	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { period_start: period_start, period_end: period_end },success: function (response) {
+	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { id:0, penggajian_month: penggajian_month, penggajian_year: penggajian_year, project: project },success: function (response) {
+		var obj = JSON.parse(response);
+		$(locate+' tbody').html(obj[0]);
+		
+		wcount=obj[1];
+	}
+	}).done(function() {
+		//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+		tSawBclear(locate);
+		///expenseviewadjust(lstatus);
+	});
+
+}
+
+
+
+function list_fcast_view(id, penggajian_month, penggajian_year, project){
+
+
+
+	var locate = 'table.listfcast-list_view';
+	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { id:id, penggajian_month: penggajian_month, penggajian_year: penggajian_year, project: project, view: true },success: function (response) {
 		var obj = JSON.parse(response);
 		$(locate+' tbody').html(obj[0]);
 		

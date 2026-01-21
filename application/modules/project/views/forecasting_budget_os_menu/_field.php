@@ -3,9 +3,9 @@
 	<div class="col-md-6 col-sm-12">
 
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Period Start</label>
+			<label class="col-md-4 control-label no-padding-right"> Bulan Penggajian</label>
 			<div class="col-md-8">
-				<?=$txtperiodstart;?>
+				<?=$sel_penggajian_bulan;?>
 			</div>
 		</div>
 		<div class="form-group" id="inp_is_all_project_fcast">
@@ -27,9 +27,9 @@
 
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Period  End</label>
+			<label class="col-md-4 control-label no-padding-right"> Tahun Penggajian</label>
 			<div class="col-md-8">
-				<?=$txtperiodend;?>
+				<?=$txt_penggajian_tahun;?>
 			</div>
 		</div>
 		
@@ -54,16 +54,14 @@
                 <table class="table table-striped table-bordered table-hover listfcast-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailListFcast">
                     <thead>
                         <tr>
+                        	<th scope="col">No</th>
                             <th scope="col">NIK</th>
                             <th scope="col">Karyawan</th>
-                            <th scope="col">Total Hari Kerja</th>
+                            <th scope="col">Project</th>
                             <th scope="col">Total Masuk</th>
-                            <th scope="col">Total Ijin</th>
-                            <th scope="col">Total Cuti</th>
-                            <th scope="col">Total Alfa</th>
+                            <th scope="col">Total Masuk (Nominal)</th>
                             <th scope="col">Total Lembur</th>
-                            <th scope="col">Total Jam Kerja</th>
-                            <th scope="col">Total Jam Lembur</th>
+                            <th scope="col">Total Lembur (Nominal)</th>
                         </tr>
                     </thead>
                     <tbody>
