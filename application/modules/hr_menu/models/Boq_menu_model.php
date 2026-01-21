@@ -22,7 +22,7 @@ class Boq_menu_model extends MY_Model
 			'dt.id',
 			'dt.customer_name',
 			'dt.project_name',
-			'dt.tahun'
+			'dt.periode'
 		];
 		
 
@@ -32,9 +32,9 @@ class Boq_menu_model extends MY_Model
 					when c.jenis_pekerjaan != "" and c.lokasi = "" then concat(c.code," (",c.jenis_pekerjaan,")")
 					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
 					else c.code end
-					) as project_name
+					) as project_name, if(c.periode_start != "" and c.periode_end != "", concat(c.periode_start," s/d ",c.periode_end),"") as periode
 					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
-					left join project_outsource c on c.id = a.project_id)dt';
+					left join project_outsource c on c.id = a.project_outsource_id)dt';
 		
 
 		/* Paging */
@@ -195,15 +195,14 @@ class Boq_menu_model extends MY_Model
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					'.$detail.'
-					'.$edit.'
+					
 					'.$delete.'
 					'.$print_pdf.'
 				</div>',
 				$row->id,
 				$row->customer_name,
 				$row->project_name,
-				$row->tahun
+				$row->periode
 
 
 			));
@@ -263,11 +262,13 @@ class Boq_menu_model extends MY_Model
   			
 
   			$data = [
-				'customer_id' 	=> trim($post['customer_boq']),
-				'project_id' 	=> trim($post['project_boq']),
-				/*'tahun'			=> trim($post['tahun_boq']),*/
+				'project_outsource_id' 	=> trim($post['project_boq']),
+				'customer' 		=> trim($post['customer_boq']),
 				'created_at'	=> date("Y-m-d H:i:s"),
-				'created_by' 	=> $_SESSION['worker']
+				'created_by' 	=> $_SESSION['worker'],
+				'ppn_percen' 	=> trim($post['hdnppn_percen']),
+				'pph_percen' 	=> trim($post['hdnpph_percen']),
+				'management_fee_percen' => trim($post['hdnmanagementfee_percen'])
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
@@ -338,7 +339,15 @@ class Boq_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select * from office_info
+		
+		$mTable = '(select a.*, b.name as customer_name, 
+					(case when c.jenis_pekerjaan != "" and c.lokasi != "" then concat(c.code," (",c.lokasi," - ",c.jenis_pekerjaan,")")
+					when c.jenis_pekerjaan != "" and c.lokasi = "" then concat(c.code," (",c.jenis_pekerjaan,")")
+					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
+					else c.code end
+					) as project_name, if(c.periode_start != "" and c.periode_end != "", concat(c.periode_start," s/d ",c.periode_end),"") as periode
+					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
+					left join project_outsource c on c.id = a.project_outsource_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -456,22 +465,25 @@ class Boq_menu_model extends MY_Model
 		$dt = ''; 
 
 		if($id > 0){ 
-			$rs = $this->db->query("select 
-										a.*,
-										b.name AS header_name, b.id as header_id,
-										c.name AS parent_name, b.no_urut as no_urut_header, c.no_urut as no_urut_parent
-									FROM master_boq_detail a
-									LEFT JOIN master_boq_header b ON b.id = a.master_header_boq_id
-									LEFT JOIN master_boq_parent_detail c ON c.id = a.parent_id
-									ORDER BY 
-										b.no_urut ASC,
-										c.no_urut ASC,
-										a.no_urut ASC ")->result(); 
+			$rs = $this->db->query("select b.master_header_boq_id, b.name, b.is_active, b.parent_id, b.no_urut, a.jumlah,
+				a.harga_satuan, a.jumlah_harga,
+				bb.name AS header_name, bb.id as header_id,
+					cc.name AS parent_name, bb.no_urut as no_urut_header, cc.no_urut as no_urut_parent
+			from project_outsource_boq_detail a
+			left join master_boq_detail b on b.id = a.ms_boq_detail_id
+			left join master_boq_header c on c.id = b.master_header_boq_id
+			LEFT JOIN master_boq_header bb ON bb.id = b.master_header_boq_id
+			LEFT JOIN master_boq_parent_detail cc ON cc.id = b.parent_id
+			where a.boq_id = '".$id."'
+			ORDER BY 
+				bb.no_urut ASC,
+				cc.no_urut ASC,
+				b.no_urut ASC ")->result(); 
 
 		}else{ 
 
 			$rs = $this->db->query("select 
-										a.*,
+										a.*, '' as jumlah, '' as jumlah_harga,
 										b.name AS header_name, b.id as header_id,
 										c.name AS parent_name, b.no_urut as no_urut_header, c.no_urut as no_urut_parent
 									FROM master_boq_detail a
@@ -501,6 +513,7 @@ class Boq_menu_model extends MY_Model
 
 			$sum_header_jumlah        = 0;
 			$sum_header_jumlah_harga = 0;
+			$gaji_pokok_parent_jumlah = 0;
 
 			$sum_all_jumlah        = 0;
 			$sum_all_jumlah_harga = 0;
@@ -627,11 +640,11 @@ class Boq_menu_model extends MY_Model
 
 					$dt .= '<td>'.$f->name.'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt('','jumlah['.$row.']','','jumlah','text-align: right;','data-id="'.$row.'" onkeyup="set_jumlah_harga(this)" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->jumlah,'jumlah['.$row.']','','jumlah','text-align: right;','data-id="'.$row.'" onkeyup="set_jumlah_harga(this)" ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($f->harga_satuan,'satuan_harga['.$row.']','','satuan_harga','text-align: right;','data-id="'.$row.'" onkeyup="set_jumlah_harga2(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt('','jumlah_harga['.$row.']','','jumlah_harga','text-align: right;','data-id="'.$row.'"  readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->jumlah_harga,'jumlah_harga['.$row.']','','jumlah_harga','text-align: right;','data-id="'.$row.'"  readonly ').'</td>';
 
 					
 					/*$dt .= '<td><input type="button" class="btn btn-md btn-danger ibtnDelBoq" id="btndelboq" value="Delete" onclick="del(\''.$row.'\',\''.$f->id.'\')"></td>';*/
@@ -667,11 +680,33 @@ class Boq_menu_model extends MY_Model
 
 
 				// akumulasi
-				$sum_parent_jumlah        	+= $jumlah_val;
+				/*$sum_parent_jumlah        	+= $jumlah_val;
 				$sum_parent_jumlah_harga 	+= $jumlah_harga_val;
 
 				$sum_header_jumlah        	+= $jumlah_val;
-				$sum_header_jumlah_harga 	+= $jumlah_harga_val;
+				$sum_header_jumlah_harga 	+= $jumlah_harga_val;*/
+
+				// ================= PARENT =================
+				$sum_parent_jumlah        += $jumlah_val;
+				$sum_parent_jumlah_harga += $jumlah_harga_val;
+
+				// ================= HEADER =================
+				if (strtoupper(trim($last_header)) === 'GAJI POKOK') {
+
+				    // KHUSUS JUMLAH saja
+				    if (strtoupper(trim($last_parent)) === 'GAJI POKOK') {
+				        $gaji_pokok_parent_jumlah += $jumlah_val;
+				    }
+
+				} else {
+
+				    // header lain normal
+				    $sum_header_jumlah += $jumlah_val;
+				}
+
+				// jumlah_harga TETAP NORMAL
+				$sum_header_jumlah_harga += $jumlah_harga_val;
+
 
 
 				
@@ -699,6 +734,15 @@ class Boq_menu_model extends MY_Model
 			}
 
 	        if ($last_header != '') {
+	        	// VALIDASI KHUSUS HEADER GAJI POKOK (JUMLAH SAJA)
+				if (strtoupper(trim($last_header)) === 'GAJI POKOK') {
+
+				    $sum_header_jumlah = $gaji_pokok_parent_jumlah;
+
+				    // reset biar header berikutnya aman
+				    $gaji_pokok_parent_jumlah = 0;
+				}
+
 	            $dt .= '<tr class="boq-total-header" data-header="'.$last_header.'">';
 			    $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#91f560;">
 			                Total '.$last_header.'
