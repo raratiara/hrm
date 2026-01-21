@@ -136,7 +136,14 @@
     </tr>
     <tr>
         <td>Periode</td>
-        <td>: <?= $header->periode ?></td>
+        <?php
+            $periode='';
+            if($header->periode_start != '' && $header->periode_end != ''){
+                $periode = $header->periode_start.' s/d '.$header->periode_end;
+            }
+
+        ?>
+        <td>: <?= $periode ?></td>
        
     </tr>
   

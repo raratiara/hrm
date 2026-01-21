@@ -155,7 +155,8 @@ class Boq_menu extends MY_Controller
 				else t.code end
 				) as project_name,
 			    b.name as customer_name,
-			    if(t.periode_start != "" and t.periode_end != "", concat(t.periode_start," s/d ",t.periode_end),"") as periode, t.management_fee
+			    t.periode_start, t.periode_end,
+			    t.management_fee
 			from project_outsource_boq a
 			left join project_outsource t on t.id = a.project_outsource_id
 			left join data_customer b on b.id = t.customer_id
