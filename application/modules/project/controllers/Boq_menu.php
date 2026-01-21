@@ -6,9 +6,9 @@ class Boq_menu extends MY_Controller
 	/* Module */
  	const  LABELMODULE				= "boq_menu"; // identify menu
  	const  LABELMASTER				= "Menu BOQ";
- 	const  LABELFOLDER				= "hr_menu"; // module folder
+ 	const  LABELFOLDER				= "project"; // module folder
  	const  LABELPATH				= "boq_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "hr_menu"; // adjusted 1st sub parent segment
+ 	const  LABELNAVSEG1				= "project"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 

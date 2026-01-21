@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Forecasting_budget_os_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "hr_menu/forecasting_budget_os_menu";
+ 	protected $folder_name				= "project/forecasting_budget_os_menu";
  	protected $table_name 				= _PREFIX_TABLE."office_info";
  	protected $primary_key 				= "id";
 
