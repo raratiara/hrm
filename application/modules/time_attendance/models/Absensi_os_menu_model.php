@@ -23,6 +23,7 @@ class Absensi_os_menu_model extends MY_Model
 			'dt.id',
 			'dt.date_attendance',
 			'dt.full_name',
+			'dt.project_name',
 			'dt.attendance_type',
 			'dt.time_in',
 			'dt.time_out',
@@ -32,12 +33,15 @@ class Absensi_os_menu_model extends MY_Model
 			'dt.is_leaving_office_early_desc',
 			'dt.num_of_working_hours',
 			'dt.holiday_flag'
-		];
+		];$karyawan_id = $_SESSION['worker'];
 		
 		$karyawan_id = $_SESSION['worker'];
-		$whr='';
-		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+
+		$whr = ' WHERE 1=1 ';
+		$whr .= ' AND (b.emp_source = "outsource" OR b.emp_source = "outsourcing") ';
+
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){
+			$whr .= ' AND (a.employee_id = "'.$karyawan_id.'" OR b.direct_id = "'.$karyawan_id.'") ';
 		}
 
 		$sIndexColumn = $this->primary_key;
@@ -61,6 +65,18 @@ class Absensi_os_menu_model extends MY_Model
 					        WHEN a.is_leaving_office_early = "Y" THEN "Leaving Office Early"
 					        ELSE ""
 					     END) AS is_leaving_office_early_desc,
+						CASE
+							WHEN (b.emp_source = "outsource" OR b.emp_source = "outsourcing") AND po.id IS NOT NULL THEN
+								CONCAT_WS(
+								" - ",
+								po.code,
+								COALESCE(NULLIF(dc.name,""), po.customer_id),
+								po.lokasi,
+								NULLIF(po.project_name,"")
+								)
+							ELSE ""
+							END AS project_name,
+
 					    CASE 
 					    	WHEN a.date_attendance_in IS NOT NULL THEN ""
 					        WHEN o.id IS NOT NULL THEN ""
@@ -113,6 +129,8 @@ class Absensi_os_menu_model extends MY_Model
 					    END AS overtime_flag
 					FROM time_attendances a
 					LEFT JOIN employees b ON b.id = a.employee_id
+					LEFT JOIN project_outsource po ON po.id = b.project_id
+					LEFT JOIN data_customer dc ON dc.id = po.customer_id
 					LEFT JOIN master_leaves c ON c.id = a.leave_type
 					LEFT JOIN master_holidays h ON h.date = a.date_attendance
 					LEFT JOIN overtimes o 
@@ -359,6 +377,7 @@ class Absensi_os_menu_model extends MY_Model
 					$dayName,
 					$date_attendance,
 					$full_name,
+					$row->project_name, 
 					$attendance_type,
 					$time_in,
 					$time_out,
@@ -382,6 +401,7 @@ class Absensi_os_menu_model extends MY_Model
 					$dayName,
 					$date_attendance,
 					$full_name,
+					$row->project_name, 
 					$attendance_type,
 					$time_in,
 					$time_out,
@@ -1008,11 +1028,17 @@ class Absensi_os_menu_model extends MY_Model
 	public function eksport_data()
 	{ 
 		
-		$karyawan_id = $_SESSION['worker'];
-		$whr='';
-		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
-		}
+						$karyawan_id = $_SESSION['worker'];
+				$whr = ' WHERE 1=1 ';
+
+				// FILTER: cuma outsource
+				$whr .= ' AND (b.emp_source = "outsource" OR b.emp_source = "outsourcing") ';
+
+				// FILTER role (kalau bukan super user & HR admin)
+				if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){
+					$whr .= ' AND (a.employee_id = "'.$karyawan_id.'" OR b.direct_id = "'.$karyawan_id.'") ';
+				}
+
 
 
 

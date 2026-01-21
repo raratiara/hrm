@@ -35,10 +35,17 @@ class Absensi_menu_model extends MY_Model
 		];
 		
 		$karyawan_id = $_SESSION['worker'];
-		$whr='';
-		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+
+		$whr = ' WHERE 1=1 ';
+
+		// FILTER: cuma internal
+		$whr .= ' AND (b.emp_source = "internal") ';
+
+		// FILTER role (kalau bukan super user & HR admin)
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){
+			$whr .= ' AND (a.employee_id = "'.$karyawan_id.'" OR b.direct_id = "'.$karyawan_id.'") ';
 		}
+
 
 		$sIndexColumn = $this->primary_key;
 		/*$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
@@ -1009,10 +1016,17 @@ class Absensi_menu_model extends MY_Model
 	{ 
 		
 		$karyawan_id = $_SESSION['worker'];
-		$whr='';
-		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+
+		$whr = ' WHERE 1=1 ';
+
+		// FILTER: cuma internal
+		$whr .= ' AND (b.emp_source = "internal") ';
+
+		// FILTER role (kalau bukan super user & HR admin)
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){
+			$whr .= ' AND (a.employee_id = "'.$karyawan_id.'" OR b.direct_id = "'.$karyawan_id.'") ';
 		}
+
 
 
 

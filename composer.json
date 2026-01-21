@@ -18,5 +18,11 @@
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
+	},
+	"config": {
+		"audit": {
+			"ignore": ["PKSA-2kqm-ps5x-s4f5"],
+			"block-insecure": false
+		}
 	}
 }

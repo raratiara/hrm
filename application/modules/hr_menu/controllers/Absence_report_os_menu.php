@@ -15,12 +15,12 @@ class Absence_report_os_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Day", "Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
+	public $tabel_header 			= ["ID","Day", "Date","Employee Name","Project","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
-	public $colfields 				= ["id","date_attendance","full_name","attendance_type","time_in","time_out","date_attendance_in","date_attendance_out","is_late_desc","is_leaving_office_early_desc","num_of_working_hours"];
+	public $colnames 				= ["ID","Date","Employee Name","Project","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
+	public $colfields 				= ["id","date_attendance","full_name","project_label","attendance_type","time_in","time_out","date_attendance_in","date_attendance_out","is_late_desc","is_leaving_office_early_desc","num_of_working_hours"];
 
 
 	/* Form Field Asset */
@@ -30,9 +30,44 @@ class Absence_report_os_menu extends MY_Controller
 
 		$field = [];
 		$field['txtdateattendance']		= $this->self_model->return_build_txt('','date_attendance','date_attendance');
-		$msemp 							= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		// $msemp 							= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp = $this->db->query("
+				SELECT * 
+				FROM employees 
+				WHERE status_id = 1
+				AND emp_source IN ('outsource','outsourcing')
+				ORDER BY full_name ASC
+			")->result();
+
 		$field['selemployee'] 			= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 		$field['selflemployee'] 		= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
+	
+		$msproject = $this->db->query("
+			SELECT id,
+				CONCAT_WS(' - ', code, project_name) AS project_label
+			FROM project_outsource
+			ORDER BY project_name ASC
+		")->result();
+
+		$field['selflproject'] = $this->self_model->return_build_select2me(
+			$msproject,
+			'',
+			'',
+			'',
+			'flproject',
+			'flproject',
+			'',
+			'',
+			'id',
+			'project_label',
+			' ',
+			'',
+			'',
+			'',
+			3,
+			'-'
+		);
+
 		$field['txtimein'] 				= $this->self_model->return_build_txt('','time_in','time_in','','','readonly');
 		$field['txtattendancein'] 		= $this->self_model->return_build_txt('','attendance_in','attendance_in');
 		$field['txtlatedesc'] 			= $this->self_model->return_build_txt('','late_desc','late_desc','','','readonly');
@@ -118,14 +153,20 @@ class Absence_report_os_menu extends MY_Controller
 	        $filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
 	    }
 
-	    $where_emp = ""; 
-	    if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
-	        $where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
-	    }
+	    $where_emp = "";
+		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
+		}
+
+		$where_project = "";
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			$where_project = " and b.project_outsource_id = '".$_GET['flproject']."' ";
+		}
+
 
 	    // kelompok berdasarkan divisi
 	    $groupedByDivision = [];
-	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 and b.emp_source in ('outsource','outsourcing','OS') ".$where_emp.$where_project.$where_date." ")->result();
 	    foreach ($emp_absen as $rowemp_absen) {
 	        $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 	    }
@@ -159,7 +200,7 @@ class Absence_report_os_menu extends MY_Controller
 	            from time_attendances a 
 	            left join employees b on b.id = a.employee_id 
 	            left join divisions c on c.id = b.division_id 
-	            where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." 
+	            where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_project.$where_date."
 	            order by b.full_name asc")->result(); 
 
 	        if(count($emp_absen) != 0){ 
@@ -177,22 +218,25 @@ class Absence_report_os_menu extends MY_Controller
 								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket,
 								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
 								a.notes as keterangan
-								,b.emp_code, f.name as dept_name, g.name as work_location_name,
-								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo,
-								(case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit,
+								,b.emp_code, f.name as dept_name, g.name as work_location_name
+								,CONCAT_WS(" - ", j.code, j.project_name) as project_label
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo
+								,(case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit
+
 								(case when a.is_late = "Y" then "1" else "" end) as late,
 								(case when a.is_leaving_office_early = "Y" then "1" else "" end) as leaving_early,
 							    i.num_of_hour as overtime_num_of_hour,
 							    i.amount as overtime_amount
 							from time_attendances a 
 							left join employees b on b.id = a.employee_id
+							left join project_outsource j on j.id = b.project_outsource_id
 							left join master_leaves c on c.id = a.leave_type
 							left join branches d on d.id = b.branch_id
 							left join employees e on e.id = b.direct_id
 							left join departments f on f.id = b.department_id
 							left join master_work_location g on g.id = b.work_location
 							left join leave_absences h on h.id = a.leave_absences_id
-							left join overtimes i on i.employee_id = a.employee_id 
+							left join overtimes i on i.public $colnames  = ["ID","Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"]; = a.employee_id 
 							and (a.date_attendance = DATE_FORMAT(i.datetime_start, "%Y-%m-%d"))
 							and i.type = 1 and i.status_id = 2
 							where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
@@ -247,6 +291,7 @@ class Absence_report_os_menu extends MY_Controller
 	                    $no,
 	                    $data[0]->emp_code,
 	                    $data[0]->full_name,
+						($data[0]->project_label ?? '-'),
 	                    $data[0]->dept_name,
 	                    $data[0]->work_location_name,
 	                    $data[0]->attendance_type,
@@ -285,6 +330,7 @@ class Absence_report_os_menu extends MY_Controller
 	                    'subtitle' => [
 	                    	['NIK', $data[0]->emp_code],
 	                        ['Nama', $data[0]->full_name],
+							['Project', ($data[0]->project_label ?? '-')],
 	                        ['Departemen', $data[0]->dept_name],
 	                        ['Area', $data[0]->branch_name],
 	                        ['Leader', $data[0]->direct_name],
@@ -311,7 +357,7 @@ class Absence_report_os_menu extends MY_Controller
 	                ];*/
 	                $dataSheets['Summary'] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
-	                    'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                    'headers' => ['No', 'NIK', 'Nama', 'Project',  'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
 	                    'rows' => $valSummary,
 	                    'subtitle' => [
 	                        ['Division', $rowemp_absen->division_name],
@@ -403,7 +449,9 @@ class Absence_report_os_menu extends MY_Controller
 	    $zip->close();
 
 	    // --- DOWNLOAD ZIP AMAN ---
-	    ob_end_clean(); // buang sisa output
+	    if (ob_get_level()) {
+    ob_end_clean();
+}
 	    header('Content-Type: application/zip');
 	    header('Content-disposition: attachment; filename=' . basename($zipFilename));
 	    header('Content-Length: ' . filesize($zipFilename));
@@ -411,6 +459,7 @@ class Absence_report_os_menu extends MY_Controller
 	    unlink($zipFilename);
 	    exit;
 	}
+
 
 
 
@@ -432,7 +481,7 @@ class Absence_report_os_menu extends MY_Controller
 
 
 		$groupedByDivision = [];
-		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 and b.emp_source in ('outsource','outsourcing','OS') ".$where_emp.$where_project.$where_date." ")->result();
 		foreach ($emp_absen as $rowemp_absen) {
 		    $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 		}
@@ -752,7 +801,7 @@ class Absence_report_os_menu extends MY_Controller
 		
 		$dataSheets = [];
 
-		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result(); 
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 and b.emp_source in ('outsource','outsourcing','OS') ".$where_emp.$where_project.$where_date." ")->result(); 
 		if(count($emp_absen) != 0){ 
 			$no=1;
 			
@@ -992,7 +1041,7 @@ class Absence_report_os_menu extends MY_Controller
 
 
 		$groupedByDivision = [];
-		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 and b.emp_source in ('outsource','outsourcing','OS') ".$where_emp.$where_project.$where_date." ")->result();
 		foreach ($emp_absen as $rowemp_absen) {
 		    $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 		}
@@ -1033,7 +1082,9 @@ class Absence_report_os_menu extends MY_Controller
 
 			$dataSheets = [];
 
-			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id 
+			where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_project.$where_date."
+			order by b.full_name asc ")->result(); 
 			if(count($emp_absen) != 0){ 
 				$no=1;
 				
