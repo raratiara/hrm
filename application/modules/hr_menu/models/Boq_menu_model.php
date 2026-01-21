@@ -263,7 +263,7 @@ class Boq_menu_model extends MY_Model
 
   			$data = [
 				'project_outsource_id' 	=> trim($post['project_boq']),
-				'customer' 		=> trim($post['customer_boq']),
+				'customer_id' 		=> trim($post['customer_boq']),
 				'created_at'	=> date("Y-m-d H:i:s"),
 				'created_by' 	=> $_SESSION['worker'],
 				'ppn_percen' 	=> trim($post['hdnppn_percen']),
