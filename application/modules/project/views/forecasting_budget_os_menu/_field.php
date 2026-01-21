@@ -1,59 +1,81 @@
 <div class="row">
-	<div class="col-md-12 col-sm-12">
+	
+	<div class="col-md-6 col-sm-12">
+
 		<div class="form-group">
-			<label class="col-md-2 control-label no-padding-right"> Type</label>
-			<div class="col-md-4">
-				<?=$seltype;?>
+			<label class="col-md-4 control-label no-padding-right">Period Start</label>
+			<div class="col-md-8">
+				<?=$txtperiodstart;?>
 			</div>
 		</div>
-	</div>
-	<div class="col-md-6 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Label 1</label>
+		<div class="form-group" id="inp_is_all_project_fcast">
+			<label class="col-md-4 control-label no-padding-right">Semua Project?</label>
 			<div class="col-md-8">
-				<?=$txtlabel1;?>
+				<?=$is_all_project;?>
 			</div>
 		</div>
 
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Title</label>
+		<div class="form-group" id="inputProject_fcast" style="display: none;">
+			<label class="col-md-4 control-label no-padding-right">Project</label>
 			<div class="col-md-8">
-				<?=$txttitle;?>
+				<?=$selprojectids;?>
 			</div>
 		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Description </label>
-			<div class="col-md-8">
-				<?=$txtdescription;?>
-			</div>
-		</div>
+
 		
 	</div>
 
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Label 2</label>
+			<label class="col-md-4 control-label no-padding-right">Period  End</label>
 			<div class="col-md-8">
-				<?=$txtlabel2;?>
+				<?=$txtperiodend;?>
 			</div>
 		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Show Date Start</label>
-			<div class="col-md-8">
-				<?=$txtshowdatestart;?>
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Show Date End </label>
-			<div class="col-md-8">
-				<?=$txtshowdateend;?>
-			</div>
-		</div>
+		
 		
 		
 	</div>
 </div>
 
 
+
+<div class="row listfcast" id="listFcast" style="display:none;">
+    <div class="col-md-12">
+        <div class="portlet box">
+            <div class="portlet-title">
+                <div class="caption">Details </div>
+                <div class="tools">
+                   
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="table-scrollable tablesaw-cont">
+                <table class="table table-striped table-bordered table-hover listfcast-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailListFcast">
+                    <thead>
+                        <tr>
+                            <th scope="col">NIK</th>
+                            <th scope="col">Karyawan</th>
+                            <th scope="col">Total Hari Kerja</th>
+                            <th scope="col">Total Masuk</th>
+                            <th scope="col">Total Ijin</th>
+                            <th scope="col">Total Cuti</th>
+                            <th scope="col">Total Alfa</th>
+                            <th scope="col">Total Lembur</th>
+                            <th scope="col">Total Jam Kerja</th>
+                            <th scope="col">Total Jam Lembur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 								

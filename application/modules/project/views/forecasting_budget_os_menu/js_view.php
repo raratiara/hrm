@@ -11,8 +11,8 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#show_date_start" ).datepicker();
-        $( "#show_date_end" ).datepicker();
+        $( "#period_start_fcast" ).datepicker();
+        $( "#period_end_fcast" ).datepicker();
 		
    	});
 });
@@ -194,6 +194,53 @@ function getFormattedDateTime(inputDate) {
 	console.log(formattedDate); // Output: 07/13/2025
 	 return `${formattedDate}`;
 }
+
+
+
+$('input[name="is_all_project_fcast"]').on('change', function () {
+    let val = $(this).val();
+    
+    var period_start = $("#period_start_fcast").val();
+    var period_end = $("#period_end_fcast").val();
+
+
+    if(period_start != '' && period_end != ''){
+    	if(val === 'Sebagian'){
+	        document.getElementById("inputProject_fcast").style.display = "block";
+	    }else{
+	        document.getElementById("inputProject_fcast").style.display = "none";
+
+	        list_fcast(period_start, period_end);
+
+	    }
+    }
+    
+});
+
+
+function list_fcast(period_start, period_end){
+
+
+	document.getElementById("listFcast").style.display = "block";
+
+	var locate = 'table.listfcast-list';
+	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { period_start: period_start, period_end: period_end },success: function (response) {
+		var obj = JSON.parse(response);
+		$(locate+' tbody').html(obj[0]);
+		
+		wcount=obj[1];
+	}
+	}).done(function() {
+		//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+		tSawBclear(locate);
+		///expenseviewadjust(lstatus);
+	});
+
+}
+
+
+
+
 
 
 

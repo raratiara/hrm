@@ -39,12 +39,7 @@
 			</div>
 		</div>
 
-		<!-- <div class="form-group" id="inp_is_all_employee" >
-			<label class="col-md-4 control-label no-padding-right">Hitung Semua Karyawan?</label>
-			<div class="col-md-8">
-				<?=$is_all_employee;?>
-			</div>
-		</div> -->
+		
 
 		<div class="form-group" id="inputEmployee" style="display: none;">
 			<label class="col-md-4 control-label no-padding-right">Karyawan</label>
