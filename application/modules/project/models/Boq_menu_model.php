@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Boq_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "hr_menu/boq_menu";
+ 	protected $folder_name				= "project/boq_menu";
  	protected $table_name 				= _PREFIX_TABLE."project_outsource_boq";
  	protected $primary_key 				= "id";
 
