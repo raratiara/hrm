@@ -75,8 +75,8 @@ class Absensi_os_menu_model extends MY_Model
 								NULLIF(po.project_name,"")
 								)
 							ELSE ""
-							END AS project_name,
-
+							END AS project_desc,
+						po.project_name,
 					    CASE 
 					    	WHEN a.date_attendance_in IS NOT NULL THEN ""
 					        WHEN o.id IS NOT NULL THEN ""

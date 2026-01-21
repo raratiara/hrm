@@ -44,7 +44,8 @@ class Absence_report_os_menu extends MY_Controller
 	
 		$msproject = $this->db->query("
 			SELECT id,
-				CONCAT_WS(' - ', code, project_name) AS project_label
+				CONCAT_WS(' - ', code, project_name) AS project_label_desc,
+				project_name as project_label
 			FROM project_outsource
 			ORDER BY project_name ASC
 		")->result();
@@ -219,7 +220,8 @@ class Absence_report_os_menu extends MY_Controller
 								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
 								a.notes as keterangan
 								,b.emp_code, f.name as dept_name, g.name as work_location_name
-								,CONCAT_WS(" - ", j.code, j.project_name) as project_label
+								,CONCAT_WS(" - ", j.code, j.project_name) as project_label_desc,
+								,j.project_name as project_label
 								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo
 								,(case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit
 

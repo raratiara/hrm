@@ -15,11 +15,11 @@ class Project_outsource extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Code","Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End","Jenis Layanan"];
+	public $tabel_header 			= ["ID","Code","Nama Project", "Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End","Jenis Layanan"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Code","Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End","Jenis Layanan"];
-	public $colfields 				= ["id","code","customer_name","lokasi","jenis_pekerjaan","management_fee", "periode_start","periode_end","jenis_layanan"];
+	public $colnames 				= ["ID","Code","Nama Project", "Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End","Jenis Layanan"];
+	public $colfields 				= ["id","code","project_name","customer_name","lokasi","jenis_pekerjaan","management_fee", "periode_start","periode_end","jenis_layanan"];
 
 
 	/* Form Field Asset */

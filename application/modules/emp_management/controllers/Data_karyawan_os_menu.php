@@ -154,7 +154,7 @@ class Data_karyawan_os_menu extends MY_Controller
 		$mscust 						= $this->db->query("select * from data_customer order by name asc")->result(); 
 		$field['selcustomer'] 			= $this->self_model->return_build_select2me($mscust,'','','','customer','customer','','','id','name',' ','','','',1,'-');
 		$msproject 						= array();
-		$field['selproject'] 			= $this->self_model->return_build_select2me($msproject,'','','','project','project','project','','id','project_desc',' ','','','',1,'-');
+		$field['selproject'] 			= $this->self_model->return_build_select2me($msproject,'','','','project','project','project','','id','project_name',' ','','','',1,'-');
 		$field['txtttlharikerja'] 		= $this->self_model->return_build_txt('','ttl_hari_kerja','ttl_hari_kerja');
 		$field['txtstatusbpjskes'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_kes', '', 'inline');
 		$field['txtstatusbpjsket'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_ket', '', 'inline');

@@ -51,7 +51,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 										when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
 										when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
 										else code end
-										) as project_name
+										) as project_desc, project_name
 										from project_outsource order by code asc')->result(); 
 		$field['selprojectids'] 	= $this->self_model->return_build_select2me($msproject,'multiple','','','projectIds[]','projectIds','','','id','project_name',' ','','','',3,'-');
 		$field['selproject_edit'] 	= $this->self_model->return_build_select2me($msproject,'','','','project_edit','project_edit','','','id','project_name',' ','','','',3,'-');

@@ -33,7 +33,7 @@ class Boq_menu_model extends MY_Model
 					when c.jenis_pekerjaan != "" and c.lokasi = "" then concat(c.code," (",c.jenis_pekerjaan,")")
 					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
 					else c.code end
-					) as project_name, c.periode_start, c.periode_end
+					) as project_desc, c.project_name, c.periode_start, c.periode_end
 					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
 					left join project_outsource c on c.id = a.project_outsource_id)dt';
 		
@@ -351,7 +351,7 @@ class Boq_menu_model extends MY_Model
 					when c.jenis_pekerjaan != "" and c.lokasi = "" then concat(c.code," (",c.jenis_pekerjaan,")")
 					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
 					else c.code end
-					) as project_name, c.periode_start, c.periode_end
+					) as project_desc, c.project_name, c.periode_start, c.periode_end
 					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
 					left join project_outsource c on c.id = a.project_outsource_id
 			)dt';

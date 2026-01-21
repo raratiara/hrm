@@ -478,7 +478,7 @@ class Forecasting_budget_os_menu_model extends MY_Model
 		if($id > 0){ 
 			$rs = $this->db->query("select d.name_indo, a.tahun_penggajian, b.employee_id, c.emp_code, c.full_name, 		c.project_id,
 					    c.job_title_id, 
-					    c.total_hari_kerja, b.*, a.jml_nominal_masuk, a.jml_nominal_lembur, e.code as project_name
+					    c.total_hari_kerja, b.*, a.jml_nominal_masuk, a.jml_nominal_lembur, e.project_name
 					from forecasting_budget a
 					left join forecasting_budget_detail b on b.forecasting_budget_id = a. id
 					left join employees c on c.id = b.employee_id
@@ -496,7 +496,7 @@ class Forecasting_budget_os_menu_model extends MY_Model
 			}
 
 
-			$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, a.project_id, a.job_title_id, a.total_hari_kerja, e.code as project_name from employees a left join summary_absen_outsource b on b.emp_id = a.id and b.bulan = '".$penggajian_month."' and b.tahun = '".$penggajian_year."' left join project_outsource e on e.id = a.project_id where a.emp_source = 'outsource' ".$whr_project."	and a.status_id = 1 ")->result();
+			$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, a.project_id, a.job_title_id, a.total_hari_kerja, e.project_name from employees a left join summary_absen_outsource b on b.emp_id = a.id and b.bulan = '".$penggajian_month."' and b.tahun = '".$penggajian_year."' left join project_outsource e on e.id = a.project_id where a.emp_source = 'outsource' ".$whr_project."	and a.status_id = 1 ")->result();
 		}
 
 		 

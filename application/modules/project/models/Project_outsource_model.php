@@ -38,7 +38,8 @@ class Project_outsource_model extends MY_Model
 			'dt.periode_start',
 			'dt.periode_end',
 			'dt.jenis_layanan',
-			'dt.lokasi_name'
+			'dt.lokasi_name',
+			'dt.project_name'
 			
 		];
 
@@ -212,6 +213,7 @@ class Project_outsource_model extends MY_Model
 				</div>',
 				$row->id,
 				$row->code,
+				$row->project_name,
 				$row->customer_name,
 				$row->lokasi_name, 
 				$row->jenis_pekerjaan,

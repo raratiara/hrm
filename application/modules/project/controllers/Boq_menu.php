@@ -32,7 +32,7 @@ class Boq_menu extends MY_Controller
 		$mscust 					= $this->db->query("select * from data_customer order by name asc")->result(); 
 		$field['selcustomer'] 		= $this->self_model->return_build_select2me($mscust,'','','','customer_boq','customer_boq','','','id','name',' ','','','',1,'-');
 		$msproject 					= array();
-		$field['selproject'] 		= $this->self_model->return_build_select2me($msproject,'','','','project_boq','project_boq','project_boq','','id','project_desc',' ','','','',1,'-');
+		$field['selproject'] 		= $this->self_model->return_build_select2me($msproject,'','','','project_boq','project_boq','project_boq','','id','project_name',' ','','','',1,'-');
 		
 
 		$field['txtperiode'] 		= $this->self_model->return_build_txt('','periode','periode','','','readonly');

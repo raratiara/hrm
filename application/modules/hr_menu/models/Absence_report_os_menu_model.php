@@ -570,9 +570,9 @@ class Absence_report_os_menu_model extends MY_Model
 		}
 
 		$where_project = "";
-if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
-  $where_project = " and b.project_outsource_id = '".$_GET['flproject']."' ";
-}
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+		  $where_project = " and b.project_outsource_id = '".$_GET['flproject']."' ";
+		}
 
 
 		

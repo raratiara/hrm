@@ -47,6 +47,17 @@
 
 	<div class="row filter-wrap">
 
+	<!-- Project -->
+  <div class="col-md-4 col-sm-12">
+    <div class="form-group row form-row">
+      <label class="col-sm-4 col-form-label">Project</label>
+      <div class="col-sm-8">
+        <?=$selflproject;?>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Employee -->
   <div class="col-md-4 col-sm-12">
     <div class="form-group row form-row">
@@ -57,15 +68,7 @@
     </div>
   </div>
 
-  <!-- Project -->
-  <div class="col-md-4 col-sm-12">
-    <div class="form-group row form-row">
-      <label class="col-sm-4 col-form-label">Project</label>
-      <div class="col-sm-8">
-        <?=$selflproject;?>
-      </div>
-    </div>
-  </div>
+  
 
   <!-- Date Period -->
   <div class="col-md-4 col-sm-12">

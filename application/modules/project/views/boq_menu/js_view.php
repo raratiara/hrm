@@ -230,7 +230,7 @@ function getProject(customer,selected='',idVal=''){
 					$el.append($("<option></option>").attr("value", "").text(""));
 					$.each(data.msproject, function(key,value) {
 						$el.append($("<option></option>")
-				     	.attr("value", value.id).text(value.project_desc));
+				     	.attr("value", value.id).text(value.project_name));
 					  	
 					});
 

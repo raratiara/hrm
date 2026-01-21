@@ -2102,7 +2102,7 @@ class Data_karyawan_os_menu_model extends MY_Model
 								when jenis_pekerjaan != '' and lokasi = '' then concat(code,' (',jenis_pekerjaan,')')
 								when lokasi != '' and jenis_pekerjaan = '' then concat(code,' (',lokasi,')')
 								else code end
-								) as project_desc
+								) as project_desc, project_name
 								from project_outsource 
 								where customer_id = ".$customer."
 								order by code asc")->result(); 
