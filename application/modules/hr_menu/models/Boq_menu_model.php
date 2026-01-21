@@ -22,7 +22,8 @@ class Boq_menu_model extends MY_Model
 			'dt.id',
 			'dt.customer_name',
 			'dt.project_name',
-			'dt.periode'
+			'dt.periode_start',
+			'dt.periode_end'
 		];
 		
 
@@ -32,7 +33,7 @@ class Boq_menu_model extends MY_Model
 					when c.jenis_pekerjaan != "" and c.lokasi = "" then concat(c.code," (",c.jenis_pekerjaan,")")
 					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
 					else c.code end
-					) as project_name, if(c.periode_start != "" and c.periode_end != "", concat(c.periode_start," s/d ",c.periode_end),"") as periode
+					) as project_name, c.periode_start, c.periode_end
 					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
 					left join project_outsource c on c.id = a.project_outsource_id)dt';
 		
@@ -192,6 +193,11 @@ class Boq_menu_model extends MY_Model
 			
 			$print_pdf = '<a class="btn btn-xs btn-success" style="background-color: #18a11d;" href="javascript:void(0);" onclick="print_pdf('."'".$row->id."'".')" role="button"><i class="fa fa-download"></i></a>';
 
+			$periode = '';
+			if($row->periode_start != '' && $row->periode_end != ''){
+				$periode = $row->periode_start.' s/d '.$row->periode_end;
+			}
+
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
@@ -202,7 +208,7 @@ class Boq_menu_model extends MY_Model
 				$row->id,
 				$row->customer_name,
 				$row->project_name,
-				$row->periode
+				$periode
 
 
 			));
@@ -345,7 +351,7 @@ class Boq_menu_model extends MY_Model
 					when c.jenis_pekerjaan != "" and c.lokasi = "" then concat(c.code," (",c.jenis_pekerjaan,")")
 					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
 					else c.code end
-					) as project_name, if(c.periode_start != "" and c.periode_end != "", concat(c.periode_start," s/d ",c.periode_end),"") as periode
+					) as project_name, c.periode_start, c.periode_end
 					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
 					left join project_outsource c on c.id = a.project_outsource_id
 			)dt';

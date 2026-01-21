@@ -117,10 +117,15 @@ function load_data()
         success: function(data)
         {
 			if(data != false){
+				var periode = "";
+				if(data.periode_start != '' && data.periode_end != '' && data.periode_start != null && data.periode_end != null){
+					periode=  data.periode_start+' s/d '+data.periode_end;
+				}
+
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					
-					$('[name="periode"]').val(data.periode);
+					$('[name="periode"]').val(periode);
 					$('select#customer_boq').val(data.customer_id).trigger('change.select2');
 					//$('select#project_boq').val(data.project_outsource_id).trigger('change.select2');
 					getProject(data.customer_id,'selected',data.project_outsource_id);
@@ -134,7 +139,7 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.periode').html(data.periode);
+					$('span.periode').html(periode);
 					$('span.customer_boq').html(data.customer_name);
 					$('span.project_boq').html(data.project_name);
 
