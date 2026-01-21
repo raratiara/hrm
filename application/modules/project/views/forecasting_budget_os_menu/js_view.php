@@ -137,11 +137,21 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
+<<<<<<< HEAD
 					$('span.penggajian_month_fcast').html(data.bulan_penggajian_name);
 					$('span.penggajian_year_fcast').html(data.tahun_penggajian);
 					
 
 					list_fcast_view(data.id, data.bulan_penggajian, data.tahun_penggajian, project='');
+=======
+					$('span.employee').html(data.employee_name);
+					$('span.task').html(data.task);
+					$('span.progress').html(data.progress_percentage);
+					$('span.status').html(data.status_name);
+					$('span.task_parent').html(data.parent_name);
+					$('span.due_date').html(data.due_date);
+					$('span.solve_date').html(data.solve_date);
+>>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 					
 					
 					$('#modal-view-data').modal('show');
@@ -194,6 +204,7 @@ function getFormattedDateTime(inputDate) {
 }
 
 
+<<<<<<< HEAD
 function resetTableFcast() {
     $('#tblDetailListFcast tbody').html('');
     $('#listFcast').hide(); // sekalian sembunyikan
@@ -263,10 +274,36 @@ $('#projectIds_fcast').on('change', function () {
 
 
 function list_fcast(penggajian_month, penggajian_year, project){
+=======
+
+$('input[name="is_all_project_fcast"]').on('change', function () {
+    let val = $(this).val();
+    
+    var period_start = $("#period_start_fcast").val();
+    var period_end = $("#period_end_fcast").val();
+
+
+    if(period_start != '' && period_end != ''){
+    	if(val === 'Sebagian'){
+	        document.getElementById("inputProject_fcast").style.display = "block";
+	    }else{
+	        document.getElementById("inputProject_fcast").style.display = "none";
+
+	        list_fcast(period_start, period_end);
+
+	    }
+    }
+    
+});
+
+
+function list_fcast(period_start, period_end){
+>>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 
 
 	document.getElementById("listFcast").style.display = "block";
 
+<<<<<<< HEAD
 
 	var locate = 'table.listfcast-list';
 	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { id:0, penggajian_month: penggajian_month, penggajian_year: penggajian_year, project: project },success: function (response) {
@@ -291,6 +328,10 @@ function list_fcast_view(id, penggajian_month, penggajian_year, project){
 
 	var locate = 'table.listfcast-list_view';
 	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { id:id, penggajian_month: penggajian_month, penggajian_year: penggajian_year, project: project, view: true },success: function (response) {
+=======
+	var locate = 'table.listfcast-list';
+	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { period_start: period_start, period_end: period_end },success: function (response) {
+>>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		var obj = JSON.parse(response);
 		$(locate+' tbody').html(obj[0]);
 		

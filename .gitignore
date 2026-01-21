@@ -38,3 +38,7 @@ uploads/*
 #!uploads/report_absensi_bulanan/
 
 
+# Firebase credentials
+application/config/firebase/service-account.json
+
+

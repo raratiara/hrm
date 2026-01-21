@@ -452,6 +452,9 @@ class Api extends API_Controller
     	$device_uuid 	= $_REQUEST['device_uuid'];
     	$device_type 	= $_REQUEST['device_type'];
     	$device_name 	= $_REQUEST['device_name'];
+
+		$fcm_token     = $_REQUEST['fcm_token'] ?? null;
+
     	$type = "mobile";
     	
 
@@ -512,6 +515,7 @@ class Api extends API_Controller
 							$ins_uuid = [
 								'user_id' 			=> $cek_login->user_id,
 								'device_uuid' 		=> $device_uuid,
+								'fcm_token'			=> $fcm_token,
 								'is_active' 		=> 1,
 								'created_at'		=> date("Y-m-d H:i:s"),
 								'device_name' 		=> $device_name,
@@ -525,6 +529,7 @@ class Api extends API_Controller
 							$upduid = [
 								'device_uuid' 	=> $device_uuid,
 								'device_name' 	=> $device_name,
+								'fcm_token'     => $fcm_token,
 								'device_type' 	=> $device_type
 							];
 							$this->db->update("user_devices", $upduid, "user_id='".$cek_login->user_id."'");
@@ -538,6 +543,10 @@ class Api extends API_Controller
 							/*'is_active' 		=> 1,*/
 							'created_at'		=> date("Y-m-d H:i:s"),
 							'device_name' 		=> $android_type,
+							'fcm_token'     	=> $fcm_token,
+							/*'is_active' 		=> 1,*/
+							'created_at'		=> date("Y-m-d H:i:s"),
+							'device_name' 		=> $device_name,
 							'device_type' 		=> $device_type,
 							'type' => $type
 						];
@@ -589,14 +598,37 @@ class Api extends API_Controller
 
 		}
 		catch (Throwable $e) {
-		    $response = [
+
+		    /*$response = [
 		        'status' => 500,
 		        'message' => 'Server Error',
 		        'error' => $e->getMessage(),          // pesan error
 		        'line'  => $e->getLine(),             // baris error
 		        'file'  => $e->getFile()              // file error
 		    ];
-		    return $this->render_json($response, 500);
+		    return $this->render_json($response, 500);*/
+
+
+			$rawMessage = $e->getMessage();
+
+			// Bersihkan pesan error (ambil inti masalah)
+			$cleanMessage = $rawMessage;
+
+			// Hilangkan path & driver noise (kalau ada)
+			$cleanMessage = preg_replace('/in .*? on line \d+/i', '', $cleanMessage);
+			$cleanMessage = trim($cleanMessage);
+
+			$response = [
+				'status'  => 500,
+				'message' => 'Server Error',
+				'error'   => $cleanMessage
+			];
+
+			// Simpan full error untuk debugging
+			log_message('error', $rawMessage);
+
+			return $this->render_json($response, 500);
+
 		}
 
     	
@@ -9379,6 +9411,62 @@ class Api extends API_Controller
     	
     }
 
+
+	public function test_push_notification()
+	{
+		$userId = $this->input->post('user_id');
+
+		if (!$userId) {
+			return $this->render_json([
+				'status' => false,
+				'message' => 'user_id is required'
+			], 400);
+		}
+
+		// ambil device aktif terakhir
+		$device = $this->db
+			->where('user_id', $userId)
+			->where('type', 'mobile')
+			->where('is_active', 1)
+			->order_by('id', 'DESC')
+			->get('user_devices')
+			->row();
+
+		if (!$device || empty($device->fcm_token)) {
+			return $this->render_json([
+				'status' => false,
+				'message' => 'FCM token not found for this user'
+			], 404);
+		}
+
+		// load model notification
+		$this->load->model('notification/Notification_model', 'notif');
+
+		$result = $this->notif->sendNotification(
+			$device->fcm_token,
+			'Test Notification halo',
+			'Ini test push notification dari API 🔔',
+			[
+				'type' => 'test',
+				'user_id' => (string) $userId
+			]
+		);
+
+
+		if (
+			isset($result['response']['error']['status']) &&
+			$result['response']['error']['status'] === 'UNREGISTERED'
+		) {
+			$this->db->where('id', $device->id)
+					->update('user_devices', ['is_active' => 0]);
+		}
+
+		return $this->render_json([
+			'status' => true,
+			'device_id' => $device->id,
+			'firebase_response' => $result
+		], 200);
+	}
 
 
 
