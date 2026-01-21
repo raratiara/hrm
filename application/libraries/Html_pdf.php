@@ -1,6 +1,11 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-require_once FCPATH . 'vendor/autoload.php';
+$autoload = APPPATH . '../vendor/autoload.php';
+if (file_exists($autoload)) {
+    require_once $autoload;
+} else {
+    show_error('vendor/autoload.php tidak ditemukan');
+}
 
 use Dompdf\Dompdf;
 
@@ -35,24 +40,23 @@ class Html_pdf extends Dompdf
     {
         $this->render();
 
-        // 🔐 SET PASSWORD KHUSUS JIKA ADA
         if (!empty($this->password)) {
             $canvas = $this->getCanvas();
             $canvas->get_cpdf()->setEncryption(
-                $this->password, // user password
-                null,             // owner password
-                ['print']         // permission
+                $this->password,
+                null,
+                ['print']
             );
         }
     }
 
-    public function save($path)
-    {
-        file_put_contents($path, $this->output());
-    }
-
     public function stream_pdf($attachment = false)
     {
+        // bersihin output buffer biar PDF tidak corrupt
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
         $this->stream($this->filename, ['Attachment' => $attachment]);
     }
 }
