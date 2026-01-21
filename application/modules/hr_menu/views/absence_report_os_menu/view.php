@@ -45,30 +45,49 @@
 </head>
 <body>
 
-  	<div style="margin-top: 10px;">
-  		<div class="col-md-6 col-sm-12" style="margin-left:-30px" >
-  			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">Employee Name</label>
-				<div class="col-md-8">
-					<?=$selflemployee;?>
-				</div>
-			</div>
-  		</div>
-  		<div class="col-md-6 col-sm-12">
-			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Date Period</label>
-				<div class="col-md-8">
-					<input type="text" class="form-control" id="perioddate" name="perioddate">
-				</div> 
-			</div>
-		</div>
-  	</div>
-   
+	<div class="row filter-wrap">
 
-    
-    <button type="button" style="background-color: green; color: white; border-radius: 4px !important;" id="submitFilter" onclick="subFilter()">
-      Submit Filter
-    </button>
+  <!-- Employee -->
+  <div class="col-md-4 col-sm-12">
+    <div class="form-group row form-row">
+      <label class="col-sm-4 col-form-label">Employee Name</label>
+      <div class="col-sm-8">
+        <?=$selflemployee;?>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project -->
+  <div class="col-md-4 col-sm-12">
+    <div class="form-group row form-row">
+      <label class="col-sm-4 col-form-label">Project</label>
+      <div class="col-sm-8">
+        <?=$selflproject;?>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Period -->
+  <div class="col-md-4 col-sm-12">
+    <div class="form-group row form-row">
+      <label class="col-sm-4 col-form-label">Date Period</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="perioddate" name="perioddate">
+      </div>
+    </div>
+  </div>
+
+  <!-- Button -->
+  <div class="col-md-12">
+    <div class="text-right filter-actions">
+      <button type="button" class="btn btn-success" id="submitFilter" onclick="subFilter()">
+        Submit Filter
+      </button>
+    </div>
+  </div>
+
+</div>
+
  
 </body>
 </html>

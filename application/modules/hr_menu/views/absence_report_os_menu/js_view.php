@@ -72,7 +72,12 @@ function toYYYYMMDD(dateStr) {
 
 function subFilter(){
 	var flemployee = $("#flemployee option:selected").val();
+	var flproject = $("#flproject option:selected").val();
 	var perioddate = $("#perioddate").val();
+
+	if(flproject == ''){
+		flproject = 0;
+	}
 
 	if(flemployee == ''){
 		flemployee=0;
@@ -106,7 +111,8 @@ function subFilter(){
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
-		"sAjaxSource": module_path+"/get_data?flemployee="+flemployee+"&fldatestart="+fldatestart+"&fldateend="+fldateend+"",
+		// "sAjaxSource": module_path+"/get_data?flemployee="+flemployee+"&fldatestart="+fldatestart+"&fldateend="+fldateend+"",
+		"sAjaxSource": module_path+"/get_data?flemployee="+flemployee+"&flproject="+flproject+"&fldatestart="+fldatestart+"&fldateend="+fldateend+"",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
@@ -165,7 +171,12 @@ function getReport(){
 function downloadReport(){
 
 	var flemployee = $("#flemployee option:selected").val();
+	var flproject = $("#flproject option:selected").val();
 	var perioddate = $("#perioddate").val();
+
+	if(flproject == ''){
+  		flproject = 0;
+	}
 
 	if(flemployee == ''){
 		flemployee=0;
@@ -183,7 +194,8 @@ function downloadReport(){
 	}
 	
 	
-	send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
+	// send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
+	send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&flproject='+flproject+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
 	formData = $('#frmReportData').serialize();
 	window.location = send_url+'&'+formData;
 	$('#modal-report-data').modal('hide');
