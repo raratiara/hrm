@@ -15,21 +15,12 @@ class Forecasting_budget_os_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-<<<<<<< HEAD
 	public $tabel_header 			= ["ID","Bulan Penggajian","Tahun Penggajian","Jumlah Nominal Masuk","Jumlah Nominal Lembur"];
 
 	
 	/* Export */
 	public $colnames 				= ["ID","Bulan Penggajian","Tahun Penggajian","Jumlah Nominal Masuk","Jumlah Nominal Lembur"];
 	public $colfields 				= ["id","bulan_penggajian_name","tahun_penggajian","jml_nominal_masuk","jml_nominal_lembur"];
-=======
-	public $tabel_header 			= ["ID","Type","Label 1","Label 2","Title","Description","Show Date Start","Show Date End"];
-
-	
-	/* Export */
-	public $colnames 				= ["ID","Type","Label 1","Label 2","Title","Description","Show Date Start","Show Date End"];
-	public $colfields 				= ["id","type","label1","label2","title","description","show_date_start","show_date_end"];
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -45,13 +36,6 @@ class Forecasting_budget_os_menu extends MY_Controller
 
 		$field = [];
 
-<<<<<<< HEAD
-=======
-
-		$field['txtperiodstart'] = $this->self_model->return_build_txt('','period_start_fcast','period_start_fcast');
-		$field['txtperiodend']	 = $this->self_model->return_build_txt('','period_end_fcast','period_end_fcast');
-
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		$field['is_all_project'] = $this->self_model->return_build_radio('', [['Semua','Semua'],['Sebagian','Sebagian']], 'is_all_project_fcast', '', 'inline');
 		$msproject 				= $this->db->query('select id,
 								(case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
@@ -63,15 +47,12 @@ class Forecasting_budget_os_menu extends MY_Controller
 		$field['selprojectids'] 	= $this->self_model->return_build_select2me($msproject,'multiple','','','projectIds_fcast[]','projectIds_fcast','','','id','project_name',' ','','','',3,'-');
 
 
-<<<<<<< HEAD
 		$msmonth 				= $this->db->query("select * from master_month order by id asc")->result(); 
 		$field['sel_penggajian_bulan'] 	= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_fcast','penggajian_month_fcast','','','id','name_indo',' ','','','',3,'-');
 		$field['txt_penggajian_tahun']	= $this->self_model->return_build_txt('','penggajian_year_fcast','penggajian_year_fcast');
 		$field['txt_jml_ttlmasuk_nominal']	= $this->self_model->return_build_txt('','jml_ttlmasuk_nominal','jml_ttlmasuk_nominal','','','readonly');
 		$field['txt_jml_ttllembur_nominal']	= $this->self_model->return_build_txt('','jml_ttllembur_nominal','jml_ttllembur_nominal','','','readonly');
 
-=======
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		
 		
 		
@@ -132,31 +113,19 @@ class Forecasting_budget_os_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
-<<<<<<< HEAD
 			$penggajian_month 	= $post['penggajian_month'];
 			$penggajian_year 	= $post['penggajian_year'];
 			$project 			= $post['project'];
 
 			if(isset($post['count']))
 			{   
-=======
-			$bln 	= $post['bln'];
-			$thn 	= $post['thn'];
-
-			if(isset($post['count']))
-			{  
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 				$row = trim($post['count']); 
 				echo $this->self_model->getNewFcastRow($row);
 			} else if(isset($post['id'])) { 
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-<<<<<<< HEAD
 				echo json_encode($this->self_model->getNewFcastRow($row,$id,$penggajian_month,$penggajian_year,$project,$view));
-=======
-				echo json_encode($this->self_model->getNewFcastRow($row,$id,$period_start,$period_end,$view));
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 			}
 		}
 		else

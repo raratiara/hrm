@@ -5,11 +5,7 @@ class Forecasting_budget_os_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "project/forecasting_budget_os_menu";
-<<<<<<< HEAD
  	protected $table_name 				= _PREFIX_TABLE."forecasting_budget";
-=======
- 	protected $table_name 				= _PREFIX_TABLE."office_info";
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -24,29 +20,15 @@ class Forecasting_budget_os_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-<<<<<<< HEAD
 			'dt.bulan_penggajian_name',
 			'dt.tahun_penggajian',
 			'dt.jml_nominal_masuk',
 			'dt.jml_nominal_lembur'
-=======
-			'dt.label1',
-			'dt.label2',
-			'dt.title',
-			'dt.description',
-			'dt.type',
-			'dt.show_date_start',
-			'dt.show_date_end'
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		];
 		
 
 		$sIndexColumn = $this->primary_key;
-<<<<<<< HEAD
 		$sTable = '(select a.*, b.name_indo as bulan_penggajian_name from forecasting_budget a left join master_month b on b.id = a.bulan_penggajian)dt';
-=======
-		$sTable = '(select * from office_info)dt';
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		
 
 		/* Paging */
@@ -203,17 +185,13 @@ class Forecasting_budget_os_menu_model extends MY_Model
 			}
 			
 
-<<<<<<< HEAD
 			$jml_nominal_masuk_fmt  = number_format($row->jml_nominal_masuk, 2, ',', '.');
 			$jml_nominal_lembur_fmt = number_format($row->jml_nominal_lembur, 2, ',', '.');
 
-=======
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
 					'.$detail.'
-<<<<<<< HEAD
 					
 					'.$delete.'
 				</div>',
@@ -222,21 +200,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 				$row->tahun_penggajian,
 				'Rp. '.$jml_nominal_masuk_fmt,
 				'Rp. '.$jml_nominal_lembur_fmt
-=======
-					'.$edit.'
-					'.$delete.'
-				</div>',
-				$row->id,
-				$row->label1,
-				$row->label2,
-				$row->title,
-				$row->description,
-				$row->type,
-				$row->show_date_start,
-				$row->show_date_end
-
-
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 			));
 		}
 
@@ -289,7 +252,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 
 
 	public function add_data($post) { 
-<<<<<<< HEAD
 		
   		if(!empty($post['penggajian_month_fcast']) && !empty($post['penggajian_year_fcast']) && !empty($post['is_all_project_fcast'])){ 
   			
@@ -335,32 +297,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 
 
 			return $rs;
-=======
-		$show_date_start 	= trim($post['show_date_start']);
-		$show_date_end 		= trim($post['show_date_end']);
-
-  		if(!empty($post['label1']) && !empty($post['label2']) && !empty($post['title'])){ 
-  			if($post['info_type'] == 'Event'){
-  				$color = 'today';
-  			}else if($post['info_type'] == 'News'){
-  				$color = 'yellow';
-  			}else{
-  				$color = 'grey'; //orange
-  			}
-
-  			$data = [
-				'label1' 			=> trim($post['label1']),
-				'label2' 			=> trim($post['label2']),
-				'color'				=> $color,
-				'title' 			=> trim($post['title']),
-				'description' 		=> trim($post['description']),
-				'type' 				=> trim($post['info_type']),
-				'show_date_start' 	=> date("Y-m-d", strtotime($show_date_start)),
-				'show_date_end' 	=> date("Y-m-d", strtotime($show_date_end)),
-				'created_at'		=> date("Y-m-d H:i:s")
-			];
-			return $rs = $this->db->insert($this->table_name, $data);
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
   		}else return null;
 
 	}  
@@ -394,11 +330,7 @@ class Forecasting_budget_os_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-<<<<<<< HEAD
 		$mTable = '(select a.*, b.name_indo as bulan_penggajian_name from forecasting_budget a left join master_month b on b.id = a.bulan_penggajian
-=======
-		$mTable = '(select * from office_info
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -435,12 +367,7 @@ class Forecasting_budget_os_menu_model extends MY_Model
 	public function eksport_data()
 	{
 
-<<<<<<< HEAD
 		$sql = "select a.*, b.name_indo as bulan_penggajian_name from forecasting_budget a left join master_month b on b.id = a.bulan_penggajian
-=======
-		$sql = "select * from office_info
-			order by id asc
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		";
 
 		$res = $this->db->query($sql);
@@ -449,11 +376,7 @@ class Forecasting_budget_os_menu_model extends MY_Model
 	}
 
 
-<<<<<<< HEAD
 	public function getNewFcastRow($row,$id=0,$penggajian_month,$penggajian_year,$project='',$view=FALSE)
-=======
-	public function getNewFcastRow($row,$id=0,$period_start,$period_end,$view=FALSE)
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 	{ 
 		/*if($id > 0){ 
 			$data = $this->genFcastRow($id,$period_start,$period_end,$view);
@@ -464,25 +387,17 @@ class Forecasting_budget_os_menu_model extends MY_Model
 			$data 	.= '<td>No Data</td>';
 
 			
-<<<<<<< HEAD
 		}
 
 		
 		*/
 
 		$data = $this->genFcastRow($id,$penggajian_month,$penggajian_year,$project,$view);
-=======
-		}*/
-
-		$data = $this->genFcastRow($id,$period_start,$period_end,$view);
-
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 
 		return $data;
 	} 
 	
 	// Generate expenses item rows for edit & view
-<<<<<<< HEAD
 	public function genFcastRow($id,$penggajian_month,$penggajian_year,$project='',$view,$print=FALSE){ 
 
 		$dt = ''; 
@@ -587,19 +502,11 @@ class Forecasting_budget_os_menu_model extends MY_Model
 		 
 
 
-=======
-	public function genFcastRow($id,$period_start,$period_end,$view,$print=FALSE){ 
-
-		$dt = ''; 
-		
-		$rs = $this->db->query("select * from employees where emp_source = 'outsource'")->result(); 
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		$rd = $rs;
 
 		$row = 0; 
 		if(!empty($rd)){ 
 			$rs_num = count($rd); 
-<<<<<<< HEAD
 
 			$where_date='';
 			$jml_nominal_masuk  = 0;
@@ -653,16 +560,11 @@ class Forecasting_budget_os_menu_model extends MY_Model
 				
 				
 
-=======
-			
-			foreach ($rd as $f){
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 				$no = $row+1;
 				
 				if(!$view){ 
 
 					$dt .= '<tr>';
-<<<<<<< HEAD
 					$dt .= '<td>'.$no.'</td>';
 					$dt .= '<td>'.$f->emp_code.'</td>';
 					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
@@ -675,27 +577,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'total_jam_lembur['.$row.']','','total_jam_lembur','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($total_lembur_nominal,'total_lembur_nominal['.$row.']','','total_lembur_nominal','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdntotal_lembur_nominal" name="hdntotal_lembur_nominal['.$row.']" value="'.$hdntotal_lembur_nominal.'"/></td>';
-=======
-
-					$dt .= '<td>'.$f->emp_code.'</td>';
-					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_hari_kerja,'ttl_hari_kerja_edit['.$row.']','','ttl_hari_kerja_edit','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_edit" name="hdnid_edit['.$row.']" value="'.$f->id.'"/></td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'ttl_masuk_edit['.$row.']','','ttl_masuk_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_ijin,'ttl_ijin_edit['.$row.']','','ttl_ijin_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_cuti,'ttl_cuti_edit['.$row.']','','ttl_cuti_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa_edit['.$row.']','','ttl_alfa_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur_edit['.$row.']','','ttl_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'ttl_jam_kerja_edit['.$row.']','','ttl_jam_kerja_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'ttl_jam_lembur_edit['.$row.']','','ttl_jam_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 
 					
 					$dt .= '</tr>';
@@ -711,7 +592,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 						$dt .= '<tr>';
 					} 
 					
-<<<<<<< HEAD
 					$dt .= '<td>'.$no.'</td>';
 					$dt .= '<td>'.$f->emp_code.'</td>';
 					$dt .= '<td>'.$f->full_name.'</td>';
@@ -721,16 +601,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 					$dt .= '<td>'.$f->ttl_lembur.'</td>';
 					$dt .= '<td>'.$total_lembur_nominal.'</td>';
 					
-=======
-					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
-					$dt .= '<td>'.$f->total_masuk.'</td>';
-					$dt .= '<td>'.$f->total_ijin.'</td>';
-					$dt .= '<td>'.$f->total_cuti.'</td>';
-					$dt .= '<td>'.$f->total_alfa.'</td>';
-					$dt .= '<td>'.$f->total_lembur.'</td>';
-					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
-					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 					$dt .= '</tr>';
 
 					
@@ -738,7 +608,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 
 				$row++;
 			}
-<<<<<<< HEAD
 
 			$jml_nominal_masuk_fmt  = number_format($jml_nominal_masuk, 2, ',', '.');
 			$jml_nominal_lembur_fmt = number_format($jml_nominal_lembur, 2, ',', '.');
@@ -755,8 +624,6 @@ class Forecasting_budget_os_menu_model extends MY_Model
 			$dt .= '</tr>';
 
 
-=======
->>>>>>> f983dde128bd1ec26b6051048f2f2d179d532ab8
 		}
 
 		return [$dt,$row];

@@ -1,0 +1,1079 @@
+[33m1433c29[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtracker[m[33m, [m[1;31morigin/tracker[m[33m)[m upd
+[33m1268108[m upd
+[33mf983dde[m update
+[33mae6e52e[m Add firebase notification controller and API
+[33m54f8fe8[m Add firebase jwt
+[33m2010455[m Merge branch 'tracker' of https://github.com/raratiara/hrm into tracker
+[33m27ab336[m Merge branch 'tracker' of https://github.com/raratiara/hrm into tracker
+[33ma3c9c32[m upd
+[33mf39f1bb[m upd
+[33m2cdfc84[m Merge branch 'tracker' of https://github.com/raratiara/hrm into tracker
+[33m09c4620[m Merge branch 'tracker' of https://github.com/raratiara/hrm into tracker
+[33m171884d[m update menu
+[33m547d14f[m update menu
+[33m541852d[m upd
+[33m896a526[m upd
+[33mb4fd90a[m update
+[33m059c0fb[m update
+[33m91010b4[m upd
+[33m50fa40f[m upd
+[33mdc6f4aa[m upd
+[33m21a02f3[m upd
+[33mabb4ec4[m upd
+[33m8b74f33[m upd
+[33m1c49ce2[m upd
+[33mf8c2c6c[m upd
+[33mbcf41e3[m upd
+[33m5a401b9[m upd
+[33m744bd05[m upd
+[33m40b3ec1[m upd
+[33m217d842[m upd
+[33ma3cb912[m upd
+[33m2e9241e[m upd
+[33maac307c[m upd
+[33m311c850[m upd
+[33m39ac212[m upd
+[33m74fefb9[m upd
+[33m84fc36f[m upd
+[33m581724e[m upd
+[33m8b0b3b7[m upd
+[33m551e7f1[m upd
+[33m29538ee[m upd
+[33m82fee96[m upd
+[33mbe0c9ab[m upd
+[33m3c6c151[m upd
+[33m8d4fe44[m upd
+[33mcc9d7fc[m upd
+[33md331161[m upd
+[33m57c4c7a[m upd
+[33m1573ac5[m upd
+[33m67825c5[m upd
+[33ma55c7dd[m upd
+[33m67eac43[m add overtime type
+[33mdd958b7[m add overtime type
+[33m56a2c38[m upd
+[33m4886259[m upd
+[33m9b82403[m add report absen os
+[33m86abf45[m add report absen os
+[33m0a1e95a[m upd
+[33m0c9a4f9[m upd
+[33me8cf716[m upd
+[33m1bc70dd[m upd
+[33mef6fe94[m upd
+[33m57d91e9[m upd
+[33m1fee680[m upd
+[33mf88bd2b[m upd
+[33m75a048b[m add api ca
+[33m315d71f[m add api ca
+[33m800e6eb[m upd
+[33m3c1aba5[m upd
+[33m14de979[m upd
+[33m46a7be2[m upd
+[33m450f79d[m upd
+[33md8abfa5[m upd
+[33m228f025[m upd
+[33mf21e79c[m upd
+[33ma048e2c[m upd
+[33mdac65b0[m upd
+[33m7b624ed[m upd
+[33m4081e0f[m upd
+[33mcacdcdd[m upd
+[33mdbdc1fc[m upd
+[33m9690419[m upd
+[33mfa043dc[m upd
+[33mf5fbf55[m upd
+[33mcc3e7b8[m upd
+[33me2a6c55[m upd
+[33m9afe088[m upd
+[33medc6a40[m upd
+[33m4d0d868[m upd
+[33m778be4a[m upd
+[33m48e11c8[m upd
+[33m710ab71[m upd
+[33me45fb2d[m upd
+[33m1572411[m upd
+[33mc37f732[m upd
+[33m0c49459[m upd
+[33m1e36e08[m upd
+[33mccdaae6[m add overtime
+[33m0074bda[m add overtime
+[33m28dbe82[m upd
+[33m5b7cac1[m upd
+[33m38a3651[m upd
+[33m3c31a5f[m upd
+[33mafb6a37[m update
+[33m7a0f8ae[m update
+[33m3c0e188[m upd
+[33m8044d1a[m upd
+[33m1fb5f63[m upd
+[33mc98a985[m upd
+[33m7947895[m upd
+[33m01a9958[m upd
+[33m240e7b6[m upd
+[33mbce0582[m upd
+[33m9652b42[m upd
+[33m0175f09[m upd
+[33m123cf95[m add payslip
+[33me1db4dd[m add payslip
+[33md93fd13[m update
+[33m5311008[m update
+[33m17d1133[m add unbind
+[33mf7731df[m add unbind
+[33mf304d91[m update api
+[33me85294a[m update api
+[33mdf1c204[m upd
+[33m8ed87a9[m upd
+[33m28daab3[m upd
+[33m1943440[m upd
+[33m30dd171[m upd
+[33m24afa7e[m upd
+[33m5b67129[m upd
+[33macf775c[m upd
+[33m49bdc8d[m upd
+[33m7b5d761[m upd
+[33me9ecce7[m upd
+[33mc4babc2[m upd
+[33mccc4e6e[m update api
+[33m1b077d4[m update api
+[33m9097b96[m upd
+[33m119fb92[m upd
+[33m0879ab2[m update api
+[33me28f09a[m update api
+[33med5ccb2[m update api
+[33m24d26dd[m update api
+[33m96368e1[m add 1 device
+[33mb42cb9f[m add 1 device
+[33m89ca343[m upd location
+[33mc1f13b1[m upd location
+[33md71e032[m upd
+[33mc9854dd[m upd
+[33m63ccb48[m upd
+[33medc76e2[m upd
+[33mf0507f5[m upd
+[33m5449f2d[m upd
+[33me843a91[m add utc
+[33m4ce5775[m add utc
+[33mefc973e[m upd
+[33m31c1485[m upd
+[33m1e402a2[m upd
+[33mda54635[m upd
+[33mc9a65ba[m upd
+[33me67f49c[m upd
+[33mf598e97[m upd
+[33m4a7878b[m upd
+[33m554f16a[m upd
+[33m00e5b8b[m upd
+[33m75a9376[m upd
+[33mf0109f5[m upd
+[33m6bdefd9[m update
+[33m0cb295e[m update
+[33m77ccefa[m update
+[33mac846fa[m update
+[33m2a57b69[m update
+[33mf9242b6[m update
+[33m96dca1c[m update save tracker
+[33m5c9dab4[m update save tracker
+[33me37d90d[m update
+[33m3c89441[m update
+[33m869650f[m update
+[33m6b78084[m update
+[33mabc1e13[m update
+[33mb813bc8[m update
+[33me34ac64[m update
+[33m0d2580a[m update
+[33mddbd51e[m update
+[33md74cd21[m update
+[33mc975d61[m update
+[33md582ced[m update
+[33maa89335[m update
+[33m58dabdf[m update
+[33mdb5441e[m update
+[33m0b17cc9[m update
+[33mdd08ab6[m update
+[33m64603e0[m update
+[33m810e27a[m update
+[33m9986877[m update
+[33mf880287[m update
+[33mdcf8d68[m update
+[33mf1712de[m update
+[33md31c40f[m update
+[33m2cfb40d[m update
+[33m088d858[m update
+[33m7ba3f2b[m update
+[33mc965e53[m update
+[33macfbcc5[m update
+[33m91bfe9b[m update
+[33mc479a6d[m add meetings
+[33md9601fb[m add meetings
+[33mdba0281[m update
+[33m1bf5637[m update
+[33m22c22a8[m tes email
+[33m59bd6ef[m tes email
+[33m60213ca[m add filter tasklist
+[33mfc11494[m add filter tasklist
+[33mccfe5ea[m update
+[33mca3a387[m update
+[33m88593a0[m update api
+[33mcfb6c1b[m update api
+[33m90de7b6[m update api
+[33mc651ccc[m update api
+[33mef85da3[m update ganttchart tasklist
+[33m9512db8[m update ganttchart tasklist
+[33m5a3821e[m update Dashboard controller
+[33mb83bc6e[m update Dashboard controller
+[33m741e3ea[m update
+[33mcc6305e[m update
+[33m178bd05[m update
+[33m903a72a[m update
+[33m163c16d[m update
+[33maf0af49[m update
+[33m9b41f2d[m update
+[33mb1e754a[m update
+[33mf3674d4[m update
+[33m9ebc3ff[m update
+[33ma288fa1[m update
+[33m6af3108[m update
+[33m6bc8c29[m update
+[33m04ea7e1[m update
+[33m9c38d3c[m update
+[33m1bee7d0[m update
+[33mcacbc50[m update
+[33mabd038f[m update
+[33m6e08d00[m update
+[33mbd4ff8c[m update
+[33m183f81d[m update
+[33ma684823[m update
+[33m4b9bb7d[m update
+[33m6aa2a06[m update
+[33m4e5f841[m update
+[33m910d522[m update
+[33m313bb76[m update
+[33mb359ed0[m update
+[33m7f3a782[m update
+[33m8cf4148[m update
+[33m0e25feb[m update
+[33m1b43348[m update
+[33m86d78d3[m update
+[33mdf87e16[m update
+[33m260ca30[m update
+[33mbd85804[m update
+[33m7e024a5[m update
+[33m36323e1[m update
+[33md9c9ac1[m update
+[33m2261aa6[m update
+[33mf190877[m update
+[33m54bb7df[m update
+[33m3dcbe74[m update
+[33m1a31d1c[m update
+[33mdd5a80c[m update
+[33m62b93e5[m update
+[33mafd6da4[m update
+[33m130f975[m update
+[33mab185d3[m update
+[33mc76c24a[m update
+[33mc585a7c[m update
+[33m92be12e[m update
+[33m78341e4[m update
+[33mcc2903d[m update
+[33m2b11f5e[m update
+[33m46e029b[m update
+[33m7f12068[m update
+[33mf40e783[m update
+[33m1b84fb5[m update
+[33m4626b51[m update
+[33m79283a9[m update
+[33m145ff0e[m update
+[33m6e24d0c[m update
+[33mdd2fea5[m update
+[33mde10052[m update
+[33mf9dd93b[m update
+[33m3ea42db[m update
+[33m974c0c8[m update
+[33m2f400f0[m update
+[33m7384712[m update
+[33mc008fd8[m update
+[33m7dcd34c[m update
+[33m4cc06ff[m update
+[33m86662bf[m update
+[33mbd62703[m update
+[33md38cf65[m update
+[33m0e8c226[m update
+[33m2595ed5[m update
+[33m9af6d4d[m update
+[33mdbb247d[m update
+[33mc406071[m update
+[33m6cb69e6[m update
+[33m084de01[m update
+[33mc4b426f[m update
+[33m7c38838[m update
+[33m8a025fc[m update
+[33m0e6001e[m update
+[33m32ca569[m update
+[33m1850d81[m update
+[33m773c03e[m update
+[33m1616c9e[m update
+[33m6c71807[m update
+[33m07ac2bd[m update
+[33m3cad89d[m update
+[33meb36534[m update
+[33mbd08c53[m update
+[33m513ac23[m update
+[33m0f5af73[m update
+[33m7044b90[m update
+[33m2a0013e[m update
+[33me7c263c[m update
+[33mcbe98d5[m update
+[33m87e2bf1[m update
+[33m70b969d[m update
+[33m1ee5d59[m update
+[33m8626d70[m update
+[33me60b166[m update
+[33me1cafbe[m update
+[33mb8d0e0c[m update
+[33mcb877e1[m update
+[33m8301777[m update
+[33md57ccab[m update
+[33mb2ede77[m update
+[33m7ddae18[m update
+[33m16549bd[m update
+[33m943ff6d[m update
+[33me684bf2[m update
+[33mcc468f4[m update
+[33m5ec4c87[m update
+[33m37f5e8f[m update
+[33m7f77019[m update
+[33m6adb6a7[m update
+[33m4649508[m update
+[33m49a97dd[m update
+[33mf6f1e4c[m update
+[33m0921e09[m update
+[33mf001b9d[m Add files via upload
+[33md76f994[m Add files via upload
+[33m9394863[m Add files via upload
+[33mc6ea614[m Add files via upload
+[33m2cc4185[m Add files via upload
+[33mba2da40[m Add files via upload
+[33mc5326af[m update
+[33mf7ed712[m update
+[33mf19a98d[m update
+[33m64f8e5a[m update
+[33ma51682c[m update
+[33m1800936[m update
+[33md7699fb[m update
+[33m945c8ee[m update
+[33m5e24272[m update
+[33ma9db2a8[m update
+[33m9776646[m update
+[33m66d7f43[m update
+[33m58d7d2f[m update
+[33m0e3d8eb[m update
+[33m2319e44[m update
+[33mae60130[m update
+[33m1dac044[m update
+[33m62f05b6[m update
+[33m245cc30[m update
+[33md34985f[m update
+[33ma505deb[m update
+[33m8e6121b[m update
+[33ma064955[m update
+[33m405bfb4[m update
+[33m2c026c8[m update
+[33ma847066[m update
+[33ma8de109[m update
+[33md47e64c[m update
+[33m1881028[m update
+[33m076b8dc[m update
+[33mebe846b[m update
+[33m4b78e46[m update
+[33m8f5c4de[m update
+[33md036a75[m update
+[33m04ec9dc[m update
+[33mb726e22[m update
+[33m8599afe[m update
+[33mece28f8[m update
+[33m6e66f52[m update
+[33m8f93855[m update
+[33m3eb439d[m update
+[33m5584b23[m update
+[33m6ce0569[m update
+[33m593fb6d[m update
+[33m115b9a6[m update
+[33m46b9910[m update
+[33m520b935[m update
+[33mbf8caf9[m update
+[33m5c4d868[m update
+[33mf1f10b8[m update
+[33m2f7ce3b[m update
+[33mdd33e93[m update
+[33m7e929be[m update
+[33mdf35276[m update
+[33m977b9f3[m update
+[33m6e1584a[m update
+[33m0824dcc[m update api
+[33m9b4a6dc[m update api
+[33mc371735[m update
+[33ma81120d[m update
+[33m4bbb4bd[m update dash reimburs
+[33me4e6f4d[m update dash reimburs
+[33mc0a001d[m update
+[33mab5abfd[m update
+[33mcf96779[m update design
+[33m68150a3[m update design
+[33m8ba5a26[m update api wa
+[33ma2458c1[m update api wa
+[33m3937ba9[m update
+[33m756cca1[m update
+[33m34d1b0c[m update
+[33ma6b118a[m update
+[33m90b5687[m update
+[33ma58e8b9[m update
+[33mda17649[m update
+[33m9b0b337[m update
+[33m8301567[m update
+[33m584e6b6[m update
+[33m8bb671b[m update
+[33m1df1ec8[m update
+[33m7f5cc26[m update
+[33me60daa0[m update
+[33me1e0b5c[m update
+[33m2ac2929[m update
+[33m7f355af[m update
+[33mccc7abe[m update
+[33m5a46441[m update
+[33md907c54[m update
+[33m9af4d2b[m update
+[33m92e9610[m update
+[33md9c240e[m update
+[33m64b3b4a[m update
+[33m4d797c1[m update
+[33m57f1a98[m update
+[33m4d7f28e[m update design
+[33m8286831[m update design
+[33m6c1395f[m update
+[33md634830[m update
+[33m89c721c[m update
+[33m8d55e01[m update
+[33m48214ed[m update
+[33m4f37b5d[m update
+[33m6c67ca2[m update
+[33m605044e[m update
+[33m71f62bf[m update
+[33mb03a130[m update
+[33mc8e209c[m update
+[33m8974c62[m update
+[33mc464744[m update
+[33mdc5c281[m update
+[33mdf52546[m update
+[33m231126c[m update
+[33m81a196e[m update
+[33mebd79e1[m update
+[33m75a3add[m update
+[33mb13cbf1[m update
+[33m26ffb9e[m update
+[33m1e79bf4[m update
+[33m3482922[m update
+[33m471cd45[m update
+[33m5a46ef2[m update
+[33m2898333[m update
+[33mba1059d[m update
+[33m947f0e3[m update
+[33mb777b6a[m update
+[33mb3a8928[m update
+[33m3647a97[m update
+[33m8667720[m update
+[33m2a39073[m update
+[33mc12552b[m update
+[33mdc0e6ea[m update
+[33mfacf038[m update
+[33mc022133[m update
+[33m9cc9c11[m update
+[33m54d087b[m update
+[33m3e05450[m update
+[33me91a4a9[m update
+[33m81cadd7[m update
+[33mcb07f6a[m update
+[33mcf0e177[m update
+[33m8a2d074[m update
+[33med92033[m update
+[33m2b5fd9e[m update
+[33mdcf39f8[m update
+[33mce7b85e[m update
+[33m5ea5544[m update
+[33ma7a919d[m update
+[33mc5a8bed[m update
+[33me668a13[m update
+[33mc040ec8[m update
+[33mf06dab4[m update
+[33m1f85280[m update
+[33m98c07ca[m update
+[33m2314216[m update
+[33m69b86d0[m update
+[33mce5e39e[m update
+[33m7f4245b[m update
+[33md93902b[m update
+[33m743af94[m update
+[33mafc0ffc[m update
+[33mb016641[m update
+[33mc757f21[m update
+[33m9b8c676[m update
+[33m08e70c4[m update
+[33mff561b0[m update
+[33m1b7cb75[m update
+[33mb440825[m update
+[33m6af1caa[m update
+[33m4d9c7e4[m update
+[33mb46dddc[m update
+[33m7d7ffa3[m update
+[33m075e068[m update
+[33md07fe5c[m update
+[33m3580a95[m update
+[33m61bfe36[m update
+[33m35f470a[m update
+[33m22e21ed[m update
+[33md0a3f43[m update
+[33mae99ee8[m update
+[33m7a9fe77[m update
+[33ma9dd081[m update
+[33m6783923[m update
+[33m62362c0[m update
+[33mf4dac4a[m update
+[33me9a58bc[m update
+[33m41ea654[m update
+[33md903b90[m update
+[33m416e18e[m update
+[33mb9d72ea[m update
+[33m5645f5c[m update
+[33me5749ed[m update
+[33me5fab2d[m update
+[33mbdffc97[m update
+[33m239b82a[m update
+[33mb468060[m update
+[33m6ccb634[m update
+[33m45572c9[m update
+[33m6220d3a[m update
+[33md584939[m update
+[33mbd2895b[m update
+[33m6a53b2b[m update
+[33m1cd3e56[m update
+[33me499878[m update
+[33mdbe5f2c[m update
+[33me836e43[m update
+[33m77af6fe[m update
+[33me73dd6c[m update
+[33m5cc989b[m update
+[33m854627b[m update
+[33m28e7eae[m update
+[33m666f6c1[m update
+[33m2ecfe29[m update
+[33m0ab49c5[m update design modal form dan warna reimburs
+[33m9691c56[m update design modal form dan warna reimburs
+[33m349f537[m update
+[33ma90e6d4[m update
+[33m4322541[m update dasboard emp details
+[33m9dc9e96[m update dasboard emp details
+[33m739f28b[m update dashboard emp details
+[33mf88e6af[m update dashboard emp details
+[33m88da2d6[m update
+[33m176857c[m update
+[33m817de85[m update
+[33m04dd6fb[m update
+[33med5c274[m update
+[33ma091044[m update
+[33m6d81133[m update
+[33m850e512[m update
+[33m8918895[m update
+[33m6670903[m update
+[33mf24ac9a[m update
+[33meaa0e52[m update
+[33m0c1064d[m update
+[33m37da148[m update
+[33mb6096a5[m update
+[33m9481e38[m update
+[33m40cd227[m update
+[33m57b08be[m update
+[33m125f174[m update
+[33maa67e7c[m update
+[33mf2a6a44[m update
+[33mf276165[m update
+[33m0560256[m update
+[33m5c55c72[m update
+[33m27a5b83[m update
+[33ma6a4823[m update
+[33m3dc8b99[m update
+[33m95b32ad[m update
+[33m78d5adc[m update
+[33m9ae1d1f[m update
+[33meb545e3[m update
+[33m343fae7[m update
+[33m4d8361c[m update
+[33m095b4af[m update
+[33m81b61da[m update
+[33m0dc100e[m update
+[33m6fcf2d2[m update
+[33m848ff73[m update
+[33m25d34a8[m update
+[33mb2e2337[m update
+[33m2a85754[m update
+[33m5b02a35[m update
+[33m0f1d77c[m update
+[33mf35191e[m update
+[33m26755eb[m update
+[33m6219e1f[m update
+[33mc7b5bb2[m update
+[33m45f35a3[m update
+[33m539fdf5[m update
+[33m49bcba3[m update
+[33m6d2a629[m update
+[33m1ee2c2d[m update
+[33mf14601d[m update
+[33mffb9e33[m update
+[33mec8efc5[m update
+[33mb0f2ccc[m update
+[33m967b780[m update
+[33ma2ba2d2[m update
+[33mdf12a6b[m update
+[33m30c2a42[m update
+[33mae45feb[m update
+[33m8b85a65[m update
+[33ma19df6b[m update
+[33mfd525a6[m update
+[33mfee6558[m update
+[33m1b0d662[m update
+[33m8676040[m update
+[33m39dae4b[m update
+[33m85a8114[m update
+[33m851054c[m update
+[33m8a98964[m update
+[33me0b598b[m update
+[33m9818b76[m update bypass
+[33m51379ab[m update bypass
+[33m870c38f[m update
+[33m56df07e[m update
+[33mbfd1f74[m update
+[33mae6206e[m update
+[33md403dc4[m update
+[33ma46d66a[m update
+[33mc1201fe[m update
+[33m7282d5f[m update
+[33mbbc3dcf[m update
+[33m112fc5b[m update
+[33m0fcd2aa[m update
+[33m901665a[m update
+[33mc58e78d[m update
+[33m66efc87[m update
+[33mad8d932[m update
+[33mef08602[m update
+[33m4790b2d[m update
+[33me914462[m update
+[33ma70c8ad[m update
+[33m86358ba[m update
+[33mdd445f9[m update
+[33m23e4313[m update
+[33m5311171[m update
+[33m927b9ed[m update
+[33m092486c[m update
+[33m107004f[m update
+[33ma372b86[m update
+[33m12f4c2a[m update
+[33m8e9dc96[m update
+[33m73d0714[m update
+[33m67ba002[m update
+[33m8835e45[m update
+[33mb01ba9e[m update
+[33meced832[m update
+[33maa137c4[m update
+[33m2dd0f59[m update
+[33mfde983c[m update
+[33m44dd555[m update
+[33m643eae3[m update
+[33m0c3e738[m update
+[33mcf4c814[m update
+[33mb16e0ba[m update
+[33m9f04084[m update
+[33ma693cc6[m update
+[33m2841d00[m update
+[33m795484c[m update
+[33madbecba[m update
+[33m1f47188[m update
+[33ma35fbd6[m update
+[33m8057730[m update
+[33ma1f16fa[m update
+[33m0b67362[m update
+[33m8d7ee87[m update
+[33m21ea4b5[m update
+[33m53cffbc[m update
+[33mbb273db[m update
+[33m3086fcd[m update
+[33mcb86782[m update
+[33m81dd182[m update
+[33m2c7e5ea[m update
+[33m85066d5[m update
+[33m711d77e[m update
+[33m866e0fa[m update
+[33m77e193b[m update
+[33mf1cb769[m update
+[33m7be3309[m update
+[33mdee73d8[m update
+[33m9b9d15d[m update
+[33m8844d4f[m update
+[33m2034108[m update
+[33mff94c37[m update
+[33mb4f5c64[m update
+[33mc076306[m update
+[33m63ff28c[m update
+[33m9e884d2[m update
+[33me001016[m update
+[33mff4063a[m update
+[33m56aec38[m update
+[33md1f0c78[m update
+[33m2825dc4[m update
+[33m32380ff[m update
+[33md456af9[m update
+[33m393d1b9[m update
+[33mba4fb1e[m update
+[33m7984264[m update
+[33mbbd872b[m update
+[33m47c4f53[m update
+[33m29a1ce2[m update
+[33m6b9dece[m update
+[33maea13ed[m update
+[33m54e0cc8[m update
+[33m1d19d38[m update
+[33m426dcd3[m update
+[33m6d597f5[m update
+[33mdfcdaf8[m update
+[33m08b2837[m update
+[33m86f22f9[m update
+[33m7d2cecb[m update
+[33m89e24e3[m update
+[33mdbc5520[m update
+[33m21bf51f[m update
+[33m1e6cb93[m update
+[33m43f7ef3[m update
+[33mc290632[m update
+[33mc8005a2[m update
+[33me119545[m update
+[33m5c40dae[m update
+[33m16fac01[m update
+[33m2977b3a[m update
+[33me403d03[m update
+[33mac08393[m update
+[33m91b5042[m update
+[33m04d8549[m update
+[33me3c7f8f[m update
+[33mec9c800[m update
+[33meb2970f[m update
+[33mced831d[m update
+[33m07279f1[m update
+[33mc932710[m update
+[33mafec6dc[m update
+[33m36b6032[m update
+[33m7d1892e[m update
+[33m5aa24cc[m update
+[33mc98fc20[m update
+[33m7754f62[m update
+[33mf8e12da[m update
+[33m9862ad6[m update
+[33m04c8f44[m update
+[33m400f11e[m update
+[33meb2753b[m update
+[33mf1588eb[m update
+[33m591a029[m update
+[33m830fd48[m update
+[33macd4008[m update
+[33me0617c3[m update
+[33mae0861e[m update
+[33m82b970c[m update
+[33m05db781[m update
+[33m29042b4[m update
+[33mbb63055[m update
+[33m5149468[m update
+[33m25897af[m update
+[33m0df8d12[m update
+[33mff89878[m update
+[33m109d6ca[m update
+[33m6047081[m update
+[33m0f27680[m update
+[33mb191663[m update
+[33ma3dd75f[m update
+[33mde0bf0d[m update
+[33maa9e90c[m update
+[33mb123119[m update
+[33m757ce1a[m update
+[33mb4a11d6[m update
+[33mb1fa7ec[m update
+[33ma601d2f[m update
+[33m0b269e6[m update
+[33m2531a1e[m update
+[33m516073c[m update
+[33m0490063[m update
+[33m2c17761[m update
+[33md1fb98e[m update
+[33md3370c4[m update
+[33m624b8b5[m update
+[33m480e73b[m update
+[33m9df0bd8[m update
+[33m1557a2d[m Add files via upload
+[33m8e90646[m Add files via upload
+[33m4bbeae6[m Add files via upload
+[33m6663bf5[m Add files via upload
+[33m22406c3[m Add files via upload
+[33mc6008ad[m Add files via upload
+[33m430d333[m update
+[33m5bf72f9[m update
+[33m82f5362[m update
+[33mb19aea2[m update
+[33mcb37602[m Remove config file from Git tracking
+[33m7bfa345[m Remove config file from Git tracking
+[33mba41dec[m update
+[33mff5b48a[m update
+[33mf2644eb[m update
+[33mabd5996[m update
+[33m50e2fe6[m update
+[33mb27ec29[m update
+[33m378bd8b[m update
+[33ma9f7c9a[m update
+[33m0daf40a[m update
+[33m40eb668[m update
+[33mabcabf0[m update
+[33me60a88a[m update
+[33m5e79375[m Add files via upload
+[33mee64b92[m Add files via upload
+[33m6524036[m Testing tracker teltonika FMB140
+[33m4ee0330[m Testing tracker teltonika FMB140
+[33m70aadaf[m update
+[33m3a38440[m update
+[33m428cfe8[m update
+[33m31deab0[m update
+[33md600528[m update
+[33ma354f5a[m update
+[33mbb9c9ee[m update
+[33mff96d70[m update
+[33m13d5c48[m update
+[33m7dd22f9[m update
+[33m4854d9e[m update
+[33mbc12643[m update
+[33m1164e09[m update
+[33m9a9267e[m update
+[33m3e0dcf9[m update
+[33mf8dd59c[m update
+[33m976cf21[m update
+[33m825e6e1[m update
+[33mf4d0d67[m update
+[33mbda57a0[m update
+[33m6d24e73[m update
+[33m37c2e4f[m update
+[33m8ec996f[m update
+[33mfac4f36[m update
+[33m8a38218[m update
+[33m948046e[m update
+[33m39accc2[m update
+[33mbf75bf1[m update
+[33md63737f[m update
+[33m7090299[m update
+[33md5c3f0d[m update
+[33m18419a4[m update
+[33m3045457[m update
+[33m3597f78[m update
+[33m1158b23[m update
+[33mf8d00eb[m update
+[33m1e74077[m update
+[33m772b086[m update
+[33m611654f[m update
+[33mfcbf716[m update
+[33m25d8a04[m update
+[33m1cf7465[m update
+[33m788e0bd[m update
+[33m7ef7a7b[m update
+[33m0756d0f[m update
+[33m0b6fb2c[m update
+[33m9ba406c[m update
+[33m76a9859[m update
+[33m373ad3f[m update
+[33mc18d178[m update
+[33ma8a0697[m update
+[33m4ae76ea[m update
+[33m374b25a[m update
+[33mfd5ff47[m update
+[33mbd53263[m update
+[33m106f628[m update
+[33me09a399[m update
+[33mcef3476[m update
+[33m7f5ab7d[m update
+[33mb793dd2[m update
+[33m4819376[m update
+[33mce8cc98[m update
+[33mb1aff00[m update
+[33m6687c87[m update
+[33meeb361a[m update
+[33m9617e44[m update
+[33m16e296c[m update
+[33m71bf3ed[m update
+[33m5c47298[m update
+[33ma81459d[m update
+[33m3e0ffc5[m update
+[33m9ad6d89[m update
+[33ma22a9ef[m update
+[33m722718a[m update
+[33md30a15c[m update
+[33m011194d[m update
+[33m583551c[m update
+[33mcc48ffc[m update
+[33mbddcf7a[m update
+[33me16fd18[m update
+[33m07d77b9[m update
+[33m52a15c8[m update
+[33mfa69a83[m update
+[33m829f310[m update
+[33m4c2197e[m update
+[33m27919c7[m update
+[33m0f6520c[m update
+[33mdd4202f[m update
+[33me73a277[m update
+[33mef425ba[m update
+[33mc8aec9c[m update
+[33m2b774f2[m update
+[33mf013aa9[m update
+[33m5b15b31[m update
+[33me5282ff[m update
+[33md1ff4c4[m update
+[33m53f74e5[m update
+[33mddd3b5c[m update
+[33m4d97128[m update
+[33m2a137f4[m update
+[33m378d4f1[m update
+[33me2294c3[m update
+[33m72e3f1f[m update
+[33m0ac4b19[m update
+[33m93ed6f9[m update
+[33mfb8f5bf[m update
+[33me0183af[m update
+[33mc1abd51[m update
+[33m8fc01d0[m update
+[33m7e2cb69[m update
+[33m990e478[m update
+[33mf4aebee[m update
+[33m7ceeb51[m update
+[33mb93ce2d[m update
+[33m0c2a347[m update
+[33m7f5c79b[m update
+[33mf527cc8[m update
+[33m3c0ca5b[m update
+[33m4df9681[m update
+[33m6111715[m update
+[33m03bb1c4[m update
+[33m70344ac[m update
+[33meea337a[m update
+[33m7c5d1b2[m update
+[33mbb87a72[m update
+[33md80dfa6[m update
+[33ma1780b2[m update
+[33m2e45850[m update
+[33mda94c5a[m update
+[33ma712c37[m update
+[33m8e8491a[m update
+[33m4127618[m update
+[33ma4dd789[m update
+[33mdaebb04[m update
+[33m6843302[m update
+[33mcf3fc5c[m update
+[33m32d5b4f[m update
+[33m52fa956[m update
+[33mdff1f79[m update
+[33m21204f7[m update
+[33m27480cd[m update
+[33m0929f0a[m update
+[33m22bb725[m update
+[33me18b6f6[m update
+[33mc103176[m update
+[33m3136044[m update
+[33m61625c8[m update
+[33m13b830a[m update
+[33m32ca838[m update
+[33md23b2e2[m update
+[33m5b7f2ea[m update
+[33m71b06bd[m update
+[33m56af589[m update
+[33m7b1c7b9[m update
+[33mef81951[m update
+[33m776063a[m update
+[33m0b2bc63[m commit
+[33m3f00fc3[m commit
+[33ma5ad855[m commit
+[33m758d043[m commit
+[33md770e06[m commit
+[33mc370521[m commit
+[33m850c744[m update
+[33m3d80bf1[m update
+[33mc6e4370[m commit
+[33m4fab75f[m commit
+[33me419e22[m update
+[33mc3e5328[m update
+[33m1628122[m update
+[33m93502a2[m update
+[33m77f69bd[m commit
+[33m84ac07f[m Merge branch 'main' of github-hrm:raratiara/hrm Merge
+[33m8e5db76[m Merge branch 'main' of github-hrm:raratiara/hrm Merge
+[33me7d3bc5[m Testing untuk merge conflict
+[33mdd7bc87[m Testing untuk merge conflict
+[33md2dc06a[m[33m ([m[1;31mgithub/main[m[33m)[m commit
+[33m1617edf[m commit
+[33m65c4d94[m commit
+[33m8414297[m commit
+[33mb78b3fb[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33m4e093f8[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33m9803dd3[m commit
+[33m117f47e[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33mb45111a[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33m2851806[m commit
+[33m6b29388[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33mda98eef[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33md51a3f5[m commit
+[33m95bd94d[m commit
+[33m8b1e78c[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33mfc9c26d[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33mb09ef03[m commit
+[33meec144b[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33m7132804[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33m1d413aa[m commit
+[33m3d5a669[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33mbcb7998[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33mad0a785[m commit
+[33m425df35[m change gitignore
+[33m2e23c18[m change gitignore
+[33m70b5f06[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33m3b93d87[m Merge branch 'main' of github-hrm:raratiara/hrm
+[33m50e6eb5[m commit
+[33mdbe228d[m Merge branch 'main' of github-hrm:raratiara/hrm Testing
+[33mf021419[m Merge branch 'main' of github-hrm:raratiara/hrm Testing
+[33m01ca6f6[m commit
+[33mf29c873[m Resolve conflict by removing db_hrm.sql
+[33m5f74984[m Resolve conflict by removing db_hrm.sql
+[33md6f1d66[m Tambahan file .gitattributes
+[33mbe352e8[m Tambahan file .gitattributes
+[33m43e0588[m Tambahkan kondisi pakai config local
+[33mea86a1d[m Tambahkan kondisi pakai config local
+[33m3177f17[m commit
+[33mde811b9[m update
+[33ma158667[m update
+[33med562e5[m update
+[33med17522[m Add files via upload
+[33m4205d2a[m Add files via upload
+[33me4709b1[m first commit
+[33mbe2d4e5[m first commit
+[33me06d4f7[m update
+[33md57b6df[m update
+[33ma8c5df1[m commit
+[33m769dfac[m commit
+[33m450b6ed[m commit
+[33m462eb41[m update css
+[33m0bc7334[m update
+[33meb4b12b[m update
+[33mda5232c[m update
+[33m0095074[m update
+[33m14bf197[m update
+[33m141dc71[m update bar
+[33m103bd47[m update bar
+[33m241cb31[m first commit
+[33ma123b45[m first commit
+[33ma00ec93[m project aim
