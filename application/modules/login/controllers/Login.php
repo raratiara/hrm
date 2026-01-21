@@ -42,6 +42,8 @@ class Login extends CI_Controller {
 
 			$sql2 = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = '".$post['username']."' or b.emp_code = '".$post['username']."') AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1"; // cek aktif user
 
+			
+
 			$auser = $this->db->query($sql2, [ $post['username'] ])->num_rows();
 			if($nuser > 0 && $auser < 1){ 
 				$nuser = $this->db->query($sql1, [ $post['username'] ])->row();
@@ -69,39 +71,45 @@ class Login extends CI_Controller {
 				} else {
 					/*$sql = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = ? or b.emp_code = ?) AND a.passwd = ? AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1";*/
 
-					$sql = "SELECT a.*, b.emp_code FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = '".$post['username']."' or b.emp_code = '".$post['username']."') AND a.passwd = '".md5($post['userpasswd'])."' AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1";
+					$sql = "SELECT a.*, b.emp_code, b.emp_source FROM ".$this->user_tabel." a left join employees b on b.id = a.id_karyawan WHERE (a.username = '".$post['username']."' or b.emp_code = '".$post['username']."') AND a.passwd = '".md5($post['userpasswd'])."' AND a.isaktif = 2 ORDER BY a.date_insert DESC LIMIT 1";
 
 					// username & password harus case sensitive untuk keamanan. jadi tidak perlu di strtolowercase
 					$user = $this->db->query($sql, [ $post['username'], md5($post['userpasswd']) ])->row();
 					//var_dump($user); exit;
 					if ($user) 
 					{
-						// keep it simple
-						$this->session->set_userdata([
-							'id' 		=> $user->user_id,
-							'isaktif' 	=> TRUE,
-							'username' 	=> $user->username,
-							'name' 		=> $user->name,
-							'role' 		=> $user->id_groups,
-							'branch' 	=> $user->id_branch,
-							'worker' 	=> $user->id_karyawan,
-							'base_menu' => $user->base_menu,
-							'ppFile' 	=> $user->ppFile
-						]);
-						
-						$updating = array();
-						if(isset($post['remember']) && $post['remember'] == 1){
-							$key = random_string('alnum', 64);
-							$cookie_time = _COOKIES_EXPIRE;
-							set_cookie(_COOKIES_NAME, $key, 3600*24*$cookie_time); // set expired 30 hari kedepan
-							// simpan key di database
-							$updating['cookie'] = $key;
+						if($user->emp_source == 'outsource'){
+							echo '<button class="close" data-close="alert"></button>
+								<span>Employee Outsource cant access this Web</span>';
+						}else{
+							// keep it simple
+							$this->session->set_userdata([
+								'id' 		=> $user->user_id,
+								'isaktif' 	=> TRUE,
+								'username' 	=> $user->username,
+								'name' 		=> $user->name,
+								'role' 		=> $user->id_groups,
+								'branch' 	=> $user->id_branch,
+								'worker' 	=> $user->id_karyawan,
+								'base_menu' => $user->base_menu,
+								'ppFile' 	=> $user->ppFile
+							]);
+							
+							$updating = array();
+							if(isset($post['remember']) && $post['remember'] == 1){
+								$key = random_string('alnum', 64);
+								$cookie_time = _COOKIES_EXPIRE;
+								set_cookie(_COOKIES_NAME, $key, 3600*24*$cookie_time); // set expired 30 hari kedepan
+								// simpan key di database
+								$updating['cookie'] = $key;
+							}
+							// Updating last login & cookie if set
+							$updating['last_update_login'] = date('Y-m-d H:i:s');
+							$this->db->update($this->user_tabel, $updating, array('user_id' => $user->user_id));
+							
+							echo 'Welcome';
 						}
-						// Updating last login & cookie if set
-						$updating['last_update_login'] = date('Y-m-d H:i:s');
-						$this->db->update($this->user_tabel, $updating, array('user_id' => $user->user_id));
 						
-						echo 'Welcome';
 					}
 					else {
 						echo '<button class="close" data-close="alert"></button>

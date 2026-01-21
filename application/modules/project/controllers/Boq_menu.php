@@ -6,20 +6,20 @@ class Boq_menu extends MY_Controller
 	/* Module */
  	const  LABELMODULE				= "boq_menu"; // identify menu
  	const  LABELMASTER				= "Menu BOQ";
- 	const  LABELFOLDER				= "hr_menu"; // module folder
+ 	const  LABELFOLDER				= "project"; // module folder
  	const  LABELPATH				= "boq_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "hr_menu"; // adjusted 1st sub parent segment
+ 	const  LABELNAVSEG1				= "project"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Customer","Project","Tahun"];
+	public $tabel_header 			= ["ID","Customer","Project","Periode"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Customer","Project","Tahun"];
+	public $colnames 				= ["ID","Customer","Project","Periode"];
 	public $colfields 				= ["id","customer_name","project_name","tahun"];
 
 	/* Form Field Asset */
@@ -35,7 +35,7 @@ class Boq_menu extends MY_Controller
 		$field['selproject'] 		= $this->self_model->return_build_select2me($msproject,'','','','project_boq','project_boq','project_boq','','id','project_desc',' ','','','',1,'-');
 		
 
-		$field['txttahun'] 			= $this->self_model->return_build_txt('','tahun_boq','tahun_boq');
+		$field['txtperiode'] 		= $this->self_model->return_build_txt('','periode','periode','','','readonly');
 
 
 		
@@ -103,6 +103,16 @@ class Boq_menu extends MY_Controller
 	}
 
 
+	public function getDataProjectOutsource(){
+		$post 		= $this->input->post(null, true);
+		$project 	= $post['project'];
+
+		$rs =  $this->db->query("select * from project_outsource where id = '".$project."' ")->result(); 
+		
+
+		echo json_encode($rs);
+	}
+
 
 	public function genboqrow()
 	{ 
@@ -128,6 +138,73 @@ class Boq_menu extends MY_Controller
 			$this->load->view('errors/html/error_hacks_401');
 		}
 	}
+
+
+
+	public function print_pdf($id)
+	{ 
+	    error_reporting(E_ALL);
+	    ini_set('display_errors', 1);
+
+	    // ambil 1 header saja (row, bukan result)
+	    $header = $this->db->query(
+	        'select a.*,
+			(case when t.jenis_pekerjaan != "" and t.lokasi != "" then concat(t.code," (",t.lokasi," - ",t.jenis_pekerjaan,")")
+				when t.jenis_pekerjaan != "" and t.lokasi = "" then concat(t.code," (",t.jenis_pekerjaan,")")
+				when t.lokasi != "" and t.jenis_pekerjaan = "" then concat(t.code," (",t.lokasi,")")
+				else t.code end
+				) as project_name,
+			    b.name as customer_name,
+			    t.periode_start, t.periode_end,
+			    t.management_fee
+			from project_outsource_boq a
+			left join project_outsource t on t.id = a.project_outsource_id
+			left join data_customer b on b.id = t.customer_id
+			where a.id = ?',
+	        [$id]
+	    )->row();
+
+	    if (!$header) {
+	        show_error('Data tidak ditemukan');
+	        return;
+	    }
+
+	    // ambil detail (pakai id sebagai foreign key misalnya)
+	    $detail = $this->db->query(
+	        "select b.master_header_boq_id, b.name, b.is_active, b.parent_id, b.no_urut, a.jumlah,
+				a.harga_satuan, a.jumlah_harga,
+				bb.name AS header_name, bb.id as header_id,
+					cc.name AS parent_name, bb.no_urut as no_urut_header, cc.no_urut as no_urut_parent
+			from project_outsource_boq_detail a
+			left join master_boq_detail b on b.id = a.ms_boq_detail_id
+			left join master_boq_header c on c.id = b.master_header_boq_id
+			LEFT JOIN master_boq_header bb ON bb.id = b.master_header_boq_id
+			LEFT JOIN master_boq_parent_detail cc ON cc.id = b.parent_id
+			where a.boq_id = ?
+			ORDER BY 
+				bb.no_urut ASC,
+				cc.no_urut ASC,
+				b.no_urut ASC
+			",
+	        [$id]
+	    )->result();
+
+	    $data = [
+	        'header' => $header,
+	        'detail' => $detail
+	    ];
+
+	    $filename = 'BOQ_' . date('Ymd_His') . '.pdf';
+
+	    $this->load->library('html_pdf');
+	    $this->html_pdf->filename = $filename;
+
+	    $this->html_pdf->load_view('pdf/boq', $data);
+	    $this->html_pdf->render_pdf();
+	    $this->html_pdf->stream_pdf(false); // tampil di browser
+	}
+
+
 
 
 
