@@ -120,16 +120,13 @@ function load_data()
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					
-					$('[name="label1"]').val(data.label1);
-					$('[name="label2"]').val(data.label2);
-					$('[name="title"]').val(data.title);
-					$('[name="description"]').val(data.description);
+					$('[name="periode"]').val(data.periode);
+					$('select#customer_boq').val(data.customer_id).trigger('change.select2');
+					//$('select#project_boq').val(data.project_outsource_id).trigger('change.select2');
+					getProject(data.customer_id,'selected',data.project_outsource_id);
 
-					var show_date_start = getFormattedDateTime(data.show_date_start);
-					var show_date_end = getFormattedDateTime(data.show_date_end);
-					$('[name="show_date_start"]').val(show_date_start);
-					$('[name="show_date_end"]').val(show_date_end);
-					$('[name="info_type"][value="'+data.type+'"]').prop('checked', true);
+					getListCurrentBoq(data.id, data.project_outsource_id, data.customer_id);
+
 
 					
 					$.uniform.update();
@@ -137,13 +134,25 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.employee').html(data.employee_name);
-					$('span.task').html(data.task);
-					$('span.progress').html(data.progress_percentage);
-					$('span.status').html(data.status_name);
-					$('span.task_parent').html(data.parent_name);
-					$('span.due_date').html(data.due_date);
-					$('span.solve_date').html(data.solve_date);
+					$('span.periode').html(data.periode);
+					$('span.customer_boq').html(data.customer_name);
+					$('span.project_boq').html(data.project_name);
+
+					//getListCurrentBoq(data.id, data.project_outsource_id, data.customer_id);
+
+					var locate = 'table.boq-list_view';
+					$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id:data.id, customer: data.customer_id, project: data.project_outsource_id, view:true },success: function (response) {
+						var obj = JSON.parse(response); 
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+					
 					
 					
 					$('#modal-view-data').modal('show');
@@ -260,18 +269,59 @@ $('#project_boq').on('change', function () {
 
  		document.getElementById("divBoq").style.display = "block";
 
-		var locate = 'table.boq-list';
-		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project},success: function (response) {
-			var obj = JSON.parse(response); 
-			$(locate+' tbody').html(obj[0]);
-			
-			wcount=obj[1];
-		}
-		}).done(function() {
-			//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-			tSawBclear(locate);
-			///expenseviewadjust(lstatus);
-		});
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataProjectOutsource',
+			data: { project: project },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){  
+					var periode = '';
+					if(data[0].periode_start != '' && data[0].periode_end != '' && data[0].periode_start != null && data[0].periode_end != null){
+						var periode = data[0].periode_start+' s/d '+data[0].periode_end;
+					}
+
+					$(`input[name="periode"]`).val(periode);
+					
+					var locate = 'table.boq-list';
+					$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project},success: function (response) {
+						var obj = JSON.parse(response); 
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+					
+				} else { 
+					$(`input[name="periode"]`).val('');
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+
+		
 
  	}
 
@@ -305,6 +355,30 @@ $('#customer_boq').on('change', function () {
 
 });
 
+
+
+function getListCurrentBoq(id,project,customer){ 
+	
+ 	
+ 	if(project != '' && customer != ''){ 
+
+ 		document.getElementById("divBoq").style.display = "block";
+
+		var locate = 'table.boq-list';
+		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: id, customer: customer, project: project},success: function (response) {
+			var obj = JSON.parse(response);
+			$(locate+' tbody').html(obj[0]);
+			
+			wcount=obj[1];
+		}
+		}).done(function() {
+			//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+			tSawBclear(locate);
+			///expenseviewadjust(lstatus);
+		});
+
+ 	}
+}
 
 
 
@@ -374,14 +448,39 @@ function recalcBoqTotals(){
 	      headerTotals[header] = { jumlah: 0, harga: 0 };
 	    }
 
-	    parentTotals[parentKey].jumlah += jumlahVal;
+	    /*parentTotals[parentKey].jumlah += jumlahVal;
 	    parentTotals[parentKey].harga  += hargaVal;
 
 	    headerTotals[header].jumlah += jumlahVal;
 	    headerTotals[header].harga  += hargaVal;
 
 	    grandTotalJumlah += jumlahVal;
-	    grandTotalHarga  += hargaVal;
+	    grandTotalHarga  += hargaVal;*/
+
+	    parentTotals[parentKey].jumlah += jumlahVal;
+		parentTotals[parentKey].harga  += hargaVal;
+
+		// ================= HEADER =================
+		if (header.toUpperCase().trim() === 'GAJI POKOK') {
+
+		    // JUMLAH hanya dari parent "Gaji Pokok"
+		    if (parent.toUpperCase().trim() === 'GAJI POKOK') {
+		        headerTotals[header].jumlah += jumlahVal;
+		        grandTotalJumlah += jumlahVal;
+		    }
+
+		} else {
+
+		    // header lain normal
+		    headerTotals[header].jumlah += jumlahVal;
+		    grandTotalJumlah += jumlahVal;
+		}
+
+		// JUMLAH_HARGA tetap normal
+		headerTotals[header].harga += hargaVal;
+		grandTotalHarga += hargaVal;
+
+
 
   	});
 
@@ -452,11 +551,11 @@ function recalcBoqTotals(){
 	  	$('span#pph_harga').html(formatNumber(total_pph));
   	}
   	
-  	
 
 
 
-  	var jml_grand_total = Number(jml_total)+Number(total_ppn)+Number(total_pph);
+
+  	var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph);
   	$('[name="hdngrand_total"]').val(jml_grand_total);
   	$('span#grand_total').html(formatNumber(jml_grand_total));
   	
@@ -479,7 +578,7 @@ function set_harga_ppn(){
   	$('span#ppn_harga').html(formatNumber(total_ppn));
 
 
-  	var jml_grand_total = Number(jml_total)+Number(total_ppn)+Number(total_pph);
+  	var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph);
   	$('[name="hdngrand_total"]').val(jml_grand_total);
   	$('span#grand_total').html(formatNumber(jml_grand_total));
 
@@ -500,7 +599,7 @@ function set_harga_pph(){
   	$('span#pph_harga').html(formatNumber(total_pph));
 
 
-  	var jml_grand_total = Number(jml_total)+Number(total_ppn)+Number(total_pph); 
+  	var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph); 
   	$('[name="hdngrand_total"]').val(jml_grand_total);
   	$('span#grand_total').html(formatNumber(jml_grand_total));
 
@@ -567,6 +666,18 @@ function set_with_pph(){
 
         set_harga_pph();
     }
+}
+
+
+
+function print_pdf(id){
+    if(!id){
+        alert('ID tidak valid');
+        return;
+    }
+ 
+    var url = module_path + '/print_pdf/' + id; // sesuaikan controller
+    window.open(url, '_blank');
 }
 
 
