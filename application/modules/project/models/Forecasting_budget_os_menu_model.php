@@ -361,4 +361,96 @@ class Forecasting_budget_os_menu_model extends MY_Model
 	}
 
 
+	public function getNewFcastRow($row,$id=0,$period_start,$period_end,$view=FALSE)
+	{ 
+		/*if($id > 0){ 
+			$data = $this->genFcastRow($id,$period_start,$period_end,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+
+			$data 	.= '<td>No Data</td>';
+
+			
+		}*/
+
+		$data = $this->genFcastRow($id,$period_start,$period_end,$view);
+
+
+		return $data;
+	} 
+	
+	// Generate expenses item rows for edit & view
+	public function genFcastRow($id,$period_start,$period_end,$view,$print=FALSE){ 
+
+		$dt = ''; 
+		
+		$rs = $this->db->query("select * from employees where emp_source = 'outsource'")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			foreach ($rd as $f){
+				$no = $row+1;
+				
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$f->emp_code.'</td>';
+					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_hari_kerja,'ttl_hari_kerja_edit['.$row.']','','ttl_hari_kerja_edit','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_edit" name="hdnid_edit['.$row.']" value="'.$f->id.'"/></td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'ttl_masuk_edit['.$row.']','','ttl_masuk_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_ijin,'ttl_ijin_edit['.$row.']','','ttl_ijin_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_cuti,'ttl_cuti_edit['.$row.']','','ttl_cuti_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa_edit['.$row.']','','ttl_alfa_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur_edit['.$row.']','','ttl_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'ttl_jam_kerja_edit['.$row.']','','ttl_jam_kerja_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'ttl_jam_lembur_edit['.$row.']','','ttl_jam_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					
+					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
+					$dt .= '<td>'.$f->total_masuk.'</td>';
+					$dt .= '<td>'.$f->total_ijin.'</td>';
+					$dt .= '<td>'.$f->total_cuti.'</td>';
+					$dt .= '<td>'.$f->total_alfa.'</td>';
+					$dt .= '<td>'.$f->total_lembur.'</td>';
+					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
+					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
+	}
+
+
 }

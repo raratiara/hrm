@@ -36,15 +36,22 @@ class Forecasting_budget_os_menu extends MY_Controller
 
 		$field = [];
 
-		$field['seltype'] 			= $this->self_model->return_build_radio('', [['Event','Event'],['News','News']], 'info_type', '', 'inline');
-		$field['txtlabel1'] 		= $this->self_model->return_build_txt('','label1','label1');
-		$field['txttitle'] 			= $this->self_model->return_build_txt('','title','title');
-		$field['txtshowdatestart'] 	= $this->self_model->return_build_txt('','show_date_start','show_date_start');
-		$field['txtlabel2'] 		= $this->self_model->return_build_txt('','label2','label2');
 
-		$field['txtdescription'] 	= $this->self_model->return_build_txtarea('','description','description');
-		$field['txtshowdateend'] 	= $this->self_model->return_build_txt('','show_date_end','show_date_end');
+		$field['txtperiodstart'] = $this->self_model->return_build_txt('','period_start_fcast','period_start_fcast');
+		$field['txtperiodend']	 = $this->self_model->return_build_txt('','period_end_fcast','period_end_fcast');
 
+		$field['is_all_project'] = $this->self_model->return_build_radio('', [['Semua','Semua'],['Sebagian','Sebagian']], 'is_all_project_fcast', '', 'inline');
+		$msproject 				= $this->db->query('select id,
+								(case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
+								when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
+								when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
+								else code end
+								) as project_name
+								from project_outsource order by code asc')->result(); 
+		$field['selprojectids'] 	= $this->self_model->return_build_select2me($msproject,'multiple','','','projectIds_fcast[]','projectIds_fcast','','','id','project_name',' ','','','',3,'-');
+
+
+		
 		
 		
 		return $field;
@@ -99,16 +106,30 @@ class Forecasting_budget_os_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	public function getDataEmp(){
-		$post = $this->input->post(null, true);
-		$empid = $post['empid'];
+ 	public function genfcastrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			$bln 	= $post['bln'];
+			$thn 	= $post['thn'];
 
-		$rs =  $this->self_model->getDataEmployee($empid);
-		
-
-		echo json_encode($rs);
+			if(isset($post['count']))
+			{  
+				$row = trim($post['count']); 
+				echo $this->self_model->getNewFcastRow($row);
+			} else if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				echo json_encode($this->self_model->getNewFcastRow($row,$id,$period_start,$period_end,$view));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
 	}
-
 
 
 }
