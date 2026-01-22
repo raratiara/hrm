@@ -264,24 +264,48 @@ $('#projectIds_fcast').on('change', function () {
 
 function list_fcast(penggajian_month, penggajian_year, project){
 
+    document.getElementById("listFcast").style.display = "block";
 
-	document.getElementById("listFcast").style.display = "block";
+    var locate = 'table.listfcast-list';
 
+    
+    $(locate + ' tbody').html(`
+        <tr>
+            <td colspan="20" style="text-align:center;">
+                <i class="fa fa-spinner fa-spin"></i> Loading data...
+            </td>
+        </tr>
+    `);
 
-	var locate = 'table.listfcast-list';
-	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { id:0, penggajian_month: penggajian_month, penggajian_year: penggajian_year, project: project },success: function (response) {
-		var obj = JSON.parse(response);
-		$(locate+' tbody').html(obj[0]);
-		
-		wcount=obj[1];
-	}
-	}).done(function() {
-		//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-		tSawBclear(locate);
-		///expenseviewadjust(lstatus);
-	});
-
+    $.ajax({
+        type: 'post',
+        url: module_path + '/genfcastrow',
+        data: {
+            id: 0,
+            penggajian_month: penggajian_month,
+            penggajian_year: penggajian_year,
+            project: project
+        },
+        success: function (response) {
+            var obj = JSON.parse(response);
+            $(locate + ' tbody').html(obj[0]);
+            wcount = obj[1];
+        },
+        error: function () {
+            $(locate + ' tbody').html(`
+                <tr>
+                    <td colspan="20" style="text-align:center;color:red;">
+                        Gagal memuat data
+                    </td>
+                </tr>
+            `);
+        },
+        complete: function () {
+            tSawBclear(locate);
+        }
+    });
 }
+
 
 
 
