@@ -146,11 +146,24 @@ class Notification_model extends CI_Model
         $payload = [
             'message' => [
                 'token' => $fcmToken,
+
                 'notification' => [
                     'title' => $title,
                     'body'  => $body
                 ],
-                'data' => array_map('strval', $data)
+
+                'data' => array_map('strval', array_merge([
+                    'type'  => 'general',
+                    'click' => 'OPEN_APP'
+                ], $data)),
+
+                'android' => [
+                    'priority' => 'HIGH',
+                    'notification' => [
+                        'channel_id' => 'hrm_notification',
+                        'sound' => 'default'
+                    ]
+                ]
             ]
         ];
 
@@ -160,12 +173,12 @@ class Notification_model extends CI_Model
 
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_POST           => true,
+            CURLOPT_HTTPHEADER     => [
                 "Authorization: Bearer {$tokenResult['token']}",
                 "Content-Type: application/json"
             ],
-            CURLOPT_POSTFIELDS => json_encode($payload)
+            CURLOPT_POSTFIELDS     => json_encode($payload)
         ]);
 
         $response = curl_exec($ch);
@@ -175,7 +188,7 @@ class Notification_model extends CI_Model
         if ($error) {
             return [
                 'success' => false,
-                'message' => $error
+                'error'   => $error
             ];
         }
 
@@ -184,13 +197,12 @@ class Notification_model extends CI_Model
         if (isset($decoded['error'])) {
             return [
                 'success' => false,
-                'message' => $decoded['error']['message'] ?? 'FCM error',
                 'error'   => $decoded['error']
             ];
         }
 
         return [
-            'success' => true,
+            'success'  => true,
             'response' => $decoded
         ];
     }
