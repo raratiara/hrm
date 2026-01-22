@@ -14,3 +14,11 @@ function number_id_trim($n)
     }
     return number_format($n, 2, ',', '.');
 }
+
+
+
+
+function normalize_text($str){
+    return strtolower(trim($str ?? ''));
+}
+

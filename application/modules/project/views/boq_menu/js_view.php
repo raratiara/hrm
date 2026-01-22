@@ -128,10 +128,21 @@ function load_data()
 					$('[name="periode"]').val(periode);
 					$('select#customer_boq').val(data.customer_id).trigger('change.select2');
 					//$('select#project_boq').val(data.project_outsource_id).trigger('change.select2');
+
 					getProject(data.customer_id,'selected',data.project_outsource_id);
+					
+					
 
-					getListCurrentBoq(data.id, data.project_outsource_id, data.customer_id);
+					getListCurrentBoq(
+					  data.id,
+					  data.project_outsource_id,
+					  data.customer_id,
+					  function(){
+					    recalcAllRowJumlahHarga(); 
+					  }
+					);
 
+					
 
 					
 					$.uniform.update();
@@ -152,13 +163,13 @@ function load_data()
 						
 						wcount=obj[1];
 
-						$('span#management_fee').html(numberFormat(data.management_fee_harga));
-						$('span#jumlah_total').html(numberFormat(data.jumlah_total));
+						$('span#management_fee').html(formatNumber(data.management_fee_harga));
+						$('span#jumlah_total').html(formatNumber(data.jumlah_total));
 						$('span#ppn_percen').html(data.ppn_percen);
 						$('span#pph_percen').html(data.pph_percen);
-						$('span#ppn_harga').html(numberFormat(data.ppn_harga));
-						$('span#pph_harga').html(numberFormat(data.pph_harga));
-						$('span#grand_total').html(numberFormat(data.grand_total));
+						$('span#ppn_harga').html(formatNumber(data.ppn_harga));
+						$('span#pph_harga').html(formatNumber(data.pph_harga));
+						$('span#grand_total').html(formatNumber(data.grand_total));
 						
 					}
 					}).done(function() {
@@ -204,14 +215,7 @@ function load_data()
 <?php } ?>
 
 
-function numberFormat(num) {
-    let result = Number(num).toLocaleString('id-ID', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
 
-    return result.replace(/,00$/, '');
-}
 
 
 $('#customer_boq').on('change', function () {
@@ -382,7 +386,7 @@ $('#customer_boq').on('change', function () {
 
 
 
-function getListCurrentBoq(id,project,customer){ 
+function getListCurrentBoq(id,project,customer,callback){ 
 	
  	
  	if(project != '' && customer != ''){ 
@@ -400,6 +404,11 @@ function getListCurrentBoq(id,project,customer){
 			//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
 			tSawBclear(locate);
 			///expenseviewadjust(lstatus);
+
+			if (typeof callback === 'function') {
+		        callback();
+		      }
+
 		});
 
  	}
@@ -407,14 +416,41 @@ function getListCurrentBoq(id,project,customer){
 
 
 
-function parseNumber(val){
+/*function parseNumber(val){
   if(!val) return 0;
   return parseFloat(val.toString().replace(/,/g, '')) || 0;
 }
 
 function formatNumber(num){
   return num.toLocaleString('en-US');
+}*/
+
+
+function formatNumber(num) {
+    num = Number(num) || 0;
+
+    let result = num.toLocaleString('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    // hapus ,00 kalau bulat
+    return result.replace(/,00$/, '');
 }
+
+
+function parseNumber(val){
+    if(!val) return 0;
+
+    return parseFloat(
+        val.toString()
+           .replace(/\./g, '') // hapus ribuan
+           .replace(',', '.')  // koma → desimal
+    ) || 0;
+}
+
+
+
 
 
 function set_jumlah_harga(el){
@@ -447,7 +483,7 @@ function set_jumlah_harga2(el){
 
 
 
-function recalcBoqTotals(){
+function recalcBoqTotals(){ 
 
 	let headerTotals = {};
 	let parentTotals = {};
@@ -486,10 +522,12 @@ function recalcBoqTotals(){
 		parentTotals[parentKey].harga  += hargaVal;
 
 		// ================= HEADER =================
-		if (header.toUpperCase().trim() === 'GAJI POKOK') {
+		/*if (header.toUpperCase().trim() === 'gaji pokok') {*/
+		if (header === 'gaji pokok') {
 
 		    // JUMLAH hanya dari parent "Gaji Pokok"
-		    if (parent.toUpperCase().trim() === 'GAJI POKOK') {
+		    /*if (parent.toUpperCase().trim() === 'gaji pokok') {*/
+		    if (parent === 'gaji pokok') {
 		        headerTotals[header].jumlah += jumlahVal;
 		        grandTotalJumlah += jumlahVal;
 		    }
@@ -563,7 +601,8 @@ function recalcBoqTotals(){
   		var hdnppn_percen = $("#hdnppn_percen").val();
 	  	var percen_ppn = hdnppn_percen/100;
 	  	
-	  	var total_ppn = Number((percen_ppn*jml_total));
+	  	/*var total_ppn = Number((percen_ppn*jml_total));*/
+	  	var total_ppn = Math.ceil((percen_ppn * jml_total) * 100) / 100;
 	  	$('[name="hdnppn_harga"]').val(total_ppn);
 	  	$('span#ppn_harga').html(formatNumber(total_ppn));
   	}
@@ -573,7 +612,8 @@ function recalcBoqTotals(){
   		var hdnpph_percen = $("#hdnpph_percen").val();
 	  	var percen_pph = hdnpph_percen/100;
 	  	
-	  	var total_pph = Number((percen_pph*jml_total));
+	  	/*var total_pph = Number((percen_pph*jml_total));*/
+	  	var total_pph = Math.ceil((percen_pph * jml_total) * 100) / 100;
 	  	$('[name="hdnpph_harga"]').val(total_pph);
 	  	$('span#pph_harga').html(formatNumber(total_pph));
   	}
@@ -582,13 +622,34 @@ function recalcBoqTotals(){
 
 
 
-  	var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph);
+  	/*var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph);*/
+  	var jml_grand_total_raw = (Number(jml_total) + Number(total_ppn)) - Number(total_pph);
+	var jml_grand_total = Math.ceil(jml_grand_total_raw * 100) / 100;
+
   	$('[name="hdngrand_total"]').val(jml_grand_total);
   	$('span#grand_total').html(formatNumber(jml_grand_total));
   	
   	
 
 }
+
+
+function recalcAllRowJumlahHarga(){
+  $('.boq-item').each(function(){
+    let row = $(this).data('id');
+
+    let jumlah = parseNumber($(`input[name="jumlah[${row}]"]`).val());
+    let satuan = parseNumber($(`input[name="satuan_harga[${row}]"]`).val());
+
+    let total = jumlah * satuan;
+
+    $(`input[name="jumlah_harga[${row}]"]`).val(formatNumber(total));
+  });
+
+  // setelah SEMUA row dihitung
+  recalcBoqTotals();
+}
+
 
 
 function set_harga_ppn(){
@@ -600,12 +661,16 @@ function set_harga_ppn(){
   	var total_pph = $("#hdnpph_harga").val();
 
   	
-  	var total_ppn = Number((percen_ppn*jml_total));
+  	/*var total_ppn = Number((percen_ppn*jml_total));*/
+  	var total_ppn = Math.ceil((percen_ppn * jml_total) * 100) / 100;
   	$('[name="hdnppn_harga"]').val(total_ppn);
   	$('span#ppn_harga').html(formatNumber(total_ppn));
 
 
-  	var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph);
+  	/*var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph);*/
+  	var jml_grand_total_raw = (Number(jml_total) + Number(total_ppn)) - Number(total_pph);
+	var jml_grand_total = Math.ceil(jml_grand_total_raw * 100) / 100;
+
   	$('[name="hdngrand_total"]').val(jml_grand_total);
   	$('span#grand_total').html(formatNumber(jml_grand_total));
 
@@ -621,12 +686,16 @@ function set_harga_pph(){
   	var jml_total = $("#hdnjumlah_total").val();
   	var total_ppn = $("#hdnppn_harga").val();
   	
-  	var total_pph = Number((percen_pph*jml_total));
+  	/*var total_pph = Number((percen_pph*jml_total));*/
+  	var total_pph = Math.ceil((percen_pph * jml_total) * 100) / 100;
   	$('[name="hdnpph_harga"]').val(total_pph);
   	$('span#pph_harga').html(formatNumber(total_pph));
 
 
-  	var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph); 
+  	/*var jml_grand_total = (Number(jml_total)+Number(total_ppn))-Number(total_pph); */
+  	var jml_grand_total_raw = (Number(jml_total) + Number(total_ppn)) - Number(total_pph);
+	var jml_grand_total = Math.ceil(jml_grand_total_raw * 100) / 100;
+
   	$('[name="hdngrand_total"]').val(jml_grand_total);
   	$('span#grand_total').html(formatNumber(jml_grand_total));
 
