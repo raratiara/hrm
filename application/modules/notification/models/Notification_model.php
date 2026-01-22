@@ -5,29 +5,30 @@ use Firebase\JWT\JWT;
 
 class Notification_model extends CI_Model
 {
-    private $firebase;
+    private array $firebase;
 
     public function __construct()
     {
         parent::__construct();
-        $this->config->load('notification/firebase', TRUE);
-        $this->firebase = $this->config->item('firebase', 'notification');
+        $this->config->load('firebase');
+        $this->firebase = $this->config->item('firebase');
     }
 
     /**
      * ===============================
-     * GOOGLE OAUTH - ACCESS TOKEN
+     * GET GOOGLE OAUTH ACCESS TOKEN
      * ===============================
      */
-    private function getAccessToken(): ?string
+    private function getAccessToken(): array
     {
         if (
-            empty($this->firebase) ||
             empty($this->firebase['service_account']) ||
             !file_exists($this->firebase['service_account'])
         ) {
-            log_message('error', 'Firebase config / service account not found');
-            return null;
+            return [
+                'success' => false,
+                'error'   => 'service_account_file_not_found'
+            ];
         }
 
         $jsonKey = json_decode(
@@ -35,10 +36,23 @@ class Notification_model extends CI_Model
             true
         );
 
-        if (!$jsonKey || empty($jsonKey['client_email'])) {
-            log_message('error', 'Invalid Firebase service account JSON');
-            return null;
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return [
+                'success' => false,
+                'error'   => 'invalid_service_account_json',
+                'detail'  => json_last_error_msg()
+            ];
         }
+
+        if (empty($jsonKey['client_email']) || empty($jsonKey['private_key'])) {
+            return [
+                'success' => false,
+                'error'   => 'service_account_missing_fields'
+            ];
+        }
+
+        // normalize private key
+        $privateKey = str_replace("\\n", "\n", $jsonKey['private_key']);
 
         $payload = [
             'iss'   => $jsonKey['client_email'],
@@ -49,16 +63,25 @@ class Notification_model extends CI_Model
             'scope' => $this->firebase['scope']
         ];
 
-        $jwt = JWT::encode($payload, $jsonKey['private_key'], 'RS256');
+        try {
+            $jwt = JWT::encode($payload, $privateKey, 'RS256');
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'error'   => 'jwt_encode_failed',
+                'detail'  => $e->getMessage()
+            ];
+        }
 
         $context = stream_context_create([
             'http' => [
-                'method'  => 'POST',
-                'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-                'content' => http_build_query([
+                'method'        => 'POST',
+                'header'        => "Content-Type: application/x-www-form-urlencoded\r\n",
+                'content'       => http_build_query([
                     'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                     'assertion'  => $jwt
-                ])
+                ]),
+                'ignore_errors' => true
             ]
         ]);
 
@@ -68,9 +91,39 @@ class Notification_model extends CI_Model
             $context
         );
 
+        // Ambil HTTP status code
+        $httpCode = null;
+        if (isset($http_response_header[0])) {
+            preg_match('{HTTP\/\S*\s(\d{3})}', $http_response_header[0], $match);
+            $httpCode = $match[1] ?? null;
+        }
+
+        if ($response === false) {
+            return [
+                'success' => false,
+                'error'   => 'oauth_request_failed',
+                'http_code' => $httpCode
+            ];
+        }
+
         $result = json_decode($response, true);
 
-        return $result['access_token'] ?? null;
+        if ($httpCode !== '200') {
+            return [
+                'success'    => false,
+                'http_code'  => $httpCode,
+                'error'      => $result['error'] ?? 'oauth_error',
+                'error_desc' => $result['error_description'] ?? null,
+                'raw'        => $result
+            ];
+        }
+
+        return [
+            'success'      => true,
+            'token'        => $result['access_token'],
+            'expires_in'   => $result['expires_in'] ?? null,
+            'token_type'   => $result['token_type'] ?? null
+        ];
     }
 
     /**
@@ -84,13 +137,10 @@ class Notification_model extends CI_Model
         string $body,
         array $data = []
     ): array {
-        $accessToken = $this->getAccessToken();
+        $tokenResult = $this->getAccessToken();
 
-        if (!$accessToken) {
-            return [
-                'success' => false,
-                'error'   => 'Failed to get access token'
-            ];
+        if (!$tokenResult['success']) {
+            return $tokenResult;
         }
 
         $payload = [
@@ -100,7 +150,7 @@ class Notification_model extends CI_Model
                     'title' => $title,
                     'body'  => $body
                 ],
-                'data' => array_map('strval', $data) // FCM wajib string
+                'data' => array_map('strval', $data)
             ]
         ];
 
@@ -112,7 +162,7 @@ class Notification_model extends CI_Model
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => [
-                "Authorization: Bearer {$accessToken}",
+                "Authorization: Bearer {$tokenResult['token']}",
                 "Content-Type: application/json"
             ],
             CURLOPT_POSTFIELDS => json_encode($payload)
@@ -125,13 +175,23 @@ class Notification_model extends CI_Model
         if ($error) {
             return [
                 'success' => false,
-                'error'   => $error
+                'message' => $error
+            ];
+        }
+
+        $decoded = json_decode($response, true);
+
+        if (isset($decoded['error'])) {
+            return [
+                'success' => false,
+                'message' => $decoded['error']['message'] ?? 'FCM error',
+                'error'   => $decoded['error']
             ];
         }
 
         return [
             'success' => true,
-            'response' => json_decode($response, true)
+            'response' => $decoded
         ];
     }
 }

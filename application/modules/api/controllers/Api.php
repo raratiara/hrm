@@ -540,9 +540,6 @@ class Api extends API_Controller
 						$ins_log = [
 							'user_id' 			=> $cek_login->user_id,
 							'device_uuid' 		=> $device_uuid,
-							/*'is_active' 		=> 1,*/
-							'created_at'		=> date("Y-m-d H:i:s"),
-							'device_name' 		=> $android_type,
 							'fcm_token'     	=> $fcm_token,
 							/*'is_active' 		=> 1,*/
 							'created_at'		=> date("Y-m-d H:i:s"),
@@ -9423,7 +9420,6 @@ class Api extends API_Controller
 			], 400);
 		}
 
-		// ambil device aktif terakhir
 		$device = $this->db
 			->where('user_id', $userId)
 			->where('type', 'mobile')
@@ -9435,16 +9431,15 @@ class Api extends API_Controller
 		if (!$device || empty($device->fcm_token)) {
 			return $this->render_json([
 				'status' => false,
-				'message' => 'FCM token not found for this user'
+				'message' => 'FCM token not found'
 			], 404);
 		}
 
-		// load model notification
 		$this->load->model('notification/Notification_model', 'notif');
 
 		$result = $this->notif->sendNotification(
 			$device->fcm_token,
-			'Test Notification halo',
+			'Test Notification',
 			'Ini test push notification dari API 🔔',
 			[
 				'type' => 'test',
@@ -9452,20 +9447,21 @@ class Api extends API_Controller
 			]
 		);
 
-
+		// token invalid → nonaktifkan
 		if (
-			isset($result['response']['error']['status']) &&
-			$result['response']['error']['status'] === 'UNREGISTERED'
+			isset($result['error']['status']) &&
+			$result['error']['status'] === 'UNREGISTERED'
 		) {
-			$this->db->where('id', $device->id)
-					->update('user_devices', ['is_active' => 0]);
+			$this->db
+				->where('id', $device->id)
+				->update('user_devices', ['is_active' => 0]);
 		}
 
 		return $this->render_json([
-			'status' => true,
+			'status' => $result['success'],
 			'device_id' => $device->id,
-			'firebase_response' => $result
-		], 200);
+			'firebase' => $result
+		], $result['success'] ? 200 : 500);
 	}
 
 
