@@ -9411,7 +9411,7 @@ class Api extends API_Controller
 
 	public function test_push_notification()
 	{
-		$userId = $this->input->post('user_id');
+		$userId = $this->param('user_id');
 
 		if (!$userId) {
 			return $this->render_json([
@@ -9461,7 +9461,7 @@ class Api extends API_Controller
 			'status' => $result['success'],
 			'device_id' => $device->id,
 			'firebase' => $result
-		], $result['success'] ? 200 : 500);
+		]);
 	}
 
 
