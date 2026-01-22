@@ -201,7 +201,7 @@ class Boq_menu_model extends MY_Model
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					
+					'.$detail.'
 					'.$delete.'
 					'.$print_pdf.'
 				</div>',
@@ -269,12 +269,18 @@ class Boq_menu_model extends MY_Model
 
   			$data = [
 				'project_outsource_id' 	=> trim($post['project_boq']),
-				'customer_id' 		=> trim($post['customer_boq']),
-				'created_at'	=> date("Y-m-d H:i:s"),
-				'created_by' 	=> $_SESSION['worker'],
-				'ppn_percen' 	=> trim($post['hdnppn_percen']),
-				'pph_percen' 	=> trim($post['hdnpph_percen']),
-				'management_fee_percen' => trim($post['hdnmanagementfee_percen'])
+				'customer_id' 			=> trim($post['customer_boq']),
+				'created_at'			=> date("Y-m-d H:i:s"),
+				'created_by' 			=> $_SESSION['worker'],
+				'ppn_percen' 			=> trim($post['hdnppn_percen']),
+				'pph_percen' 			=> trim($post['hdnpph_percen']),
+				'management_fee_percen' => trim($post['hdnmanagementfee_percen']),
+				'ppn_harga' 			=> trim($post['hdnppn_harga']),
+				'pph_harga' 			=> trim($post['hdnpph_harga']),
+				'jumlah' 				=> trim($post['hdnjumlah_harga']),
+				'management_fee_harga' 	=> trim($post['hdnmanagement_fee']),
+				'jumlah_total' 			=> trim($post['hdnjumlah_total']),
+				'grand_total' 			=> trim($post['hdngrand_total'])
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
@@ -458,8 +464,23 @@ class Boq_menu_model extends MY_Model
 	} 
 	
 
+	public function number_id_trim($n) {
+	    if (floor($n) == $n) {
+	        // bilangan bulat
+	        return number_format($n, 0, ',', '.');
+	    } else {
+	        // ada desimal
+	        return number_format($n, 2, ',', '.');
+	    }
+	}
+
+
+
 	// Generate expenses item rows for edit & view
 	public function getBoqRows($id,$customer,$project,$view,$print=FALSE){ 
+
+		$this->load->helper('global');
+
 
 		$dataProject = $this->db->query("select * from project_outsource where customer_id = '".$customer."' and id = '".$project."'")->result(); 
 		$management_fee=0;
@@ -471,10 +492,8 @@ class Boq_menu_model extends MY_Model
 		$dt = ''; 
 
 		if($id > 0){ 
-			$rs = $this->db->query("select b.master_header_boq_id, b.name, b.is_active, b.parent_id, b.no_urut, a.jumlah,
-				a.harga_satuan, a.jumlah_harga,
-				bb.name AS header_name, bb.id as header_id,
-					cc.name AS parent_name, bb.no_urut as no_urut_header, cc.no_urut as no_urut_parent
+			$rs = $this->db->query("select b.master_header_boq_id, a.id, b.name, b.is_active, b.parent_id, b.no_urut, a.jumlah, a.harga_satuan, a.jumlah_harga, bb.name AS header_name, bb.id as header_id,
+				cc.name AS parent_name, bb.no_urut as no_urut_header, cc.no_urut as no_urut_parent
 			from project_outsource_boq_detail a
 			left join master_boq_detail b on b.id = a.ms_boq_detail_id
 			left join master_boq_header c on c.id = b.master_header_boq_id
@@ -485,6 +504,11 @@ class Boq_menu_model extends MY_Model
 				bb.no_urut ASC,
 				cc.no_urut ASC,
 				b.no_urut ASC ")->result(); 
+
+			$dataProject = $this->db->query("select * from project_outsource_boq where id = '".$id."' ")->result(); 
+			if(!empty($dataProject)){
+				$management_fee = $dataProject[0]->management_fee_percen;
+			}
 
 		}else{ 
 
@@ -551,9 +575,9 @@ class Boq_menu_model extends MY_Model
 					    $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
 					                Total '.$last_parent.'
 					            </td>';
-					    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_format($sum_parent_jumlah).'</td>';
+					    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_id_trim($sum_parent_jumlah).'</td>';
 					    $dt .= '<td style="background:#fafafa;"></td>';
-					    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_format($sum_parent_jumlah_harga).'</td>';
+					    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_id_trim($sum_parent_jumlah_harga).'</td>';
 					    $dt .= '</tr>';
 
 					    // reset parent total
@@ -565,9 +589,9 @@ class Boq_menu_model extends MY_Model
 					$dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#91f560;">
 					            Total '.$last_header.'
 					        </td>';
-					$dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah).'</td>';
+					$dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_id_trim($sum_header_jumlah).'</td>';
 					$dt .= '<td style="background:#91f560;"></td>';
-					$dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah_harga).'<input type="hidden" id="header_id" name="header_id[]" value="'.$f->header_id.'"/><input type="hidden" id="header_jumlah_harga" name="header_jumlah_harga[]" value="'.$sum_header_jumlah_harga.'"/></td>';
+					$dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_id_trim($sum_header_jumlah_harga).'<input type="hidden" id="header_id" name="header_id[]" value="'.$f->header_id.'"/><input type="hidden" id="header_jumlah_harga" name="header_jumlah_harga[]" value="'.$sum_header_jumlah_harga.'"/></td>';
 					$dt .= '</tr>';
 
 					// akumulasi ke grand total
@@ -594,9 +618,9 @@ class Boq_menu_model extends MY_Model
 				    $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
 				                Total '.$last_parent.'
 				            </td>';
-				    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_format($sum_parent_jumlah).'</td>';
+				    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_id_trim($sum_parent_jumlah).'</td>';
 				    $dt .= '<td style="background:#fafafa;"></td>';
-				    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_format($sum_parent_jumlah_harga).'</td>';
+				    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_id_trim($sum_parent_jumlah_harga).'</td>';
 				    $dt .= '</tr>';
 
 				    $sum_parent_jumlah        = 0;
@@ -669,12 +693,29 @@ class Boq_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
+
+					// $jumlah='';
+					// if($f->jumlah != 0 && $f->jumlah != ''){
+					// 	$jumlah = $f->jumlah;
+					// }
+					// $harga_satuan='';
+					// if($f->harga_satuan != 0 && $f->harga_satuan != ''){
+					// 	$harga_satuan = number_id_trim($f->harga_satuan);
+					// }
+					// $jumlah_harga='';
+					// if($f->jumlah_harga != 0 && $f->jumlah_harga != ''){
+					// 	$jumlah_harga = number_id_trim($f->jumlah_harga);
+					// }
+
+					$jumlah = $f->jumlah;
+					$harga_satuan = number_id_trim($f->harga_satuan);
+					$jumlah_harga = number_id_trim($f->jumlah_harga);
 					
-					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->name.'</td>';
-					$dt .= '<td></td>';
-					$dt .= '<td></td>';
-					$dt .= '<td></td>';
+					$dt .= '<td style="text-align:right">'.$no.'</td>';
+					$dt .= '<td style="text-align:left">'.$f->name.'</td>';
+					$dt .= '<td style="text-align:right">'.$jumlah.'</td>';
+					$dt .= '<td style="text-align:right">'.$harga_satuan.'</td>';
+					$dt .= '<td style="text-align:right">'.$jumlah_harga.'</td>';
 					
 					$dt .= '</tr>';
 
@@ -733,9 +774,9 @@ class Boq_menu_model extends MY_Model
 			    $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
 			                Total '.$last_parent.'
 			            </td>';
-			    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_format($sum_parent_jumlah).'</td>';
+			    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_id_trim($sum_parent_jumlah).'</td>';
 			    $dt .= '<td style="background:#fafafa;"></td>';
-			    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_format($sum_parent_jumlah_harga).'</td>';
+			    $dt .= '<td style="text-align:right;background:#fafafa;">'.number_id_trim($sum_parent_jumlah_harga).'</td>';
 			    $dt .= '</tr>';
 			}
 
@@ -753,9 +794,9 @@ class Boq_menu_model extends MY_Model
 			    $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#91f560;">
 			                Total '.$last_header.'
 			            </td>';
-			    $dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah).'</td>';
+			    $dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_id_trim($sum_header_jumlah).'</td>';
 			    $dt .= '<td style="background:#91f560;"></td>';
-			    $dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_format($sum_header_jumlah_harga).'<input type="hidden" id="header_id" name="header_id[]" value="'.$last_header_id.'"/><input type="hidden" id="header_jumlah_harga" name="header_jumlah_harga[]" value="'.$sum_header_jumlah_harga.'"/></td>';
+			    $dt .= '<td style="text-align:right;font-weight:bold;background:#91f560;">'.number_id_trim($sum_header_jumlah_harga).'<input type="hidden" id="header_id" name="header_id[]" value="'.$last_header_id.'"/><input type="hidden" id="header_jumlah_harga" name="header_jumlah_harga[]" value="'.$sum_header_jumlah_harga.'"/></td>';
 			    $dt .= '</tr>';
 
 			    // akumulasi ke total semua header
@@ -768,9 +809,9 @@ class Boq_menu_model extends MY_Model
 				$dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
 				            Jumlah
 				        </td>';
-				$dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;">'.number_format($sum_all_jumlah).'</td>';
-				$dt .= '<td style="background:#fafafa;"></td>';
-				$dt .= '<td style="font-weight:bold;text-align:right;background:#a6d1fb;">'.number_format($sum_all_jumlah_harga).'</td>';
+				$dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;">'.number_id_trim($sum_all_jumlah).'</td>';
+				$dt .= '<td style="background:#fafafa;"><input type="hidden" id="hdnjumlah_harga" name="hdnjumlah_harga"/></td>';
+				$dt .= '<td style="font-weight:bold;text-align:right;background:#a6d1fb;">'.number_id_trim($sum_all_jumlah_harga).'</td>';
 				$dt .= '</tr>';
 
 
@@ -785,10 +826,6 @@ class Boq_menu_model extends MY_Model
 	            $dt .= '</tr>';
 
 
-	            /*$dt .= '<tr class="boq-total-all">';
-	            $dt .= '<td colspan="5" style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
-	            $dt .= '</tr>';*/
-
 
 	            $dt .= '<tr class="boq-jumlah-total">';
 	            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fba6a6;">
@@ -800,24 +837,50 @@ class Boq_menu_model extends MY_Model
 	            $dt .= '</tr>';
 
 
-	            $dt .= '<tr class="boq-ppn">';
-	            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
-	                       <input type="checkbox" id="with_ppn" name="with_ppn" onclick="set_with_ppn()"/> &nbsp; include PPN 
-	                    </td>';
-	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="text" id="hdnppn_percen" name="hdnppn_percen" value="11" onkeyup="set_harga_ppn()" style="display:none; text-align:right" class="form-control"/></td>';
-	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
-                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="hidden" id="hdnppn_harga" name="hdnppn_harga" /><span id="ppn_harga"></span></td>';
-	            $dt .= '</tr>';
+	            if($view){ //view
+	            	$dt .= '<tr class="boq-ppn">';
+		            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
+		                       PPN (%)
+		                    </td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><span id="ppn_percen"></span></td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
+	                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><span id="ppn_harga"></span></td>';
+		            $dt .= '</tr>';
 
 
-	            $dt .= '<tr class="boq-pph">';
-	            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
-	                        <input type="checkbox" id="with_pph" name="with_pph" onclick="set_with_pph()"/> &nbsp; incude PPH 23
-	                    </td>';
-	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="text" id="hdnpph_percen" name="hdnpph_percen" value="2" onkeyup="set_harga_pph()" style="display:none; text-align:right" class="form-control"/> </td>';
-	            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
-                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="hidden" id="hdnpph_harga" name="hdnpph_harga" /><span id="pph_harga"></span></td>';
-	            $dt .= '</tr>';
+		            $dt .= '<tr class="boq-pph">';
+		            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
+		                        PPH 23 (%)
+		                    </td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><span id="pph_percen"></span> </td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
+	                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><span id="pph_harga"></span></td>';
+		            $dt .= '</tr>';
+
+
+
+	            }else{ //add or edit
+	            	$dt .= '<tr class="boq-ppn">';
+		            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
+		                       <input type="checkbox" id="with_ppn" name="with_ppn" onclick="set_with_ppn()"/> &nbsp; include PPN (%)
+		                    </td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="text" id="hdnppn_percen" name="hdnppn_percen" value="11" onkeyup="set_harga_ppn()" style="display:none; text-align:right" class="form-control"/></td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
+	                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="hidden" id="hdnppn_harga" name="hdnppn_harga" /><span id="ppn_harga"></span></td>';
+		            $dt .= '</tr>';
+
+
+
+		            $dt .= '<tr class="boq-pph">';
+		            $dt .= '<td colspan="2" style="font-weight:bold;text-align:right;background:#fafafa;">
+		                        <input type="checkbox" id="with_pph" name="with_pph" onclick="set_with_pph()"/> &nbsp; incude PPH 23 (%)
+		                    </td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="text" id="hdnpph_percen" name="hdnpph_percen" value="2" onkeyup="set_harga_pph()" style="display:none; text-align:right" class="form-control"/> </td>';
+		            $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"></td>';
+	                $dt .= '<td style="font-weight:bold;text-align:right;background:#fafafa;"><input type="hidden" id="hdnpph_harga" name="hdnpph_harga" /><span id="pph_harga"></span></td>';
+		            $dt .= '</tr>';
+
+	            }
 
 
 	            $dt .= '<tr class="boq-grand-total">';

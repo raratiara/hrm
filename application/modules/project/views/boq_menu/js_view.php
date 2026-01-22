@@ -142,8 +142,8 @@ function load_data()
 					$('span.periode').html(periode);
 					$('span.customer_boq').html(data.customer_name);
 					$('span.project_boq').html(data.project_name);
+					
 
-					//getListCurrentBoq(data.id, data.project_outsource_id, data.customer_id);
 
 					var locate = 'table.boq-list_view';
 					$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id:data.id, customer: data.customer_id, project: data.project_outsource_id, view:true },success: function (response) {
@@ -151,6 +151,15 @@ function load_data()
 						$(locate+' tbody').html(obj[0]);
 						
 						wcount=obj[1];
+
+						$('span#management_fee').html(numberFormat(data.management_fee_harga));
+						$('span#jumlah_total').html(numberFormat(data.jumlah_total));
+						$('span#ppn_percen').html(data.ppn_percen);
+						$('span#pph_percen').html(data.pph_percen);
+						$('span#ppn_harga').html(numberFormat(data.ppn_harga));
+						$('span#pph_harga').html(numberFormat(data.pph_harga));
+						$('span#grand_total').html(numberFormat(data.grand_total));
+						
 					}
 					}).done(function() {
 						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
@@ -158,6 +167,7 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 					
+
 					
 					
 					$('#modal-view-data').modal('show');
@@ -192,6 +202,16 @@ function load_data()
     });
 }
 <?php } ?>
+
+
+function numberFormat(num) {
+    let result = Number(num).toLocaleString('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    return result.replace(/,00$/, '');
+}
 
 
 $('#customer_boq').on('change', function () {
@@ -519,6 +539,8 @@ function recalcBoqTotals(){
 	    $(this).find('td:eq(1)').text(formatNumber(grandTotalJumlah));
 	    $(this).find('td:eq(3)').text(formatNumber(grandTotalHarga));
   	});
+
+  	$('[name="hdnjumlah_harga"]').val(grandTotalHarga);
 
   	var hdnmanagementfee_percen = $("#hdnmanagementfee_percen").val();
   	var percen = hdnmanagementfee_percen/100;
