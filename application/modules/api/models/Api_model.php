@@ -204,6 +204,13 @@ class Api_model extends MY_Model
         $user   = "hrm";
         $pass   = "HRM_NBID@2025!";*/
 
+
+        /// Nathabuana
+        /*$host   = "172.30.2.50";
+        $dbname = "hrm";
+        $user   = "hrm";
+        $pass   = "HRM_NBID@2025!";*/
+
         
         /// MAS
         $host   = "172.30.2.93";

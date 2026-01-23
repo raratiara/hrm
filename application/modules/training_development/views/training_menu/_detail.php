@@ -38,12 +38,7 @@
 			</div>
 		</div> 
 		
-		<!-- <div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Sertifikat</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="file_sertifikat"></span>
-			</div>
-		</div> -->
+		
 	</div>
 
 

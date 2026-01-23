@@ -153,13 +153,14 @@ class Boq_menu extends MY_Controller
 				when t.jenis_pekerjaan != "" and t.lokasi = "" then concat(t.code," (",t.jenis_pekerjaan,")")
 				when t.lokasi != "" and t.jenis_pekerjaan = "" then concat(t.code," (",t.lokasi,")")
 				else t.code end
-				) as project_name,
+				) as project_desc, t.project_name, c.name as lokasi_name,
 			    b.name as customer_name,
 			    t.periode_start, t.periode_end,
 			    t.management_fee
 			from project_outsource_boq a
 			left join project_outsource t on t.id = a.project_outsource_id
 			left join data_customer b on b.id = t.customer_id
+			left join master_work_location_outsource c on c.id = t.lokasi_id
 			where a.id = ?',
 	        [$id]
 	    )->row();

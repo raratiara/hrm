@@ -6,7 +6,8 @@
 
     <style>
         body {
-            font-family: DejaVu Sans, sans-serif;
+            /*font-family: DejaVu Sans, sans-serif;*/
+            font-family: Calibri, DejaVu Sans, sans-serif;
             font-size: 11px;
             color: #000;
         }
@@ -102,6 +103,100 @@
         }
 
 
+        .info {
+            width: 70%;
+            margin: 0 auto; /* PUSATKAN TABEL */
+        }
+
+        .info td {
+            padding: 3px;
+            font-weight: bold;
+        }
+
+        .info .label {
+            width: 30%;
+            text-align: right;
+        }
+
+        .info .colon {
+            width: 5%;
+            text-align: center;
+        }
+
+        .info .value {
+            width: 65%;
+            text-align: left;
+        }
+
+
+        .boq-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border: 1px solid #d1d5db;
+        }
+
+        .boq-table th {
+            padding: 8px 6px;
+            background: #f3f6f9;
+            border-bottom: 2px solid #cfd8e3;
+            font-weight: bold;
+        }
+
+        .boq-table td {
+            padding: 7px 6px;
+            border-bottom: 1px solid #d1d5db;
+        }
+        .boq-table th,
+        .boq-table td {
+            border-right: 1px solid #d1d5db;
+        }
+
+
+        /*.boq-table tbody tr:last-child td {
+            border-bottom: none;
+        }*/
+
+
+        .period-header {
+            background: #9ec3f4 !important;
+            color: #1f4f82;
+            border-bottom: 2px solid #c1d9f0;
+        }
+
+
+        .section-row {
+            background: #f5e965; /*#f8fafc;*/
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .total-header {
+            background: #eef6ff;
+            font-weight: bold;
+        }
+
+        .grand-total {
+            background: #e0f2fe;
+            font-weight: bold;
+        }
+
+        .grand-total td:last-child {
+            font-size: 15px;
+            color: #0c4a6e;
+        }
+
+
+        .info {
+            width: 70%;
+            margin: 10px auto 20px;
+            padding: 8px 12px;
+            /*background: #f9fafb;*/
+            border-radius: 6px;
+        }
+
+
+
 
     </style>
 </head>
@@ -111,7 +206,15 @@
 <table>
     <tr>
         <td width="50%">
-            <img src="<?= base_url('public/assets/images/logo/mas_logo.png') ?>" style="height:40px;">
+            <?php
+            $path = FCPATH . 'public/assets/images/logo/mas_logo.png';
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            ?>
+            <img src="<?= $base64 ?>" height="70" width="70">
+
+            
             
         </td>
         <td width="50%" align="right" style="font-weight:bold;">
@@ -119,45 +222,40 @@
         </td>
     </tr>
 </table>
+<hr>
+<h2><span style="color: #4489c7;">Penawaran Harga PT Mandiri Agangta Sejahtera</span></h2>
 
-<h2>BOQ</h2>
-<br>
 <!-- ===== EMPLOYEE INFO ===== -->
+
 <table class="info">
     <tr>
-        <td>Customer</td>
-        <td>: <?= $header->customer_name ?></td>
-        
+        <td class="label">Project</td>
+        <td class="colon">:</td>
+        <td class="value"><?= $header->project_name ?></td>
     </tr>
     <tr>
-        <td>Project</td>
-        <td>: <?= $header->project_name ?></td>
-        
+        <td class="label">Lokasi</td>
+        <td class="colon">:</td>
+        <td class="value"><?= $header->lokasi_name ?></td>
     </tr>
-    <tr>
-        <td>Periode</td>
-        <?php
-            $periode='';
-            if($header->periode_start != '' && $header->periode_end != ''){
-                $periode = $header->periode_start.' s/d '.$header->periode_end;
-            }
-
-        ?>
-        <td>: <?= $periode ?></td>
-       
-    </tr>
-  
+   
 </table>
 
-<hr>
 
 <!-- TABLE DETAIL BOQ -->
-<table border="1" cellpadding="4" cellspacing="0">
+<!-- <table border="1" cellpadding="4" cellspacing="0"> -->
+<table class="boq-table">
     <thead>
         <tr style="background:#eee;font-weight:bold;">
-            <th width="5%">No</th>
-            <th width="45%">Jenis Pekerjaan</th>
-            <th width="15%">Jumlah</th>
+            <th rowspan="2" width="5%">No</th>
+            <th rowspan="2" width="45%">Jenis Pekerjaan</th>
+            <th rowspan="2" width="15%">Jumlah</th>
+            <th colspan="2" class="period-header">Periode <?= ($header->periode_start && $header->periode_end)
+                ? $header->periode_start.' s/d '.$header->periode_end
+                : '' ?>
+            </th>
+        </tr>
+        <tr style="background:#eee; font-weight:bold">
             <th width="15%">Harga Satuan</th>
             <th width="20%">Jumlah Harga</th>
         </tr>
@@ -272,7 +370,8 @@
 
         
         if ($f->header_name !== $last_header): ?>
-            <tr style="background:#f5e965;font-weight:bold;">
+            <!-- <tr style="background:#f5e965;font-weight:bold;"> -->
+            <tr class="section-row">
                 <td colspan="5"><?= strtoupper($f->header_name) ?></td>
             </tr>
         <?php
@@ -404,15 +503,15 @@
 
    
     <tr>
-        <td colspan="4" align="right"><b>Jumlah sebelum Management Fee</b></td>
-        <td align="right"><?= nf($jumlah_before_management_fee) ?></td>
+        <td colspan="4" align="right"><b>Jumlah</b></td>
+        <td align="right" style="font-weight:bold; background-color: #e0f2fe;"><?= nf($jumlah_before_management_fee) ?></td>
     </tr>
 
     <tr>
         <td colspan="4" align="right">
-            <b>Management Fee (<?= nf($management_fee) ?> %)</b>
+            Management Fee (<?= nf($management_fee) ?> %)
         </td>
-        <td align="right"><?= nf($management_fee_value) ?></td>
+        <td align="right" style="font-weight:bold; background-color: #e0f2fe;"><?= nf($management_fee_value) ?></td>
     </tr>
 
     <tr style="background:#ffb3b3;font-weight:bold;">
@@ -426,20 +525,21 @@
         <td colspan="4" align="right">
             PPN (<?= nf($ppn_percen) ?> %)
         </td>
-        <td align="right"><?= nf($ppn_value) ?></td>
+        <td align="right" style="font-weight:bold"><?= nf($ppn_value) ?></td>
     </tr>
 
     <tr>
         <td colspan="4" align="right">
             PPH 23 (<?= nf($pph_percen) ?> %)
         </td>
-        <td align="right"><?= nf($pph_value) ?></td>
+        <td align="right" style="font-weight:bold"><?= nf($pph_value) ?></td>
     </tr>
 
-    <tr style="background:#d3d3d3;font-weight:bold;">
+    <tr class="grand-total">
         <td colspan="4" align="right">GRAND TOTAL</td>
         <td align="right"><?= nf($grand_total_final) ?></td>
     </tr>
+
 
 
     </tbody>
