@@ -1162,5 +1162,40 @@ class Bypass extends API_Controller
 	}
 
 
+	// cron jalan setiap hari di jam 9.30 pagi
+	public function notif_absen()
+	{
+	    $today = date('Y-m-d');
+
+	    $users = $this->db->query("
+	        select a.full_name, c.fcm_token, b.user_id from employees a 
+                left join user b on b.id_karyawan = a.id
+                left join user_devices c on c.user_id = b.user_id
+                where a.status_id = 1 and c.fcm_token != '' and c.fcm_token is not null
+                AND NOT EXISTS (
+	            SELECT 1 FROM time_attendances dd
+	            WHERE dd.employee_id = a.id
+	            AND dd.date_attendance = '".$today."');
+                
+	    ")->result();
+
+	    $this->load->model('notification/Notification_model', 'notif');
+	    
+	    foreach ($users as $u) {
+	        $this->notif->sendNotification(
+	            $u->fcm_token,
+	            'Reminder Absen',
+	            'Hai '.$u->full_name.', kamu belum absen hari ini..',
+	            [
+					'type' => 'test',
+					'user_id' => (string) $u->user_id
+				]
+	        );
+
+	    }
+	}
+
+
+
 
 }

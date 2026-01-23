@@ -9412,6 +9412,9 @@ class Api extends API_Controller
 	public function test_push_notification()
 	{
 		$userId = $this->param('user_id');
+		$title_notif = $this->param('title_notif');
+		$value_notif = $this->param('value_notif');
+
 
 		if (!$userId) {
 			return $this->render_json([
@@ -9439,8 +9442,10 @@ class Api extends API_Controller
 
 		$result = $this->notif->sendNotification(
 			$device->fcm_token,
-			'Test Notification',
-			'Ini test push notification dari API 🔔',
+			/*'Test Notification',
+			'Ini test push notification dari API 🔔',*/
+			$title_notif,
+			$value_notif,
 			[
 				'type' => 'test',
 				'user_id' => (string) $userId
