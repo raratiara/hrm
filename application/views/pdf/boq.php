@@ -111,7 +111,7 @@
 <table>
     <tr>
         <td width="50%">
-            <img src="<?= base_url('public/assets/images/logo/mas_logo.jpg') ?>" style="height:40px;">
+            <img src="<?= base_url('public/assets/images/logo/mas_logo.png') ?>" style="height:40px;">
             
         </td>
         <td width="50%" align="right" style="font-weight:bold;">
