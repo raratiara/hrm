@@ -1,5 +1,5 @@
 <script type="text/javascript">
-var baseUrl = "<?php echo base_url($base_url); ?>";
+var baseUrl = "<?= base_url(); ?>";
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
 var validator;
