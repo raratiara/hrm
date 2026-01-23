@@ -109,7 +109,9 @@
 
 <script type="text/javascript">
 	var module_path = "<?php echo base_url($folder_name); ?>";
-	var base_url = "<?php echo base_url($base_url); ?>";
+	
+	var base_url = "<?= base_url(); ?>";
+
 
 	$(document).ready(function () { 
 		$(function () {
@@ -153,14 +155,8 @@
 	<?php if (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
 
 		function load_data() {
-			var getUrl = window.location;
-			//local=> 
-			//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-			//var baseUrl = getUrl.protocol + "//" + getUrl.host;
-
-
-			var baseUrl = "<?php echo base_url($base_url); ?>";
-
+			
+		
 
 			$.ajax({
 				type: "POST",
@@ -260,9 +256,9 @@
 
 						//emp_photo
 						if (data.dtEmp.emp_photo != '' && data.dtEmp.emp_photo != null) {
-							$('span.emp_photo').html('<img src="' + baseUrl + '/uploads/employee/' + data.dtEmp.emp_code + '/' + data.dtEmp.emp_photo + '" alt="Profile Picture" class="profile-image">');
+							$('span.emp_photo').html('<img src="' + base_url + '/uploads/employee/' + data.dtEmp.emp_code + '/' + data.dtEmp.emp_photo + '" alt="Profile Picture" class="profile-image">');
 						} else {
-							$('span.emp_photo').html('<img src="' + baseUrl + '/public/assets/images/user.jpg" alt="Profile Picture" class="profile-image">');
+							$('span.emp_photo').html('<img src="' + base_url + '/public/assets/images/user.jpg" alt="Profile Picture" class="profile-image">');
 						}
 
 						/// DATA BIRTHDAY
@@ -752,12 +748,8 @@
 	
 
 	function displayBirthday(index) { 
-		var getUrl = window.location;
-		//local=> 
-		//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-		//var baseUrl = getUrl.protocol + "//" + getUrl.host;
-
-		var baseUrl = "<?php echo base_url($base_url); ?>";
+		
+		
 
 
 		let list_birthdays = $("#list_birthdays").val(); 
@@ -766,9 +758,9 @@
 		const data = birthdays[index]; 
 
 		if (data.emp_photo != '' && data.emp_photo != null) {
-			var image = baseUrl + '/uploads/employee/' + data.emp_code + '/' + data.emp_photo;
+			var image = base_url + '/uploads/employee/' + data.emp_code + '/' + data.emp_photo;
 		} else {
-			var image = baseUrl + '/public/assets/images/user.jpg';
+			var image = base_url + '/public/assets/images/user.jpg';
 		}
 
 		document.getElementById("birthday-image").src = image;
@@ -1205,11 +1197,6 @@
 		//reset();
 
 
-		var getUrl = window.location;
-		//local=> 
-		var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-		//var baseUrl = getUrl .protocol + "//" + getUrl.host;
-
 
 	    $.ajax({
 			type: "POST",
@@ -1252,7 +1239,7 @@
 
 
 							if(data.dataabsen[0].photo != '' && data.dataabsen[0].photo != null){
-								$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.dataabsen[0].photo+'" width="150" height="150" >');
+								$('span.photo').html('<img src="'+base_url+'/uploads/absensi/'+data.dataabsen[0].photo+'" width="150" height="150" >');
 							}else{
 								$('span.photo').html('');
 							}
@@ -1437,8 +1424,7 @@
 	}
 
 	function goHealthDetails(){
-		var base_url = "<?php echo base_url($base_url); ?>";
-	 
+		
 		
 		window.open(base_url+"profile/detail_health_menu", "_blank");
 	}
@@ -1498,9 +1484,7 @@
 
 
 	function loadQuickLinks() { 
-		var base_url = "<?php echo base_url($base_url); ?>"; 
-
-
+		
 	    $.ajax({
 	        url: "<?= site_url('profile/profile_menu/get_data_quicklink') ?>",
 	        type: "POST",
@@ -1523,7 +1507,7 @@
 	            `;
 	            container.append(actionButtons);*/
 
-	            var url_menu_absen = base_url+'time_attendance/absensi_menu';
+	            var url_menu_absen = "<?php echo base_url('time_attendance/absensi_menu'); ?>";
 	            var title = 'Daily Absence';
                 let divAbsen = `
                     <div class="quick-link-item" onclick="window.location.href='${url_menu_absen}'">
