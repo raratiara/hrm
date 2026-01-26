@@ -292,7 +292,7 @@
             <div class="page-logo" style="background-color: #FED24B;">
                 <a href="<?= base_url() ?>">
                     <img src="<?php echo _ASSET_LOGO_INSIDE; ?>" alt="logo"
-                        style="height:45px; margin-top: 0px; margin-left: -8px;" class="logo-default" />
+                        style="height:30px; margin-top: 8px; margin-left: -12px;" class="logo-default" />
                 </a>
                 <div class="menu-toggler sidebar-toggler"> </div>
             </div>

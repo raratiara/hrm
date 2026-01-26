@@ -133,23 +133,23 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            border: 1px solid #d1d5db;
+            border: 1px solid black; /*#d1d5db*/
         }
 
         .boq-table th {
             padding: 8px 6px;
-            background: #f3f6f9;
-            border-bottom: 2px solid #cfd8e3;
+            background: #e5e6e6; /*#f3f6f9;*/
+            border-bottom: 2px solid black;   /*#cfd8e3*/
             font-weight: bold;
         }
 
         .boq-table td {
             padding: 7px 6px;
-            border-bottom: 1px solid #d1d5db;
+            border-bottom: 1px solid black;   /*#d1d5db*/
         }
         .boq-table th,
         .boq-table td {
-            border-right: 1px solid #d1d5db;
+            border-right: 1px solid black; /*#d1d5db*/
         }
 
 
@@ -160,8 +160,8 @@
 
         .period-header {
             background: #9ec3f4 !important;
-            color: #1f4f82;
-            border-bottom: 2px solid #c1d9f0;
+            color: black; /*#1f4f82*/
+            /*border-bottom: 2px solid #c1d9f0;*/
         }
 
 
@@ -205,20 +205,22 @@
 <!-- ===== HEADER ===== -->
 <table>
     <tr>
-        <td width="50%">
+        <td width="20%">
             <?php
-            $path = FCPATH . 'public/assets/images/logo/mas_logo.png';
+            $path = FCPATH . 'public/assets/images/logo/mas_logo_tsp.png';
             $type = pathinfo($path, PATHINFO_EXTENSION);
             $data = file_get_contents($path);
             $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
             ?>
-            <img src="<?= $base64 ?>" height="70" width="70">
+            <img src="<?= $base64 ?>" height="100" width="100">
 
             
             
         </td>
-        <td width="50%" align="right" style="font-weight:bold;">
-            <!-- gen no -->
+        <td width="80%" align="right" style="text-align: left;">
+            <span style="margin-left:50px">Head Office : Jl. Kemang Raya No 1A. Kec Sukmajaya, kota Depok</span><br>
+            <span style="margin-left:70px">Phone : 021-77844672 &nbsp; &nbsp; &nbsp; &nbsp; Email : </span>
+
         </td>
     </tr>
 </table>
@@ -227,7 +229,7 @@
 
 <!-- ===== EMPLOYEE INFO ===== -->
 
-<table class="info">
+<table class="info" style="font-size:12px">
     <tr>
         <td class="label">Project</td>
         <td class="colon">:</td>
@@ -503,40 +505,58 @@
 
    
     <tr>
-        <td colspan="4" align="right"><b>Jumlah</b></td>
+        <td></td>
+        <td align="right"><b>Jumlah</b></td>
+        <td></td>
+        <td></td>
         <td align="right" style="font-weight:bold; background-color: #e0f2fe;"><?= nf($jumlah_before_management_fee) ?></td>
     </tr>
 
     <tr>
-        <td colspan="4" align="right">
-            Management Fee (<?= nf($management_fee) ?> %)
+        <td></td>
+        <td align="right">
+            Management Fee 
         </td>
+        <td align="right"><?= nf($management_fee) ?> %</td>
+        <td></td>
         <td align="right" style="font-weight:bold; background-color: #e0f2fe;"><?= nf($management_fee_value) ?></td>
     </tr>
 
     <tr style="background:#ffb3b3;font-weight:bold;">
-        <td colspan="4" align="right">
+        <td></td>
+        <td align="right">
             JUMLAH TOTAL (Jumlah + Management Fee)
         </td>
+        <td></td>
+        <td></td>
         <td align="right"><?= nf($jumlah_total) ?></td>
     </tr>
 
     <tr>
-        <td colspan="4" align="right">
-            PPN (<?= nf($ppn_percen) ?> %)
+        <td></td>
+        <td align="right">
+            PPN 
         </td>
+        <td align="right"><?= nf($ppn_percen) ?> %</td>
+        <td></td>
         <td align="right" style="font-weight:bold"><?= nf($ppn_value) ?></td>
     </tr>
 
     <tr>
-        <td colspan="4" align="right">
-            PPH 23 (<?= nf($pph_percen) ?> %)
+        <td></td>
+        <td align="right">
+            PPH 23 
         </td>
+        <td align="right"><?= nf($pph_percen) ?> %</td>
+        <td></td>
         <td align="right" style="font-weight:bold"><?= nf($pph_value) ?></td>
     </tr>
 
     <tr class="grand-total">
-        <td colspan="4" align="right">GRAND TOTAL</td>
+        <td></td>
+        <td align="right">GRAND TOTAL</td>
+        <td></td>
+        <td></td>
         <td align="right"><?= nf($grand_total_final) ?></td>
     </tr>
 
