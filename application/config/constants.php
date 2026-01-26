@@ -139,7 +139,7 @@ defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/mas_logo
 defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/mas_logo.png"); 
 
 //defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gdi_inside.png");
-defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/mas_inside_tsp.png");
+defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/mas_inside.png");
 
 defined('_ASSET_LOGO_2022_SURAT')     OR define('_ASSET_LOGO_2022_SURAT',_ASSET_IMG."logo/nbid_new_logo_surat.png");
 defined('_ASSET_PROFILE_PICTURE') OR define('_ASSET_PROFILE_PICTURE', _ASSET_IMG . "logo/profile.jpg");  
