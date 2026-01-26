@@ -30,7 +30,8 @@ class Absence_report_os_menu_model extends MY_Model
 			'dt.is_late_desc',
 			'dt.is_leaving_office_early_desc',
 			'dt.num_of_working_hours',
-			'dt.holiday_flag'
+			'dt.holiday_flag',
+			'dt.project_name'
 		];
 		
 		
@@ -40,14 +41,12 @@ class Absence_report_os_menu_model extends MY_Model
 
 		$dateNow = date("Y-m-d");
 
-		// $where_date=" where a.date_attendance = '".$dateNow."' ";
-		// $where_date = " where (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."')
-        //        and b.emp_source in ('outsource','outsourcing','OS') ";
+		
 
-		$where_date=" where a.date_attendance = '".$dateNow."' and b.emp_source in ('outsource','outsourcing','OS') ";
+		$where_date=" and a.date_attendance = '".$dateNow."' and b.emp_source in ('outsource','outsourcing','OS') ";
 
 		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " where (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."') ";
+			$where_date = " and (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."') ";
 		}
 
 		$where_emp="";
@@ -55,24 +54,13 @@ class Absence_report_os_menu_model extends MY_Model
 			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
 		}
 
-				$where_project = "";
+		$where_project = "";
 		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
-		$where_project = " and b.project_outsource_id = '".$_GET['flproject']."' ";
+		$where_project = " and b.project_id = '".$_GET['flproject']."' ";
 		}
 
 
-		/*$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
-					(case 
-					when a.leave_type != "" then concat("(",c.name,")") 
-					when a.is_leaving_office_early = "Y" then "Leaving Office Early"
-					else ""
-					end) as is_leaving_office_early_desc
-					from time_attendances a left join employees b on b.id = a.employee_id
-					left join master_leaves c on c.id = a.leave_type
-					'.$where_date.$where_emp.'
-					
-				)dt';*/
-
+		
 		$sTable = '(SELECT 
 					    a.*,
 					    b.full_name,
@@ -131,7 +119,7 @@ class Absence_report_os_menu_model extends MY_Model
 					    CASE 
 					        WHEN o.id IS NOT NULL THEN "Y"
 					        ELSE "N"
-					    END AS overtime_flag
+					    END AS overtime_flag, pp.project_name
 					FROM time_attendances a
 					LEFT JOIN employees b ON b.id = a.employee_id
 					LEFT JOIN master_leaves c ON c.id = a.leave_type
@@ -144,6 +132,8 @@ class Absence_report_os_menu_model extends MY_Model
 					LEFT JOIN group_shift_schedule gss 
 					       ON gss.employee_id = a.employee_id
 					      AND gss.periode = DATE_FORMAT(a.date_attendance, "%Y-%m")
+					left join project_outsource pp on pp.id = b.project_id
+					where b.emp_source = "outsource"
 					'.$where_date.$where_emp.$where_project.'
 				)dt';
 		
@@ -307,11 +297,12 @@ class Absence_report_os_menu_model extends MY_Model
 				$attendance_type = '<span style="color:red">'.$row->attendance_type.'</span>';
 				$time_in = '<span style="color:red">'.$row->time_in.'</span>';
 				$time_out = '<span style="color:red">'.$row->time_out.'</span>';
-				$date_attendance_in = '<span style="color:red">'.$date_attendance_in.'</span>';
-				$date_attendance_out = '<span style="color:red">'.$date_attendance_out.'</span>';
+				$date_attendance_in = '<span style="color:red">'.$row->date_attendance_in.'</span>';
+				$date_attendance_out = '<span style="color:red">'.$row->date_attendance_out.'</span>';
 				$is_late_desc = '<span style="color:red">'.$row->is_late_desc.'</span>';
 				$is_leaving_office_early_desc = '<span style="color:red">'.$row->is_leaving_office_early_desc.'</span>';
-				$num_of_working_hours = '<span style="color:red">'.$num_of_working_hours.'</span>';
+				$num_of_working_hours = '<span style="color:red">'.$row->num_of_working_hours.'</span>';
+				$project_name = '<span style="color:red">'.$row->project_name.'</span>';
 			}else{
 				$id = $row->id;
 				$dayName = $dayName;
@@ -320,11 +311,12 @@ class Absence_report_os_menu_model extends MY_Model
 				$attendance_type = $row->attendance_type;
 				$time_in = $row->time_in;
 				$time_out = $row->time_out;
-				$date_attendance_in = $date_attendance_in;
-				$date_attendance_out = $date_attendance_out;
+				$date_attendance_in = $row->date_attendance_in;
+				$date_attendance_out = $row->date_attendance_out;
 				$is_late_desc = $row->is_late_desc;
 				$is_leaving_office_early_desc = $row->is_leaving_office_early_desc;
-				$num_of_working_hours = $num_of_working_hours;
+				$num_of_working_hours = $row->num_of_working_hours;
+				$project_name = $row->project_name;
 			}
 
 			array_push($output["aaData"],array(
@@ -338,6 +330,7 @@ class Absence_report_os_menu_model extends MY_Model
 				$dayName,
 				$date_attendance,
 				$full_name,
+				$project_name,
 				$attendance_type,
 				$time_in,
 				$time_out,
@@ -559,9 +552,9 @@ class Absence_report_os_menu_model extends MY_Model
 	{ 
 		$dateNow = date("Y-m-d");
 
-		$where_date=" where a.date_attendance = '".$dateNow."' ";
+		$where_date=" and a.date_attendance = '".$dateNow."' ";
 		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " where a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+			$where_date = " and (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."') ";
 		}
 
 		$where_emp="";
@@ -581,9 +574,11 @@ class Absence_report_os_menu_model extends MY_Model
 					when a.leave_type != "" then concat("(",c.name,")") 
 					when a.is_leaving_office_early = "Y" then "Leaving Office Early"
 					else ""
-					end) as is_leaving_office_early_desc
+					end) as is_leaving_office_early_desc, d.project_name
 					from time_attendances a left join employees b on b.id = a.employee_id
 					left join master_leaves c on c.id = a.leave_type
+					left join project_outsource d on d.id = b.project_id
+					where b.emp_source = "outsource"
 					'.$where_date.$where_emp.$where_project.'
 	   			ORDER BY id ASC
 		';

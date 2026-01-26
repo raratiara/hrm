@@ -40,9 +40,9 @@ class Absence_report_menu_model extends MY_Model
 
 		$dateNow = date("Y-m-d");
 
-		$where_date=" where a.date_attendance = '".$dateNow."' ";
+		$where_date=" and a.date_attendance = '".$dateNow."' ";
 		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " where (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."') ";
+			$where_date = " and (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."') ";
 		}
 
 		$where_emp="";
@@ -134,6 +134,7 @@ class Absence_report_menu_model extends MY_Model
 					LEFT JOIN group_shift_schedule gss 
 					       ON gss.employee_id = a.employee_id
 					      AND gss.periode = DATE_FORMAT(a.date_attendance, "%Y-%m")
+					where b.emp_source = "internal"
 					'.$where_date.$where_emp.'
 				)dt';
 		
@@ -297,11 +298,11 @@ class Absence_report_menu_model extends MY_Model
 				$attendance_type = '<span style="color:red">'.$row->attendance_type.'</span>';
 				$time_in = '<span style="color:red">'.$row->time_in.'</span>';
 				$time_out = '<span style="color:red">'.$row->time_out.'</span>';
-				$date_attendance_in = '<span style="color:red">'.$date_attendance_in.'</span>';
-				$date_attendance_out = '<span style="color:red">'.$date_attendance_out.'</span>';
+				$date_attendance_in = '<span style="color:red">'.$row->date_attendance_in.'</span>';
+				$date_attendance_out = '<span style="color:red">'.$row->date_attendance_out.'</span>';
 				$is_late_desc = '<span style="color:red">'.$row->is_late_desc.'</span>';
 				$is_leaving_office_early_desc = '<span style="color:red">'.$row->is_leaving_office_early_desc.'</span>';
-				$num_of_working_hours = '<span style="color:red">'.$num_of_working_hours.'</span>';
+				$num_of_working_hours = '<span style="color:red">'.$row->num_of_working_hours.'</span>';
 			}else{
 				$id = $row->id;
 				$dayName = $dayName;
@@ -310,11 +311,11 @@ class Absence_report_menu_model extends MY_Model
 				$attendance_type = $row->attendance_type;
 				$time_in = $row->time_in;
 				$time_out = $row->time_out;
-				$date_attendance_in = $date_attendance_in;
-				$date_attendance_out = $date_attendance_out;
+				$date_attendance_in = $row->date_attendance_in;
+				$date_attendance_out = $row->date_attendance_out;
 				$is_late_desc = $row->is_late_desc;
 				$is_leaving_office_early_desc = $row->is_leaving_office_early_desc;
-				$num_of_working_hours = $num_of_working_hours;
+				$num_of_working_hours = $row->num_of_working_hours;
 			}
 
 			array_push($output["aaData"],array(
@@ -549,9 +550,9 @@ class Absence_report_menu_model extends MY_Model
 	{ 
 		$dateNow = date("Y-m-d");
 
-		$where_date=" where a.date_attendance = '".$dateNow."' ";
+		$where_date=" and a.date_attendance = '".$dateNow."' ";
 		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " where a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+			$where_date = " and (a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."') ";
 		}
 
 		$where_emp="";
@@ -569,6 +570,7 @@ class Absence_report_menu_model extends MY_Model
 					end) as is_leaving_office_early_desc
 					from time_attendances a left join employees b on b.id = a.employee_id
 					left join master_leaves c on c.id = a.leave_type
+					where b.emp_source = "internal"
 					'.$where_date.$where_emp.'
 	   			ORDER BY id ASC
 		';

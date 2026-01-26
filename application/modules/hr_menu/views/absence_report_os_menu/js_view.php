@@ -7,15 +7,15 @@
 
 
 
-<div id="modal-report-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-data" aria-hidden="true">
+<div id="modal-reportosabsen-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reportosabsen-data" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content">
-			<form class="form-horizontal" id="frmReportData" enctype="multipart/form-data">
+		<div class="modal-content" style="width:500px">
+			<form class="form-horizontal" id="frmReportDataOSAbsen" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
-					Report Absensi
+					Report Absensi OS
 				</div>
 			</div>
 			 </form>
@@ -23,12 +23,17 @@
 			<div class="modal-footer no-margin-top">
 				<center>
 				
-				<button class="btn" style="background-color: green; color: white; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReport()">
+				<button class="btn" style="background-color: #8ec1f5; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportOS_absen()">
 					<i class="fa fa-download"></i>
-					Download Report
+					Download EXCEL
+				</button>
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportOS_absen_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
 				</button>
 				
-				<button class="btn" style="background-color: #A01818; color: white; border-radius: 2px !important;" data-dismiss="modal">
+				<button class="btn" style="background-color: #fc596b; color: black; border-radius: 2px !important;" data-dismiss="modal">
 					<i class="fa fa-times"></i>
 					Close
 				</button>
@@ -122,53 +127,13 @@ function subFilter(){
 }
 
 
-function getReport(){
+function getReportOS_absen(){
 	
-
-
-	$('#modal-report-data').modal('show');
-
-	
-
-
-
-	/*$.ajax({
-		type: "POST",
-        url : module_path+'/getAbsenceReport',
-		data: { employee: employee, perioddate: perioddate },
-		cache: false,		
-        dataType: "JSON",
-        success: function(data)
-        {  
-			if(data != null){ 	
-				
-
-			} else { 
-				
-
-			}
-
-        },
-        error: function (jqXHR, textStatus, errorThrown)
-        {
-			var dialog = bootbox.dialog({
-				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-				message: jqXHR.responseText,
-				buttons: {
-					confirm: {
-						label: 'Ok',
-						className: 'btn blue'
-					}
-				}
-			});
-        }
-    });*/
-
-
+	$('#modal-reportosabsen-data').modal('show');
 }
 
 
-function downloadReport(){
+function downloadReportOS_absen(){
 
 	var flemployee = $("#flemployee option:selected").val();
 	var flproject = $("#flproject option:selected").val();
@@ -196,9 +161,44 @@ function downloadReport(){
 	
 	// send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
 	send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&flproject='+flproject+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
-	formData = $('#frmReportData').serialize();
+	formData = $('#frmReportDataOSAbsen').serialize();
 	window.location = send_url+'&'+formData;
-	$('#modal-report-data').modal('hide');
+	$('#modal-reportosabsen-data').modal('hide');
+	
+}
+
+
+function downloadReportOS_absen_pdf(){
+
+	var flemployee = $("#flemployee option:selected").val();
+	var flproject = $("#flproject option:selected").val();
+	var perioddate = $("#perioddate").val();
+
+	if(flproject == ''){
+  		flproject = 0;
+	}
+
+	if(flemployee == ''){
+		flemployee=0;
+	}
+
+	fldatestart=0;
+	fldateend=0;
+	if(perioddate != ''){
+		var myArray = perioddate.split(" - ");
+		var start = myArray[0];
+		var end = myArray[1];
+
+		fldatestart=toYYYYMMDD(start);
+		fldateend=toYYYYMMDD(end);
+	}
+	
+	
+	// send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
+	send_url = module_path+'/getAbsenceReport_pdf?flemployee='+flemployee+'&flproject='+flproject+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
+	formData = $('#frmReportDataOSAbsen').serialize();
+	window.location = send_url+'&'+formData;
+	$('#modal-reportosabsen-data').modal('hide');
 	
 }
 
@@ -411,6 +411,7 @@ $('#employee').on('change', function () {
  	}
 
 });
+
 
 
 </script>

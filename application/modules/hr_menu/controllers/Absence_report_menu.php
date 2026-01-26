@@ -159,7 +159,7 @@ class Absence_report_menu extends MY_Controller
 	            from time_attendances a 
 	            left join employees b on b.id = a.employee_id 
 	            left join divisions c on c.id = b.division_id 
-	            where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." 
+	            where b.emp_source = 'internal' and b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." 
 	            order by b.full_name asc")->result(); 
 
 	        if(count($emp_absen) != 0){ 
