@@ -587,29 +587,27 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 	public function eksport_data()
 	{ 
-		$dateNow = date("Y-m-d");
+		$where_date = " where 1=1 ";
 
-		$where_date=" where a.date_attendance = '".$dateNow."' ";
-		if(isset($_GET['fldatestart'], $_GET['fldateend']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
-			$where_date = " where a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+		if (
+		    isset($_GET['fldatestart'], $_GET['fldateend']) &&
+		    $_GET['fldatestart'] != '' &&
+		    $_GET['fldateend'] != '' &&
+		    $_GET['fldatestart'] != 0 &&
+		    $_GET['fldateend'] != 0
+		) {
+		    $where_date = " WHERE (a.tgl_start <= '".$_GET['fldateend']."'
+		                    AND a.tgl_end   >= '".$_GET['fldatestart']."') ";
 		}
 
 		$where_emp="";
 		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
-			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
+			$where_emp = " and a.emp_id = '".$_GET['flemployee']."' ";
 		}
 
 
 		
-		$sql = 'select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
-					(case 
-					when a.leave_type != "" then concat("(",c.name,")") 
-					when a.is_leaving_office_early = "Y" then "Leaving Office Early"
-					else ""
-					end) as is_leaving_office_early_desc
-					from time_attendances a left join employees b on b.id = a.employee_id
-					left join master_leaves c on c.id = a.leave_type
-					'.$where_date.$where_emp.'
+		$sql = 'select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
 	   			ORDER BY id ASC
 		';
 

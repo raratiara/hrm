@@ -187,14 +187,14 @@
                             </a>
                             <?php
                         }
-                        else if ($this->module_name == 'hitung_summary_absen_os_menu') {
+                        /*else if ($this->module_name == 'hitung_summary_absen_os_menu') {
                             ?>
                             <a class="btn btn-default btn-sm btn-circle" onclick="getReportOS()">
                                 <i class="fa fa-download"></i>
                                 Report
                             </a>
                             <?php
-                        }
+                        }*/
                         else {
                             ?>
                             <a class="btn btn-default btn-sm btn-circle" id="btnEksportData">
