@@ -260,7 +260,7 @@ class ApprovalEmailService {
         $mail = [
             'subject'   => $subject,
             'to_name'   => $approver->approver_name,
-            'to_email'  => $approver->emails,
+            'to_email'  => 'tiarasanir@gmail.com',///$approver->emails,
             'template'  => 'approval'
         ];
 

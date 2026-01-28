@@ -83,5 +83,20 @@ class Html_pdf extends Dompdf
     }
 
 
+    public function render_to_string_portrait($view, $data = [])
+    {
+        // BUAT INSTANCE BARU (INI KUNCI UTAMA)
+        $dompdf = new Dompdf();
+
+        $html = $this->ci()->load->view($view, $data, true);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return $dompdf->output(); // PDF binary
+    }
+
+
 
 }

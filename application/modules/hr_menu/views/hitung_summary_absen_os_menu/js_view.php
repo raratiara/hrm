@@ -45,31 +45,38 @@
 </div>
 
 
-<div id="modal-report-data-os" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-data-os" aria-hidden="true">
+<div id="modal-report-summary_absen_os" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-summary_absen_os" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content">
-			<form class="form-horizontal" id="frmReportDataOS" enctype="multipart/form-data">
+		<div class="modal-content" style="width:500px">
+			<form class="form-horizontal" id="frmReportSummaryAbsenOS" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
-					Report Absensi Outsource
+					Report Summary Absensi Outsource
 				</div>
 			</div>
 			 </form>
 
 			<div class="modal-footer no-margin-top">
 				<center>
-				
-				<button class="btn" style="background-color: green; color: white; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportOS()">
+
+				<button class="btn" style="background-color: #8ec1f5; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportSummaryAbsenOS()">
 					<i class="fa fa-download"></i>
-					Download Report
+					Download EXCEL
+				</button>
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportSummaryAbsenOS_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
 				</button>
 				
-				<button class="btn" style="background-color: #A01818; color: white; border-radius: 2px !important;" data-dismiss="modal">
+				<button class="btn" style="background-color: #fc596b; color: black; border-radius: 2px !important;" data-dismiss="modal">
 					<i class="fa fa-times"></i>
 					Close
 				</button>
+
+
 				</center>
 			</div>
 		</div>
@@ -179,38 +186,31 @@ function subFilter(){
 }
 
 
-function getReportOS(){
+function getReport_summ_absen_os(){
 	
-	$('#modal-report-data-os').modal('show');
+	$('#modal-report-summary_absen_os').modal('show');
 
 }
 
 
-function downloadReportOS(){ 
+function downloadReportSummaryAbsenOS(){ 
 
-	var flemployee = $("#flemployee option:selected").val();
-	var perioddate = $("#perioddate").val();
-
-	if(flemployee == ''){
-		flemployee=0;
-	}
-
-	fldatestart=0;
-	fldateend=0;
-	if(perioddate != ''){
-		var myArray = perioddate.split(" - ");
-		var start = myArray[0];
-		var end = myArray[1];
-
-		fldatestart=toYYYYMMDD(start);
-		fldateend=toYYYYMMDD(end);
-	}
 	
+	send_url = module_path+'/getAbsenceReportSummaryAbsenOS';
 	
-	send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
-	formData = $('#frmReportData').serialize();
-	window.location = send_url+'&'+formData;
-	$('#modal-report-data').modal('hide');
+	window.location = send_url;
+	$('#modal-report-summary_absen_os').modal('hide');
+	
+}
+
+
+function downloadReportSummaryAbsenOS_pdf(){ 
+
+	
+	send_url = module_path+'/getAbsenceReportSummaryAbsenOS_pdf';
+	
+	window.location = send_url;
+	$('#modal-report-summary_absen_os').modal('hide');
 	
 }
 

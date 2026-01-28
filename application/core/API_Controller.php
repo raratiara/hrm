@@ -1,6 +1,9 @@
 <?php defined('BASEPATH') || exit('No direct script access allowed');
 
-use \Firebase\JWT\JWT;
+/*use \Firebase\JWT\JWT;*/
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 
 /** * API Controller * * Base Controller for API module * */
 class API_Controller extends MX_Controller
@@ -47,12 +50,12 @@ class API_Controller extends MX_Controller
     public function privateKey()
     {
         $privateKey = "MIIBOwIBAAJBALbXC6EXCeONsIyViGjvAroAWl9kcvPxvk4UJCcH3RZZN5xtlvc4
-		gVvi+NOtCDlxVYzuSNYMCxGq2P8LE12mcTsCAwEAAQJAJ4QKi2JDTN7OjVO0C5m8
-		aR6yaXN4NKjGjHFl7tmQOsfn3Jaq83jiXbE48HxHHnKctBevmZdk94R8NoS+8ijc
-		AQIhAOBkiSkO4ErzhklRMCa9QOzr7DKQ7t78MYJTFDTfLOq7AiEA0JglEfsSfGp3
-		ULLnc8NMCoXj33JRLdax4P3uPUs4a4ECIQChnYd0fPRqx072y3Tk0fZLLfjmyqBh
-		Fj8KYI/zLLKLNQIhAKRgAHZW345jZ3qUQIec0oNIVvVx5D62/J1L/T0X1XIBAiAR
-		A4CkgzT+KunKKu0sT2830frLSBKi0x1eu2HR7fOrMQ==";
+        gVvi+NOtCDlxVYzuSNYMCxGq2P8LE12mcTsCAwEAAQJAJ4QKi2JDTN7OjVO0C5m8
+        aR6yaXN4NKjGjHFl7tmQOsfn3Jaq83jiXbE48HxHHnKctBevmZdk94R8NoS+8ijc
+        AQIhAOBkiSkO4ErzhklRMCa9QOzr7DKQ7t78MYJTFDTfLOq7AiEA0JglEfsSfGp3
+        ULLnc8NMCoXj33JRLdax4P3uPUs4a4ECIQChnYd0fPRqx072y3Tk0fZLLfjmyqBh
+        Fj8KYI/zLLKLNQIhAKRgAHZW345jZ3qUQIec0oNIVvVx5D62/J1L/T0X1XIBAiAR
+        A4CkgzT+KunKKu0sT2830frLSBKi0x1eu2HR7fOrMQ==";
 
         return $privateKey;
     }
@@ -79,18 +82,77 @@ class API_Controller extends MX_Controller
 		return [$token,$expire_claim];
 	}
 
-	public function extractJWTdata($token)
+	/*public function extractJWTdata($token)
 	{
 		$secret_key = $this->privateKey();
 		JWT::$leeway = 60; // $leeway in seconds
 		$decoded = JWT::decode($token, $secret_key, array($this->jwt_hash));
 		
 		return $decoded;
-	}
+	}*/
 	
+    public function extractJWTdata($token)
+    {
+        $secret_key = $this->privateKey();
+
+        JWT::$leeway = 60; // toleransi waktu
+
+        return JWT::decode(
+            $token,
+            new Key($secret_key, $this->jwt_hash)
+        );
+    }
+
+
+    protected function verify_token()
+    {
+        $authHeader = $this->input->get_request_header('Authorization');
+
+        if (!$authHeader) {
+            $this->render_json([
+                'message' => 'Access denied',
+                'error'   => 'Authorization header not found'
+            ], 400);
+            exit;
+        }
+
+        // Expect: Bearer <token>
+        if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $this->render_json([
+                'message' => 'Access denied',
+                'error'   => 'Invalid authorization format'
+            ], 401);
+            exit;
+        }
+
+        $token = $matches[1];
+
+        try {
+            $decoded = $this->extractJWTdata($token);
+            $this->jwt_data = $decoded->data ?? null;
+
+        } catch (\Firebase\JWT\ExpiredException $e) {
+
+            $this->render_json([
+                'message' => 'Access denied',
+                'error'   => 'Token expired'
+            ], 401);
+            exit;
+
+        } catch (\Throwable $e) {
+
+            $this->render_json([
+                'message' => 'Access denied',
+                'error'   => $e->getMessage()
+            ], 401);
+            exit;
+        }
+    }
+
+
     // 	verify_token
     // 	Verify access token (e.g. API Key, JSON Web Token)
-    protected function verify_token()
+    /*protected function verify_token_old()
     {
         $token = null;
         $authHeader = $this->input->get_request_header('Authorization');
@@ -120,7 +182,7 @@ class API_Controller extends MX_Controller
 				$this->render_json($response, 400);
 				exit;
 		}			
-    }
+    }*/
 /*
     // 	verify_method
     // 	Verify request method

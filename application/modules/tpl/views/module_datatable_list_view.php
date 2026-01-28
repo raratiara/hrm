@@ -187,14 +187,30 @@
                             </a>
                             <?php
                         }
-                        /*else if ($this->module_name == 'hitung_summary_absen_os_menu') {
+                        else if ($this->module_name == 'hitung_summary_absen_os_menu') {
                             ?>
-                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportOS()">
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getReport_summ_absen_os()">
                                 <i class="fa fa-download"></i>
                                 Report
                             </a>
                             <?php
-                        }*/
+                        }
+                        else if ($this->module_name == 'invoice_menu') {
+                            ?>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getInvoice()">
+                                <i class="fa fa-download"></i>
+                                Invoice
+                            </a>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getRincianBiaya()">
+                                <i class="fa fa-download"></i>
+                                Rincian Biaya
+                            </a>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getBeritaAcaraPekerjaan()">
+                                <i class="fa fa-download"></i>
+                                Berita Acara Pekerjaan
+                            </a>
+                            <?php
+                        }
                         else {
                             ?>
                             <a class="btn btn-default btn-sm btn-circle" id="btnEksportData">

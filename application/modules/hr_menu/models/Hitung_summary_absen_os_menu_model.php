@@ -44,7 +44,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 		/*$where_date = " WHERE a.tgl_start <= '".$dateNow."' 
                 AND a.tgl_end >= '".$dateNow."' ";*/
-        $where_date = " where 1=1 ";
+        /*$where_date = " where 1=1 ";
 
 		if (
 		    isset($_GET['fldatestart'], $_GET['fldateend']) &&
@@ -60,10 +60,13 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 		$where_emp="";
 		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
 			$where_emp = " and a.emp_id = '".$_GET['flemployee']."' ";
-		}
+		}*/
 
 
-		$sTable = '(select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
+		/*$sTable = '(select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
+				)dt';*/
+
+		$sTable = '(select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan
 				)dt';
 		
 
