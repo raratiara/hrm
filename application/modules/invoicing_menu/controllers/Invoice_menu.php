@@ -15,13 +15,14 @@ class Invoice_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Day", "Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
+	public $tabel_header 			= ["ID","Project Name", "Customer Name","Invoice No","Invoice Date","PO Number","Periode Start","Periode End"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
-	public $colfields 				= ["id","date_attendance","full_name","attendance_type","time_in","time_out","date_attendance_in","date_attendance_out","is_late_desc","is_leaving_office_early_desc","num_of_working_hours"];
+	public $colnames 				= ["ID","Project Name", "Customer Name","Invoice No","Invoice Date","PO Number","Periode Start","Periode End"];
+	public $colfields 				= ["id","project_name","customer_name","invoice_no","invoice_date","po_number","periode_start","periode_end"];
 
+	
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -110,15 +111,7 @@ class Invoice_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	public function getDataEmp(){
-		$post = $this->input->post(null, true);
-		$empid = $post['empid'];
-
-		$rs =  $this->self_model->getDataEmployee($empid);
-		
-
-		echo json_encode($rs);
-	}
+ 	
 
 
 	public function getInvoiceReport(){
@@ -236,147 +229,137 @@ class Invoice_menu extends MY_Controller
 
 	public function getInvoiceReport_pdf()
 	{
-	    /*$sql = "
-	        select 
-	            c.name_indo AS month_name,
-	            a.tahun,
-	            a.tgl_start,
-	            a.tgl_end,
-	            b.full_name,
-	            a.total_hari_kerja,
-	            a.total_masuk,
-	            a.total_ijin,
-	            a.total_cuti,
-	            a.total_alfa,
-	            a.total_lembur,
-	            a.total_jam_kerja,
-	            a.total_jam_lembur
-	        FROM summary_absen_outsource a
-	        LEFT JOIN employees b ON b.id = a.emp_id
-	        LEFT JOIN master_month c ON c.id = a.bulan
-	        ORDER BY a.tahun DESC, a.bulan ASC, b.full_name ASC
-	    ";
-
-	    $data = $this->db->query($sql)->result();*/
-
-	    $this->load->library('html_pdf');
-
-	    /*$pdfData = [
-	        'title' => 'SUMMARY ABSENSI OUTSOURCE',
-	        'data'  => $data
-	    ];*/
-
-	    $pdfData = [
-		    'invoice_no'      => 'INV-MAS-01946',
-		    'invoice_date'    => '14 November 2025',
-		    'po_number'       => '-',
-		    'due_date'        => '28 November 2025',
-		    'terms' 		  => '14 days',
-		    'customer_name'   => 'PT. MITRA BELANJA ANDA',
-		    'customer_address'=> 'Mall of Indonesia Lt. LG Unit B-02 ...',
-		    'customer_npwp'   => '96.419.594.5-033.000',
-		    'management_fee'  => '8',
-		    'item_title'      => 'PENGADAAN JASA CLEANING SERVICE 12 PERSONIL',
-		    'project_name'    => 'Grand Lucky MOI Kelapa Gading',
-		    'periode_start'   => '01 Oktober',
-		    'periode_end'     => '31 Oktober 2025',
-		    'jumlah_harga_jual' => 54969360,
-		    'ppn'             => 4924023,
-		    'jumlah_sesudah_pajak'     => 55414382,
-		    'subtotal' => 43444,
-		    'management_fee_nominal'  => '8000',
-		    'terbilang'       => 'Enam Puluh Lima Juta Lima Ratus Empat Belas Ribu Dua Ratus Lima Puluh Dua',
-		    'bank_account'    => '157-00-0754003-3',
-		    'bank_name'       => 'PT. MANDIRI AGANGTA SEJAHTERA',
-		    'bank_branch'     => 'Bank Mandiri Cabang Margonda Depok'
-		];
+		$this->load->library('html_pdf');
+		$this->load->helper('global');
 
 
-	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	        'pdf/invoice',
-	        $pdfData
-	    );
+		
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			
+			$sql = "
+		        select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as customer_address from project_invoice a 
+				left join project_outsource b on b.id = a.project_id
+				left join data_customer c on c.id = b.customer_id
+				where a.project_id = ".$_GET['flproject']."
+		    ";
 
-	    if (ob_get_level()) ob_end_clean();
+		    $data = $this->db->query($sql)->result();
 
-	    header("Content-Type: application/pdf");
-	    header("Content-Disposition: attachment; filename=invoice.pdf");
-	    echo $pdfBinary;
-	    exit;
+		    if(!empty($data)){
+		    	$pdfData = [
+				    'invoice_no'      => $data[0]->invoice_no,
+				    'invoice_date'    => formatTanggalIndo($data[0]->invoice_date),
+				    'po_number'       => $data[0]->po_number,
+				    'due_date'        => formatTanggalIndo($data[0]->jatuh_tempo),
+				    'terms' 		  => $data[0]->terms,
+				    'customer_name'   => $data[0]->customer_name,
+				    'customer_address'=> $data[0]->customer_address,
+				    'customer_npwp'   => $data[0]->customer_npwp,
+				    'management_fee'  => $data[0]->management_fee,
+				    'item_title'      => $data[0]->item_title,
+				    'project_name'    => $data[0]->project_name,
+				    'periode_start'   => formatTanggalIndo($data[0]->periode_start),
+				    'periode_end'     => formatTanggalIndo($data[0]->periode_end),
+				    'jumlah_harga_jual' => $data[0]->jumlah_harga_jual,
+				    'ppn' 				=> $data[0]->ppn,
+				    'ppn_nominal'       => $data[0]->ppn_nominal,
+				    'jumlah_sesudah_pajak' 		=> $data[0]->jumlah_sesudah_pajak,
+				    'subtotal' 					=> $data[0]->subtotal,
+				    'management_fee_nominal'  	=> $data[0]->management_fee_nominal,
+				    'terbilang'       => terbilang($data[0]->jumlah_sesudah_pajak),
+				    'bank_account'    => '157-00-0754003-3',
+				    'bank_name'       => 'PT. MANDIRI AGANGTA SEJAHTERA',
+				    'bank_branch'     => 'Bank Mandiri Cabang Margonda Depok'
+				];
+
+
+
+				$pdfBinary = $this->html_pdf->render_to_string_portrait(
+			        'pdf/invoice',
+			        $pdfData
+			    );
+
+			    if (ob_get_level()) ob_end_clean();
+
+			    header("Content-Type: application/pdf");
+			    header("Content-Disposition: attachment; filename=invoice.pdf");
+			    echo $pdfBinary;
+			    exit;
+
+		    }else{
+		    	echo "Invoice tidak ditemukan"; 
+		    }
+
+		}else{
+			echo "Invoice tidak ditemukan"; 
+		}
+	    
+	    
 	}
 
 
 	public function getRincianBiayaReport_pdf()
 	{
-	    /*$sql = "
-	        select 
-	            c.name_indo AS month_name,
-	            a.tahun,
-	            a.tgl_start,
-	            a.tgl_end,
-	            b.full_name,
-	            a.total_hari_kerja,
-	            a.total_masuk,
-	            a.total_ijin,
-	            a.total_cuti,
-	            a.total_alfa,
-	            a.total_lembur,
-	            a.total_jam_kerja,
-	            a.total_jam_lembur
-	        FROM summary_absen_outsource a
-	        LEFT JOIN employees b ON b.id = a.emp_id
-	        LEFT JOIN master_month c ON c.id = a.bulan
-	        ORDER BY a.tahun DESC, a.bulan ASC, b.full_name ASC
-	    ";
+		$this->load->library('html_pdf');
+		$this->load->helper('global');
 
-	    $data = $this->db->query($sql)->result();*/
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
 
-	    $this->load->library('html_pdf');
+			//$project_id = 3;
+		    $sql = "
+		        select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as customer_address, d.name as lokasi_name, b.jenis_pekerjaan, c.contact_name, c.contact_title 
+		        from project_invoice a 
+				left join project_outsource b on b.id = a.project_id
+				left join data_customer c on c.id = b.customer_id
+				left join master_work_location_outsource d on d.id = b.lokasi_id
+				where a.project_id = ".$_GET['flproject']."
+		    ";
 
-	    /*$pdfData = [
-	        'title' => 'SUMMARY ABSENSI OUTSOURCE',
-	        'data'  => $data
-	    ];*/
+		    $data = $this->db->query($sql)->result();
+		    if(!empty($data)){
+		    	$items = $this->db->query("select * from project_outsource_boq")->result(); 
 
-	    /*$items = [
-	    	'uraian' => 'supervisor',
-	    	'qty' => '2',
-	    	'satuan' => 'ribu',
-	    	'harga' => '1000',
-	    	'keterangan' => 'test',
-	    	'total' => '2000',
-	    ];*/
-
-
-	    $items = $this->db->query("select * from project_outsource_boq")->result(); 
-
-	    $pdfData = [
-		    'nama_customer'   => 'PT MITRA BELANJA ANDA',
-		    'alamat_customer' => 'Mall Of Indonesia Lt. LG Unit B-02, Jakarta Utara',
-		    'project'         => 'Grand Lucky MOI Kelapa Gading',
-		    'no_invoice'      => 'INV-MAS-01946',
-		    'tanggal'         => '14 November 2025',
-		    'items' => $items, // array rincian
-		    'sub_total'       => 54649860,
-		    'management_fee'  => 4371989,
-		    'total'           => 59021849,
-		    'ppn'             => 6492403,
-		    'grand_total'     => 65514252
-		];
+			    $pdfData = [
+				    'nama_customer'   		=> $data[0]->customer_name,
+				    'alamat_customer' 		=> $data[0]->customer_address,
+				    'project'         		=> $data[0]->project_name,
+				    'no_invoice'      		=> $data[0]->invoice_no,
+				    'invoice_date'         	=> formatTanggalIndo($data[0]->invoice_date),
+				    'items' 				=> $items, // array rincian
+				    'sub_total'       		=> $data[0]->subtotal,
+				    'management_fee'  		=> $data[0]->management_fee,
+				    'management_fee_nominal'=> $data[0]->management_fee_nominal,
+				    'ppn'           		=> $data[0]->ppn,
+				    'ppn_nominal'           => $data[0]->ppn_nominal,
+				    'jumlah_sesudah_pajak'  => $data[0]->jumlah_sesudah_pajak,
+				    'jumlah_harga_jual' 	=> $data[0]->jumlah_harga_jual
+				];
 
 
 
-	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	        'pdf/rincian_biaya',
-	        $pdfData
-	    );
+			    $pdfBinary = $this->html_pdf->render_to_string(
+			        'pdf/rincian_biaya',
+			        $pdfData
+			    );
 
-	    if (ob_get_level()) ob_end_clean();
+			    if (ob_get_level()) ob_end_clean();
 
-	    header("Content-Type: application/pdf");
-	    header("Content-Disposition: attachment; filename=rincian_biaya.pdf");
-	    echo $pdfBinary;
-	    exit;
+			    header("Content-Type: application/pdf");
+			    header("Content-Disposition: attachment; filename=rincian_biaya.pdf");
+			    echo $pdfBinary;
+			    exit;
+
+
+		    }else{
+		    	echo "Rincian Biaya tidak ditemukan"; die();
+		    }
+
+		}else{
+	    	echo "Rincian Biaya tidak ditemukan"; die();
+	    }
+
+	    
+	    
 	}
 
 
@@ -384,39 +367,72 @@ class Invoice_menu extends MY_Controller
 	{
 	    
 	    $this->load->library('html_pdf');
-
-	    $items = $this->db->query("select * from project_outsource_boq")->result(); 
-
-	    $pdfData = [
-		    'no_surat'        => 'INV-MAS-01947',
-		    'nama_perusahaan' => 'PT. Mitra Belanja Anda',
-		    'alamat'          => 'Mall Of Indonesia Lt. LG Unit B-02, Jakarta Utara',
-		    'periode'         => '01 Oktober s/d 31 Oktober 2025',
-		    'lokasi'          => 'Grand Lucky MOI Kelapa Gading',
-		    'jenis_pekerjaan' => 'Trolley Boy dan Staff Fresh',
-		    'jumlah_personil' => 18,
-		    'tanggal'         => '14 November 2025',
-		    'nama_client'     => 'PT. Mitra Belanja Anda',
-		    'nama_ttd_kiri'   => 'Tri Ubaya Adi M.',
-		    'jabatan_ttd_kiri'=> 'Direktur',
-		    'nama_ttd_kanan'  => 'Hermawan Aris',
-		    'jabatan_ttd_kanan'=> 'Store Manager'
-		];
+	    $this->load->helper('global');
 
 
 
+	    if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+	    	//$project_id = 3;
+		    $sql = "
+		        select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as customer_address, d.name as lokasi_name, b.jenis_pekerjaan, c.contact_name, c.contact_title 
+		        from project_invoice a 
+				left join project_outsource b on b.id = a.project_id
+				left join data_customer c on c.id = b.customer_id
+				left join master_work_location_outsource d on d.id = b.lokasi_id
+				where a.project_id = ".$_GET['flproject']."
+		    ";
 
-	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	        'pdf/berita_acara_pekerjaan',
-	        $pdfData
-	    );
+		    $data = $this->db->query($sql)->result();
 
-	    if (ob_get_level()) ob_end_clean();
+		    if(!empty($data)){
+		    	$get_ttl_emp = $this->db->query("select count(id) as ttl from employees where emp_source = 'outsource' and project_id = '".$project_id."' and status_id = 1")->result(); 
+		    	$ttl_emp=0;
+		    	if(!empty($get_ttl_emp)){
+		    		$ttl_emp = $get_ttl_emp[0]->ttl;
+		    	}
+		    	$pdfData = [
+				    'no_surat'        	=> $data[0]->invoice_no,
+				    'customer_name' 	=> $data[0]->customer_name,
+				    'customer_address'  => $data[0]->customer_address,
+				    'periode_start'     => formatTanggalIndo($data[0]->periode_start),
+				    'periode_end'       => formatTanggalIndo($data[0]->periode_end),
+				    'lokasi'          	=> $data[0]->lokasi_name,
+				    'jenis_pekerjaan' 	=> $data[0]->jenis_pekerjaan,
+				    'jumlah_personil' 	=> $ttl_emp,
+				    'invoice_date'      => formatTanggalIndo($data[0]->invoice_date),
+				    'nama_client'     	=> $data[0]->invoice_no,
+				    'nama_ttd_kiri'   => 'Tri Ubaya Adi M.',
+				    'jabatan_ttd_kiri'=> 'Direktur',
+				    'nama_ttd_kanan'  => $data[0]->contact_name,
+				    'jabatan_ttd_kanan'=> $data[0]->contact_title
+				];
 
-	    header("Content-Type: application/pdf");
-	    header("Content-Disposition: attachment; filename=berita_acara_pekerjaan.pdf");
-	    echo $pdfBinary;
-	    exit;
+
+
+
+			    $pdfBinary = $this->html_pdf->render_to_string_portrait(
+			        'pdf/berita_acara_pekerjaan',
+			        $pdfData
+			    );
+
+			    if (ob_get_level()) ob_end_clean();
+
+			    header("Content-Type: application/pdf");
+			    header("Content-Disposition: attachment; filename=berita_acara_pekerjaan.pdf");
+			    echo $pdfBinary;
+			    exit;
+
+
+		    }else{
+		    	echo "Berita Acara Pekerjaan tidak ditemukan"; die();
+		    }
+
+	    }else{
+	    	echo "Berita Acara Pekerjaan tidak ditemukan"; die();
+	    }
+	    
+
+	    
 	}
 
 	

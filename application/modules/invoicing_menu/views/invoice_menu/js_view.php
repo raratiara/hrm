@@ -153,14 +153,14 @@ function toYYYYMMDD(dateStr) {
 
 
 function subFilter(){
-	var flemployee = $("#flemployee option:selected").val();
+	var flproject = $("#flproject option:selected").val();
 	var perioddate = $("#perioddate").val();
 
-	if(flemployee == ''){
-		flemployee=0;
+	if(flproject == ''){
+		flproject=0;
 	}
 
-	fldatestart=0;
+	/*fldatestart=0;
 	fldateend=0;
 	if(perioddate != ''){
 		var myArray = perioddate.split(" - ");
@@ -169,7 +169,7 @@ function subFilter(){
 
 		fldatestart=toYYYYMMDD(start);
 		fldateend=toYYYYMMDD(end);
-	}
+	}*/
 	
 
 	
@@ -188,7 +188,7 @@ function subFilter(){
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
-		"sAjaxSource": module_path+"/get_data?flemployee="+flemployee+"&fldatestart="+fldatestart+"&fldateend="+fldateend+"",
+		"sAjaxSource": module_path+"/get_data?flproject="+flproject+"",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
@@ -249,14 +249,14 @@ function downloadInvoice(){
 
 function downloadInvoice_pdf(){
 
-	/*var flemployee = $("#flemployee option:selected").val();
-	var perioddate = $("#perioddate").val();
+	var flproject = $("#flproject option:selected").val();
+	/*var perioddate = $("#perioddate").val();*/
 
-	if(flemployee == ''){
-		flemployee=0;
+	if(flproject == ''){
+		flproject=0;
 	}
 
-	fldatestart=0;
+	/*fldatestart=0;
 	fldateend=0;
 	if(perioddate != ''){
 		var myArray = perioddate.split(" - ");
@@ -265,17 +265,12 @@ function downloadInvoice_pdf(){
 
 		fldatestart=toYYYYMMDD(start);
 		fldateend=toYYYYMMDD(end);
-	}
+	}*/
 	
 	
-	send_url = module_path+'/getAbsenceReport_pdf?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
+	send_url = module_path+'/getInvoiceReport_pdf?flproject='+flproject+'';
 	formData = $('#frmReportData').serialize();
 	window.location = send_url+'&'+formData;
-	$('#modal-invoice').modal('hide');*/
-
-	send_url = module_path+'/getInvoiceReport_pdf';
-	
-	window.location = send_url;
 	$('#modal-invoice').modal('hide');
 
 
@@ -284,11 +279,14 @@ function downloadInvoice_pdf(){
 
 
 function downloadRincianBiaya_pdf(){
+	var flproject = $("#flproject option:selected").val();
+	if(flproject == ''){
+		flproject=0;
+	}
 
 	
-
-	send_url = module_path+'/getRincianBiayaReport_pdf';
-	
+	send_url = module_path+'/getRincianBiayaReport_pdf?flproject='+flproject+'';
+	formData = $('#frmReportRincianBiaya').serialize();
 	window.location = send_url;
 	$('#modal-rincian-biaya').modal('hide');
 
@@ -298,10 +296,14 @@ function downloadRincianBiaya_pdf(){
 
 
 function downloadBeritaAcaraPekerjaan_pdf(){
+	var flproject = $("#flproject option:selected").val();
+	if(flproject == ''){
+		flproject=0;
+	}
 
-
-	send_url = module_path+'/getBeritaAcaraPekerjaanReport_pdf';
 	
+	send_url = module_path+'/getBeritaAcaraPekerjaanReport_pdf?flproject='+flproject+'';
+	formData = $('#frmReportBeritaAcaraPekerjaan').serialize();
 	window.location = send_url;
 	$('#modal-berita-acara-pekerjaan').modal('hide');
 
@@ -323,8 +325,7 @@ jQuery(function($) {
 		bAutoWidth: false,
 		"aoColumnDefs": [
 		  { "bSortable": false, "aTargets": [ 0,1 ] },
-		  { "sClass": "text-center", "aTargets": [ 0,1 ] },
-		  { "flemployee": 12,},
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
 		],
 		"aaSorting": [
 		  	[2,'asc'] 

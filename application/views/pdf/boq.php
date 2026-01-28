@@ -219,7 +219,7 @@
         </td>
         <td width="80%" align="right" style="text-align: left;">
             <span style="margin-left:50px">Head Office : Jl. Kemang Raya No 1A. Kec Sukmajaya, kota Depok</span><br>
-            <span style="margin-left:70px">Phone : 021-77844672 &nbsp; &nbsp; &nbsp; &nbsp; Email : </span>
+            <span style="margin-left:70px">Phone : 021-77844672 &nbsp; &nbsp; &nbsp; &nbsp; Email : info@mandirias.co.id</span>
 
         </td>
     </tr>

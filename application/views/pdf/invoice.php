@@ -157,10 +157,15 @@
                 <?= $customer_name ?><br>
                 Project : <?= $project_name ?><br>
                 Periode : <?= $periode_start ?> s/d <?= $periode_end ?><br><br>
-                Management Fee <span style="text-align: right;"><?=$management_fee?> %</span>
+                Management Fee <?=$management_fee?> %
             </td>
             <td class="right">
-                <?= number_format($subtotal,0,',','.') ?>
+                <!-- <?= number_format($subtotal,0,',','.') ?> <br><br> bbbb -->
+                <!--<?= number_format($management_fee_nominal,0,',','.') ?> -->
+
+                <br><br><br>
+                Periode <br><br><br>
+                <?= number_format($management_fee_nominal,0,',','.') ?>
             </td>
         </tr>
 
@@ -169,8 +174,8 @@
             <td class="right bold"><?= number_format($jumlah_harga_jual,0,',','.') ?></td>
         </tr>
         <tr>
-            <td colspan="2" class="right">PPN 11%</td>
-            <td class="right"><?= number_format($ppn,0,',','.') ?></td>
+            <td colspan="2" class="right">PPN <?=$ppn?>%</td>
+            <td class="right"><?= number_format($ppn_nominal,0,',','.') ?></td>
         </tr>
         <tr>
             <td colspan="2" class="right bold">Jumlah Sesudah Pajak</td>

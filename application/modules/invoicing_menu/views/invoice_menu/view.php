@@ -41,8 +41,8 @@
 		  <!-- Employee -->
 		  <div class="col-md-4 col-sm-12">
 		    <div class="form-group row form-row">
-		      <label class="col-sm-4 col-form-label">Project</label>
-		      <div class="col-sm-8">
+		      <label class="col-sm-2 col-form-label">Project</label>
+		      <div class="col-sm-10">
 		        <?=$selflproject;?>
 		      </div>
 		    </div>
@@ -51,14 +51,14 @@
 		  
 
 		  <!-- Date Period -->
-		  <div class="col-md-4 col-sm-12">
+		  <!-- <div class="col-md-4 col-sm-12">
 		    <div class="form-group row form-row">
 		      <label class="col-sm-4 col-form-label">Date Period</label>
 		      <div class="col-sm-8">
 		        <input type="text" class="form-control" id="perioddate" name="perioddate">
 		      </div>
 		    </div>
-		  </div>
+		  </div> -->
 
 		  <!-- Button -->
 		  <!-- <div class="col-md-12"> -->

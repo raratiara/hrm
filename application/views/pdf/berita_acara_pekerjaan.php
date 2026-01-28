@@ -124,19 +124,19 @@
             <td width="3%">1.</td>
             <td width="30%">Nama Perusahaan</td>
             <td width="2%">:</td>
-            <td><?= $nama_perusahaan ?></td>
+            <td><?= $customer_name ?></td>
         </tr>
         <tr>
             <td>2.</td>
             <td>Alamat</td>
             <td>:</td>
-            <td><?= $alamat ?></td>
+            <td><?= $customer_address ?></td>
         </tr>
         <tr>
             <td>3.</td>
             <td>Periode Pekerjaan</td>
             <td>:</td>
-            <td><?= $periode ?></td>
+            <td><?= $periode_start ?> s/d <?= $periode_end?></td>
         </tr>
         <tr>
             <td>4.</td>
@@ -168,7 +168,7 @@
 
 <!-- ================= SIGNATURE ================= -->
 <table class="signature">
-    <tr><td style="text-align: left;">Depok, <?= $tanggal ?></td></tr>
+    <tr><td style="text-align: left;">Depok, <?= $invoice_date ?></td></tr>
     <tr>
         <td style="align: left;">
             PT. Mandiri Agangta Sejahtera <br><br><br><br>
@@ -176,7 +176,7 @@
             <div class="sign-title"><?= $jabatan_ttd_kiri ?></div>
         </td>
         <td>
-            <?= $nama_client ?> <br><br><br><br>
+            <?= $customer_name ?> <br><br><br><br>
             <div class="sign-name"><?= $nama_ttd_kanan ?></div>
             <div class="sign-title"><?= $jabatan_ttd_kanan ?></div>
         </td>
