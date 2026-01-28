@@ -62,6 +62,25 @@ class Api_model extends MY_Model
         }else return null;
     }
 
+    public function get_user_by_employee_id($employee_id) 
+    {
+        return $this->db 
+            ->where('id_karyawan', $employee_id)
+            ->where('isaktif', 2)
+            ->get('user')
+            ->row();
+    }
+
+    public function update_password_by_user_id($user_id, $password)
+    {
+        return $this->db
+            ->where('user_id', $user_id)
+            ->update('user', [
+                'passwd' => $password
+            ]);
+    }
+
+
     public function cek_company($url)
     {
         $table = "companies";

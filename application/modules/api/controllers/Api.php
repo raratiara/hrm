@@ -438,6 +438,73 @@ class Api extends API_Controller
     }
 
 
+	public function reset_password()
+	{
+		try {
+			$this->verify_token();
+
+			$data = json_decode(file_get_contents('php://input'), true);
+
+			$employee_id      = $data['employee_id'] ?? '';
+			$old_password     = $data['old_password'] ?? '';
+			$new_password     = $data['new_password'] ?? '';
+			$confirm_password = $data['confirm_password'] ?? '';
+
+			if (!$employee_id || !$old_password || !$new_password || !$confirm_password) {
+				return $this->render_json([
+					'code'    => 400,
+					'status'  => 'failed',
+					'message' => 'Required field not satisfied'
+				], 400);
+			}
+
+			$user = $this->api->get_user_by_employee_id($employee_id);
+
+			if (!$user) {
+				return $this->render_json([
+					'code'    => 404,
+					'status'  => 'failed',
+					'message' => 'User not found'
+				], 404);
+			}
+
+			if ($user->passwd !== md5($old_password)) {
+				return $this->render_json([
+					'code'    => 422,
+					'status'  => 'failed',
+					'message' => 'Old password not match'
+				], 422);
+			}
+
+			if ($new_password !== $confirm_password) {
+				return $this->render_json([
+					'code'    => 422,
+					'status'  => 'failed',
+					'message' => 'New password confirmation not match'
+				], 422);
+			}
+
+			$this->api->update_password_by_user_id(
+				$user->user_id,
+				md5($new_password)
+			);
+
+			return $this->render_json([
+				'code'    => 200,
+				'status'  => 'success',
+				'message' => 'Password updated successfully'
+			], 200);
+
+		} catch (Throwable $e) {
+			return $this->render_json([
+				'code'    => 500,
+				'status'  => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
+
+
     public function sync()
     { 
 
