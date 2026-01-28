@@ -9629,8 +9629,9 @@ class Api extends API_Controller
 		} catch (Throwable $e) {
 			log_message('error', $e->getMessage());
 			return $this->render_json([
-				'status' => 500,
-				'message' => 'Server Error'
+				'status'  => 500,
+				'message' => $e->getMessage(),
+				'data'    => null
 			], 500);
 		}
 	}
