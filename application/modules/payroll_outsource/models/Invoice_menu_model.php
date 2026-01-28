@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Invoice_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "invoicing_menu/invoice_menu";
+ 	protected $folder_name				= "payroll_outsource/invoice_menu";
  	protected $table_name 				= _PREFIX_TABLE."project_invoice";
  	protected $primary_key 				= "id";
 
@@ -202,7 +202,7 @@ class Invoice_menu_model extends MY_Model
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					'.$detail.'
+					
 					'.$edit.'
 					'.$delete.'
 				</div>',

@@ -6,9 +6,9 @@ class Invoice_menu extends MY_Controller
 	/* Module */
  	const  LABELMODULE				= "invoice_menu"; // identify menu
  	const  LABELMASTER				= "Menu Invoice";
- 	const  LABELFOLDER				= "invoicing_menu"; // module folder
+ 	const  LABELFOLDER				= "payroll_outsource"; // module folder
  	const  LABELPATH				= "invoice_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "invoicing_menu"; // adjusted 1st sub parent segment
+ 	const  LABELNAVSEG1				= "payroll_outsource"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 

@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Hitung_summary_absen_os_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "hr_menu/hitung_summary_absen_os_menu";
+ 	protected $folder_name				= "payroll_outsource/hitung_summary_absen_os_menu";
  	protected $table_name 				= _PREFIX_TABLE."summary_absen_outsource";
  	protected $primary_key 				= "id";
 
