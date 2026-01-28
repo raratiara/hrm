@@ -9536,6 +9536,104 @@ class Api extends API_Controller
 		]);
 	}
 
+	public function add_login_banner()
+	{
+		try {
+			$this->verify_token();
+
+			$name       = $this->input->post('name');
+			$created_by = $this->input->post('created_by');
+
+			if (empty($name) || empty($_FILES['photo']['name'])) {
+				return $this->render_json([
+					'status'  => 400,
+					'message' => 'Name and photo are required'
+				], 400);
+			}
+
+			$upload_path = FCPATH . 'public/assets/images/login/';
+			if (!is_dir($upload_path)) {
+				mkdir($upload_path, 0777, true);
+			}
+
+			$config['upload_path']   = $upload_path;
+			$config['allowed_types'] = 'jpg|jpeg|png|webp';
+			$config['max_size']      = 2048;
+			$config['encrypt_name']  = true;
+
+			$this->load->library('upload', $config);
+
+			if (!$this->upload->do_upload('photo')) {
+				return $this->render_json([
+					'status'  => 400,
+					'message' => $this->upload->display_errors('', '')
+				], 400);
+			}
+
+			$upload = $this->upload->data();
+
+			$this->api->deactivate_all_login_banner();
+
+			$data = [
+				'name'       => $name,
+				'photo'      => $upload['file_name'],
+				'is_active'  => 1,
+				'created_at' => date('Y-m-d H:i:s'),
+				'created_by' => $created_by
+			];
+
+			$this->api->insert_login_banner($data);
+
+			return $this->render_json([
+				'status'  => 200,
+				'message' => 'Login banner added successfully',
+				'data'    => [
+					'name'  => $name,
+					'photo' => base_url('public/assets/images/login/' . $upload['file_name'])
+				]
+			], 200);
+
+		} catch (Throwable $e) {
+
+			log_message('error', $e->getMessage());
+
+			return $this->render_json([
+				'status'  => 500,
+				'message' => 'Server Error'
+			], 500);
+		}
+	}
+
+	public function login_banner()
+	{
+		try {
+			$banner = $this->api->get_active_login_banner();
+
+			if (!$banner) {
+				return $this->render_json([
+					'status'  => 200,
+					'message' => 'No banner',
+					'data'    => null
+				], 200);
+			}
+
+			return $this->render_json([
+				'status'  => 200,
+				'message' => 'Success',
+				'data'    => [
+					'name'  => $banner->name,
+					'photo' => base_url('public/assets/images/login/' . $banner->photo)
+				]
+			], 200);
+
+		} catch (Throwable $e) {
+			log_message('error', $e->getMessage());
+			return $this->render_json([
+				'status' => 500,
+				'message' => 'Server Error'
+			], 500);
+		}
+	}
 
 
 }

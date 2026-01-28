@@ -272,6 +272,27 @@ class Api_model extends MY_Model
     }
 
     
+    public function get_active_login_banner()
+    {
+        return $this->db
+            ->select('name, photo')
+            ->from('login_banners')
+            ->where('is_active', 1)
+            ->order_by('created_at', 'DESC')
+            ->limit(1)
+            ->get()
+            ->row();
+    }
+
+    public function deactivate_all_login_banner()
+    {
+        return $this->db->update('login_banners', ['is_active' => 0]);
+    }
+
+    public function insert_login_banner($data)
+    {
+        return $this->db->insert('login_banners', $data);
+    }
 
 }
 
