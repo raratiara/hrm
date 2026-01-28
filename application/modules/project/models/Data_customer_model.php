@@ -85,6 +85,7 @@ class Data_customer_model extends MY_Model
 			'a.contact_phone',
 			'a.contact_email',
 			'b.description as status',
+			'a.npwp'
 		];
 
 		$sIndexColumn = 'a.'.$this->primary_key;
@@ -256,7 +257,8 @@ class Data_customer_model extends MY_Model
 				$row->contact_name,
 				$row->contact_phone,
 				$row->contact_email,
-				$row->status
+				$row->status,
+				$row->npwp
 			));
 		}
 
@@ -319,7 +321,8 @@ class Data_customer_model extends MY_Model
 			'contact_phone' 	=> trim($post['contact_phone']),
 			'contact_email' 	=> trim($post['contact_email']), 
 			'id_status' 		=> $id_status,
-			'insert_by'			=> $_SESSION["username"]
+			'insert_by'			=> $_SESSION["username"],
+			'npwp' 				=> trim($post['customer_npwp'])
 		];
 
 		//$this->db->trans_off(); // Disable transaction
@@ -345,7 +348,8 @@ class Data_customer_model extends MY_Model
 				'contact_phone' 	=> trim($post['contact_phone']),
 				'contact_email' 	=> trim($post['contact_email']), 
 				'id_status' 		=> $id_status,
-				'update_by'			=> $_SESSION["username"]
+				'update_by'			=> $_SESSION["username"],
+				'npwp' 				=> trim($post['customer_npwp'])
 			];
 
 			//$this->db->trans_off(); // Disable transaction

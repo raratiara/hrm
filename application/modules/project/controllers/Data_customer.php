@@ -15,11 +15,11 @@ class Data_customer extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Kode","Nama","Alamat","Contact","Telp","Email","Status"];
+	public $tabel_header 			= ["ID","Kode","Nama","Alamat","Contact","Telp","Email","Status","NPWP"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Kode","Nama","Alamat","Contact","Telp","Email","Status"];
-	public $colfields 				= ["id","code","name","address","contact_name","contact_phone","contact_email","status"];
+	public $colnames 				= ["ID","Kode","Nama","Alamat","Contact","Telp","Email","Status","NPWP"];
+	public $colfields 				= ["id","code","name","address","contact_name","contact_phone","contact_email","status","npwp"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -34,6 +34,7 @@ class Data_customer extends MY_Controller
 		$field['txtcontactname'] 	= $this->self_model->return_build_txt('','contact_name','contact_name');
 		$field['txtcontactphone'] 	= $this->self_model->return_build_txt('','contact_phone','contact_phone');
 		$field['txtcontactemail'] 	= $this->self_model->return_build_txt('','contact_email','contact_email');
+		$field['txtnpwp'] 			= $this->self_model->return_build_txt('','customer_npwp','customer_npwp');
 		/*
 		$field['txtcontactnik'] 	= $this->self_model->return_build_txt('','contact_nik','contact_nik');
 		$field['filecontactnik'] 	= $this->self_model->return_build_fileinput('contact_filenik','contact_filenik', 'contact_filenik', '', '', '');

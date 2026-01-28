@@ -143,6 +143,7 @@ function load_data()
 					$('[name="contact_phone"]').val(data.contact_phone);
 					$('[name="contact_email"]').val(data.contact_email);  
 					$('[name="id_status"]').val(data.id_status).trigger('change.select2');
+					$('[name="customer_npwp"]').val(data.npwp); 
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
@@ -154,6 +155,7 @@ function load_data()
 					$('span.contact_name').html(data.contact_name); 
 					$('span.contact_phone').html(data.contact_phone);
 					$('span.contact_email').html(data.contact_email);
+					$('span.customer_npwp').html(data.npwp);
 					 
 					$('span.status').html(data.status);
 					$('#modal-view-data').modal('show');
