@@ -38,129 +38,86 @@
 
 
     <div class="profile-section">
-        <div class="profile-card">
-            <!-- <img src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture" class="profile-image"> -->
-            <span class="emp_photo"></span>
-            <div class="profile-name">
-                <span class="name" style="font-weight: bold;"></span>
-            </div>
+       <!-- GABUNGAN: Profile Card + Profile Info -->
+  <div class="profile-merged">
 
+    <!-- KIRI: profile ringkas -->
+    <div class="profile-left">
+      <span class="emp_photo"></span>
 
-            <div class="profile-details">
+      <div class="profile-name">
+        <span class="name" style="font-weight:700;"></span>
+      </div>
 
-                <div style="color: #888888;">
-                    <span class="job_title_department">
-                        <?php
-                        $job = !empty($job_title) ? $job_title : '[Job Title]';
-                        $dept = !empty($department) ? $department : '[Department]';
-                        echo $job . ' – ' . $dept;
-                        ?>
-                    </span>
-                </div>
-
-
-
-                <div style="margin-top: 5px;">
-                    <span class="division"></span>
-                </div>
-
-
-                <div style="margin-top: 5px;">
-                    <i class="fa fa-envelope" style="margin-right: 5px;"></i>
-                    <span class="email"></span>
-                </div>
-
-                <div style="margin-top: 5px;">
-                    <i class="fa fa-phone" style="margin-right: 5px;"></i>
-                    <span class="phone"></span>
-                </div>
-            </div>
-
-
-            <div class="action-button">
-                <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
-                <button class="btn-circle btn-checkin" id="btnAddData">
-                    <i class="bi bi-box-arrow-in-right"></i> Check-in
-                </button>
-
-                <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
-                    <i class="bi bi-box-arrow-right"></i> Check-out
-                </button>
-            </div>
-
+      <div class="profile-details">
+        <div style="color:#888888;">
+          <span class="job_title_department">
+            <?php
+              $job = !empty($job_title) ? $job_title : '[Job Title]';
+              $dept = !empty($department) ? $department : '[Department]';
+              echo $job . ' – ' . $dept;
+            ?>
+          </span>
         </div>
 
-        <div class="profile-info">
-            <div class="info-grid">
-                <!-- Kolom 1 -->
-                <div class="column">
-
-                    <div><strong>NIK</strong><span class="nik"></span></div>
-                    <div><strong>Date of Birth</strong><span class="date_of_birth"><span></div>
-                    <div><strong>Gender</strong><span class="gender"></span></div>
-                    <div><strong>Address</strong><span class="address"></span></div>
-
-                </div>
-
-                <!-- Kolom 2 -->
-                <div class="column">
-                    <div><strong>Date of Hired</strong><span class="date_of_hired"></span></div>
-                    <div><strong>Status</strong><span class="status"></span></div>
-                    <div><strong>Shift Type</strong><span class="shift_type"></span></div>
-                    <div><strong>Direct</strong><span class="direct"></span></div>
-                </div>
-
-                <!-- Kolom 3 -->
-                <div class="columnlevel">
-                    <div><strong>Job Level</strong><span class="job_level"></span></div>
-                </div>
-            </div>
+        <div style="margin-top:5px;">
+          <span class="division"></span>
         </div>
 
-        <!-- <div class="health-card">
-            <span id="lastLog" style="font-size: 11px; color: #aaa; font-weight:bold;"></span>
-            <div class="row g-3">
-                <div class="col-md-6 col-12">
-                    
-                    <div class="card-box">
-                        <div class="icon"><i class="bi bi-heart-fill text-danger"></i></div>
-                        <h3><span id="bpm"></span></h3>
-                        <p>BPM</p>
-                        <span class="badge bg-success" id="bpm_desc"></span>
-                    </div>
-                    
-                    <div class="card-box">
-                        <div class="icon"><i class="bi bi-activity text-info"></i></div>
-                        <h3><span id="spo2"></span></h3>
-                        <p>SpO₂</p>
-                        <span class="badge bg-success" id="spo2_desc"></span>
-                    </div>
-                </div>
+        <div style="margin-top:5px;">
+          <i class="fa fa-envelope" style="margin-right:5px;"></i>
+          <span class="email"></span>
+        </div>
 
-                <div class="col-md-6 col-12">
-                  
-                    <div class="card-box">
-                        <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
-                        <h3><span id="sleep"></span></h3>
-                        <p>Sleep</p>
-                        <small><span id="sleep_percent"></span></small>
-                    </div>
-                   
-                    <div class="card-box">
-                        <div class="icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div>
-                        <h3><span id="fatigue_percentage"></span></h3>
-                        <p>Fatigue</p>
-                        <span class="badge bg-warning text-dark" id="fatigue_category">Moderate</span>
-                    </div>
-                </div>
+        <div style="margin-top:5px;">
+          <i class="fa fa-phone" style="margin-right:5px;"></i>
+          <span class="phone"></span>
+        </div>
+      </div>
 
-            </div>
+      <div class="action-button">
+        <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
 
-        </div> -->
+        <button class="btn-circle btn-checkin" id="btnAddData">
+          <i class="bi bi-box-arrow-in-right"></i> Check-in
+        </button>
+
+        <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
+          <i class="bi bi-box-arrow-right"></i> Check-out
+        </button>
+      </div>
+    </div>
+
+    <!-- PEMBATAS -->
+    <div class="profile-divider"></div>
+
+    <!-- KANAN: informasi detail -->
+    <div class="profile-right">
+      <div class="info-grid">
+        <div class="column">
+          <div><strong>NIK</strong><span class="nik"></span></div>
+          <div><strong>Gender</strong><span class="gender"></span></div>
+          <div><strong>Date of Birth</strong><span class="date_of_birth"></span></div>
+          <div><strong>Address</strong><span class="address"></span></div>
+        </div>
+
+        <div class="column">
+          <div><strong>Direct</strong><span class="direct"></span></div>
+          <div><strong>Job Level</strong><span class="job_level"></span></div>
+          <div><strong>Status</strong><span class="status"></span></div>
+          <div><strong>Date of Hired</strong><span class="date_of_hired"></span></div>
+          <div><strong>Shift Type</strong><span class="shift_type"></span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
 
         <div class="health-card p-3 rounded shadow text-center">
             <i class="fa fa-calendar"></i> <span id="lastLog"
-                style="font-size: 12px; font-weight:bold;"></span>
+                style="font-size: 12px; font-weight:bold; color: #868686;"></span>
 
             <div class="row card-information-health">
                 <div class="col-md-6 col-12">
@@ -525,26 +482,36 @@
             <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
         </div>
 
-        <div class="right-section">
+        <!-- <div class="right-section">
             <div class="box-1 table-box">
                 <div class="title_tasklist">Tasklist Progress</div>
-                <div class="table-container" style="margin-top: 10px;">
+                <div class="table-container" style="margin-top: 3px;">
                     <table>
                         <thead>
                             <tr>
                                 <th style="text-align: left; font-size:12px">Task</th>
-                                <!-- <th style="width: 100px; text-align: center; font-size:12px">Progress (%)</th> -->
                                 <th style="text-align: center;">Progress (%)</th>
                                 <th style="font-size:12px">Due Date</th>
                             </tr>
                         </thead>
                         <tbody id="tasklistBody">
-                            <!-- Data will be injected here by JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
+        </div> -->
+
+        <div class="right-section">
+  <div class="box-1 table-box">
+    <div class="title_tasklist">Tasklist Progress</div>
+
+    <!-- LIST (bukan table) -->
+    <div class="tasklist-container" id="tasklistList" style="margin-top: 8px;">
+      <!-- Card akan di-inject via JS -->
+    </div>
+  </div>
+</div>
+
 
     </div>
 
