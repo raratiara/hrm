@@ -37,7 +37,6 @@ class Project_outsource_model extends MY_Model
 			'dt.management_fee',
 			'dt.periode_start',
 			'dt.periode_end',
-			'dt.jenis_layanan',
 			'dt.lokasi_name',
 			'dt.project_name'
 			
@@ -219,8 +218,7 @@ class Project_outsource_model extends MY_Model
 				$row->jenis_pekerjaan,
 				$row->management_fee,
 				$row->periode_start,
-				$row->periode_end,
-				$row->jenis_layanan
+				$row->periode_end
 			));
 		}
 
@@ -283,8 +281,7 @@ class Project_outsource_model extends MY_Model
 			'jenis_pekerjaan' 	=> trim($post['jenis_pekerjaan']),
 			'management_fee' 	=> trim($post['management_fee']),
 			'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))), 
-			'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end']))), 
-			'jenis_layanan' 	=> trim($post['jenis_layanan'])
+			'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end'])))
 			
 		];
 
@@ -306,8 +303,7 @@ class Project_outsource_model extends MY_Model
 				'jenis_pekerjaan' 	=> trim($post['jenis_pekerjaan']),
 				'management_fee' 	=> trim($post['management_fee']),
 				'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))), 
-				'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end']))), 
-				'jenis_layanan' 	=> trim($post['jenis_layanan'])
+				'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end'])))
 				
 			];
 

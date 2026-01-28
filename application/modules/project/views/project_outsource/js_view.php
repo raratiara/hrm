@@ -133,7 +133,6 @@ function load_data()
 					
 					$('[name="jenis_pekerjaan"]').val(data.jenis_pekerjaan);
 					$('[name="management_fee"]').val(data.management_fee); 
-					$('[name="jenis_layanan"]').val(data.jenis_layanan); 
 					
 					var periode_start = dateFormat(data.periode_start);
 					var periode_end = dateFormat(data.periode_end);
@@ -155,7 +154,6 @@ function load_data()
 					$('span.lokasi').html(data.lokasi_name);
 					$('span.jenis_pekerjaan').html(data.jenis_pekerjaan);
 					$('span.management_fee').html(data.management_fee);
-					$('span.jenis_layanan').html(data.jenis_layanan);
 					$('span.periode_start').html(data.periode_start);
 					$('span.periode_end').html(data.periode_end);
 					

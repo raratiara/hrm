@@ -54,12 +54,7 @@
 				: <span class="periode_start"></span>
 			</div>
 		</div>
-		<div class="row-flex">
-			<label class="col-md-4 control-label no-padding-right">Periode End</label>
-			<div class="col-md-8">
-				: <span class="periode_end"></span>
-			</div>
-		</div>
+		
 
 
 	</div>
@@ -85,15 +80,12 @@
 				: <span class="jenis_pekerjaan"></span>
 			</div>
 		</div>
-		
 		<div class="row-flex">
-			<label class="col-md-4 control-label no-padding-right"> Jenis Layanan</label>
+			<label class="col-md-4 control-label no-padding-right">Periode End</label>
 			<div class="col-md-8">
-				: <span class="jenis_layanan"></span>
+				: <span class="periode_end"></span>
 			</div>
 		</div>
-		
-
 
 	</div>
 </div>

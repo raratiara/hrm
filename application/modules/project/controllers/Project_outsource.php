@@ -15,11 +15,11 @@ class Project_outsource extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Code","Nama Project", "Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End","Jenis Layanan"];
+	public $tabel_header 			= ["ID","Code","Nama Project", "Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Code","Nama Project", "Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End","Jenis Layanan"];
-	public $colfields 				= ["id","code","project_name","customer_name","lokasi","jenis_pekerjaan","management_fee", "periode_start","periode_end","jenis_layanan"];
+	public $colnames 				= ["ID","Code","Nama Project", "Customer","Lokasi","Jenis Pekerjaan","Management Fee","Period Start","Period End"];
+	public $colfields 				= ["id","code","project_name","customer_name","lokasi","jenis_pekerjaan","management_fee", "periode_start","periode_end"];
 
 
 	/* Form Field Asset */
@@ -27,21 +27,20 @@ class Project_outsource extends MY_Controller
 	{ 
 		$field = [];
 
-		$field['txtkodeproject'] 	= $this->self_model->return_build_txt('','kode_project','kode_project');
-		$field['txtnamaproject'] 	= $this->self_model->return_build_txt('','nama_project','nama_project');
+		$field['txtkodeproject'] 	= $this->self_model->return_build_txt('','kode_project','kode_project','','','required');
+		$field['txtnamaproject'] 	= $this->self_model->return_build_txt('','nama_project','nama_project','','','required');
 		
-		$field['txtperiodstart']	= $this->self_model->return_build_txtdate('','periode_start','periode_start');	
-		$field['txtperiodend']	= $this->self_model->return_build_txtdate('','periode_end','periode_end');
-		$field['txtjenislayanan'] 	= $this->self_model->return_build_txt('','jenis_layanan','jenis_layanan');
-		$field['txtjenispekerjaan'] = $this->self_model->return_build_txt('','jenis_pekerjaan','jenis_pekerjaan');
-		$field['txtmanagementfee'] 	= $this->self_model->return_build_txt('','management_fee','management_fee');
+		$field['txtperiodstart']	= $this->self_model->return_build_txtdate('','periode_start','periode_start','','','required');	
+		$field['txtperiodend']	= $this->self_model->return_build_txtdate('','periode_end','periode_end','','','required');
+		$field['txtjenispekerjaan'] = $this->self_model->return_build_txt('','jenis_pekerjaan','jenis_pekerjaan','','','required');
+		$field['txtmanagementfee'] 	= $this->self_model->return_build_txt('','management_fee','management_fee','','','required');
 		
 
 		$mslokasi 					= array();
-		$field['sellokasi'] 		= $this->self_model->return_build_select2me($mslokasi,'','','','lokasi','lokasi','','','id','name',' ','','','',3,'-');
+		$field['sellokasi'] 		= $this->self_model->return_build_select2me($mslokasi,'','','','lokasi','lokasi','','','id','name',' ','','','required',3,'-');
 
 		$mscust 					= $this->db->query("select *, if(code != '', concat(code,' - ',name),name) as customer_name from data_customer order by name asc")->result(); 
-		$field['seloCustomer'] 		= $this->self_model->return_build_select2me($mscust,'','','','customer','customer','','','id','customer_name',' ','','','',3,'-');
+		$field['seloCustomer'] 		= $this->self_model->return_build_select2me($mscust,'','','','customer','customer','','','id','customer_name',' ','','','required',3,'-');
 		
 		
 		return $field;
