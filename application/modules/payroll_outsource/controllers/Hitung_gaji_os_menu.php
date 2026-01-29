@@ -55,6 +55,32 @@ class Hitung_gaji_os_menu extends MY_Controller
 		$field['txt_jml_ttlmasuk_nominal']	= $this->self_model->return_build_txt('','jml_ttlmasuk_nominal','jml_ttlmasuk_nominal','','','readonly');
 		$field['txt_jml_ttllembur_nominal']	= $this->self_model->return_build_txt('','jml_ttllembur_nominal','jml_ttllembur_nominal','','','readonly');
 
+
+		$msemp 							= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
+		$field['selflemployee'] 		= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
+
+
+
+		$msproject = $this->db->query("select id,project_name as project_label FROM project_outsource ORDER BY project_name ASC ")->result();
+
+		$field['selflproject'] = $this->self_model->return_build_select2me(
+			$msproject,
+			'',
+			'',
+			'',
+			'flproject',
+			'flproject',
+			'',
+			'',
+			'id',
+			'project_label',
+			' ',
+			'',
+			'',
+			'',
+			3,
+			'-'
+		);
 		
 		
 		
@@ -146,9 +172,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 
 		
-		//if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
-			
-			
+		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
 
 		    $sql = "
 		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
@@ -158,6 +182,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
+				where a.employee_id = ".$_GET['flemployee']." 
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -191,9 +216,9 @@ class Hitung_gaji_os_menu extends MY_Controller
 		    	echo "Slip Gaji tidak ditemukan"; 
 		    }
 
-		/*}else{
-			echo "Invoice tidak ditemukan"; 
-		}*/
+		}else{
+			echo "Slip Gaji tidak ditemukan"; 
+		}
 	    
 	    
 	}
@@ -207,7 +232,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 
 		
-		//if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
 			
 			
 
@@ -219,6 +244,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
+				where a.employee_id = '".$_GET['flemployee']."'
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -252,9 +278,9 @@ class Hitung_gaji_os_menu extends MY_Controller
 		    	echo "Report Lembur tidak ditemukan"; 
 		    }
 
-		/*}else{
-			echo "Invoice tidak ditemukan"; 
-		}*/
+		}else{
+			echo "Report Lembur tidak ditemukan"; 
+		}
 	    
 	    
 	}

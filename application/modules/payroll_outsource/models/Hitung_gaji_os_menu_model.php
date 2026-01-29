@@ -25,6 +25,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			'dt.full_name',
 			'dt.project_name'
 		];
+
+		$where_employee = "";
+		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+		$where_employee = " and a.employee_id = '".$_GET['flemployee']."' ";
+		}
 		
 
 		$sIndexColumn = $this->primary_key;
@@ -34,7 +39,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				left join master_month c on c.id = a.periode_bulan
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
-				left join data_customer f on f.id = d.customer_id)dt';
+				left join data_customer f on f.id = d.customer_id
+				where 1=1 '.$where_employee.'
+			)dt';
 		
 
 		/* Paging */

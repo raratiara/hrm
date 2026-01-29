@@ -410,6 +410,53 @@ function list_fcast_view(id, penggajian_month, penggajian_year, project){
 
 
 
+function subFilter(){
+	var flemployee = $("#flemployee option:selected").val();
+	//var perioddate = $("#perioddate").val();
+
+	if(flemployee == ''){
+		flemployee=0;
+	}
+
+	/*fldatestart=0;
+	fldateend=0;
+	if(perioddate != ''){
+		var myArray = perioddate.split(" - ");
+		var start = myArray[0];
+		var end = myArray[1];
+
+		fldatestart=toYYYYMMDD(start);
+		fldateend=toYYYYMMDD(end);
+	}*/
+	
+
+	
+	$('#dynamic-table').DataTable().clear().destroy(); 
+	$('#dynamic-table')
+	.DataTable( {
+		fixedHeader: {
+			headerOffset: $('.page-header').outerHeight()
+		},
+		responsive: true,
+		bAutoWidth: false,
+		"aoColumnDefs": [
+		  { "bSortable": false, "aTargets": [ 0,1 ] },
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] },
+		],
+		"aaSorting": [
+		  	[2,'asc'] 
+		],
+		"sAjaxSource": module_path+"/get_data?flemployee="+flemployee+"",
+		"bProcessing": true,
+        "bServerSide": true,
+		"pagingType": "bootstrap_full_number",
+		"colReorder": true
+    } );
+
+}
+
+
+
 function getReportGaji(){
 	
 	$('#modal-report-gaji').modal('show');
@@ -418,12 +465,20 @@ function getReportGaji(){
 
 function downloadGaji_pdf(){
 
-	/*var flemployee = $("#flemployee option:selected").val();
-	var perioddate = $("#perioddate").val();
+	var flemployee = $("#flemployee option:selected").val();
+	
 
-	if(flemployee == ''){
-		flemployee=0;
+	if(flemployee != ''){
+		send_url = module_path+'/getPayrollReport_pdf?flemployee='+flemployee+'';
+		formData = $('#frmReportGaji').serialize();
+		window.location = send_url+'&'+formData;
+		$('#modal-report-gaji').modal('hide');
+	}else{
+		alert("Mohon filter Karyawan terlebih dahulu");
 	}
+
+	/*
+	var perioddate = $("#perioddate").val();
 
 	fldatestart=0;
 	fldateend=0;
@@ -443,10 +498,6 @@ function downloadGaji_pdf(){
 	$('#modal-invoice').modal('hide');*/
 
 
-	send_url = module_path+'/getPayrollReport_pdf';
-	
-	window.location = send_url;
-	$('#modal-report-gaji').modal('hide');
 	
 }
 
@@ -459,13 +510,22 @@ function getReportLembur(){
 
 function downloadLembur_pdf(){
 
-	/*var flemployee = $("#flemployee option:selected").val();
-	var perioddate = $("#perioddate").val();
+	var flemployee = $("#flemployee option:selected").val();
+	
 
-	if(flemployee == ''){
-		flemployee=0;
+	if(flemployee != ''){
+
+		send_url = module_path+'/getOvertimeReport_pdf?flemployee='+flemployee+'';
+		formData = $('#frmReportLembur').serialize();
+		window.location = send_url+'&'+formData;
+		$('#report-lembur').modal('hide');
+
+	}else{
+		alert("Mohon filter Karyawan terlebih dahulu");
 	}
 
+	/*
+	var perioddate = $("#perioddate").val();
 	fldatestart=0;
 	fldateend=0;
 	if(perioddate != ''){
@@ -484,10 +544,6 @@ function downloadLembur_pdf(){
 	$('#modal-invoice').modal('hide');*/
 
 
-	send_url = module_path+'/getOvertimeReport_pdf';
-	
-	window.location = send_url;
-	$('#modal-report-lembur').modal('hide');
 	
 }
 
