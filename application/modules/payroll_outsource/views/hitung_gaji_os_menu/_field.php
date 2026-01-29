@@ -98,7 +98,7 @@
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">Konsumsi</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 						
@@ -113,13 +113,13 @@
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">T.Transport</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">T.Komunikasi</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 					</div>
@@ -174,7 +174,7 @@
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">Pelatihan</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 						<div class="form-group">
@@ -186,7 +186,7 @@
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">Payroll</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 						
@@ -201,13 +201,13 @@
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">Seragam</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">Lain-Lain</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 						<div class="form-group">
@@ -219,7 +219,7 @@
 						<div class="form-group">
 							<label class="col-md-4 control-label no-padding-right">PPH 120</label>
 							<div class="col-md-8">
-								<?=$txtyear;?>
+								<?=$txtxx;?>
 							</div>
 						</div>
 					</div>

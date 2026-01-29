@@ -91,9 +91,11 @@ var ldx; //for save list index string
 
 
 $(document).ready(function() {
-   	$('input[name="period_start"]').datepicker();
-   	$('input[name="period_end"]').datepicker();
+   	/*$('input[name="period_start"]').datepicker();
+   	$('input[name="period_end"]').datepicker();*/
    	
+   	initFilterEmployee();
+
 });
 
 
@@ -220,7 +222,7 @@ function load_data()
 					/*document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";*/
 
 					var locate = 'table.absenos-list-gaji';
-					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/gengajiosrow',data: { id:data.id },success: function (response) { 
 							var obj = JSON.parse(response); console.log(obj);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -256,17 +258,17 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.penggajian_year').html(data.tahun);
-					$('span.penggajian_month').html(data.month_name);
-					$('span.period_start').html(data.tgl_start);
-					$('span.period_end').html(data.tgl_end);
+					$('span.penggajian_year').html(data.periode_tahun);
+					$('span.penggajian_month').html(data.periode_bulan_name);
+					$('span.period_start').html(data.tgl_start_absensi);
+					$('span.period_end').html(data.tgl_end_absensi);
 					$('span.employee').html(data.full_name);
 
-					document.getElementById("inpAbsenOSView_gaji").style.display = "block";
+					document.getElementById("inpGajiOS_view").style.display = "block";
 					/*document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";*/
 
-					var locate = 'table.absenos-list-view-gaji';
-					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id, view:true },success: function (response) { 
+					var locate = 'table.gajios-view-list';
+					$.ajax({type: 'post',url: module_path+'/gengajiosrow',data: { id:data.id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -403,6 +405,273 @@ function save_rekapitulasi(){
 
 
 }
+
+
+
+$('#project_edit_gaji').on('change', function () { 
+ 	var project = $("#project_edit_gaji option:selected").val();
+ 	var bln 	= $("#penggajian_month_edit_gaji option:selected").val();
+	var thn 	= $("#penggajian_year_edit_gaji").val();
+ 	
+ 	if(project != '' && bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getGaji',
+			data: { project: project, bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					document.getElementById("inpAbsenOS_edit_gaji").style.display = "block";
+
+					$('[name="period_start_edit_gaji"]').val(data[0].tgl_start_absensi);
+					$('[name="period_end_edit_gaji"]').val(data[0].tgl_end_absensi);
+
+					var locate = 'table.absenos_edit_gaji-list';
+					$.ajax({type: 'post',url: module_path+'/geneditabsenrow',data: { project: project, bln: bln, thn: thn },success: function (response) {
+						var obj = JSON.parse(response);
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+				} else {  
+					document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";
+					alert("Data Gaji di Project, Bulan & Tahun tersebut tidak ditemukan. Mohon untuk Hitung Gaji terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+
+$('#penggajian_month_edit_gaji').on('change', function () { 
+ 	var project = $("#project_edit_gaji option:selected").val();
+ 	var bln 	= $("#penggajian_month_edit_gaji option:selected").val();
+	var thn 	= $("#penggajian_year_edit_gaji").val();
+ 	
+ 	if(project != '' && bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getGaji',
+			data: { project: project, bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					document.getElementById("inpAbsenOS_edit_gaji").style.display = "block";
+
+					$('[name="period_start_edit_gaji"]').val(data[0].tgl_start_absensi);
+					$('[name="period_end_edit_gaji"]').val(data[0].tgl_end_absensi);
+
+					var locate = 'table.absenos_edit_gaji-list';
+					$.ajax({type: 'post',url: module_path+'/geneditabsenrow',data: { project: project, bln: bln, thn: thn },success: function (response) {
+						var obj = JSON.parse(response);
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+				} else {  
+					document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";
+					alert("Data Gaji di data Project, Bulan & Tahun tersebut tidak ditemukan. Mohon untuk Hitung Gaji terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+$('#penggajian_year_edit_gaji').on('keyup', function () { 
+ 	var project = $("#project_edit_gaji option:selected").val();
+ 	var bln 	= $("#penggajian_month_edit_gaji option:selected").val();
+	var thn 	= $("#penggajian_year_edit_gaji").val();
+ 	
+ 	if(project != '' && bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getGaji',
+			data: { project: project, bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					document.getElementById("inpAbsenOS_edit_gaji").style.display = "block";
+
+					$('[name="period_start_edit_gaji"]').val(data[0].tgl_start_absensi);
+					$('[name="period_end_edit_gaji"]').val(data[0].tgl_end_absensi);
+
+					var locate = 'table.absenos_edit_gaji-list';
+					$.ajax({type: 'post',url: module_path+'/geneditabsenrow',data: { project: project, bln: bln, thn: thn },success: function (response) {
+						var obj = JSON.parse(response);
+						$(locate+' tbody').html(obj[0]);
+						
+						wcount=obj[1];
+					}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+				} else {  
+					document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";
+					alert("Data Gaji di data Project, Bulan & Tahun tersebut tidak ditemukan. Mohon untuk Hitung Gaji terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+
+function edit_gaji_per_project() {
+    var formData = $('#frmInputDataEditGajiProject').serialize();
+
+    $.ajax({
+        url : module_path+'/save_edit_gaji_per_project',
+        type: 'POST',
+        data: formData,
+        success: function (res) {
+		    var data = JSON.parse(res);
+
+		    if (data.status) {
+		        alert(data.message);
+		    } else {
+		        alert('Error: ' + data.message);
+		    }
+
+		    location.reload();
+		}
+    });
+}
+
+
+function initFilterEmployee() {
+  if ($('#flemployee').hasClass('select2-hidden-accessible')) {
+    $('#flemployee').select2('destroy');
+  }
+
+  $('#flemployee').select2({
+    theme: 'bootstrap',
+    width: '100%'
+  });
+}
+
+
+$('#modal-form-editgajiperproject').on('shown.bs.modal', function () {
+  initSelect2(this);
+});
+
+
+function initSelect2(scope) { 
+  $(scope).find('.select2me').each(function () {
+
+    if ($(this).hasClass("select2-hidden-accessible")) {
+      $(this).select2('destroy');
+    }
+
+    $(this).select2({
+      theme: 'bootstrap',
+      width: '100%',
+      dropdownParent: $(scope) 
+    });
+  });
+}
+
+
+function resetEditGajiProjectForm() {
+  var modal = $('#modal-form-editgajiaperproject');
+
+  // 1. Clear input text, number, date, dll
+  modal.find('input[type="text"], input[type="number"], input[type="date"], textarea').val('');
+
+  // 2. Clear select biasa
+  modal.find('select').val('');
+
+  // 3. Clear Select2
+  modal.find('.select2me').each(function () {
+    if ($(this).hasClass('select2-hidden-accessible')) {
+      $(this).val(null).trigger('change'); // reset value + UI
+    }
+  });
+
+  // 4. (Opsional) Clear hidden id / mode edit
+  modal.find('input[type="hidden"]').val('');
+}
+
+
+$('#modal-form-data').on('hide.bs.modal', function () {
+  initFilterEmployee();
+});
 
 
 function subFilter(){
@@ -542,6 +811,103 @@ function downloadLembur_pdf(){
 	
 }
 
+
+$('#penggajian_year').on('keyup', function () { 
+ 	
+ 	var bln 	= $("#penggajian_month option:selected").val();
+	var thn 	= $("#penggajian_year").val();
+ 	
+ 	if(bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getSummaryAbsen',
+			data: { bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					$('[name="period_start"]').val(data[0].tgl_start);
+					$('[name="period_end"]').val(data[0].tgl_end);
+
+				} else {  
+					$('[name="period_start"]').val('');
+					$('[name="period_end"]').val('');
+
+					alert("Summary Absen di Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Summary Absen terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
+
+
+$('#penggajian_month').on('change', function () { 
+ 	
+ 	var bln 	= $("#penggajian_month option:selected").val();
+	var thn 	= $("#penggajian_year").val();
+ 	
+ 	if(bln != '' && thn != '' && thn.length === 4){
+
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getSummaryAbsen',
+			data: { bln: bln, thn: thn },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					$('[name="period_start"]').val(data[0].tgl_start);
+					$('[name="period_end"]').val(data[0].tgl_end);
+
+				} else {  
+					$('[name="period_start"]').val('');
+					$('[name="period_end"]').val('');
+
+					alert("Summary Absen di Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Summary Absen terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+ 	}
+
+});
 
 
 

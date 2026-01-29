@@ -115,6 +115,26 @@ $( "#btnEditPerProject" ).on('click', function(){
 
 });
 
+
+$( "#btnEditGajiPerProject" ).on('click', function(){
+	var module_name = '<?=$this->module_name?>'; 
+
+	if(module_name == 'hitung_gaji_os_menu'){ 
+
+		<!-- tutup semua dropdown aktif dulu -->
+		$('.select2me').select2('close');
+
+		<!-- clear semua field dulu -->
+    	resetEditGajiProjectForm();
+
+		$('#mfdata').text('Edit Gaji');
+		$('#modal-form-editgajiperproject').modal('show');
+
+	}
+
+
+});
+
 <?php 
 
 } ?>

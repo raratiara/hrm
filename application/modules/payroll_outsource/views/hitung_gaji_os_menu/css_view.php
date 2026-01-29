@@ -15,7 +15,15 @@
 
     .modal-dialog {
         width: 90% !important;
+       
     }
+
+    #modal-view-data .modal-dialog {
+        width: 90% !important;
+        max-width: 900px !important; /* atur ukuran modal */
+        margin: auto;
+    }
+
 
     .row-flex {
         display: flex;

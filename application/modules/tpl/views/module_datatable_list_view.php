@@ -261,6 +261,9 @@
                             else if ($this->module_name == 'hitung_summary_absen_os_menu') {
                                 ?>Hitung Absen<?php
                             }
+                            else if ($this->module_name == 'hitung_gaji_os_menu') {
+                                ?>Hitung Gaji<?php
+                            }
                             else {
                                 ?>Add Data<?php
                             }
@@ -277,6 +280,14 @@
                                 <a class="btn btn-default btn-sm btn-circle" id="btnEditPerProject">
                                     <i class="fa fa-pencil"></i>     
                                     Edit Perhitungan per Project
+                                </a>
+                                <?php
+                            }
+                            else if ($this->module_name == 'hitung_gaji_os_menu') {
+                                ?>   
+                                <a class="btn btn-default btn-sm btn-circle" id="btnEditGajiPerProject">
+                                    <i class="fa fa-pencil"></i>     
+                                    Edit Gaji per Project
                                 </a>
                                 <?php
                             }

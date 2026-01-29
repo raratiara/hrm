@@ -38,20 +38,20 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 		$field = [];
 
-		
+		$field['txtxx']	= $this->self_model->return_build_txt('','xx','xx');
 		$field['txtgajibulanan']	= $this->self_model->return_build_txt('','period_end','period_end','','','readonly');
 		$field['txtgajiharian']	= $this->self_model->return_build_txt('','period_end','period_end','','','readonly');
 
-		$field['txtperiodstart']	= $this->self_model->return_build_txt('','period_start','period_start');
-		$field['txtperiodend']		= $this->self_model->return_build_txt('','period_end','period_end');
-		$field['txtyear']			= $this->self_model->return_build_txt('','penggajian_year','penggajian_year');
-		$field['txtperiodstart_edit']	= $this->self_model->return_build_txt('','period_start_edit','period_start_edit');
-		$field['txtperiodend_edit']		= $this->self_model->return_build_txt('','period_end_edit','period_end_edit');
-		$field['txtyear_edit']			= $this->self_model->return_build_txt('','penggajian_year_edit','penggajian_year_edit');
+		$field['txtperiodstart']	= $this->self_model->return_build_txt('','period_start','period_start','','','readonly');
+		$field['txtperiodend']		= $this->self_model->return_build_txt('','period_end','period_end','','','readonly');
+		$field['txtyear']			= $this->self_model->return_build_txt('','penggajian_year','penggajian_year','','','required');
+		$field['txtperiodstart_edit_gaji']	= $this->self_model->return_build_txt('','period_start_edit_gaji','period_start_edit_gaji','','','readonly');
+		$field['txtperiodend_edit_gaji']		= $this->self_model->return_build_txt('','period_end_edit_gaji','period_end_edit_gaji','','','readonly');
+		$field['txtyear_edit_gaji']			= $this->self_model->return_build_txt('','penggajian_year_edit_gaji','penggajian_year_edit_gaji');
 		
 		$msmonth 					= $this->db->query("select * from master_month order by id asc")->result(); 
-		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','',3,'-');
-		$field['selmonth_edit'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_edit','penggajian_month_edit','','','id','name_indo',' ','','','',3,'-');
+		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','required',3,'-');
+		$field['selmonth_edit_gaji'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_edit_gaji','penggajian_month_edit_gaji','','','id','name_indo',' ','','','',3,'-');
 		/*$field['is_all_employee'] 	= $this->self_model->return_build_radio('Ya', [['Ya','Ya'],['Tidak','Tidak']], 'is_all_employee', '', 'inline');*/
 		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
 		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
@@ -67,7 +67,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 										) as project_desc, project_name
 										from project_outsource order by code asc')->result(); 
 		$field['selprojectids'] 	= $this->self_model->return_build_select2me($msproject,'multiple','','','projectIds[]','projectIds','','','id','project_name',' ','','','',3,'-');
-		$field['selproject_edit'] 	= $this->self_model->return_build_select2me($msproject,'','','','project_edit','project_edit','','','id','project_name',' ','','','',3,'-');
+		$field['selproject_edit_gaji'] 	= $this->self_model->return_build_select2me($msproject,'','','','project_edit_gaji','project_edit_gaji','','','id','project_name',' ','','','',3,'-');
 
 
 
@@ -146,7 +146,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	public function genabsenosrow()
+ 	public function gengajiosrow()
 	{ 
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
@@ -155,12 +155,12 @@ class Hitung_gaji_os_menu extends MY_Controller
 			if(isset($post['count']))
 			{  
 				$row = trim($post['count']); 
-				echo $this->self_model->getNewAbsenOSRow($row);
+				echo $this->self_model->getNewGajiOSRow($row);
 			} else if(isset($post['id'])) { 
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewAbsenOSRow($row,$id,$view));
+				echo json_encode($this->self_model->getNewGajiOSRow($row,$id,$view));
 			}
 		}
 		else
@@ -291,6 +291,213 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    
 	    
 	}
+
+
+	public function getSummaryAbsen(){
+		$post = $this->input->post(null, true);
+		$bln 	= $post['bln'];
+		$thn 	= $post['thn'];
+
+		$rs =  $this->self_model->getSummaryAbsen($bln, $thn);
+		
+
+		echo json_encode($rs);
+	}
+
+	public function getGaji(){
+		$post = $this->input->post(null, true);
+		$bln 	= $post['bln'];
+		$thn 	= $post['thn'];
+
+		$rs =  $this->self_model->getGaji($bln, $thn);
+		
+
+		echo json_encode($rs);
+	}
+
+
+	public function save_edit_gaji_per_project()
+	{
+	    $post = $this->input->post();
+
+	    // ================= VALIDASI AWAL =================
+	    if (
+	        empty($post['project_edit_gaji']) ||
+	        empty($post['penggajian_month_edit_gaji']) ||
+	        empty($post['penggajian_year_edit_gaji'])
+	    ) {
+	        echo json_encode([
+	            'status'  => false,
+	            'message' => 'Data wajib belum lengkap'
+	        ]);
+	        return;
+	    }
+
+	    if (!preg_match('/^\d{4}$/', $post['penggajian_year_edit_gaji'])) {
+	        echo json_encode([
+	            'status'  => false,
+	            'message' => 'Tahun tidak valid'
+	        ]);
+	        return;
+	    }
+
+	    // ================= SET VARIABLE =================
+	    $project = $post['project_edit_gaji'];
+
+	    $period_start = !empty($post['period_start_edit_gaji'])
+	        ? date('Y-m-d', strtotime($post['period_start_edit_gaji']))
+	        : null;
+
+	    $period_end = !empty($post['period_end_edit_gaji'])
+	        ? date('Y-m-d', strtotime($post['period_end_edit_gaji']))
+	        : null;
+
+	    // ================= CEK DATA =================
+	    $cek_data = $this->db->query("
+	        SELECT a.*, b.project_id
+	        FROM payroll_slip a
+	        LEFT JOIN employees b ON b.id = a.employee_id
+	        WHERE a.periode_bulan = ?
+	          AND a.periode_tahun = ?
+	          AND b.project_id = ?
+	    ", [
+	        $post['penggajian_month_edit_gaji'],
+	        $post['penggajian_year_edit_gaji'],
+	        $project
+	    ])->result();
+
+	    if (empty($cek_data)) {
+	        echo json_encode([
+	            'status'  => false,
+	            'message' => 'Perhitungan Gaji tidak ditemukan. Silakan hitung gaji terlebih dahulu.'
+	        ]);
+	        return;
+	    }
+
+	    if (empty($period_start)) {
+	        $period_start = $cek_data[0]->tgl_start;
+	    }
+	    if (empty($period_end)) {
+	        $period_end = $cek_data[0]->tgl_end;
+	    }
+
+	    // ================= PROSES DETAIL =================
+	    if (!isset($post['hdnempid_gaji']) || count($post['hdnempid_gaji']) == 0) {
+	        echo json_encode([
+	            'status'  => false,
+	            'message' => 'Data detail absen tidak ditemukan'
+	        ]);
+	        return;
+	    }
+
+	    $success = false;
+
+	    $item_len_min = min(array_keys($post['hdnempid_gaji']));
+	    $item_len_max = max(array_keys($post['hdnempid_gaji']));
+
+	    for ($i = $item_len_min; $i <= $item_len_max; $i++) {
+
+	        if (!isset($post['hdnempid_gaji'][$i])) {
+	            continue;
+	        }
+
+	        $hdnid = isset($post['hdnid_edit_gaji'][$i]) ? trim($post['hdnid_edit_gaji'][$i]) : '';
+
+	        $itemData = [
+	            /*'tgl_start_absensi'         => $period_start,
+	            'tgl_end_absensi'           => $period_end,*/
+	           
+	            'total_masuk'       => trim($post['jml_hadir_edit_gaji'][$i]),
+	            'total_tidak_masuk' => trim($post['jml_tdkhadir_edit_gaji'][$i]),
+	            'total_jam_kerja'   => trim($post['jml_jam_kerja_edit_gaji'][$i]),
+	            'total_jam_lembur'  => trim($post['jam_lembur_edit_gaji'][$i]),
+	            'gaji_bulanan'  	=> trim($post['gaji_bulanan_edit_gaji'][$i]),
+	            'gaji_harian'  		=> trim($post['gaji_harian_edit_gaji'][$i]),
+	            'gaji'  			=> trim($post['gaji_edit_gaji'][$i]),
+	            'tunjangan_jabatan' => trim($post['tunj_jabatan_edit_gaji'][$i]),
+	            'tunjangan_transport'  	=> trim($post['tunj_transport_edit_gaji'][$i]),
+	            'tunjangan_konsumsi' 	=> trim($post['tunj_konsumsi_edit_gaji'][$i]),
+	            'tunjangan_komunikasi'  => trim($post['tunj_komunikasi_edit_gaji'][$i]),
+	            'lembur_perjam'  	=> trim($post['lembur_perjam_edit_gaji'][$i]),
+	            'ot'  				=> trim($post['ot_edit_gaji'][$i]),
+	            'total_pendapatan'  => trim($post['ttl_pendapatan_edit_gaji'][$i]),
+	            'bpjs_kesehatan'  	=> trim($post['bpjs_kes_edit_gaji'][$i]),
+	            'bpjs_tk'  			=> trim($post['bpjs_tk_edit_gaji'][$i]),
+	            'absen'  			=> trim($post['absen_edit_gaji'][$i]),
+	            'seragam'  			=> trim($post['seragam_edit_gaji'][$i]),
+	            'pelatihan'  		=> trim($post['pelatihan_edit_gaji'][$i]),
+	            'lain_lain'  		=> trim($post['lainlain_edit_gaji'][$i]),
+	            'hutang'   			=> trim($post['hutang_edit_gaji'][$i]),
+	            'sosial'  			=> trim($post['sosial_edit_gaji'][$i]),
+	            'payroll'  			=> trim($post['payroll_edit_gaji'][$i]),
+	            'pph_120'  			=> trim($post['pph120_edit_gaji'][$i]),
+	            'subtotal'  		=> trim($post['subtotal_edit_gaji'][$i]),
+	            'gaji_bersih'  		=> trim($post['gaji_bersih_edit_gaji'][$i])
+	        ];
+
+	        if (!empty($hdnid)) {
+	            // UPDATE
+	            $itemData['updated_at'] = date('Y-m-d H:i:s');
+	            $itemData['updated_by'] = $_SESSION['worker'];
+
+	            if ($this->db->update('payroll_slip', $itemData, ['id' => $hdnid])) {
+	                $success = true;
+	            }
+	        } else {
+	            // INSERT
+	            $itemData['periode_bulan']  = $post['penggajian_month_edit_gaji'];
+	            $itemData['periode_tahun']  = $post['penggajian_year_edit_gaji'];
+	            $itemData['employee_id']    = trim($post['hdnempid_gaji'][$i]);
+	            $itemData['created_at'] 	= date('Y-m-d H:i:s');
+	            $itemData['created_by'] 	= $_SESSION['worker'];
+
+	            if ($this->db->insert('payroll_slip', $itemData)) {
+	                $success = true;
+	            }
+	        }
+	    }
+
+	    // ================= RESPONSE FINAL =================
+	    if ($success) {
+	        echo json_encode([
+	            'status'  => true,
+	            'message' => 'Data berhasil disimpan'
+	        ]);
+	    } else {
+	        echo json_encode([
+	            'status'  => false,
+	            'message' => 'Tidak ada data yang berhasil diproses'
+	        ]);
+	    }
+	}
+
+
+
+	public function geneditabsenrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			$bln 	= $post['bln'];
+			$thn 	= $post['thn'];
+
+			if(isset($post['count']))
+			{  
+				$row = trim($post['count']); 
+				echo $this->self_model->getNewEditAbsenRow($row);
+			} else if(isset($post['project'])) { 
+				$row = 0;
+				$id = trim($post['project']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				echo json_encode($this->self_model->getNewEditAbsenRow($row,$id,$bln,$thn,$view));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
 
 
 }
