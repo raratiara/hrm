@@ -88,13 +88,12 @@ var ldx; //for save list index string
 
 
 
+
+
 $(document).ready(function() {
-   	$(function() {
-   		
-        $( "#period_start_fcast" ).datepicker();
-        $( "#period_end_fcast" ).datepicker();
-		
-   	});
+   	$('input[name="period_start"]').datepicker();
+   	$('input[name="period_end"]').datepicker();
+   	
 });
 
 
@@ -199,30 +198,86 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
+					$('[name="penggajian_year"]').val(data.tahun);
+					$('select#penggajian_month').val(data.bulan).trigger('change.select2');
+					var tgl_start = dateFormat(data.tgl_start);
+					var tgl_end = dateFormat(data.tgl_end);
 					
-					$('[name="label1"]').val(data.label1);
-					$('[name="label2"]').val(data.label2);
-					$('[name="title"]').val(data.title);
-					$('[name="description"]').val(data.description);
+					$('[name="period_start"]').datepicker('setDate', tgl_start);
+					$('[name="period_end"]').datepicker('setDate', tgl_end);
 
-					var show_date_start = getFormattedDateTime(data.show_date_start);
-					var show_date_end = getFormattedDateTime(data.show_date_end);
-					$('[name="show_date_start"]').val(show_date_start);
-					$('[name="show_date_end"]').val(show_date_end);
-					$('[name="info_type"][value="'+data.type+'"]').prop('checked', true);
+					
+					/*document.getElementById("inp_is_all_employee").style.display = "none";*/
+					document.getElementById("inp_is_all_project_gaji").style.display = "none";
+					document.getElementById("inputEmployee_gaji").style.display = "none";
+					document.getElementById("inputProject_gaji").style.display = "none";
+					
+					document.getElementById("inpEmp_gaji").style.display = "block";
+					$('span.employee_name').html(data.full_name);
 
+					
+					document.getElementById("inpAbsenOS_gaji").style.display = "block";
+					/*document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";*/
+
+					var locate = 'table.absenos-list-gaji';
+					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id },success: function (response) { 
+							var obj = JSON.parse(response); console.log(obj);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+
+					// Create a new button
+					/*var submitBtn = document.getElementById('submit-data');
+					if (!document.getElementById('idbtnRekapitulasi')) {
+						var rekapitulasiButton = document.createElement('button');
+						rekapitulasiButton.innerText = 'Rekapitulasi';
+						rekapitulasiButton.className = 'btn btn-success btnRekapitulasi';
+						rekapitulasiButton.id = 'idbtnRekapitulasi';
+						
+    					submitBtn.insertAdjacentElement('beforebegin', rekapitulasiButton);
+
+
+						rekapitulasiButton.addEventListener('click', function() {
+							$('#modal-rekapitulasi-data').modal('show');
+							$('[name="id"]').val(data.id);
+						});
+					}*/
+				
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.penggajian_month_fcast').html(data.bulan_penggajian_name);
-					$('span.penggajian_year_fcast').html(data.tahun_penggajian);
-					
+					$('span.penggajian_year').html(data.tahun);
+					$('span.penggajian_month').html(data.month_name);
+					$('span.period_start').html(data.tgl_start);
+					$('span.period_end').html(data.tgl_end);
+					$('span.employee').html(data.full_name);
 
-					list_fcast_view(data.id, data.bulan_penggajian, data.tahun_penggajian, project='');
-					
+					document.getElementById("inpAbsenOSView_gaji").style.display = "block";
+					/*document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";*/
+
+					var locate = 'table.absenos-list-view-gaji';
+					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+				
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -257,157 +312,97 @@ function load_data()
 }
 <?php } ?>
 
+function dateFormat(tanggal) {
+    if (!tanggal || tanggal === "0000-00-00") {
+        return ""; // kosongkan saja, jangan ditampilkan
+    }
+
+    let parts = tanggal.split("-");
+    if (parts.length !== 3) {
+        return tanggal; // fallback kalau format aneh
+    }
+
+    return `${parts[1]}/${parts[2]}/${parts[0]}`;
+}
 
 
-function getFormattedDateTime(inputDate) { 
+document.querySelectorAll('input[name="is_all_project"]').forEach(function(radio) {
+  radio.addEventListener('click', function() {
   	
-	const date = new Date(inputDate);
-
-	// Format jadi MM/DD/YYYY
-	const formattedDate = 
-	  String(date.getMonth() + 1).padStart(2, '0') + '/' +
-	  String(date.getDate()).padStart(2, '0') + '/' +
-	  date.getFullYear();
-
-	console.log(formattedDate); // Output: 07/13/2025
-	 return `${formattedDate}`;
-}
-
-
-function resetTableFcast() {
-    $('#tblDetailListFcast tbody').html('');
-    $('#listFcast').hide(); // sekalian sembunyikan
-}
-
-
-
-$('input[name="is_all_project_fcast"]').on('change', function () {
-
-    let val = $(this).val();
-    let penggajian_month = $("#penggajian_month_fcast").val();
-    let penggajian_year  = $("#penggajian_year_fcast").val();
-
-    if (penggajian_month === '' || penggajian_year === '') {
-        alert('Bulan & Tahun Penggajian harap diisi terlebih dahulu');
-        $(this).prop('checked', false);
-        return;
-    }
-
-    // RESET setiap ganti radio
-    resetTableFcast();
-
-    if (val === 'Sebagian') {
-
-        // tampilkan select project
-        $("#inputProject_fcast").show();
-
-        // reset pilihan project
-        $('#projectIds_fcast').val(null).trigger('change');
-
-    } else {
-
-        // SEMUA
-        $("#inputProject_fcast").hide();
-
-        let project = '';
-        list_fcast(penggajian_month, penggajian_year, project);
-    }
-});
-
-
-
-
-$('#projectIds_fcast').on('change', function () {
-
-    let val = $(this).val(); // array project_id
-
-    if (!val || val.length === 0) {
-        resetTableFcast();
-        return;
-    }
-
-    let penggajian_month = $("#penggajian_month_fcast").val();
-    let penggajian_year  = $("#penggajian_year_fcast").val();
-
-    if (penggajian_month === '' || penggajian_year === '') {
-        alert('Bulan & Tahun Penggajian harap diisi terlebih dahulu');
-        $(this).val(null).trigger('change');
-        resetTableFcast();
-        return;
-    }
-
-    list_fcast(penggajian_month, penggajian_year, val);
-});
-
-
-
-
-function list_fcast(penggajian_month, penggajian_year, project){
-
-    document.getElementById("listFcast").style.display = "block";
-
-    var locate = 'table.listfcast-list';
-
+	  	if(this.value == 'Karyawan'){
+	  		document.getElementById("inputEmployee_gaji").style.display = "block";
+	  		document.getElementById("inputProject_gaji").style.display = "none";
+	  	}else if(this.value == 'Sebagian'){
+	  		document.getElementById("inputProject_gaji").style.display = "block";
+	  		document.getElementById("inputEmployee_gaji").style.display = "none";
+	  	}else{
+	  		document.getElementById("inputEmployee_gaji").style.display = "none";
+	  		document.getElementById("inputProject_gaji").style.display = "none";
+	  	}
     
-    $(locate + ' tbody').html(`
-        <tr>
-            <td colspan="20" style="text-align:center;">
-                <i class="fa fa-spinner fa-spin"></i> Loading data...
-            </td>
-        </tr>
-    `);
+  });
+});
 
-    $.ajax({
-        type: 'post',
-        url: module_path + '/genfcastrow',
-        data: {
-            id: 0,
-            penggajian_month: penggajian_month,
-            penggajian_year: penggajian_year,
-            project: project
-        },
-        success: function (response) {
-            var obj = JSON.parse(response);
-            $(locate + ' tbody').html(obj[0]);
-            wcount = obj[1];
-        },
-        error: function () {
-            $(locate + ' tbody').html(`
-                <tr>
-                    <td colspan="20" style="text-align:center;color:red;">
-                        Gagal memuat data
-                    </td>
-                </tr>
-            `);
-        },
-        complete: function () {
-            tSawBclear(locate);
-        }
-    });
-}
+
+function save_rekapitulasi(){
+	var id = $("#id").val();
+	var penggajian_month 	= $("#penggajian_month").val();
+	var penggajian_year 	= $("#penggajian_year").val();
+	var period_start 		= $("#period_start").val();
+	var period_end 			= $("#period_end").val();
+	var ttl_hari_kerja 		= $("#ttl_hari_kerja").val();
+	var ttl_masuk 			= $("#ttl_masuk").val();
+	var ttl_ijin 			= $("#ttl_ijin").val();
+	var ttl_cuti 			= $("#ttl_cuti").val();
+	var ttl_alfa 			= $("#ttl_alfa").val();
+	var ttl_lembur 			= $("#ttl_lembur").val();
+	var ttl_jam_kerja 		= $("#ttl_jam_kerja").val();
+	var ttl_jam_lembur 		= $("#ttl_jam_lembur").val();
 
 
 
+	$('#modal-rekapitulasi-data').modal('hide');
+	
+	if(id != ''){
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/rekapitulasi',
+			data: { id: id, penggajian_month: penggajian_month, penggajian_year: penggajian_year, period_start: period_start, period_end: period_end, ttl_hari_kerja: ttl_hari_kerja, ttl_masuk: ttl_masuk, ttl_ijin: ttl_ijin, ttl_cuti: ttl_cuti, ttl_alfa: ttl_alfa, ttl_lembur: ttl_lembur, ttl_jam_kerja: ttl_jam_kerja, ttl_jam_lembur: ttl_jam_lembur},
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        { 
+	        	
+				if(data != false){ 	
+					alert("Data berhasil di rekapitulasi.");
+				} else { 
+					alert("Data gagal di rekapitulasi!");
+				}
 
-function list_fcast_view(id, penggajian_month, penggajian_year, project){
 
-
-
-	var locate = 'table.listfcast-list_view';
-	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { id:id, penggajian_month: penggajian_month, penggajian_year: penggajian_year, project: project, view: true },success: function (response) {
-		var obj = JSON.parse(response);
-		$(locate+' tbody').html(obj[0]);
-		
-		wcount=obj[1];
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+	}else{
+		alert("Data tidak ditemukan!");
 	}
-	}).done(function() {
-		//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-		tSawBclear(locate);
-		///expenseviewadjust(lstatus);
-	});
+
+	location.reload();
+
 
 }
-
 
 
 function subFilter(){

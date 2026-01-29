@@ -202,7 +202,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				$delete_bulk,
 				'<div class="action-buttons">
 					
-					
+					'.$edit.'
 					'.$delete.'
 				</div>',
 				$row->id,
@@ -400,208 +400,67 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	}
 
 
-	public function getNewFcastRow($row,$id=0,$penggajian_month,$penggajian_year,$project='',$view=FALSE)
+	public function getNewAbsenOSRow($row,$id=0,$view=FALSE)
 	{ 
-		/*if($id > 0){ 
-			$data = $this->genFcastRow($id,$period_start,$period_end,$view);
+		if($id > 0){ 
+			$data = $this->getAbsenOSRows($id,$view);
 		} else { 
 			$data = '';
 			$no = $row+1;
+			
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_hari_kerja','ttl_hari_kerja','ttl_hari_kerja','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid" name="hdnid" value=""/></td>';
 
-			$data 	.= '<td>No Data</td>';
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_masuk','ttl_masuk','ttl_masuk','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_ijin','ttl_ijin','ttl_ijin','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_cuti','ttl_cuti','ttl_cuti','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_alfa','ttl_alfa','ttl_alfa','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_lembur','ttl_lembur','ttl_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 			
+
+			$hdnid='';
+			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del_fpp(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
 		}
-
-		
-		*/
-
-		$data = $this->genFcastRow($id,$penggajian_month,$penggajian_year,$project,$view);
 
 		return $data;
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function genFcastRow($id,$penggajian_month,$penggajian_year,$project='',$view,$print=FALSE){ 
+	public function getAbsenOSRows($id,$view,$print=FALSE){ 
 
 		$dt = ''; 
 		
-		/*$rs = $this->db->query("select 
-								    b.id AS emp_id,
-								    b.emp_code,
-								    b.full_name,
-								    b.job_title_id, 
-
-								    SUM(
-								        CASE 
-								            WHEN a.leave_absences_id IS NULL 
-								             AND a.date_attendance_in IS NOT NULL 
-								            THEN 1 ELSE 0 
-								        END
-								    ) AS ttl_masuk,
-
-								    SUM(
-								        CASE 
-								            WHEN a.leave_absences_id IS NOT NULL 
-								             AND a.leave_type != 5 
-								             AND h.status_approval = 2 
-								            THEN 1 ELSE 0 
-								        END
-								    ) AS ttl_cuti,
-
-								    SUM(
-								        CASE 
-								            WHEN a.leave_absences_id IS NOT NULL 
-								             AND a.leave_type = 5 
-								             AND h.status_approval = 2 
-								            THEN 1 ELSE 0 
-								        END
-								    ) AS ttl_sakit,
-
-								    SUM(
-								        CASE 
-								            WHEN a.is_late = 'Y' THEN 1 ELSE 0 
-								        END
-								    ) AS ttl_late,
-
-								    SUM(
-								        CASE 
-								            WHEN a.is_leaving_office_early = 'Y' THEN 1 ELSE 0 
-								        END
-								    ) AS ttl_leaving_early,
-
-								    SUM(IFNULL(ot.num_of_hour,0)) AS ttl_overtime_hour,
-								    SUM(IFNULL(ot.amount,0)) AS ttl_overtime_amount
-
-								FROM employees b
-								LEFT JOIN time_attendances a 
-								       ON a.employee_id = b.id
-								LEFT JOIN leave_absences h 
-								       ON h.id = a.leave_absences_id
-								LEFT JOIN (
-								    SELECT 
-								        employee_id,
-								        DATE(datetime_start) AS ot_date,
-								        SUM(num_of_hour) AS num_of_hour,
-								        SUM(amount) AS amount
-								    FROM overtimes
-								    WHERE type = 1 AND status_id = 2
-								    GROUP BY employee_id, DATE(datetime_start)
-								) ot ON ot.employee_id = b.id 
-								     AND ot.ot_date = a.date_attendance
-
-								WHERE b.emp_source = 'outsource'
-								  AND b.status_id = 1
-
-								GROUP BY b.id
-								ORDER BY b.full_name;
-								")->result(); */
-
-
-
-		if($id > 0){ 
-			$rs = $this->db->query("select d.name_indo, a.tahun_penggajian, b.employee_id, c.emp_code, c.full_name, 		c.project_id,
-					    c.job_title_id, 
-					    c.total_hari_kerja, b.*, a.jml_nominal_masuk, a.jml_nominal_lembur, e.project_name
-					from forecasting_budget a
-					left join forecasting_budget_detail b on b.forecasting_budget_id = a. id
-					left join employees c on c.id = b.employee_id
-					left join master_month d on d.id = a.bulan_penggajian
-					left join project_outsource e on e.id = c.project_id
-					where a.id = ".$id." ")->result();
-
-		}else{ //add
-
-			$whr_project = '';
-			if (!empty($project) && is_array($project)) {
-			    /*$this->db->where_in('project_id', $post['projectIds']);*/
-			    $project_ids = implode(',', array_map('intval', $project));
-    			$whr_project = " AND (a.project_id IN ($project_ids)) ";
-			}
-
-
-			$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, a.project_id, a.job_title_id, a.total_hari_kerja, e.project_name from employees a left join summary_absen_outsource b on b.emp_id = a.id and b.bulan = '".$penggajian_month."' and b.tahun = '".$penggajian_year."' left join project_outsource e on e.id = a.project_id where a.emp_source = 'outsource' ".$whr_project."	and a.status_id = 1 ")->result();
-		}
-
-		 
-
-
+		$rs = $this->db->query("select * from summary_absen_outsource where id = '".$id."' ")->result(); 
 		$rd = $rs;
 
 		$row = 0; 
 		if(!empty($rd)){ 
 			$rs_num = count($rd); 
-
-			$where_date='';
-			$jml_nominal_masuk  = 0;
-			$jml_nominal_lembur = 0;
-
+			
 			foreach ($rd as $f){
-
-				$hdntotal_masuk_nominal=0; $hdntotal_lembur_nominal=0;
-				$total_masuk_nominal=0; $total_lembur_nominal=0;
-
-				if($id > 0){ 
-					$jml_nominal_masuk  = $f->jml_nominal_masuk;
-					$jml_nominal_lembur = $f->jml_nominal_lembur;
-					$hdntotal_masuk_nominal=$f->ttl_masuk_nominal; 
-					$hdntotal_lembur_nominal=$f->ttl_lembur_nominal;
-					$total_masuk_nominal= number_format($f->ttl_masuk_nominal, 2, ',', '.');
-					$total_lembur_nominal= number_format($f->ttl_lembur_nominal, 2, ',', '.');
-
-				}else{
-
-					$get_gaji_pokok = $this->db->query("select a.project_outsource_id, c.harga_satuan from project_outsource_boq a
-					left join project_outsource_boq_detail b on b.boq_id = a.id
-					left join master_boq_detail c on c.id = b.ms_boq_detail_id 
-					where c.master_header_boq_id = 1 and c.parent_id = 1 and c.job_title_id = ".$f->job_title_id."
-					and a.project_outsource_id = ".$f->project_id." ")->result(); 
-
-
-					
-					if(!empty($get_gaji_pokok)){
-						if($get_gaji_pokok[0]->harga_satuan > 0 && $f->total_hari_kerja != '' && $f->total_hari_kerja > 0){
-							$gaji_per_hari = $get_gaji_pokok[0]->harga_satuan/$f->total_hari_kerja;
-							$gaji_bulanan = $get_gaji_pokok[0]->harga_satuan;
-
-							if($f->total_masuk > 0){
-								$hdntotal_masuk_nominal = round($f->total_masuk*$gaji_per_hari,2);
-								$total_masuk_nominal = number_format($f->total_masuk * $gaji_per_hari, 2, ',', '.');
-
-								$jml_nominal_masuk  += $hdntotal_masuk_nominal;
-							}
-							
-							if($f->total_jam_lembur > 0){
-								$hdntotal_lembur_nominal = round($f->total_jam_lembur * ($gaji_bulanan / 173),2);
-								$total_lembur_nominal = number_format($f->total_jam_lembur * ($gaji_bulanan / 173), 2, ',', '.');
-
-								$jml_nominal_lembur += $hdntotal_lembur_nominal;
-
-							}
-						}
-					}
-				}
-				
-				
-
 				$no = $row+1;
 				
 				if(!$view){ 
 
 					$dt .= '<tr>';
-					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->emp_code.'</td>';
-					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
-					$dt .= '<td>'.$f->project_name.'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'total_masuk['.$row.']','','total_masuk','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->total_hari_kerja,'ttl_hari_kerja','ttl_hari_kerja','ttl_hari_kerja','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdnid" name="hdnid" value="'.$f->id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($total_masuk_nominal,'total_masuk_nominal['.$row.']','','total_masuk_nominal','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdntotal_masuk_nominal" name="hdntotal_masuk_nominal['.$row.']" value="'.$hdntotal_masuk_nominal.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'ttl_masuk','ttl_masuk','ttl_masuk','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'total_jam_lembur['.$row.']','','total_jam_lembur','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->total_ijin,'ttl_ijin','ttl_ijin','ttl_ijin','text-align: right;','data-id="'.$row.'" readonly').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($total_lembur_nominal,'total_lembur_nominal['.$row.']','','total_lembur_nominal','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdntotal_lembur_nominal" name="hdntotal_lembur_nominal['.$row.']" value="'.$hdntotal_lembur_nominal.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($f->total_cuti,'ttl_cuti','ttl_cuti','ttl_cuti','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
+					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa','ttl_alfa','ttl_alfa','text-align: right;','data-id="'.$row.'" readonly  ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur','ttl_lembur','ttl_lembur','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+
+					
 					
 					$dt .= '</tr>';
 				} else { 
@@ -616,14 +475,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 						$dt .= '<tr>';
 					} 
 					
-					$dt .= '<td>'.$no.'</td>';
-					$dt .= '<td>'.$f->emp_code.'</td>';
-					$dt .= '<td>'.$f->full_name.'</td>';
-					$dt .= '<td>'.$f->project_name.'</td>';
-					$dt .= '<td>'.$f->ttl_masuk.'</td>';
-					$dt .= '<td>'.$total_masuk_nominal.'</td>';
-					$dt .= '<td>'.$f->ttl_lembur.'</td>';
-					$dt .= '<td>'.$total_lembur_nominal.'</td>';
+					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
+					$dt .= '<td>'.$f->total_masuk.'</td>';
+					$dt .= '<td>'.$f->total_ijin.'</td>';
+					$dt .= '<td>'.$f->total_cuti.'</td>';
+					$dt .= '<td>'.$f->total_alfa.'</td>';
+					$dt .= '<td>'.$f->total_lembur.'</td>';
 					
 					$dt .= '</tr>';
 
@@ -632,26 +489,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 				$row++;
 			}
-
-			$jml_nominal_masuk_fmt  = number_format($jml_nominal_masuk, 2, ',', '.');
-			$jml_nominal_lembur_fmt = number_format($jml_nominal_lembur, 2, ',', '.');
-
-			$dt .= '<tr>';
-			
-			$dt .= '<td colspan="5" style="text-align:right; font-weight:bold">Jumlah Nominal Masuk </td>';
-			$dt .= '<td style="font-weight:bold">'.$this->return_build_txt($jml_nominal_masuk_fmt,'total_masuk['.$row.']','','total_masuk','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdnjml_nominal_masuk" name="hdnjml_nominal_masuk" value="'.$jml_nominal_masuk.'"/></td>';
-			$dt .= '<td style="text-align:right; font-weight:bold">Jumlah Nominal Lembur</td>';
-			$dt .= '<td style="font-weight:bold">'.$this->return_build_txt($jml_nominal_lembur_fmt,'total_masuk_nominal['.$row.']','','total_masuk_nominal','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdnjml_nominal_lembur" name="hdnjml_nominal_lembur" value="'.$jml_nominal_lembur.'"/></td>';
-
-			
-
-			$dt .= '</tr>';
-
-
 		}
 
 		return [$dt,$row];
 	}
-
 
 }

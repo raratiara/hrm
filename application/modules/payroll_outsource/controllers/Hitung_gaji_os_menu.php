@@ -38,26 +38,36 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 		$field = [];
 
-		$field['is_all_project'] = $this->self_model->return_build_radio('', [['Semua','Semua'],['Sebagian','Sebagian']], 'is_all_project_fcast', '', 'inline');
-		$msproject 				= $this->db->query('select id,
-								(case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
-								when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
-								when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
-								else code end
-								) as project_desc, project_name
-								from project_outsource order by code asc')->result(); 
-		$field['selprojectids'] 	= $this->self_model->return_build_select2me($msproject,'multiple','','','projectIds_fcast[]','projectIds_fcast','','','id','project_name',' ','','','',3,'-');
+		
+		$field['txtgajibulanan']	= $this->self_model->return_build_txt('','period_end','period_end','','','readonly');
+		$field['txtgajiharian']	= $this->self_model->return_build_txt('','period_end','period_end','','','readonly');
 
+		$field['txtperiodstart']	= $this->self_model->return_build_txt('','period_start','period_start');
+		$field['txtperiodend']		= $this->self_model->return_build_txt('','period_end','period_end');
+		$field['txtyear']			= $this->self_model->return_build_txt('','penggajian_year','penggajian_year');
+		$field['txtperiodstart_edit']	= $this->self_model->return_build_txt('','period_start_edit','period_start_edit');
+		$field['txtperiodend_edit']		= $this->self_model->return_build_txt('','period_end_edit','period_end_edit');
+		$field['txtyear_edit']			= $this->self_model->return_build_txt('','penggajian_year_edit','penggajian_year_edit');
+		
+		$msmonth 					= $this->db->query("select * from master_month order by id asc")->result(); 
+		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','',3,'-');
+		$field['selmonth_edit'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_edit','penggajian_month_edit','','','id','name_indo',' ','','','',3,'-');
+		/*$field['is_all_employee'] 	= $this->self_model->return_build_radio('Ya', [['Ya','Ya'],['Tidak','Tidak']], 'is_all_employee', '', 'inline');*/
+		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
+		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
+		
+		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
 
-		$msmonth 				= $this->db->query("select * from master_month order by id asc")->result(); 
-		$field['sel_penggajian_bulan'] 	= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_fcast','penggajian_month_fcast','','','id','name_indo',' ','','','',3,'-');
-		$field['txt_penggajian_tahun']	= $this->self_model->return_build_txt('','penggajian_year_fcast','penggajian_year_fcast');
-		$field['txt_jml_ttlmasuk_nominal']	= $this->self_model->return_build_txt('','jml_ttlmasuk_nominal','jml_ttlmasuk_nominal','','','readonly');
-		$field['txt_jml_ttllembur_nominal']	= $this->self_model->return_build_txt('','jml_ttllembur_nominal','jml_ttllembur_nominal','','','readonly');
-
-
-		$msemp 							= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
-		$field['selflemployee'] 		= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
+		$field['is_all_project'] 	= $this->self_model->return_build_radio('Semua', [['Semua','Semua'],['Sebagian','Sebagian'],['Karyawan','Per Karyawan']], 'is_all_project', '', 'inline');
+		$msproject 					= $this->db->query('select id,
+										(case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
+										when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
+										when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
+										else code end
+										) as project_desc, project_name
+										from project_outsource order by code asc')->result(); 
+		$field['selprojectids'] 	= $this->self_model->return_build_select2me($msproject,'multiple','','','projectIds[]','projectIds','','','id','project_name',' ','','','',3,'-');
+		$field['selproject_edit'] 	= $this->self_model->return_build_select2me($msproject,'','','','project_edit','project_edit','','','id','project_name',' ','','','',3,'-');
 
 
 
@@ -136,24 +146,21 @@ class Hitung_gaji_os_menu extends MY_Controller
 	//============================== Additional Method ==============================//
 
 
- 	public function genfcastrow()
+ 	public function genabsenosrow()
 	{ 
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
-			$penggajian_month 	= $post['penggajian_month'];
-			$penggajian_year 	= $post['penggajian_year'];
-			$project 			= $post['project'];
 
 			if(isset($post['count']))
-			{   
+			{  
 				$row = trim($post['count']); 
-				echo $this->self_model->getNewFcastRow($row);
+				echo $this->self_model->getNewAbsenOSRow($row);
 			} else if(isset($post['id'])) { 
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewFcastRow($row,$id,$penggajian_month,$penggajian_year,$project,$view));
+				echo json_encode($this->self_model->getNewAbsenOSRow($row,$id,$view));
 			}
 		}
 		else

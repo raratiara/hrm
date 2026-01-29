@@ -5,175 +5,98 @@
     <title>BOQ</title>
 
     <style>
+        @page {
+            margin-top: 4mm;
+            margin-left: 12mm;
+            margin-right: 12mm;
+            margin-bottom: 6mm;
+        }
+
         body {
-            /*font-family: DejaVu Sans, sans-serif;*/
             font-family: Calibri, DejaVu Sans, sans-serif;
-            font-size: 11px;
+            font-size: 8px; 
             color: #000;
+            margin: 0;
+            padding: 0;
         }
 
         h2 {
             text-align: center;
-            margin: 5px 0;
+            margin: 1px 0;
+            font-size: 9px; 
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 0;
         }
 
-        .info td {
-            padding: 3px;
+        hr {
+            margin: 2px 0;
         }
 
+        /* HEADER */
         .company-logo {
-            height: 40px;
+            height: 26px;
         }
-
-        .section-title {
-            font-weight: bold;
-            border-bottom: 1px solid #000;
-            padding-bottom: 3px;
-        }
-
-        .amount {
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        .block td {
-            padding: 4px 2px;
-        }
-
-        .summary td {
-            padding: 4px;
-            font-weight: bold;
-        }
-
-        .footer {
-            margin-top: 15px;
-            font-size: 10px;
-            text-align: center;
-            color: #555;
-        }
-
-        .summary-table td {
-            padding: 4px 2px;
-            vertical-align: top;
-        }
-
-        .label {
-            width: 65%;
-        }
-
-        .colon {
-            width: 5%;
-            text-align: center;
-        }
-
-        .currency {
-            width: 10%;
-        }
-
-        .value {
-            width: 20%;
-            text-align: right;
-        }
-
-        .section-gap {
-            margin-top: 10px;
-        }
-
-        .hr-total {
-            border-top: 1px solid #000;
-            margin: 8px 0 6px 0;
-        }
-
-        .small-text {
-            font-size: 10px;
-            font-weight: normal;
-        }
-
-        .mt-8 {
-            margin-top: 8px;
-        }
-
-        .mt-12 {
-            margin-top: 12px;
-        }
-
 
         .info {
             width: 70%;
-            margin: 0 auto; /* PUSATKAN TABEL */
+            margin: 2px auto 3px;
+            padding: 1px 2px;
+            font-size: 8px;
+            align: center;
         }
 
         .info td {
-            padding: 3px;
+            padding: 0.5px 1px;
             font-weight: bold;
+
         }
 
-        .info .label {
-            width: 30%;
-            text-align: right;
-        }
-
-        .info .colon {
-            width: 5%;
-            text-align: center;
-        }
-
-        .info .value {
-            width: 65%;
-            text-align: left;
-        }
-
-
+        /* BOQ TABLE */
         .boq-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            border: 1px solid black; /*#d1d5db*/
+            table-layout: fixed;
+            margin-top: 2px;
+            border: 1px solid #000;
         }
 
         .boq-table th {
-            padding: 8px 6px;
-            background: #e5e6e6; /*#f3f6f9;*/
-            border-bottom: 2px solid black;   /*#cfd8e3*/
-            font-weight: bold;
+            padding: 2px;
+            font-size: 8px;
+            background: #e5e6e6;
+            border-bottom: 1px solid #000;
         }
 
         .boq-table td {
-            padding: 7px 6px;
-            border-bottom: 1px solid black;   /*#d1d5db*/
+            padding: 1px 2px;
+            font-size: 8px;
+            border-bottom: 1px solid #000;
         }
+
+        .boq-table td:nth-child(2) {
+            line-height: 1.05; /* 🔽 rapetin baris */
+            word-break: break-word;
+        }
+
         .boq-table th,
         .boq-table td {
-            border-right: 1px solid black; /*#d1d5db*/
+            border-right: 1px solid #000;
         }
 
-
-        /*.boq-table tbody tr:last-child td {
-            border-bottom: none;
-        }*/
-
-
-        .period-header {
-            background: #9ec3f4 !important;
-            color: black; /*#1f4f82*/
-            /*border-bottom: 2px solid #c1d9f0;*/
-        }
-
-
+        /* SECTION */
         .section-row {
-            background: #f5e965; /*#f8fafc;*/
+            background: #f5e965;
             font-weight: bold;
-            color: #1f2937;
+            font-size: 8px;
         }
 
         .total-header {
             background: #eef6ff;
             font-weight: bold;
+            font-size: 8px;
         }
 
         .grand-total {
@@ -182,28 +105,29 @@
         }
 
         .grand-total td:last-child {
-            font-size: 15px;
-            color: #0c4a6e;
+            font-size: 9px; /* masih sedikit dibesarin */
         }
 
-
-        .info {
-            width: 70%;
-            margin: 10px auto 20px;
-            padding: 8px 12px;
-            /*background: #f9fafb;*/
-            border-radius: 6px;
+        /* FOOTER */
+        .footer {
+            margin-top: 3px;
+            font-size: 7px;
+            text-align: center;
+            color: #555;
         }
 
-
-
+        .amount {
+            text-align: right;
+            white-space: nowrap;
+        }
 
     </style>
+
 </head>
 <body>
 
 <!-- ===== HEADER ===== -->
-<table>
+<table style="margin-top:-10px !important">
     <tr>
         <td width="20%">
             <?php
@@ -212,14 +136,14 @@
             $data = file_get_contents($path);
             $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
             ?>
-            <img src="<?= $base64 ?>" height="100" width="100">
+            <img src="<?= $base64 ?>" height="60" width="60">
 
             
             
         </td>
-        <td width="80%" align="right" style="text-align: left;">
-            <span style="margin-left:50px">Head Office : Jl. Kemang Raya No 1A. Kec Sukmajaya, kota Depok</span><br>
-            <span style="margin-left:70px">Phone : 021-77844672 &nbsp; &nbsp; &nbsp; &nbsp; Email : info@mandirias.co.id</span>
+        <td width="80%" align="right" style="text-align: left; font-size:8px;">
+            <span style="margin-left:70px">Head Office : Jl. Kemang Raya No 1A. Kec Sukmajaya, kota Depok</span><br>
+            <span style="margin-left:100px">Telp : 021-77844672 &nbsp; &nbsp; Email : info@mandirias.co.id</span>
 
         </td>
     </tr>
@@ -229,9 +153,9 @@
 
 <!-- ===== EMPLOYEE INFO ===== -->
 
-<table class="info" style="font-size:12px">
-    <tr>
-        <td class="label">Project</td>
+<table class="info" style="margin-left:215px">
+    <!-- <tr>
+        <td class="label" style="text-align:center;">Project</td>
         <td class="colon">:</td>
         <td class="value"><?= $header->project_name ?></td>
     </tr>
@@ -239,6 +163,17 @@
         <td class="label">Lokasi</td>
         <td class="colon">:</td>
         <td class="value"><?= $header->lokasi_name ?></td>
+    </tr> -->
+
+    <tr>
+        <td style="text-align:left;">Project</td>
+        <td >:</td>
+        <td style="text-align:left"><?= $header->project_name ?></td>
+    </tr>
+    <tr>
+        <td style="text-align:left;">Lokasi</td>
+        <td >:</td>
+        <td style="text-align:left;"><?= $header->lokasi_name ?></td>
     </tr>
    
 </table>
@@ -248,19 +183,17 @@
 <!-- <table border="1" cellpadding="4" cellspacing="0"> -->
 <table class="boq-table">
     <thead>
-        <tr style="background:#eee;font-weight:bold;">
-            <th rowspan="2" width="5%">No</th>
-            <th rowspan="2" width="45%">Jenis Pekerjaan</th>
-            <th rowspan="2" width="15%">Jumlah</th>
-            <th colspan="2" class="period-header">Periode <?= ($header->periode_start && $header->periode_end)
-                ? $header->periode_start.' s/d '.$header->periode_end
-                : '' ?>
-            </th>
+        <tr>
+            <th rowspan="2" style="width:4%">No</th>
+            <th rowspan="2" style="width:40%">Jenis Pekerjaan</th>
+            <th rowspan="2" style="width:10%">Jumlah</th>
+            <th colspan="2" class="period-header" style="width:46%">Periode</th>
         </tr>
-        <tr style="background:#eee; font-weight:bold">
-            <th width="15%">Harga Satuan</th>
-            <th width="20%">Jumlah Harga</th>
+        <tr>
+            <th style="width:23%">Harga Satuan</th>
+            <th style="width:23%">Jumlah Harga</th>
         </tr>
+
     </thead>
     <tbody>
     <?php
@@ -566,7 +499,15 @@
 </table>
 
 
+<div style="margin-top: 25px; font-size: 8px;">
+    Keterangan : <br>
+    * Belum pakai Gaji UMK KABUPATEN TANGERANG 2026 <br>
+    * Sistem Kerja 8 Jam / Shift <br>
+    * Perhitungan Pajak di ambil dari Manajemen Fee <br>
+    * Tahun 2026 Perubahan Sepatu 1 Pasang/Orang 
 
+
+</div>
 
 
 
