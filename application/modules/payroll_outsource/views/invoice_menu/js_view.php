@@ -252,9 +252,6 @@ function downloadInvoice_pdf(){
 	var flproject = $("#flproject option:selected").val();
 	/*var perioddate = $("#perioddate").val();*/
 
-	if(flproject == ''){
-		flproject=0;
-	}
 
 	/*fldatestart=0;
 	fldateend=0;
@@ -266,13 +263,16 @@ function downloadInvoice_pdf(){
 		fldatestart=toYYYYMMDD(start);
 		fldateend=toYYYYMMDD(end);
 	}*/
-	
-	
-	send_url = module_path+'/getInvoiceReport_pdf?flproject='+flproject+'';
-	formData = $('#frmReportData').serialize();
-	window.location = send_url+'&'+formData;
-	$('#modal-invoice').modal('hide');
 
+
+	if(flproject != ''){
+		send_url = module_path+'/getInvoiceReport_pdf?flproject='+flproject+'';
+		formData = $('#frmReportData').serialize();
+		window.location = send_url+'&'+formData;
+		$('#modal-invoice').modal('hide');
+	}else{
+		alert("Mohon filter Project terlebih dahulu");
+	}
 
 	
 }
@@ -280,16 +280,17 @@ function downloadInvoice_pdf(){
 
 function downloadRincianBiaya_pdf(){
 	var flproject = $("#flproject option:selected").val();
-	if(flproject == ''){
-		flproject=0;
+
+	if(flproject != ''){
+
+		send_url = module_path+'/getRincianBiayaReport_pdf?flproject='+flproject+'';
+		formData = $('#frmReportRincianBiaya').serialize();
+		window.location = send_url;
+		$('#modal-rincian-biaya').modal('hide');
+
+	}else{
+		alert("Mohon filter Project terlebih dahulu");
 	}
-
-	
-	send_url = module_path+'/getRincianBiayaReport_pdf?flproject='+flproject+'';
-	formData = $('#frmReportRincianBiaya').serialize();
-	window.location = send_url;
-	$('#modal-rincian-biaya').modal('hide');
-
 
 	
 }
@@ -297,16 +298,17 @@ function downloadRincianBiaya_pdf(){
 
 function downloadBeritaAcaraPekerjaan_pdf(){
 	var flproject = $("#flproject option:selected").val();
-	if(flproject == ''){
-		flproject=0;
+
+	if(flproject != ''){
+		
+		send_url = module_path+'/getBeritaAcaraPekerjaanReport_pdf?flproject='+flproject+'';
+		formData = $('#frmReportBeritaAcaraPekerjaan').serialize();
+		window.location = send_url;
+		$('#modal-berita-acara-pekerjaan').modal('hide');
+
+	}else{
+		alert("Mohon filter Project terlebih dahulu");
 	}
-
-	
-	send_url = module_path+'/getBeritaAcaraPekerjaanReport_pdf?flproject='+flproject+'';
-	formData = $('#frmReportBeritaAcaraPekerjaan').serialize();
-	window.location = send_url;
-	$('#modal-berita-acara-pekerjaan').modal('hide');
-
 
 	
 }
