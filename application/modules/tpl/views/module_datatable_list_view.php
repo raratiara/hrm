@@ -211,6 +211,19 @@
                             </a>
                             <?php
                         }
+                        else if ($this->module_name == 'hitung_gaji_os_menu') {
+                            ?>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportGaji()">
+                                <i class="fa fa-download"></i>
+                                Report Gaji
+                            </a>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportLembur()">
+                                <i class="fa fa-download"></i>
+                                Report Lembur
+                            </a>
+                          
+                            <?php
+                        }
                         else {
                             ?>
                             <a class="btn btn-default btn-sm btn-circle" id="btnEksportData">

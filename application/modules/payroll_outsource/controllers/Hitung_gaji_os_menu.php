@@ -13,14 +13,16 @@ class Hitung_gaji_os_menu extends MY_Controller
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
 	
+
+
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Bulan Penggajian","Tahun Penggajian","Jumlah Nominal Masuk","Jumlah Nominal Lembur"];
+	public $tabel_header 			= ["ID","Bulan Penggajian","Tahun Penggajian","Karyawan","Project"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Bulan Penggajian","Tahun Penggajian","Jumlah Nominal Masuk","Jumlah Nominal Lembur"];
-	public $colfields 				= ["id","bulan_penggajian_name","tahun_penggajian","jml_nominal_masuk","jml_nominal_lembur"];
+	public $colnames 				= ["ID","Bulan Penggajian","Tahun Penggajian","Karyawan","Project"];
+	public $colfields 				= ["id","periode_bulan_name","periode_tahun","full_name","project_name"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -132,6 +134,129 @@ class Hitung_gaji_os_menu extends MY_Controller
 		{ 
 			$this->load->view('errors/html/error_hacks_401');
 		}
+	}
+
+
+
+
+	public function getPayrollReport_pdf()
+	{
+		$this->load->library('html_pdf');
+		$this->load->helper('global');
+
+
+		
+		//if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			
+			
+
+		    $sql = "
+		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join master_month c on c.id = a.periode_bulan
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id
+		    ";
+
+		    $data = $this->db->query($sql)->result();
+
+		    if(!empty($data)){
+		    	$pdfData = [
+				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
+				    'periode_tahun'      		=> $data[0]->periode_tahun,
+				    'nik'    					=> $data[0]->emp_code,
+				    'emp_name'       			=> $data[0]->full_name,
+				    'project_name'    			=> $data[0]->project_name,
+				    'jabatan' 		  			=> $data[0]->job_title_name,
+				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
+				];
+
+
+
+				$pdfBinary = $this->html_pdf->render_to_string_portrait(
+			        'pdf/gaji_os',
+			        $pdfData
+			    );
+
+			    if (ob_get_level()) ob_end_clean();
+
+			    header("Content-Type: application/pdf");
+			    header("Content-Disposition: attachment; filename=gaji_os.pdf");
+			    echo $pdfBinary;
+			    exit;
+
+		    }else{
+		    	echo "Slip Gaji tidak ditemukan"; 
+		    }
+
+		/*}else{
+			echo "Invoice tidak ditemukan"; 
+		}*/
+	    
+	    
+	}
+
+
+
+	public function getOvertimeReport_pdf()
+	{
+		$this->load->library('html_pdf');
+		$this->load->helper('global');
+
+
+		
+		//if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			
+			
+
+		    $sql = "
+		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join master_month c on c.id = a.periode_bulan
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id
+		    ";
+
+		    $data = $this->db->query($sql)->result();
+
+		    if(!empty($data)){
+		    	$pdfData = [
+				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
+				    'periode_tahun'      		=> $data[0]->periode_tahun,
+				    'nik'    					=> $data[0]->emp_code,
+				    'emp_name'       			=> $data[0]->full_name,
+				    'project_name'    			=> $data[0]->project_name,
+				    'jabatan' 		  			=> $data[0]->job_title_name,
+				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
+				];
+
+
+
+				$pdfBinary = $this->html_pdf->render_to_string_portrait(
+			        'pdf/lembur_os',
+			        $pdfData
+			    );
+
+			    if (ob_get_level()) ob_end_clean();
+
+			    header("Content-Type: application/pdf");
+			    header("Content-Disposition: attachment; filename=lembur_os.pdf");
+			    echo $pdfBinary;
+			    exit;
+
+		    }else{
+		    	echo "Report Lembur tidak ditemukan"; 
+		    }
+
+		/*}else{
+			echo "Invoice tidak ditemukan"; 
+		}*/
+	    
+	    
 	}
 
 

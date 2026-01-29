@@ -1,3 +1,83 @@
+
+<div id="modal-report-gaji" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-gaji" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px">
+			<form class="form-horizontal" id="frmReportGaji" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Report Gaji
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+
+				<!-- <button class="btn" style="background-color: #8ec1f5; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadGaji()">
+					<i class="fa fa-download"></i>
+					Download EXCEL
+				</button> -->
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadGaji_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: white; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+<div id="modal-report-lembur" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-lembur" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px">
+			<form class="form-horizontal" id="frmReportLembur" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Report Lembur
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+
+				<!-- <button class="btn" style="background-color: #8ec1f5; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadGaji()">
+					<i class="fa fa-download"></i>
+					Download EXCEL
+				</button> -->
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadLembur_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: white; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -330,6 +410,86 @@ function list_fcast_view(id, penggajian_month, penggajian_year, project){
 
 
 
+function getReportGaji(){
+	
+	$('#modal-report-gaji').modal('show');
+
+}
+
+function downloadGaji_pdf(){
+
+	/*var flemployee = $("#flemployee option:selected").val();
+	var perioddate = $("#perioddate").val();
+
+	if(flemployee == ''){
+		flemployee=0;
+	}
+
+	fldatestart=0;
+	fldateend=0;
+	if(perioddate != ''){
+		var myArray = perioddate.split(" - ");
+		var start = myArray[0];
+		var end = myArray[1];
+
+		fldatestart=toYYYYMMDD(start);
+		fldateend=toYYYYMMDD(end);
+	}
+	
+	
+	send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
+	formData = $('#frmReportData').serialize();
+	window.location = send_url+'&'+formData;
+	$('#modal-invoice').modal('hide');*/
+
+
+	send_url = module_path+'/getPayrollReport_pdf';
+	
+	window.location = send_url;
+	$('#modal-report-gaji').modal('hide');
+	
+}
+
+
+function getReportLembur(){
+	
+	$('#modal-report-lembur').modal('show');
+
+}
+
+function downloadLembur_pdf(){
+
+	/*var flemployee = $("#flemployee option:selected").val();
+	var perioddate = $("#perioddate").val();
+
+	if(flemployee == ''){
+		flemployee=0;
+	}
+
+	fldatestart=0;
+	fldateend=0;
+	if(perioddate != ''){
+		var myArray = perioddate.split(" - ");
+		var start = myArray[0];
+		var end = myArray[1];
+
+		fldatestart=toYYYYMMDD(start);
+		fldateend=toYYYYMMDD(end);
+	}
+	
+	
+	send_url = module_path+'/getAbsenceReport?flemployee='+flemployee+'&fldatestart='+fldatestart+'&fldateend='+fldateend+'';
+	formData = $('#frmReportData').serialize();
+	window.location = send_url+'&'+formData;
+	$('#modal-invoice').modal('hide');*/
+
+
+	send_url = module_path+'/getOvertimeReport_pdf';
+	
+	window.location = send_url;
+	$('#modal-report-lembur').modal('hide');
+	
+}
 
 
 

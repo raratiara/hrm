@@ -20,15 +20,21 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.bulan_penggajian_name',
-			'dt.tahun_penggajian',
-			'dt.jml_nominal_masuk',
-			'dt.jml_nominal_lembur'
+			'dt.periode_bulan_name',
+			'dt.periode_tahun',
+			'dt.full_name',
+			'dt.project_name'
 		];
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.name_indo as bulan_penggajian_name from forecasting_budget a left join master_month b on b.id = a.bulan_penggajian)dt';
+		$sTable = '(select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join master_month c on c.id = a.periode_bulan
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id)dt';
 		
 
 		/* Paging */
@@ -185,22 +191,21 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			}
 			
 
-			$jml_nominal_masuk_fmt  = number_format($row->jml_nominal_masuk, 2, ',', '.');
-			$jml_nominal_lembur_fmt = number_format($row->jml_nominal_lembur, 2, ',', '.');
-
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					'.$detail.'
+					
 					
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->bulan_penggajian_name,
-				$row->tahun_penggajian,
-				'Rp. '.$jml_nominal_masuk_fmt,
-				'Rp. '.$jml_nominal_lembur_fmt
+				$row->periode_bulan_name,
+				$row->periode_tahun,
+				$row->full_name,
+				$row->project_name
 			));
+
+
 		}
 
 		echo json_encode($output);
@@ -330,7 +335,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.name_indo as bulan_penggajian_name from forecasting_budget a left join master_month b on b.id = a.bulan_penggajian
+		$mTable = '(select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join master_month c on c.id = a.periode_bulan
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -367,7 +378,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	public function eksport_data()
 	{
 
-		$sql = "select a.*, b.name_indo as bulan_penggajian_name from forecasting_budget a left join master_month b on b.id = a.bulan_penggajian
+		$sql = "select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join master_month c on c.id = a.periode_bulan
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id
 		";
 
 		$res = $this->db->query($sql);
