@@ -27,7 +27,7 @@
 
 
 	.box {
-		background-color: #343851 !important;
+		background-color: #112D80 !important;
 		border: 1px solid #6B6B6B !important;
 	}
 
@@ -53,19 +53,19 @@
 	}
 
 	.modal-header {
-		background-color: #343851 !important;
+		background-color: #112D80 !important;
 		color: #ffffff !important;
 	}
 
 	.pagination>li.active>a {
-		background-color: #343851 !important;
-		border-color: #343851 !important;
+		background-color: #112D80 !important;
+		border-color: #112D80 !important;
 		color: #fff !important;
 	}
 
 	.pagination>li>a,
 	.pagination>li>span {
-		color: #343851 !important;
+		color: #112D80 !important;
 	}
 </style>
 
@@ -177,7 +177,7 @@
 						Tutup
 					</button>
 					<button class="btn btn-sm pull-right"
-						style="background-color:#343851; color:white; border-radius:2px !important"
+						style="background-color:#112D80; color:white; border-radius:2px !important"
 						id="submit-import-data">
 						<i class="fa fa-times"></i>
 						Import
@@ -205,7 +205,7 @@
 						Tutup
 					</button>
 					<button class="btn btn-sm pull-right"
-						style="background-color:#343851; color:white; border-radius:2px !important"
+						style="background-color:#112D80; color:white; border-radius:2px !important"
 						id="submit-eksport-data">
 						<i class="fa fa-times"></i>
 						Eksport

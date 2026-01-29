@@ -79,7 +79,7 @@
 				<div class="modal-footer d-flex justify-content-between flex-wrap no-margin-top" id="mdlFooter">
 					<span class="act-container-btn d-flex flex-wrap gap-2">
 						<button class="btn btn-info"
-							style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;"
+							style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;"
 							id="submit-data" onclick="save()">
 							<i class="fa fa-check"></i> Save
 						</button>
@@ -88,7 +88,7 @@
 					<!-- Container untuk tombol tetap di kanan -->
 					<span class="d-flex gap-2 ms-auto">
 						<button class="btn"
-							style="background-color: #FED24B; color: #343851; border-radius: 4px !important;"
+							style="background-color: #FED24B; color: #112D80; border-radius: 4px !important;"
 							onclick="reset()" id="btnReset">
 							<i class="fa fa-undo"></i> Reset
 						</button>
@@ -512,10 +512,10 @@
 
 
 					const rawData = [
-						{ label: 'Ontime', data: data.total_ontime, backgroundColor: '#2e3267', borderRadius: 3 },
-						{ label: 'Late', data: data.total_late, backgroundColor: '#fddb5c', borderRadius: 3 },
-						{ label: 'Leaving Early', data: data.total_leaving_early, backgroundColor: '#9b9fd2', borderRadius: 3 },
-						{ label: 'No Attendance', data: data.total_noattendance, backgroundColor: '#b3b3b3', borderRadius: 3 },
+						{ label: 'Ontime', data: data.total_ontime, backgroundColor: '#837DEB', borderRadius: 3 },
+						{ label: 'Late', data: data.total_late, backgroundColor: '#E2B2ED', borderRadius: 3 },
+						{ label: 'Leaving Early', data: data.total_leaving_early, backgroundColor: '#CDE7FD', borderRadius: 3 },
+						{ label: 'No Attendance', data: data.total_noattendance, backgroundColor: '#112D80', borderRadius: 3 },
 					];
 
 					// Convert data to 100% scale per group
@@ -1018,76 +1018,140 @@
 
 
 
-				const tbody = document.getElementById("tasklistBody");
-				tbody.innerHTML = "";
+				// const tbody = document.getElementById("tasklistBody");
+				// tbody.innerHTML = "";
 
-				let previousGroupId = null;
-				let previousTaskType = null;
+				// let previousGroupId = null;
+				// let previousTaskType = null;
 
-				data.taskList.forEach((taskrow, index) => {
-				    let due_date = taskrow.due_date ?? '-';
-				    let tr = document.createElement("tr");
+				// data.taskList.forEach((taskrow, index) => {
+				//     let due_date = taskrow.due_date ?? '-';
+				//     let tr = document.createElement("tr");
 
-				    let currentGroupId = taskrow.project_id ?? `parent-${index}`;
+				//     let currentGroupId = taskrow.project_id ?? `parent-${index}`;
 
-				    const isNotFirst = index > 0;
-				    const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
-				    const isDifferentGroup = currentGroupId !== previousGroupId;
+				//     const isNotFirst = index > 0;
+				//     const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
+				//     const isDifferentGroup = currentGroupId !== previousGroupId;
 
-				    // garis standalone
-				    if (taskrow.task_type === 'standalone') {
-				        const hrRow = document.createElement("tr");
-				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
-				        tbody.appendChild(hrRow);
-				    }
-				    // garis antar grup
-				    else if (
-				        isNotFirst &&
-				        isParentOrProject &&
-				        isDifferentGroup &&
-				        previousTaskType !== 'project' &&
-				        previousTaskType !== 'standalone'
-				    ) {
-				        const hrRow = document.createElement("tr");
-				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
-				        tbody.appendChild(hrRow);
-				    }
+				//     // garis standalone
+				//     if (taskrow.task_type === 'standalone') {
+				//         const hrRow = document.createElement("tr");
+				//         hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				//         tbody.appendChild(hrRow);
+				//     }
+				//     // garis antar grup
+				//     else if (
+				//         isNotFirst &&
+				//         isParentOrProject &&
+				//         isDifferentGroup &&
+				//         previousTaskType !== 'project' &&
+				//         previousTaskType !== 'standalone'
+				//     ) {
+				//         const hrRow = document.createElement("tr");
+				//         hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				//         tbody.appendChild(hrRow);
+				//     }
 
-				    // tentukan warna utk seluruh row
-				    let rowStyle = "";
-				    if (taskrow.due_flag === "overdue") {
-				        rowStyle = "color:red;";
-				    } else if (taskrow.due_flag === "near_due") {
-				        rowStyle = "color:orange;";
-				    }
+				//     // tentukan warna utk seluruh row
+				//     let rowStyle = "";
+				//     if (taskrow.due_flag === "overdue") {
+				//         rowStyle = "color:red;";
+				//     } else if (taskrow.due_flag === "near_due") {
+				//         rowStyle = "color:orange;";
+				//     }
 
-				    // Project row
-				    if (taskrow.task_type === 'project') {
-				        tr.innerHTML = `
-				            <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
-				        `;
-				    } else {
-				        let indent = '';
-				        if (taskrow.task_type === 'child') {
-				            indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
-				        } else if (taskrow.task_type === 'parent') {
-				            indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
-				        }
+				//     // Project row
+				//     if (taskrow.task_type === 'project') {
+				//         tr.innerHTML = `
+				//             <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
+				//         `;
+				//     } else {
+				//         let indent = '';
+				//         if (taskrow.task_type === 'child') {
+				//             indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
+				//         } else if (taskrow.task_type === 'parent') {
+				//             indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
+				//         }
 
-				        tr.innerHTML = `
-				            <td style="font-size:10px">${indent}${taskrow.task}</td>
-				            <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
-				            <td style="font-size:10px">${due_date}</td>
-				        `;
-				    }
+				//         tr.innerHTML = `
+				//             <td style="font-size:10px">${indent}${taskrow.task}</td>
+				//             <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
+				//             <td style="font-size:10px">${due_date}</td>
+				//         `;
+				//     }
 
-				    // apply style ke seluruh baris
-				    tr.setAttribute("style", rowStyle);
+				//     // apply style ke seluruh baris
+				//     tr.setAttribute("style", rowStyle);
 
-				    previousGroupId = currentGroupId;
-				    previousTaskType = taskrow.task_type;
-				    tbody.appendChild(tr);
-				});
+				//     previousGroupId = currentGroupId;
+				//     previousTaskType = taskrow.task_type;
+				//     tbody.appendChild(tr);
+				// });
+
+				// tasklist progress (card)
+const container = document.getElementById("tasklistList");
+if (!container) return; // biar aman kalau elem belum ada
+
+container.innerHTML = "";
+
+data.taskList.forEach((taskrow) => {
+  if (taskrow.task_type === "project") {
+    const sep = document.createElement("div");
+    sep.className = "task-card";
+    sep.style.background = "#EAF3FF";
+    sep.style.fontWeight = "700";
+    sep.style.fontSize = "12px";
+    sep.innerHTML = `📁 ${taskrow.task ?? "-"}`;
+    container.appendChild(sep);
+    return;
+  }
+
+  let taskText = taskrow.task ?? "-";
+  if (taskrow.task_type === "child") taskText = `↳ ${taskText}`;
+
+  const dueDate = taskrow.due_date ?? "-";
+  const progress = taskrow.progress_percentage ?? "-";
+
+  let badgeClass = "badge-open";
+  let badgeText = "Open";
+  const p = parseInt(progress, 10);
+
+  if (!isNaN(p) && p >= 100) {
+    badgeClass = "badge-done";
+    badgeText = "Done";
+  } else if (!isNaN(p) && p > 0) {
+    badgeClass = "badge-progress";
+    badgeText = "In Progress";
+  }
+
+  let dueClass = "";
+  if (taskrow.due_flag === "overdue") dueClass = "due-overdue";
+  else if (taskrow.due_flag === "near_due") dueClass = "due-near";
+
+  const card = document.createElement("div");
+  card.className = `task-card ${dueClass}`;
+
+  card.innerHTML = `
+    <div class="task-row">
+      <div class="task-label">Task</div>
+      <div class="task-value">${taskText}</div>
+    </div>
+    <div class="task-row">
+      <div class="task-label">Progress</div>
+      <div class="task-value">
+        <span class="task-badge ${badgeClass}">${badgeText} • ${progress}%</span>
+      </div>
+    </div>
+    <div class="task-row">
+      <div class="task-label">Due Date</div>
+      <div class="task-value">${dueDate}</div>
+    </div>
+  `;
+
+  container.appendChild(card);
+});
+
 
 
 
