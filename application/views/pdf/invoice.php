@@ -160,11 +160,10 @@
                 Management Fee <?=$management_fee?> %
             </td>
             <td class="right">
-                <!-- <?= number_format($subtotal,0,',','.') ?> <br><br> bbbb -->
-                <!--<?= number_format($management_fee_nominal,0,',','.') ?> -->
+                
 
                 <br><br><br>
-                Periode <br><br><br>
+                <?= number_format($subtotal,0,',','.') ?> <br><br><br>
                 <?= number_format($management_fee_nominal,0,',','.') ?>
             </td>
         </tr>
