@@ -279,7 +279,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			}
 
 			$data_os = $this->db
-			    ->select('id, total_hari_kerja, gaji_bulanan, gaji_harian', 'no_bpjs', 'no_bpjs_ketenagakerjaan')
+			    ->select('id, total_hari_kerja, gaji_bulanan, gaji_harian, no_bpjs, no_bpjs_ketenagakerjaan')
 			    ->from('employees')
 			    ->where('emp_source', 'outsource')
 			    ->where('status_id', 1)
@@ -294,7 +294,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
   					$data_summary = $this->db->query("select * from summary_absen_outsource where bulan = ".$post['penggajian_month']." and tahun = '".$post['penggajian_year']."' and emp_id = ".$emp_id."")->result();
   					if(!empty($data_summary)){
 
-  						$total_tidak_masuk = $data_summary[0]->total_ijin+$data_summary[0]->total_cuti+$data_summary[0]->total_alfa;
+  						$total_tidak_masuk = ((int)$data_summary[0]->total_ijin ?? 0) +
+									     ((int)$data_summary[0]->total_cuti ?? 0) +
+									     ((int)$data_summary[0]->total_alfa ?? 0);
   						$gaji = ceil(($data_summary[0]->total_masuk * $rowdata_os->gaji_harian) * 100) / 100;
   						$lembur_perjam 	= ceil(($rowdata_os->gaji_bulanan / 173) * 100) / 100;
   						$bpjs_kesehatan = ceil(($rowdata_os->gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
