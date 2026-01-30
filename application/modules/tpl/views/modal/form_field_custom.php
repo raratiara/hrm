@@ -173,9 +173,27 @@
         text-overflow: ellipsis !important;
     }
 
+    /* JARAK ANTAR ROW (TR) */
+    #tblDetailAbsenOSEditGaji tbody tr {
+        height: 42px !important;          /* jarak vertikal antar row */
+    }
 
 
+    #tblDetailAbsenOSEditGaji td {
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        line-height: 1.4 !important;      /* jangan terlalu rapet */
+    }
 
+
+    .table-scroll-x {
+        padding-bottom: 25px !important;  /* jarak ke scrollbar */
+    }
+
+
+    .table-scrollable {
+        margin-bottom: 15px !important;
+    }
 
 
 </style>

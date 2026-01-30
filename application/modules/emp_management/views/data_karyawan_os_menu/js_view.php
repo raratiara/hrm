@@ -180,6 +180,10 @@ function load_data()
 					$('[name="status"][value="'+data.status_id+'"]').prop('checked', true);
 					$('[name="shift_type"][value="'+data.shift_type+'"]').prop('checked', true);
 					$('[name="is_tracking"][value="'+data.is_tracking+'"]').prop('checked', true);
+
+					$('[name="username"]').val(data.username);
+					$('[name="gaji_bulanan"]').val(data.gaji_bulanan);
+					$('[name="gaji_harian"]').val(data.gaji_harian);
 					
 					$('[name="hdnempphoto"]').val(data.emp_photo);
 					if(data.emp_photo != '' && data.emp_photo != null){
@@ -302,6 +306,7 @@ function load_data()
 
 					$('select#customer').val(data.cust_id).trigger('change.select2');
 					getProject(data.cust_id,'selected',data.project_id);
+					getWorkLocation(data.project_id,'selected',data.work_location);
 					$('[name="ttl_hari_kerja"]').val(data.total_hari_kerja);
 					$('[name="status_bpjs_kes"][value="'+data.status_bpjs_kesehatan+'"]').prop('checked', true);
 					$('[name="status_bpjs_ket"][value="'+data.status_bpjs_ketenagakerjaan+'"]').prop('checked', true);
@@ -385,7 +390,7 @@ function load_data()
 					$('span.postal_code1').html(data.postal_code_ktp);
 					$('span.postal_code2').html(data.postal_code_residen);
 					$('span.date_end_prob').html(data.date_end_probation);
-					$('span.work_loc').html(data.work_location);
+					$('span.work_loc').html(data.work_location_name);
 					$('span.emergency_phone').html(data.emergency_contact_phone);
 					$('span.bank_address').html(data.bank_address);
 					$('span.bank_acc_no').html(data.bank_acc_no);
@@ -443,6 +448,9 @@ function load_data()
 					$('span.status_bpjs_kes').html(data.status_bpjs_kesehatan_desc);
 					$('span.status_bpjs_ket').html(data.status_bpjs_ketenagakerjaan_desc);
 					$('span.no_bpjs_ketenagakerjaan').html(data.no_bpjs_ketenagakerjaan);
+					$('span.username').html(data.username);
+					$('span.gaji_bulanan').html(data.gaji_bulanan);
+					$('span.gaji_harian').html(data.gaji_harian);
 					
 
 
@@ -1060,6 +1068,77 @@ function getProject(customer,selected='',idVal=''){
 
 					if(selected=='selected'){
 						$('select#project').val(idVal).trigger('change.select2');
+					}
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
+
+
+$('#project').on('change', function () {
+    var project = $(this).val();
+
+    $('#work_loc')
+        .val(null)
+        .empty()
+        .append('<option value=""></option>')
+        .trigger('change.select2');
+
+    if (project) {
+        getWorkLocation(project);
+    }
+});
+
+
+
+function getWorkLocation(project,selected='',idVal=''){ 
+
+	if(project != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataWorkLocation',
+			data: { project: project },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					
+					var $el = $("#work_loc");
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.mslocation, function(key,value) {
+						$el.append($("<option></option>")
+				     	.attr("value", value.lokasi_id).text(value.lokasi_name));
+					  	
+					});
+
+					if(selected=='selected'){
+						$('select#work_loc').val(idVal).trigger('change.select2');
 					}
 					
 				} else { 

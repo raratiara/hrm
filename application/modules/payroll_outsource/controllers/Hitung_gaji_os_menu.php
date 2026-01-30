@@ -448,10 +448,29 @@ class Hitung_gaji_os_menu extends MY_Controller
 	            $itemData['periode_bulan']  = $post['penggajian_month_edit_gaji'];
 	            $itemData['periode_tahun']  = $post['penggajian_year_edit_gaji'];
 	            $itemData['employee_id']    = trim($post['hdnempid_gaji'][$i]);
+	            $itemData['tgl_start_absensi']	= trim($post['period_start_edit_gaji']);
+	            $itemData['tgl_end_absensi']    = trim($post['period_end_edit_gaji']);
 	            $itemData['created_at'] 	= date('Y-m-d H:i:s');
 	            $itemData['created_by'] 	= $_SESSION['worker'];
 
+
 	            if ($this->db->insert('payroll_slip', $itemData)) {
+
+	            	$dataEmp = $this->db->query("select no_bpjs, no_bpjs_ketenagakerjaan from employees where id = ".$post['hdnempid_gaji'][$i]."")->result();
+
+	            	$log_bpjs = [
+						'employee_id' 		=> trim($post['hdnempid_gaji'][$i]),
+						'no_bpjs_kesehatan' => $dataEmp[0]->no_bpjs,
+						'no_bpjs_tk'  		=> $dataEmp[0]->no_bpjs_ketenagakerjaan,
+						'gaji_pokok' 		=> trim($post['gaji_bulanan_edit_gaji'][$i]),
+						'nominal_bpjs_kesehatan'  => trim($post['bpjs_kes_edit_gaji'][$i]),
+						'nominal_bpjs_tk'  	=> trim($post['bpjs_tk_edit_gaji'][$i]),
+						'tanggal_potong'  	=> date("Y-m-d H:i:s")
+						/*'tanggal_setor'		=> ''*/
+					];
+					$this->db->insert("history_bpjs", $log_bpjs);
+
+
 	                $success = true;
 	            }
 	        }

@@ -621,7 +621,9 @@ class Data_karyawan_os_menu_model extends MY_Model
 				'status_bpjs_ketenagakerjaan' 	=> trim($post['status_bpjs_ket'] ?? ''),
 				'status_bpjs_kesehatan' 		=> trim($post['status_bpjs_kes'] ?? ''),
 				'foto_bpjs_ketenagakerjaan' 	=> $foto_bpjs_ketenagakerjaan,
-				'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? '')
+				'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? ''),
+				'gaji_bulanan' 					=> trim($post['gaji_bulanan'] ?? ''),
+				'gaji_harian' 					=> trim($post['gaji_harian'] ?? '')
 			];
  
 			$rs = $this->db->insert($this->table_name, $data);
@@ -833,6 +835,9 @@ class Data_karyawan_os_menu_model extends MY_Model
 			$hdnfotosima 		= trim($post['hdnfotosima'] ?? '');
 			$hdnfotosimc 		= trim($post['hdnfotosimc'] ?? '');
 			$hdnfotobpjs_ketenagakerjaan = trim($post['hdnfotobpjs_ketenagakerjaan'] ?? '');
+
+			$start_pkwt 		= trim($post['start_pkwt'] ?? '');
+			$end_pkwt 			= trim($post['end_pkwt'] ?? '');
 			
 
 			$upload_emp_photo = $this->upload_file($upload_dir, '1', 'emp_photo', FALSE, '', TRUE, '');
@@ -1003,7 +1008,9 @@ class Data_karyawan_os_menu_model extends MY_Model
 				'status_bpjs_ketenagakerjaan' 	=> trim($post['status_bpjs_ket'] ?? ''),
 				'status_bpjs_kesehatan' 		=> trim($post['status_bpjs_kes'] ?? ''),
 				'foto_bpjs_ketenagakerjaan' 	=> $foto_bpjs_ketenagakerjaan,
-				'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? '')
+				'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? ''),
+				'gaji_bulanan' 					=> trim($post['gaji_bulanan'] ?? ''),
+				'gaji_harian' 					=> trim($post['gaji_harian'] ?? '')
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -1302,6 +1309,7 @@ class Data_karyawan_os_menu_model extends MY_Model
 					    when a.status_bpjs_ketenagakerjaan = "ditanggung_perusahaan" then "Ditanggung Perusahaan"
 					    else ""
 					    end) as status_bpjs_ketenagakerjaan_desc
+					    ,u.username, v.name as work_location_name
 					FROM
 					    employees a
 					        LEFT JOIN
@@ -1344,6 +1352,8 @@ class Data_karyawan_os_menu_model extends MY_Model
 					    left join master_grade r on r.id = a.grade_id
 					    left join data_customer s on s.id = a.cust_id
 					    left join project_outsource t on t.id = a.project_id
+					    left join user u on u.id_karyawan = a.id
+					    left join master_work_location_outsource v on v.id = a.work_location
 
 			)dt';
 
@@ -2108,6 +2118,19 @@ class Data_karyawan_os_menu_model extends MY_Model
 								order by code asc")->result(); 
 
 		$data['msproject'] = $rs;
+
+
+		return $data;
+
+	}
+
+
+	public function getDataWorkLocation($project){ 
+
+		$rs = $this->db->query("select a.lokasi_id, b.name as lokasi_name from project_outsource a 
+				left join master_work_location_outsource b on b.id = a.lokasi_id where a.id = ".$project."")->result(); 
+
+		$data['mslocation'] = $rs;
 
 
 		return $data;

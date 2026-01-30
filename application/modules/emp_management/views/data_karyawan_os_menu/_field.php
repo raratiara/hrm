@@ -237,6 +237,30 @@
 
 				<div class="col-md-6 col-sm-12">
 					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Total Hari Kerja </label>
+						<div class="col-md-8">
+							<?=$txtttlharikerja;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Customer </label>
+						<div class="col-md-8">
+							<?=$selcustomer;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Start PKWT </label>
+						<div class="col-md-8">
+							<?=$txtstartpkwt;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Gaji Per Bulan </label>
+						<div class="col-md-8">
+							<?=$txtgajibulanan;?>
+						</div>
+					</div>
+					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Company</label>
 						<div class="col-md-8">
 							<?=$selcompany;?>
@@ -285,42 +309,41 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Emp Photo</label>
-						<div class="col-md-4">
-							<?=$txtempphoto;?>
-							<input type="hidden" id="hdnempphoto" name="hdnempphoto"/>
-						</div>
-						<div class="col-md-4">
-							<span class="file_emp_photo"></span>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Start PKWT </label>
+						<label class="col-md-4 control-label no-padding-right">Username </label>
 						<div class="col-md-8">
-							<?=$txtstartpkwt;?>
+							<?=$txtusername;?>
 						</div>
 					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Customer </label>
-						<div class="col-md-8">
-							<?=$selcustomer;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Total Hari Kerja </label>
-						<div class="col-md-8">
-							<?=$txtttlharikerja;?>
-						</div>
-					</div>
+					
+					
+					
 				</div>
 
 				<div class="col-md-6 col-sm-12">
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Project </label>
+						<div class="col-md-8">
+							<?=$selproject;?>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Work Location </label>
 						<div class="col-md-8">
 							<!-- <?=$txtworklocation;?> -->
 							<?=$selworkloc;?>
 							
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">End PKWT </label>
+						<div class="col-md-8">
+							<?=$txtendpkwt;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Gaji Harian </label>
+						<div class="col-md-8">
+							<?=$txtgajiharian;?>
 						</div>
 					</div>
 					<div class="form-group">
@@ -376,17 +399,16 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">End PKWT </label>
-						<div class="col-md-8">
-							<?=$txtendpkwt;?>
+						<label class="col-md-4 control-label no-padding-right">Emp Photo</label>
+						<div class="col-md-4">
+							<?=$txtempphoto;?>
+							<input type="hidden" id="hdnempphoto" name="hdnempphoto"/>
+						</div>
+						<div class="col-md-4">
+							<span class="file_emp_photo"></span>
 						</div>
 					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Project </label>
-						<div class="col-md-8">
-							<?=$selproject;?>
-						</div>
-					</div>
+					
 				</div>
 
     	</div>

@@ -219,6 +219,30 @@
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
 				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Total Hari Kerja</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="ttl_hari_kerja"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Customer</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="customer"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Start PKWT</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="start_pkwt"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gaji Bulanan</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="gaji_bulanan"></span>
+					</div>
+				</div>
+				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Company</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="company"></span>
@@ -267,36 +291,39 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Photo</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Username</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="emp_photo"></span>
+						: <span class="username"></span>
 					</div>
 				</div>
-				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Start PKWT</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="start_pkwt"></span>
-					</div>
-				</div>
-				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Customer</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="customer"></span>
-					</div>
-				</div>
-				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Total Hari Kerja</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="ttl_hari_kerja"></span>
-					</div>
-				</div>
+				
+				
+				
 			</div>
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
 				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Project</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="project"></span>
+					</div>
+				</div>
+				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Work Location</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="work_loc"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">End PKWT</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="end_pkwt"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gaji Harian</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="gaji_harian"></span>
 					</div>
 				</div>
 				<div class="row">
@@ -348,17 +375,13 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">End PKWT</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Photo</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="end_pkwt"></span>
+						: <span class="emp_photo"></span>
 					</div>
 				</div>
-				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Project</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="project"></span>
-					</div>
-				</div>
+				
+				
 			</div>
 
 		</div>

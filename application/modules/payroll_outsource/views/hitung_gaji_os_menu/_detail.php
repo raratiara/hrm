@@ -2,8 +2,16 @@
 
 <style type="text/css">
     #tblDetailGajiOSView {
-    min-width: 2000px;
-}
+        min-width: 2000px;
+    }
+
+    .table-scroll-x {
+        padding-bottom: 25px !important;  /* jarak ke scrollbar */
+    }
+
+    .table-scrollable {
+        margin-bottom: 15px !important;
+    }
 </style>
 
 

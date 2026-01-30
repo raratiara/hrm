@@ -910,5 +910,142 @@ $('#penggajian_month').on('change', function () {
 });
 
 
+function roundUp2Smart(num) {
+    const rounded = Math.ceil(num * 100) / 100;
+    return Number.isInteger(rounded) ? rounded : rounded.toFixed(2);
+}
+
+
+function setTotalPendapatan(val){ 
+	var row = val.dataset.id;  
+	///var tunjangan = val.value;
+	var tunj_jabatan = $('[name="tunj_jabatan_edit_gaji['+row+']"]').val();
+	var tunj_transport = $('[name="tunj_transport_edit_gaji['+row+']"]').val();
+	var tunj_konsumsi = $('[name="tunj_konsumsi_edit_gaji['+row+']"]').val();
+	var tunj_komunikasi = $('[name="tunj_komunikasi_edit_gaji['+row+']"]').val();
+	var gaji = $('[name="gaji_edit_gaji['+row+']"]').val();
+	
+	if(gaji == ''){
+		gaji=0;
+	}
+	if(tunj_jabatan == ''){
+		tunj_jabatan=0;
+	}
+	if(tunj_transport == ''){
+		tunj_transport=0;
+	}
+	if(tunj_konsumsi == ''){
+		tunj_konsumsi=0;
+	}
+	if(tunj_komunikasi == ''){
+		tunj_komunikasi=0;
+	}
+
+
+	var total_pendapatan = Number(gaji)
+    + Number(tunj_jabatan)
+    + Number(tunj_transport)
+    + Number(tunj_konsumsi)
+    + Number(tunj_komunikasi);
+
+	total_pendapatan = roundUp2Smart(total_pendapatan);
+
+	$('[name="ttl_pendapatan_edit_gaji['+row+']"]').val(total_pendapatan);
+
+
+	setSubTotal(val);
+
+    
+}
+
+
+
+function setSubTotal(val){ 
+	var row = val.dataset.id;  
+	///var tunjangan = val.value;
+	var ttl_pendapatan 	= $('[name="ttl_pendapatan_edit_gaji['+row+']"]').val();
+	var absen 			= $('[name="absen_edit_gaji['+row+']"]').val();
+	var seragam 		= $('[name="seragam_edit_gaji['+row+']"]').val();
+	var pelatihan 		= $('[name="pelatihan_edit_gaji['+row+']"]').val();
+	var lainlain 		= $('[name="lainlain_edit_gaji['+row+']"]').val();
+	var hutang 			= $('[name="hutang_edit_gaji['+row+']"]').val();
+	var sosial 			= $('[name="sosial_edit_gaji['+row+']"]').val();
+
+	
+	if(absen == ''){
+		absen=0;
+	}
+	if(seragam == ''){
+		seragam=0;
+	}
+	if(pelatihan == ''){
+		pelatihan=0;
+	}
+	if(lainlain == ''){
+		lainlain=0;
+	}
+	if(hutang == ''){
+		hutang=0;
+	}
+	if(sosial == ''){
+		sosial=0;
+	}
+
+
+	var subTotal = Number(ttl_pendapatan)-(Number(absen)+Number(seragam)+Number(pelatihan)+Number(lainlain)+Number(hutang)+Number(sosial));
+
+	subTotal = roundUp2Smart(subTotal);
+
+/*console.log('ttl_pendapatan :'+ttl_pendapatan);
+console.log('absen :'+absen);
+console.log('seragam :'+seragam);
+console.log('pelatihan :'+pelatihan);
+console.log('lainlain :'+lainlain);
+console.log('hutang :'+hutang);
+console.log('sosial :'+sosial);*/
+
+	$('[name="subtotal_edit_gaji['+row+']"]').val(subTotal);
+
+
+    setGajiBersih(val);
+
+}
+
+
+
+function setGajiBersih(val){ 
+	var row = val.dataset.id;  
+	///var tunjangan = val.value;
+	var subtotal 	= $('[name="subtotal_edit_gaji['+row+']"]').val();
+	var bpjs_kes	= $('[name="bpjs_kes_edit_gaji['+row+']"]').val();
+	var bpjs_tk 	= $('[name="bpjs_tk_edit_gaji['+row+']"]').val();
+	var payroll 	= $('[name="payroll_edit_gaji['+row+']"]').val();
+	var pph120 		= $('[name="pph120_edit_gaji['+row+']"]').val();
+	
+	
+	if(bpjs_kes == ''){
+		bpjs_kes=0;
+	}
+	if(bpjs_tk == ''){
+		bpjs_tk=0;
+	}
+	if(payroll == ''){
+		payroll=0;
+	}
+	if(pph120 == ''){
+		pph120=0;
+	}
+	
+
+
+	var GajiBersih = Number(subtotal)-(Number(bpjs_kes)+Number(bpjs_tk)+Number(payroll)+Number(pph120));
+
+	GajiBersih = roundUp2Smart(GajiBersih);
+
+	$('[name="gaji_bersih_edit_gaji['+row+']"]').val(GajiBersih);
+
+    
+}
+
 
 </script>

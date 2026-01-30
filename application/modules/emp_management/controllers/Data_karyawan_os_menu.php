@@ -29,7 +29,7 @@ class Data_karyawan_os_menu extends MY_Controller
 	{
 		$field = [];
 		$field['txtempcode'] 			= $this->self_model->return_build_txt('','emp_code','emp_code','','','readonly');
-		$field['txtfullname'] 			= $this->self_model->return_build_txt('','full_name','full_name');
+		$field['txtfullname'] 			= $this->self_model->return_build_txt('','full_name','full_name','','','required');
 		$field['txtemail'] 				= $this->self_model->return_build_txt('','email','email');
 		$field['txtnationality'] 		= $this->self_model->return_build_txt('','nationality','nationality');
 		$field['txttanggungan'] 		= $this->self_model->return_build_txt('','tanggungan','tanggungan');
@@ -52,9 +52,9 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['txtnickname'] 			= $this->self_model->return_build_txt('','nick_name','nick_name');
 		$field['txtphone'] 				= $this->self_model->return_build_txt('','phone','phone');
 		$field['txtethnic'] 			= $this->self_model->return_build_txt('','ethnic','ethnic');
-		$field['txtnoktp'] 				= $this->self_model->return_build_txt('','no_ktp','no_ktp');
+		$field['txtnoktp'] 				= $this->self_model->return_build_txt('','no_ktp','no_ktp','','','required');
 		$field['txtsimc'] 				= $this->self_model->return_build_txt('','sim_c','sim_c');
-		$field['txtnobpjs'] 			= $this->self_model->return_build_txt('','no_bpjs','no_bpjs');
+		$field['txtnobpjs'] 			= $this->self_model->return_build_txt('','no_bpjs','no_bpjs','','','required');
 		$field['txtdateofbirth'] 		= $this->self_model->return_build_txtdate('','date_of_birth','date_of_birth');
 		$field['txtaddress2'] 			= $this->self_model->return_build_txtarea('','address2','address2');
 		$field['txtdateofhire'] 		= $this->self_model->return_build_txtdate('','date_of_hire','date_of_hire');
@@ -69,12 +69,16 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['txtresignexitfeedback'] = $this->self_model->return_build_txt('','resign_exit_feedback','resign_exit_feedback');
 		$field['txtempphoto'] 			= $this->self_model->return_build_fileinput('emp_photo','emp_photo');
 		$field['txtempsignature'] 		= $this->self_model->return_build_fileinput('emp_signature','emp_signature');
+		$field['txtgajibulanan'] 		= $this->self_model->return_build_txt('','gaji_bulanan','gaji_bulanan');
+		$field['txtgajiharian'] 		= $this->self_model->return_build_txt('','gaji_harian','gaji_harian');
+		$field['txtusername'] 			= $this->self_model->return_build_txt('','username','username','','','readonly');
+		
 
 		$msmaritalstatus 				= $this->db->query("select * from master_marital_status")->result(); 
-		$field['selmaritalstatus'] 		= $this->self_model->return_build_select2me($msmaritalstatus,'','','','marital_status','marital_status','','','id','name',' ','','','',3,'-');
+		$field['selmaritalstatus'] 		= $this->self_model->return_build_select2me($msmaritalstatus,'','','','marital_status','marital_status','','','id','name',' ','','','required',3,'-');
 
-		$msworkloc 						= $this->db->query("select * from master_work_location_outsource")->result(); 
-		$field['selworkloc'] 			= $this->self_model->return_build_select2me($msworkloc,'','','','work_loc','work_loc','','','id','name',' ','','','',3,'-');
+		$msworkloc 						= array(); /*$this->db->query("select * from master_work_location_outsource")->result();*/ 
+		$field['selworkloc'] 			= $this->self_model->return_build_select2me($msworkloc,'','','','work_loc','work_loc','','','id','name',' ','','','required',3,'-');
 
 		$mseducation 					= $this->db->query("select * from master_education")->result(); 
 		$field['seleducation'] 			= $this->self_model->return_build_select2me($mseducation,'','','','last_education','last_education','','','id','name',' ','','','',3,'-');
@@ -152,13 +156,13 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['txtstartpkwt'] 			= $this->self_model->return_build_txtdate('','start_pkwt','start_pkwt');
 		$field['txtendpkwt'] 			= $this->self_model->return_build_txtdate('','end_pkwt','end_pkwt');
 		$mscust 						= $this->db->query("select * from data_customer order by name asc")->result(); 
-		$field['selcustomer'] 			= $this->self_model->return_build_select2me($mscust,'','','','customer','customer','','','id','name',' ','','','',1,'-');
+		$field['selcustomer'] 			= $this->self_model->return_build_select2me($mscust,'','','','customer','customer','','','id','name',' ','','','required',1,'-');
 		$msproject 						= array();
-		$field['selproject'] 			= $this->self_model->return_build_select2me($msproject,'','','','project','project','project','','id','project_name',' ','','','',1,'-');
+		$field['selproject'] 			= $this->self_model->return_build_select2me($msproject,'','','','project','project','project','','id','project_name',' ','','','required',1,'-');
 		$field['txtttlharikerja'] 		= $this->self_model->return_build_txt('','ttl_hari_kerja','ttl_hari_kerja');
 		$field['txtstatusbpjskes'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_kes', '', 'inline');
 		$field['txtstatusbpjsket'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_ket', '', 'inline');
-		$field['txtnobpjs_ketenagakerjaan'] = $this->self_model->return_build_txt('','no_bpjs_ketenagakerjaan','no_bpjs_ketenagakerjaan');
+		$field['txtnobpjs_ketenagakerjaan'] = $this->self_model->return_build_txt('','no_bpjs_ketenagakerjaan','no_bpjs_ketenagakerjaan','','','required');
 		$field['txtfotobpjs_ketenagakerjaan'] = $this->self_model->return_build_fileinput('foto_bpjs_ketenagakerjaan','foto_bpjs_ketenagakerjaan');
 		
 		return $field;
@@ -405,6 +409,18 @@ class Data_karyawan_os_menu extends MY_Controller
 		$customer 	= $post['customer'];
 
 		$rs =  $this->self_model->getDataProject($customer);
+		
+
+		echo json_encode($rs);
+	}
+
+
+
+	public function getDataWorkLocation(){
+		$post 		= $this->input->post(null, true);
+		$project 	= $post['project'];
+
+		$rs =  $this->self_model->getDataWorkLocation($project);
 		
 
 		echo json_encode($rs);

@@ -279,7 +279,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			}
 
 			$data_os = $this->db
-			    ->select('id, total_hari_kerja')
+			    ->select('id, total_hari_kerja, gaji_bulanan, gaji_harian', 'no_bpjs', 'no_bpjs_ketenagakerjaan')
 			    ->from('employees')
 			    ->where('emp_source', 'outsource')
 			    ->where('status_id', 1)
@@ -293,7 +293,27 @@ class Hitung_gaji_os_menu_model extends MY_Model
   					
   					$data_summary = $this->db->query("select * from summary_absen_outsource where bulan = ".$post['penggajian_month']." and tahun = '".$post['penggajian_year']."' and emp_id = ".$emp_id."")->result();
   					if(!empty($data_summary)){
+
   						$total_tidak_masuk = $data_summary[0]->total_ijin+$data_summary[0]->total_cuti+$data_summary[0]->total_alfa;
+  						$gaji = ceil(($data_summary[0]->total_masuk * $rowdata_os->gaji_harian) * 100) / 100;
+  						$lembur_perjam 	= ceil(($rowdata_os->gaji_bulanan / 173) * 100) / 100;
+  						$bpjs_kesehatan = ceil(($rowdata_os->gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
+  						$bpjs_tk = ceil(($rowdata_os->gaji_bulanan * 0.0624) * 100) / 100; /// 6.24% dr GP
+  						$potongan_absen = ceil(($total_tidak_masuk * ($rowdata_os->gaji_bulanan/$data_summary[0]->total_hari_kerja)) * 100) / 100;
+  						$sosial = '5000';
+  						//ambil pinjaman yg masih berjalan
+  						$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttt_hutang from loan where id_employee = '".$emp_id."' and status_id = 5")->result();
+  						$hutang=0;
+  						if(!empty($data_pinjaman)){
+  							$hutang = $data_pinjaman[0]->ttt_hutang;
+  						}
+
+  						/// ttl pendapatan - potongan tdk wajib
+  						$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100; 
+
+  						/// subtotal - potongan wajib
+  						$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk)) * 100) / 100;
+
 		                $data = [
 							'periode_bulan' 	=> trim($post['penggajian_month']),
 							'periode_tahun' 	=> trim($post['penggajian_year']),
@@ -308,15 +328,37 @@ class Hitung_gaji_os_menu_model extends MY_Model
 							'total_jam_lembur'  => $data_summary[0]->total_jam_lembur,
 							'created_at'		=> date("Y-m-d H:i:s"),
 							'created_by' 		=> $_SESSION['worker'],
-							'gaji_bulanan'  	=> '',
-							'gaji_harian' 		=> '',
-							'gaji' 				=> '',
-							'lembur_perjam' 	=> '',
-							'ot' 				=> '',
-							'total_pendapatan' 	=> '',
-							'sosial' 			=> ''
+							'gaji_bulanan'  	=> $rowdata_os->gaji_bulanan,
+							'gaji_harian' 		=> $rowdata_os->gaji_harian,
+							'gaji' 				=> $gaji,
+							'lembur_perjam' 	=> $lembur_perjam,
+							'ot' 				=> $data_summary[0]->total_lembur,
+							'total_pendapatan' 	=> $gaji,
+							'sosial' 			=> $sosial,
+							'bpjs_kesehatan' 	=> $bpjs_kesehatan,
+							'bpjs_tk' 			=> $bpjs_tk,
+							'absen' 			=> $potongan_absen,
+							'hutang' 			=> $hutang,
+							'subtotal' 			=> $subtotal,
+							'gaji_bersih' 		=> $gaji_bersih
 						];
 						$rs = $this->db->insert($this->table_name, $data);
+
+						if($rs){
+							$log_bpjs = [
+								
+								'employee_id' 		=> $emp_id,
+								'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
+								'no_bpjs_tk'  		=> $rowdata_os->no_bpjs_ketenagakerjaan,
+								'gaji_pokok' 		=> $rowdata_os->gaji_bulanan,
+								'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
+								'nominal_bpjs_tk'  	=> $bpjs_tk,
+								'tanggal_potong'  	=> date("Y-m-d H:i:s")
+								/*'tanggal_setor'		=> ''*/
+							];
+							$this->db->insert("history_bpjs", $log_bpjs);
+						}
+
   					}
 
   				}
@@ -666,7 +708,6 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$f->total_pendapatan.'</td>';
 					$dt .= '<td>'.$f->bpjs_kesehatan.'</td>';
 					$dt .= '<td>'.$f->bpjs_tk.'</td>';
-					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
 					$dt .= '<td>'.$f->absen.'</td>';
 					$dt .= '<td>'.$f->seragam.'</td>';
 					$dt .= '<td>'.$f->pelatihan.'</td>';
@@ -734,10 +775,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.* from employees a 
-						left join payroll_slip b on b.employee_id = a.id 
-						where a.emp_source = 'outsource' and a.project_id = '".$id."'
-						and a.status_id = 1 and b.periode_bulan = '".$bln."' and b.periode_tahun = '".$thn."' ")->result(); 
+
+		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id from summary_absen_outsource a left join employees b on b.id = a.emp_id
+			where a.bulan = '".$bln."' and tahun = '".$thn."' and b.project_id = '".$id."'
+			order by b.full_name asc")->result();
+
+		
 		$rd = $rs;
 
 		$row = 0; 
@@ -746,65 +789,160 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			
 			foreach ($rd as $f){
 				$no = $row+1;
+
+				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.* from employees a left join payroll_slip b on b.employee_id = a.id 
+						where a.emp_source = 'outsource' and a.id = '".$f->emp_id."'
+						and a.status_id = 1 and b.periode_bulan = '".$bln."' and b.periode_tahun = '".$thn."' ")->result(); 
+
+				if(!empty($dataSlip)){ /// ambil data slip
+
+					$id = $dataSlip[0]->id;
+					$emp_code = $dataSlip[0]->emp_code;
+					$full_name = $dataSlip[0]->full_name;
+					$employee_id = $dataSlip[0]->employee_id;
+					$total_jam_kerja = $dataSlip[0]->total_jam_kerja;
+					$total_masuk = $dataSlip[0]->total_masuk;
+					$total_tidak_masuk = $dataSlip[0]->total_tidak_masuk;
+					$gaji_bulanan = $dataSlip[0]->gaji_bulanan;
+					$gaji_harian = $dataSlip[0]->gaji_harian;
+					$gaji = $dataSlip[0]->gaji;
+					$tunjangan_jabatan = $dataSlip[0]->tunjangan_jabatan;
+					$tunjangan_transport = $dataSlip[0]->tunjangan_transport;
+					$tunjangan_konsumsi = $dataSlip[0]->tunjangan_konsumsi;
+					$tunjangan_komunikasi = $dataSlip[0]->tunjangan_komunikasi;
+					$lembur_perjam = $dataSlip[0]->lembur_perjam;
+					$ot = $dataSlip[0]->ot;
+					$total_jam_lembur = $dataSlip[0]->total_jam_lembur;
+					$total_pendapatan = $dataSlip[0]->total_pendapatan;
+					$bpjs_kesehatan = $dataSlip[0]->bpjs_kesehatan;
+					$bpjs_tk = $dataSlip[0]->bpjs_tk;
+					$absen = $dataSlip[0]->absen;
+					$seragam = $dataSlip[0]->seragam;
+					$pelatihan = $dataSlip[0]->pelatihan;
+					$lain_lain = $dataSlip[0]->lain_lain;
+					$hutang = $dataSlip[0]->hutang;
+					$sosial = $dataSlip[0]->sosial;
+					$payroll = $dataSlip[0]->payroll;
+					$pph_120 = $dataSlip[0]->pph_120;
+					$subtotal = $dataSlip[0]->subtotal;
+					$gaji_bersih = $dataSlip[0]->gaji_bersih;
+
+				}else{ /// ambil data dr summary absen
+
+					$total_tidak_masuk = ((int)$f->total_ijin ?? 0) +
+									     ((int)$f->total_cuti ?? 0) +
+									     ((int)$f->total_alfa ?? 0);
+
+					$gaji = ceil(($f->total_masuk * $f->gaji_harian) * 100) / 100;
+					$lembur_perjam 	= ceil(($f->gaji_bulanan / 173) * 100) / 100;
+					$bpjs_kesehatan = ceil(($f->gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
+					$bpjs_tk = ceil(($f->gaji_bulanan * 0.0624) * 100) / 100; /// 6.24% dr GP
+					$potongan_absen = ceil(($total_tidak_masuk * ($f->gaji_bulanan/$f->total_hari_kerja)) * 100) / 100;
+					$sosial = '5000';
+					//ambil pinjaman yg masih berjalan
+					$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttt_hutang from loan where id_employee = '".$f->emp_id."' and status_id = 5")->result();
+					$hutang=0;
+					if(!empty($data_pinjaman)){
+						$hutang = $data_pinjaman[0]->ttt_hutang;
+					}
+
+					/// ttl pendapatan - potongan tdk wajib
+					$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100; 
+					/// subtotal - potongan wajib
+					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk)) * 100) / 100;
+
+		             
+					$id = "";
+					$emp_code = $f->emp_code;
+					$full_name = $f->full_name;
+					$employee_id = $f->employee_id;
+					$total_jam_kerja = $f->total_jam_kerja;
+					$total_masuk = $f->total_masuk;
+					$total_tidak_masuk = $total_tidak_masuk;
+					$gaji_bulanan = $f->gaji_bulanan;
+					$gaji_harian = $f->gaji_harian;
+					$gaji = $gaji;
+					$tunjangan_jabatan = "";
+					$tunjangan_transport = "";
+					$tunjangan_konsumsi = "";
+					$tunjangan_komunikasi = "";
+					$lembur_perjam = $lembur_perjam;
+					$ot = $f->total_lembur;
+					$total_jam_lembur = $f->total_jam_lembur;
+					$total_pendapatan = $gaji;
+					$bpjs_kesehatan = $bpjs_kesehatan;
+					$bpjs_tk = $bpjs_tk;
+					$absen = $potongan_absen;
+					$seragam = "";
+					$pelatihan = "";
+					$lain_lain = "";
+					$hutang = $hutang;
+					$sosial = $sosial;
+					$payroll = "";
+					$pph_120 = "";
+					$subtotal = $subtotal;
+					$gaji_bersih = $gaji_bersih;
+				}
+
 				
 				if(!$view){ 
 
 					$dt .= '<tr>';
 
-					$dt .= '<td>'.$f->emp_code.'</td>';
-					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid_gaji" name="hdnempid_gaji['.$row.']" value="'.$f->employee_id.'"/></td>';
+					$dt .= '<td>'.$emp_code.'</td>';
+					$dt .= '<td>'.$full_name.'<input type="hidden" id="hdnempid_gaji" name="hdnempid_gaji['.$row.']" value="'.$employee_id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'jml_jam_kerja_edit_gaji['.$row.']','','jml_jam_kerja_edit_gaji','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_edit_gaji" name="hdnid_edit_gaji['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($total_jam_kerja,'jml_jam_kerja_edit_gaji['.$row.']','','jml_jam_kerja_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdnid_edit_gaji" name="hdnid_edit_gaji['.$row.']" value="'.$id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'jml_hadir_edit_gaji['.$row.']','','jml_hadir_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($total_masuk,'jml_hadir_edit_gaji['.$row.']','','jml_hadir_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_tidak_masuk,'jml_tdkhadir_edit_gaji['.$row.']','','jml_tdkhadir_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($total_tidak_masuk,'jml_tdkhadir_edit_gaji['.$row.']','','jml_tdkhadir_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->gaji_bulanan,'gaji_bulanan_edit_gaji['.$row.']','','gaji_bulanan_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($gaji_bulanan,'gaji_bulanan_edit_gaji['.$row.']','','gaji_bulanan_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->gaji_harian,'gaji_harian_edit_gaji['.$row.']','','gaji_harian_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($gaji_harian,'gaji_harian_edit_gaji['.$row.']','','gaji_harian_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->gaji,'gaji_edit_gaji['.$row.']','','gaji_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($gaji,'gaji_edit_gaji['.$row.']','','gaji_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->tunjangan_jabatan,'tunj_jabatan_edit_gaji['.$row.']','','tunj_jabatan_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tunjangan_jabatan,'tunj_jabatan_edit_gaji['.$row.']','','tunj_jabatan_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setTotalPendapatan(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->tunjangan_transport,'tunj_transport_edit_gaji['.$row.']','','tunj_transport_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tunjangan_transport,'tunj_transport_edit_gaji['.$row.']','','tunj_transport_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setTotalPendapatan(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->tunjangan_konsumsi,'tunj_konsumsi_edit_gaji['.$row.']','','tunj_konsumsi_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tunjangan_konsumsi,'tunj_konsumsi_edit_gaji['.$row.']','','tunj_konsumsi_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setTotalPendapatan(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->tunjangan_komunikasi,'tunj_komunikasi_edit_gaji['.$row.']','','tunj_komunikasi_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tunjangan_komunikasi,'tunj_komunikasi_edit_gaji['.$row.']','','tunj_komunikasi_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setTotalPendapatan(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->lembur_perjam,'lembur_perjam_edit_gaji['.$row.']','','lembur_perjam_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($lembur_perjam,'lembur_perjam_edit_gaji['.$row.']','','lembur_perjam_edit_gaji','text-align: right;','data-id="'.$row.'" readonly').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->ot,'ot_edit_gaji['.$row.']','','ot_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($ot,'ot_edit_gaji['.$row.']','','ot_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'jam_lembur_edit_gaji['.$row.']','','jam_lembur_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($total_jam_lembur,'jam_lembur_edit_gaji['.$row.']','','jam_lembur_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_pendapatan,'ttl_pendapatan_edit_gaji['.$row.']','','ttl_pendapatan_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($total_pendapatan,'ttl_pendapatan_edit_gaji['.$row.']','','ttl_pendapatan_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->bpjs_kesehatan,'bpjs_kes_edit_gaji['.$row.']','','bpjs_kes_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($bpjs_kesehatan,'bpjs_kes_edit_gaji['.$row.']','','bpjs_kes_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->bpjs_tk,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($bpjs_tk,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->absen,'absen_edit_gaji['.$row.']','','absen_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($absen,'absen_edit_gaji['.$row.']','','absen_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->seragam,'seragam_edit_gaji['.$row.']','','seragam_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($seragam,'seragam_edit_gaji['.$row.']','','seragam_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setSubTotal(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->pelatihan,'pelatihan_edit_gaji['.$row.']','','pelatihan_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($pelatihan,'pelatihan_edit_gaji['.$row.']','','pelatihan_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setSubTotal(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->lain_lain,'lainlain_edit_gaji['.$row.']','','lainlain_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($lain_lain,'lainlain_edit_gaji['.$row.']','','lainlain_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setSubTotal(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->hutang,'hutang_edit_gaji['.$row.']','','hutang_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($hutang,'hutang_edit_gaji['.$row.']','','hutang_edit_gaji','text-align: right;','data-id="'.$row.'" readonly').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->sosial,'sosial_edit_gaji['.$row.']','','sosial_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($sosial,'sosial_edit_gaji['.$row.']','','sosial_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->payroll,'payroll_edit_gaji['.$row.']','','payroll_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($payroll,'payroll_edit_gaji['.$row.']','','payroll_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setGajiBersih(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->pph_120,'pph120_edit_gaji['.$row.']','','pph120_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($pph_120,'pph120_edit_gaji['.$row.']','','pph120_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setGajiBersih(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->subtotal,'subtotal_edit_gaji['.$row.']','','subtotal_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($subtotal,'subtotal_edit_gaji['.$row.']','','subtotal_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->gaji_bersih,'gaji_bersih_edit_gaji['.$row.']','','gaji_bersih_edit_gaji','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($gaji_bersih,'gaji_bersih_edit_gaji['.$row.']','','gaji_bersih_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					
 					$dt .= '</tr>';
@@ -820,33 +958,32 @@ class Hitung_gaji_os_menu_model extends MY_Model
 						$dt .= '<tr>';
 					} 
 					
-					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
-					$dt .= '<td>'.$f->total_masuk.'</td>';
-					$dt .= '<td>'.$f->total_tidak_masuk.'</td>';
-					$dt .= '<td>'.$f->gaji_bulanan.'</td>';
-					$dt .= '<td>'.$f->gaji_harian.'</td>';
-					$dt .= '<td>'.$f->gaji.'</td>';
-					$dt .= '<td>'.$f->tunjangan_jabatan.'</td>';
-					$dt .= '<td>'.$f->tunjangan_transport.'</td>';
-					$dt .= '<td>'.$f->tunjangan_konsumsi.'</td>';
-					$dt .= '<td>'.$f->tunjangan_komunikasi.'</td>';
-					$dt .= '<td>'.$f->lembur_perjam.'</td>';
-					$dt .= '<td>'.$f->ot.'</td>';
-					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
-					$dt .= '<td>'.$f->total_pendapatan.'</td>';
-					$dt .= '<td>'.$f->bpjs_kesehatan.'</td>';
-					$dt .= '<td>'.$f->bpjs_tk.'</td>';
-					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
-					$dt .= '<td>'.$f->absen.'</td>';
-					$dt .= '<td>'.$f->seragam.'</td>';
-					$dt .= '<td>'.$f->pelatihan.'</td>';
-					$dt .= '<td>'.$f->lain_lain.'</td>';
-					$dt .= '<td>'.$f->hutang.'</td>';
-					$dt .= '<td>'.$f->sosial.'</td>';
-					$dt .= '<td>'.$f->payroll.'</td>';
-					$dt .= '<td>'.$f->pph_120.'</td>';
-					$dt .= '<td>'.$f->subtotal.'</td>';
-					$dt .= '<td>'.$f->gaji_bersih.'</td>';
+					$dt .= '<td>'.$total_jam_kerja.'</td>';
+					$dt .= '<td>'.$total_masuk.'</td>';
+					$dt .= '<td>'.$total_tidak_masuk.'</td>';
+					$dt .= '<td>'.$gaji_bulanan.'</td>';
+					$dt .= '<td>'.$gaji_harian.'</td>';
+					$dt .= '<td>'.$gaji.'</td>';
+					$dt .= '<td>'.$tunjangan_jabatan.'</td>';
+					$dt .= '<td>'.$tunjangan_transport.'</td>';
+					$dt .= '<td>'.$tunjangan_konsumsi.'</td>';
+					$dt .= '<td>'.$tunjangan_komunikasi.'</td>';
+					$dt .= '<td>'.$lembur_perjam.'</td>';
+					$dt .= '<td>'.$ot.'</td>';
+					$dt .= '<td>'.$total_jam_lembur.'</td>';
+					$dt .= '<td>'.$total_pendapatan.'</td>';
+					$dt .= '<td>'.$bpjs_kesehatan.'</td>';
+					$dt .= '<td>'.$bpjs_tk.'</td>';
+					$dt .= '<td>'.$absen.'</td>';
+					$dt .= '<td>'.$seragam.'</td>';
+					$dt .= '<td>'.$pelatihan.'</td>';
+					$dt .= '<td>'.$lain_lain.'</td>';
+					$dt .= '<td>'.$hutang.'</td>';
+					$dt .= '<td>'.$sosial.'</td>';
+					$dt .= '<td>'.$payroll.'</td>';
+					$dt .= '<td>'.$pph_120.'</td>';
+					$dt .= '<td>'.$subtotal.'</td>';
+					$dt .= '<td>'.$gaji_bersih.'</td>';
 					$dt .= '</tr>';
 
 					
