@@ -91,119 +91,125 @@
 
 
 
-	function empbyStatus() {
+function empbyStatus() {
+  var fldiv = $("#fldiv option:selected").val();
 
-		var fldiv = $("#fldiv option:selected").val();
+  $.ajax({
+    type: "POST",
+    url: module_path + "/get_data_empStatus",
+    data: { fldiv: fldiv },
+    cache: false,
+    dataType: "JSON",
+    success: function (data) {
+      if (data != false) {
+        console.log(data);
 
+        const ctx = document.getElementById("empby_status").getContext("2d");
 
-		$.ajax({
-			type: "POST",
-			url: module_path + '/get_data_empStatus',
-			data: { fldiv: fldiv},
-			cache: false,
-			dataType: "JSON",
-			success: function (data) {
-				if (data != false) {
-console.log(data);
-					const ctx = document.getElementById('empby_status').getContext('2d');
+        // destroy chart lama
+        var chartExist = Chart.getChart("empby_status");
+        if (chartExist != undefined) chartExist.destroy();
 
-					var chartExist = Chart.getChart("empby_status"); // <canvas> id
-					if (chartExist != undefined)
-						chartExist.destroy();
-									
-					const barChart = new Chart(ctx, {
-						type: 'bar',
-						data: {
-							labels: data.status,
-							datasets: [{
-								label: 'Employee',
-								data: data.total,
-								backgroundColor: [
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B'
-								],
-								borderRadius: 3
-							}]
-						},
-						options: {
-							responsive: true,
-							maintainAspectRatio: false,
-							plugins: {
-								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return value;
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
-								legend: {
-									display: false
-								},
-								tooltip: {
-									backgroundColor: '#333',
-									titleColor: '#fff',
-									bodyColor: '#fff',
-									padding: 10,
-									borderRadius: 6
-								}
-							},
-							scales: {
-								y: {
-									beginAtZero: true,
-									grid: {
-										color: '#eee'
-									},
-									ticks: {
-										color: '#666',
-										font: { size: 10 }
-									}
-								},
-								x: {
-									grid: {
-										display: false
-									},
-									ticks: {
-										color: '#666',
-										font: { size: 10 }
-									}
-								}
-							}
-						}
-						,plugins: [ChartDataLabels]
-					});
+        // ✅ helper gradient (sama kaya yang kamu pake)
+        function makeVerticalGradient(ctx, topColor, bottomColor) {
+          const chartHeight = ctx.canvas.height || 300;
+          const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
+          gradient.addColorStop(0, topColor);    // atas
+          gradient.addColorStop(1, bottomColor); // bawah
+          return gradient;
+        }
 
-				} else {
+        // ✅ bikin Chart
+        const barChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: data.status,
+            datasets: [
+              {
+                label: "Employee",
+                data: data.total,
+
+                // ✅ GRADIENT COLOR (kuning → kuning muda)
+                backgroundColor: (context) => {
+                  const c = context.chart.ctx;
+                  return makeVerticalGradient(c, "#FED24B", "#FFF4D2");
+                },
 
 
-				}
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
-				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
-					buttons: {
-						confirm: {
-							label: 'Ok',
-							className: 'btn blue'
-						}
-					}
-				});
-			}
-		});
+                borderRadius: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              datalabels: {
+                formatter: (value) => {
+                  if (parseFloat(value) === 0) return "";
+                  return value;
+                },
+                color: "#fff",
+                font: {
+                  size: 10,
+                },
+              },
+              legend: {
+                display: false,
+              },
+              tooltip: {
+                backgroundColor: "#333",
+                titleColor: "#fff",
+                bodyColor: "#fff",
+                padding: 10,
+                borderRadius: 4,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "#eee",
+                },
+                ticks: {
+                  color: "#666",
+                  font: { size: 10 },
+                },
+              },
+              x: {
+                grid: {
+                  display: false,
+                },
+                ticks: {
+                  color: "#666",
+                  font: { size: 10 },
+                },
+              },
+            },
+          },
+          plugins: [ChartDataLabels],
+        });
+      } else {
+        // kalau data false (opsional)
+        var chartExist = Chart.getChart("empby_status");
+        if (chartExist != undefined) chartExist.destroy();
+      }
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      var dialog = bootbox.dialog({
+        title: "Error " + jqXHR.status + " - " + jqXHR.statusText,
+        message: jqXHR.responseText,
+        buttons: {
+          confirm: {
+            label: "Ok",
+            className: "btn blue",
+          },
+        },
+      });
+    },
+  });
+}
 
-	}
 
 
 	function projectSummary() {
@@ -228,9 +234,9 @@ console.log(data);
 
 
 					const rawData = [
-						{ label: 'Open', data: data.total_open, backgroundColor: '#38406F', borderRadius: 3 },
+						{ label: 'Open', data: data.total_open, backgroundColor: '#837DEB', borderRadius: 3 },
 						{ label: 'In Progress', data: data.total_inprogress, backgroundColor: '#FED24B', borderRadius: 3 },
-						{ label: 'Done', data: data.total_closed, backgroundColor: '#D9CAAA', borderRadius: 3 },
+						{ label: 'Done', data: data.total_closed, backgroundColor: '#E2B2ED', borderRadius: 3 },
 				
 					];
 
@@ -288,7 +294,7 @@ console.log(data);
 										},
 										boxWidth: 12,        // kecilkan ukuran kotak warna
 										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-										borderRadius: 4,     // ubah jadi bulat (opsional)
+										borderRadius: 6,     // ubah jadi bulat (opsional)
 										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
 									},
 									position: 'bottom'
@@ -347,156 +353,98 @@ console.log(data);
 
 
 	function empbyDivGender() {
+  var fldiv = $("#fldiv option:selected").val();
 
-		var fldiv = $("#fldiv option:selected").val();
+  $.ajax({
+    type: "POST",
+    url: module_path + "/get_data_empbyDivGender",
+    data: { fldiv: fldiv },
+    cache: false,
+    dataType: "JSON",
+    success: function (data) {
+      if (data != false) {
+        const ctx = document.getElementById("empby_div_gender").getContext("2d");
 
+        var chartExist = Chart.getChart("empby_div_gender");
+        if (chartExist != undefined) chartExist.destroy();
 
-		$.ajax({
-			type: "POST",
-			url: module_path + '/get_data_empbyDivGender',
-			data: { fldiv: fldiv},
-			cache: false,
-			dataType: "JSON",
-			success: function (data) {
-				if (data != false) {
+        function makeVerticalGradient(ctx, topColor, bottomColor) {
+          const chartHeight = ctx.canvas.height || 300;
+          const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
+          gradient.addColorStop(0, topColor);
+          gradient.addColorStop(1, bottomColor);
+          return gradient;
+        }
 
-					const ctx = document.getElementById('empby_div_gender').getContext('2d');
-					var chartExist = Chart.getChart("empby_div_gender"); // <canvas> id
-					if (chartExist != undefined)
-						chartExist.destroy();
-
-					new Chart(ctx, {
-						type: 'bar',
-						data: {
-							labels: data.divisions, /*['HRGA', 'IT', 'Marketing'],*/
-							datasets: [
-								{
-									label: 'Male',
-									type: 'bar',
-									data: data.total_male,
-									borderColor: '#112D80',
-									backgroundColor: '#112D80', /*'#3381fc',*/
-									fill: false,
-									tension: 0.4,
-									yAxisID: 'y1',
-									borderRadius: 3
-								},
-								{
-									label: 'Female',
-									type: 'bar',
-									data: data.total_female,
-									borderColor: '#FED24B',
-									backgroundColor: '#FED24B',/*'#fc3381',*/
-									fill: false,
-									tension: 0.4,
-									yAxisID: 'y1',
-									borderRadius: 3
-								}
-							]
-						},
-						options: {
-							responsive: true,
-							maintainAspectRatio: false,
-							interaction: {
-								mode: 'index',
-								intersect: false
-							},
-							stacked: false,
-							plugins: {
-								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
-								legend: {
-									labels: {
-										font: {
-											size: 8  // kecilkan ukuran legend text
-										},
-										boxWidth: 12,        // kecilkan ukuran kotak warna
-										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-										borderRadius: 4,     // ubah jadi bulat (opsional)
-										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
-									},
-									position: 'bottom'
-								},
-								tooltip: {
-									callbacks: {
-										label: function (context) {
-											return context.dataset.label + ': ' + context.formattedValue +
-												(context.dataset.label.includes('%') ? '%' : '');
-										}
-									}
-								}
-							}/*,
-						scales: {
-							  y: {
-								type: 'linear',
-								position: 'left',
-								title: {
-								  display: true,
-								  text: 'Male',
-								  color: '#3381fc'
-								},
-								ticks: {
-								  color: '#3381fc'
-								},
-								grid: {
-								  drawOnChartArea: true
-								}
-							  },
-							y1: {
-								type: 'linear',
-								position: 'right',
-								title: {
-								  display: true,
-								  text: 'Female',
-								  color: '#fc3381'
-								},
-								ticks: {
-								  color: '#fc3381'
-								},
-								grid: {
-								  drawOnChartArea: false
-								}
-							  }
-						}*/
-						},
-						plugins: [ChartDataLabels]
-					});
-
-				} else {
-
-				}
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
-				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
-					buttons: {
-						confirm: {
-							label: 'Ok',
-							className: 'btn blue'
-						}
-					}
-				});
-			}
-		});
-
-
-
-	}
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: data.divisions,
+            datasets: [
+              {
+                label: "Male",
+                data: data.total_male,
+                backgroundColor: (context) => {
+                  const c = context.chart.ctx;
+                  return makeVerticalGradient(c, "#9ccef9", "#EFF5F9"); // navy -> light
+                },
+                
+                borderRadius: 6,
+              },
+              {
+                label: "Female",
+                data: data.total_female,
+                backgroundColor: (context) => {
+                  const c = context.chart.ctx;
+                  return makeVerticalGradient(c, "#FED24B", "#FFF4D2"); // yellow -> light
+                },
+                
+                borderRadius: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+              datalabels: {
+                formatter: (value) => (parseFloat(value) === 0 ? "" : parseInt(value)),
+                color: "#fff",
+                font: { size: 10 },
+              },
+              legend: {
+                labels: {
+                  font: { size: 8 },
+                  boxWidth: 12,
+                  boxHeight: 8,
+                  borderRadius: 4,
+                  usePointStyle: true,
+                },
+                position: "bottom",
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return context.dataset.label + ": " + context.formattedValue;
+                  },
+                },
+              },
+            },
+          },
+          plugins: [ChartDataLabels],
+        });
+      }
+    },
+    error: function (jqXHR) {
+      var dialog = bootbox.dialog({
+        title: "Error " + jqXHR.status + " - " + jqXHR.statusText,
+        message: jqXHR.responseText,
+        buttons: { confirm: { label: "Ok", className: "btn blue" } },
+      });
+    },
+  });
+}
 
 
 	function empbyGen() {
@@ -527,9 +475,9 @@ console.log(data);
 								data: [data.ttl_gen_x, data.ttl_gen_mill, data.ttl_gen_z, data.ttl_boomer],
 								backgroundColor: [
 									'#FED24B',
-									'#38406F',
-									'#74DCE0',
-									'#D9CAAA'
+									'#837DEB',
+									'#E2B2ED',
+									'#aed8fc'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',
@@ -640,14 +588,14 @@ console.log(data);
 								label: 'Generation',
 								data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],
 								backgroundColor: [
-									'#FED24B',
-									'#736DF9',
-									'#BC9BF3',
-									'#D9CAAA',
-									'#D48331',
-									'#B9D440',
-									'#74DCE0',
-									'#38406F'
+									'#837DEB',
+									'#E2B2ED',
+									'#CBECFF',
+									'#FFEF8B',
+									'#FFC0DA',
+									'#BFF39D',
+									'#FFD4C4',
+									'#FF9E97'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',

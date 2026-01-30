@@ -210,7 +210,7 @@ body {
 }
 
 body {
-	background-color: #f2f5fb !important;
+	background-color: #f3f6fd !important;
 }
 
 /* Default: tampil */
@@ -683,4 +683,72 @@ body {
 .modal-content {
 	border-radius: 16px !important;
 	overflow: hidden; /* penting biar header ikut rounded */
+}
+
+/* ============ PORTLET BOX ============ */
+.portlet.box {
+	border-radius: 14px !important;
+	overflow: hidden; /* biar radius kepake sampai ke header */
+	box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+	border: none !important;
+}
+
+/* header/title portlet */
+.portlet.box > .portlet-title {
+	padding: 6px 16px !important;
+}
+
+/* teks judul */
+.portlet.box > .portlet-title .caption {
+	font-weight: 700;
+	letter-spacing: 0.2px;
+}
+
+/* body portlet */
+.portlet.box > .portlet-body {
+	padding: 14px 16px !important;
+	background: #fff;
+}
+
+/* ============ BUTTON DI PORTLET ============ */
+
+/* ============ TABLE (DataTables) ============ */
+
+/* header table */
+.portlet.box .table thead th {
+	background: #eef2fa;
+	border: 0 !important;
+	padding: 12px 12px !important;
+	font-weight: 700;
+}
+
+/* isi table */
+.portlet.box .table tbody td {
+	border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+	padding: 12px 12px !important;
+	vertical-align: middle;
+}
+
+/* hover row biar enak dilihat */
+.portlet.box .table tbody tr {
+	transition: background 0.15s ease;
+}
+.portlet.box .table tbody tr:hover {
+	background: rgba(0, 0, 0, 0.025);
+}
+
+/* kalau ada wrapper datatables */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+	border-radius: 10px !important;
+	border: 1px solid rgba(0, 0, 0, 0.12) !important;
+	outline: none;
+}
+
+/* pagination */
+.dataTables_wrapper .pagination > li > a,
+.dataTables_wrapper .pagination > li > span {
+	border-radius: 10px !important;
+	margin: 0 3px;
+	border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }

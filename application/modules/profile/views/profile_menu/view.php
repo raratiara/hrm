@@ -38,86 +38,86 @@
 
 
     <div class="profile-section">
-       <!-- GABUNGAN: Profile Card + Profile Info -->
-  <div class="profile-merged">
+        <!-- GABUNGAN: Profile Card + Profile Info -->
+        <div class="profile-merged">
 
-    <!-- KIRI: profile ringkas -->
-    <div class="profile-left">
-      <span class="emp_photo"></span>
+            <!-- KIRI: profile ringkas -->
+            <div class="profile-left">
+                <span class="emp_photo"></span>
 
-      <div class="profile-name">
-        <span class="name" style="font-weight:700;"></span>
-      </div>
+                <div class="profile-name">
+                    <span class="name" style="font-weight:700;"></span>
+                </div>
 
-      <div class="profile-details">
-        <div style="color:#888888;">
-          <span class="job_title_department">
-            <?php
-              $job = !empty($job_title) ? $job_title : '[Job Title]';
-              $dept = !empty($department) ? $department : '[Department]';
-              echo $job . ' – ' . $dept;
-            ?>
-          </span>
+                <div class="profile-details">
+                    <div style="color:#888888;">
+                        <span class="job_title_department">
+                            <?php
+                            $job = !empty($job_title) ? $job_title : '[Job Title]';
+                            $dept = !empty($department) ? $department : '[Department]';
+                            echo $job . ' – ' . $dept;
+                            ?>
+                        </span>
+                    </div>
+
+                    <div style="margin-top:5px;">
+                        <span class="division"></span>
+                    </div>
+
+                    <div style="margin-top:5px;">
+                        <i class="fa fa-envelope" style="margin-right:5px;"></i>
+                        <span class="email"></span>
+                    </div>
+
+                    <div style="margin-top:5px;">
+                        <i class="fa fa-phone" style="margin-right:5px;"></i>
+                        <span class="phone"></span>
+                    </div>
+                </div>
+
+                <div class="action-button">
+                    <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
+
+                    <button class="btn-circle btn-checkin" id="btnAddData">
+                        <i class="bi bi-box-arrow-in-right"></i> Check-in
+                    </button>
+
+                    <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
+                        <i class="bi bi-box-arrow-right"></i> Check-out
+                    </button>
+                </div>
+            </div>
+
+            <!-- PEMBATAS -->
+            <div class="profile-divider"></div>
+
+            <!-- KANAN: informasi detail -->
+            <div class="profile-right">
+                <div class="info-grid">
+                    <div class="column">
+                        <div><strong>NIK</strong><span class="nik"></span></div>
+                        <div><strong>Gender</strong><span class="gender"></span></div>
+                        <div><strong>Date of Birth</strong><span class="date_of_birth"></span></div>
+                        <div><strong>Address</strong><span class="address"></span></div>
+                    </div>
+
+                    <div class="column">
+                        <div><strong>Direct</strong><span class="direct"></span></div>
+                        <div><strong>Job Level</strong><span class="job_level"></span></div>
+                        <div><strong>Status</strong><span class="status"></span></div>
+                        <div><strong>Date of Hired</strong><span class="date_of_hired"></span></div>
+                        <div><strong>Shift Type</strong><span class="shift_type"></span></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-
-        <div style="margin-top:5px;">
-          <span class="division"></span>
-        </div>
-
-        <div style="margin-top:5px;">
-          <i class="fa fa-envelope" style="margin-right:5px;"></i>
-          <span class="email"></span>
-        </div>
-
-        <div style="margin-top:5px;">
-          <i class="fa fa-phone" style="margin-right:5px;"></i>
-          <span class="phone"></span>
-        </div>
-      </div>
-
-      <div class="action-button">
-        <input type="hidden" id="hdnempid" name="hdnempid" value="<?= $empid ?>" />
-
-        <button class="btn-circle btn-checkin" id="btnAddData">
-          <i class="bi bi-box-arrow-in-right"></i> Check-in
-        </button>
-
-        <button class="btn-circle btn-checkout" onclick="getdatacheckout()">
-          <i class="bi bi-box-arrow-right"></i> Check-out
-        </button>
-      </div>
-    </div>
-
-    <!-- PEMBATAS -->
-    <div class="profile-divider"></div>
-
-    <!-- KANAN: informasi detail -->
-    <div class="profile-right">
-      <div class="info-grid">
-        <div class="column">
-          <div><strong>NIK</strong><span class="nik"></span></div>
-          <div><strong>Gender</strong><span class="gender"></span></div>
-          <div><strong>Date of Birth</strong><span class="date_of_birth"></span></div>
-          <div><strong>Address</strong><span class="address"></span></div>
-        </div>
-
-        <div class="column">
-          <div><strong>Direct</strong><span class="direct"></span></div>
-          <div><strong>Job Level</strong><span class="job_level"></span></div>
-          <div><strong>Status</strong><span class="status"></span></div>
-          <div><strong>Date of Hired</strong><span class="date_of_hired"></span></div>
-          <div><strong>Shift Type</strong><span class="shift_type"></span></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 
 
 
         <div class="health-card p-3 rounded shadow text-center">
-            <i class="fa fa-calendar"></i> <span id="lastLog"
-                style="font-size: 12px; font-weight:bold; color: #868686;"></span>
+            <i class="fa fa-calendar" style="font-size: 12px; font-weight:bold; color: #0a1739;"></i> <span id="lastLog"
+                style="font-size: 12px; font-weight:bold; color: #0a1739; margin-left: 4px;"></span>
 
             <div class="row card-information-health">
                 <div class="col-md-6 col-12">
@@ -130,10 +130,15 @@
     background: #FBD9E5;" id="bpm_desc"></span>
                     </div> -->
 
-                    <div class="card-box cardbox-1">
-                        <div class="icon"><i class="bi bi-heart-fill text-danger"></i></div>
+                    <div class="card-box cardbox-2">
+                        <div class="title-health">
+                            <p>BPM</p>
+
+                            <div class="icon"><span>💗</span></div>
+
+                        </div>
+
                         <h3><span id="bpm"></span></h3>
-                        <p>BPM</p>
                         <span class="badge" id="bpm_desc"></span>
                     </div>
 
@@ -146,10 +151,19 @@
     background: #FFE264;" id="spo2_desc"></span>
                     </div> -->
 
-                    <div class="card-box cardbox-2">
-                        <div class="icon"><i class="bi bi-activity text-info"></i></div>
+                    <div class="card-box cardbox-4">
+
+                        <div class="title-health">
+                            <p>SpO₂</p>
+                            <div class="icon"><span>💧</span></div>
+
+                        </div>
+
+
+
                         <h3><span id="spo2"></span></h3>
-                        <p>SpO₂</p>
+
+
                         <span class="badge" id="spo2_desc"></span>
                     </div>
 
@@ -167,10 +181,17 @@
                     </div> -->
 
                     <div class="card-box cardbox-3">
-                        <div class="icon"><i class="bi bi-moon-fill text-purple"></i></div>
+
+                        <div class="title-health">
+                            <p>Sleep</p>
+
+                            <div class="icon"><span>😴</span></div>
+
+                        </div>
+
                         <h3><span id="sleep"></span></h3>
-                        <p>Sleep</p>
-                        <small><span id="sleep_percent"></span></small>
+
+                        <small><span class="badge" id="sleep_percent"></span></small>
                     </div>
                     <!-- Fatigue -->
                     <!-- <div class="card-box" style="background: #2743CB;">
@@ -181,10 +202,16 @@
     background: #D0E3FF;" id="fatigue_category">Moderate</span>
                     </div> -->
 
-                    <div class="card-box cardbox-4">
-                        <div class="icon"><i class="bi bi-lightning-charge-fill text-warning"></i></div>
+                    <div class="card-box cardbox-1">
+                        <div class="title-health">
+                            <p>Fatigue</p>
+
+                            <div class="icon"><span>🔥</span></div>
+
+                        </div>
+
                         <h3><span id="fatigue_percentage"></span></h3>
-                        <p>Fatigue</p>
+
                         <span class="badge" id="fatigue_category">Moderate</span>
                     </div>
                 </div>
@@ -217,12 +244,11 @@
     </div>
 
 
+
+
     <div class="quick-links">
         <div class="d-flex align-items-center justify-content-between">
-            Quick Links
-            <button class="btn btn-sm btn-outline-primary btn-circle" title="Add Quick Link" onclick="addQuickLink()">
-                <i class="fa fa-plus"></i>
-            </button>
+            <h1>Quick Links</h1>
         </div>
 
         <div class="quick-links-grid mt-3" id="quickLinksContainer">
@@ -391,7 +417,7 @@
                 <div class="birthday-content">
                     <!-- <img id="birthday-image" src="<?php echo _ASSET_PROFILE_PICTURE; ?>" alt="Profile Picture"
                     class="birthday-image"> -->
-                    <img id="birthday-image" alt="Profile Picture" class="birthday-image">
+                    <img id="birthday-avatar" alt="Profile Picture" class="birthday-image">
                     <div class="birthday-info">
                         <div id="birthday-name" class="birthday-name"></div>
                         <div id="birthday-job" class="birthday-job"></div>
@@ -480,6 +506,8 @@
                 </div>
             </div>
             <canvas id="daily_tasklist" style="margin-top: 20px; margin-bottom: 20px;"></canvas>
+
+
         </div>
 
         <!-- <div class="right-section">
@@ -502,15 +530,15 @@
         </div> -->
 
         <div class="right-section">
-  <div class="box-1 table-box">
-    <div class="title_tasklist">Tasklist Progress</div>
+            <div class="box-1 table-box">
+                <div class="title_tasklist">Tasklist Progress</div>
 
-    <!-- LIST (bukan table) -->
-    <div class="tasklist-container" id="tasklistList" style="margin-top: 8px;">
-      <!-- Card akan di-inject via JS -->
-    </div>
-  </div>
-</div>
+                <!-- LIST (bukan table) -->
+                <div class="tasklist-container" id="tasklistList" style="margin-top: 8px;">
+                    <!-- Card akan di-inject via JS -->
+                </div>
+            </div>
+        </div>
 
 
     </div>
