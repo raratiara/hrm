@@ -7162,6 +7162,108 @@ class Api extends API_Controller
 
 
     public function get_data_payslip()
+	{
+	    $this->verify_token();
+
+	  
+	    $jsonData = file_get_contents('php://input');
+	    $dataReq  = json_decode($jsonData, true);
+	    $_REQUEST = $dataReq;
+
+	    $islogin_employee = $_GET['islogin_employee'] ?? '';
+	    $month = $_GET['month_id'] ?? '';
+	    $year = $_GET['year'] ?? '';
+
+	    if ($islogin_employee == '') {
+	        $response = [
+	            'status'  => 401,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+
+	        return $this->render_json($response, 401);
+	    }
+
+	   
+	    $this->load->library('html_pdf');
+	    $this->load->helper('global');
+
+	   
+	    $sql = "
+	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join master_month c on c.id = a.periode_bulan
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id
+				where a.employee_id = ".$islogin_employee." and a.periode_bulan = ".$month." and a.periode_tahun = ".$year."
+	    ";
+
+	    $slip = $this->db->query($sql)->row();
+
+	    if (!$slip) {
+	        $response = [
+	            'status'  => 404,
+	            'message' => 'Failed',
+	            'error'   => 'Payslip not found'
+	        ];
+
+	        return $this->render_json($response, 404);
+	    }
+
+	  
+	    $pdfData = [
+	       
+	        'periode_bulan'      		=> $slip->periode_bulan_name,
+		    'periode_tahun'      		=> $slip->periode_tahun,
+		    'nik'    					=> $slip->emp_code,
+		    'emp_name'       			=> $slip->full_name,
+		    'project_name'    			=> $slip->project_name,
+		    'jabatan' 		  			=> $slip->job_title_name,
+		    'tanggal_pembayaran_lembur'	=> $slip->tanggal_pembayaran_lembur
+	        
+	    ];
+
+	   
+	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
+	        'pdf/gaji_os',
+	        $pdfData
+	    );
+
+	    if (ob_get_level()) {
+	        ob_end_clean();
+	    }
+
+	   
+	    $response = [
+	        'status'   => 200,
+	        'message'  => 'Success',
+	        'data'     => [
+	            'employee_id' => $islogin_employee,
+	            'emp_code'    => $slip->emp_code,
+	            'employee'    => $slip->full_name,
+	            'period'      => $slip->periode_bulan_name . ' ' . $slip->periode_tahun,
+	            'filename'    => 'payslip_' . $slip->emp_code . '.pdf',
+	            'mime'        => 'application/pdf',
+	            'file_base64' => base64_encode($pdfBinary)
+	        ]
+	    ];
+
+	   
+	    $this->output->set_header('Access-Control-Allow-Origin: *');
+	    $this->output->set_header('Access-Control-Allow-Methods: POST');
+	    $this->output->set_header('Access-Control-Max-Age: 3600');
+	    $this->output->set_header(
+	        'Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
+	    );
+
+	    $this->render_json($response, 200);
+	}
+
+
+
+    public function get_data_payslip_old()
     { 
     	$this->verify_token();
 
