@@ -395,6 +395,7 @@ class Api extends API_Controller
 									"expire" 		=> $token[1],
 									"email" 		=> $cek_login->email,
 									"employee_id" 	=> $cek_login->id_karyawan,
+									'first_login' => (int) $cek_login->first_login,
 									"work_location_time_zone" 	=> $emp_time_zone,
 									"work_location_utc_offset" 	=> $emp_utc_offset,
 									"bustrip_time_zone" 		=> $bustrip_time_zone,
@@ -489,6 +490,9 @@ class Api extends API_Controller
 				md5($new_password)
 			);
 
+			$this->api->update_user($user->user_id, [
+				'first_login' => 0
+			]);
 			return $this->render_json([
 				'code'    => 200,
 				'status'  => 'success',
