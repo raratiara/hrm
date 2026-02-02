@@ -80,6 +80,12 @@ class Api_model extends MY_Model
             ]);
     }
 
+    public function update_user($user_id, $data)
+    {
+        return $this->db
+            ->where('user_id', $user_id)
+            ->update('user', $data);
+    }
 
     public function cek_company($url)
     {
