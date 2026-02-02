@@ -14,8 +14,38 @@ $(document).ready(function() {
    		
         $( "#periode_start" ).datepicker();
         $( "#periode_end" ).datepicker();
+
+
+
+
+        if ($('#lokasi').hasClass("select2-hidden-accessible")) {
+		    $('#lokasi').select2('destroy');
+		}
+
+		$('#lokasi').select2({
+		    theme: 'bootstrap',
+		    placeholder: 'Pilih / ketik lokasi',
+		    allowClear: true,
+		    tags: true,
+		    width: '100%',
+		    createTag: function (params) {
+		        var term = $.trim(params.term);
+		        if (term === '') return null;
+
+		        return {
+		            id: term,
+		            text: term,
+		            newTag: true
+		        };
+		    }
+		});		
+
+
 		
    	});
+
+
+   
 });
 
 
@@ -206,7 +236,63 @@ function dateFormat(tanggal) {
     return `${parts[1]}/${parts[2]}/${parts[0]}`;
 }
 
-function getLokasi(customer,selected='',idVal=''){ 
+$('#lokasi').select2({
+    theme: 'bootstrap',
+    placeholder: 'Pilih / ketik lokasi',
+    allowClear: true,
+    tags: true,
+    width: '100%',
+    createTag: function (params) {
+        var term = $.trim(params.term);
+        if (term === '') return null;
+
+        return {
+            id: term,
+            text: term,
+            newTag: true
+        };
+    }
+});
+
+
+function getLokasi(customer, selected='', idVal='') {
+
+    if (!customer) return;
+
+    $.ajax({
+        type: "POST",
+        url : module_path + '/getDataLokasi',
+        data: { customer: customer },
+        dataType: "JSON",
+        success: function(data) {
+
+            var $el = $("#lokasi");
+            $el.empty().append('<option value=""></option>');
+
+            if (data && data.mslokasi) {
+                $.each(data.mslokasi, function(i, v) {
+                    $el.append(
+                        $('<option>', {
+                            value: v.id,
+                            text: v.name
+                        })
+                    );
+                });
+            }
+
+            $el.trigger('change.select2');
+
+            if (selected === 'selected') {
+                $el.val(idVal).trigger('change.select2');
+            }
+        }
+    });
+}
+
+
+
+
+function getLokasi_old(customer,selected='',idVal=''){ 
 
 	if(customer != ''){
  		
@@ -227,6 +313,8 @@ function getLokasi(customer,selected='',idVal=''){
 					$.each(data.mslokasi, function(key,value) {
 						$el.append($("<option></option>")
 				     	.attr("value", value.id).text(value.name));
+
+				     	$el.trigger('change'); // penting buat select2
 					  	
 					});
 
@@ -273,6 +361,57 @@ $('#customer').on('change', function () {
         getLokasi(customer);
     }
 });
+
+
+
+$('#lokasi').on('select2:selecting', function (e) {
+
+    var data = e.params.args.data;
+    var customer = $('#customer').val();
+
+    //console.log(data); // DEBUG
+
+    if (!customer) {
+        alert('Customer wajib dipilih terlebih dahulu');
+        e.preventDefault(); 
+        return;
+    }
+
+    
+    if (data.id === data.text) {
+
+        e.preventDefault(); 
+
+        $.ajax({
+            url: module_path + '/insertLokasi',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                customer: customer,
+                nama: data.text
+            },
+            success: function (res) {
+
+                if (res.status) {
+
+                    var newOption = new Option(
+                        res.name,
+                        res.id,
+                        true,
+                        true
+                    );
+
+                    $('#lokasi')
+                        .append(newOption)
+                        .trigger('change.select2');
+                }
+            }
+        });
+    }
+});
+
+
+
 
 
 

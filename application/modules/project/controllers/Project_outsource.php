@@ -37,7 +37,7 @@ class Project_outsource extends MY_Controller
 		
 
 		$mslokasi 					= array();
-		$field['sellokasi'] 		= $this->self_model->return_build_select2me($mslokasi,'','','','lokasi','lokasi','','','id','name',' ','','','required',3,'-');
+		$field['sellokasi'] 		= $this->self_model->return_build_select2me_lokasi($mslokasi,'','','','lokasi','lokasi','','','id','name',' ','','','data-tags="true" ',3,'-');
 
 		$mscust 					= $this->db->query("select *, if(code != '', concat(code,' - ',name),name) as customer_name from data_customer order by name asc")->result(); 
 		$field['seloCustomer'] 		= $this->self_model->return_build_select2me($mscust,'','','','customer','customer','','','id','customer_name',' ','','','required',3,'-');
@@ -106,6 +106,45 @@ class Project_outsource extends MY_Controller
 
 		echo json_encode($rs);
 	}
+
+
+	public function insertLokasi()
+	{
+	    $post     = $this->input->post(null, true);
+	    $customer = $post['customer'];
+	    $nama     = trim($post['nama']);
+
+	    // normalisasi
+	    $nama = strtoupper($nama);
+
+	    // cek dulu biar gak dobel
+	    $cek = $this->db
+	        ->where('cust_id', $customer)
+	        ->where('UPPER(name)', $nama)
+	        ->get('master_work_location_outsource')
+	        ->row();
+
+	    if ($cek) {
+	        echo json_encode([
+	            'status' => true,
+	            'id'     => $cek->id,
+	            'name'   => $cek->name
+	        ]);
+	        return;
+	    }
+
+	    $this->db->insert('master_work_location_outsource', [
+	        'cust_id' => $customer,
+	        'name'    => $nama
+	    ]);
+
+	    echo json_encode([
+	        'status' => true,
+	        'id'     => $this->db->insert_id(),
+	        'name'   => $nama
+	    ]);
+	}
+
 
  
  	
