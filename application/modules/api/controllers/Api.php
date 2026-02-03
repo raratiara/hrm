@@ -3178,12 +3178,19 @@ class Api extends API_Controller
     	$employee = $_REQUEST['employee'];*/ //filter employee
 
 
-    	$employee = $_GET['employee'];
+    	// $employee = $_GET['employee'];
+		$employee   = $_GET['employee'] ?? '';
+		$startDate  = $_GET['start_date'] ?? '';
+		$endDate    = $_GET['end_date'] ?? '';
+		$where = " WHERE 1=1 ";
 
-		$where=''; 
-    	if($employee != ''){
-    		$where = " where a.employee_id = '".$employee."' ";
-    	}
+		if ($employee != '') {
+			$where .= " AND a.employee_id = '".$employee."' ";
+		}
+
+		if ($startDate != '' && $endDate != '') {
+			$where .= " AND a.date_attendance BETWEEN '".$startDate."' AND '".$endDate."' ";
+		}
 
     	
 		/*$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
