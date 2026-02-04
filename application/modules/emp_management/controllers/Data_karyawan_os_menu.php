@@ -72,6 +72,8 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['txtgajibulanan'] 		= $this->self_model->return_build_txt('','gaji_bulanan','gaji_bulanan');
 		$field['txtgajiharian'] 		= $this->self_model->return_build_txt('','gaji_harian','gaji_harian');
 		$field['txtusername'] 			= $this->self_model->return_build_txt('','username','username','','','readonly');
+		$field['txtpassword'] 			= $this->self_model->return_build_txt('','password','password','','','');
+
 		
 
 		$msmaritalstatus 				= $this->db->query("select * from master_marital_status")->result(); 

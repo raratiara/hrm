@@ -218,9 +218,14 @@ function getMaps(empid = '', period = '', tipe) {
           markersCluster.clearLayers();
 
           // === ABSENSI MODE ===
-          if (tipe === 'absensi') {
+          if (tipe === 'absensi') { 
             document.body.classList.remove('tracker-mode');
             document.body.classList.add('absensi-mode');
+
+            
+
+            document.getElementById("videoContainerAbsensi").style.display = "block";
+            $('#videoContainerAbsensi tbody').html(data.data_table);
 
             document.getElementById("videoContainerTracker").style.display = "none";
             $('#videoContainerTracker tbody').html('');
@@ -317,6 +322,9 @@ function getMaps(empid = '', period = '', tipe) {
 
             document.getElementById("videoContainerTracker").style.display = "block";
             $('#videoContainerTracker tbody').html(data.data_table);
+
+            document.getElementById("videoContainerAbsensi").style.display = "none";
+            $('#videoContainerAbsensi tbody').html('');
 
             let markersMap = {};
             const today = moment().format('YYYY-MM-DD');

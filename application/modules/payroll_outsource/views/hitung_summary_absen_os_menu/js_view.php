@@ -385,6 +385,7 @@ function load_data()
 					$('span.period_start').html(data.tgl_start);
 					$('span.period_end').html(data.tgl_end);
 					$('span.employee').html(data.full_name);
+					$('span.project').html(data.project_name);
 
 					document.getElementById("inpAbsenOSView").style.display = "block";
 					document.getElementById("inpAbsenOS_edit").style.display = "none";

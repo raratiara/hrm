@@ -15,12 +15,12 @@ class History_bpjs_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Karyawan","Tanggal Potong","No BPJS Kes","Nominal BPJS Kes","No BPJS TK","Nominal BPJS TK","Gaji Pokok"];
+	public $tabel_header 			= ["ID","Karyawan","Project","Periode Gaji","Tanggal Potong","No BPJS Kes","Nominal BPJS Kes","No BPJS TK","Nominal BPJS TK","Tanggal Setor","Tanggal Dikembalikan"];
 
 
 	/* Export */
-	public $colnames 				= ["ID","Karyawan","Tanggal Potong","No BPJS Kes","Nominal BPJS Kes","No BPJS TK","Nominal BPJS TK","Gaji Pokok"];
-	public $colfields 				= ["id","full_name","tanggal_potong","no_bpjs_kesehatan","nominal_bpjs_kesehatan","no_bpjs_tk","nominal_bpjs_tk","gaji_pokok"];
+	public $colnames 				= ["ID","Karyawan","Project","Periode Gaji","Tanggal Potong","No BPJS Kes","Nominal BPJS Kes","No BPJS TK","Nominal BPJS TK","Tanggal Setor","Tanggal Dikembalikan"];
+	public $colfields 				= ["id","full_name","project_name","periode_penggajian","tanggal_potong","no_bpjs_kesehatan","nominal_bpjs_kesehatan","no_bpjs_tk","nominal_bpjs_tk","tanggal_setor","tanggal_dikembalikan"];
 
 	/* Form Field Asset */
 	public function form_field_asset()

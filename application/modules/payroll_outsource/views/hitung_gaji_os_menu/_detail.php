@@ -92,7 +92,17 @@
                                     <th scope="col">Jam Lembur</th>
                                     <th scope="col">Total Pendapatan</th>
                                     <th scope="col">BPJS Kesehatan</th>
-                                    <th scope="col">BPJS TK</th>
+                                    
+                                    <th scope="col">TP JKK</th>
+                                    <th scope="col">TP JKM</th>
+                                    <th scope="col">TP JHT</th>
+                                    <th scope="col">TP JP</th>
+                                    <th scope="col">PGK JHT</th>
+                                    <th scope="col">PGK JP</th>
+                                    <th scope="col">TP Jkes</th>
+                                    <th scope="col">PGK Jkes</th>
+
+
                                     <th scope="col">Absen</th>
                                     <th scope="col">Seragam</th>
                                     <th scope="col">Pelatihan</th>

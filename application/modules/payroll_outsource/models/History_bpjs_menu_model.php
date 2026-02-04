@@ -26,12 +26,39 @@ class History_bpjs_menu_model extends MY_Model
 			'dt.nominal_bpjs_kesehatan',
 			'dt.no_bpjs_tk',
 			'dt.nominal_bpjs_tk',
-			'dt.gaji_pokok'
+			'dt.project_name',
+			'dt.periode_penggajian',
+			'dt.tanggal_setor',
+			'dt.tanggal_dikembalikan'
 		];
 		
 
+		$where_disetor="";
+		if(isset($_GET['fldisetor']) && $_GET['fldisetor'] != ''){
+			if($_GET['fldisetor'] == 1){
+				$where_disetor = " and a.tanggal_setor != '' and a.tanggal_setor is not null ";
+			}else if($_GET['fldisetor'] == 0){
+				$where_disetor = " and a.tanggal_setor = '' or a.tanggal_setor is null ";
+			}
+			
+		}
+
+		$where_dikembalikan = "";
+		if(isset($_GET['fldikembalikan']) && $_GET['fldikembalikan'] != '' && $_GET['fldikembalikan'] != 0){
+			if($_GET['fldikembalikan'] == 1){
+				$where_dikembalikan = " and a.tanggal_dikembalikan != '' and a.tanggal_dikembalikan is not null ";
+			}else if($_GET['fldikembalikan'] == 0){
+				$where_dikembalikan = " and a.tanggal_dikembalikan = '' or a.tanggal_dikembalikan is null ";
+			}
+		}
+
+
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name from history_bpjs a left join employees b on b.id = a.employee_id)dt';
+		$sTable = '(select a.*, b.full_name, c.project_name, concat(d.name_indo," ",a.periode_gaji_tahun) as periode_penggajian
+					from history_bpjs a left join employees b on b.id = a.employee_id
+					left join project_outsource c on c.id = b.project_id
+					left join master_month d on d.id = a.periode_gaji_bulan
+					where 1=1 '.$where_disetor.$where_dikembalikan.')dt';
 		
 
 		/* Paging */
@@ -196,12 +223,15 @@ class History_bpjs_menu_model extends MY_Model
 				</div>',
 				$row->id,
 				$row->full_name,
+				$row->project_name,
+				$row->periode_penggajian,
 				$row->tanggal_potong,
 				$row->no_bpjs_kesehatan,
 				$row->nominal_bpjs_kesehatan,
 				$row->no_bpjs_tk,
 				$row->nominal_bpjs_tk,
-				$row->gaji_pokok
+				$row->tanggal_setor,
+				$row->tanggal_dikembalikan
 
 
 
@@ -314,7 +344,10 @@ class History_bpjs_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name from history_bpjs a left join employees b on b.id = a.employee_id
+		$mTable = '(select a.*, b.full_name, c.project_name, concat(d.name_indo," ",a.periode_gaji_tahun) as periode_penggajian
+					from history_bpjs a left join employees b on b.id = a.employee_id
+					left join project_outsource c on c.id = b.project_id
+					left join master_month d on d.id = a.periode_gaji_bulan
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -351,8 +384,11 @@ class History_bpjs_menu_model extends MY_Model
 	public function eksport_data()
 	{
 
-		$sql = "select a.*, b.full_name from history_bpjs a left join employees b on b.id = a.employee_id
-			order by id asc
+		$sql = "select a.*, b.full_name, c.project_name, concat(d.name_indo,' ',a.periode_gaji_tahun) as periode_penggajian
+					from history_bpjs a left join employees b on b.id = a.employee_id
+					left join project_outsource c on c.id = b.project_id
+					left join master_month d on d.id = a.periode_gaji_bulan
+			order by a.id asc
 		";
 
 		$res = $this->db->query($sql);

@@ -15,12 +15,12 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen","Employee","Total Hari Kerja","Total Masuk","Total Ijin","Total Cuti","Total Alfa","Total Lembur","Total Jam Kerja","Total Jam Lembur"];
+	public $tabel_header 			= ["ID","Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen","Employee","Project","Total Hari Kerja","Total Masuk","Total Ijin","Total Cuti","Total Alfa","Total Lembur","Total Jam Kerja","Total Jam Lembur"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen","Employee","Total Hari Kerja","Total Masuk","Total Ijin","Total Cuti","Total Alfa","Total Lembur","Total Jam Kerja","Total Jam Lembur"];
-	public $colfields 				= ["id","month_name","tahun","tgl_start","tgl_end","full_name","total_hari_kerja","total_masuk","total_ijin","total_cuti","total_alfa","total_lembur","total_jam_kerja","total_jam_lembur"];
+	public $colnames 				= ["ID","Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen","Employee","Project","Total Hari Kerja","Total Masuk","Total Ijin","Total Cuti","Total Alfa","Total Lembur","Total Jam Kerja","Total Jam Lembur"];
+	public $colfields 				= ["id","month_name","tahun","tgl_start","tgl_end","full_name","project_name","total_hari_kerja","total_masuk","total_ijin","total_cuti","total_alfa","total_lembur","total_jam_kerja","total_jam_lembur"];
 
 
 	/* Form Field Asset */

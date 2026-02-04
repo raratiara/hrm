@@ -260,6 +260,12 @@
 							<?=$txtgajibulanan;?>
 						</div>
 					</div>
+					<div class="form-group" id="inpUsername" style="display:none">
+						<label class="col-md-4 control-label no-padding-right">Username </label>
+						<div class="col-md-8">
+							<?=$txtusername;?>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Company</label>
 						<div class="col-md-8">
@@ -308,12 +314,7 @@
 							<?=$txtshifttype;?>
 						</div>
 					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Username </label>
-						<div class="col-md-8">
-							<?=$txtusername;?>
-						</div>
-					</div>
+					
 					
 					
 					
@@ -344,6 +345,12 @@
 						<label class="col-md-4 control-label no-padding-right">Gaji Harian </label>
 						<div class="col-md-8">
 							<?=$txtgajiharian;?>
+						</div>
+					</div>
+					<div class="form-group" id="inpPassword" style="display:none">
+						<label class="col-md-4 control-label no-padding-right">Password </label>
+						<div class="col-md-8">
+							<?=$txtpassword;?>
 						</div>
 					</div>
 					<div class="form-group">

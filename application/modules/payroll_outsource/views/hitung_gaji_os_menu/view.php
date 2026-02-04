@@ -42,9 +42,9 @@
 		  <!-- Employee -->
 		  <div class="col-md-4 col-sm-12">
 		    <div class="form-group row form-row">
-		      <label class="col-sm-2 col-form-label">Karyawan</label>
+		      <label class="col-sm-2 col-form-label">Project</label>
 		      <div class="col-sm-10">
-		        <?=$selflemployee;?>
+		        <?=$selflproject;?>
 		      </div>
 		    </div>
 		  </div>

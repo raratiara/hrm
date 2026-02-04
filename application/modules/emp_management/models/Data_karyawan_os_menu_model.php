@@ -762,19 +762,29 @@ class Data_karyawan_os_menu_model extends MY_Model
 
 				// add ke table user //
 				$pwd = '112233';
+				if($post['password'] != ''){
+					$pwd = $post['password'];
+				}
+				
 				$password = md5($pwd);
 
-				$name = $post['full_name'];
-				$username = strtolower(trim($name));
 
-				/*if ($username == trim($username) && strpos($username, ' ') !== false) {
-				    $username = str_replace(" ","_",$username);
-				}*/
+				if($post['username'] != ''){
+					$username = $post['username'];
+				}else{
+					$name = $post['full_name'];
+					$username = strtolower(trim($name));
 
-				$words = explode(' ', $username);
-				if (count($words) > 1) {
-					$username = str_replace(" ","_",$username);
+					/*if ($username == trim($username) && strpos($username, ' ') !== false) {
+					    $username = str_replace(" ","_",$username);
+					}*/
+
+					$words = explode(' ', $username);
+					if (count($words) > 1) {
+						$username = str_replace(" ","_",$username);
+					}
 				}
+				
 				
 
 				$data2 = [

@@ -200,6 +200,27 @@
       font-family: "Segoe UI", sans-serif;*/
     }
 
+    .video-container-absensi {
+      position: fixed;
+      top: 250px;
+      right: 10px;
+      display: flex;
+      /*justify-content: space-around;*/
+      flex-direction: column;
+      background-color: #f8fafb;
+      padding: 5px 10px;
+      box-sizing: border-box;
+      border-radius: 8px !important;
+      box-shadow: 0 0 6px rgba(0,0,0,0.15);
+      z-index: 1000;
+      transition: left 0.3s ease;
+      width: 250px;
+      min-height: 50px;
+      max-height: 300px;
+
+
+    }
+
     .box-title-tracker {
       /*font-weight: 100;*/
       font-size: 12px;
@@ -209,7 +230,21 @@
       border-bottom: 1px solid #ddd;
     }
 
+    .box-title-absensi {
+      /*font-weight: 100;*/
+      font-size: 12px;
+      /*margin-bottom: 10px;*/
+      color: #333;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #ddd;
+    }
+
     .box-value-tracker {
+      width: 100%;
+      position: relative;
+    }
+
+    .box-value-absensi {
       width: 100%;
       position: relative;
     }
@@ -251,6 +286,13 @@
     }
 
     .info-footer-tracker {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+    }
+
+    .info-footer-absensi {
       margin-top: 10px;
       font-size: 12px;
       color: #777;
@@ -350,6 +392,29 @@
     </div>
   </div>
   <div class="info-footer-tracker"></div>
+</div>
+
+
+<div class="video-container-absensi" id="videoContainerAbsensi" style="display:none">
+  <div class="box-title-absensi">Detail Absensi</div>
+
+  <div class="box-value-absensi">
+    <div class="table-container">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thead-dark">
+          <tr>
+            <th style="width:50%;">Name</th>
+            <th style="width:50%;">Tipe</th>
+            <th style="width:50%">Datetime</th>
+          </tr>
+        </thead>
+        <tbody id="tblAbsensi">
+          <!-- data akan ditambahkan di sini -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="info-footer-absensi"></div>
 </div>
 
 

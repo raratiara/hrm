@@ -368,6 +368,9 @@ function load_data()
 						tSawBclear(locate_workexp);
 						///expenseviewadjust(lstatus);
 					});
+
+					document.getElementById("inpUsername").style.display = "none";
+					document.getElementById("inpPassword").style.display = "none";
 					
 					
 					
@@ -1167,6 +1170,28 @@ function getWorkLocation(project,selected='',idVal=''){
 
 }
 
+
+function generateUsername(fullName) {
+    if (!fullName) return '';
+
+    // strtolower + trim
+    let username = fullName.toLowerCase().trim();
+
+    // explode by space
+    let words = username.split(' ');
+
+    // kalau lebih dari 1 kata → ganti spasi jadi underscore
+    if (words.length > 1) {
+        username = username.replace(/\s+/g, '_');
+    }
+
+    return username;
+}
+
+// trigger saat diketik / diubah
+document.getElementById('full_name').addEventListener('input', function () {
+    document.getElementById('username').value = generateUsername(this.value);
+});
 
 
 

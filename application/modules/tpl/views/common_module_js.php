@@ -21,6 +21,8 @@ function expire()
 $( "#btnAddData" ).on('click', function(){
 	var module_name = '<?=$this->module_name?>'; 
 
+	
+
 	if(module_name == 'hitung_summary_absen_os_menu'){
 		<!-- document.getElementById("inp_is_all_employee").style.display = "block"; -->
 		document.getElementById("inp_is_all_project").style.display = "block";
@@ -80,7 +82,62 @@ $( "#btnAddData" ).on('click', function(){
 		document.getElementById('btnApprovalLog').style.display = 'none';
 	}
 
+	if(module_name == 'data_karyawan_os_menu' || module_name == 'data_karyawan_menu'){ 
+		document.getElementById("inpUsername").style.display = "block";
+		document.getElementById("inpPassword").style.display = "block";
+		$('select#company').val(3).trigger('change.select2');
+		$('[name="password"]').val('112233');
+	}
 
+	if(module_name == 'hitung_gaji_os_menu'){ 
+		var now = new Date();
+
+		var monthNow = now.getMonth() + 1; // 1–12
+		var yearNow  = now.getFullYear();  // contoh: 2026
+
+		$('select#penggajian_month').val(monthNow).trigger('change.select2');
+		$('[name="penggajian_year"]').val(yearNow);
+
+		///isi otomatis juga periode absennya
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/getSummaryAbsen',
+			data: { bln: monthNow, thn: yearNow },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					$('[name="period_start"]').val(data[0].tgl_start);
+					$('[name="period_end"]').val(data[0].tgl_end);
+
+				} else {  
+					$('[name="period_start"]').val('');
+					$('[name="period_end"]').val('');
+
+					alert("Summary Absen di Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Summary Absen terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+	}
+	
 
 	$('#modal-form-data').modal('show');
 });
@@ -127,6 +184,15 @@ $( "#btnEditGajiPerProject" ).on('click', function(){
 		<!-- clear semua field dulu -->
     	resetEditGajiProjectForm();
 
+
+    	var now = new Date();
+
+		var monthNow = now.getMonth() + 1; // 1–12
+		var yearNow  = now.getFullYear();  // contoh: 2026
+
+		$('select#penggajian_month_edit_gaji').val(monthNow).trigger('change.select2');
+		$('[name="penggajian_year_edit_gaji"]').val(yearNow);
+		
 		$('#mfdata').text('Edit Gaji');
 		$('#modal-form-editgajiperproject').modal('show');
 

@@ -32,7 +32,9 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 			'dt.total_ijin',
 			'dt.total_lembur',
 			'dt.total_jam_kerja',
-			'dt.total_jam_lembur'
+			'dt.total_jam_lembur',
+			'dt.payroll_slip_id',
+			'dt.project_name'
 		];
 		
 		
@@ -66,8 +68,8 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 		/*$sTable = '(select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
 				)dt';*/
 
-		$sTable = '(select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan
-				)dt';
+		$sTable = '(select a.*, b.full_name, c.name_indo as month_name, d.id as payroll_slip_id, e.project_name
+			from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan left join payroll_slip d on d.employee_id = a.emp_id and d.periode_bulan = a.bulan and d.periode_tahun = a.tahun left join project_outsource e on e.id = b.project_id )dt';
 		
 
 		/* Paging */
@@ -210,16 +212,17 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $row->payroll_slip_id == '')  {
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && $row->payroll_slip_id == '')  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 			
+
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -234,6 +237,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 				$row->tgl_start,
 				$row->tgl_end,
 				$row->full_name,
+				$row->project_name,
 				$row->total_hari_kerja,
 				$row->total_masuk,
 				$row->total_ijin,
@@ -242,6 +246,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 				$row->total_lembur,
 				$row->total_jam_kerja,
 				$row->total_jam_lembur
+
 
 			));
 		}
@@ -558,7 +563,12 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan
+		$mTable = '(select a.*, b.full_name, c.name_indo as month_name, d.id as payroll_slip_id, e.project_name
+					from summary_absen_outsource a left join employees b on b.id = a.emp_id 
+					left join master_month c on c.id = a.bulan 
+					left join payroll_slip d on d.employee_id = a.emp_id and d.periode_bulan = a.bulan 
+					and d.periode_tahun = a.tahun
+					left join project_outsource e on e.id = b.project_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();

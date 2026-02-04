@@ -80,13 +80,12 @@
         <table>
             <thead>
             <tr>
-                <th>No</th><th style="width: 70px;">Tanggal</th><th>Shift</th>
-                <th>WFO</th><th>WFH</th><th>Onsite</th>
-                <th>Sakit</th><th>Cuti</th>
+                <th>No</th><th style="width: 70px;">Tanggal</th>
+                <th>Status</th>
                 <th>Jam Masuk</th><th>Jam Pulang</th>
                 <th>Total Jam</th><th>Terlambat</th>
                 <th>Pulang Cepat</th>
-                <th>Lembur Jam</th><th>Lembur Rp</th>
+                <th>Lembur Jam</th>
                 <th>Keterangan</th>
             </tr>
             </thead>

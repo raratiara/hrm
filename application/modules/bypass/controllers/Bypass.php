@@ -1197,5 +1197,50 @@ class Bypass extends API_Controller
 
 
 
+	public function getNextNumber($code) { 
+		
+
+		$cek = $this->db->query("select * from temp_table_employees WHERE LEFT(emp_code, 7) = '".$code."'");
+		$rs_cek = $cek->result_array();
+
+		if(empty($rs_cek)){ 
+			$num = '0001';
+		}else{ 
+			$cek2 = $this->db->query("select max(emp_code) as maxnum from temp_table_employees WHERE LEFT(emp_code, 7) = '".$code."' ");
+			$rs_cek2 = $cek2->result_array();  
+			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,7); 
+			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
+			
+		}
+
+		return $num;
+		
+	} 
+
+
+	/*public function genEmpCode(){
+		
+		$dataemp = $this->db->query("select *, DATE_FORMAT(date_of_hire, '%y%m') AS thn_bln  from temp_table_employees ")->result();
+
+		foreach($dataemp as $row){
+			$lettercode = 'MAS'; $YMdateofHired = $row->thn_bln;
+			$code = $lettercode.$YMdateofHired; 
+			$runningnumber 	= $this->getNextNumber($code); // next count number
+			$genEmpCode 	= $lettercode.$YMdateofHired.$runningnumber;
+
+			$data = [
+				'emp_code' => $genEmpCode
+			];
+
+			$this->db->update('temp_table_employees', $data, "employee_id = '".$row->employee_id."'");
+
+		}
+	}*/
+
+	
+
+
+
 
 }

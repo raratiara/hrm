@@ -23,12 +23,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			'dt.periode_bulan_name',
 			'dt.periode_tahun',
 			'dt.full_name',
-			'dt.project_name'
+			'dt.project_name',
+			'dt.employee_id'
 		];
 
-		$where_employee = "";
-		if(isset($_GET['flemployee_gaji']) && $_GET['flemployee_gaji'] != '' && $_GET['flemployee_gaji'] != 0){
-		$where_employee = " and a.employee_id = '".$_GET['flemployee_gaji']."' ";
+		$where_project = "";
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+		$where_project = " and b.project_id = '".$_GET['flproject']."' ";
 		}
 		
 
@@ -40,7 +41,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
-				where 1=1 '.$where_employee.'
+				where 1=1 '.$where_project.'
 			)dt';
 		
 
@@ -196,12 +197,15 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
-			
+
+			$print_gaji = '<a class="btn btn-default btn-xs" onclick="getReportGaji_perEmployee('."'".$row->employee_id."'".')"> <i class="fa fa-download"></i> Gaji</a>';
+
+
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					
+					'.$print_gaji.'
 					'.$detail.'
 					'.$delete.'
 				</div>',
@@ -355,8 +359,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 								'gaji_pokok' 		=> $rowdata_os->gaji_bulanan,
 								'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
 								'nominal_bpjs_tk'  	=> $bpjs_tk,
-								'tanggal_potong'  	=> date("Y-m-d H:i:s")
-								/*'tanggal_setor'		=> ''*/
+								'tanggal_potong'  	=> date("Y-m-d H:i:s"),
+								'periode_gaji_bulan' 	=> trim($post['penggajian_month']),
+								'periode_gaji_tahun' 	=> trim($post['penggajian_year'])
 							];
 							$this->db->insert("history_bpjs", $log_bpjs);
 						}
@@ -744,9 +749,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	}
 
-	public function getGaji($bln, $thn){ 
+	public function getGaji($project, $bln, $thn){ 
 
-		$rs = $this->db->query("select * from  payroll_slip where periode_bulan = ".$bln." and periode_tahun = '".$thn."' limit 1")->result(); 
+		$rs = $this->db->query("select a.* from  payroll_slip a 
+				left join employees b on b.id = a.employee_id
+				where a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' and b.project_id = ".$project." limit 1")->result(); 
 
 		
 
@@ -797,6 +804,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 						and a.status_id = 1 and b.periode_bulan = '".$bln."' and b.periode_tahun = '".$thn."' ")->result(); 
 
 				if(!empty($dataSlip)){ /// ambil data slip
+
+					///informasi detail bpjs
+					$tp_jkk = ceil(($f->gaji_bulanan * 0.0024) * 100) / 100; /// 0.24% dr GP
+					$tp_jkm = ceil(($f->gaji_bulanan * 0.003) * 100) / 100; /// 0.3% dr GP
+					$tp_jht  =  ceil(($f->gaji_bulanan * 0.0375) * 100) / 100; /// 3.75% dr GP
+					$tp_jp  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+					$pgk_jht  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+					$pgk_jp   = ceil(($f->gaji_bulanan * 0.01) * 100) / 100; /// 1% dr GP
+					$tp_jkes  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+					$pgk_jkes   = ceil(($f->gaji_bulanan * 0.01) * 100) / 100; /// 1% dr GP
+
 
 					$id = $dataSlip[0]->id;
 					$emp_code = $dataSlip[0]->emp_code;
@@ -852,6 +870,16 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100; 
 					/// subtotal - potongan wajib
 					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk)) * 100) / 100;
+
+					///informasi detail bpjs
+					$tp_jkk = ceil(($f->gaji_bulanan * 0.0024) * 100) / 100; /// 0.24% dr GP
+					$tp_jkm = ceil(($f->gaji_bulanan * 0.003) * 100) / 100; /// 0.3% dr GP
+					$tp_jht  =  ceil(($f->gaji_bulanan * 0.0375) * 100) / 100; /// 3.75% dr GP
+					$tp_jp  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+					$pgk_jht  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+					$pgk_jp   = ceil(($f->gaji_bulanan * 0.01) * 100) / 100; /// 1% dr GP
+					$tp_jkes  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+					$pgk_jkes   = ceil(($f->gaji_bulanan * 0.01) * 100) / 100; /// 1% dr GP
 
 		             
 					$id = "";
@@ -926,6 +954,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($bpjs_tk,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
+					
+					$dt .= '<td>'.$this->return_build_txt($tp_jkk,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tp_jkm,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tp_jht,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tp_jp ,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($pgk_jht,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($pgk_jp,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($tp_jkes,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($pgk_jkes,'bpjs_tk_edit_gaji['.$row.']','','bpjs_tk_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+
+
 					$dt .= '<td>'.$this->return_build_txt($absen,'absen_edit_gaji['.$row.']','','absen_edit_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($seragam,'seragam_edit_gaji['.$row.']','','seragam_edit_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setSubTotal(this)" ').'</td>';
@@ -976,6 +1015,16 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$total_pendapatan.'</td>';
 					$dt .= '<td>'.$bpjs_kesehatan.'</td>';
 					$dt .= '<td>'.$bpjs_tk.'</td>';
+
+					$dt .= '<td>'.$tp_jkk.'</td>';
+					$dt .= '<td>'.$tp_jkm.'</td>';
+					$dt .= '<td>'.$tp_jht.'</td>';
+					$dt .= '<td>'.$tp_jp.'</td>';
+					$dt .= '<td>'.$pgk_jht.'</td>';
+					$dt .= '<td>'.$pgk_jp.'</td>';
+					$dt .= '<td>'.$tp_jkes.'</td>';
+					$dt .= '<td>'.$pgk_jkes.'</td>';
+
 					$dt .= '<td>'.$absen.'</td>';
 					$dt .= '<td>'.$seragam.'</td>';
 					$dt .= '<td>'.$pelatihan.'</td>';

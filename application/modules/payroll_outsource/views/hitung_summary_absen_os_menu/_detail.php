@@ -36,7 +36,12 @@
 				: <span class="period_end"></span>
 			</div>
 		</div>
-		
+		<div class="row-flex">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Project</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="project"></span>
+			</div>
+		</div>
 		
 	</div>
 </div>

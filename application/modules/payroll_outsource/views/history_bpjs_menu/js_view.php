@@ -11,7 +11,7 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-        
+        initFilterSelect();
 		
    	});
 });
@@ -142,7 +142,10 @@ function load_data()
 					$('span.nominal_bpjs_kes').html(data.nominal_bpjs_kesehatan);
 					$('span.no_bpjs_tk').html(data.no_bpjs_tk);
 					$('span.nominal_bpjs_tk').html(data.nominal_bpjs_tk);
-					$('span.gaji_pokok').html(data.gaji_pokok);
+					$('span.periode_penggajian').html(data.periode_penggajian);
+					$('span.project').html(data.project_name);
+					$('span.tanggal_setor').html(data.tanggal_setor);
+					$('span.tanggal_dikembalikan').html(data.tanggal_dikembalikan);
 					
 					
 					$('#modal-view-data').modal('show');
@@ -194,6 +197,66 @@ function getFormattedDateTime(inputDate) {
 	 return `${formattedDate}`;
 }
 
+
+
+function initFilterSelect() {
+  if ($('#fldisetor').hasClass('select2-hidden-accessible')) {
+    $('#fldisetor').select2('destroy');
+  }
+
+  $('#fldisetor').select2({
+    theme: 'bootstrap',
+    width: '100%'
+  });
+
+  if ($('#fldikembalikan').hasClass('select2-hidden-accessible')) {
+    $('#fldikembalikan').select2('destroy');
+  }
+
+  $('#fldikembalikan').select2({
+    theme: 'bootstrap',
+    width: '100%'
+  });
+}
+
+
+
+function subFilter(){
+	var fldisetor = $("#fldisetor option:selected").val();
+	var fldikembalikan = $("#fldikembalikan option:selected").val();
+
+	if(fldisetor == ''){
+		fldisetor=0;
+	}
+	if(fldikembalikan == ''){
+		fldikembalikan=0;
+	}
+
+	
+	
+	$('#dynamic-table').DataTable().clear().destroy(); 
+	$('#dynamic-table')
+	.DataTable( {
+		fixedHeader: {
+			headerOffset: $('.page-header').outerHeight()
+		},
+		responsive: true,
+		bAutoWidth: false,
+		"aoColumnDefs": [
+		  { "bSortable": false, "aTargets": [ 0,1 ] },
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] },
+		],
+		"aaSorting": [
+		  	[2,'asc'] 
+		],
+		"sAjaxSource": module_path+"/get_data?fldisetor="+fldisetor+"&fldikembalikan="+fldikembalikan+"",
+		"bProcessing": true,
+        "bServerSide": true,
+		"pagingType": "bootstrap_full_number",
+		"colReorder": true
+    } );
+
+}
 
 
 </script>

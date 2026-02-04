@@ -2,6 +2,12 @@
 	
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row-flex">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Periode Penggajian</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="periode_penggajian"></span>
+			</div>
+		</div>
+		<div class="row-flex">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Karyawan</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="karyawan"></span>
@@ -20,9 +26,9 @@
 			</div>
 		</div>
 		<div class="row-flex">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gaji Pokok</label>
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Tanggal Setor</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="gaji_pokok"></span>
+				: <span class="tanggal_setor"></span>
 			</div>
 		</div>
 
@@ -31,6 +37,12 @@
 
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
+		<div class="row-flex">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Project</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="project"></span>
+			</div>
+		</div>
 		<div class="row-flex">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Tanggal Potong</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
@@ -47,6 +59,12 @@
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Nominal BPJS TK</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="nominal_bpjs_tk"></span>
+			</div>
+		</div>
+		<div class="row-flex">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Tanggal Dikembalikan</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="tanggal_dikembalikan"></span>
 			</div>
 		</div>
 		

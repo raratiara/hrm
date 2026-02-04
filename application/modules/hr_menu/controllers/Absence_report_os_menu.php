@@ -571,12 +571,28 @@ class Absence_report_os_menu extends MY_Controller
 	            $no_dtl = 1;
 
 	            foreach ($data as $r) {
+	            	$status = '';
+	            	if($r->wfo == 1){
+	            		$status = 'WFO';
+	            	}
+	            	if($r->wfh == 1){
+	            		$status = 'WFH';
+	            	}
+	            	if($r->piket == 1){
+	            		$status = 'Onsite';
+	            	}
+	            	if($r->sakit == 1){
+	            		$status = 'Sakit';
+	            	}
+	            	if($r->cuti == 1){
+	            		$status = 'Cuti';
+	            	}
 	                $rows[] = [
-	                    $no_dtl++, $r->date_attendance, $r->attendance_type,
-	                    $r->wfo, $r->wfh, $r->piket, $r->sakit, $r->cuti,
+	                    $no_dtl++, $r->date_attendance,
+	                    $status,
 	                    $r->date_attendance_in, $r->date_attendance_out,
 	                    $r->num_of_working_hours, $r->late, $r->leaving_early,
-	                    $r->overtime_num_of_hour, $r->overtime_amount, $r->keterangan
+	                    $r->overtime_num_of_hour, $r->keterangan
 	                ];
 
 	                $ttl['wfo']    += $r->wfo;
@@ -615,6 +631,7 @@ class Absence_report_os_menu extends MY_Controller
 	                    ['Area',$data[0]->branch_name],
 	                    ['Leader',$data[0]->direct_name],
 	                    ['Periode',$filter_periode],
+	                    ['Shift',$data[0]->attendance_type],
 	                ],
 	                'rows' => $rows
 	            ];
@@ -632,7 +649,7 @@ class Absence_report_os_menu extends MY_Controller
 	        ];
 
 	        $pdfBinary = $this->html_pdf->render_to_string('pdf/report_absen_os', $pdfData);
-	        $zip->addFromString('absensi_'.strtolower(str_replace(' ','_',$projectName)).'.pdf', $pdfBinary);
+	        $zip->addFromString('Absensi '.$projectName.'.pdf', $pdfBinary);
 	    }
 
 	    $zip->close();

@@ -2,7 +2,7 @@
 <div id="modal-report-gaji" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-gaji" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:500px">
+		<div class="modal-content" style="width:500px !important">
 			<form class="form-horizontal" id="frmReportGaji" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
@@ -38,10 +38,49 @@
 
 
 
+<div id="modal-report-gaji-peremployee" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-gaji-peremployee" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px !important">
+			<form class="form-horizontal" id="frmReportGajiperEmp" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Report Gaji
+					<input type="hidden" id="hdnempid" name="hdnempid" />
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+
+				<!-- <button class="btn" style="background-color: #8ec1f5; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadGaji()">
+					<i class="fa fa-download"></i>
+					Download EXCEL
+				</button> -->
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadGaji_perEmployee_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: white; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
 <div id="modal-report-lembur" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-lembur" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:500px">
+		<div class="modal-content" style="width:500px !important">
 			<form class="form-horizontal" id="frmReportLembur" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
@@ -76,6 +115,37 @@
 </div>
 
 
+<div id="modal-reportosabsengaji-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reportosabsengaji-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px !important">
+			<form class="form-horizontal" id="frmReportDataOSAbsenGaji" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Report Absensi OS
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportOS_absengaji_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: black; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
 
 
 <script type="text/javascript">
@@ -485,6 +555,7 @@ $('#penggajian_month_edit_gaji').on('change', function () {
 	        dataType: "JSON",
 	        success: function(data)
 	        {  
+
 				if(data != ''){ 	
 					
 					document.getElementById("inpAbsenOS_edit_gaji").style.display = "block";
@@ -675,11 +746,11 @@ $('#modal-form-data').on('hide.bs.modal', function () {
 
 
 function subFilter(){
-	var flemployee = $("#flemployee option:selected").val();
+	var flproject = $("#flproject option:selected").val();
 	//var perioddate = $("#perioddate").val();
 
-	if(flemployee == ''){
-		flemployee=0;
+	if(flproject == ''){
+		flproject=0;
 	}
 
 	/*fldatestart=0;
@@ -710,7 +781,7 @@ function subFilter(){
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
-		"sAjaxSource": module_path+"/get_data?flemployee="+flemployee+"",
+		"sAjaxSource": module_path+"/get_data?flproject="+flproject+"",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
@@ -727,18 +798,25 @@ function getReportGaji(){
 
 }
 
+function getReportGaji_perEmployee(employee_id){
+	$('#modal-report-gaji-peremployee').modal('show');
+
+	
+	$('[name="hdnempid"]').val(employee_id);
+}
+
 function downloadGaji_pdf(){
 
-	var flemployee = $("#flemployee option:selected").val();
+	var flproject = $("#flproject option:selected").val();
 	
 
-	if(flemployee != ''){
-		send_url = module_path+'/getPayrollReport_pdf?flemployee='+flemployee+'';
+	if(flproject != ''){
+		send_url = module_path+'/getPayrollReport_pdf?flproject='+flproject+'';
 		formData = $('#frmReportGaji').serialize();
 		window.location = send_url+'&'+formData;
 		$('#modal-report-gaji').modal('hide');
 	}else{
-		alert("Mohon filter Karyawan terlebih dahulu");
+		alert("Mohon filter Project terlebih dahulu");
 	}
 
 	/*
@@ -766,6 +844,24 @@ function downloadGaji_pdf(){
 }
 
 
+function downloadGaji_perEmployee_pdf(){
+
+	var emp_id = $("#hdnempid").val();
+	
+
+	if(emp_id != ''){
+		send_url = module_path+'/getPayrollReport_perEmployee_pdf?emp_id='+emp_id+'';
+		formData = $('#frmReportGajiperEmp').serialize();
+		window.location = send_url+'&'+formData;
+		$('#modal-report-gaji-peremployee').modal('hide');
+	}else{
+		alert("Mohon filter Karyawan terlebih dahulu");
+	}
+
+	
+}
+
+
 function getReportLembur(){
 	
 	$('#modal-report-lembur').modal('show');
@@ -774,18 +870,18 @@ function getReportLembur(){
 
 function downloadLembur_pdf(){
 
-	var flemployee = $("#flemployee option:selected").val();
+	var flproject = $("#flproject option:selected").val();
 	
 
-	if(flemployee != ''){
+	if(flproject != ''){
 
-		send_url = module_path+'/getOvertimeReport_pdf?flemployee='+flemployee+'';
+		send_url = module_path+'/getOvertimeReport_pdf?flproject='+flproject+'';
 		formData = $('#frmReportLembur').serialize();
 		window.location = send_url+'&'+formData;
 		$('#report-lembur').modal('hide');
 
 	}else{
-		alert("Mohon filter Karyawan terlebih dahulu");
+		alert("Mohon filter Project terlebih dahulu");
 	}
 
 	/*
@@ -1045,6 +1141,32 @@ function setGajiBersih(val){
 	$('[name="gaji_bersih_edit_gaji['+row+']"]').val(GajiBersih);
 
     
+}
+
+function getReportAbsenOS_gaji(){
+	
+	$('#modal-reportosabsengaji-data').modal('show');
+}
+
+function downloadReportOS_absengaji_pdf(){
+
+	
+	var flproject = $("#flproject option:selected").val();
+
+	if(flproject != ''){
+
+  		// send_url = 
+		send_url = module_path+'/getAbsenceReportGaji_pdf?flproject='+flproject+'';
+		formData = $('#frmReportDataOSAbsenGaji').serialize();
+		window.location = send_url+'&'+formData;
+		$('#modal-reportosabsengaji-data').modal('hide');
+
+
+	}else{
+		alert("Mohon filter Project terlebih dahulu");
+	}
+
+	
 }
 
 

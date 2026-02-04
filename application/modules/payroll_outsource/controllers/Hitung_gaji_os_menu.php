@@ -170,16 +170,65 @@ class Hitung_gaji_os_menu extends MY_Controller
 	}
 
 
-
-
 	public function getPayrollReport_pdf()
+	{
+	    $this->load->library('html_pdf');
+	    $this->load->helper('global');
+
+	    if (!empty($_GET['flproject'])) {
+
+	        $sql = "
+	            select a.*, b.full_name, c.name_indo AS periode_bulan_name,
+	                   b.emp_code, d.project_name, e.name AS job_title_name,
+	                   f.tanggal_pembayaran_lembur
+	            FROM payroll_slip a 
+	            LEFT JOIN employees b ON b.id = a.employee_id 
+	            LEFT JOIN master_month c ON c.id = a.periode_bulan
+	            LEFT JOIN project_outsource d ON d.id = b.project_id
+	            LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
+	            LEFT JOIN data_customer f ON f.id = d.customer_id
+	            WHERE b.project_id = ".$_GET['flproject']."
+	            ORDER BY b.full_name
+	        ";
+
+	        $data = $this->db->query($sql)->result();
+
+	        if (empty($data)) {
+	            echo "Slip Gaji tidak ditemukan";
+	            return;
+	        }
+
+	        $pdfData = [
+	            'employees' => $data
+	        ];
+
+	        $pdfBinary = $this->html_pdf->render_to_string_portrait(
+	            'pdf/gaji_os_perproject',
+	            $pdfData
+	        );
+
+	        if (ob_get_level()) ob_end_clean();
+
+	        header("Content-Type: application/pdf");
+	        header("Content-Disposition: attachment; filename=GAJI - ".$data[0]->project_name.".pdf");
+	        echo $pdfBinary;
+	        exit;
+
+	    } else {
+	        echo "Project tidak dipilih";
+	    }
+	}
+
+
+
+	public function getPayrollReport_pdf_old()
 	{
 		$this->load->library('html_pdf');
 		$this->load->helper('global');
 
 
 		
-		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
 
 		    $sql = "
 		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
@@ -189,7 +238,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
-				where a.employee_id = ".$_GET['flemployee']." 
+				where b.project_id = ".$_GET['flproject']."
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -231,8 +280,67 @@ class Hitung_gaji_os_menu extends MY_Controller
 	}
 
 
+	public function getPayrollReport_perEmployee_pdf()
+	{
+		$this->load->library('html_pdf');
+		$this->load->helper('global');
 
-	public function getOvertimeReport_pdf()
+
+		
+		if(isset($_GET['emp_id']) && $_GET['emp_id'] != '' && $_GET['emp_id'] != 0){
+
+		    $sql = "
+		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join employees b on b.id = a.employee_id 
+				left join master_month c on c.id = a.periode_bulan
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id
+				where a.employee_id = ".$_GET['emp_id']." 
+		    ";
+
+		    $data = $this->db->query($sql)->result();
+
+		    if(!empty($data)){
+		    	$pdfData = [
+				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
+				    'periode_tahun'      		=> $data[0]->periode_tahun,
+				    'nik'    					=> $data[0]->emp_code,
+				    'emp_name'       			=> $data[0]->full_name,
+				    'project_name'    			=> $data[0]->project_name,
+				    'jabatan' 		  			=> $data[0]->job_title_name,
+				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
+				];
+
+
+
+				$pdfBinary = $this->html_pdf->render_to_string_portrait(
+			        'pdf/gaji_os',
+			        $pdfData
+			    );
+
+			    if (ob_get_level()) ob_end_clean();
+
+			    header("Content-Type: application/pdf");
+			    header("Content-Disposition: attachment; filename=Gaji - ".$data[0]->full_name.".pdf");
+			    echo $pdfBinary;
+			    exit;
+
+		    }else{
+		    	echo "Slip Gaji tidak ditemukan"; 
+		    }
+
+		}else{
+			echo "Slip Gaji tidak ditemukan"; 
+		}
+	    
+	    
+	}
+
+
+
+	public function getOvertimeReport_perEmployee_pdf()
 	{
 		$this->load->library('html_pdf');
 		$this->load->helper('global');
@@ -293,6 +401,61 @@ class Hitung_gaji_os_menu extends MY_Controller
 	}
 
 
+	public function getOvertimeReport_pdf()
+	{
+	    $this->load->library('html_pdf');
+	    $this->load->helper('global');
+
+	    if (empty($_GET['flproject'])) {
+	        echo "Report Lembur tidak ditemukan";
+	        return;
+	    }
+
+	    // ================= DATA =================
+	    $sql = "
+	        select 
+	            a.*, 
+	            b.full_name,
+	            b.emp_code,
+	            d.project_name,
+	            e.name AS job_title_name,
+	            c.name_indo AS periode_bulan_name,
+	            f.tanggal_pembayaran_lembur
+	        FROM payroll_slip a
+	        LEFT JOIN employees b ON b.id = a.employee_id
+	        LEFT JOIN project_outsource d ON d.id = b.project_id
+	        LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
+	        LEFT JOIN master_month c ON c.id = a.periode_bulan
+	        LEFT JOIN data_customer f ON f.id = d.customer_id
+	        WHERE b.project_id = ".$this->db->escape($_GET['flproject'])."
+	        ORDER BY b.full_name ASC
+	    ";
+
+	    $employees = $this->db->query($sql)->result();
+
+	    if (empty($employees)) {
+	        echo "Report Lembur tidak ditemukan";
+	        return;
+	    }
+
+	    // ================= RENDER PDF =================
+	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
+	        'pdf/lembur_os_perproject',
+	        [
+	            'employees' => $employees
+	        ]
+	    );
+
+	    if (ob_get_level()) ob_end_clean();
+
+	    header("Content-Type: application/pdf");
+	    header("Content-Disposition: attachment; filename=Report Lembur - ".$employees[0]->project_name.".pdf");
+	    echo $pdfBinary;
+	    exit;
+	}
+
+
+
 	public function getSummaryAbsen(){
 		$post = $this->input->post(null, true);
 		$bln 	= $post['bln'];
@@ -306,10 +469,11 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 	public function getGaji(){
 		$post = $this->input->post(null, true);
+		$project = $post['project'];
 		$bln 	= $post['bln'];
 		$thn 	= $post['thn'];
 
-		$rs =  $this->self_model->getGaji($bln, $thn);
+		$rs =  $this->self_model->getGaji($project, $bln, $thn);
 		
 
 		echo json_encode($rs);
@@ -517,6 +681,182 @@ class Hitung_gaji_os_menu extends MY_Controller
 		}
 	}
 
+
+	public function getAbsenceReportGaji_pdf()
+	{
+	    if (empty($_GET['flproject'])) {
+	        echo 'Project tidak dipilih';
+	        return;
+	    }
+
+	    $this->load->library('html_pdf');
+
+	    // ================= PROJECT NAME =================
+	    $projectRow = $this->db
+	        ->select('project_name')
+	        ->from('project_outsource')
+	        ->where('id', $_GET['flproject'])
+	        ->get()
+	        ->row();
+
+	    $projectName = $projectRow ? $projectRow->project_name : 'Unknown';
+
+	    // ================= DATA =================
+	    $sql = "
+	        SELECT a.*, b.emp_code, b.full_name
+	        FROM payroll_slip a
+	        LEFT JOIN employees b ON b.id = a.employee_id
+	        WHERE b.project_id = ".$_GET['flproject']."
+	        ORDER BY b.full_name ASC
+	    ";
+
+	    $data = $this->db->query($sql)->result();
+
+	    if (empty($data)) {
+	        echo 'Data absensi tidak ditemukan';
+	        return;
+	    }
+
+	    // ================= SUMMARY =================
+	    $valSummary = [];
+	    $no = 1;
+
+	    foreach ($data as $row) {
+	        $valSummary[] = [
+	            $no++,
+	            $row->emp_code,
+	            $row->full_name,
+	            $row->total_hari_kerja,
+	            $row->total_masuk,
+	            $row->total_ijin,
+	            $row->total_cuti,
+	            $row->total_alfa,
+	            $row->total_lembur,
+	            $row->total_jam_kerja,
+	            $row->total_jam_lembur
+	        ];
+	    }
+
+	    // ================= PDF DATA =================
+	    $pdfData = [
+	        'project_name' => $projectName,
+	        'projects' => [[
+	            'project_name' => $projectName,
+	            'summary'      => $valSummary
+	        ]]
+	    ];
+
+	    // ================= RENDER PDF =================
+	    $pdfBinary = $this->html_pdf->render_to_string(
+	        'pdf/report_absen_os_penggajian',
+	        $pdfData
+	    );
+
+	    // ================= OUTPUT =================
+	    if (ob_get_level()) ob_end_clean();
+
+	    $fileName = 'Absensi - '.$projectName.'.pdf';
+
+	    header('Content-Type: application/pdf');
+	    header('Content-Disposition: attachment; filename="'.$fileName.'"');
+	    header('Content-Length: '.strlen($pdfBinary));
+
+	    echo $pdfBinary;
+	    exit;
+	}
+
+
+
+	public function getAbsenceReportGaji_pdf_zip()
+	{
+	    
+	    if (!empty($_GET['flproject'])) {
+
+	        // ================= ZIP =================
+		    $path = FCPATH.'uploads/report_absensi_pdf/';
+		    if (!file_exists($path)) mkdir($path, 0777, true);
+
+		    $zipName = $path.'absensi_pdf_'.date('Ymd_His').'.zip';
+		    $zip = new ZipArchive();
+		    $zip->open($zipName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+		    $this->load->library('html_pdf');
+
+		    
+
+	        // ambil nama project (SEKALI)
+	        $projectRow = $this->db
+	            ->select('project_name')
+	            ->from('project_outsource')
+	            ->where('id', $_GET['flproject'])
+	            ->get()->row();
+
+	        $projectName = $projectRow ? $projectRow->project_name : 'Unknown';
+
+	        $valSummary   = [];
+	        $no = 1;
+
+	        
+	        $sql = "
+	            select a.*, b.emp_code, b.full_name from payroll_slip a left join employees b on b.id = a.employee_id
+				where b.project_id = ".$_GET['flproject']."
+	            ORDER BY b.full_name ASC
+	        ";
+
+	        $data = $this->db->query($sql)->result();
+	       
+
+	        if(!empty($data)){
+	        	// ================= SUMMARY =================
+	        	foreach($data as $row){
+	        		$valSummary[] = [
+			            $no++,
+			            $row->emp_code,
+			            $row->full_name,
+			            $row->total_hari_kerja,
+			            $row->total_masuk,
+			            $row->total_ijin,
+			            $row->total_cuti,
+			            $row->total_alfa,
+			            $row->total_lembur,
+			            $row->total_jam_kerja,
+			            $row->total_jam_lembur
+			        ];
+	        	}
+	        }
+	        
+
+	           
+	        
+
+	        // ================= RENDER PDF =================
+	        $pdfData = [
+	            'project_name' => $projectName,
+	            'projects' => [[
+	                'project_name' => $projectName,
+	                'summary'      => $valSummary
+	            ]]
+	        ];
+
+	        $pdfBinary = $this->html_pdf->render_to_string('pdf/report_absen_os_penggajian', $pdfData);
+	        $zip->addFromString('absensi_'.strtolower(str_replace(' ','_',$projectName)).'.pdf', $pdfBinary);
+		    
+
+		    $zip->close();
+
+		    // ================= DOWNLOAD =================
+		    if (ob_get_level()) ob_end_clean();
+		    header('Content-Type: application/zip');
+		    header('Content-Disposition: attachment; filename='.basename($zipName));
+		    header('Content-Length: '.filesize($zipName));
+		    readfile($zipName);
+		    unlink($zipName);
+		    exit;
+
+	    }
+
+	    
+	}
 
 
 }

@@ -221,6 +221,10 @@
                                 <i class="fa fa-download"></i>
                                 Report Lembur
                             </a>
+                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportAbsenOS_gaji()">
+                                <i class="fa fa-download"></i>
+                                Report Absen
+                            </a>
                           
                             <?php
                         }
