@@ -9761,6 +9761,135 @@ class Api extends API_Controller
 		}
 	}
 
+	public function add_app_version()
+	{
+		try {
+			$this->verify_token();
+			$platform        = $this->input->post('platform');
+			$latest_version  = $this->input->post('latest_version');
+			$minimum_version = $this->input->post('minimum_version');
+			$force_update    = $this->input->post('force_update');
+			$release_notes   = $this->input->post('release_notes');
+
+			if (
+				empty($platform) ||
+				empty($latest_version) ||
+				empty($minimum_version) ||
+				empty($_FILES['apk']['name'])
+			) {
+				return $this->render_json([
+					'status'  => 400,
+					'message' => 'Platform, version, minimum version and APK are required'
+				], 400);
+			}
+			$upload_path = FCPATH . 'public/assets/apk/';
+
+			if (!is_dir($upload_path)) {
+				mkdir($upload_path, 0777, true);
+			}
+
+			if (!is_writable($upload_path)) {
+				chmod($upload_path, 0777);
+			}
+
+			$config = [
+				'upload_path'   => $upload_path,
+				'allowed_types' => 'apk',
+				'max_size'      => 0,
+				'encrypt_name'  => true
+			];
+
+			$this->load->library('upload', $config);
+
+			if (!$this->upload->do_upload('apk')) {
+				return $this->render_json([
+					'status'  => 400,
+					'message' => $this->upload->display_errors('', '')
+				], 400);
+			}
+
+			$upload = $this->upload->data();
+
+			$this->api->deactivate_app_versions($platform);
+
+			$data = [
+				'platform'        => $platform,
+				'latest_version'  => $latest_version,
+				'minimum_version' => $minimum_version,
+				'apk_url'         => base_url('public/assets/apk/' . $upload['file_name']),
+				'force_update'    => (int) $force_update,
+				'release_notes'   => $release_notes,
+				'is_active'       => 1,
+				'created_at'      => date('Y-m-d H:i:s')
+			];
+
+			$this->api->insert_app_version($data);
+
+			return $this->render_json([
+				'status'  => 200,
+				'message' => 'App version updated successfully',
+				'data'    => $data
+			], 200);
+
+		} catch (Throwable $e) {
+			log_message('error', $e->getMessage());
+
+			return $this->render_json([
+				'status'  => 500,
+				'message' => 'Server Error'
+			], 500);
+		}
+	}
+
+	public function app_version()
+	{
+		try {
+			$platform = $this->input->get('platform')
+					?? $this->input->post('platform');
+
+			if (!$platform) {
+				$raw = json_decode(file_get_contents('php://input'), true);
+				$platform = $raw['platform'] ?? null;
+			}
+
+			if (empty($platform)) {
+				return $this->render_json([
+					'status'  => 400,
+					'message' => 'Platform is required'
+				], 400);
+			}
+
+			$version = $this->api->get_active_app_version($platform);
+
+			if (!$version) {
+				return $this->render_json([
+					'status'  => 200,
+					'message' => 'No version found',
+					'data'    => null
+				], 200);
+			}
+
+			return $this->render_json([
+				'status'  => 200,
+				'message' => 'Success',
+				'data'    => [
+					'latest_version'  => $version->latest_version,
+					'minimum_version' => $version->minimum_version,
+					'apk_url'         => $version->apk_url,
+					'force_update'    => (int) $version->force_update,
+					'release_notes'   => $version->release_notes
+				]
+			], 200);
+
+		} catch (Throwable $e) {
+			log_message('error', $e->getMessage());
+
+			return $this->render_json([
+				'status'  => 500,
+				'message' => 'Server Error'
+			], 500);
+		}
+	}
 
 }
 

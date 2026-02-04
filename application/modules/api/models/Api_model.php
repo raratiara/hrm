@@ -300,5 +300,32 @@ class Api_model extends MY_Model
         return $this->db->insert('login_banners', $data);
     }
 
+    // nonaktifkan semua versi lama
+    public function deactivate_app_versions($platform)
+    {
+        $this->db->where('platform', $platform);
+        $this->db->update('app_versions', [
+            'is_active' => 0
+        ]);
+    }
+
+    // insert versi baru
+    public function insert_app_version($data)
+    {
+        return $this->db->insert('app_versions', $data);
+    }
+
+    // ambil versi aktif
+    public function get_active_app_version($platform)
+    {
+        return $this->db
+            ->where('platform', $platform)
+            ->where('is_active', 1)
+            ->limit(1)
+            ->get('app_versions')
+            ->row();
+    }
+
+
 }
 
