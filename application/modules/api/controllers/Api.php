@@ -5536,9 +5536,9 @@ class Api extends API_Controller
     	if($islogin_employee != ''){
 
     		$where=""; 
-	    	if($employee != ''){
+	    	if($filter_employee != ''){
 	    		/*$where = " and a.employee_id = '".$employee."' ";*/
-	    		$where = " and ao.employee_id = '".$employee."' ";
+	    		$where = " and ao.employee_id = '".$filter_employee."' ";
 	    	}
 
 	    	$where_isapprover=""; 
