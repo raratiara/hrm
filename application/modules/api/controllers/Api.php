@@ -2525,7 +2525,11 @@ class Api extends API_Controller
     			if(!empty($dataEmp[0]->work_location)){
 
     				$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
-					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+    				$sisa_cuti=0;
+    				if(!empty($cek_sisa_cuti)){
+    					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+    				}
+					
 
 					$diff_day		= $this->api->dayCount($date_start, $date_end);
 					$diff_day 		= number_format($diff_day);
@@ -2825,7 +2829,11 @@ class Api extends API_Controller
 						$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti+$getcurrTotalCuti;*/
 
 						$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
-						$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+						$sisa_cuti=0;
+						if(!empty($cek_sisa_cuti)){
+							$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+						}
+						
 
 
 						if($leave_type == '6'){ //Half day leave
@@ -4224,7 +4232,11 @@ class Api extends API_Controller
 
 			if($employee != ''){
 				$cek_sisa_cuti 	= $this->db->query("select sum(sisa_cuti) as ttl_sisa_cuti from total_cuti_karyawan where employee_id = '".$employee."' and status = 1")->result(); 
-				$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+				$sisa_cuti 		= 0;
+				if(!empty($cek_sisa_cuti)){
+					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
+				}
+				
 
 
 
