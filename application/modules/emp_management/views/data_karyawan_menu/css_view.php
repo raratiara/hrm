@@ -14,7 +14,7 @@
     }
 
     .modal-dialog {
-        width: 95% !important;
+        width: 92% !important;
     }
 
     input[type="file"] {
@@ -25,4 +25,16 @@
         height: 28px;
         /* tinggi tombol */
     }
+
+    .modal-body {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .portlet.box {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    
 </style>
