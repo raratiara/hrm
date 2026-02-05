@@ -304,7 +304,7 @@ class Hr_employee_loans_model extends MY_Model
 				$approve = '<a class="btn btn-xs btn-warning" style="background-color: #2c9e1fff; border-color: #2c9e1fff;" href="javascript:void(0);" onclick="approve('."'".$row->id."'".','."'".$row->current_approval_level."'".')" role="button"><i class="fa fa-check"></i></a>';
 			}
 
-
+			$update_pencairan="";
 			if ($row->status_name == 'Menunggu Pencairan') {
 				$update_pencairan = '<a class="btn btn-xs btn-warning" style="background-color: #FFA500;" href="javascript:void(0);" onclick="upd_pencairan('."'".$row->id."'".')" role="button">Update Pencairan</a>';
 			}
