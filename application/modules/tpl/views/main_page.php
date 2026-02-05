@@ -444,6 +444,53 @@ document.addEventListener("scroll", function () {
             }, 2000);
         </script>
     <?php endif; ?>
+
+    <script>
+(function () {
+  function scrollToActiveSidebarMenu() {
+    var menu = document.querySelector('.page-sidebar .page-sidebar-menu');
+    if (!menu) return;
+
+    // selector active yang lebih robust (karena tiap dynamic_menu beda)
+    var active =
+      menu.querySelector('li.active > a') ||
+      menu.querySelector('li.open > a') ||
+      menu.querySelector('li.current > a') ||
+      menu.querySelector('li.selected > a') ||
+      menu.querySelector('a.active') ||
+      menu.querySelector('a[aria-expanded="true"]');
+
+    if (!active) return;
+
+    // buka parent submenu kalau ada
+    var li = active.closest('li');
+    if (li) {
+      li.classList.add('active', 'open');
+      var parents = active.closest('ul.sub-menu');
+      if (parents) parents.style.display = 'block';
+    }
+
+    // ini yang bikin pasti jalan (scroll container terdekat = .page-sidebar-menu)
+    active.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+
+  }
+
+  // 1) saat load
+  window.addEventListener('load', function () {
+    // kasih waktu dynamic_menu & layout selesai
+    setTimeout(scrollToActiveSidebarMenu, 600);
+    setTimeout(scrollToActiveSidebarMenu, 1200);
+  });
+
+  // 2) saat sidebar dibuka (custom toggler kamu pakai class body.sidebar-open)
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.menu-toggler')) {
+      setTimeout(scrollToActiveSidebarMenu, 350);
+    }
+  });
+})();
+</script>
+
 </body>
 
 
