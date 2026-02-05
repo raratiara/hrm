@@ -33,6 +33,9 @@ class Boq_menu extends MY_Controller
 		$field['selcustomer'] 		= $this->self_model->return_build_select2me($mscust,'','','','customer_boq','customer_boq','','','id','name',' ','','','',1,'-');
 		$msproject 					= array();
 		$field['selproject'] 		= $this->self_model->return_build_select2me($msproject,'','','','project_boq','project_boq','project_boq','','id','project_name',' ','','','',1,'-');
+
+		$mstemplate 			= $this->db->query("select * from master_boq_template order by name asc")->result(); 
+		$field['seltemplate'] 		= $this->self_model->return_build_select2me($mstemplate,'','','','template_boq','template_boq','','','id','name',' ','','','',1,'-');
 		
 
 		$field['txtperiode'] 		= $this->self_model->return_build_txt('','periode','periode','','','readonly');
@@ -121,6 +124,7 @@ class Boq_menu extends MY_Controller
 			$post = $this->input->post(null, true);
 			$customer = trim($post['customer']);
 			$project = trim($post['project']);
+			$template = trim($post['template']);
 
 			if(isset($post['count']))
 			{  
@@ -130,7 +134,7 @@ class Boq_menu extends MY_Controller
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewBoqRow($row,$id,$customer,$project,$view));
+				echo json_encode($this->self_model->getNewBoqRow($row,$id,$customer,$project,$template,$view));
 			}
 		}
 		else

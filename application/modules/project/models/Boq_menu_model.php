@@ -281,7 +281,8 @@ class Boq_menu_model extends MY_Model
 				'jumlah' 				=> trim($post['hdnjumlah_harga']),
 				'management_fee_harga' 	=> trim($post['hdnmanagement_fee']),
 				'jumlah_total' 			=> trim($post['hdnjumlah_total']),
-				'grand_total' 			=> trim($post['hdngrand_total'])
+				'grand_total' 			=> trim($post['hdngrand_total']),
+				'master_boq_template_id' => trim($post['template_boq'])
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			$lastId = $this->db->insert_id();
@@ -344,7 +345,8 @@ class Boq_menu_model extends MY_Model
 				'jumlah' 				=> trim($post['hdnjumlah_harga']),
 				'management_fee_harga' 	=> trim($post['hdnmanagement_fee']),
 				'jumlah_total' 			=> trim($post['hdnjumlah_total']),
-				'grand_total' 			=> trim($post['hdngrand_total'])
+				'grand_total' 			=> trim($post['hdngrand_total']),
+				'master_boq_template_id' => trim($post['template_boq'])
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -393,9 +395,10 @@ class Boq_menu_model extends MY_Model
 					when c.jenis_pekerjaan != "" and c.lokasi = "" then concat(c.code," (",c.jenis_pekerjaan,")")
 					when c.lokasi != "" and c.jenis_pekerjaan = "" then concat(c.code," (",c.lokasi,")")
 					else c.code end
-					) as project_desc, c.project_name, c.periode_start, c.periode_end
+					) as project_desc, c.project_name, c.periode_start, c.periode_end, d.name as template_name
 					from project_outsource_boq a left join data_customer b on b.id = a.customer_id
 					left join project_outsource c on c.id = a.project_outsource_id
+					left join master_boq_template d on d.id = a.master_boq_template_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -462,9 +465,9 @@ class Boq_menu_model extends MY_Model
 	}
 
 
-	public function getNewBoqRow($row,$id=0,$customer,$project,$view=FALSE)
+	public function getNewBoqRow($row,$id=0,$customer,$project,$template_id,$view=FALSE)
 	{  
-		$data = $this->getBoqRows($id,$customer,$project,$view);
+		$data = $this->getBoqRows($id,$customer,$project,$template_id,$view);
 		/*if($id > 0){ 
 			$data = $this->getBoqRows($id,$view);
 		} else { 
@@ -513,7 +516,7 @@ class Boq_menu_model extends MY_Model
 
 
 	// Generate expenses item rows for edit & view
-	public function getBoqRows($id,$customer,$project,$view,$print=FALSE){ 
+	public function getBoqRows($id,$customer,$project,$template_id,$view,$print=FALSE){ 
 
 		$this->load->helper('global');
 
@@ -581,6 +584,7 @@ class Boq_menu_model extends MY_Model
 									FROM master_boq_detail a
 									LEFT JOIN master_boq_header b ON b.id = a.master_header_boq_id
 									LEFT JOIN master_boq_parent_detail c ON c.id = a.parent_id
+									where a.master_boq_template_id = ".$template_id."
 									ORDER BY 
 										b.no_urut ASC,
 										c.no_urut ASC,

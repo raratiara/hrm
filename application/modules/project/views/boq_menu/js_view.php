@@ -128,7 +128,7 @@ function load_data()
 					$('[name="periode"]').val(periode);
 					$('select#customer_boq').val(data.customer_id).trigger('change.select2');
 					//$('select#project_boq').val(data.project_outsource_id).trigger('change.select2');
-
+					$('select#template_boq').val(data.master_boq_template_id).trigger('change.select2');
 					getProject(data.customer_id,'selected',data.project_outsource_id);
 					
 					
@@ -137,6 +137,7 @@ function load_data()
 					  data.id,
 					  data.project_outsource_id,
 					  data.customer_id,
+					  data.master_boq_template_id,
 					  function(){
 					    recalcAllRowJumlahHarga(); 
 					  }
@@ -153,11 +154,11 @@ function load_data()
 					$('span.periode').html(periode);
 					$('span.customer_boq').html(data.customer_name);
 					$('span.project_boq').html(data.project_name);
-					
+					$('span.template_boq').html(data.template_name);
 
 
 					var locate = 'table.boq-list_view';
-					$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id:data.id, customer: data.customer_id, project: data.project_outsource_id, view:true },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id:data.id, customer: data.customer_id, project: data.project_outsource_id, template: data.master_boq_template_id, view:true },success: function (response) {
 						var obj = JSON.parse(response); 
 						$(locate+' tbody').html(obj[0]);
 						
@@ -292,9 +293,10 @@ function getProject(customer,selected='',idVal=''){
 $('#project_boq').on('change', function () { 
  	var project = $("#project_boq option:selected").val();
  	var customer 	= $("#customer_boq option:selected").val();
+ 	var template_boq 	= $("#template_boq option:selected").val();
 	
  	
- 	if(project != '' && customer != ''){
+ 	if(project != '' && customer != '' && template_boq != ''){
 
  		document.getElementById("divBoq").style.display = "block";
 
@@ -315,7 +317,7 @@ $('#project_boq').on('change', function () {
 					$(`input[name="periode"]`).val(periode);
 					
 					var locate = 'table.boq-list';
-					$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project},success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project, template: template_boq},success: function (response) {
 						var obj = JSON.parse(response); 
 						$(locate+' tbody').html(obj[0]);
 						
@@ -361,14 +363,43 @@ $('#project_boq').on('change', function () {
 $('#customer_boq').on('change', function () { 
  	var project = $("#project_boq option:selected").val();
  	var customer 	= $("#customer_boq option:selected").val();
+ 	var template_boq 	= $("#template_boq option:selected").val();
 	
  	
- 	if(project != '' && customer != ''){
+ 	if(project != '' && customer != '' && template_boq != ''){
 
  		document.getElementById("divBoq").style.display = "block";
 
 		var locate = 'table.boq-list';
-		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project},success: function (response) {
+		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project, template: template_boq},success: function (response) {
+			var obj = JSON.parse(response);
+			$(locate+' tbody').html(obj[0]);
+			
+			wcount=obj[1];
+		}
+		}).done(function() {
+			//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+			tSawBclear(locate);
+			///expenseviewadjust(lstatus);
+		});
+
+ 	}
+
+});
+
+
+$('#template_boq').on('change', function () { 
+ 	var project = $("#project_boq option:selected").val();
+ 	var customer 	= $("#customer_boq option:selected").val();
+ 	var template_boq 	= $("#template_boq option:selected").val();
+	
+ 	
+ 	if(project != '' && customer != '' && template_boq != ''){
+
+ 		document.getElementById("divBoq").style.display = "block";
+
+		var locate = 'table.boq-list';
+		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: 0, customer: customer, project: project, template: template_boq},success: function (response) {
 			var obj = JSON.parse(response);
 			$(locate+' tbody').html(obj[0]);
 			
@@ -386,15 +417,15 @@ $('#customer_boq').on('change', function () {
 
 
 
-function getListCurrentBoq(id,project,customer,callback){ 
+function getListCurrentBoq(id,project,customer,template,callback){ 
 	
  	
- 	if(project != '' && customer != ''){ 
+ 	if(project != '' && customer != '' && template != ''){ 
 
  		document.getElementById("divBoq").style.display = "block";
 
 		var locate = 'table.boq-list';
-		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: id, customer: customer, project: project},success: function (response) {
+		$.ajax({type: 'post',url: module_path+'/genboqrow',data: { id: id, customer: customer, project: project, template: template},success: function (response) {
 			var obj = JSON.parse(response);
 			$(locate+' tbody').html(obj[0]);
 			

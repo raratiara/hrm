@@ -24,6 +24,12 @@
 				<?=$selproject;?>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Template</label>
+			<div class="col-md-8">
+				<?=$seltemplate;?>
+			</div>
+		</div>
 		
 		
 	</div>

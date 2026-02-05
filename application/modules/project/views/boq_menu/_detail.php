@@ -25,7 +25,12 @@
 				: <span class="project_boq"></span>
 			</div>
 		</div>
-		
+		<div class="row-flex">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Template</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="template_boq"></span>
+			</div>
+		</div>
 		
 	</div>
 </div>
