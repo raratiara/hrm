@@ -36,9 +36,9 @@ class History_bpjs_menu_model extends MY_Model
 		$where_disetor="";
 		if(isset($_GET['fldisetor']) && $_GET['fldisetor'] != ''){
 			if($_GET['fldisetor'] == 1){
-				$where_disetor = " and a.tanggal_setor != '' and a.tanggal_setor is not null ";
+				$where_disetor = " and a.tanggal_setor is not null ";
 			}else if($_GET['fldisetor'] == 0){
-				$where_disetor = " and a.tanggal_setor = '' or a.tanggal_setor is null ";
+				$where_disetor = " and a.tanggal_setor is null ";
 			}
 			
 		}
@@ -46,9 +46,9 @@ class History_bpjs_menu_model extends MY_Model
 		$where_dikembalikan = "";
 		if(isset($_GET['fldikembalikan']) && $_GET['fldikembalikan'] != '' && $_GET['fldikembalikan'] != 0){
 			if($_GET['fldikembalikan'] == 1){
-				$where_dikembalikan = " and a.tanggal_dikembalikan != '' and a.tanggal_dikembalikan is not null ";
+				$where_dikembalikan = " and a.tanggal_dikembalikan is not null ";
 			}else if($_GET['fldikembalikan'] == 0){
-				$where_dikembalikan = " and a.tanggal_dikembalikan = '' or a.tanggal_dikembalikan is null ";
+				$where_dikembalikan = " and a.tanggal_dikembalikan is null ";
 			}
 		}
 

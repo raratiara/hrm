@@ -92,6 +92,7 @@
                                     <th scope="col">Jam Lembur</th>
                                     <th scope="col">Total Pendapatan</th>
                                     <th scope="col">BPJS Kesehatan</th>
+                                    <th scope="col">BPJS TK</th>
                                     
                                     <th scope="col">TP JKK</th>
                                     <th scope="col">TP JKM</th>

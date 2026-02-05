@@ -607,7 +607,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+		$rs = $this->db->query("select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur, b.gaji_bulanan
 			from payroll_slip a 
 			left join employees b on b.id = a.employee_id 
 			left join master_month c on c.id = a.periode_bulan
@@ -623,6 +623,18 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			$rs_num = count($rd); 
 			
 			foreach ($rd as $f){
+
+				///informasi detail bpjs
+				$tp_jkk = ceil(($f->gaji_bulanan * 0.0024) * 100) / 100; /// 0.24% dr GP
+				$tp_jkm = ceil(($f->gaji_bulanan * 0.003) * 100) / 100; /// 0.3% dr GP
+				$tp_jht  =  ceil(($f->gaji_bulanan * 0.0375) * 100) / 100; /// 3.75% dr GP
+				$tp_jp  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+				$pgk_jht  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+				$pgk_jp   = ceil(($f->gaji_bulanan * 0.01) * 100) / 100; /// 1% dr GP
+				$tp_jkes  = ceil(($f->gaji_bulanan * 0.02) * 100) / 100; /// 2% dr GP
+				$pgk_jkes   = ceil(($f->gaji_bulanan * 0.01) * 100) / 100; /// 1% dr GP
+
+
 				$no = $row+1;
 				
 				if(!$view){ 
@@ -715,6 +727,16 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$f->total_pendapatan.'</td>';
 					$dt .= '<td>'.$f->bpjs_kesehatan.'</td>';
 					$dt .= '<td>'.$f->bpjs_tk.'</td>';
+
+					$dt .= '<td>'.$tp_jkk.'</td>';
+					$dt .= '<td>'.$tp_jkm.'</td>';
+					$dt .= '<td>'.$tp_jht.'</td>';
+					$dt .= '<td>'.$tp_jp.'</td>';
+					$dt .= '<td>'.$pgk_jht.'</td>';
+					$dt .= '<td>'.$pgk_jp.'</td>';
+					$dt .= '<td>'.$tp_jkes.'</td>';
+					$dt .= '<td>'.$pgk_jkes.'</td>';
+					
 					$dt .= '<td>'.$f->absen.'</td>';
 					$dt .= '<td>'.$f->seragam.'</td>';
 					$dt .= '<td>'.$f->pelatihan.'</td>';
