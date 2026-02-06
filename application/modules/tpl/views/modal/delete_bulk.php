@@ -19,7 +19,7 @@
 
 								<div class="modal-footer no-margin-top">
 									<center>
-									<button class="btn" style="background-color:#343851; color:white" id="submit-delete-data" onclick="save()">
+									<button class="btn" style="background-color:#112D80; color:white" id="submit-delete-data" onclick="save()">
 										<i class="fa fa-check"></i>
 										Ok
 									</button>

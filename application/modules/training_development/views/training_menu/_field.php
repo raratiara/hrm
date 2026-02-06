@@ -18,6 +18,7 @@
 			</div>
 		</div>
 
+
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right"> LMS Course</label>
 			<div class="col-md-8">
@@ -38,10 +39,13 @@
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Training Date</label>
+			<label class="col-md-4 control-label no-padding-right">Training Date</label>
 			<div class="col-md-8">
+				<?=$txttrainingdate;?>
 				<?=$txttrainingdate;?>
 			</div>
 		</div>
+
 
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Location</label>

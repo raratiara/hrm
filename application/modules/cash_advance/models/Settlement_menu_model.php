@@ -259,7 +259,7 @@ class Settlement_menu_model extends MY_Model
 
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -474,6 +474,9 @@ class Settlement_menu_model extends MY_Model
 								'approval_level' 	=> 1
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('settlement', $trx_id, $approval_path_id);
 						}
 					}
 				}
@@ -650,6 +653,9 @@ class Settlement_menu_model extends MY_Model
 								'approval_level' 	=> $next_level
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('settlement', $id, $approval_path_id);
 						}
 						return $rs;
 					}else return null;

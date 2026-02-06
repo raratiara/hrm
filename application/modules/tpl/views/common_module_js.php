@@ -1,9 +1,24 @@
 
 /* reload table list */
+/* reload table list / card list */
 function reload_table()
 {
-	expire();
-    myTable.ajax.reload(); //reload datatable ajax 
+    expire();
+
+    // ====== Kalau masih pakai DataTables ======
+    if (typeof myTable !== 'undefined' && myTable && myTable.ajax) {
+        myTable.ajax.reload(null, false);
+        return;
+    }
+
+    // ====== Kalau pakai Card View (LMS modern UI) ======
+    if (typeof window.loadCards === 'function') {
+        window.loadCards();
+        return;
+    }
+
+    // ====== Fallback terakhir ======
+    location.reload();
 }
 
 /* checking session */
@@ -353,6 +368,9 @@ function save(status='')
 			processData: false,
 			cache: false,
 			dataType: "JSON",
+		 	beforeSend: function() {
+		        showLoading();   //muncul loading disini
+		    },
 			success: function( response ) {
 				if(response.status){
 					title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-check-circle-o fa-5x" style="color:green"></i></div>';
@@ -392,6 +410,9 @@ function save(status='')
 					}
 				});
 			}
+			,complete: function() {
+		        hideLoading();   // hilangkan loading setelah selesai
+		    }
 		});
 	}
 <?php } ?>
@@ -511,4 +532,14 @@ function tSawBclear(elem){
 	$(document).off("." + ts.attr("id"));
 	$(window).off("." + ts.attr("id"));
 	ts.removeData('tablesaw');
+}
+
+
+
+function showLoading() { 
+    $("#loadingOverlay").show();
+}
+
+function hideLoading() {
+    $("#loadingOverlay").hide();
 }

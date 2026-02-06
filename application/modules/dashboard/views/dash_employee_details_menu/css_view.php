@@ -440,7 +440,7 @@
 
   .summary-container {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     
   }
 
@@ -568,28 +568,34 @@
 
   /* Color variants */
   .navy {
-    background-color: #38406F;
-    /*#FFB2F7;*/
-    /*#38406F;*/
-    color: white;
+    background: linear-gradient(
+to bottom,
+  #C2E3FF 0%,
+  #EFF5F9 100%
+);
+   
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: white;
+    color: #1A3891;
   }
 
   .yellow {
-    background-color: #FED24B;
-    /*#E3FC87;*/
-    /*#FED24B;*/
+    background: linear-gradient(
+to bottom,
+  #F7F4D0 0%,
+  #FFFFFF 100%
+);
   }
 
   .beige {
-    background-color: #F8F1E1;
-    /*#C0E0FF;*/
-    /*#F8F1E1;*/
+     background: linear-gradient(
+to bottom,
+  #E2EEDA 0%,
+  #FFFFFF 100%
+);
   }
 
   .white {

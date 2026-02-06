@@ -981,45 +981,57 @@ class Profile_menu extends MY_Controller
 	        foreach ($grouped as $menu => $data) {
 	            $ttl_pendingan_approval += count($data['items']);
 	        }
+$dt .= '<li class="dropdown dropdown-notification">';
+$dt .= '
+<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
+    <i class="fa fa-bell"></i>
+    <span class="badge badge-danger notif-badge">'.$ttl_pendingan_approval.'</span>
+</a>
 
-	        $dt .= '<li class="dropdown dropdown-notification">';
-	        $dt .= '
-	            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-	                <i class="fa fa-bell"></i>
-	                <span class="badge badge-danger">'.$ttl_pendingan_approval.'</span>
-	            </a>
-	            <ul class="dropdown-menu" style="width:250px">
-	                <li class="external">
-	                    <span class="bold">'.$ttl_pendingan_approval.' Pending Approval</span> 
-	                </li>
-	                <br>
-	                <li>
-	                    <ul class="dropdown-menu-list scroller" style="height: 250px;" data-handle-color="#637283">';
+<ul class="dropdown-menu dropdown-menu-notif dropdown-menu-right notif-modern">
+    <li class="external notif-header">
+        <div class="notif-title">
+            <span class="notif-count">'.$ttl_pendingan_approval.'</span>
+            <span class="notif-text">Pending Approval</span>
+        </div>
+        <div class="notif-sub">Klik kategori untuk lihat detail</div>
+    </li>
 
-	        foreach ($grouped as $menu => $data) {
-	            $total_menu = count($data['items']);
-	            $link = !empty($data['link']) ? base_url($data['link']) : 'javascript:void(0);';
+    <li class="notif-body">
+        <ul class="dropdown-menu-list scroller notif-scroller" data-handle-color="#637283">
+';
 
-	            $dt .= '
-	                <li>
-	                    <a href="'.$link.'">
-	                        <span class="time" style="font-size:8px">'.$total_menu.' pending</span>
-	                        <span class="details">
-	                            <span class="label label-sm label-icon label-info">
-	                                <i class="fa fa-folder-open"></i>
-	                            </span>
-	                            <span style="font-size:10px">'.$menu.'</span>
-	                        </span>
-	                    </a>
-	                </li>';
-	        }
+foreach ($grouped as $menu => $data) {
+    $total_menu = count($data['items']);
+    $link = !empty($data['link']) ? base_url($data['link']) : 'javascript:void(0);';
 
-	        $dt .= '
-	                    </ul>
-	                </li>
-	            </ul>
-	        ';
-	        $dt .= '</li>';
+    $dt .= '
+        <li class="notif-item">
+            <a href="'.$link.'" class="notif-link">
+                <div class="notif-left">
+                    <span class="notif-icon">
+                        <i class="fa fa-folder-open"></i>
+                    </span>
+                </div>
+                <div class="notif-mid">
+                    <div class="notif-menu">'.$menu.'</div>
+                    <div class="notif-meta">'.$total_menu.' pending</div>
+                </div>
+                <div class="notif-right">
+                    <i class="fa fa-angle-right"></i>
+                </div>
+            </a>
+        </li>
+    ';
+}
+
+$dt .= '
+        </ul>
+    </li>
+</ul>
+';
+$dt .= '</li>';
+		
 	    }
 
 	    header('Content-Type: application/json');

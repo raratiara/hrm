@@ -17,7 +17,7 @@
     }
 
     .modal-header {
-        background-color: #343851 !important;
+        background-color: #112D80 !important;
         color: #fff !important;
     }
 </style>
@@ -93,7 +93,7 @@
                             </button>
                         <?php else: ?>
                             <button class="btn btn-info"
-                                style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;"
+                                style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;"
                                 id="submit-data" onclick="save()">
                                 <i class="fa fa-check"></i> Save
                             </button>
@@ -103,7 +103,7 @@
                     <!-- Container untuk tombol tetap di kanan -->
                     <span class="d-flex gap-2 ms-auto">
                         <button class="btn"
-                            style="background-color: #FED24B; color: #343851; border-radius: 4px !important;"
+                            style="background-color: #FED24B; color: #112D80; border-radius: 4px !important;"
                             onclick="reset()" id="btnReset">
                             <i class="fa fa-undo"></i> Reset
                         </button>
@@ -119,5 +119,18 @@
 
             </div>
         </div>
+    </div>
+</div>
+
+
+
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" 
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(255,255,255,0.8); z-index:99999; text-align:center; padding-top:20%;">
+    <i class="fa fa-spinner fa-spin fa-4x"></i>
+    <div style="margin-top:20px; font-size:18px; font-weight:bold; color:#112D80;">
+        Processing, please wait...
     </div>
 </div>

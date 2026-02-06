@@ -1,6 +1,6 @@
 <style>
 	.box {
-		background-color: #343851 !important;
+		background-color: #112D80 !important;
 		border: 1px solid #6B6B6B !important;
 	}
 

@@ -192,7 +192,7 @@ class Performance_appraisal_menu_model extends MY_Model
 		foreach ($rResult as $row) {
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1") {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1" && ((($row->status_name == 'Draft' || $row->status_name == 'RFU') && $karyawan_id == $row->employee_id) || ($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id))) {
@@ -280,6 +280,50 @@ class Performance_appraisal_menu_model extends MY_Model
 			return $data;
 		} else
 			return null;
+	}
+
+
+	public function send_email_to_direct($employee_id){ 
+		
+		///DIRECT
+        $approver = $this->db->query("
+                select 
+                    c.full_name AS approver_name,
+                    c.personal_email AS emails
+                FROM employees b
+                LEFT JOIN employees c ON c.id = b.direct_id
+                WHERE b.id = ?
+            ", [$employee_id])->row();
+
+        if (!$approver || empty($approver->emails)) {
+            return false;
+        }
+
+        
+        // ===============================
+        // SEND EMAIL
+        // ===============================
+        $link = _URL . 'performance_management/performance_appraisal_menu';
+        $subject    = 'Pending Approval - Performance Appraisal';
+        $app        = 'Performance Appraisal';
+        $doc_num = '';
+
+        $mail = [
+            'subject'   => $subject,
+            'to_name'   => $approver->approver_name,
+            'to_email'  => $approver->emails,
+            'template'  => 'approval'
+        ];
+
+        $emailData = [
+            'approver_name' => $approver->approver_name,
+            'app'           => $app,
+            'doc_num'       => $doc_num,
+            'link'          => $link
+        ];
+
+        $this->emailing->send($mail, $emailData);
+
 	}
 
 
@@ -414,6 +458,12 @@ class Performance_appraisal_menu_model extends MY_Model
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
 			if ($rs) {
+
+				if($next_status == 1){ //waiting approval direct
+					$this->send_email_to_direct($post['employee']);
+				}
+
+
 				if (isset($post['hardskill'])) {
 					$item_num = count($post['hardskill']); // cek sum
 					$item_len_min = min(array_keys($post['hardskill'])); // cek min key index

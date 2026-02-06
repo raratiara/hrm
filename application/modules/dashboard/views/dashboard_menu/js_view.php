@@ -52,6 +52,19 @@
 		});
 	});
 
+	function getInitials(name){
+  if(!name) return "NA";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+
+  // kalau 2 kata: ambil huruf depan kata 1 & 2
+  if(parts.length >= 2){
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  // kalau 1 kata: ambil 2 huruf pertama
+  return parts[0].substring(0,2).toUpperCase();
+}
+
 
 	function dataTotal() {
 
@@ -108,24 +121,30 @@
 					data.topEmp.forEach(emp => {
 						const row = document.createElement("tr");
 
-						if (emp.emp_photo != '' && emp.emp_photo != null) {
-							var photo = baseUrl + '/uploads/employee/' + emp.emp_code + '/' + emp.emp_photo;
-						} else {
-							var photo = baseUrl + '/public/assets/images/user.jpg';
-						}
+						const hasPhoto = emp.emp_photo && emp.emp_photo.trim() !== "";
+const photoUrl = hasPhoto
+  ? `${baseUrl}/uploads/employee/${emp.emp_code}/${emp.emp_photo}`
+  : "";
 
-						row.innerHTML = `
-										<td class="user">
-										  <img src="${photo}" alt="profile" />
-										  <div>
-											<strong>${emp.full_name}</strong><br>
-											<span>${emp.personal_email}</span>
-										  </div>
-										</td>
-										<td>${emp.divname}</td>
-										<td>${emp.total_jam_kerja}</td>
-										<td>${emp.total_late}</td>
-									  `;
+const initials = getInitials(emp.full_name);
+
+const avatarHtml = hasPhoto
+  ? `<img src="${photoUrl}" alt="profile" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<div class=&quot;avatar-initial&quot;>${initials}</div>');" />`
+  : `<div class="avatar-initial">${initials}</div>`;
+
+row.innerHTML = `
+  <td class="user">
+    ${avatarHtml}
+    <div>
+      <strong>${emp.full_name ?? ''}</strong><br>
+      <span>${emp.personal_email ?? ''}</span>
+    </div>
+  </td>
+  <td>${emp.divname ?? ''}</td>
+  <td>${emp.total_jam_kerja ?? ''}</td>
+  <td>${emp.total_late ?? ''}</td>
+`;
+
 
 						tbody.appendChild(row);
 					});
@@ -192,8 +211,8 @@
 	                                label: 'Absen',
 	                                /*data: data.total_absen,*/
 	                                data: absenData,
-	                                borderColor: '#53B0C9',
-	                                backgroundColor: '#53B0C9',
+	                                borderColor: '#95c7f3',
+	                                backgroundColor: '#95c7f3',
 	                                fill: false,
 	                                borderWidth: 2,
 	                                tension: 0.5,
@@ -206,8 +225,8 @@
 	                                label: 'Tidak Absen',
 	                                /*data: data.total_tidak_absen,*/
 	                                data: tidakAbsenData,
-	                                borderColor: '#FFD400',
-	                                backgroundColor: '#FFD400',
+	                                borderColor: '#fbe162',
+	                                backgroundColor: '#fbe162',
 	                                fill: false,
 	                                borderWidth: 2,
 	                                tension: 0.5,
@@ -318,11 +337,37 @@
 					if (chartExist != undefined)
 						chartExist.destroy();
 
+					function makeVerticalGradient(ctx, topColor, bottomColor) {
+						const chartHeight = ctx.canvas.height || 300;
+						const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
+						gradient.addColorStop(0, topColor);     // atas
+						gradient.addColorStop(1, bottomColor);  // bawah
+						return gradient;
+					}
+
+
 
 					const rawData = [
-						{ label: 'Absen', data: data.total_absen, backgroundColor: '#8ECDD2', borderRadius: 2 },
-						{ label: 'Tidak Absen', data: data.total_tidak_absen, backgroundColor: '#ffde70', borderRadius: 2 }
-					];
+  {
+    label: 'Absen',
+    data: data.total_absen,
+    backgroundColor: (context) => {
+      const c = context.chart.ctx;
+      return makeVerticalGradient(c, '#837DEB', '#CFCDFF'); // atas → bawah
+    },
+    borderRadius: 3
+  },
+  {
+    label: 'Tidak Absen',
+    data: data.total_tidak_absen,
+    backgroundColor: (context) => {
+      const c = context.chart.ctx;
+      return makeVerticalGradient(c, '#E2B2ED', '#FBECFF'); // atas → bawah
+    },
+    borderRadius: 3
+  }
+];
+
 
 					// Convert data to 100% scale per group
 					const percentageData = rawData.map(dataset => ({ ...dataset }));
@@ -566,15 +611,31 @@
 					if (chartExist != undefined)
 						chartExist.destroy();
 
+					// ====== LIMIT POINTS (misal tampilkan 30 hari terakhir) ======
+					const MAX_POINTS = 30;
+
+					// labels/hari
+					const labelsLimited = data.hari.slice(-MAX_POINTS);
+
+					// semua dataset juga ikut di-slice biar sinkron
+					const onWorkLimited     = data.total_on_work_time.slice(-MAX_POINTS);
+					const lateLimited       = data.total_late.slice(-MAX_POINTS);
+					const leaveLimited      = data.total_leave.slice(-MAX_POINTS);
+					const overtimeLimited   = data.total_overtime.slice(-MAX_POINTS);
+					const earlyLimited      = data.total_leaving_early.slice(-MAX_POINTS);
+					const absentLimited     = data.total_absent.slice(-MAX_POINTS);
+
+
 
 					const rawData = [
-						{ label: 'On Work Time', data: data.total_on_work_time, backgroundColor: '#74DCE0', borderRadius: 3 },
-						{ label: 'Late', data: data.total_late, backgroundColor: '#FED24B', borderRadius: 3 },
-						{ label: 'Leave', data: data.total_leave, backgroundColor: '#D9CAAA', borderRadius: 3 },
-						{ label: 'Overtime', data: data.total_overtime, backgroundColor: '#D48331', borderRadius: 3 },
-						{ label: 'Leaving Early', data: data.total_leaving_early, backgroundColor: '#B8E7EC', borderRadius: 3 },
-						{ label: 'No Attendance', data: data.total_absent, backgroundColor: '#38406F', borderRadius: 3 },
+					{ label: 'On Work Time', data: onWorkLimited,   backgroundColor: '#BFF39D', borderRadius: 3 },
+					{ label: 'Late',         data: lateLimited,     backgroundColor: '#FFC0DA', borderRadius: 3 },
+					{ label: 'Leave',        data: leaveLimited,    backgroundColor: '#E2B2ED', borderRadius: 3 },
+					{ label: 'Overtime',     data: overtimeLimited, backgroundColor: '#FFEF8B', borderRadius: 3 },
+					{ label: 'Leaving Early',data: earlyLimited,    backgroundColor: '#CBECFF', borderRadius: 3 },
+					{ label: 'No Attendance',data: absentLimited,   backgroundColor: '#837DEB', borderRadius: 3 },
 					];
+
 
 					// Convert data to 100% scale per group
 					const percentageData = rawData.map(dataset => ({ ...dataset }));
@@ -592,8 +653,8 @@
 						type: 'bar',
 						data: {
 							/*labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10','11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'],*/
-							labels: data.hari,
-							datasets: percentageData
+							labels: labelsLimited,
+datasets: percentageData
 						},
 						options: {
 							responsive: true,
@@ -625,13 +686,16 @@
 							},
 							scales: {
 								x: {
-									stacked: true,
-									ticks: {
-										color: '#333',
-										font: { size: 10 }
-									},
-									grid: { display: false }
-								},
+  stacked: true,
+  grid: { display: false },
+  ticks: {
+    autoSkip: true,
+    maxTicksLimit: 15,          // cuma tampil 8 label
+    maxRotation: 45,
+    minRotation: 45,
+    font: { size: 9 },
+  }
+},
 								y: {
 									stacked: true,
 									beginAtZero: true,
@@ -930,8 +994,8 @@
 								label: 'Work Location',
 								data: [data.ttl_wfo, data.ttl_wfh],
 								backgroundColor: [
-									'#38406F',
-									'#74DCE0'
+									'#837DEB',
+									'#E2B2ED'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',
@@ -1042,7 +1106,7 @@
 							labels: ['Submit Attendance', 'No Attendance'],
 							datasets: [{
 								data: [data[0].persen_hadir, data[0].persen_tidak_hadir],
-								backgroundColor: ['#38406F', '#D0D4EE'],
+								backgroundColor: ['#8983ED', '#C6C2FD'],
 								borderWidth: 2,
 								borderColor: '#fff',
 								hoverOffset: 8,
@@ -1163,7 +1227,7 @@
 							labels: ['Working hours'],
 							datasets: [{
 								data: [data[0].avg_jam_kerja, data[0].sisa],
-								backgroundColor: ['#FFC000', '#FFDD74'],
+								backgroundColor: ['#FFD963', '#FFEFC0'],
 								borderWidth: 2,
 								borderColor: '#fff',
 								hoverOffset: 8,

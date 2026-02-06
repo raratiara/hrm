@@ -445,7 +445,9 @@ class Bypass extends API_Controller
 			foreach ($rs as $row) {
 				$cek = $this->db->query("select a.* from total_cuti_karyawan a left join employees b on b.id = a.employee_id where b.status_id = 1 and a.employee_id = '".$row->employee_id."' and a.period_start = '".$dateNow."' ")->result(); 
 				if(empty($cek)){
-					$period_end = date('Y-m-d', strtotime('+1 year', strtotime($dateNow)) );
+					/*$period_end = date('Y-m-d', strtotime('+1 year', strtotime($dateNow)) );*/
+					//kurangin 1 hari, bair period start di selanjutnya bagus, ganti tahun aja
+					$period_end = date('Y-m-d', strtotime('-1 day', strtotime('+1 year', strtotime($dateNow))));
 					$data = [
 
 							'employee_id' 	=> $row->employee_id,
@@ -464,7 +466,9 @@ class Bypass extends API_Controller
 
 						$data2 = [
 
-							'expired_date' 	=> $exp_date,
+							/*'expired_date' 	=> $exp_date,*/
+							//sisa cuti period sebelumnya ga bisa dipakai, jadi expired date samain aja kyk period end
+							'expired_date' 	=> $dateYesterday,
 							'updated_date'	=> date("Y-m-d H:i:s")
 							
 						];
@@ -1239,6 +1243,91 @@ class Bypass extends API_Controller
 	}*/
 
 	
+
+
+
+
+	// For sending email
+	// public function tes_sendmail()
+	// {
+	// 	/*error_reporting(E_ALL);
+	// 	ini_set('display_errors', 1);*/
+
+	// 	$mail = array();
+	// 	$mail['subject'] = 'TES EMAIL';
+	// 	$mail['preheader'] = '';
+	// 	$mail['from_name'] = 'HRM-GDI System';//_MAIL_SYSTEM_NAME;
+	// 	$mail['from_email'] = 'noreply-billing@huma.net.id';//_MAIL_SYSTEM_EMAIL;
+	// 	$mail['to_name'] = 'Rara';
+	// 	$mail['to_email'] = 'tiarasanir@gmail.com';
+	// 	$mail['template'] = 'report-absensi';
+	// 	/*$path = WRITEPATH . 'uploads/user_manual_billing.docx';*/
+	// 	/*$path = _URL.'uploads/report_absensi_bulanan/export_absensi_' . date('Y-m') . '.zip'; 
+	// 	$mail['attach'] = $path;*/
+
+
+	// 	//Load email library 
+	// 	$this->load->library('email');
+
+	// 	$data = array();
+	// 	$data['bln'] = date('F'); // July
+	// 	$data['thn'] = date('Y'); // 2025
+	// 	$data['preheader'] = $mail['preheader'];
+	// 	$data['corp'] = _COMPANY_NAME;
+	// 	$data['account_title'] = _ACCOUNT_TITLE;
+	// 	$data['link_site'] = _URL;
+	// 	$data['link_logo'] = _URL.'public/assets/images/logo/gerbangdata.PNG';
+	// 	//_ASSET_LOGO; //'http://localhost/_hrm/public/assets/images/logo/gerbangdata.jpg';//_ASSET_LOGO;//_ASSET_LOGO_FRONT;
+		
+
+	// 	$message = $this->load->view(_TEMPLATE_EMAIL.$mail['template'],$data,TRUE); // load email message using view template
+	// 	$cc = '';
+	// 	$bcc = '';
+	// 	$this->email->from($mail['from_email'], $mail['from_name']); 
+	// 	$this->email->to($mail['to_email'], $mail['to_name']);
+	// 	$this->email->cc($cc);
+	// 	$this->email->bcc($bcc);
+	// 	$this->email->subject($mail['subject']); 
+	// 	$this->email->message($message); 
+	// 	//$this->email->attach($mail['attach'],'attachment'); 
+	   
+	// 	 //Send mail 
+	// 	 if($this->email->send()) { echo 'sukses email'; die();
+	// 		return true; 
+	// 	 } else { /*echo 'gagal'; die();*/
+	// 		/*return false; */
+	// 		show_error($this->email->print_debugger());
+	// 	 }
+	// }
+
+
+
+	public function tes_sendmail()
+	{
+	    $this->load->library('emailing');
+
+	    $mail = [
+	        'subject'    => 'Pending Approval - Cash Advance',
+	        'to_name'    => 'Rara',
+	        'to_email'   => 'tiarasanir@gmail.com',
+	        'template'   => 'approval'
+	    ];
+
+	    $data = [
+	        'approver_name' => 'Rara Tiara',
+	        'app' => 'Cash Advance',
+	        'ca_num' => 'fpu323123',
+	        'link' => 'http://localhost/_hrm/general_system/sadmin_tools_access_menu_role/'
+	    ];
+
+	    if ($this->emailing->send($mail, $data)) {
+	        echo 'sukses email';
+	    } else {
+	        echo 'gagal kirim email';
+	    }
+	}
+
+
 
 
 

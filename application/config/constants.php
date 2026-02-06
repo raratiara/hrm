@@ -133,6 +133,7 @@ defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSE
 defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.PNG");  
 defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gerbangdata.PNG");*/
 defined('_ASSET_ILUSTRASI_LOGIN') OR define('_ASSET_ILUSTRASI_LOGIN', _ASSET_IMG . "login/ilustrasi.png");
+defined('_ASSET_SIDEBAR_IMAGE') OR define('_ASSET_SIDEBAR_IMAGE', _ASSET_IMG."logo/sidebar_image.png");
 /*defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.jpg");  
 defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.jpg"); */
 defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/mas_logo.png");  
@@ -164,7 +165,7 @@ defined('_ASSET_BIRTHDAY_PICTURE') OR define('_ASSET_BIRTHDAY_PICTURE', _ASSET_I
 
 // Login/user mailing
 defined('_MAIL_SYSTEM_NAME')        		OR define('_MAIL_SYSTEM_NAME', _COMPANY_NAME_ABBR.' Support System');
-defined('_MAIL_SYSTEM_EMAIL')        		OR define('_MAIL_SYSTEM_EMAIL', 'kuswarno@gerbangdata.co.id');
+defined('_MAIL_SYSTEM_EMAIL')        		OR define('_MAIL_SYSTEM_EMAIL', 'noreply-billing@huma.net.id');
 defined('_ACCOUNT_TITLE')        			OR define('_ACCOUNT_TITLE', 'vendor');  // lowercase
 defined('_ACCOUNT_KEYLENGTH')        		OR define('_ACCOUNT_KEYLENGTH', '25');  // max 25
 defined('_NEW_ACCOUNT_EXPIRE')        		OR define('_NEW_ACCOUNT_EXPIRE', '24');  // in hour

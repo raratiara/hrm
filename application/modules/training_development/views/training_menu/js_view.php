@@ -1,168 +1,4 @@
-
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Modal Approval Log -->
-<div class="modal fade" id="modalApprovalLog" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title">Approval Log</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span>&times;</span>
-        </button>
-      </div>
-
-      <div class="modal-body" id="approvalLogContent">
-      	<input type="hidden" id="hdnid-approvallog" name="hdnid-approvallog">
-        <table class="table table-striped table-bordered table-hover">
-          <thead class="thead-dark">
-            <tr>
-              <th style="width: 50px;">Level</th>
-              <th>Approver</th>
-              <th>Status</th>
-              <th>Approval Date</th>
-            </tr>
-          </thead>
-          <tbody>
-          
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-
-<!-- Modal Reject Data -->
-<div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true" style="padding-left: 600px">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:80%; text-align:center;">
-			<form class="form-horizontal" id="frmRejectData">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					Reject  
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center">Are you sure to Reject this Data?</p>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Reason</label>
-					<div class="col-md-8">
-						<?=$reject_reason;?>
-						<input type="hidden" name="id" id="id" value="">
-						<input type="hidden" name="approval_level" id="approval_level" value="">
-					</div>
-				</div>
-			</div>
-			 </form>
-
-			<div class="modal-footer no-margin-top">
-				<center>
-				<button class="btn blue" id="submit-reject-data" onclick="save_reject()">
-					<i class="fa fa-check"></i>
-					Ok
-				</button>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Cancel
-				</button>
-				</center>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
-
-
-<!-- Modal RFU Data -->
-<div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true" style="padding-left: 600px">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:80%; text-align:center;">
-			<form class="form-horizontal" id="frmRfuData">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					Request For Update 
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center">Are you sure to request for update this Data?</p>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Reason</label>
-					<div class="col-md-8">
-						<?=$rfu_reason;?>
-						<input type="hidden" name="id" id="id" value="">
-						<input type="hidden" name="approval_level" id="approval_level" value="">
-					</div>
-				</div>
-			</div>
-			 </form>
-
-			<div class="modal-footer no-margin-top">
-				<center>
-				<button class="btn blue" id="submit-rfu-data" onclick="save_rfu()">
-					<i class="fa fa-check"></i>
-					Ok
-				</button>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Cancel
-				</button>
-				</center>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
-
-
-<!-- Modal approve Data -->
-<div id="modal-approve-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-approve-data" aria-hidden="true">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content">
-			<form class="form-horizontal" id="frmApproveData">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					Approval Ijin
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center">Are you sure to approve this Data?</p>
-				<input type="hidden" name="id" id="id" value="">
-				<input type="hidden" name="approval_level" id="approval_level" value="">
-			</div>
-			 </form>
-
-			<div class="modal-footer no-margin-top">
-				<center>
-				<button class="btn blue" id="submit-approve-data" onclick="save_approve()">
-					<i class="fa fa-check"></i>
-					Ok
-				</button>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Cancel
-				</button>
-				</center>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
-
-
 
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
@@ -300,12 +136,12 @@ function load_data()
 					$('[name="trainer"]').val(data.trainer);
 					$('[name="notes"]').val(data.notes);
 
-					/*$('[name="hdndoc_sertifikat"]').val(data.file_sertifikat);
+					$('[name="hdndoc_sertifikat"]').val(data.file_sertifikat);
 					if(data.file_sertifikat != '' && data.file_sertifikat != null){
 						$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
 					}else{
 						$('span.file_sertifikat').html('');
-					}*/
+					}
 
 
 					$('[name="hdnid-approvallog"]').val(data.id);
@@ -325,20 +161,18 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.participant').html(data.participant_names);
+					$('span.employee').html(data.full_name);
 					$('span.training_name').html(data.training_name);
 					$('span.training_date').html(data.training_date);
 					$('span.location').html(data.location);
 					$('span.trainer').html(data.trainer);
 					$('span.notes').html(data.notes);
-					$('span.created_by_name').html(data.created_by_name);
-					
 
-					// if(data.file_sertifikat != '' && data.file_sertifikat != null){
-					// 	$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
-					// }else{
-					// 	$('span.file_sertifikat').html('');
-					// }
+					if(data.file_sertifikat != '' && data.file_sertifikat != null){
+						$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
+					}else{
+						$('span.file_sertifikat').html('');
+					}
 
 
 

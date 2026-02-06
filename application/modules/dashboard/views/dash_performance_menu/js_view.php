@@ -511,8 +511,8 @@
 									label: 'Hardskill',
 									type: 'bar',
 									data: data.hardskill,
-									borderColor: '#343851',
-									backgroundColor: '#343851', /*'#3381fc',*/
+									borderColor: '#112D80',
+									backgroundColor: '#112D80', /*'#3381fc',*/
 									fill: false,
 									tension: 0.4,
 									yAxisID: 'y1',
