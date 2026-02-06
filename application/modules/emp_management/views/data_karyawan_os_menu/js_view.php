@@ -369,8 +369,11 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 
-					document.getElementById("inpUsername").style.display = "none";
-					document.getElementById("inpPassword").style.display = "none";
+					document.getElementById("inpUsername").style.display = "block";
+					document.getElementById("inpPassword").style.display = "block";
+					$('[name="password"]')
+					  .val('******')
+					  .prop('disabled', true);
 					
 					
 					
@@ -392,13 +395,28 @@ function load_data()
 					$('span.address2').html(data.address_residen);
 					$('span.postal_code1').html(data.postal_code_ktp);
 					$('span.postal_code2').html(data.postal_code_residen);
-					$('span.date_end_prob').html(data.date_end_probation);
+
+					var date_end_probation = data.date_end_probation;
+					if(data.date_end_probation == '1970-01-01'){
+						date_end_probation = '';
+					}
+					$('span.date_end_prob').html(date_end_probation);
 					$('span.work_loc').html(data.work_location_name);
 					$('span.emergency_phone').html(data.emergency_contact_phone);
 					$('span.bank_address').html(data.bank_address);
 					$('span.bank_acc_no').html(data.bank_acc_no);
-					$('span.date_resign_letter').html(data.date_resign_letter);
-					$('span.date_resign_active').html(data.date_resign_active);
+
+					var date_resign_letter = data.date_resign_letter;
+					if(data.date_resign_letter == '1970-01-01'){
+						date_resign_letter = '';
+					}
+					$('span.date_resign_letter').html(date_resign_letter);
+
+					var date_resign_active = data.date_resign_active;
+					if(data.date_resign_active == '1970-01-01'){
+						date_resign_active = '';
+					}
+					$('span.date_resign_active').html(date_resign_active);
 					$('span.resign_category').html(data.resign_category);
 					$('span.nick_name').html(data.nick_name);
 					$('span.phone').html(data.personal_phone);
@@ -406,10 +424,25 @@ function load_data()
 					$('span.no_ktp').html(data.no_ktp);
 					$('span.sim_c').html(data.sim_c);
 					$('span.no_bpjs').html(data.no_bpjs);
-					$('span.date_of_birth').html(data.date_of_birth);
+
+					var date_of_birth = data.date_of_birth;
+					if(data.date_of_birth == '1970-01-01'){
+						date_of_birth = '';
+					}
+					$('span.date_of_birth').html(date_of_birth);
 					$('span.address2').html(data.address_2);
-					$('span.date_of_hire').html(data.date_of_hire);
-					$('span.date_permanent').html(data.date_permanent);
+
+					var date_of_hire = data.date_of_hire;
+					if(data.date_of_hire == '1970-01-01'){
+						date_of_hire = '';
+					}
+					$('span.date_of_hire').html(date_of_hire);
+
+					var date_permanent = data.date_permanent;
+					if(data.date_permanent == '1970-01-01'){
+						date_permanent = '';
+					}
+					$('span.date_permanent').html(date_permanent);
 					$('span.shift_type').html(data.shift_type);
 					$('span.emergency_name').html(data.emergency_contact_name);
 					$('span.emergency_email').html(data.emergency_contact_email);
@@ -1190,7 +1223,9 @@ function generateUsername(fullName) {
 
 // trigger saat diketik / diubah
 document.getElementById('full_name').addEventListener('input', function () {
-    document.getElementById('username').value = generateUsername(this.value);
+	if(save_method == 'add'){ ///add
+	    document.getElementById('username').value = generateUsername(this.value);
+	}
 });
 
 

@@ -313,26 +313,34 @@ class Data_customer_model extends MY_Model
 	// adding data
 	public function add_data($post) { 
 		$id_status = (isset($post['id_status']) && !empty($post['id_status']))? trim($post['id_status']):NULL;
-		$data = [
-			'code' 				=> trim($post['code']),
-			'name' 				=> trim($post['name']),
-			'address' 			=> trim($post['address']),
-			'contact_name' 		=> trim($post['contact_name']),
-			'contact_phone' 	=> trim($post['contact_phone']),
-			'contact_email' 	=> trim($post['contact_email']), 
-			'id_status' 		=> $id_status,
-			'insert_by'			=> $_SESSION["username"],
-			'npwp' 				=> trim($post['customer_npwp'])
-		];
 
-		//$this->db->trans_off(); // Disable transaction
-		$this->db->trans_start(); // set "True" for query will be rolled back
-		$this->db->insert($this->table_name, $data);
-		$lastId = $this->db->insert_id(); 
- 
-		$this->db->trans_complete();
+		$dataCust = $this->db->query("select * from data_customer where name = '".$post['name']."' ")->result();
+		if(!empty($dataProject)){
+			echo "Tidak dapat menyimpan data dengan Nama Customer yang sama";
+		}else{
+			
+			$data = [
+				'code' 				=> trim($post['code']),
+				'name' 				=> trim($post['name']),
+				'address' 			=> trim($post['address']),
+				'contact_name' 		=> trim($post['contact_name']),
+				'contact_phone' 	=> trim($post['contact_phone']),
+				'contact_email' 	=> trim($post['contact_email']), 
+				'id_status' 		=> $id_status,
+				'insert_by'			=> $_SESSION["username"],
+				'npwp' 				=> trim($post['customer_npwp'])
+			];
 
-		return $rs = $this->db->trans_status();
+			//$this->db->trans_off(); // Disable transaction
+			$this->db->trans_start(); // set "True" for query will be rolled back
+			$this->db->insert($this->table_name, $data);
+			$lastId = $this->db->insert_id(); 
+	 
+			$this->db->trans_complete();
+
+			return $rs = $this->db->trans_status();
+		}
+		
 	}  
 
 	// update data

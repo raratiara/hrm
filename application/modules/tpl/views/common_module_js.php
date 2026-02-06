@@ -86,7 +86,8 @@ $( "#btnAddData" ).on('click', function(){
 		document.getElementById("inpUsername").style.display = "block";
 		document.getElementById("inpPassword").style.display = "block";
 		$('select#company').val(3).trigger('change.select2');
-		$('[name="password"]').val('112233');
+		$('[name="password"]').val('112233').prop('disabled', false);
+
 	}
 
 	if(module_name == 'hitung_gaji_os_menu'){ 
