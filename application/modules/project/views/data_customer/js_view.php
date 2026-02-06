@@ -144,6 +144,25 @@ function load_data()
 					$('[name="contact_email"]').val(data.contact_email);  
 					$('[name="id_status"]').val(data.id_status).trigger('change.select2');
 					$('[name="customer_npwp"]').val(data.npwp); 
+					$('select#province').val(data.province_id).trigger('change.select2');
+					//$('select#village').val(data.village_id).trigger('change.select2');
+					$('[name="tgl_pembayaran_lembur"]').val(data.tanggal_pembayaran_lembur); 
+					$('[name="postal_code"]').val(data.postal_code); 
+					$('[name="sistem_lembur"][value="'+data.sistem_lembur+'"]').prop('checked', true);
+
+					getRegency(data.province_id,'selected',data.regency_id);
+					getDistrict(data.regency_id,data.province_id,'selected',data.district_id);
+					getVillage(data.district_id,data.regency_id,data.province_id,'selected',data.village_id);
+
+					if(data.sistem_lembur == 'tidak_sistem_lembur'){
+						document.getElementById("inpNominalLembur").style.display = "block";
+						$('[name="nominal_lembur"]').val(data.nominal_lembur);
+					}else{
+						document.getElementById("inpNominalLembur").style.display = "none";
+					}
+
+
+
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
@@ -156,8 +175,22 @@ function load_data()
 					$('span.contact_phone').html(data.contact_phone);
 					$('span.contact_email').html(data.contact_email);
 					$('span.customer_npwp').html(data.npwp);
-					 
-					$('span.status').html(data.status);
+					$('span.status').html(data.status_name);
+					$('span.regency').html(data.regency_name);
+					$('span.village').html(data.village_name);
+					$('span.province').html(data.province_name);
+					$('span.district').html(data.district_name);
+					$('span.sistem_lembur').html(data.sistem_lembur_desc);
+					$('span.tgl_pembayaran_lembur').html(data.tanggal_pembayaran_lembur);
+
+					if(data.sistem_lembur == 'tidak_sistem_lembur'){
+						document.getElementById("inpNominalLemburView").style.display = "block";
+						$('span.nominal_lembur').html(data.nominal_lembur);
+					}else{
+						document.getElementById("inpNominalLemburView").style.display = "none";
+					}
+
+
 					$('#modal-view-data').modal('show');
 				}
 			} else {
@@ -191,5 +224,205 @@ function load_data()
 }
 <?php } ?>
 
+
+
+document.querySelectorAll('input[name="sistem_lembur"]').forEach(function(radio) {
+  radio.addEventListener('click', function() {
+  	
+	  	if(this.value == 'tidak_sistem_lembur'){
+	  		document.getElementById("inpNominalLembur").style.display = "block";
+	  	}else{
+	  		document.getElementById("inpNominalLembur").style.display = "none";
+	  	}
+    
+  });
+});
+
+
+$('#province').on('change', function () { 
+ 	var province 	= $("#province option:selected").val();
+ 	
+ 	
+ 	getRegency(province);
+});
+
+$('#regency').on('change', function () { 
+ 	var regency 	= $("#regency option:selected").val();
+ 	var province 	= $("#province option:selected").val();
+ 	
+ 	
+ 	getDistrict(regency,province);
+});
+
+
+$('#district').on('change', function () { 
+ 	var district 	= $("#district option:selected").val();
+ 	var regency		= $("#regency option:selected").val();
+ 	var province 	= $("#province option:selected").val();
+ 	
+ 	
+ 	getVillage(district,regency,province);
+});
+
+
+function getDistrict(regency,province, selected='',idVal=''){
+
+	if(regency != '' && province != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataDistrict',
+			data: { province: province, regency:regency },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					var $el = $(".district");
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.msdistrict, function(key,value) {
+					  	$el.append($("<option></option>")
+					     .attr("value", value.id).text(value.name));
+					});
+					
+					if(selected=='selected'){
+						$('select#district').val(idVal).trigger('change.select2');
+					}
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
+
+
+function getRegency(province,selected='',idVal=''){ 
+
+	if(province != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataRegency',
+			data: { province: province },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					var $el = $(".regency");
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.msregency, function(key,value) {
+						$el.append($("<option></option>")
+				     	.attr("value", value.id).text(value.name));
+					  	
+					});
+
+					if(selected=='selected'){
+						$('select#regency').val(idVal).trigger('change.select2');
+					}
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
+
+function getVillage(district,regency,province, selected='',idVal=''){
+
+	if(district != '' && regency != '' && province != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataVillage',
+			data: { province: province, regency:regency, district:district },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){  
+					var $el = $(".village");
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.msvillage, function(key,value) {
+					  	$el.append($("<option></option>")
+					     .attr("value", value.id).text(value.name));
+					});
+					
+					if(selected=='selected'){
+						$('select#village').val(idVal).trigger('change.select2');
+						
+					}
+
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
  
 </script>

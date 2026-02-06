@@ -34,33 +34,26 @@ class Data_customer extends MY_Controller
 		$field['txtcontactname'] 	= $this->self_model->return_build_txt('','contact_name','contact_name');
 		$field['txtcontactphone'] 	= $this->self_model->return_build_txt('','contact_phone','contact_phone');
 		$field['txtcontactemail'] 	= $this->self_model->return_build_txt('','contact_email','contact_email');
-		$field['txtnpwp'] 			= $this->self_model->return_build_txt('','customer_npwp','customer_npwp');
-		/*
-		$field['txtcontactnik'] 	= $this->self_model->return_build_txt('','contact_nik','contact_nik');
-		$field['filecontactnik'] 	= $this->self_model->return_build_fileinput('contact_filenik','contact_filenik', 'contact_filenik', '', '', '');
-		$field['txtcontactaddress'] = $this->self_model->return_build_txtarea('','contact_address','contact_address');
-		// EOF contact
-		// BOF pic
-		$field['datapic'] 			= '';
-		$field['txtpicname'] 		= $this->self_model->return_build_txt('','pic_name','pic_name');
-		$field['txtpicnik'] 		= $this->self_model->return_build_txt('','pic_nik','pic_nik');
-		$field['filepicnik'] 		= $this->self_model->return_build_fileinput('pic_filenik','pic_filenik', 'pic_filenik', '', '', '');
-		$field['txtpicaddress'] 	= $this->self_model->return_build_txtarea('','pic_address','pic_address');
-		$field['txtpicphone'] 		= $this->self_model->return_build_txt('','pic_phone','pic_phone');
-		$field['txtpicemail'] 		= $this->self_model->return_build_txt('','pic_email','pic_email');
-		*/
-		// EOF pic
-		//$field['txtnib'] 			= $this->self_model->return_build_txt('','nib','nib');
-		//$oIndustry 					= $this->db->select('id,description')->order_by('idx_seq', 'ASC')->where("active='1'")->get(_PREFIX_TABLE."option_industrial_type")->result();
-		//$field['seloIndustry'] 		= $this->self_model->return_build_checkboxselect($oIndustry,'','','industry[]','','','id','description');
-		//$oBank 						= $this->db->select('id,code,description')->order_by('code', 'ASC')->where("active='1'")->get(_PREFIX_TABLE."option_bank")->result();
-		//$field['seloBank'] 			= $this->self_model->return_build_select($oBank,'','','','id_bank','id_bank','','','id','code','-','description');
-		//$field['txtrek'] 			= $this->self_model->return_build_txt('','rek','rek');
-		//$field['txtnpwp'] 			= $this->self_model->return_build_txt('','npwp','npwp');
-		//$oDocattach					= $this->db->select('id,description')->order_by('idx_seq', 'ASC')->where("active='1'")->get(_PREFIX_TABLE."option_doc_attachment")->result();
-		//$field['datadocument'] 		= $this->self_model->return_build_filesetselect($oDocattach,'','','doc','','id','description');
+		$field['txtnpwp'] 			= $this->self_model->return_build_txt('','customer_npwp','customer_npwp','','','required');
+		$field['txtsistemlembur'] 	= $this->self_model->return_build_radio('', [['sistem_lembur','Ya','required'],['tidak_sistem_lembur','Tidak','required']], 'sistem_lembur', '', 'inline');
+		$field['txtnominallembur'] 	= $this->self_model->return_build_txt('','nominal_lembur','nominal_lembur');
+		$field['txtpostalcode'] 	= $this->self_model->return_build_txt('','postal_code','postal_code');
+		$field['txttglpembayaranlembur'] = $this->self_model->return_build_txt('','tgl_pembayaran_lembur','tgl_pembayaran_lembur');
+		
+
 		$oStatus 					= $this->db->select('id,description')->order_by('idx_seq', 'ASC')->where("active='1'")->get(_PREFIX_TABLE."option_general_status")->result();
 		$field['seloStatus'] 		= $this->self_model->return_build_select($oStatus,'','','','id_status','id_status','','','id','description');
+
+		$msprovince 					= $this->db->query("select * from provinces order by name asc")->result(); 
+		$field['selprovince'] 			= $this->self_model->return_build_select2me($msprovince,'','','','province','province','','','id','name',' ','','','',3,'-');
+		$msregency 						= array();
+		$field['selregency'] 			= $this->self_model->return_build_select2me($msregency,'','','','regency','regency','regency','','id','name',' ','','','',3,'-');
+		$msdistrict 					= array();
+		$field['seldistrict'] 			= $this->self_model->return_build_select2me($msdistrict,'','','','district','district','district','','id','name',' ','','','',3,'-');
+		$msvillage 						= array(); 
+		$field['selvillage'] 			= $this->self_model->return_build_select2me($msvillage,'','','','village','village','village','','id','name',' ','','','',3,'-');
+
+
 		
 		return $field;
 	}
@@ -113,4 +106,43 @@ class Data_customer extends MY_Controller
  	public $label_gagal_eksekusi 	= "Eksekusi gagal karena ketiadaan data";
 
 	//============================== Additional Method ==============================//
+
+
+
+	public function getDataDistrict(){
+		$post 		= $this->input->post(null, true);
+		$province 	= $post['province'];
+		$regency 	= $post['regency'];
+
+		$rs =  $this->self_model->getDataDistrict($province,$regency);
+		
+
+		echo json_encode($rs);
+	}
+
+	public function getDataRegency(){
+		$post 		= $this->input->post(null, true);
+		$province 	= $post['province'];
+
+		$rs =  $this->self_model->getDataRegency($province);
+		
+
+		echo json_encode($rs);
+	}
+
+	public function getDataVillage(){
+		$post 		= $this->input->post(null, true);
+		$province 	= $post['province'];
+		$regency 	= $post['regency'];
+		$district 	= $post['district'];
+
+		$rs =  $this->self_model->getDataVillage($province,$regency,$district);
+		
+
+		echo json_encode($rs);
+	}
+
+
+
+
 }

@@ -318,7 +318,7 @@ class Data_customer_model extends MY_Model
 		if(!empty($dataProject)){
 			echo "Tidak dapat menyimpan data dengan Nama Customer yang sama";
 		}else{
-			
+
 			$data = [
 				'code' 				=> trim($post['code']),
 				'name' 				=> trim($post['name']),
@@ -328,8 +328,20 @@ class Data_customer_model extends MY_Model
 				'contact_email' 	=> trim($post['contact_email']), 
 				'id_status' 		=> $id_status,
 				'insert_by'			=> $_SESSION["username"],
-				'npwp' 				=> trim($post['customer_npwp'])
+				'npwp' 				=> trim($post['customer_npwp']),
+				'province_id' 		=> trim($post['province'] ?? ''),
+				'regency_id' 		=> trim($post['regency'] ?? ''),
+				'district_id' 		=> trim($post['district'] ?? ''),
+				'village_id' 		=> trim($post['village'] ?? ''),
+				'postal_code' 		=> trim($post['postal_code'] ?? ''),
+				'sistem_lembur' 	=> trim($post['sistem_lembur'] ?? ''),
+				'tanggal_pembayaran_lembur' => trim($post['tgl_pembayaran_lembur'] ?? '')
 			];
+
+			if($post['sistem_lembur'] == 'tidak_sistem_lembur'){
+				
+				$data['nominal_lembur'] = trim($post['nominal_lembur']);
+			}
 
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
@@ -357,8 +369,20 @@ class Data_customer_model extends MY_Model
 				'contact_email' 	=> trim($post['contact_email']), 
 				'id_status' 		=> $id_status,
 				'update_by'			=> $_SESSION["username"],
-				'npwp' 				=> trim($post['customer_npwp'])
+				'npwp' 				=> trim($post['customer_npwp']),
+				'province_id' 		=> trim($post['province'] ?? ''),
+				'regency_id' 		=> trim($post['regency'] ?? ''),
+				'district_id' 		=> trim($post['district'] ?? ''),
+				'village_id' 		=> trim($post['village'] ?? ''),
+				'postal_code' 		=> trim($post['postal_code'] ?? ''),
+				'sistem_lembur' 	=> trim($post['sistem_lembur'] ?? ''),
+				'tanggal_pembayaran_lembur' => trim($post['tgl_pembayaran_lembur'] ?? '')
 			];
+
+			if($post['sistem_lembur'] == 'tidak_sistem_lembur'){
+				
+				$data['nominal_lembur'] = trim($post['nominal_lembur']);
+			}
 
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
@@ -372,18 +396,16 @@ class Data_customer_model extends MY_Model
 
 	// getting row data for update / detail view
 	public function getRowData($id) { 
-		$rs = $this->db->where([$this->primary_key => $id])->get($this->table_name)->row();
-		 
-		if(!empty($rs->id_status)){
-			$rd = $this->db->select('description as status')->where([$this->primary_key => $rs->id_status])->get($this->table_status)->row();
-			$rs = (object) array_merge((array) $rs, (array) $rd);
-		} else {
-			$rs = (object) array_merge((array) $rs, ['status'=>'']);
-		}
-		unset($rs->date_insert);
-		unset($rs->insert_by);
-		unset($rs->date_update);
-		unset($rs->update_by);
+		$mTable = "(select a.*, b.description as status_name, c.name as province_name, d.name as regency_name, e.name as district_name, f.name as village_name, if(a.sistem_lembur = 'tidak_sistem_lembur','Tidak Sistem Lembur','Sistem Lembur') as sistem_lembur_desc
+			from data_customer a 
+			left join option_general_status b on b.id = a.id_status
+			left join provinces c on c.id = a.province_id
+			left join regencies d on d.id = a.regency_id
+			left join districts e on e.id = a.district_id
+			left join villages f on f.id = a.village_id
+			)dt";
+
+		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
 		return $rs;
 	} 
@@ -443,5 +465,41 @@ class Data_customer_model extends MY_Model
 		$rs = $res->result_array();
 		return $rs;
 	}
+
+
+	public function getDataRegency($province){ 
+
+		$rs = $this->db->query("select * from regencies where province_id = '".$province."' order by name asc")->result(); 
+
+		$data['msregency'] = $rs;
+
+
+		return $data;
+
+	}
+
+	public function getDataDistrict($province,$regency){ 
+
+		$rs = $this->db->query("select * from districts where province_id = '".$province."' and regency_id = '".$regency."' order by name asc")->result(); 
+
+		$data['msdistrict'] = $rs;
+
+
+		return $data;
+
+	}
+
+
+	public function getDataVillage($province,$regency,$district){ 
+
+		$rs = $this->db->query("select * from villages where province_id = '".$province."' and regency_id = '".$regency."' and district_id = '".$district."' order by name asc")->result(); 
+
+		$data['msvillage'] = $rs;
+
+
+		return $data;
+
+	}
+
 
 }
