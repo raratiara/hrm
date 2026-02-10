@@ -1,4 +1,14 @@
 <div class="row">
+
+	<div class="col-md-12 col-sm-12" id="projectView" style="display:none">
+		<div class="form-group">
+			<label class="col-md-2 control-label no-padding-right">Project</label>
+			<div class="col-md-4">
+				<?=$txtprojectview;?>
+			</div>
+		</div>
+	</div>
+	
 	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
@@ -70,13 +80,13 @@
 
 
 
-<div class="row absenos" id="inpAbsenOS" style="display:none;">
+<div class="row absenos" id="inpAbsenOS" style="display:none">
     <div class="col-md-12">
 		<div class="portlet box">
 			<div class="portlet-title">
 				<div class="caption">Details </div>
 				<div class="tools">
-					<!-- <input type="button" class="btn btn-default blue btn-outline btn-circle btn-sm active" id="addabsenosrow" value="Add Row" /> -->
+					
 				</div>
 			</div>
 			<div class="portlet-body">
@@ -84,6 +94,8 @@
 				<table class="table table-striped table-bordered table-hover absenos-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenOS">
 					<thead>
 						<tr>
+							<th scope="col">NIK</th>
+							<th scope="col">Karyawan</th>
 							<th scope="col">Total Hari Kerja</th>
 							<th scope="col">Total Masuk</th>
 							<th scope="col">Total Ijin</th>
@@ -107,4 +119,3 @@
 </div>
 
 
-								

@@ -17,12 +17,12 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Bulan Penggajian","Tahun Penggajian","Karyawan","Project"];
+	public $tabel_header 			= ["ID","Project", "Bulan Penggajian","Tahun Penggajian","Status"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Bulan Penggajian","Tahun Penggajian","Karyawan","Project"];
-	public $colfields 				= ["id","periode_bulan_name","periode_tahun","full_name","project_name"];
+	public $colnames 				= ["ID","Project", "Bulan Penggajian","Tahun Penggajian","Status"];
+	public $colfields 				= ["id","project_name","month_name","tahun_penggajian","status"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -37,7 +37,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 
 		$field = [];
-
+		
+		$field['txtprojectviewgaji'] = $this->self_model->return_build_txt('','projectviewgaji','projectviewgaji','','','readonly');
 		$field['txtxx']	= $this->self_model->return_build_txt('','xx','xx');
 		$field['txtgajibulanan']	= $this->self_model->return_build_txt('','period_end','period_end','','','readonly');
 		$field['txtgajiharian']	= $this->self_model->return_build_txt('','period_end','period_end','','','readonly');
@@ -151,6 +152,9 @@ class Hitung_gaji_os_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
+			$project = trim($post['project']);
+			$bln = trim($post['bln']);
+			$thn = trim($post['thn']);
 
 			if(isset($post['count']))
 			{  
@@ -160,7 +164,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewGajiOSRow($row,$id,$view));
+				echo json_encode($this->self_model->getNewGajiOSRow($row,$id,$project,$bln,$thn,$view));
 			}
 		}
 		else
@@ -175,107 +179,50 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    $this->load->library('html_pdf');
 	    $this->load->helper('global');
 
-	    if (!empty($_GET['flproject'])) {
-
-	        $sql = "
-	            select a.*, b.full_name, c.name_indo AS periode_bulan_name,
-	                   b.emp_code, d.project_name, e.name AS job_title_name,
-	                   f.tanggal_pembayaran_lembur
-	            FROM payroll_slip a 
-	            LEFT JOIN employees b ON b.id = a.employee_id 
-	            LEFT JOIN master_month c ON c.id = a.periode_bulan
-	            LEFT JOIN project_outsource d ON d.id = b.project_id
-	            LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
-	            LEFT JOIN data_customer f ON f.id = d.customer_id
-	            WHERE b.project_id = ".$_GET['flproject']."
-	            ORDER BY b.full_name
-	        ";
-
-	        $data = $this->db->query($sql)->result();
-
-	        if (empty($data)) {
-	            echo "Slip Gaji tidak ditemukan";
-	            return;
-	        }
-
-	        $pdfData = [
-	            'employees' => $data
-	        ];
-
-	        $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	            'pdf/gaji_os_perproject',
-	            $pdfData
-	        );
-
-	        if (ob_get_level()) ob_end_clean();
-
-	        header("Content-Type: application/pdf");
-	        header("Content-Disposition: attachment; filename=GAJI - ".$data[0]->project_name.".pdf");
-	        echo $pdfBinary;
-	        exit;
-
-	    } else {
-	        echo "Project tidak dipilih";
-	    }
-	}
-
-
-
-	public function getPayrollReport_pdf_old()
-	{
-		$this->load->library('html_pdf');
-		$this->load->helper('global');
-
-
-		
-		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
-
-		    $sql = "
-		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
-				from payroll_slip a 
-				left join employees b on b.id = a.employee_id 
-				left join master_month c on c.id = a.periode_bulan
-				left join project_outsource d on d.id = b.project_id
-				left join master_job_title_os e on e.id = b.job_title_id
-				left join data_customer f on f.id = d.customer_id
-				where b.project_id = ".$_GET['flproject']."
-		    ";
-
-		    $data = $this->db->query($sql)->result();
-
-		    if(!empty($data)){
-		    	$pdfData = [
-				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
-				    'periode_tahun'      		=> $data[0]->periode_tahun,
-				    'nik'    					=> $data[0]->emp_code,
-				    'emp_name'       			=> $data[0]->full_name,
-				    'project_name'    			=> $data[0]->project_name,
-				    'jabatan' 		  			=> $data[0]->job_title_name,
-				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
-				];
-
-
-
-				$pdfBinary = $this->html_pdf->render_to_string_portrait(
-			        'pdf/gaji_os',
-			        $pdfData
-			    );
-
-			    if (ob_get_level()) ob_end_clean();
-
-			    header("Content-Type: application/pdf");
-			    header("Content-Disposition: attachment; filename=gaji_os.pdf");
-			    echo $pdfBinary;
-			    exit;
-
-		    }else{
-		    	echo "Slip Gaji tidak ditemukan"; 
-		    }
-
-		}else{
-			echo "Slip Gaji tidak ditemukan"; 
-		}
 	    
+
+        $sql = "
+            select a.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
+			e.name AS job_title_name, f.tanggal_pembayaran_lembur
+			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+			LEFT JOIN employees b ON b.id = aa.employee_id 
+			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
+			LEFT JOIN project_outsource d ON d.id = b.project_id
+			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
+			LEFT JOIN data_customer f ON f.id = d.customer_id
+			WHERE a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			ORDER BY b.full_name
+        ";
+
+        $data = $this->db->query($sql)->result();
+
+        if (empty($data)) {
+            
+            echo "<script>alert('Slip Gaji tidak ditemukan');window.close();</script>";
+            exit;
+        }
+
+        $project_name = $data[0]->project_name;
+
+        $pdfData = [
+            'employees' => $data
+        ];
+
+        $pdfBinary = $this->html_pdf->render_to_string_portrait(
+            'pdf/gaji_os_perproject',
+            $pdfData
+        );
+
+        if (ob_get_level()) ob_end_clean();
+
+        $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $project_name);
+
+        header("Content-Type: application/pdf");
+        header("Content-Disposition: attachment; filename=GAJI - ".$safeProjectName.".pdf");
+        ////header("Content-Disposition: attachment; filename=GAJI - xx.pdf");
+        echo $pdfBinary;
+        exit;
+
 	    
 	}
 
@@ -287,17 +234,20 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 
 		
-		if(isset($_GET['emp_id']) && $_GET['emp_id'] != '' && $_GET['emp_id'] != 0){
+		if(isset($_GET['emp_id']) && $_GET['emp_id'] != '' && $_GET['emp_id'] != 0 && 
+		isset($_GET['id']) && $_GET['id'] != '' && $_GET['id'] != 0){
 
 		    $sql = "
-		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name
+				, e.name as job_title_name, f.tanggal_pembayaran_lembur
 				from payroll_slip a 
-				left join employees b on b.id = a.employee_id 
-				left join master_month c on c.id = a.periode_bulan
+				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
+				left join employees b on b.id = bb.employee_id 
+				left join master_month c on c.id = a.bulan_penggajian
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
-				where a.employee_id = ".$_GET['emp_id']." 
+				where a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -322,17 +272,28 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 			    if (ob_get_level()) ob_end_clean();
 
+			    $safeName = preg_replace('/[^A-Za-z0-9 _-]/', '', $data[0]->full_name);
+
 			    header("Content-Type: application/pdf");
-			    header("Content-Disposition: attachment; filename=Gaji - ".$data[0]->full_name.".pdf");
+			    header("Content-Disposition: attachment; filename=Gaji - ".$safeName.".pdf");
 			    echo $pdfBinary;
 			    exit;
 
 		    }else{
-		    	echo "Slip Gaji tidak ditemukan"; 
+		    	echo "<script>
+			        alert('Slip Gaji tidak ditemukan');
+			        window.history.back();
+			    </script>";
+			    exit;
 		    }
 
 		}else{
-			echo "Slip Gaji tidak ditemukan"; 
+			
+			echo "<script>
+		        alert('Slip Gaji tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
 		}
 	    
 	    
@@ -347,56 +308,55 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 
 		
-		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
-			
-			
+	    $sql = "
+	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+			from payroll_slip a 
+			left join employees b on b.id = a.employee_id 
+			left join master_month c on c.id = a.periode_bulan
+			left join project_outsource d on d.id = b.project_id
+			left join master_job_title_os e on e.id = b.job_title_id
+			left join data_customer f on f.id = d.customer_id
+			where a.employee_id = '".$_GET['flemployee']."'
+	    ";
 
-		    $sql = "
-		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
-				from payroll_slip a 
-				left join employees b on b.id = a.employee_id 
-				left join master_month c on c.id = a.periode_bulan
-				left join project_outsource d on d.id = b.project_id
-				left join master_job_title_os e on e.id = b.job_title_id
-				left join data_customer f on f.id = d.customer_id
-				where a.employee_id = '".$_GET['flemployee']."'
-		    ";
+	    $data = $this->db->query($sql)->result();
 
-		    $data = $this->db->query($sql)->result();
-
-		    if(!empty($data)){
-		    	$pdfData = [
-				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
-				    'periode_tahun'      		=> $data[0]->periode_tahun,
-				    'nik'    					=> $data[0]->emp_code,
-				    'emp_name'       			=> $data[0]->full_name,
-				    'project_name'    			=> $data[0]->project_name,
-				    'jabatan' 		  			=> $data[0]->job_title_name,
-				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
-				];
+	    if(!empty($data)){
+	    	$pdfData = [
+			    'periode_bulan'      		=> $data[0]->periode_bulan_name,
+			    'periode_tahun'      		=> $data[0]->periode_tahun,
+			    'nik'    					=> $data[0]->emp_code,
+			    'emp_name'       			=> $data[0]->full_name,
+			    'project_name'    			=> $data[0]->project_name,
+			    'jabatan' 		  			=> $data[0]->job_title_name,
+			    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
+			];
 
 
 
-				$pdfBinary = $this->html_pdf->render_to_string_portrait(
-			        'pdf/lembur_os',
-			        $pdfData
-			    );
+			$pdfBinary = $this->html_pdf->render_to_string_portrait(
+		        'pdf/lembur_os',
+		        $pdfData
+		    );
 
-			    if (ob_get_level()) ob_end_clean();
+		    if (ob_get_level()) ob_end_clean();
 
-			    header("Content-Type: application/pdf");
-			    header("Content-Disposition: attachment; filename=lembur_os.pdf");
-			    echo $pdfBinary;
-			    exit;
 
-		    }else{
-		    	echo "Report Lembur tidak ditemukan"; 
-		    }
+		    header("Content-Type: application/pdf");
+		    header("Content-Disposition: attachment; filename=lembur_os.pdf");
+		    echo $pdfBinary;
+		    exit;
 
-		}else{
-			echo "Report Lembur tidak ditemukan"; 
-		}
-	    
+	    }else{
+	    	
+	    	echo "<script>
+		        alert('Report Lembur tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
+	    }
+
+		
 	    
 	}
 
@@ -406,36 +366,34 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    $this->load->library('html_pdf');
 	    $this->load->helper('global');
 
-	    if (empty($_GET['flproject'])) {
+	    if (empty($_GET['payroll_id'])) {
 	        echo "Report Lembur tidak ditemukan";
 	        return;
 	    }
 
 	    // ================= DATA =================
 	    $sql = "
-	        select 
-	            a.*, 
-	            b.full_name,
-	            b.emp_code,
-	            d.project_name,
-	            e.name AS job_title_name,
-	            c.name_indo AS periode_bulan_name,
-	            f.tanggal_pembayaran_lembur
-	        FROM payroll_slip a
-	        LEFT JOIN employees b ON b.id = a.employee_id
-	        LEFT JOIN project_outsource d ON d.id = b.project_id
-	        LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
-	        LEFT JOIN master_month c ON c.id = a.periode_bulan
-	        LEFT JOIN data_customer f ON f.id = d.customer_id
-	        WHERE b.project_id = ".$this->db->escape($_GET['flproject'])."
-	        ORDER BY b.full_name ASC
+	        select a.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
+			e.name AS job_title_name, f.tanggal_pembayaran_lembur
+			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+			LEFT JOIN employees b ON b.id = aa.employee_id 
+			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
+			LEFT JOIN project_outsource d ON d.id = b.project_id
+			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
+			LEFT JOIN data_customer f ON f.id = d.customer_id
+			WHERE a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			ORDER BY b.full_name
 	    ";
 
 	    $employees = $this->db->query($sql)->result();
 
 	    if (empty($employees)) {
-	        echo "Report Lembur tidak ditemukan";
-	        return;
+	      
+	        echo "<script>
+		        alert('Report Lembur tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
 	    }
 
 	    // ================= RENDER PDF =================
@@ -448,8 +406,11 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 	    if (ob_get_level()) ob_end_clean();
 
+	    $projectName = $employees[0]->project_name;
+	    $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $projectName);
+
 	    header("Content-Type: application/pdf");
-	    header("Content-Disposition: attachment; filename=Report Lembur - ".$employees[0]->project_name.".pdf");
+	    header("Content-Disposition: attachment; filename=Report Lembur - ".$safeProjectName.".pdf");
 	    echo $pdfBinary;
 	    exit;
 	}
@@ -684,39 +645,43 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 	public function getAbsenceReportGaji_pdf()
 	{
-	    if (empty($_GET['flproject'])) {
-	        echo 'Project tidak dipilih';
-	        return;
+	    if (empty($_GET['payroll_id'])) {
+	        echo "<script>
+		        alert('Data tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
 	    }
 
 	    $this->load->library('html_pdf');
 
-	    // ================= PROJECT NAME =================
-	    $projectRow = $this->db
-	        ->select('project_name')
-	        ->from('project_outsource')
-	        ->where('id', $_GET['flproject'])
-	        ->get()
-	        ->row();
-
-	    $projectName = $projectRow ? $projectRow->project_name : 'Unknown';
-
 	    // ================= DATA =================
 	    $sql = "
-	        SELECT a.*, b.emp_code, b.full_name
-	        FROM payroll_slip a
-	        LEFT JOIN employees b ON b.id = a.employee_id
-	        WHERE b.project_id = ".$_GET['flproject']."
-	        ORDER BY b.full_name ASC
+	        select aa.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
+			e.name AS job_title_name, f.tanggal_pembayaran_lembur
+			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+			LEFT JOIN employees b ON b.id = aa.employee_id 
+			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
+			LEFT JOIN project_outsource d ON d.id = b.project_id
+			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
+			LEFT JOIN data_customer f ON f.id = d.customer_id
+			WHERE a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			ORDER BY b.full_name
 	    ";
 
 	    $data = $this->db->query($sql)->result();
+	    
 
 	    if (empty($data)) {
-	        echo 'Data absensi tidak ditemukan';
-	        return;
-	    }
+	       
+	       	echo "<script>
+		        alert('Data absensi tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
 
+	    }
+	    $projectName = $data[0]->project_name;
 	    // ================= SUMMARY =================
 	    $valSummary = [];
 	    $no = 1;
@@ -755,7 +720,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    // ================= OUTPUT =================
 	    if (ob_get_level()) ob_end_clean();
 
-	    $fileName = 'Absensi - '.$projectName.'.pdf';
+	    $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $projectName);
+	    $fileName = 'Absensi - '.$safeProjectName.'.pdf';
 
 	    header('Content-Type: application/pdf');
 	    header('Content-Disposition: attachment; filename="'.$fileName.'"');
@@ -770,7 +736,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	public function getAbsenceReportGaji_pdf_zip()
 	{
 	    
-	    if (!empty($_GET['flproject'])) {
+	    if (!empty($_GET['payroll_id'])) {
 
 	        // ================= ZIP =================
 		    $path = FCPATH.'uploads/report_absensi_pdf/';
@@ -783,24 +749,17 @@ class Hitung_gaji_os_menu extends MY_Controller
 		    $this->load->library('html_pdf');
 
 		    
-
-	        // ambil nama project (SEKALI)
-	        $projectRow = $this->db
-	            ->select('project_name')
-	            ->from('project_outsource')
-	            ->where('id', $_GET['flproject'])
-	            ->get()->row();
-
-	        $projectName = $projectRow ? $projectRow->project_name : 'Unknown';
-
 	        $valSummary   = [];
 	        $no = 1;
 
 	        
 	        $sql = "
-	            select a.*, b.emp_code, b.full_name from payroll_slip a left join employees b on b.id = a.employee_id
-				where b.project_id = ".$_GET['flproject']."
-	            ORDER BY b.full_name ASC
+	            select a.*, b.emp_code, b.full_name, b.project_id
+				from payroll_slip a 
+				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
+				left join employees b on b.id = bb.employee_id
+				where a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+				ORDER BY b.full_name ASC
 	        ";
 
 	        $data = $this->db->query($sql)->result();
@@ -825,7 +784,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	        	}
 	        }
 	        
-
+	        $projectName = $data[0]->project_name;
 	           
 	        
 
@@ -839,7 +798,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 	        ];
 
 	        $pdfBinary = $this->html_pdf->render_to_string('pdf/report_absen_os_penggajian', $pdfData);
-	        $zip->addFromString('absensi_'.strtolower(str_replace(' ','_',$projectName)).'.pdf', $pdfBinary);
+	        $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $projectName);
+	        $zip->addFromString('Absensi - '.$safeProjectName.'.pdf', $pdfBinary);
 		    
 
 		    $zip->close();

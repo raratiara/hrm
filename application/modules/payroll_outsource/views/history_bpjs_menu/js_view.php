@@ -136,16 +136,23 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.karyawan').html(data.full_name);
-					$('span.tanggal_potong').html(data.tanggal_potong);
-					$('span.no_bpjs_kes').html(data.no_bpjs_kesehatan);
-					$('span.nominal_bpjs_kes').html(data.nominal_bpjs_kesehatan);
-					$('span.no_bpjs_tk').html(data.no_bpjs_tk);
-					$('span.nominal_bpjs_tk').html(data.nominal_bpjs_tk);
+					
 					$('span.periode_penggajian').html(data.periode_penggajian);
 					$('span.project').html(data.project_name);
-					$('span.tanggal_setor').html(data.tanggal_setor);
-					$('span.tanggal_dikembalikan').html(data.tanggal_dikembalikan);
+				
+
+					var locate = 'table.histbpjs-list-view';
+					$.ajax({type: 'post',url: module_path+'/genhistbpjsrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
 					
 					
 					$('#modal-view-data').modal('show');

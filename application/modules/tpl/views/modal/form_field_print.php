@@ -19,7 +19,7 @@
 
 								<div class="modal-footer no-margin-top">
 									<span class="act-container-btn">
-										<button class="btn btn-info" id="submit-data" onclick="save()">
+										<button class="btn btn-info" id="submit-data" data-text="Save" data-loading="Saving..." onclick="save()">
 											<i class="fa fa-check"></i>
 											Save
 										</button>

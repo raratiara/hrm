@@ -56,7 +56,7 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
     </td>
     <td width="25%" class="right bold">
         REPORT LEMBUR<br>
-        <?= $row->periode_bulan_name ?> <?= $row->periode_tahun ?>
+        <?= $row->periode_bulan_name ?> <?= $row->tahun_penggajian ?>
     </td>
 </tr>
 </table>

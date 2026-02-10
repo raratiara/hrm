@@ -37,5 +37,11 @@
             margin: 0;
         }
     }
+
+
+    .tablesaw-cont {
+        max-height: 400px;
+        overflow-y: auto;
+    }
     
 </style>
