@@ -8,42 +8,10 @@
 				: <span class="emp_code"></span>
 			</div>
 		</div>
-	</div>
-	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Source</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="emp_source"></span>
-			</div>
-		</div>
-		
-	</div>
-	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">FullName</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="full_name"></span>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Phone</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="phone"></span>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Is Tracking</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="is_tracking"></span>
-			</div>
-		</div>
-		
-	</div>
-	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gender</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="gender"></span>
 			</div>
 		</div>
 		<div class="row">
@@ -56,6 +24,40 @@
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Email</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="email"></span>
+			</div>
+		</div>
+		
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Is Tracking</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="is_tracking"></span>
+			</div>
+		</div>
+		
+	</div>
+	<div class="col-md-6 col-sm-12 col-xs-12">
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Status</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="status"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Source</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="emp_source"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gender</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="gender"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Phone</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="phone"></span>
 			</div>
 		</div>
 		
@@ -255,11 +257,12 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Department</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Section</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="department"></span>
+						: <span class="section"></span>
 					</div>
 				</div>
+				
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Direct</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
@@ -285,19 +288,18 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Shift Type</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date Permanent</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="shift_type"></span>
+						: <span class="date_permanent"></span>
 					</div>
 				</div>
+				
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Username</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Photo</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="username"></span>
+						: <span class="emp_photo"></span>
 					</div>
 				</div>
-				
-				
 				
 			</div>
 
@@ -327,9 +329,15 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Section</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Shift Type</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="section"></span>
+						: <span class="shift_type"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Department</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="department"></span>
 					</div>
 				</div>
 				<div class="row">
@@ -363,24 +371,18 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date Permanent</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Username</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="date_permanent"></span>
+						: <span class="username"></span>
 					</div>
-				</div>
+				</div> 
+				
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Signature</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="emp_signature"></span>
 					</div>
 				</div>
-				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Photo</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="emp_photo"></span>
-					</div>
-				</div>
-				
 				
 			</div>
 

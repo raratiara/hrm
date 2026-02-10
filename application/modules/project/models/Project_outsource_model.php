@@ -272,20 +272,27 @@ class Project_outsource_model extends MY_Model
 	public function add_data($post) { 
 		$customer = (isset($post['customer']) && !empty($post['customer']))? trim($post['customer']):0; 
 		$lokasi = (isset($post['lokasi']) && !empty($post['lokasi']))? trim($post['lokasi']):0;
-		
-		$data = [
-			'code' 				=> trim($post['kode_project']),
-			'project_name' 		=> trim($post['nama_project']),
-			'customer_id' 		=> $customer,
-			'lokasi_id' 		=> $lokasi,
-			'jenis_pekerjaan' 	=> trim($post['jenis_pekerjaan']),
-			'management_fee' 	=> trim($post['management_fee']),
-			'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))), 
-			'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end'])))
-			
-		];
 
-		return $rs = $this->db->insert($this->table_name, $data);
+		$dataProject = $this->db->query("select * from project_outsource where project_name = '".$post['nama_project']."' ")->result();
+		if(!empty($dataProject)){
+			echo "Tidak dapat menyimpan data dengan Nama Project yang sama";
+		}else{
+			$data = [
+				'code' 				=> trim($post['kode_project']),
+				'project_name' 		=> trim($post['nama_project']),
+				'customer_id' 		=> $customer,
+				'lokasi_id' 		=> $lokasi,
+				'jenis_pekerjaan' 	=> trim($post['jenis_pekerjaan']),
+				'management_fee' 	=> trim($post['management_fee']),
+				'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))), 
+				'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end'])))
+				
+			];
+
+			return $rs = $this->db->insert($this->table_name, $data);
+		}
+		
+		
 
 	}  
 

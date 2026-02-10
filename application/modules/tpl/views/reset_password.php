@@ -129,26 +129,32 @@ if($form){
 					},
 					submitHandler: function(e) {
 						//e.submit()
+                        
                         $.ajax({
                             url: '/login/reset_password',
+                            type: 'POST',
                             data: $('#reset-form').serialize(),
-                            type: "POST",
+                            dataType: 'json',
                             success: function(data) {
-                                if (data == 'true') {
-									var dialog = bootbox.dialog({
-										message: '<p class="text-center mb-0">Reset Password Success. You may now log in and begin using it.</p>'
-									});
+                                console.log(data); // true / false
+
+                                if (data === true) {
+                                    var dialog = bootbox.dialog({
+                                        message: '<p class="text-center mb-0">Reset Password Success. You may now log in and begin using it.</p>'
+                                    });
                                 } else {
-									var dialog = bootbox.dialog({
-										message: '<p class="text-center mb-0"><i class="fa fa-2x fa-spin fa-spinner"></i><br/><br/>Error Processing<br/>Please contact us about this issue.</p>'
-									});
+                                    var dialog = bootbox.dialog({
+                                        message: '<p class="text-center mb-0">Error Processing<br/>Please contact us about this issue.</p>'
+                                    });
                                 }
-								setTimeout(function(){
-									dialog.modal('hide');
-									window.location.href = '<?= base_url('login') ?>';
-								}, 3500);
+
+                                setTimeout(function(){
+                                    dialog.modal('hide');
+                                    window.location.href = '<?= base_url('login') ?>';
+                                }, 3500);
                             }
-                        })
+                        });
+
 
                         return false;
 					}

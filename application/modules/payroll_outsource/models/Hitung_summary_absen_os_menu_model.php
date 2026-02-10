@@ -33,8 +33,10 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 			'dt.total_lembur',
 			'dt.total_jam_kerja',
 			'dt.total_jam_lembur',
-			'dt.payroll_slip_id',
-			'dt.project_name'
+			'dt.project_name',
+			'dt.emp_id',
+			'dt.bulan',
+			'dt.tahun'
 		];
 		
 		
@@ -68,8 +70,8 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 		/*$sTable = '(select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
 				)dt';*/
 
-		$sTable = '(select a.*, b.full_name, c.name_indo as month_name, d.id as payroll_slip_id, e.project_name
-			from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan left join payroll_slip d on d.employee_id = a.emp_id and d.periode_bulan = a.bulan and d.periode_tahun = a.tahun left join project_outsource e on e.id = b.project_id )dt';
+		$sTable = '(select a.*, b.full_name, c.name_indo as month_name, e.project_name
+			from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan left join project_outsource e on e.id = b.project_id )dt';
 		
 
 		/* Paging */
@@ -207,17 +209,20 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
+			$cek_payslip = $this->db->query("select id from payroll_slip where employee_id = ".$row->emp_id." and periode_bulan = ".$row->bulan." and periode_tahun = '".$row->tahun."' ")->result();
+
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $row->payroll_slip_id == '')  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && empty($cek_payslip))  {
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1" && $row->payroll_slip_id == '')  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && empty($cek_payslip))  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
@@ -335,7 +340,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
   			if(!empty($data_os)){
   				foreach($data_os as $rowdata_os){
   					$emp_id = $rowdata_os->id;
-  					$total_hari_kerja = $rowdata_os->total_hari_kerja;
+  					$total_hari_kerja = (int)$rowdata_os->total_hari_kerja;
 
   					$data_summary = $this->db->query("select * from summary_absen_outsource where bulan = ".$post['penggajian_month']." and tahun = '".$post['penggajian_year']."' and emp_id = ".$emp_id."")->result();
   					if(empty($data_summary)){

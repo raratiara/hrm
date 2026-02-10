@@ -57,7 +57,7 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['txtnobpjs'] 			= $this->self_model->return_build_txt('','no_bpjs','no_bpjs','','','required');
 		$field['txtdateofbirth'] 		= $this->self_model->return_build_txtdate('','date_of_birth','date_of_birth');
 		$field['txtaddress2'] 			= $this->self_model->return_build_txtarea('','address2','address2');
-		$field['txtdateofhire'] 		= $this->self_model->return_build_txtdate('','date_of_hire','date_of_hire');
+		$field['txtdateofhire'] 		= $this->self_model->return_build_txtdate('','date_of_hire','date_of_hire','','','required');
 		$field['txtdatepermanent'] 		= $this->self_model->return_build_txtdate('','date_permanent','date_permanent');
 		
 		$field['seldirect'] 			= $this->self_model->return_build_txt('','direct','direct');
@@ -135,7 +135,7 @@ class Data_karyawan_os_menu extends MY_Controller
 
 		$field['chksameaddress'] 		= $this->self_model->return_build_radio('', [['Y','Yes'],['N','No']], 'is_same_address', 'is_same_address', 'inline');
 
-		$field['txtstatus'] 			= $this->self_model->return_build_radio('', [['1','Active'],['0','Not Active']], 'status', '', 'inline');
+		$field['txtstatus'] 			= $this->self_model->return_build_radio('', [['1','Active','required'],['0','Not Active','required']], 'status', '', 'inline');
 
 		$msjoblevel 					= $this->db->query("select * from master_job_level")->result(); 
 		$field['seljoblevel'] 			= $this->self_model->return_build_select2me($msjoblevel,'','','','job_level','job_level','','','id','name',' ','','','',1,'-');
@@ -143,7 +143,7 @@ class Data_karyawan_os_menu extends MY_Controller
 		$msgrade 					= $this->db->query("select * from master_grade")->result(); 
 		$field['selgrade'] 			= $this->self_model->return_build_select2me($msgrade,'','','','grade','grade','','','id','name',' ','','','',1,'-');
 
-		$field['txtshifttype'] 			= $this->self_model->return_build_radio('', [['Reguler','Reguler'],['Shift','Shift']], 'shift_type', '', 'inline');
+		$field['txtshifttype'] 			= $this->self_model->return_build_radio('', [['Reguler','Reguler','required'],['Shift','Shift','required']], 'shift_type', '', 'inline');
 
 		$field['txtfotoktp'] 			= $this->self_model->return_build_fileinput('foto_ktp','foto_ktp');
 		$field['txtfotonpwp'] 			= $this->self_model->return_build_fileinput('foto_npwp','foto_npwp');

@@ -8,42 +8,10 @@
 				: <span class="emp_code"></span>
 			</div>
 		</div>
-	</div>
-	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Source</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="emp_source"></span>
-			</div>
-		</div>
-		
-	</div>
-	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">FullName</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="full_name"></span>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Phone</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="phone"></span>
-			</div>
-		</div>
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Is Tracking</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="is_tracking"></span>
-			</div>
-		</div>
-		
-	</div>
-	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gender</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="gender"></span>
 			</div>
 		</div>
 		<div class="row">
@@ -58,6 +26,41 @@
 				: <span class="email"></span>
 			</div>
 		</div>
+		
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Is Tracking</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="is_tracking"></span>
+			</div>
+		</div>
+		
+	</div>
+	<div class="col-md-6 col-sm-12 col-xs-12">
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Status</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="status"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Source</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="emp_source"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gender</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="gender"></span>
+			</div>
+		</div>
+		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Phone</label>
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				: <span class="phone"></span>
+			</div>
+		</div>
+		
 	</div>
 
 </div>
@@ -121,17 +124,24 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS Ketenagakerjaan</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">BPJS Kesehatan</label>
 					<div class="col-md-5 col-sm-5 col-xs-5">
-						: <span class="no_bpjs_ketenagakerjaan"></span>
+						: <span class="status_bpjs_kes"></span>
 					</div>
 				</div>
-				<div class="row" id="view_foto_bpjs_ketenagakerjaan" style="display: none;">
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS Kesehatan</label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						: <span class="no_bpjs"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_bpjs" style="display: none;">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
 					<div class="col-md-5 col-sm-5 col-xs-5">
-						<span class="foto_bpjs_ketenagakerjaan"></span>
+						<span class="foto_bpjs"></span>
 					</div>
 				</div>
+				
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No NPWP</label>
 					<div class="col-md-5 col-sm-5 col-xs-5">
@@ -179,15 +189,21 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS Kesehatan</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">BPJS Ketenagakerjaan</label>
 					<div class="col-md-5 col-sm-5 col-xs-5">
-						: <span class="no_bpjs"></span>
+						: <span class="status_bpjs_ket"></span>
 					</div>
 				</div>
-				<div class="row" id="view_foto_bpjs" style="display: none;">
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">No BPJS Ketenagakerjaan</label>
+					<div class="col-md-5 col-sm-5 col-xs-5">
+						: <span class="no_bpjs_ketenagakerjaan"></span>
+					</div>
+				</div>
+				<div class="row" id="view_foto_bpjs_ketenagakerjaan" style="display: none;">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right"></label>
 					<div class="col-md-5 col-sm-5 col-xs-5">
-						<span class="foto_bpjs"></span>
+						<span class="foto_bpjs_ketenagakerjaan"></span>
 					</div>
 				</div>
 				
@@ -203,6 +219,24 @@
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
 				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Total Hari Kerja</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="ttl_hari_kerja"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Start PKWT</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="start_pkwt"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gaji Per Bulan</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="gaji_bulanan"></span>
+					</div>
+				</div>
+				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Company</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="company"></span>
@@ -215,11 +249,12 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Department</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Section</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="department"></span>
+						: <span class="section"></span>
 					</div>
 				</div>
+				
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Direct</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
@@ -245,17 +280,19 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Shift Type</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date Permanent</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="shift_type"></span>
+						: <span class="date_permanent"></span>
 					</div>
 				</div>
+				
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Photo</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="emp_photo"></span>
 					</div>
 				</div>
+				
 			</div>
 
 			<div class="col-md-6 col-sm-12 col-xs-12">
@@ -266,9 +303,27 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Section</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">End PKWT</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="section"></span>
+						: <span class="end_pkwt"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gaji Harian</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="gaji_harian"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Shift Type</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="shift_type"></span>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Department</label>
+					<div class="col-md-8 col-sm-8 col-xs-8">
+						: <span class="department"></span>
 					</div>
 				</div>
 				<div class="row">
@@ -302,17 +357,20 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Date Permanent</label>
+					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Username</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="date_permanent"></span>
+						: <span class="username"></span>
 					</div>
-				</div>
+				</div> 
+				
 				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Emp Signature</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="emp_signature"></span>
 					</div>
 				</div>
+
+				
 			</div>
 
 		</div>
@@ -696,12 +754,7 @@
 						: <span class="resign_exit_feedback"></span>
 					</div>
 				</div>
-				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Status</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="status"></span>
-					</div>
-				</div>
+				
 			</div>
 
 		</div>

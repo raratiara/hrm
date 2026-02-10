@@ -1,5 +1,6 @@
 
 <div class="row">
+	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Employee Code </label>
@@ -7,21 +8,16 @@
 				<?=$txtempcode;?>
 			</div>
 		</div>
-	</div>
-	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Emp Source </label>
-			<div class="col-md-8">
-				<?=$txtempsource;?>
-			</div>
-		</div>
-		
-	</div>
-	<div class="col-md-6 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">FullName </label>
+			<label class="col-md-4 control-label no-padding-right">FullName <span style="color:red">*</span></label>
 			<div class="col-md-8">
 				<?=$txtfullname;?>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">NickName </label>
+			<div class="col-md-8">
+				<?=$txtnickname;?>
 			</div>
 		</div>
 		<div class="form-group">
@@ -37,19 +33,27 @@
 			</div>
 		</div>
 	</div>
+
 	<div class="col-md-6 col-sm-12">
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Status <span style="color:red">*</span></label>
+			<div class="col-md-8">
+				<?=$txtstatus;?>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Emp Source </label>
+			<div class="col-md-8">
+				<?=$txtempsource;?>
+			</div>
+		</div>
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Gender </label>
 			<div class="col-md-8">
 				<?=$txtgender;?>
 			</div>
 		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">NickName </label>
-			<div class="col-md-8">
-				<?=$txtnickname;?>
-			</div>
-		</div>
+		
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Phone </label>
 			<div class="col-md-8">
@@ -57,6 +61,7 @@
 			</div>
 		</div>
 	</div>
+	
 </div>
 
 
@@ -94,7 +99,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">No KTP </label>
+				<label class="col-md-4 control-label no-padding-right">No KTP <span style="color:red">*</span></label>
 				<div class="col-md-5">
 					<?=$txtnoktp;?>
 				</div>
@@ -125,16 +130,24 @@
 					<span class="file_sima"></span>
 				</div>
 			</div>
+
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">No BPJS Ketenagakerjaan</label>
-				<div class="col-md-5">
-					<?=$txtnobpjs_ketenagakerjaan;?>
-				</div>
-				<div class="col-md-3">
-					<?=$txtfotobpjs_ketenagakerjaan;?>
-					<input type="hidden" id="hdnfotobpjs_ketenagakerjaan" name="hdnfotobpjs_ketenagakerjaan"/>
+				<label class="col-md-4 control-label no-padding-right">BPJS Kesehatan </label>
+				<div class="col-md-8">
+					<?=$txtstatusbpjskes;?>
 				</div>
 			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No BPJS Kesehatan <span style="color:red">*</span></label>
+				<div class="col-md-5">
+					<?=$txtnobpjs;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotobpjs;?>
+					<input type="hidden" id="hdnfotobpjs" name="hdnfotobpjs"/>
+				</div>
+			</div>
+
 			<div class="form-group" id="form_file_bpjs_ketenagakerjaan" style="display: none;">
 				<label class="col-md-4 control-label no-padding-right"> </label>
 				<div class="col-md-4">
@@ -174,7 +187,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">Marital Status </label>
+				<label class="col-md-4 control-label no-padding-right">Marital Status <span style="color:red">*</span></label>
 				<div class="col-md-8">
 					<?=$selmaritalstatus;?>
 				</div>
@@ -196,15 +209,22 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">No BPJS Kesehatan</label>
-				<div class="col-md-5">
-					<?=$txtnobpjs;?>
-				</div>
-				<div class="col-md-3">
-					<?=$txtfotobpjs;?>
-					<input type="hidden" id="hdnfotobpjs" name="hdnfotobpjs"/>
+				<label class="col-md-4 control-label no-padding-right">BPJS Ketenagakerjaan </label>
+				<div class="col-md-8">
+					<?=$txtstatusbpjsket;?>
 				</div>
 			</div>
+			<div class="form-group">
+				<label class="col-md-4 control-label no-padding-right">No BPJS Ketenagakerjaan <span style="color:red">*</span></label>
+				<div class="col-md-5">
+					<?=$txtnobpjs_ketenagakerjaan;?>
+				</div>
+				<div class="col-md-3">
+					<?=$txtfotobpjs_ketenagakerjaan;?>
+					<input type="hidden" id="hdnfotobpjs_ketenagakerjaan" name="hdnfotobpjs_ketenagakerjaan"/>
+				</div>
+			</div>
+			
 			<div class="form-group" id="form_file_bpjs" style="display: none;">
 				<label class="col-md-4 control-label no-padding-right"> </label>
 				<div class="col-md-4">
@@ -221,8 +241,32 @@
 
     <div class="tab-pane" id="office">
     	<div class="row">
-
+    			
 				<div class="col-md-6 col-sm-12">
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Total Hari Kerja </label>
+						<div class="col-md-8">
+							<?=$txtttlharikerja;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Start PKWT </label>
+						<div class="col-md-8">
+							<?=$txtstartpkwt;?>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Gaji Per Bulan </label>
+						<div class="col-md-8">
+							<?=$txtgajibulanan;?>
+						</div>
+					</div>
+					<div class="form-group" id="inpUsername" style="display:none">
+						<label class="col-md-4 control-label no-padding-right">Username </label>
+						<div class="col-md-8">
+							<?=$txtusername;?>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Company</label>
 						<div class="col-md-8">
@@ -236,11 +280,12 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Department </label>
+						<label class="col-md-4 control-label no-padding-right">Section</label>
 						<div class="col-md-8">
-							<?=$seldepartment;?>
+							<?=$selsection;?>
 						</div>
 					</div>
+					
 					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Direct </label>
 						<div class="col-md-8">
@@ -260,17 +305,18 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Date of Hire </label>
+						<label class="col-md-4 control-label no-padding-right">Date of Hire <span style="color:red">*</span></label>
 						<div class="col-md-8">
 							<?=$txtdateofhire;?>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Shift Type </label>
+						<label class="col-md-4 control-label no-padding-right">Date Permanent </label>
 						<div class="col-md-8">
-							<?=$txtshifttype;?>
+							<?=$txtdatepermanent;?>
 						</div>
 					</div>
+					
 					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Emp Photo</label>
 						<div class="col-md-4">
@@ -284,21 +330,49 @@
 					
 				</div>
 
+				
 				<div class="col-md-6 col-sm-12">
 					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Work Location </label>
+						<label class="col-md-4 control-label no-padding-right">Work Location <span style="color:red">*</span></label>
 						<div class="col-md-8">
 							<!-- <?=$txtworklocation;?> -->
 							<?=$selworkloc;?>
-							
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Section</label>
+						<label class="col-md-4 control-label no-padding-right">End PKWT </label>
 						<div class="col-md-8">
-							<?=$selsection;?>
+							<?=$txtendpkwt;?>
 						</div>
 					</div>
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Gaji Harian </label>
+						<div class="col-md-8">
+							<?=$txtgajiharian;?>
+						</div>
+					</div>
+					<div class="form-group" id="inpPassword" style="display:none">
+						<label class="col-md-4 control-label no-padding-right">Password </label>
+						<div class="col-md-8">
+							<?=$txtpassword;?>
+						</div>
+					</div>
+					
+					
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Shift Type <span style="color:red">*</span></label>
+						<div class="col-md-8">
+							<?=$txtshifttype;?>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-md-4 control-label no-padding-right">Department </label>
+						<div class="col-md-8">
+							<?=$seldepartment;?>
+						</div>
+					</div>
+					
 					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Branch </label>
 						<div class="col-md-8">
@@ -329,12 +403,7 @@
 							<?=$txtdateendprob;?>
 						</div>
 					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Date Permanent </label>
-						<div class="col-md-8">
-							<?=$txtdatepermanent;?>
-						</div>
-					</div>
+					
 					<div class="form-group">
 						<label class="col-md-4 control-label no-padding-right">Emp Signature </label>
 						<div class="col-md-4">
@@ -740,12 +809,7 @@
 						<?=$txtresignexitfeedback;?>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Status</label>
-					<div class="col-md-8">
-						<?=$txtstatus;?>
-					</div>
-				</div>
+				
         	</div>
 
         </div>

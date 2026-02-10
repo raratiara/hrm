@@ -436,382 +436,389 @@ class Data_karyawan_os_menu_model extends MY_Model
 		$dateofStartPkwt 	= date("Y-m-d", strtotime($start_pkwt));
 		$dateofEndPkwt 		= date("Y-m-d", strtotime($end_pkwt));
 
-		if($post['company'] == ''){
-			echo "Please fill the Company"; die();
-		}else if(!isset($post['shift_type'])){
-			echo "Please fill the Shift Type"; die();
-		}else if(!isset($post['status'])){
-			echo "Please choose Status"; die();
+
+		if($post['full_name'] == '' || $post['status'] == '' || $post['no_ktp'] == '' || $post['marital_status'] == '' || $post['no_bpjs'] == '' || $post['no_bpjs_ketenagakerjaan'] == '' || $post['work_loc'] == '' || $post['shift_type'] == '' || $post['date_of_hire'] == '' || $post['project'] == '' || $post['customer'] == ''){
+			echo "Please fill the Mandatory Field"; 
+		
 		}else{
-			
-			//NBI[2DIGITTAHUNBLN][4DIGITNOURUT]
 
-			if($dateofHired != ''){
-    			$YMdateofHired = date('ym', strtotime($dateofHired));
-    		}else{
-    			$yearcode = date("y");
-				$monthcode = date("m");
-				$YMdateofHired = $yearcode.$monthcode;
-    		}
 
-			$getcomp = $this->db->query("select * from companies where id = '".$post['company']."' ")->result(); 
-			if(!empty($getcomp)){ 
-				$lettercode 	= $getcomp[0]->emp_code; 
-			}else{ //value tidak diketahui
-				$lettercode 	= 'NNN'; 
+			$dataEmployee = $this->db->query("select * from employees where full_name = '".$post['full_name']."' ")->result();
+			if(!empty($dataEmployee)){
+				echo "Tidak dapat menyimpan data dengan Nama Karyawan yang sama";
 			}
-			
-			$code = $lettercode.$YMdateofHired; 
-			$runningnumber 	= $this->getNextNumber($code); // next count number
-			$genEmpCode 	= $lettercode.$YMdateofHired.$runningnumber;
+			else{
 
+				//NBI[2DIGITTAHUNBLN][4DIGITNOURUT]
 
+				if($dateofHired != ''){
+	    			$YMdateofHired = date('ym', strtotime($dateofHired));
+	    		}else{
+	    			$yearcode = date("y");
+					$monthcode = date("m");
+					$YMdateofHired = $yearcode.$monthcode;
+	    		}
 
-			$upload_dir = './uploads/employee/'.$genEmpCode.'/'; // nama folder
-			// Cek apakah folder sudah ada
-			if (!is_dir($upload_dir)) {
-			    // Jika belum ada, buat folder
-			    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
-			}
-
-
-
-			$upload_emp_photo = $this->upload_file($upload_dir, '1', 'emp_photo', FALSE, '', TRUE, '');
-			$emp_photo = '';
-			if($upload_emp_photo['status']){
-				$emp_photo = $upload_emp_photo['upload_file'];
-			} else if(isset($upload_emp_photo['error_warning'])){
-				echo $upload_emp_photo['error_warning']; exit;
-			}
-
-			$upload_emp_sign = $this->upload_file($upload_dir, '1', 'emp_signature', FALSE, '', TRUE, '');
-			$emp_signature = '';
-			if($upload_emp_sign['status']){
-				$emp_signature = $upload_emp_sign['upload_file'];
-			} else if(isset($upload_emp_sign['error_warning'])){
-				echo $upload_emp_sign['error_warning']; exit;
-			}
-
-			$upload_foto_ktp = $this->upload_file($upload_dir, '1', 'foto_ktp', FALSE, '', TRUE, '');
-			$foto_ktp = '';
-			if($upload_foto_ktp['status']){
-				$foto_ktp = $upload_foto_ktp['upload_file'];
-			} else if(isset($upload_foto_ktp['error_warning'])){
-				echo $upload_foto_ktp['error_warning']; exit;
-			}
-
-			$upload_foto_npwp = $this->upload_file($upload_dir, '1', 'foto_npwp', FALSE, '', TRUE, '');
-			$foto_npwp = '';
-			if($upload_foto_npwp['status']){
-				$foto_npwp = $upload_foto_npwp['upload_file'];
-			} else if(isset($upload_foto_npwp['error_warning'])){
-				echo $upload_foto_npwp['error_warning']; exit;
-			}
-
-			$upload_foto_bpjs = $this->upload_file($upload_dir, '1', 'foto_bpjs', FALSE, '', TRUE, '');
-			$foto_bpjs = '';
-			if($upload_foto_bpjs['status']){
-				$foto_bpjs = $upload_foto_bpjs['upload_file'];
-			} else if(isset($upload_foto_bpjs['error_warning'])){
-				echo $upload_foto_bpjs['error_warning']; exit;
-			}
-
-			$upload_foto_bpjs_ketenagakerjaan = $this->upload_file($upload_dir, '1', 'foto_bpjs_ketenagakerjaan', FALSE, '', TRUE, '');
-			$foto_bpjs_ketenagakerjaan = '';
-			if($upload_foto_bpjs_ketenagakerjaan['status']){
-				$foto_bpjs_ketenagakerjaan = $upload_foto_bpjs_ketenagakerjaan['upload_file'];
-			} else if(isset($upload_foto_bpjs_ketenagakerjaan['error_warning'])){
-				echo $upload_foto_bpjs_ketenagakerjaan['error_warning']; exit;
-			}
-
-			$upload_foto_sima = $this->upload_file($upload_dir, '1', 'foto_sima', FALSE, '', TRUE, '');
-			$foto_sima = '';
-			if($upload_foto_sima['status']){
-				$foto_sima = $upload_foto_sima['upload_file'];
-			} else if(isset($upload_foto_sima['error_warning'])){
-				echo $upload_foto_sima['error_warning']; exit;
-			}
-
-			$upload_foto_simc = $this->upload_file($upload_dir, '1', 'foto_simc', FALSE, '', TRUE, '');
-			$foto_simc = '';
-			if($upload_foto_simc['status']){
-				$foto_simc = $upload_foto_simc['upload_file'];
-			} else if(isset($upload_foto_simc['error_warning'])){
-				echo $upload_foto_simc['error_warning']; exit;
-			}
-
-
-
-			$data = [
-				'emp_code' 						=> $genEmpCode,
-				'full_name' 					=> trim($post['full_name'] ?? ''),
-				'nick_name' 					=> trim($post['nick_name'] ?? ''),
-				'personal_email' 				=> trim($post['email'] ?? ''),
-				'personal_phone' 				=> trim($post['phone'] ?? ''),
-				'gender' 						=> trim($post['gender'] ?? ''),
-				'ethnic' 						=> trim($post['ethnic'] ?? ''),
-				'nationality' 					=> trim($post['nationality'] ?? ''),
-				//'last_education_id' 			=> trim($post['last_education']),
-				'marital_status_id' 			=> trim($post['marital_status'] ?? ''),
-				/*'tanggungan' 					=> trim($post['tanggungan']),*/
-				'no_ktp' 						=> trim($post['no_ktp'] ?? ''),
-				'sim_a' 						=> trim($post['sim_a'] ?? ''),
-				'sim_c' 						=> trim($post['sim_c'] ?? ''),
-				'no_npwp' 						=> trim($post['no_npwp'] ?? ''),
-				'no_bpjs' 						=> trim($post['no_bpjs'] ?? ''),
-				'place_of_birth' 				=> trim($post['place_of_birth'] ?? ''),
-				'date_of_birth' 				=> date("Y-m-d", strtotime($date_of_birth)),
-				'address_ktp' 					=> trim($post['address1'] ?? ''),
-				'address_residen' 				=> trim($post['address2'] ?? ''),
-				'postal_code_ktp' 				=> trim($post['postal_code1'] ?? ''),
-				'postal_code_residen' 			=> trim($post['postal_code2'] ?? ''),
-				'province_id_ktp' 				=> trim($post['province1'] ?? ''),
-				'province_id_residen' 			=> trim($post['province2'] ?? ''),
-				'regency_id_ktp' 				=> trim($post['regency1'] ?? ''),
-				'regency_id_residen' 			=> trim($post['regency2'] ?? ''),
-				'district_id_ktp' 				=> trim($post['district1'] ?? ''),
-				'district_id_residen' 			=> trim($post['district2'] ?? ''),
-				'village_id_ktp' 				=> trim($post['village1'] ?? ''),
-				'village_id_residen' 			=> trim($post['village2'] ?? ''),
-				'job_title_id' 					=> trim($post['job_title'] ?? ''),
-				'department_id' 				=> trim($post['department'] ?? ''),
-				'date_of_hire' 					=> $dateofHired,
-				'date_end_probation' 			=> date("Y-m-d", strtotime($date_end_prob)),
-				'date_permanent' 				=> date("Y-m-d", strtotime($date_permanent)),
-				'employment_status_id' 			=> trim($post['emp_status'] ?? ''),
-				'shift_type' 					=> trim($post['shift_type'] ?? ''),
-				'work_location' 				=> trim($post['work_loc'] ?? ''),
-				'direct_id' 					=> trim($post['direct'] ?? ''),
-				'indirect_id' 					=> trim($post['indirect'] ?? ''),
-				'emergency_contact_name' 		=> trim($post['emergency_name'] ?? ''),
-				'emergency_contact_phone' 		=> trim($post['emergency_phone'] ?? ''),
-				'emergency_contact_email' 		=> trim($post['emergency_email'] ?? ''),
-				'emergency_contact_relation' 	=> trim($post['emergency_relation'] ?? ''),
-				'bank_name' 					=> trim($post['bank_name'] ?? ''),
-				'bank_address' 					=> trim($post['bank_address'] ?? ''),
-				'bank_acc_name' 				=> trim($post['bank_acc_name'] ?? ''),
-				'bank_acc_no' 					=> trim($post['bank_acc_no'] ?? ''),
-				'date_resign_letter' 			=> date("Y-m-d", strtotime($date_resign_letter)),
-				'date_resign_active' 			=> date("Y-m-d", strtotime($date_resign_active)),
-				'resign_category' 				=> trim($post['resign_category'] ?? ''),
-				'resign_reason' 				=> trim($post['resign_reason'] ?? ''),
-				'resign_exit_interview_feedback' 	=> trim($post['resign_exit_feedback'] ?? ''),
-				'emp_photo' 					=> $emp_photo,
-				'emp_signature' 				=> $emp_signature,
-				'created_at' 					=> date("Y-m-d H:i:s"),
-				'company_id' 					=> trim($post['company'] ?? ''),
-				'division_id' 					=> trim($post['division'] ?? ''),
-				'branch_id' 					=> trim($post['branch'] ?? ''),
-				'section_id' 					=> trim($post['section'] ?? ''),
-				'status_id' 					=> trim($post['status'] ?? ''),
-				'job_level_id' 					=> trim($post['job_level'] ?? ''),
-				'grade_id' 						=> trim($post['grade'] ?? ''),
-				'foto_ktp' 						=> $foto_ktp,
-				'foto_npwp' 					=> $foto_npwp,
-				'foto_bpjs' 					=> $foto_bpjs,
-				'foto_sima' 					=> $foto_sima,
-				'foto_simc' 					=> $foto_simc,
-				'is_tracking' 					=> trim($post['is_tracking'] ?? ''),
-				'emp_source' 					=> 'outsource',
-				'start_pkwt' 					=> $dateofStartPkwt,
-				'end_pkwt' 						=> $dateofEndPkwt,
-				'cust_id' 						=> trim($post['customer'] ?? ''),
-				'project_id' 					=> trim($post['project'] ?? ''),
-				'total_hari_kerja' 				=> trim($post['ttl_hari_kerja'] ?? ''),
-				'status_bpjs_ketenagakerjaan' 	=> trim($post['status_bpjs_ket'] ?? ''),
-				'status_bpjs_kesehatan' 		=> trim($post['status_bpjs_kes'] ?? ''),
-				'foto_bpjs_ketenagakerjaan' 	=> $foto_bpjs_ketenagakerjaan,
-				'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? ''),
-				'gaji_bulanan' 					=> trim($post['gaji_bulanan'] ?? ''),
-				'gaji_harian' 					=> trim($post['gaji_harian'] ?? '')
-			];
- 
-			$rs = $this->db->insert($this->table_name, $data);
-			$lastId = $this->db->insert_id();
-
-			if($rs){
-
-				// add ke table education detail //
-				if(isset($post['education'])){
-					$item_num = count($post['education']); // cek sum
-					$item_len_min = min(array_keys($post['education'])); // cek min key index
-					$item_len = max(array_keys($post['education'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
-
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						$upload_file_ijazah = $this->upload_file($upload_dir, '1', 'file_ijazah'.$i.'', FALSE, '', TRUE, $i);
-						$file_ijazah = '';
-						if($upload_file_ijazah['status']){ 
-							$file_ijazah = $upload_file_ijazah['upload_file'];
-						} else if(isset($upload_file_ijazah['error_warning'])){ 
-							echo $upload_file_ijazah['error_warning']; exit;
-						}
-
-						if(isset($post['education'][$i])){
-							$itemData = [
-								'employee_id' 	=> $lastId,
-								'education_id' 	=> trim($post['education'][$i]),
-								'institution' 	=> trim($post['institution'][$i]),
-								'city' 			=> trim($post['city'][$i]),
-								'year' 			=> trim($post['year'][$i]),
-								'file_ijazah' 	=> $file_ijazah
-							];
-
-							$this->db->insert('education_detail', $itemData);
-						}
-					}
-				}
-				// end add ke table education detail //
-
-				// add ke table training detail //
-				if(isset($post['training_name'])){
-					$item_num_training = count($post['training_name']); // cek sum
-					$item_len_min_training = min(array_keys($post['training_name'])); // cek min key index
-					$item_len_training = max(array_keys($post['training_name'])); // cek max key index
-				} else {
-					$item_num_training = 0;
-				}
-
-				if($item_num_training>0){
-					for($i=$item_len_min_training;$i<=$item_len_training;$i++) 
-					{
-						$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'file_sertifikat'.$i.'', FALSE, '', TRUE, $i);
-						$file_sertifikat = '';
-						if($upload_file_sertifikat['status']){ 
-							$file_sertifikat = $upload_file_sertifikat['upload_file'];
-						} else if(isset($upload_file_sertifikat['error_warning'])){ 
-							echo $upload_file_sertifikat['error_warning']; exit;
-						}
-
-						if(isset($post['training_name'][$i])){
-							$itemData_training = [
-								'employee_id' 		=> $lastId,
-								'training_name' 	=> trim($post['training_name'][$i]),
-								'city' 				=> trim($post['city_training'][$i]),
-								'year' 				=> trim($post['year_training'][$i]),
-								'file_sertifikat' 	=> $file_sertifikat
-							];
-
-							$this->db->insert('training_detail', $itemData_training);
-						}
-					}
-				}
-				// end add ke table training detail //
-
-				// add ke table organisasi detail //
-				if(isset($post['organization_name'])){
-					$item_num_org = count($post['organization_name']); // cek sum
-					$item_len_min_org = min(array_keys($post['organization_name'])); // cek min key index
-					$item_len_org = max(array_keys($post['organization_name'])); // cek max key index
-				} else {
-					$item_num_org = 0;
-				}
-
-				if($item_num_org>0){
-					for($i=$item_len_min_org;$i<=$item_len_org;$i++) 
-					{
-						if(isset($post['organization_name'][$i])){
-							$itemData_org = [
-								'employee_id' 		=> $lastId,
-								'organization_name' => trim($post['organization_name'][$i]),
-								'institution' 		=> trim($post['institution_org'][$i]),
-								'position' 			=> trim($post['position'][$i]),
-								'city' 				=> trim($post['city_org'][$i]),
-								'year' 				=> trim($post['year_org'][$i])
-							];
-
-							$this->db->insert('organization_detail', $itemData_org);
-						}
-					}
-				}
-				// end add ke table organisasi detail //
-
-				// add ke table work experience detail //
-				if(isset($post['company_workexp'])){
-					$item_num_workexp = count($post['company_workexp']); // cek sum
-					$item_len_min_workexp = min(array_keys($post['company_workexp'])); // cek min key index
-					$item_len_workexp = max(array_keys($post['company_workexp'])); // cek max key index
-				} else {
-					$item_num_workexp = 0;
-				}
-
-				if($item_num_workexp>0){
-					for($i=$item_len_min_workexp;$i<=$item_len_workexp;$i++) 
-					{
-						if(isset($post['company_workexp'][$i])){
-							$itemData_workexp = [
-								'employee_id' 		=> $lastId,
-								'company' 			=> trim($post['company_workexp'][$i]),
-								'position' 			=> trim($post['position_workexp'][$i]),
-								'city' 				=> trim($post['city_workexp'][$i]),
-								'year' 				=> trim($post['year_workexp'][$i])
-							];
-
-							$this->db->insert('work_experience_detail', $itemData_workexp);
-						}
-					}
-				}
-				// end add ke table work experience detail //
-
-
-
-
-				// add ke table user //
-				$pwd = '112233';
-				if($post['password'] != ''){
-					$pwd = $post['password'];
+				$getcomp = $this->db->query("select * from companies where id = '".$post['company']."' ")->result(); 
+				if(!empty($getcomp)){ 
+					$lettercode 	= $getcomp[0]->emp_code; 
+				}else{ //value tidak diketahui
+					$lettercode 	= 'NNN'; 
 				}
 				
-				$password = md5($pwd);
+				$code = $lettercode.$YMdateofHired; 
+				$runningnumber 	= $this->getNextNumber($code); // next count number
+				$genEmpCode 	= $lettercode.$YMdateofHired.$runningnumber;
 
 
-				if($post['username'] != ''){
-					$username = $post['username'];
-				}else{
-					$name = $post['full_name'];
-					$username = strtolower(trim($name));
 
-					/*if ($username == trim($username) && strpos($username, ' ') !== false) {
-					    $username = str_replace(" ","_",$username);
-					}*/
-
-					$words = explode(' ', $username);
-					if (count($words) > 1) {
-						$username = str_replace(" ","_",$username);
-					}
+				$upload_dir = './uploads/employee/'.$genEmpCode.'/'; // nama folder
+				// Cek apakah folder sudah ada
+				if (!is_dir($upload_dir)) {
+				    // Jika belum ada, buat folder
+				    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
 				}
-				
-				
 
-				$data2 = [
-					'name' 			=> trim($post['full_name']),
-					'email' 		=> trim($post['email']),
-					'username'		=> $username,
-					'passwd' 		=> $password,
-					'id_karyawan'	=> $lastId,
-					'id_groups' 	=> 5, //user outsource
-					'base_menu'		=> 'role',
-					'id_branch'		=> trim($post['branch']),
-					'isaktif' 		=> 2,
-					'date_insert' 	=> date("Y-m-d H:i:s")
+
+
+				$upload_emp_photo = $this->upload_file($upload_dir, '1', 'emp_photo', FALSE, '', TRUE, '');
+				$emp_photo = '';
+				if($upload_emp_photo['status']){
+					$emp_photo = $upload_emp_photo['upload_file'];
+				} else if(isset($upload_emp_photo['error_warning'])){
+					echo $upload_emp_photo['error_warning']; exit;
+				}
+
+				$upload_emp_sign = $this->upload_file($upload_dir, '1', 'emp_signature', FALSE, '', TRUE, '');
+				$emp_signature = '';
+				if($upload_emp_sign['status']){
+					$emp_signature = $upload_emp_sign['upload_file'];
+				} else if(isset($upload_emp_sign['error_warning'])){
+					echo $upload_emp_sign['error_warning']; exit;
+				}
+
+				$upload_foto_ktp = $this->upload_file($upload_dir, '1', 'foto_ktp', FALSE, '', TRUE, '');
+				$foto_ktp = '';
+				if($upload_foto_ktp['status']){
+					$foto_ktp = $upload_foto_ktp['upload_file'];
+				} else if(isset($upload_foto_ktp['error_warning'])){
+					echo $upload_foto_ktp['error_warning']; exit;
+				}
+
+				$upload_foto_npwp = $this->upload_file($upload_dir, '1', 'foto_npwp', FALSE, '', TRUE, '');
+				$foto_npwp = '';
+				if($upload_foto_npwp['status']){
+					$foto_npwp = $upload_foto_npwp['upload_file'];
+				} else if(isset($upload_foto_npwp['error_warning'])){
+					echo $upload_foto_npwp['error_warning']; exit;
+				}
+
+				$upload_foto_bpjs = $this->upload_file($upload_dir, '1', 'foto_bpjs', FALSE, '', TRUE, '');
+				$foto_bpjs = '';
+				if($upload_foto_bpjs['status']){
+					$foto_bpjs = $upload_foto_bpjs['upload_file'];
+				} else if(isset($upload_foto_bpjs['error_warning'])){
+					echo $upload_foto_bpjs['error_warning']; exit;
+				}
+
+				$upload_foto_bpjs_ketenagakerjaan = $this->upload_file($upload_dir, '1', 'foto_bpjs_ketenagakerjaan', FALSE, '', TRUE, '');
+				$foto_bpjs_ketenagakerjaan = '';
+				if($upload_foto_bpjs_ketenagakerjaan['status']){
+					$foto_bpjs_ketenagakerjaan = $upload_foto_bpjs_ketenagakerjaan['upload_file'];
+				} else if(isset($upload_foto_bpjs_ketenagakerjaan['error_warning'])){
+					echo $upload_foto_bpjs_ketenagakerjaan['error_warning']; exit;
+				}
+
+				$upload_foto_sima = $this->upload_file($upload_dir, '1', 'foto_sima', FALSE, '', TRUE, '');
+				$foto_sima = '';
+				if($upload_foto_sima['status']){
+					$foto_sima = $upload_foto_sima['upload_file'];
+				} else if(isset($upload_foto_sima['error_warning'])){
+					echo $upload_foto_sima['error_warning']; exit;
+				}
+
+				$upload_foto_simc = $this->upload_file($upload_dir, '1', 'foto_simc', FALSE, '', TRUE, '');
+				$foto_simc = '';
+				if($upload_foto_simc['status']){
+					$foto_simc = $upload_foto_simc['upload_file'];
+				} else if(isset($upload_foto_simc['error_warning'])){
+					echo $upload_foto_simc['error_warning']; exit;
+				}
+
+
+
+				$data = [
+					'emp_code' 						=> $genEmpCode,
+					'full_name' 					=> trim($post['full_name'] ?? ''),
+					'nick_name' 					=> trim($post['nick_name'] ?? ''),
+					'personal_email' 				=> trim($post['email'] ?? ''),
+					'personal_phone' 				=> trim($post['phone'] ?? ''),
+					'gender' 						=> trim($post['gender'] ?? ''),
+					'ethnic' 						=> trim($post['ethnic'] ?? ''),
+					'nationality' 					=> trim($post['nationality'] ?? ''),
+					//'last_education_id' 			=> trim($post['last_education']),
+					'marital_status_id' 			=> trim($post['marital_status'] ?? ''),
+					/*'tanggungan' 					=> trim($post['tanggungan']),*/
+					'no_ktp' 						=> trim($post['no_ktp'] ?? ''),
+					'sim_a' 						=> trim($post['sim_a'] ?? ''),
+					'sim_c' 						=> trim($post['sim_c'] ?? ''),
+					'no_npwp' 						=> trim($post['no_npwp'] ?? ''),
+					'no_bpjs' 						=> trim($post['no_bpjs'] ?? ''),
+					'place_of_birth' 				=> trim($post['place_of_birth'] ?? ''),
+					'date_of_birth' 				=> date("Y-m-d", strtotime($date_of_birth)),
+					'address_ktp' 					=> trim($post['address1'] ?? ''),
+					'address_residen' 				=> trim($post['address2'] ?? ''),
+					'postal_code_ktp' 				=> trim($post['postal_code1'] ?? ''),
+					'postal_code_residen' 			=> trim($post['postal_code2'] ?? ''),
+					'province_id_ktp' 				=> trim($post['province1'] ?? ''),
+					'province_id_residen' 			=> trim($post['province2'] ?? ''),
+					'regency_id_ktp' 				=> trim($post['regency1'] ?? ''),
+					'regency_id_residen' 			=> trim($post['regency2'] ?? ''),
+					'district_id_ktp' 				=> trim($post['district1'] ?? ''),
+					'district_id_residen' 			=> trim($post['district2'] ?? ''),
+					'village_id_ktp' 				=> trim($post['village1'] ?? ''),
+					'village_id_residen' 			=> trim($post['village2'] ?? ''),
+					'job_title_id' 					=> trim($post['job_title'] ?? ''),
+					'department_id' 				=> trim($post['department'] ?? ''),
+					'date_of_hire' 					=> $dateofHired,
+					'date_end_probation' 			=> date("Y-m-d", strtotime($date_end_prob)),
+					'date_permanent' 				=> date("Y-m-d", strtotime($date_permanent)),
+					'employment_status_id' 			=> trim($post['emp_status'] ?? ''),
+					'shift_type' 					=> trim($post['shift_type'] ?? ''),
+					'work_location' 				=> trim($post['work_loc'] ?? ''),
+					'direct_id' 					=> trim($post['direct'] ?? ''),
+					'indirect_id' 					=> trim($post['indirect'] ?? ''),
+					'emergency_contact_name' 		=> trim($post['emergency_name'] ?? ''),
+					'emergency_contact_phone' 		=> trim($post['emergency_phone'] ?? ''),
+					'emergency_contact_email' 		=> trim($post['emergency_email'] ?? ''),
+					'emergency_contact_relation' 	=> trim($post['emergency_relation'] ?? ''),
+					'bank_name' 					=> trim($post['bank_name'] ?? ''),
+					'bank_address' 					=> trim($post['bank_address'] ?? ''),
+					'bank_acc_name' 				=> trim($post['bank_acc_name'] ?? ''),
+					'bank_acc_no' 					=> trim($post['bank_acc_no'] ?? ''),
+					'date_resign_letter' 			=> date("Y-m-d", strtotime($date_resign_letter)),
+					'date_resign_active' 			=> date("Y-m-d", strtotime($date_resign_active)),
+					'resign_category' 				=> trim($post['resign_category'] ?? ''),
+					'resign_reason' 				=> trim($post['resign_reason'] ?? ''),
+					'resign_exit_interview_feedback' 	=> trim($post['resign_exit_feedback'] ?? ''),
+					'emp_photo' 					=> $emp_photo,
+					'emp_signature' 				=> $emp_signature,
+					'created_at' 					=> date("Y-m-d H:i:s"),
+					'company_id' 					=> trim($post['company'] ?? ''),
+					'division_id' 					=> trim($post['division'] ?? ''),
+					'branch_id' 					=> trim($post['branch'] ?? ''),
+					'section_id' 					=> trim($post['section'] ?? ''),
+					'status_id' 					=> trim($post['status'] ?? ''),
+					'job_level_id' 					=> trim($post['job_level'] ?? ''),
+					'grade_id' 						=> trim($post['grade'] ?? ''),
+					'foto_ktp' 						=> $foto_ktp,
+					'foto_npwp' 					=> $foto_npwp,
+					'foto_bpjs' 					=> $foto_bpjs,
+					'foto_sima' 					=> $foto_sima,
+					'foto_simc' 					=> $foto_simc,
+					'is_tracking' 					=> trim($post['is_tracking'] ?? ''),
+					'emp_source' 					=> 'outsource',
+					'start_pkwt' 					=> $dateofStartPkwt,
+					'end_pkwt' 						=> $dateofEndPkwt,
+					'cust_id' 						=> trim($post['customer'] ?? ''),
+					'project_id' 					=> trim($post['project'] ?? ''),
+					'total_hari_kerja' 				=> trim($post['ttl_hari_kerja'] ?? ''),
+					'status_bpjs_ketenagakerjaan' 	=> trim($post['status_bpjs_ket'] ?? ''),
+					'status_bpjs_kesehatan' 		=> trim($post['status_bpjs_kes'] ?? ''),
+					'foto_bpjs_ketenagakerjaan' 	=> $foto_bpjs_ketenagakerjaan,
+					'no_bpjs_ketenagakerjaan' 		=> trim($post['no_bpjs_ketenagakerjaan'] ?? ''),
+					'gaji_bulanan' 					=> trim($post['gaji_bulanan'] ?? ''),
+					'gaji_harian' 					=> trim($post['gaji_harian'] ?? '')
 				];
-				$this->db->insert('user', $data2);
-				// end add ke table user //
+	 
+				$rs = $this->db->insert($this->table_name, $data);
+				$lastId = $this->db->insert_id();
+
+				if($rs){
+
+					// add ke table education detail //
+					if(isset($post['education'])){
+						$item_num = count($post['education']); // cek sum
+						$item_len_min = min(array_keys($post['education'])); // cek min key index
+						$item_len = max(array_keys($post['education'])); // cek max key index
+					} else {
+						$item_num = 0;
+					}
+
+					if($item_num>0){
+						for($i=$item_len_min;$i<=$item_len;$i++) 
+						{
+							$upload_file_ijazah = $this->upload_file($upload_dir, '1', 'file_ijazah'.$i.'', FALSE, '', TRUE, $i);
+							$file_ijazah = '';
+							if($upload_file_ijazah['status']){ 
+								$file_ijazah = $upload_file_ijazah['upload_file'];
+							} else if(isset($upload_file_ijazah['error_warning'])){ 
+								echo $upload_file_ijazah['error_warning']; exit;
+							}
+
+							if(isset($post['education'][$i])){
+								$itemData = [
+									'employee_id' 	=> $lastId,
+									'education_id' 	=> trim($post['education'][$i]),
+									'institution' 	=> trim($post['institution'][$i]),
+									'city' 			=> trim($post['city'][$i]),
+									'year' 			=> trim($post['year'][$i]),
+									'file_ijazah' 	=> $file_ijazah
+								];
+
+								$this->db->insert('education_detail', $itemData);
+							}
+						}
+					}
+					// end add ke table education detail //
+
+					// add ke table training detail //
+					if(isset($post['training_name'])){
+						$item_num_training = count($post['training_name']); // cek sum
+						$item_len_min_training = min(array_keys($post['training_name'])); // cek min key index
+						$item_len_training = max(array_keys($post['training_name'])); // cek max key index
+					} else {
+						$item_num_training = 0;
+					}
+
+					if($item_num_training>0){
+						for($i=$item_len_min_training;$i<=$item_len_training;$i++) 
+						{
+							$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'file_sertifikat'.$i.'', FALSE, '', TRUE, $i);
+							$file_sertifikat = '';
+							if($upload_file_sertifikat['status']){ 
+								$file_sertifikat = $upload_file_sertifikat['upload_file'];
+							} else if(isset($upload_file_sertifikat['error_warning'])){ 
+								echo $upload_file_sertifikat['error_warning']; exit;
+							}
+
+							if(isset($post['training_name'][$i])){
+								$itemData_training = [
+									'employee_id' 		=> $lastId,
+									'training_name' 	=> trim($post['training_name'][$i]),
+									'city' 				=> trim($post['city_training'][$i]),
+									'year' 				=> trim($post['year_training'][$i]),
+									'file_sertifikat' 	=> $file_sertifikat
+								];
+
+								$this->db->insert('training_detail', $itemData_training);
+							}
+						}
+					}
+					// end add ke table training detail //
+
+					// add ke table organisasi detail //
+					if(isset($post['organization_name'])){
+						$item_num_org = count($post['organization_name']); // cek sum
+						$item_len_min_org = min(array_keys($post['organization_name'])); // cek min key index
+						$item_len_org = max(array_keys($post['organization_name'])); // cek max key index
+					} else {
+						$item_num_org = 0;
+					}
+
+					if($item_num_org>0){
+						for($i=$item_len_min_org;$i<=$item_len_org;$i++) 
+						{
+							if(isset($post['organization_name'][$i])){
+								$itemData_org = [
+									'employee_id' 		=> $lastId,
+									'organization_name' => trim($post['organization_name'][$i]),
+									'institution' 		=> trim($post['institution_org'][$i]),
+									'position' 			=> trim($post['position'][$i]),
+									'city' 				=> trim($post['city_org'][$i]),
+									'year' 				=> trim($post['year_org'][$i])
+								];
+
+								$this->db->insert('organization_detail', $itemData_org);
+							}
+						}
+					}
+					// end add ke table organisasi detail //
+
+					// add ke table work experience detail //
+					if(isset($post['company_workexp'])){
+						$item_num_workexp = count($post['company_workexp']); // cek sum
+						$item_len_min_workexp = min(array_keys($post['company_workexp'])); // cek min key index
+						$item_len_workexp = max(array_keys($post['company_workexp'])); // cek max key index
+					} else {
+						$item_num_workexp = 0;
+					}
+
+					if($item_num_workexp>0){
+						for($i=$item_len_min_workexp;$i<=$item_len_workexp;$i++) 
+						{
+							if(isset($post['company_workexp'][$i])){
+								$itemData_workexp = [
+									'employee_id' 		=> $lastId,
+									'company' 			=> trim($post['company_workexp'][$i]),
+									'position' 			=> trim($post['position_workexp'][$i]),
+									'city' 				=> trim($post['city_workexp'][$i]),
+									'year' 				=> trim($post['year_workexp'][$i])
+								];
+
+								$this->db->insert('work_experience_detail', $itemData_workexp);
+							}
+						}
+					}
+					// end add ke table work experience detail //
 
 
-				//add jatah cuti
-				$this->generate_jatah_cuti_karyawan_baru($lastId,$dateofHired);
-				//end add jatah cuti
+
+
+					// add ke table user //
+					$pwd = '112233';
+					if($post['password'] != ''){
+						$pwd = $post['password'];
+					}
+					
+					$password = md5($pwd);
+
+
+					if($post['username'] != ''){
+						$username = $post['username'];
+					}else{
+						$name = $post['full_name'];
+						$username = strtolower(trim($name));
+
+						/*if ($username == trim($username) && strpos($username, ' ') !== false) {
+						    $username = str_replace(" ","_",$username);
+						}*/
+
+						$words = explode(' ', $username);
+						if (count($words) > 1) {
+							$username = str_replace(" ","_",$username);
+						}
+					}
+					
+					
+
+					$data2 = [
+						'name' 			=> trim($post['full_name']),
+						'email' 		=> trim($post['email']),
+						'username'		=> $username,
+						'passwd' 		=> $password,
+						'id_karyawan'	=> $lastId,
+						'id_groups' 	=> 5, //user outsource
+						'base_menu'		=> 'role',
+						'id_branch'		=> trim($post['branch']),
+						'isaktif' 		=> 2,
+						'date_insert' 	=> date("Y-m-d H:i:s")
+					];
+					$this->db->insert('user', $data2);
+					// end add ke table user //
+
+
+					//add jatah cuti
+					$this->generate_jatah_cuti_karyawan_baru($lastId,$dateofHired);
+					//end add jatah cuti
+
+				}
+
+
+
+				return $rs;
 
 			}
-
-
-
-			return $rs;
 		
 		}
 

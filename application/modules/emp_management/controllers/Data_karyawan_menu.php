@@ -29,7 +29,7 @@ class Data_karyawan_menu extends MY_Controller
 	{
 		$field = [];
 		$field['txtempcode'] 			= $this->self_model->return_build_txt('','emp_code','emp_code','','','readonly');
-		$field['txtfullname'] 			= $this->self_model->return_build_txt('','full_name','full_name');
+		$field['txtfullname'] 			= $this->self_model->return_build_txt('','full_name','full_name','','','required');
 		$field['txtemail'] 				= $this->self_model->return_build_txt('','email','email');
 		$field['txtnationality'] 		= $this->self_model->return_build_txt('','nationality','nationality');
 		$field['txttanggungan'] 		= $this->self_model->return_build_txt('','tanggungan','tanggungan');
@@ -52,12 +52,12 @@ class Data_karyawan_menu extends MY_Controller
 		$field['txtnickname'] 			= $this->self_model->return_build_txt('','nick_name','nick_name');
 		$field['txtphone'] 				= $this->self_model->return_build_txt('','phone','phone');
 		$field['txtethnic'] 			= $this->self_model->return_build_txt('','ethnic','ethnic');
-		$field['txtnoktp'] 				= $this->self_model->return_build_txt('','no_ktp','no_ktp');
+		$field['txtnoktp'] 				= $this->self_model->return_build_txt('','no_ktp','no_ktp','','','required');
 		$field['txtsimc'] 				= $this->self_model->return_build_txt('','sim_c','sim_c');
-		$field['txtnobpjs'] 			= $this->self_model->return_build_txt('','no_bpjs','no_bpjs');
+		$field['txtnobpjs'] 			= $this->self_model->return_build_txt('','no_bpjs','no_bpjs','','','required');
 		$field['txtdateofbirth'] 		= $this->self_model->return_build_txtdate('','date_of_birth','date_of_birth');
 		$field['txtaddress2'] 			= $this->self_model->return_build_txtarea('','address2','address2');
-		$field['txtdateofhire'] 		= $this->self_model->return_build_txtdate('','date_of_hire','date_of_hire');
+		$field['txtdateofhire'] 		= $this->self_model->return_build_txtdate('','date_of_hire','date_of_hire','','','required');
 		$field['txtdatepermanent'] 		= $this->self_model->return_build_txtdate('','date_permanent','date_permanent');
 		
 		$field['seldirect'] 			= $this->self_model->return_build_txt('','direct','direct');
@@ -71,10 +71,10 @@ class Data_karyawan_menu extends MY_Controller
 		$field['txtempsignature'] 		= $this->self_model->return_build_fileinput('emp_signature','emp_signature');
 
 		$msmaritalstatus 				= $this->db->query("select * from master_marital_status")->result(); 
-		$field['selmaritalstatus'] 		= $this->self_model->return_build_select2me($msmaritalstatus,'','','','marital_status','marital_status','','','id','name',' ','','','',3,'-');
+		$field['selmaritalstatus'] 		= $this->self_model->return_build_select2me($msmaritalstatus,'','','','marital_status','marital_status','','','id','name',' ','','','required',3,'-');
 
 		$msworkloc 						= $this->db->query("select * from master_work_location")->result(); 
-		$field['selworkloc'] 			= $this->self_model->return_build_select2me($msworkloc,'','','','work_loc','work_loc','','','id','name',' ','','','',3,'-');
+		$field['selworkloc'] 			= $this->self_model->return_build_select2me($msworkloc,'','','','work_loc','work_loc','','','id','name',' ','','','required',3,'-');
 
 		$mseducation 					= $this->db->query("select * from master_education")->result(); 
 		$field['seleducation'] 			= $this->self_model->return_build_select2me($mseducation,'','','','last_education','last_education','','','id','name',' ','','','',3,'-');
@@ -129,7 +129,7 @@ class Data_karyawan_menu extends MY_Controller
 
 		$field['chksameaddress'] 		= $this->self_model->return_build_radio('', [['Y','Yes'],['N','No']], 'is_same_address', 'is_same_address', 'inline');
 
-		$field['txtstatus'] 			= $this->self_model->return_build_radio('', [['1','Active'],['0','Not Active']], 'status', '', 'inline');
+		$field['txtstatus'] 			= $this->self_model->return_build_radio('', [['1','Active','required'],['0','Not Active','required']], 'status', '', 'inline');
 
 		$msjoblevel 					= $this->db->query("select * from master_job_level")->result(); 
 		$field['seljoblevel'] 			= $this->self_model->return_build_select2me($msjoblevel,'','','','job_level','job_level','','','id','name',' ','','','',1,'-');
@@ -137,7 +137,7 @@ class Data_karyawan_menu extends MY_Controller
 		$msgrade 					= $this->db->query("select * from master_grade")->result(); 
 		$field['selgrade'] 			= $this->self_model->return_build_select2me($msgrade,'','','','grade','grade','','','id','name',' ','','','',1,'-');
 
-		$field['txtshifttype'] 			= $this->self_model->return_build_radio('', [['Reguler','Reguler'],['Shift','Shift']], 'shift_type', '', 'inline');
+		$field['txtshifttype'] 			= $this->self_model->return_build_radio('', [['Reguler','Reguler','required'],['Shift','Shift','required']], 'shift_type', '', 'inline');
 		
 
 		$field['txtfotoktp'] 			= $this->self_model->return_build_fileinput('foto_ktp','foto_ktp');
@@ -150,8 +150,18 @@ class Data_karyawan_menu extends MY_Controller
 
 		$field['txtempsource'] 			= $this->self_model->return_build_radio('internal', [['internal','Internal','disabled'],['outsource','Outsource','disabled']], 'emp_source', '', 'inline');
 		
-		$field['txtnobpjs_ketenagakerjaan'] 	= $this->self_model->return_build_txt('','no_bpjs_ketenagakerjaan','no_bpjs_ketenagakerjaan');
-		$field['txtfotobpjs_ketenagakerjaan'] 	= $this->self_model->return_build_fileinput('foto_bpjs_ketenagakerjaan','foto_bpjs_ketenagakerjaan');
+		$field['txtnobpjs_ketenagakerjaan'] 	= $this->self_model->return_build_txt('','no_bpjs_ketenagakerjaan','no_bpjs_ketenagakerjaan','','','required');
+		$field['txtfotobpjs_ketenagakerjaan'] 	= $this->self_model->return_build_fileinput('foto_bpjs_ketenagakerjaan','foto_bpjs_ketenagakerjaan','','','required');
+
+		$field['txtusername'] 			= $this->self_model->return_build_txt('','username','username','','','readonly');
+		$field['txtpassword'] 			= $this->self_model->return_build_txt('','password','password','','','');
+		$field['txtttlharikerja'] 		= $this->self_model->return_build_txt('','ttl_hari_kerja','ttl_hari_kerja');
+		$field['txtstatusbpjskes'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_kes', '', 'inline');
+		$field['txtstatusbpjsket'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_ket', '', 'inline');
+		$field['txtstartpkwt'] 			= $this->self_model->return_build_txtdate('','start_pkwt','start_pkwt');
+		$field['txtendpkwt'] 			= $this->self_model->return_build_txtdate('','end_pkwt','end_pkwt');
+		$field['txtgajibulanan'] 		= $this->self_model->return_build_txt('','gaji_bulanan','gaji_bulanan');
+		$field['txtgajiharian'] 		= $this->self_model->return_build_txt('','gaji_harian','gaji_harian');
 
 		
 		return $field;
