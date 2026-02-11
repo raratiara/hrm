@@ -1,26 +1,26 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Absence_report_menu extends MY_Controller
+class Absence_report_os_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "absence_report_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Report Absensi Karyawan";
- 	const  LABELFOLDER				= "hr_menu"; // module folder
- 	const  LABELPATH				= "absence_report_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "hr_menu"; // adjusted 1st sub parent segment
+ 	const  LABELMODULE				= "absence_report_os_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Report Absensi Karyawan OS";
+ 	const  LABELFOLDER				= "reporting_outsource"; // module folder
+ 	const  LABELPATH				= "absence_report_os_menu"; // controller file (lowercase)
+ 	const  LABELNAVSEG1				= "reporting_outsource"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Day", "Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
+	public $tabel_header 			= ["ID","Day", "Date","Employee Name","Project","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Date","Employee Name","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
-	public $colfields 				= ["id","date_attendance","full_name","attendance_type","time_in","time_out","date_attendance_in","date_attendance_out","is_late_desc","is_leaving_office_early_desc","num_of_working_hours"];
+	public $colnames 				= ["ID","Date","Employee Name","Project","Employee Type","Time In","Time Out","Attendance IN","Attendance OUT","Late Desc","Leave Desc","Num of Working Hours"];
+	public $colfields 				= ["id","date_attendance","full_name","project_name","attendance_type","time_in","time_out","date_attendance_in","date_attendance_out","is_late_desc","is_leaving_office_early_desc","num_of_working_hours"];
 
 
 	/* Form Field Asset */
@@ -30,9 +30,39 @@ class Absence_report_menu extends MY_Controller
 
 		$field = [];
 		$field['txtdateattendance']		= $this->self_model->return_build_txt('','date_attendance','date_attendance');
-		$msemp 							= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		// $msemp 							= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp = $this->db->query("
+				SELECT * 
+				FROM employees 
+				WHERE status_id = 1
+				AND emp_source IN ('outsource','outsourcing')
+				ORDER BY full_name ASC
+			")->result();
+
 		$field['selemployee'] 			= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 		$field['selflemployee'] 		= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
+	
+		$msproject = $this->db->query("select id,project_name as project_label FROM project_outsource ORDER BY project_name ASC ")->result();
+
+		$field['selflproject'] = $this->self_model->return_build_select2me(
+			$msproject,
+			'',
+			'',
+			'',
+			'flproject',
+			'flproject',
+			'',
+			'',
+			'id',
+			'project_label',
+			' ',
+			'',
+			'',
+			'',
+			3,
+			'-'
+		);
+
 		$field['txtimein'] 				= $this->self_model->return_build_txt('','time_in','time_in','','','readonly');
 		$field['txtattendancein'] 		= $this->self_model->return_build_txt('','attendance_in','attendance_in');
 		$field['txtlatedesc'] 			= $this->self_model->return_build_txt('','late_desc','late_desc','','','readonly');
@@ -107,6 +137,7 @@ class Absence_report_menu extends MY_Controller
 	}
 
 
+
 	public function getAbsenceReport(){
 
 	    $dateNow = date("Y-m-d");
@@ -118,16 +149,22 @@ class Absence_report_menu extends MY_Controller
 	        $filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
 	    }
 
-	    $where_emp = ""; 
-	    if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
-	        $where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
-	    }
+	    $where_emp = "";
+		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
+		}
 
-	    // kelompok berdasarkan divisi
-	    $groupedByDivision = [];
-	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+		$where_project = "";
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			$where_project = " and b.project_id = '".$_GET['flproject']."' ";
+		}
+
+
+	    // kelompok berdasarkan project
+	    $groupedByProject = [];
+	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.project_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 and b.emp_source = 'outsource' ".$where_emp.$where_project.$where_date." ")->result();
 	    foreach ($emp_absen as $rowemp_absen) {
-	        $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
+	        $groupedByProject[$rowemp_absen->project_id][] = $rowemp_absen->employee_id;
 	    }
 
 	    // --- PREPARE ZIP ---
@@ -138,7 +175,7 @@ class Absence_report_menu extends MY_Controller
 	    $zip = new ZipArchive();
 	    $zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-	    foreach ($groupedByDivision as $divisionId => $employeeIds) {
+	    foreach ($groupedByProject as $projectId => $employeeIds) {
 
 	        unset($valSummary, $valrows, $valfooter, $dataSheets);
 	        ob_start(); // MULAI BUFFER TULIS XML (TANPA HEADER DOWNLOAD)
@@ -155,11 +192,11 @@ class Absence_report_menu extends MY_Controller
 	         </Styles>';
 
 	        $dataSheets = [];
-	        $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name, b.full_name 
+	        $emp_absen = $this->db->query("select distinct(a.employee_id), b.project_id, c.project_name, b.full_name 
 	            from time_attendances a 
 	            left join employees b on b.id = a.employee_id 
-	            left join divisions c on c.id = b.division_id 
-	            where b.emp_source = 'internal' and b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." 
+	            left join project_outsource c on c.id = b.project_id 
+	            where b.emp_source = 'outsource' and b.status_id = 1 and b.project_id = '".$projectId."' ".$where_emp.$where_project.$where_date."
 	            order by b.full_name asc")->result(); 
 
 	        if(count($emp_absen) != 0){ 
@@ -177,15 +214,18 @@ class Absence_report_menu extends MY_Controller
 								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket,
 								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
 								a.notes as keterangan
-								,b.emp_code, f.name as dept_name, g.name as work_location_name,
-								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo,
-								(case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit,
-								(case when a.is_late = "Y" then "1" else "" end) as late,
+								,b.emp_code, f.name as dept_name, g.name as work_location_name
+								,CONCAT_WS(" - ", j.code, j.project_name) as project_label_desc
+								,j.project_name as project_label
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo
+								,(case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit
+								,(case when a.is_late = "Y" then "1" else "" end) as late,
 								(case when a.is_leaving_office_early = "Y" then "1" else "" end) as leaving_early,
 							    i.num_of_hour as overtime_num_of_hour,
 							    i.amount as overtime_amount
 							from time_attendances a 
 							left join employees b on b.id = a.employee_id
+							left join project_outsource j on j.id = b.project_id
 							left join master_leaves c on c.id = a.leave_type
 							left join branches d on d.id = b.branch_id
 							left join employees e on e.id = b.direct_id
@@ -247,6 +287,7 @@ class Absence_report_menu extends MY_Controller
 	                    $no,
 	                    $data[0]->emp_code,
 	                    $data[0]->full_name,
+						($data[0]->project_label ?? '-'),
 	                    $data[0]->dept_name,
 	                    $data[0]->work_location_name,
 	                    $data[0]->attendance_type,
@@ -285,6 +326,7 @@ class Absence_report_menu extends MY_Controller
 	                    'subtitle' => [
 	                    	['NIK', $data[0]->emp_code],
 	                        ['Nama', $data[0]->full_name],
+							['Project', ($data[0]->project_label ?? '-')],
 	                        ['Departemen', $data[0]->dept_name],
 	                        ['Area', $data[0]->branch_name],
 	                        ['Leader', $data[0]->direct_name],
@@ -311,7 +353,735 @@ class Absence_report_menu extends MY_Controller
 	                ];*/
 	                $dataSheets['Summary'] = [
 	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
-	                    'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                    'headers' => ['No', 'NIK', 'Nama', 'Project',  'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                    'rows' => $valSummary,
+	                    'subtitle' => [
+	                        ['Project', $rowemp_absen->project_name],
+	                        ['Area', 'All'],
+	                        ['Leader', 'All'],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => []
+	                ];
+	            }
+
+	            if($where_emp==""){
+	                $lastKey = array_key_last($dataSheets);
+	                $lastSheet = [$lastKey => $dataSheets[$lastKey]];
+	                unset($dataSheets[$lastKey]);
+	                $dataSheets = $lastSheet + $dataSheets;
+	            }
+
+	        } else {
+	            $dataSheets['Summary'] = [
+	                'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                'headers' => ['No', 'NIK', 'Nama', 'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                'rows' => [['No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data','No Data', 'No Data', 'No Data', 'No Data', 'No Data', 'No Data','No Data', 'No Data', 'No Data', 'No Data', 'No Data']],
+	                'subtitle' => [
+	                    ['Area', 'All'],
+	                    ['Leader', 'All'],
+	                    ['Periode', $filter_periode],
+	                ],
+	                'footer' => []
+	            ];
+	        }
+
+	        // CETAK WORKSHEET
+	        foreach ($dataSheets as $sheetName => $sheetData) {
+	            echo '<Worksheet ss:Name="' . htmlspecialchars($sheetName) . '"><Table>';
+
+	            echo '<Row><Cell ss:MergeAcross="' . (count($sheetData['headers']) - 1) . '" ss:StyleID="TitleStyle"><Data ss:Type="String">' . htmlspecialchars($sheetData['title']) . '</Data></Cell></Row>';
+	            echo '<Row></Row><Row></Row>';
+
+	            foreach ($sheetData['subtitle'] as $row_S) {
+	                echo '<Row>';
+	                foreach ($row_S as $cell_S) {
+	                    $type_S = is_numeric($cell_S) ? 'Number' : 'String';
+	                    echo '<Cell ss:StyleID="SubTextStyle"><Data ss:Type="' . $type_S . '">' . htmlspecialchars($cell_S) . '</Data></Cell>';
+	                }
+	                echo '</Row>';
+	            }
+
+	            echo '<Row></Row><Row></Row>';
+
+	            echo '<Row>';
+	            foreach ($sheetData['headers'] as $headerCell) {
+	                echo '<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . htmlspecialchars($headerCell) . '</Data></Cell>';
+	            }
+	            echo '</Row>';
+
+	            foreach ($sheetData['rows'] as $row) {
+	                echo '<Row>';
+	                foreach ($row as $cell) {
+	                    $type = is_numeric($cell) ? 'Number' : 'String';
+	                    echo '<Cell><Data ss:Type="' . $type . '">' . htmlspecialchars($cell) . '</Data></Cell>';
+	                }
+	                echo '</Row>';
+	            }
+
+	            echo '<Row></Row>';
+	            foreach ($sheetData['footer'] as $row_F) {
+	                echo '<Row>';
+	                foreach ($row_F as $cell_F) {
+	                    $type_F = is_numeric($cell_F) ? 'Number' : 'String';
+	                    echo '<Cell ss:StyleID="SubTextStyle"><Data ss:Type="' . $type_F . '">' . htmlspecialchars($cell_F) . '</Data></Cell>';
+	                }
+	                echo '</Row>';
+	            }
+
+	            echo '</Table></Worksheet>';
+	        }
+
+	        echo '</Workbook>';
+
+	        $content = ob_get_clean();
+	        $projectname = strtolower(trim($rowemp_absen->project_name));
+	        $projectname = str_replace(" ","_",$projectname);
+
+	        $filename = "absensi_project_" . $projectname . ".xls";
+	        $zip->addFromString($filename, $content);
+	    }
+
+	    $zip->close();
+
+	    // --- DOWNLOAD ZIP AMAN ---
+	    if (ob_get_level()) {
+		    ob_end_clean();
+		}
+	    header('Content-Type: application/zip');
+	    header('Content-disposition: attachment; filename=' . basename($zipFilename));
+	    header('Content-Length: ' . filesize($zipFilename));
+	    readfile($zipFilename);
+	    unlink($zipFilename);
+	    exit;
+	}
+
+
+	public function getAbsenceReport_pdf()
+	{
+	    // ================= FILTER =================
+	    $dateNow = date("Y-m-d");
+	    $where_date = " AND a.date_attendance = '".$dateNow."' ";
+	    $filter_periode = $dateNow;
+
+	    if (!empty($_GET['fldatestart']) && !empty($_GET['fldateend'])) {
+	        $where_date = " AND a.date_attendance BETWEEN '".$_GET['fldatestart']."' AND '".$_GET['fldateend']."' ";
+	        $filter_periode = $_GET['fldatestart'].' s/d '.$_GET['fldateend'];
+	    }
+
+	    $where_emp = "";
+	    if (!empty($_GET['flemployee'])) {
+	        $where_emp = " AND a.employee_id = '".$_GET['flemployee']."' ";
+	    }
+
+	    $where_project = "";
+	    if (!empty($_GET['flproject'])) {
+	        $where_project = " AND b.project_id = '".$_GET['flproject']."' ";
+	    }
+
+	    // ================= GROUPING (SAMA EXCEL) =================
+	    $groupedByProject = [];
+
+	    $emp_absen = $this->db->query("
+	        SELECT DISTINCT a.employee_id, b.project_id
+	        FROM time_attendances a
+	        LEFT JOIN employees b ON b.id = a.employee_id
+	        WHERE b.status_id = 1
+	        AND b.emp_source = 'outsource'
+	        $where_emp
+	        $where_project
+	        $where_date
+	    ")->result();
+
+	    foreach ($emp_absen as $row) {
+	        $groupedByProject[$row->project_id][] = $row->employee_id;
+	    }
+
+	    // ================= ZIP =================
+	    $path = FCPATH.'uploads/report_absensi_pdf/';
+	    if (!file_exists($path)) mkdir($path, 0777, true);
+
+	    $zipName = $path.'absensi_pdf_'.date('Ymd_His').'.zip';
+	    $zip = new ZipArchive();
+	    $zip->open($zipName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+	    $this->load->library('html_pdf');
+
+	    // ================= LOOP PROJECT =================
+	    foreach ($groupedByProject as $projectId => $employeeIds) {
+
+	        // ambil nama project (SEKALI)
+	        $projectRow = $this->db
+	            ->select('project_name')
+	            ->from('project_outsource')
+	            ->where('id', $projectId)
+	            ->get()->row();
+
+	        $projectName = $projectRow ? $projectRow->project_name : 'Unknown';
+
+	        $valSummary   = [];
+	        $detailSheets = [];
+	        $no = 1;
+
+	        // ================= LOOP EMPLOYEE =================
+	        foreach ($employeeIds as $empId) {
+
+	            $sql = "
+	                SELECT a.*, b.full_name,
+	                    d.name AS branch_name, e.full_name AS direct_name,
+	                    (CASE WHEN a.leave_absences_id IS NOT NULL AND a.leave_type != 5 AND h.status_approval = 2 THEN 1 ELSE 0 END) AS cuti,
+	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS masuk,
+	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL AND a.work_location = 'onsite' THEN 1 ELSE 0 END) AS piket,
+	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL AND a.work_location = 'wfh' THEN 1 ELSE 0 END) AS wfh,
+	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL AND a.work_location = 'wfo' THEN 1 ELSE 0 END) AS wfo,
+	                    (CASE WHEN a.leave_absences_id IS NOT NULL AND a.leave_type = 5 AND h.status_approval = 2 THEN 1 ELSE 0 END) AS sakit,
+	                    (CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS late,
+	                    (CASE WHEN a.is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS leaving_early,
+	                    i.num_of_hour AS overtime_num_of_hour,
+	                    i.amount AS overtime_amount,
+	                    a.notes AS keterangan,
+	                    b.emp_code, f.name AS dept_name, g.name AS work_location_name,
+	                    j.project_name AS project_label
+	                FROM time_attendances a
+	                LEFT JOIN employees b ON b.id = a.employee_id
+	                LEFT JOIN project_outsource j ON j.id = b.project_id
+	                LEFT JOIN branches d ON d.id = b.branch_id
+	                LEFT JOIN employees e ON e.id = b.direct_id
+	                LEFT JOIN departments f ON f.id = b.department_id
+	                LEFT JOIN master_work_location g ON g.id = b.work_location
+	                LEFT JOIN leave_absences h ON h.id = a.leave_absences_id
+	                LEFT JOIN overtimes i ON i.employee_id = a.employee_id
+	                    AND a.date_attendance = DATE_FORMAT(i.datetime_start,'%Y-%m-%d')
+	                    AND i.type = 1 AND i.status_id = 2
+	                WHERE a.employee_id = '$empId' and b.project_id = '".$projectId."'
+	                $where_date
+	                ORDER BY a.id ASC
+	            ";
+
+	            $data = $this->db->query($sql)->result();
+	            if (!$data) continue;
+
+	            // ================= TOTAL =================
+	            $ttl = [
+	                'wfo'=>0,'wfh'=>0,'piket'=>0,'sakit'=>0,'cuti'=>0,
+	                'jam'=>0,'late'=>0,'early'=>0,'ot_jam'=>0,'ot_rp'=>0
+	            ];
+
+	            $rows = [];
+	            $no_dtl = 1;
+
+	            foreach ($data as $r) {
+	            	$status = '';
+	            	if($r->wfo == 1){
+	            		$status = 'WFO';
+	            	}
+	            	if($r->wfh == 1){
+	            		$status = 'WFH';
+	            	}
+	            	if($r->piket == 1){
+	            		$status = 'Onsite';
+	            	}
+	            	if($r->sakit == 1){
+	            		$status = 'Sakit';
+	            	}
+	            	if($r->cuti == 1){
+	            		$status = 'Cuti';
+	            	}
+	                $rows[] = [
+	                    $no_dtl++, $r->date_attendance,
+	                    $status,
+	                    $r->date_attendance_in, $r->date_attendance_out,
+	                    $r->num_of_working_hours, $r->late, $r->leaving_early,
+	                    $r->overtime_num_of_hour, $r->keterangan
+	                ];
+
+	                $ttl['wfo']    += $r->wfo;
+	                $ttl['wfh']    += $r->wfh;
+	                $ttl['piket']  += $r->piket;
+	                $ttl['sakit']  += $r->sakit;
+	                $ttl['cuti']   += $r->cuti;
+	                $ttl['jam']    += $r->num_of_working_hours;
+	                $ttl['late']   += $r->late;
+	                $ttl['early']  += $r->leaving_early;
+	                $ttl['ot_jam'] += $r->overtime_num_of_hour;
+	                $ttl['ot_rp']  += $r->overtime_amount;
+	            }
+
+	            // ================= SUMMARY =================
+	            $valSummary[] = [
+	                $no++,
+	                $data[0]->emp_code,
+	                $data[0]->full_name,
+	                /*$projectName,
+	                $data[0]->dept_name,*/
+	                $data[0]->work_location_name,
+	                $data[0]->attendance_type,
+	                $ttl['wfo'], $ttl['wfh'], $ttl['piket'],
+	                $ttl['sakit'], $ttl['cuti'],
+	                $ttl['jam'], $ttl['late'], $ttl['early'],
+	                $ttl['ot_jam'], $ttl['ot_rp']
+	            ];
+
+	            $detailSheets[$data[0]->full_name] = [
+	                'subtitle' => [
+	                    ['NIK',$data[0]->emp_code],
+	                    ['Nama',$data[0]->full_name],
+	                    ['Project',$projectName],
+	                    ['Departemen',$data[0]->dept_name],
+	                    ['Area',$data[0]->branch_name],
+	                    ['Leader',$data[0]->direct_name],
+	                    ['Periode',$filter_periode],
+	                    ['Shift',$data[0]->attendance_type],
+	                ],
+	                'rows' => $rows
+	            ];
+	        }
+
+	        // ================= RENDER PDF =================
+	        $pdfData = [
+	            'periode'  => $filter_periode,
+	            'project_name' => $projectName,
+	            'projects' => [[
+	                'project_name' => $projectName,
+	                'summary'      => $valSummary,
+	                'details'      => $detailSheets
+	            ]]
+	        ];
+
+	        $pdfBinary = $this->html_pdf->render_to_string('pdf/report_absen_os', $pdfData);
+	        $zip->addFromString('Absensi '.$projectName.'.pdf', $pdfBinary);
+	    }
+
+	    $zip->close();
+
+	    // ================= DOWNLOAD =================
+	    if (ob_get_level()) ob_end_clean();
+	    header('Content-Type: application/zip');
+	    header('Content-Disposition: attachment; filename='.basename($zipName));
+	    header('Content-Length: '.filesize($zipName));
+	    readfile($zipName);
+	    unlink($zipName);
+	    exit;
+	}
+
+
+
+
+	public function getAbsenceReport_pdf_old()
+	{
+	    // ===== PERSIAPAN FILTER (SAMA DENGAN EXCEL) =====
+	    $dateNow = date("Y-m-d");
+
+	    $where_date = " and a.date_attendance = '".$dateNow."' ";
+	    $filter_periode = $dateNow;
+
+	    if($_GET['fldatestart'] && $_GET['fldateend']){
+	        $where_date = " and a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+	        $filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
+	    }
+
+	    $where_emp = "";
+	    if($_GET['flemployee']){
+	        $where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
+	    }
+
+	    $where_project = "";
+	    if($_GET['flproject']){
+	        $where_project = " and b.project_id = '".$_GET['flproject']."' ";
+	    }
+
+	    // ===== GROUP EMPLOYEE BY PROJECT (SAMA DENGAN EXCEL) =====
+	    $groupedByProject = [];
+	    $emp_absen = $this->db->query("
+	        select distinct(a.employee_id), b.project_id, c.project_name
+	        from time_attendances a
+	        left join employees b on b.id = a.employee_id
+	        left join project_outsource c on c.id = b.project_id
+	        where b.status_id = 1
+	        and b.emp_source = 'outsource'
+	        $where_emp $where_project $where_date
+	    ")->result();
+
+	    foreach ($emp_absen as $row) {
+	        $groupedByProject[$row->project_id]['project_name'] = $row->project_name;
+	        $groupedByProject[$row->project_id]['employees'][] = $row->employee_id;
+	    }
+
+	    // ===== BUILD DATA (PAKAI LOGIC EXCEL) =====
+	    $projects = [];
+
+	    foreach ($groupedByProject as $projectId => $project) {
+
+	        $valSummary = [];
+	        $detailSheets = [];
+	        $no = 1;
+
+	        foreach ($project['employees'] as $empId) {
+
+	            // ===== QUERY IDENTIK EXCEL =====
+	            $sql = 'select a.*, b.full_name,
+	                if(a.is_late = "Y","Late", "") as is_late_desc, 
+	                (case when a.leave_type != "" then concat("(",c.name,")") 
+	                      when a.is_leaving_office_early = "Y" then "Leaving Office Early"
+	                      else "" end) as is_leaving_office_early_desc,
+	                d.name as branch_name, e.full_name as direct_name,
+	                (case when a.leave_absences_id is not null and a.leave_type != 5 and h.status_approval = 2 then "1" else "" end) as cuti,
+	                (case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk,
+	                (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket,
+	                (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
+	                (case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo,
+	                (case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit,
+	                (case when a.is_late = "Y" then "1" else "" end) as late,
+	                (case when a.is_leaving_office_early = "Y" then "1" else "" end) as leaving_early,
+	                i.num_of_hour as overtime_num_of_hour,
+	                i.amount as overtime_amount,
+	                a.notes as keterangan,
+	                b.emp_code, f.name as dept_name, g.name as work_location_name,
+	                j.project_name as project_label
+	            from time_attendances a
+	            left join employees b on b.id = a.employee_id
+	            left join project_outsource j on j.id = b.project_id
+	            left join master_leaves c on c.id = a.leave_type
+	            left join branches d on d.id = b.branch_id
+	            left join employees e on e.id = b.direct_id
+	            left join departments f on f.id = b.department_id
+	            left join master_work_location g on g.id = b.work_location
+	            left join leave_absences h on h.id = a.leave_absences_id
+	            left join overtimes i on i.employee_id = a.employee_id 
+	                and a.date_attendance = DATE_FORMAT(i.datetime_start, "%Y-%m-%d")
+	                and i.type = 1 and i.status_id = 2
+	            where a.employee_id = "'.$empId.'" '.$where_date.'
+	            ORDER BY id ASC';
+
+	            $data = $this->db->query($sql)->result();
+	            if(!$data) continue;
+
+	            // ===== INIT TOTAL (SAMA DENGAN EXCEL) =====
+	            $ttl_cuti=0; $ttl_masuk=0; $ttl_piket=0; $ttl_wfh=0;
+	            $ttl_wfo=0; $ttl_sakit=0; $ttl_working_hours=0;
+	            $ttl_late=0; $ttl_leaving_early=0;
+	            $ttl_overtime_num_of_hour=0; $ttl_overtime_amount=0;
+
+	            $rows = [];
+	            $no_dtl = 1;
+
+	            foreach($data as $row){
+	                $rows[] = [
+	                    $no_dtl,
+	                    $row->date_attendance,
+	                    $row->attendance_type,
+	                    $row->wfo,
+	                    $row->wfh,
+	                    $row->piket,
+	                    $row->sakit,
+	                    $row->cuti,
+	                    $row->date_attendance_in,
+	                    $row->date_attendance_out,
+	                    $row->num_of_working_hours,
+	                    $row->late,
+	                    $row->leaving_early,
+	                    $row->overtime_num_of_hour,
+	                    $row->overtime_amount,
+	                    $row->keterangan
+	                ];
+
+	                // ===== AKUMULATOR (IDENTIK EXCEL) =====
+	                $ttl_cuti += ($row->cuti ?: 0);
+	                $ttl_masuk += ($row->masuk ?: 0);
+	                $ttl_piket += ($row->piket ?: 0);
+	                $ttl_wfh   += ($row->wfh ?: 0);
+	                $ttl_wfo   += ($row->wfo ?: 0);
+	                $ttl_sakit += ($row->sakit ?: 0);
+	                $ttl_working_hours += ($row->num_of_working_hours ?: 0);
+	                $ttl_late += ($row->late ?: 0);
+	                $ttl_leaving_early += ($row->leaving_early ?: 0);
+	                $ttl_overtime_num_of_hour += ($row->overtime_num_of_hour ?: 0);
+	                $ttl_overtime_amount += ($row->overtime_amount ?: 0);
+
+	                $no_dtl++;
+	            }
+
+	            // ===== SUMMARY (AMBIL DARI HASIL LOOP) =====
+	            $valSummary[] = [
+	                $no,
+	                $data[0]->emp_code,
+	                $data[0]->full_name,
+	                /*$data[0]->project_label,*/
+	                /*$data[0]->dept_name,*/
+	                $data[0]->work_location_name,
+	                $data[0]->attendance_type,
+	                $ttl_wfo,
+	                $ttl_wfh,
+	                $ttl_piket,
+	                $ttl_sakit,
+	                $ttl_cuti,
+	                $ttl_working_hours,
+	                $ttl_late,
+	                $ttl_leaving_early,
+	                $ttl_overtime_num_of_hour,
+	                $ttl_overtime_amount
+	                // ''
+	            ];
+
+	            $detailSheets[$data[0]->full_name] = [
+	                'subtitle' => [
+	                    ['NIK', $data[0]->emp_code],
+	                    ['Nama', $data[0]->full_name],
+	                    ['Project', $data[0]->project_label],
+	                    ['Departemen', $data[0]->dept_name],
+	                    ['Area', $data[0]->branch_name],
+	                    ['Leader', $data[0]->direct_name],
+	                    ['Periode', $filter_periode],
+	                ],
+	                'rows' => $rows,
+	                'footer' => [
+	                    ['Total','','',$ttl_wfo,$ttl_wfh,$ttl_piket,$ttl_sakit,$ttl_cuti,'','',$ttl_working_hours,$ttl_late,$ttl_leaving_early]
+	                ]
+	            ];
+
+	            $no++;
+	        }
+
+	        $projects[] = [
+	            'project_name' => $project['project_name'],
+	            'summary' => $valSummary,
+	            'details' => $detailSheets
+	        ];
+	    }
+
+	    // ===== KIRIM KE VIEW PDF =====
+	    $data = [
+	        'periode' => $filter_periode,
+	        'projects' => $projects
+	    ];
+
+	    $this->load->library('html_pdf');
+	    $this->html_pdf->filename = 'Absensi_' . date('Ymd_His') . '.pdf';
+	    $this->html_pdf->load_view_landscape('pdf/report_absen_os', $data);
+	    $this->html_pdf->render_pdf();
+	    $this->html_pdf->stream_pdf(false);
+	}
+
+
+
+
+
+	public function getAbsenceReport_byDiv(){
+
+	    $dateNow = date("Y-m-d");
+
+	    $where_date = " and a.date_attendance = '".$dateNow."' ";
+	    $filter_periode = $dateNow;
+	    if($_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+	        $where_date = " and a.date_attendance between '".$_GET['fldatestart']."' and '".$_GET['fldateend']."' ";
+	        $filter_periode = $_GET['fldatestart'].' to '.$_GET['fldateend'];
+	    }
+
+	    $where_emp = "";
+		if($_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+			$where_emp = " and a.employee_id = '".$_GET['flemployee']."' ";
+		}
+
+		$where_project = "";
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			$where_project = " and b.project_outsource_id = '".$_GET['flproject']."' ";
+		}
+
+
+	    // kelompok berdasarkan divisi
+	    $groupedByDivision = [];
+	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 and b.emp_source in ('outsource','outsourcing','OS') ".$where_emp.$where_project.$where_date." ")->result();
+	    foreach ($emp_absen as $rowemp_absen) {
+	        $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
+	    }
+
+	    // --- PREPARE ZIP ---
+	    $pathExport = FCPATH . 'uploads/report_absensi_bulanan/';
+	    if(!file_exists($pathExport)) mkdir($pathExport, 0777, true);
+
+	    $zipFilename = $pathExport . 'export_absensi_' . date('Y-m') . '.zip';
+	    $zip = new ZipArchive();
+	    $zip->open($zipFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+	    foreach ($groupedByDivision as $divisionId => $employeeIds) {
+
+	        unset($valSummary, $valrows, $valfooter, $dataSheets);
+	        ob_start(); // MULAI BUFFER TULIS XML (TANPA HEADER DOWNLOAD)
+
+	        echo '<?xml version="1.0"?>
+	        <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+	         xmlns:o="urn:schemas-microsoft-com:office:office"
+	         xmlns:x="urn:schemas-microsoft-com:office:excel"
+	         xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+	         <Styles>
+	           <Style ss:ID="TitleStyle"><Font ss:Bold="1" ss:Size="14"/></Style>
+	           <Style ss:ID="SubTextStyle"></Style>
+	           <Style ss:ID="HeaderStyle"><Font ss:Bold="1"/><Interior ss:Color="#D3D3D3" ss:Pattern="Solid"/></Style>
+	         </Styles>';
+
+	        $dataSheets = [];
+	        $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name, b.full_name 
+	            from time_attendances a 
+	            left join employees b on b.id = a.employee_id 
+	            left join divisions c on c.id = b.division_id 
+	            where b.emp_source = 'outsource' and b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_project.$where_date."
+	            order by b.full_name asc")->result(); 
+
+	        if(count($emp_absen) != 0){ 
+	            $no = 1;
+
+	            foreach($emp_absen as $rowemp_absen){
+
+	                $sql = 'select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
+								(case when a.leave_type != "" then concat("(",c.name,")") 
+									  when a.is_leaving_office_early = "Y" then "Leaving Office Early"
+									  else "" end) as is_leaving_office_early_desc,
+								d.name as branch_name, e.full_name as direct_name,
+								(case when a.leave_absences_id is not null and a.leave_type != 5 and h.status_approval = 2 then "1" else "" end) as cuti,
+								(case when a.leave_absences_id is null and a.date_attendance_in is not null then "1" else "" end) as masuk,
+								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "onsite" then "1" else "" end) as piket,
+								(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfh" then "1" else "" end) as wfh,
+								a.notes as keterangan
+								,b.emp_code, f.name as dept_name, g.name as work_location_name
+								,CONCAT_WS(" - ", j.code, j.project_name) as project_label_desc
+								,j.project_name as project_label
+								,(case when a.leave_absences_id is null and a.date_attendance_in is not null and a.work_location = "wfo" then "1" else "" end) as wfo
+								,(case when a.leave_absences_id is not null and leave_type = 5 and h.status_approval = 2 then "1" else "" end) as sakit
+								,(case when a.is_late = "Y" then "1" else "" end) as late,
+								(case when a.is_leaving_office_early = "Y" then "1" else "" end) as leaving_early,
+							    i.num_of_hour as overtime_num_of_hour,
+							    i.amount as overtime_amount
+							from time_attendances a 
+							left join employees b on b.id = a.employee_id
+							left join project_outsource j on j.id = b.project_id
+							left join master_leaves c on c.id = a.leave_type
+							left join branches d on d.id = b.branch_id
+							left join employees e on e.id = b.direct_id
+							left join departments f on f.id = b.department_id
+							left join master_work_location g on g.id = b.work_location
+							left join leave_absences h on h.id = a.leave_absences_id
+							left join overtimes i on i.employee_id = a.employee_id 
+							and (a.date_attendance = DATE_FORMAT(i.datetime_start, "%Y-%m-%d"))
+							and i.type = 1 and i.status_id = 2
+							where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
+							ORDER BY id ASC';
+
+	                $res = $this->db->query($sql);
+	                $data = $res->result();
+
+	                $ttl_cuti=0; $ttl_masuk=0; $ttl_piket=0; $ttl_wfh=0;
+	                $ttl_wfo=0; $ttl_sakit=0; $ttl_working_hours=0; $ttl_late=0; $ttl_leaving_early=0;
+	                $ttl_overtime_num_of_hour=0; $ttl_overtime_amount=0;
+	                $valrows=[]; $valfooter=[];
+
+	                $no_dtl = 1;
+	                foreach($data as $rowdata){
+	                    $valrows[] = [
+	                    	$no_dtl,
+	                        $rowdata->date_attendance,
+	                        $rowdata->attendance_type,
+	                        $rowdata->wfo,
+	                        $rowdata->wfh,
+	                        $rowdata->piket,
+	                        $rowdata->sakit,
+	                        $rowdata->cuti,
+	                        $rowdata->date_attendance_in,
+	                        $rowdata->date_attendance_out,
+	                        $rowdata->num_of_working_hours,
+	                        $rowdata->late,
+	                        $rowdata->leaving_early,
+	                        $rowdata->overtime_num_of_hour,
+	                        $rowdata->overtime_amount,
+	                        $rowdata->keterangan
+	                    ];
+
+	                    $ttl_cuti += ($rowdata->cuti != '' ? $rowdata->cuti : 0);
+	                    $ttl_masuk += ($rowdata->masuk != '' ? $rowdata->masuk : 0);
+	                    $ttl_piket += ($rowdata->piket != '' ? $rowdata->piket : 0);
+	                    $ttl_wfh   += ($rowdata->wfh != '' ? $rowdata->wfh : 0);
+	                    $ttl_wfo   += ($rowdata->wfo != '' ? $rowdata->wfo : 0);
+	                    $ttl_sakit += ($rowdata->sakit != '' ? $rowdata->sakit : 0);
+	                    $ttl_working_hours += ($rowdata->num_of_working_hours != '' ? $rowdata->num_of_working_hours : 0);
+	                    $ttl_late += ($rowdata->late != '' ? $rowdata->late : 0);
+	                    $ttl_leaving_early += ($rowdata->leaving_early != '' ? $rowdata->leaving_early : 0);
+	                    $ttl_overtime_num_of_hour += ($rowdata->overtime_num_of_hour != '' ? $rowdata->overtime_num_of_hour : 0);
+	                    $ttl_overtime_amount += ($rowdata->overtime_amount != '' ? $rowdata->overtime_amount : 0);
+
+
+	                    $no_dtl++;
+	                }
+
+	                $valSummary[] = [
+	                    $no,
+	                    $data[0]->emp_code,
+	                    $data[0]->full_name,
+						($data[0]->project_label ?? '-'),
+	                    $data[0]->dept_name,
+	                    $data[0]->work_location_name,
+	                    $data[0]->attendance_type,
+	                    $ttl_wfo,
+	                    $ttl_wfh,
+	                    $ttl_piket, //onsite,
+	                    $ttl_sakit,
+	                    $ttl_cuti,
+	                    $ttl_working_hours, 
+	                    $ttl_late,
+	                    $ttl_leaving_early,
+	                    $ttl_overtime_num_of_hour, //lembur jam
+	                    $ttl_overtime_amount, //lembur rp
+	                    '' //keterangan
+	                ];
+
+	                $valfooter[] = ['Total','','', $ttl_wfo, $ttl_wfh, $ttl_piket, $ttl_sakit, $ttl_cuti, '', '', $ttl_working_hours, $ttl_late, $ttl_leaving_early ];
+
+	                /*$dataSheets[$data[0]->full_name] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['Tanggal', 'Cuti', 'Masuk', 'Piket', 'WFH', 'Keterangan'],
+	                    'rows' => $valrows,
+	                    'subtitle' => [
+	                        ['Nama', $data[0]->full_name],
+	                        ['Area', $data[0]->branch_name],
+	                        ['Leader', $data[0]->direct_name],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => $valfooter
+	                ];*/
+
+	                $dataSheets[$data[0]->full_name] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['No', 'Tanggal', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit', 'Ijin/Cuti', 'Jam Masuk', 'Jam Pulang', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
+	                    'rows' => $valrows,
+	                    'subtitle' => [
+	                    	['NIK', $data[0]->emp_code],
+	                        ['Nama', $data[0]->full_name],
+							['Project', ($data[0]->project_label ?? '-')],
+	                        ['Departemen', $data[0]->dept_name],
+	                        ['Area', $data[0]->branch_name],
+	                        ['Leader', $data[0]->direct_name],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => $valfooter
+	                ];
+
+	                $no++;
+	            }
+
+	            if($where_emp==""){
+	                /*$dataSheets['Summary'] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['No', 'Nama', 'Cuti', 'Masuk', 'Piket', 'WFH'],
+	                    'rows' => $valSummary,
+	                    'subtitle' => [
+	                        ['Division', $rowemp_absen->division_name],
+	                        ['Area', 'All'],
+	                        ['Leader', 'All'],
+	                        ['Periode', $filter_periode],
+	                    ],
+	                    'footer' => []
+	                ];*/
+	                $dataSheets['Summary'] = [
+	                    'title' => 'DATA ABSENSI/ACTIVITY KARYAWAN',
+	                    'headers' => ['No', 'NIK', 'Nama', 'Project',  'Departemen', 'Lokasi Kerja', 'Shift', 'WFO', 'WFH', 'Onsite', 'Sakit',  'Ijin/Cuti', 'Total Jam', 'Datang Terlambat', 'Pulang Cepat', 'Lembur (jam)', 'Lembur (Rp)', 'Keterangan'],
 	                    'rows' => $valSummary,
 	                    'subtitle' => [
 	                        ['Division', $rowemp_absen->division_name],
@@ -403,7 +1173,9 @@ class Absence_report_menu extends MY_Controller
 	    $zip->close();
 
 	    // --- DOWNLOAD ZIP AMAN ---
-	    ob_end_clean(); // buang sisa output
+	    if (ob_get_level()) {
+		    ob_end_clean();
+		}
 	    header('Content-Type: application/zip');
 	    header('Content-disposition: attachment; filename=' . basename($zipFilename));
 	    header('Content-Length: ' . filesize($zipFilename));
@@ -412,197 +1184,6 @@ class Absence_report_menu extends MY_Controller
 	    exit;
 	}
 
-
-
-	public function getAbsenceReport_pdf()
-	{
-	    // ================= FILTER =================
-	    $dateNow = date("Y-m-d");
-	    $where_date = " AND a.date_attendance = '".$dateNow."' ";
-	    $filter_periode = $dateNow;
-
-	    if (!empty($_GET['fldatestart']) && !empty($_GET['fldateend'])) {
-	        $where_date = " AND a.date_attendance BETWEEN '".$_GET['fldatestart']."' AND '".$_GET['fldateend']."' ";
-	        $filter_periode = $_GET['fldatestart'].' s/d '.$_GET['fldateend'];
-	    }
-
-	    $where_emp = "";
-	    if (!empty($_GET['flemployee'])) {
-	        $where_emp = " AND a.employee_id = '".$_GET['flemployee']."' ";
-	    }
-
-	    
-
-	    // ================= GROUPING (SAMA EXCEL) =================
-	    $groupedByDivisi = [];
-
-	    $emp_absen = $this->db->query("
-	        SELECT DISTINCT a.employee_id, b.division_id
-	        FROM time_attendances a
-	        LEFT JOIN employees b ON b.id = a.employee_id
-	        WHERE b.status_id = 1
-	        AND b.emp_source = 'internal'
-	        $where_emp
-	        $where_date
-	    ")->result();
-
-	    foreach ($emp_absen as $row) {
-	        $groupedByDivisi[$row->division_id][] = $row->employee_id;
-	    }
-
-	    // ================= ZIP =================
-	    $path = FCPATH.'uploads/report_absensi_pdf/';
-	    if (!file_exists($path)) mkdir($path, 0777, true);
-
-	    $zipName = $path.'absensi_pdf_'.date('Ymd_His').'.zip';
-	    $zip = new ZipArchive();
-	    $zip->open($zipName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-	    $this->load->library('html_pdf');
-
-	    // ================= LOOP PROJECT =================
-	    foreach ($groupedByDivisi as $divisionId => $employeeIds) {
-
-	        // ambil nama project (SEKALI)
-	        $divisionRow = $this->db
-	            ->select('name')
-	            ->from('divisions')
-	            ->where('id', $divisionId)
-	            ->get()->row();
-
-	        $divisionName = $divisionRow ? $divisionRow->name : 'Unknown';
-
-	        $valSummary   = [];
-	        $detailSheets = [];
-	        $no = 1;
-
-	        // ================= LOOP EMPLOYEE =================
-	        foreach ($employeeIds as $empId) {
-
-	            $sql = "
-	                SELECT a.*, b.full_name,
-	                    d.name AS branch_name, e.full_name AS direct_name,
-	                    (CASE WHEN a.leave_absences_id IS NOT NULL AND a.leave_type != 5 AND h.status_approval = 2 THEN 1 ELSE 0 END) AS cuti,
-	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS masuk,
-	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL AND a.work_location = 'onsite' THEN 1 ELSE 0 END) AS piket,
-	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL AND a.work_location = 'wfh' THEN 1 ELSE 0 END) AS wfh,
-	                    (CASE WHEN a.leave_absences_id IS NULL AND a.date_attendance_in IS NOT NULL AND a.work_location = 'wfo' THEN 1 ELSE 0 END) AS wfo,
-	                    (CASE WHEN a.leave_absences_id IS NOT NULL AND a.leave_type = 5 AND h.status_approval = 2 THEN 1 ELSE 0 END) AS sakit,
-	                    (CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS late,
-	                    (CASE WHEN a.is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS leaving_early,
-	                    i.num_of_hour AS overtime_num_of_hour,
-	                    i.amount AS overtime_amount,
-	                    a.notes AS keterangan,
-	                    b.emp_code, f.name AS dept_name, g.name AS work_location_name,
-	                    j.name AS division_name
-	                FROM time_attendances a
-	                LEFT JOIN employees b ON b.id = a.employee_id
-	                LEFT JOIN divisions j ON j.id = b.division_id
-	                LEFT JOIN branches d ON d.id = b.branch_id
-	                LEFT JOIN employees e ON e.id = b.direct_id
-	                LEFT JOIN departments f ON f.id = b.department_id
-	                LEFT JOIN master_work_location g ON g.id = b.work_location
-	                LEFT JOIN leave_absences h ON h.id = a.leave_absences_id
-	                LEFT JOIN overtimes i ON i.employee_id = a.employee_id
-	                    AND a.date_attendance = DATE_FORMAT(i.datetime_start,'%Y-%m-%d')
-	                    AND i.type = 1 AND i.status_id = 2
-	                WHERE a.employee_id = '$empId' and b.division_id = '".$divisionId."'
-	                $where_date
-	                ORDER BY a.id ASC
-	            ";
-
-	            $data = $this->db->query($sql)->result();
-	            if (!$data) continue;
-
-	            // ================= TOTAL =================
-	            $ttl = [
-	                'wfo'=>0,'wfh'=>0,'piket'=>0,'sakit'=>0,'cuti'=>0,
-	                'jam'=>0,'late'=>0,'early'=>0,'ot_jam'=>0,'ot_rp'=>0
-	            ];
-
-	            $rows = [];
-	            $no_dtl = 1;
-
-	            foreach ($data as $r) {
-	                $rows[] = [
-	                    $no_dtl++, $r->date_attendance, $r->attendance_type,
-	                    $r->wfo, $r->wfh, $r->piket, $r->sakit, $r->cuti,
-	                    $r->date_attendance_in, $r->date_attendance_out,
-	                    $r->num_of_working_hours, $r->late, $r->leaving_early,
-	                    $r->overtime_num_of_hour, $r->overtime_amount, $r->keterangan
-	                ];
-
-	                $ttl['wfo']    += $r->wfo;
-	                $ttl['wfh']    += $r->wfh;
-	                $ttl['piket']  += $r->piket;
-	                $ttl['sakit']  += $r->sakit;
-	                $ttl['cuti']   += $r->cuti;
-	                $ttl['jam']    += $r->num_of_working_hours;
-	                $ttl['late']   += $r->late;
-	                $ttl['early']  += $r->leaving_early;
-	                $ttl['ot_jam'] += $r->overtime_num_of_hour;
-	                $ttl['ot_rp']  += $r->overtime_amount;
-	            }
-
-	            // ================= SUMMARY =================
-	            $valSummary[] = [
-	                $no++,
-	                $data[0]->emp_code,
-	                $data[0]->full_name,
-	                /*$divisionName,
-	                $data[0]->dept_name,*/
-	                $data[0]->work_location_name,
-	                $data[0]->attendance_type,
-	                $ttl['wfo'], $ttl['wfh'], $ttl['piket'],
-	                $ttl['sakit'], $ttl['cuti'],
-	                $ttl['jam'], $ttl['late'], $ttl['early'],
-	                $ttl['ot_jam'], $ttl['ot_rp']
-	            ];
-
-	            $detailSheets[$data[0]->full_name] = [
-	                'subtitle' => [
-	                    ['NIK',$data[0]->emp_code],
-	                    ['Nama',$data[0]->full_name],
-	                    ['Division',$divisionName],
-	                    ['Departemen',$data[0]->dept_name],
-	                    ['Area',$data[0]->branch_name],
-	                    ['Leader',$data[0]->direct_name],
-	                    ['Periode',$filter_periode],
-	                ],
-	                'rows' => $rows
-	            ];
-	        }
-
-	        // ================= RENDER PDF =================
-	        $pdfData = [
-	            'periode'  => $filter_periode,
-	            'division_name' => $divisionName,
-	            'divisi' => [[
-	                'division_name' => $divisionName,
-	                'summary'      => $valSummary,
-	                'details'      => $detailSheets
-	            ]]
-	        ];
-
-	        $pdfBinary = $this->html_pdf->render_to_string('pdf/report_absen', $pdfData);
-	        $zip->addFromString('absensi_'.strtolower(str_replace(' ','_',$divisionName)).'.pdf', $pdfBinary);
-	    }
-
-	    $zip->close();
-
-	    // ================= DOWNLOAD =================
-	    if (ob_get_level()) ob_end_clean();
-	    header('Content-Type: application/zip');
-	    header('Content-Disposition: attachment; filename='.basename($zipName));
-	    header('Content-Length: '.filesize($zipName));
-	    readfile($zipName);
-	    unlink($zipName);
-	    exit;
-	}
-
-
-
-	
 
 
 	/// download report absensi stiap tgl 25 jam 8 pagi
@@ -633,7 +1214,7 @@ class Absence_report_menu extends MY_Controller
 
 
 		$groupedByDivision = [];
-		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 and b.emp_source in ('outsource','outsourcing','OS') ".$where_emp.$where_project.$where_date." ")->result();
 		foreach ($emp_absen as $rowemp_absen) {
 		    $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 		}
@@ -674,7 +1255,9 @@ class Absence_report_menu extends MY_Controller
 
 			$dataSheets = [];
 
-			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id 
+			where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_project.$where_date."
+			order by b.full_name asc ")->result(); 
 			if(count($emp_absen) != 0){ 
 				$no=1;
 				

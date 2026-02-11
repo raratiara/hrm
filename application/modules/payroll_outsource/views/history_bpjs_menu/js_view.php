@@ -137,7 +137,7 @@ function load_data()
 				}
 				if(save_method == 'detail'){ 
 					
-					$('span.periode_penggajian').html(data.periode_penggajian);
+					$('span.periode_penggajian').html(data.periode);
 					$('span.project').html(data.project_name);
 				
 

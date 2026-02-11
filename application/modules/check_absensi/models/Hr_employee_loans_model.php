@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Hr_employee_loans_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name			= "hr_menu/hr_employee_loans";
+ 	protected $folder_name			= "check_absensi/hr_employee_loans";
  	protected $table_name 			= _PREFIX_TABLE."loan"; 
  	protected $table_karyawan 		= _PREFIX_TABLE."employees"; 
  	protected $primary_key 			= "id"; 

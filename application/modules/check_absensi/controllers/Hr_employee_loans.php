@@ -6,7 +6,7 @@ class Hr_employee_loans extends MY_Controller
 	/* Module */
  	const  LABELMODULE				= "hr_employee_loans"; // identify menu
  	const  LABELMASTER				= "Pinjaman Karyawan";
- 	const  LABELFOLDER				= "hr_menu"; // module folder
+ 	const  LABELFOLDER				= "check_absensi"; // module folder
  	const  LABELPATH				= "hr_employee_loans"; // controller file (lowercase)
  	const  LABELNAVSEG1				= ""; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= ""; // 
