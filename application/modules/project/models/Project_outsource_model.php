@@ -273,10 +273,41 @@ class Project_outsource_model extends MY_Model
 		$customer = (isset($post['customer']) && !empty($post['customer']))? trim($post['customer']):0; 
 		$lokasi = (isset($post['lokasi']) && !empty($post['lokasi']))? trim($post['lokasi']):0;
 
+
+		// CEK LOKASI BARU
+    	// =========================
+	    if (!empty($lokasi) && !is_numeric($lokasi)) {
+
+	        $namaLokasi = strtoupper(trim($lokasi));
+
+	        // cek dulu biar gak dobel
+	        $cekLokasi = $this->db
+	            ->where('cust_id', $customer)
+	            ->where('UPPER(name)', $namaLokasi)
+	            ->get('master_work_location_outsource')
+	            ->row();
+
+	        if ($cekLokasi) {
+	            $lokasi = $cekLokasi->id;
+	        } else {
+
+	            $this->db->insert('master_work_location_outsource', [
+	                'cust_id' => $customer,
+	                'name'    => $namaLokasi
+	            ]);
+
+	            $lokasi = $this->db->insert_id();
+	        }
+	    }
+
+
+
 		$dataProject = $this->db->query("select * from project_outsource where project_name = '".$post['nama_project']."' ")->result();
 		if(!empty($dataProject)){
 			echo "Tidak dapat menyimpan data dengan Nama Project yang sama";
+			return false;
 		}else{
+
 			$data = [
 				'code' 				=> trim($post['kode_project']),
 				'project_name' 		=> trim($post['nama_project']),
@@ -301,6 +332,34 @@ class Project_outsource_model extends MY_Model
 			
 			$customer = (isset($post['customer']) && !empty($post['customer']))? trim($post['customer']):0; 
 			$lokasi = (isset($post['lokasi']) && !empty($post['lokasi']))? trim($post['lokasi']):0;
+
+
+			// CEK LOKASI BARU
+	    	// =========================
+		    if (!empty($lokasi) && !is_numeric($lokasi)) {
+
+		        $namaLokasi = strtoupper(trim($lokasi));
+
+		        // cek dulu biar gak dobel
+		        $cekLokasi = $this->db
+		            ->where('cust_id', $customer)
+		            ->where('UPPER(name)', $namaLokasi)
+		            ->get('master_work_location_outsource')
+		            ->row();
+
+		        if ($cekLokasi) {
+		            $lokasi = $cekLokasi->id;
+		        } else {
+
+		            $this->db->insert('master_work_location_outsource', [
+		                'cust_id' => $customer,
+		                'name'    => $namaLokasi
+		            ]);
+
+		            $lokasi = $this->db->insert_id();
+		        }
+		    }
+	    
 			
 			$data = [
 				'code' 				=> trim($post['kode_project']),

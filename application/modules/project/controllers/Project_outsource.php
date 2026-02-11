@@ -108,7 +108,7 @@ class Project_outsource extends MY_Controller
 	}
 
 
-	public function insertLokasi()
+	/*public function insertLokasi()
 	{
 	    $post     = $this->input->post(null, true);
 	    $customer = $post['customer'];
@@ -143,7 +143,7 @@ class Project_outsource extends MY_Controller
 	        'id'     => $this->db->insert_id(),
 	        'name'   => $nama
 	    ]);
-	}
+	}*/
 
 
  
