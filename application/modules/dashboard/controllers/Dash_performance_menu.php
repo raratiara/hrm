@@ -160,7 +160,7 @@ class Dash_performance_menu extends MY_Controller
 								LEFT JOIN divisions e 
 								       ON e.id = d.division_id 
 								       where 1=1 ".$whereDiv."
-								GROUP BY c.name
+								GROUP BY c.id, c.name
 								ORDER BY c.name;
 
 								")->result(); 

@@ -48,12 +48,13 @@
 <div id="modal-report-summary_absen_os" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-summary_absen_os" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:500px">
+		<div class="modal-content" style="width:500px !important">
 			<form class="form-horizontal" id="frmReportSummaryAbsenOS" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Report Summary Absensi Outsource
+					<input type="hidden" id="hdnsummaryid" name="hdnsummaryid" />
 				</div>
 			</div>
 			 </form>
@@ -141,25 +142,14 @@ function toYYYYMMDD(dateStr) {
 
 
 function subFilter(){
-	var flemployee = $("#flemployee option:selected").val();
-	var perioddate = $("#perioddate").val();
+	var flproject = $("#flproject option:selected").val();
+	//var perioddate = $("#perioddate").val();
 
-	if(flemployee == ''){
-		flemployee=0;
+	if(flproject == ''){
+		flproject=0;
 	}
 
-	fldatestart=0;
-	fldateend=0;
-	if(perioddate != ''){
-		var myArray = perioddate.split(" - ");
-		var start = myArray[0];
-		var end = myArray[1];
-
-		fldatestart=toYYYYMMDD(start);
-		fldateend=toYYYYMMDD(end);
-	}
 	
-
 	
 	$('#dynamic-table').DataTable().clear().destroy(); 
 	$('#dynamic-table')
@@ -176,7 +166,7 @@ function subFilter(){
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
-		"sAjaxSource": module_path+"/get_data?flemployee="+flemployee+"&fldatestart="+fldatestart+"&fldateend="+fldateend+"",
+		"sAjaxSource": module_path+"/get_data?flproject="+flproject+"",
 		"bProcessing": true,
         "bServerSide": true,
 		"pagingType": "bootstrap_full_number",
@@ -186,20 +176,32 @@ function subFilter(){
 }
 
 
-function getReport_summ_absen_os(){
+function getReport_summ_absen_os(summary_id){
 	
 	$('#modal-report-summary_absen_os').modal('show');
+
+	$('[name="hdnsummaryid"]').val(summary_id);
 
 }
 
 
 function downloadReportSummaryAbsenOS(){ 
+	var summary_id = $("#hdnsummaryid").val();
+
+	if(summary_id != ''){
+		send_url = module_path+'/getAbsenceReportSummaryAbsenOS?summary_id='+summary_id+'';
+		formData = $('#frmReportSummaryAbsenOS').serialize();
+		window.location = send_url+'&'+formData;
+		
+		
+		//window.location = send_url;
+		$('#modal-report-summary_absen_os').modal('hide');
+
+	}else{
+		alert("Data tidak ditemukan");
+	}
 
 	
-	send_url = module_path+'/getAbsenceReportSummaryAbsenOS';
-	
-	window.location = send_url;
-	$('#modal-report-summary_absen_os').modal('hide');
 	
 }
 
@@ -207,11 +209,21 @@ function downloadReportSummaryAbsenOS(){
 function downloadReportSummaryAbsenOS_pdf(){ 
 
 	
-	send_url = module_path+'/getAbsenceReportSummaryAbsenOS_pdf';
-	
-	window.location = send_url;
-	$('#modal-report-summary_absen_os').modal('hide');
-	
+	var summary_id = $("#hdnsummaryid").val();
+
+	if(summary_id != ''){
+		send_url = module_path+'/getAbsenceReportSummaryAbsenOS_pdf?summary_id='+summary_id+'';
+		formData = $('#frmReportSummaryAbsenOS').serialize();
+		window.location = send_url+'&'+formData;
+		
+		
+		//window.location = send_url;
+		$('#modal-report-summary_absen_os').modal('hide');
+		
+	}else{
+		alert("Data tidak ditemukan");
+	}
+
 }
 
 
@@ -319,29 +331,27 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
-					$('[name="penggajian_year"]').val(data.tahun);
-					$('select#penggajian_month').val(data.bulan).trigger('change.select2');
-					var tgl_start = dateFormat(data.tgl_start);
-					var tgl_end = dateFormat(data.tgl_end);
+					$('[name="penggajian_year"]').val(data.tahun_penggajian);
+					$('select#project').val(data.project_id).trigger('change.select2');
+					$('select#penggajian_month').val(data.bulan_penggajian).trigger('change.select2');
+					var tgl_start = dateFormat(data.tgl_start_absen);
+					var tgl_end = dateFormat(data.tgl_end_absen);
 					
 					$('[name="period_start"]').datepicker('setDate', tgl_start);
 					$('[name="period_end"]').datepicker('setDate', tgl_end);
 
 					
-					/*document.getElementById("inp_is_all_employee").style.display = "none";*/
 					document.getElementById("inp_is_all_project").style.display = "none";
 					document.getElementById("inputEmployee").style.display = "none";
 					document.getElementById("inputProject").style.display = "none";
-					
-					document.getElementById("inpEmp").style.display = "block";
-					$('span.employee_name').html(data.full_name);
-
-					
+					document.getElementById("inpEmp").style.display = "none";
 					document.getElementById("inpAbsenOS").style.display = "block";
-					document.getElementById("inpAbsenOS_edit").style.display = "none";
+					document.getElementById("projectView").style.display = "block";
+					$('[name="projectview"]').val(data.project_name);
+
 
 					var locate = 'table.absenos-list';
-					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id, project: data.project_id },success: function (response) { 
 							var obj = JSON.parse(response); console.log(obj);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -354,44 +364,25 @@ function load_data()
 					});
 
 
-					// Create a new button
-					var submitBtn = document.getElementById('submit-data');
-					if (!document.getElementById('idbtnRekapitulasi')) {
-						var rekapitulasiButton = document.createElement('button');
-						rekapitulasiButton.innerText = 'Rekapitulasi';
-						rekapitulasiButton.className = 'btn btn-success btnRekapitulasi';
-						rekapitulasiButton.id = 'idbtnRekapitulasi';
-						// Append the button to the footer
-						/*modalFooter.appendChild(rfuButton);*/
-						// Sisipkan setelah Save
-    					/*submitBtn.insertAdjacentElement('afterend', rekapitulasiButton);*/
-    					submitBtn.insertAdjacentElement('beforebegin', rekapitulasiButton);
 
-
-						rekapitulasiButton.addEventListener('click', function() {
-							$('#modal-rekapitulasi-data').modal('show');
-							$('[name="id"]').val(data.id);
-						});
-					}
-				
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
+
+					
 				}
 				if(save_method == 'detail'){ 
-					$('span.penggajian_year').html(data.tahun);
+					$('span.penggajian_year').html(data.tahun_penggajian);
 					$('span.penggajian_month').html(data.month_name);
-					$('span.period_start').html(data.tgl_start);
-					$('span.period_end').html(data.tgl_end);
-					$('span.employee').html(data.full_name);
+					$('span.period_start').html(data.tgl_start_absen);
+					$('span.period_end').html(data.tgl_end_absen);
 					$('span.project').html(data.project_name);
 
-					document.getElementById("inpAbsenOSView").style.display = "block";
-					document.getElementById("inpAbsenOS_edit").style.display = "none";
+					/*document.getElementById("inpAbsenOSView").style.display = "block"; */
 
 					var locate = 'table.absenos-list-view';
-					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/genabsenosrow',data: { id:data.id,project: data.project_id, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							

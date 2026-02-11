@@ -189,10 +189,10 @@
                         }
                         else if ($this->module_name == 'hitung_summary_absen_os_menu') {
                             ?>
-                            <a class="btn btn-default btn-sm btn-circle" onclick="getReport_summ_absen_os()">
+                            <!-- <a class="btn btn-default btn-sm btn-circle" onclick="getReport_summ_absen_os()">
                                 <i class="fa fa-download"></i>
                                 Report
-                            </a>
+                            </a> -->
                             <?php
                         }
                         else if ($this->module_name == 'invoice_menu') {
@@ -213,7 +213,7 @@
                         }
                         else if ($this->module_name == 'hitung_gaji_os_menu') {
                             ?>
-                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportGaji()">
+                            <!-- <a class="btn btn-default btn-sm btn-circle" onclick="getReportGaji()">
                                 <i class="fa fa-download"></i>
                                 Report Gaji
                             </a>
@@ -224,7 +224,7 @@
                             <a class="btn btn-default btn-sm btn-circle" onclick="getReportAbsenOS_gaji()">
                                 <i class="fa fa-download"></i>
                                 Report Absen
-                            </a>
+                            </a> -->
                           
                             <?php
                         }
@@ -279,22 +279,22 @@
                     <?php if (_USER_ACCESS_LEVEL_UPDATE == "1") { ?>
 
                             <?php
-                            if ($this->module_name == 'hitung_summary_absen_os_menu') {
+                            /*if ($this->module_name == 'hitung_summary_absen_os_menu') {
                                 ?>   
                                 <a class="btn btn-default btn-sm btn-circle" id="btnEditPerProject">
                                     <i class="fa fa-pencil"></i>     
                                     Edit Perhitungan per Project
                                 </a>
                                 <?php
-                            }
-                            else if ($this->module_name == 'hitung_gaji_os_menu') {
+                            }*/
+                            /*else if ($this->module_name == 'hitung_gaji_os_menu') {
                                 ?>   
                                 <a class="btn btn-default btn-sm btn-circle" id="btnEditGajiPerProject">
                                     <i class="fa fa-pencil"></i>     
                                     Edit Gaji per Project
                                 </a>
                                 <?php
-                            }
+                            }*/
                             ?>
 
                         

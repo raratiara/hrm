@@ -88,13 +88,13 @@
                     <span class="act-container-btn d-flex flex-wrap gap-2">
                         <?php if ($this->module_name == 'request_recruitment_menu'): ?>
                             <a class="btn btn-warning" id="btnDraft" onclick="save('draft')">Save as Draft</a>
-                            <button class="btn btn-info" id="submit-data" onclick="save('waiting_approval')">
+                            <button class="btn btn-info" id="submit-data" data-text="Submit" data-loading="Submitting..." onclick="save('waiting_approval')">
                                 <i class="fa fa-check"></i> Submit
                             </button>
                         <?php else: ?>
                             <button class="btn btn-info"
-                                style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;"
-                                id="submit-data" onclick="save()">
+                                style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;"
+                                id="submit-data" data-text="Save" data-loading="Saving..." onclick="save()">
                                 <i class="fa fa-check"></i> Save
                             </button>
                         <?php endif; ?>

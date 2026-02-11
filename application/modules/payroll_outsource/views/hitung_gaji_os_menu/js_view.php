@@ -8,6 +8,7 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Report Gaji
+					<input type="hidden" id="hdnpayrollid" name="hdnpayrollid" />
 				</div>
 			</div>
 			 </form>
@@ -48,6 +49,8 @@
 				<div class="table-header">
 					Report Gaji
 					<input type="hidden" id="hdnempid" name="hdnempid" />
+					<input type="hidden" id="hdnpayrollid_emp" name="hdnpayrollid_emp" />
+					
 				</div>
 			</div>
 			 </form>
@@ -86,6 +89,7 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Report Lembur
+					<input type="hidden" id="hdnpayrollid_lembur" name="hdnpayrollid_lembur" />
 				</div>
 			</div>
 			 </form>
@@ -124,6 +128,8 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Report Absensi OS
+					
+					<input type="hidden" id="hdnpayrollid_absen" name="hdnpayrollid_absen" />
 				</div>
 			</div>
 			 </form>
@@ -270,29 +276,26 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
-					$('[name="penggajian_year"]').val(data.tahun);
-					$('select#penggajian_month').val(data.bulan).trigger('change.select2');
-					var tgl_start = dateFormat(data.tgl_start);
-					var tgl_end = dateFormat(data.tgl_end);
+					
+					$('[name="projectviewgaji"]').val(data.project_name);
+					$('[name="penggajian_year"]').val(data.tahun_penggajian);
+					$('select#penggajian_month').val(data.bulan_penggajian).trigger('change.select2');
+					var tgl_start = dateFormat(data.tgl_start_absen);
+					var tgl_end = dateFormat(data.tgl_end_absen);
 					
 					$('[name="period_start"]').datepicker('setDate', tgl_start);
 					$('[name="period_end"]').datepicker('setDate', tgl_end);
 
-					
-					/*document.getElementById("inp_is_all_employee").style.display = "none";*/
+				
 					document.getElementById("inp_is_all_project_gaji").style.display = "none";
 					document.getElementById("inputEmployee_gaji").style.display = "none";
 					document.getElementById("inputProject_gaji").style.display = "none";
-					
-					document.getElementById("inpEmp_gaji").style.display = "block";
-					$('span.employee_name').html(data.full_name);
-
-					
 					document.getElementById("inpAbsenOS_gaji").style.display = "block";
-					/*document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";*/
+					document.getElementById("projectViewGaji").style.display = "block";
+					
 
-					var locate = 'table.absenos-list-gaji';
-					$.ajax({type: 'post',url: module_path+'/gengajiosrow',data: { id:data.id },success: function (response) { 
+					var locate = 'table.absenos_gaji-list';
+					$.ajax({type: 'post',url: module_path+'/gengajiosrow',data: { id:data.id, project: data.project_id, bln: data.bulan_penggajian, thn: data.tahun_penggajian },success: function (response) { 
 							var obj = JSON.parse(response); console.log(obj);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -328,17 +331,17 @@ function load_data()
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
-					$('span.penggajian_year').html(data.periode_tahun);
-					$('span.penggajian_month').html(data.periode_bulan_name);
-					$('span.period_start').html(data.tgl_start_absensi);
-					$('span.period_end').html(data.tgl_end_absensi);
-					$('span.employee').html(data.full_name);
+					$('span.penggajian_year').html(data.tahun_penggajian);
+					$('span.penggajian_month').html(data.month_name);
+					$('span.period_start').html(data.tgl_start_absen);
+					$('span.period_end').html(data.tgl_end_absen);
+					$('span.project').html(data.project_name);
 
 					document.getElementById("inpGajiOS_view").style.display = "block";
 					/*document.getElementById("inpAbsenOS_edit_gaji").style.display = "none";*/
 
 					var locate = 'table.gajios-view-list';
-					$.ajax({type: 'post',url: module_path+'/gengajiosrow',data: { id:data.id, view:true },success: function (response) { 
+					$.ajax({type: 'post',url: module_path+'/gengajiosrow',data: { id:data.id, project: data.project_id, bln: data.bulan_penggajian, thn: data.tahun_penggajian, view:true },success: function (response) { 
 							var obj = JSON.parse(response);
 							$(locate+' tbody').html(obj[0]);
 							
@@ -792,31 +795,35 @@ function subFilter(){
 
 
 
-function getReportGaji(){
+function getReportGaji(payroll_id){
 	
 	$('#modal-report-gaji').modal('show');
 
+	$('[name="hdnpayrollid"]').val(payroll_id);
+
 }
 
-function getReportGaji_perEmployee(employee_id){
+function getReportGaji_perEmployee(id,employee_id){
+
 	$('#modal-report-gaji-peremployee').modal('show');
 
-	
+	$('[name="hdnpayrollid_emp"]').val(id);
 	$('[name="hdnempid"]').val(employee_id);
 }
 
 function downloadGaji_pdf(){
 
-	var flproject = $("#flproject option:selected").val();
+	var payroll_id = $("#hdnpayrollid").val();
 	
 
-	if(flproject != ''){
-		send_url = module_path+'/getPayrollReport_pdf?flproject='+flproject+'';
+	if(payroll_id != ''){
+		send_url = module_path+'/getPayrollReport_pdf?payroll_id='+payroll_id+'';
 		formData = $('#frmReportGaji').serialize();
 		window.location = send_url+'&'+formData;
+		
 		$('#modal-report-gaji').modal('hide');
 	}else{
-		alert("Mohon filter Project terlebih dahulu");
+		alert("Data tidak ditemukan");
 	}
 
 	/*
@@ -846,42 +853,46 @@ function downloadGaji_pdf(){
 
 function downloadGaji_perEmployee_pdf(){
 
+	var id = $("#hdnpayrollid_emp").val();
 	var emp_id = $("#hdnempid").val();
 	
+	
 
-	if(emp_id != ''){
-		send_url = module_path+'/getPayrollReport_perEmployee_pdf?emp_id='+emp_id+'';
+	if(emp_id != '' && id != ''){
+		send_url = module_path+'/getPayrollReport_perEmployee_pdf?id='+id+'&emp_id='+emp_id+'';
 		formData = $('#frmReportGajiperEmp').serialize();
 		window.location = send_url+'&'+formData;
 		$('#modal-report-gaji-peremployee').modal('hide');
 	}else{
-		alert("Mohon filter Karyawan terlebih dahulu");
+		alert("Data tidak ditemukan");
 	}
 
 	
 }
 
 
-function getReportLembur(){
+function getReportLembur(payroll_id){
 	
 	$('#modal-report-lembur').modal('show');
+
+	$('[name="hdnpayrollid_lembur"]').val(payroll_id);
 
 }
 
 function downloadLembur_pdf(){
 
-	var flproject = $("#flproject option:selected").val();
+	var payroll_id = $("#hdnpayrollid_lembur").val();
 	
 
-	if(flproject != ''){
+	if(payroll_id != ''){
 
-		send_url = module_path+'/getOvertimeReport_pdf?flproject='+flproject+'';
+		send_url = module_path+'/getOvertimeReport_pdf?payroll_id='+payroll_id+'';
 		formData = $('#frmReportLembur').serialize();
 		window.location = send_url+'&'+formData;
 		$('#report-lembur').modal('hide');
 
 	}else{
-		alert("Mohon filter Project terlebih dahulu");
+		alert("Data tidak ditemukan");
 	}
 
 	/*
@@ -925,8 +936,8 @@ $('#penggajian_year').on('keyup', function () {
 	        {  
 				if(data != ''){ 	
 					
-					$('[name="period_start"]').val(data[0].tgl_start);
-					$('[name="period_end"]').val(data[0].tgl_end);
+					$('[name="period_start"]').val(data[0].tgl_start_absen);
+					$('[name="period_end"]').val(data[0].tgl_end_absen);
 
 				} else {  
 					$('[name="period_start"]').val('');
@@ -952,6 +963,9 @@ $('#penggajian_year').on('keyup', function () {
 	        }
 	    });
 
+ 	}else{
+		$('[name="period_start"]').val('');
+		$('[name="period_end"]').val('');
  	}
 
 });
@@ -974,8 +988,8 @@ $('#penggajian_month').on('change', function () {
 	        {  
 				if(data != ''){ 	
 					
-					$('[name="period_start"]').val(data[0].tgl_start);
-					$('[name="period_end"]').val(data[0].tgl_end);
+					$('[name="period_start"]').val(data[0].tgl_start_absen);
+					$('[name="period_end"]').val(data[0].tgl_end_absen);
 
 				} else {  
 					$('[name="period_start"]').val('');
@@ -1001,6 +1015,9 @@ $('#penggajian_month').on('change', function () {
 	        }
 	    });
 
+ 	}else{
+		$('[name="period_start"]').val('');
+		$('[name="period_end"]').val('');
  	}
 
 });
@@ -1015,11 +1032,11 @@ function roundUp2Smart(num) {
 function setTotalPendapatan(val){ 
 	var row = val.dataset.id;  
 	///var tunjangan = val.value;
-	var tunj_jabatan = $('[name="tunj_jabatan_edit_gaji['+row+']"]').val();
-	var tunj_transport = $('[name="tunj_transport_edit_gaji['+row+']"]').val();
-	var tunj_konsumsi = $('[name="tunj_konsumsi_edit_gaji['+row+']"]').val();
-	var tunj_komunikasi = $('[name="tunj_komunikasi_edit_gaji['+row+']"]').val();
-	var gaji = $('[name="gaji_edit_gaji['+row+']"]').val();
+	var tunj_jabatan = $('[name="tunj_jabatan_gaji['+row+']"]').val();
+	var tunj_transport = $('[name="tunj_transport_gaji['+row+']"]').val();
+	var tunj_konsumsi = $('[name="tunj_konsumsi_gaji['+row+']"]').val();
+	var tunj_komunikasi = $('[name="tunj_komunikasi_gaji['+row+']"]').val();
+	var gaji = $('[name="gaji_gaji['+row+']"]').val();
 	
 	if(gaji == ''){
 		gaji=0;
@@ -1046,7 +1063,7 @@ function setTotalPendapatan(val){
 
 	total_pendapatan = roundUp2Smart(total_pendapatan);
 
-	$('[name="ttl_pendapatan_edit_gaji['+row+']"]').val(total_pendapatan);
+	$('[name="ttl_pendapatan_gaji['+row+']"]').val(total_pendapatan);
 
 
 	setSubTotal(val);
@@ -1059,18 +1076,15 @@ function setTotalPendapatan(val){
 function setSubTotal(val){ 
 	var row = val.dataset.id;  
 	///var tunjangan = val.value;
-	var ttl_pendapatan 	= $('[name="ttl_pendapatan_edit_gaji['+row+']"]').val();
-	var absen 			= $('[name="absen_edit_gaji['+row+']"]').val();
-	var seragam 		= $('[name="seragam_edit_gaji['+row+']"]').val();
-	var pelatihan 		= $('[name="pelatihan_edit_gaji['+row+']"]').val();
-	var lainlain 		= $('[name="lainlain_edit_gaji['+row+']"]').val();
-	var hutang 			= $('[name="hutang_edit_gaji['+row+']"]').val();
-	var sosial 			= $('[name="sosial_edit_gaji['+row+']"]').val();
+	var ttl_pendapatan 	= $('[name="ttl_pendapatan_gaji['+row+']"]').val();
+	var seragam 		= $('[name="seragam_gaji['+row+']"]').val();
+	var pelatihan 		= $('[name="pelatihan_gaji['+row+']"]').val();
+	var lainlain 		= $('[name="lainlain_gaji['+row+']"]').val();
+	var hutang 			= $('[name="hutang_gaji['+row+']"]').val();
+	var sosial 			= $('[name="sosial_gaji['+row+']"]').val();
 
 	
-	if(absen == ''){
-		absen=0;
-	}
+	
 	if(seragam == ''){
 		seragam=0;
 	}
@@ -1088,7 +1102,7 @@ function setSubTotal(val){
 	}
 
 
-	var subTotal = Number(ttl_pendapatan)-(Number(absen)+Number(seragam)+Number(pelatihan)+Number(lainlain)+Number(hutang)+Number(sosial));
+	var subTotal = Number(ttl_pendapatan)-(Number(seragam)+Number(pelatihan)+Number(lainlain)+Number(hutang)+Number(sosial));
 
 	subTotal = roundUp2Smart(subTotal);
 
@@ -1100,7 +1114,7 @@ console.log('lainlain :'+lainlain);
 console.log('hutang :'+hutang);
 console.log('sosial :'+sosial);*/
 
-	$('[name="subtotal_edit_gaji['+row+']"]').val(subTotal);
+	$('[name="subtotal_gaji['+row+']"]').val(subTotal);
 
 
     setGajiBersih(val);
@@ -1112,11 +1126,11 @@ console.log('sosial :'+sosial);*/
 function setGajiBersih(val){ 
 	var row = val.dataset.id;  
 	///var tunjangan = val.value;
-	var subtotal 	= $('[name="subtotal_edit_gaji['+row+']"]').val();
-	var bpjs_kes	= $('[name="bpjs_kes_edit_gaji['+row+']"]').val();
-	var bpjs_tk 	= $('[name="bpjs_tk_edit_gaji['+row+']"]').val();
-	var payroll 	= $('[name="payroll_edit_gaji['+row+']"]').val();
-	var pph120 		= $('[name="pph120_edit_gaji['+row+']"]').val();
+	var subtotal 	= $('[name="subtotal_gaji['+row+']"]').val();
+	var bpjs_kes	= $('[name="bpjs_kes_gaji['+row+']"]').val();
+	var bpjs_tk 	= $('[name="bpjs_tk_gaji['+row+']"]').val();
+	var payroll 	= $('[name="payroll_gaji['+row+']"]').val();
+	var pph120 		= $('[name="pph120_gaji['+row+']"]').val();
 	
 	
 	if(bpjs_kes == ''){
@@ -1138,32 +1152,34 @@ function setGajiBersih(val){
 
 	GajiBersih = roundUp2Smart(GajiBersih);
 
-	$('[name="gaji_bersih_edit_gaji['+row+']"]').val(GajiBersih);
+	$('[name="gaji_bersih_gaji['+row+']"]').val(GajiBersih);
 
     
 }
 
-function getReportAbsenOS_gaji(){
+function getReportAbsenOS_gaji(payroll_id){
 	
 	$('#modal-reportosabsengaji-data').modal('show');
+
+	$('[name="hdnpayrollid_absen"]').val(payroll_id);
 }
 
 function downloadReportOS_absengaji_pdf(){
 
 	
-	var flproject = $("#flproject option:selected").val();
+	var payroll_id = $("#hdnpayrollid_absen").val();
 
-	if(flproject != ''){
+	if(payroll_id != ''){
 
   		// send_url = 
-		send_url = module_path+'/getAbsenceReportGaji_pdf?flproject='+flproject+'';
+		send_url = module_path+'/getAbsenceReportGaji_pdf?payroll_id='+payroll_id+'';
 		formData = $('#frmReportDataOSAbsenGaji').serialize();
 		window.location = send_url+'&'+formData;
 		$('#modal-reportosabsengaji-data').modal('hide');
 
 
 	}else{
-		alert("Mohon filter Project terlebih dahulu");
+		alert("Data tidak ditemukan");
 	}
 
 	

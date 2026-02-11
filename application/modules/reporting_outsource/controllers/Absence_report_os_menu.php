@@ -6,9 +6,9 @@ class Absence_report_os_menu extends MY_Controller
 	/* Module */
  	const  LABELMODULE				= "absence_report_os_menu"; // identify menu
  	const  LABELMASTER				= "Menu Report Absensi Karyawan OS";
- 	const  LABELFOLDER				= "hr_menu"; // module folder
+ 	const  LABELFOLDER				= "reporting_outsource"; // module folder
  	const  LABELPATH				= "absence_report_os_menu"; // controller file (lowercase)
- 	const  LABELNAVSEG1				= "hr_menu"; // adjusted 1st sub parent segment
+ 	const  LABELNAVSEG1				= "reporting_outsource"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
  	const  LABELSUBPARENTSEG2		= ""; // 

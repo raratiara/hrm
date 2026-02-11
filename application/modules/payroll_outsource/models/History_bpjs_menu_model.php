@@ -20,25 +20,19 @@ class History_bpjs_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.full_name',
-			'dt.tanggal_potong',
-			'dt.no_bpjs_kesehatan',
-			'dt.nominal_bpjs_kesehatan',
-			'dt.no_bpjs_tk',
-			'dt.nominal_bpjs_tk',
 			'dt.project_name',
-			'dt.periode_penggajian',
-			'dt.tanggal_setor',
-			'dt.tanggal_dikembalikan'
+			'dt.periode_gaji_bulan_name',
+			'dt.periode_gaji_tahun',
+			'dt.periode'
 		];
 		
 
 		$where_disetor="";
-		if(isset($_GET['fldisetor']) && $_GET['fldisetor'] != ''){
+		if(isset($_GET['fldisetor']) && $_GET['fldisetor'] != '' && $_GET['fldisetor'] != 0){
 			if($_GET['fldisetor'] == 1){
-				$where_disetor = " and a.tanggal_setor is not null ";
+				$where_disetor = " and d.tanggal_setor is not null ";
 			}else if($_GET['fldisetor'] == 0){
-				$where_disetor = " and a.tanggal_setor is null ";
+				$where_disetor = " and d.tanggal_setor is null ";
 			}
 			
 		}
@@ -46,19 +40,24 @@ class History_bpjs_menu_model extends MY_Model
 		$where_dikembalikan = "";
 		if(isset($_GET['fldikembalikan']) && $_GET['fldikembalikan'] != '' && $_GET['fldikembalikan'] != 0){
 			if($_GET['fldikembalikan'] == 1){
-				$where_dikembalikan = " and a.tanggal_dikembalikan is not null ";
+				$where_dikembalikan = " and d.tanggal_dikembalikan is not null ";
 			}else if($_GET['fldikembalikan'] == 0){
-				$where_dikembalikan = " and a.tanggal_dikembalikan is null ";
+				$where_dikembalikan = " and d.tanggal_dikembalikan is null ";
 			}
+		}
+
+		$where="";
+		if($where_disetor != "" || $where_dikembalikan != ""){
+			$where = " left join history_bpjs_detail d on d.history_bpjs_id = a.id 
+						where 1=1 ".$where_disetor.$where_dikembalikan." ";
 		}
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name, c.project_name, concat(d.name_indo," ",a.periode_gaji_tahun) as periode_penggajian
-					from history_bpjs a left join employees b on b.id = a.employee_id
-					left join project_outsource c on c.id = b.project_id
-					left join master_month d on d.id = a.periode_gaji_bulan
-					where 1=1 '.$where_disetor.$where_dikembalikan.')dt';
+		$sTable = '(select a.*, b.name_indo as periode_gaji_bulan_name, c.project_name, 
+					concat(b.name_indo, " ",a.periode_gaji_tahun) as periode
+					from history_bpjs a left join master_month b on b.id = a.periode_gaji_bulan 
+					left join project_outsource c on c.id = a.project_id '.$where.')dt';
 		
 
 		/* Paging */
@@ -222,17 +221,8 @@ class History_bpjs_menu_model extends MY_Model
 					'.$delete.'
 				</div>',
 				$row->id,
-				$row->full_name,
 				$row->project_name,
-				$row->periode_penggajian,
-				$row->tanggal_potong,
-				$row->no_bpjs_kesehatan,
-				$row->nominal_bpjs_kesehatan,
-				$row->no_bpjs_tk,
-				$row->nominal_bpjs_tk,
-				$row->tanggal_setor,
-				$row->tanggal_dikembalikan
-
+				$row->periode
 
 
 			));
@@ -344,10 +334,10 @@ class History_bpjs_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.full_name, c.project_name, concat(d.name_indo," ",a.periode_gaji_tahun) as periode_penggajian
-					from history_bpjs a left join employees b on b.id = a.employee_id
-					left join project_outsource c on c.id = b.project_id
-					left join master_month d on d.id = a.periode_gaji_bulan
+		$mTable = '(select a.*, b.name_indo as periode_gaji_bulan_name, c.project_name, 
+					concat(b.name_indo, " ",a.periode_gaji_tahun) as periode
+					from history_bpjs a left join master_month b on b.id = a.periode_gaji_bulan 
+					left join project_outsource c on c.id = a.project_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -384,16 +374,109 @@ class History_bpjs_menu_model extends MY_Model
 	public function eksport_data()
 	{
 
-		$sql = "select a.*, b.full_name, c.project_name, concat(d.name_indo,' ',a.periode_gaji_tahun) as periode_penggajian
-					from history_bpjs a left join employees b on b.id = a.employee_id
-					left join project_outsource c on c.id = b.project_id
-					left join master_month d on d.id = a.periode_gaji_bulan
+		$sql = "select a.*, b.name_indo as periode_gaji_bulan_name, c.project_name, 
+					concat(b.name_indo, ' ',a.periode_gaji_tahun) as periode
+					from history_bpjs a left join master_month b on b.id = a.periode_gaji_bulan 
+					left join project_outsource c on c.id = a.project_id
 			order by a.id asc
 		";
 
 		$res = $this->db->query($sql);
 		$rs = $res->result_array();
 		return $rs;
+	}
+
+
+
+	public function getNewHistBpjsRow($row,$id=0,$view=FALSE)
+	{ 
+		if($id > 0){ 
+			$data = $this->getHistBpjsRows($id,$view);
+		} else { 
+			$data = '';
+			$no = $row+1;
+			
+			$data 	.= '<td colspan="9">No Data</td>';
+
+			
+		}
+
+		return $data;
+	} 
+	
+	// Generate expenses item rows for edit & view
+	public function getHistBpjsRows($id,$view,$print=FALSE){ 
+
+		$dt = ''; 
+		
+		$rs = $this->db->query("select a.*, b.emp_code, b.full_name from history_bpjs_detail a 
+								left join employees b on b.id = a.employee_id
+								where a.history_bpjs_id = ".$id."
+								order by b.full_name
+								")->result(); 
+		$rd = $rs;
+
+		$row = 0; 
+		if(!empty($rd)){ 
+			$rs_num = count($rd); 
+			
+			foreach ($rd as $f){
+				$no = $row+1;
+				
+				if(!$view){ 
+
+					$dt .= '<tr>';
+
+					$dt .= '<td>'.$f->emp_code.'</td>';
+					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->no_bpjs_kesehatan,'no_bpjs_kesehatan['.$row.']','','no_bpjs_kesehatan','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->nominal_bpjs_kesehatan,'nominal_bpjs_kesehatan['.$row.']','','nominal_bpjs_kesehatan','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->no_bpjs_tk,'no_bpjs_tk['.$row.']','','no_bpjs_tk','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->nominal_bpjs_tk,'nominal_bpjs_tk['.$row.']','','nominal_bpjs_tk','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->tanggal_potong,'tanggal_potong['.$row.']','','tanggal_potong','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->tanggal_setor,'tanggal_setor['.$row.']','','tanggal_setor','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->tanggal_dikembalikan,'tanggal_dikembalikan['.$row.']','','tanggal_dikembalikan','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+				
+					$dt .= '</tr>';
+				} else { 
+					
+					if($print){
+						if($row == ($rs_num-1)){
+							$dt .= '<tr class="item last">';
+						} else {
+							$dt .= '<tr class="item">';
+						}
+					} else {
+						$dt .= '<tr>';
+					} 
+					
+					$dt .= '<td>'.$f->emp_code.'</td>';
+					$dt .= '<td>'.$f->full_name.'</td>';
+					$dt .= '<td>'.$f->no_bpjs_kesehatan.'</td>';
+					$dt .= '<td>'.$f->nominal_bpjs_kesehatan.'</td>';
+					$dt .= '<td>'.$f->no_bpjs_tk.'</td>';
+					$dt .= '<td>'.$f->nominal_bpjs_tk.'</td>';
+					$dt .= '<td>'.$f->tanggal_potong.'</td>';
+					$dt .= '<td>'.$f->tanggal_setor.'</td>';
+					$dt .= '<td>'.$f->tanggal_dikembalikan.'</td>';
+					$dt .= '</tr>';
+
+					
+				}
+
+				$row++;
+			}
+		}
+
+		return [$dt,$row];
 	}
 
 

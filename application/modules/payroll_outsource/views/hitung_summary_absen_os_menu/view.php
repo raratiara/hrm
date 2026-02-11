@@ -9,56 +9,59 @@
 
   <style type="text/css">
   	#submitFilter{
-    background-color: #3832d2; /* #3490dc; */
-    color: white;
+		    background-color: #3832d2; /* #3490dc; */
+		    color: white;
 
-    padding: 8px 14px;        /* kecilin tinggi & lebar */
-    font-size: 12px;          /* kecilin teks */
-    line-height: 1.2;         /* biar tinggi pas & teks center */
+		    padding: 8px 14px;        /* kecilin tinggi & lebar */
+		    font-size: 12px;          /* kecilin teks */
+		    line-height: 1.2;         /* biar tinggi pas & teks center */
 
-    border: none;
-    border-radius: 6px;       /* radius ikut dikecilin */
-    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
+		    border: none;
+		    border-radius: 6px;       /* radius ikut dikecilin */
+		    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
 
-    transition: all 0.2s ease-in-out;
+		    transition: all 0.2s ease-in-out;
 
-    display: inline-flex;    /* center horizontal & vertical */
-    align-items: center;
-    justify-content: center;
-}
+		    display: inline-flex;    /* center horizontal & vertical */
+		    align-items: center;
+		    justify-content: center;
+		}
 
 
   </style>
   
 </head>
-<!-- <body>
 
-  	<div style="margin-top: 10px;">
-  		<div class="col-md-6 col-sm-12" style="margin-left:-30px" >
-  			<div class="form-group">
-				<label class="col-md-4 control-label no-padding-right">Employee Name</label>
-				<div class="col-md-8">
-					<?=$selflemployee;?>
-				</div>
-			</div>
-  		</div>
-  		<div class="col-md-6 col-sm-12">
-			<div class="form-group">
-				<label class="col-md-3 control-label no-padding-right">Date Period</label>
-				<div class="col-md-8">
-					<input type="text" class="form-control" id="perioddate" name="perioddate">
-				</div> 
-			</div>
+
+
+<body>
+
+    <div class="row filter-wrap" style="margin-top:15px">
+		  <div class="col-md-4 col-sm-12">
+		    <div class="form-group row form-row">
+		      <label class="col-sm-2 col-form-label">Project</label>
+		      <div class="col-sm-10">
+		        <?=$selflproject;?>
+		      </div>
+		    </div>
+		  </div>
+
+		
+		  <div class="col-md-4 col-sm-12">
+		    <div class="text-left filter-actions">
+		      <button type="button" class="btn btn-success" id="submitFilter" onclick="subFilter()">
+		        Submit Filter
+		      </button>
+		    </div>
+		  </div>
+
 		</div>
-  	</div>
-   
 
-    
-    <button type="button" style="background-color: green; color: white; border-radius: 4px !important;" id="submitFilter" onclick="subFilter()">
-      Submit Filter
-    </button>
  
-</body> -->
+</body>
+
+
+
 </html>
 
 

@@ -15,12 +15,12 @@ class History_bpjs_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Karyawan","Project","Periode Gaji","Tanggal Potong","No BPJS Kes","Nominal BPJS Kes","No BPJS TK","Nominal BPJS TK","Tanggal Setor","Tanggal Dikembalikan"];
+	public $tabel_header 			= ["ID","Project","Periode Gaji"];
 
 
 	/* Export */
-	public $colnames 				= ["ID","Karyawan","Project","Periode Gaji","Tanggal Potong","No BPJS Kes","Nominal BPJS Kes","No BPJS TK","Nominal BPJS TK","Tanggal Setor","Tanggal Dikembalikan"];
-	public $colfields 				= ["id","full_name","project_name","periode_penggajian","tanggal_potong","no_bpjs_kesehatan","nominal_bpjs_kesehatan","no_bpjs_tk","nominal_bpjs_tk","tanggal_setor","tanggal_dikembalikan"];
+	public $colnames 				= ["ID","Project","Periode Gaji"];
+	public $colfields 				= ["id","project_name","periode"];
 
 	/* Form Field Asset */
 	public function form_field_asset()
@@ -108,6 +108,32 @@ class History_bpjs_menu extends MY_Controller
 
 		echo json_encode($rs);
 	}
+
+
+	public function genhistbpjsrow()
+	{ 
+		if(_USER_ACCESS_LEVEL_VIEW == "1")
+		{ 
+			$post = $this->input->post(null, true);
+			
+
+			if(isset($post['count']))
+			{  
+				$row = trim($post['count']); 
+				echo $this->self_model->getNewHistBpjsRow($row);
+			} else if(isset($post['id'])) { 
+				$row = 0;
+				$id = trim($post['id']);
+				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
+				echo json_encode($this->self_model->getNewHistBpjsRow($row,$id,$view));
+			}
+		}
+		else
+		{ 
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
 
 
 

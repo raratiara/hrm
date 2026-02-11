@@ -1,5 +1,17 @@
 <div class="row">
 	
+	
+
+	<div class="col-md-12 col-sm-12 col-xs-12">
+		<div class="row-flex">
+			<label class="col-md-2 col-sm-2 col-xs-2 control-label no-padding-right">Project</label>
+			<div class="col-md-10 col-sm-10 col-xs-10">
+				: <span class="project"></span>
+			</div>
+		</div>
+		
+	</div>
+
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		<div class="row-flex">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Penggajian Bulan</label>
@@ -13,12 +25,12 @@
 				: <span class="period_start"></span>
 			</div>
 		</div>
-		<div class="row-flex">
+		<!-- <div class="row-flex">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Karyawan</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="employee"></span>
 			</div>
-		</div>
+		</div> -->
 	</div>
 
 
@@ -36,19 +48,14 @@
 				: <span class="period_end"></span>
 			</div>
 		</div>
-		<div class="row-flex">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Project</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="project"></span>
-			</div>
-		</div>
+		
 		
 	</div>
 </div>
 
 
 
-<div class="row absenosview" id="inpAbsenOSView" style="display:none;">
+<div class="row absenosview" id="inpAbsenOSView">
     <div class="col-md-12">
 		<div class="portlet box">
 			<div class="portlet-title">
@@ -62,6 +69,8 @@
 				<table class="table table-striped table-bordered table-hover absenos-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenOS">
 					<thead>
 						<tr>
+							<th scope="col">NIK</th>
+							<th scope="col">Karyawan</th>
 							<th scope="col">Total Hari Kerja</th>
 							<th scope="col">Total Masuk</th>
 							<th scope="col">Total Ijin</th>

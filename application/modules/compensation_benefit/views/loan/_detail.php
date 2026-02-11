@@ -19,14 +19,9 @@
 				: <span class="tenor"></span>
 			</div>
 		</div> 
+		
 		<div class="row-flex">
-			<label class="col-md-4 control-label no-padding-right">Sisa Tenor</label>
-			<div class="col-md-8">
-				: <span class="sisa_tenor"></span>
-			</div>
-		</div> 
-		<div class="row-flex">
-			<label class="col-md-4 control-label no-padding-right">Bunga per Bulan</label>
+			<label class="col-md-4 control-label no-padding-right">Bunga per Bulan (%)</label>
 			<div class="col-md-8">
 				: <span class="bunga_per_bulan"></span>
 			</div>
@@ -37,6 +32,12 @@
 				: <span class="nominal_cicilan_per_bulan"></span>
 			</div>
 		</div> 
+		<div class="row-flex">
+			<label class="col-md-4 control-label no-padding-right">Status</label>
+			<div class="col-md-8">
+				: <span class="status"></span>
+			</div>
+		</div>  
 		<div class="row-flex" id="rejectReason" style="display: none;">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Reject Reason</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
@@ -73,11 +74,12 @@
 			</div>
 		</div>  
 		<div class="row-flex">
-			<label class="col-md-4 control-label no-padding-right">Status</label>
+			<label class="col-md-4 control-label no-padding-right">Sisa Tenor</label>
 			<div class="col-md-8">
-				: <span class="status"></span>
+				: <span class="sisa_tenor"></span>
 			</div>
-		</div>  
+		</div> 
+		
 		
 	</div>
 </div>

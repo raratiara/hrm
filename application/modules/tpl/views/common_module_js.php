@@ -47,6 +47,7 @@ $( "#btnAddData" ).on('click', function(){
 
 		document.getElementById("inpAbsenOS").style.display = "none";
 		document.getElementById("inpAbsenOS_edit").style.display = "none";
+		document.getElementById("projectView").style.display = "none";
 
 	}
 
@@ -59,6 +60,10 @@ $( "#btnAddData" ).on('click', function(){
 	 	if (existingReject) {
 	 		document.getElementById("btn-reject").style.display = "none";
 	 	}
+
+
+	 	unlockSubmitDraft();
+
 	}
 
 
@@ -106,6 +111,10 @@ $( "#btnAddData" ).on('click', function(){
 	}
 
 	if(module_name == 'hitung_gaji_os_menu'){ 
+		document.getElementById("projectViewGaji").style.display = "none";
+		document.getElementById("inpAbsenOS_gaji").style.display = "none";
+		
+
 		var now = new Date();
 
 		var monthNow = now.getMonth() + 1; // 1–12
@@ -125,8 +134,8 @@ $( "#btnAddData" ).on('click', function(){
 	        {  
 				if(data != ''){ 	
 					
-					$('[name="period_start"]').val(data[0].tgl_start);
-					$('[name="period_end"]').val(data[0].tgl_end);
+					$('[name="period_start"]').val(data[0].tgl_start_absen);
+					$('[name="period_end"]').val(data[0].tgl_end_absen);
 
 				} else {  
 					$('[name="period_start"]').val('');
@@ -155,6 +164,10 @@ $( "#btnAddData" ).on('click', function(){
 	}
 	
 
+	unlockSubmit();
+
+
+
 	$('#modal-form-data').modal('show');
 });
 <?php } ?>
@@ -162,7 +175,15 @@ $( "#btnAddData" ).on('click', function(){
 <?php if  (_USER_ACCESS_LEVEL_UPDATE == "1") { ?>
 /* open edit form modal */
 function edit(id)
-{
+{ 
+	var module_name = '<?=$this->module_name?>'; 
+
+	unlockSubmit();
+
+	if(module_name == 'request_recruitment_menu'){
+		unlockSubmitDraft();
+	}
+
 	expire();
     save_method = 'update';
 	idx = id;
@@ -357,10 +378,25 @@ function save(status='')
 		send_url = module_path+'/bulk';
 		formData = new FormData($('#frmListData')[0]);
 	}
+
+
+	if(save_method == 'add' || save_method == 'update'){
+		if(status == 'draft'){
+			lockSubmitDraft();
+		}else{
+			lockSubmit();
+		}
+	    
+	}
+
+
 <?php } ?>
 	
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1" || _USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DELETE == "1") { ?>
 	if((save_method == 'add') || (save_method == 'update') || (save_method == 'delete') || (save_method == 'bulk')) {
+		var module_name = '<?=$this->module_name?>'; 
+
+
 		$.ajax({
 			type: post_type,
 			url: send_url,
@@ -377,6 +413,12 @@ function save(status='')
 					title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-check-circle-o fa-5x" style="color:green"></i></div>';
 					btn = '';
 					if(save_method == 'add' || save_method == 'update') {
+						unlockSubmit();
+
+						if(module_name == 'request_recruitment_menu'){
+							unlockSubmitDraft();
+						}
+
 						$('#frmInputData')[0].reset();
 						$('#modal-form-data').modal('hide');
 					} else if(save_method == 'delete'){
@@ -385,7 +427,13 @@ function save(status='')
 						$('#modal-delete-bulk-data').modal('hide');
 					}
 					reload_table();
-				} else {
+				} else { 
+					unlockSubmit();
+
+					if(module_name == 'request_recruitment_menu'){ 
+						unlockSubmitDraft();
+					}
+
 					title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
 					btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
 				}
@@ -400,6 +448,15 @@ function save(status='')
 
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
+				unlockSubmit();
+
+				if(module_name == 'request_recruitment_menu'){ alert('error drfat');
+					unlockSubmitDraft();
+				}else{
+					alert('error');
+				}
+
+			
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -537,10 +594,41 @@ function tSawBclear(elem){
 
 
 
-function showLoading() { 
-    $("#loadingOverlay").show();
+function lockSubmit() {
+	var btn = $('#submit-data');
+    
+    var loadingText = btn.data('loading') || 'Processing...';
+
+    btn.prop('disabled', true)
+       .html('<i class="fa fa-spinner fa-spin"></i> ' + loadingText);
 }
 
-function hideLoading() {
-    $("#loadingOverlay").hide();
+function lockSubmitDraft() {
+	var btn = $('#btnDraft');
+    
+    var loadingText = btn.data('loading') || 'Drafting...';
+
+    btn.prop('disabled', true)
+       .html('<i class="fa fa-spinner fa-spin"></i> ' + loadingText);
 }
+
+function unlockSubmit() {
+	
+	var btn = $('#submit-data');
+    var text = btn.data('text') || 'Save';
+
+    btn.prop('disabled', false)
+   .html('<i class="fa fa-check"></i> ' + text);
+	
+    
+}
+
+
+function unlockSubmitDraft() {
+    var btn = $('#btnDraft');
+    var text = btn.data('text') || 'Save as Draft';
+
+    btn.prop('disabled', false)
+       .html('<i class="fa fa-floppy-o"></i> ' + text);
+}
+

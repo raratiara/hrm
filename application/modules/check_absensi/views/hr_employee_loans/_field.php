@@ -20,14 +20,9 @@
 				<?=$txt_tenor;?>
 			</div>
 		</div> 
+		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Sisa Tenor</label>
-			<div class="col-md-8">
-				<?=$txt_sisa_tenor;?>
-			</div>
-		</div> 
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Bunga per Bulan</label>
+			<label class="col-md-4 control-label no-padding-right">Bunga per Bulan (%)</label>
 			<div class="col-md-8">
 				<?=$txt_bunga_per_bulan;?>
 			</div>
@@ -39,6 +34,13 @@
 				<input type="hidden" id="nominal_cicilan_per_bulan" name="nominal_cicilan_per_bulan">
 			</div>
 		</div> 
+		<div class="form-group" id="inpStatus" style="display:none;">
+			<label class="col-md-4 control-label no-padding-right">Status</label>
+			<div class="col-md-8">
+				<?=$selStatus;?>
+			</div>
+		</div>  
+
 	</div>
 	<div class="col-md-6 col-sm-12">
 		
@@ -66,12 +68,13 @@
 				<?=$txt_date_start_cicilan;?>
 			</div>
 		</div>  
-		<div class="form-group" id="inpStatus" style="display:none;">
-			<label class="col-md-4 control-label no-padding-right">Status</label>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Sisa Tenor</label>
 			<div class="col-md-8">
-				<?=$selStatus;?>
+				<?=$txt_sisa_tenor;?>
 			</div>
-		</div>  
+		</div> 
+		
 	</div> 
 </div>
 

@@ -37,12 +37,12 @@ class Ijin_menu extends MY_Controller
 		$field = [];
 		
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
-		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
+		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','required',3,'-');
 		$msleave 				= $this->db->query("select * from master_leaves where name != 'Absence' ")->result(); 
-		$field['selleavetype'] 	= $this->self_model->return_build_select2me($msleave,'','','','leave_type','leave_type','','','id','name',' ','','','',3,'-');
+		$field['selleavetype'] 	= $this->self_model->return_build_select2me($msleave,'','','','leave_type','leave_type','','','id','name',' ','','','required',3,'-');
 		$field['txtreason']		= $this->self_model->return_build_txtarea('','reason','reason');
-		$field['txtdatestart']	= $this->self_model->return_build_txt('','date_start','date_start');
-		$field['txtdateend']	= $this->self_model->return_build_txt('','date_end','date_end');
+		$field['txtdatestart']	= $this->self_model->return_build_txt('','date_start','date_start','','','required');
+		$field['txtdateend']	= $this->self_model->return_build_txt('','date_end','date_end','','','required');
 		$field['attachment'] 	= $this->self_model->return_build_fileinput('attachment','attachment');
 
 

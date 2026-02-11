@@ -292,62 +292,6 @@ function getLokasi(customer, selected='', idVal='') {
 
 
 
-function getLokasi_old(customer,selected='',idVal=''){ 
-
-	if(customer != ''){
- 		
- 		$.ajax({
-			type: "POST",
-	        url : module_path+'/getDataLokasi',
-			data: { customer: customer },
-			cache: false,		
-	        dataType: "JSON",
-	        success: function(data)
-	        {  
-				if(data != null){ 
-					
-					var $el = $("#lokasi");
-
-					$el.empty(); // remove old options
-					$el.append($("<option></option>").attr("value", "").text(""));
-					$.each(data.mslokasi, function(key,value) {
-						$el.append($("<option></option>")
-				     	.attr("value", value.id).text(value.name));
-
-				     	$el.trigger('change'); // penting buat select2
-					  	
-					});
-
-					if(selected=='selected'){
-						$('select#lokasi').val(idVal).trigger('change.select2');
-					}
-					
-				} else { 
-					
-
-				}
-
-	        },
-	        error: function (jqXHR, textStatus, errorThrown)
-	        {
-				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
-					buttons: {
-						confirm: {
-							label: 'Ok',
-							className: 'btn blue'
-						}
-					}
-				});
-	        }
-	    });
-
-
- 	}
-
-}
-
 $('#customer').on('change', function () { 
  	var customer = $(this).val();
 
@@ -362,53 +306,6 @@ $('#customer').on('change', function () {
     }
 });
 
-
-
-$('#lokasi').on('select2:selecting', function (e) {
-
-    var data = e.params.args.data;
-    var customer = $('#customer').val();
-
-    //console.log(data); // DEBUG
-
-    if (!customer) {
-        alert('Customer wajib dipilih terlebih dahulu');
-        e.preventDefault(); 
-        return;
-    }
-
-    
-    if (data.id === data.text) {
-
-        e.preventDefault(); 
-
-        $.ajax({
-            url: module_path + '/insertLokasi',
-            type: 'POST',
-            dataType: 'JSON',
-            data: {
-                customer: customer,
-                nama: data.text
-            },
-            success: function (res) {
-
-                if (res.status) {
-
-                    var newOption = new Option(
-                        res.name,
-                        res.id,
-                        true,
-                        true
-                    );
-
-                    $('#lokasi')
-                        .append(newOption)
-                        .trigger('change.select2');
-                }
-            }
-        });
-    }
-});
 
 
 

@@ -15,12 +15,12 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen","Employee","Project","Total Hari Kerja","Total Masuk","Total Ijin","Total Cuti","Total Alfa","Total Lembur","Total Jam Kerja","Total Jam Lembur"];
+	public $tabel_header 			= ["ID","Project", "Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen","Employee","Project","Total Hari Kerja","Total Masuk","Total Ijin","Total Cuti","Total Alfa","Total Lembur","Total Jam Kerja","Total Jam Lembur"];
-	public $colfields 				= ["id","month_name","tahun","tgl_start","tgl_end","full_name","project_name","total_hari_kerja","total_masuk","total_ijin","total_cuti","total_alfa","total_lembur","total_jam_kerja","total_jam_lembur"];
+	public $colnames 				= ["ID","Project", "Bulan Penggajian", "Tahun Penggajian","Tgl Start Absen","Tgl End Absen"];
+	public $colfields 				= ["id","project_name","month_name","tahun_penggajian","tgl_start_absen","tgl_end_absen"];
 
 
 	/* Form Field Asset */
@@ -29,15 +29,16 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 		
 
 		$field = [];
-		$field['txtperiodstart']	= $this->self_model->return_build_txt('','period_start','period_start');
-		$field['txtperiodend']		= $this->self_model->return_build_txt('','period_end','period_end');
-		$field['txtyear']			= $this->self_model->return_build_txt('','penggajian_year','penggajian_year');
+		$field['txtprojectview']	= $this->self_model->return_build_txt('','projectview','projectview','','','readonly');
+		$field['txtperiodstart']	= $this->self_model->return_build_txt('','period_start','period_start','','','required');
+		$field['txtperiodend']		= $this->self_model->return_build_txt('','period_end','period_end','','','required');
+		$field['txtyear']			= $this->self_model->return_build_txt('','penggajian_year','penggajian_year','','','required');
 		$field['txtperiodstart_edit']	= $this->self_model->return_build_txt('','period_start_edit','period_start_edit');
 		$field['txtperiodend_edit']		= $this->self_model->return_build_txt('','period_end_edit','period_end_edit');
 		$field['txtyear_edit']			= $this->self_model->return_build_txt('','penggajian_year_edit','penggajian_year_edit');
 		
 		$msmonth 					= $this->db->query("select * from master_month order by id asc")->result(); 
-		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','',3,'-');
+		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','required',3,'-');
 		$field['selmonth_edit'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_edit','penggajian_month_edit','','','id','name_indo',' ','','','',3,'-');
 		/*$field['is_all_employee'] 	= $this->self_model->return_build_radio('Ya', [['Ya','Ya'],['Tidak','Tidak']], 'is_all_employee', '', 'inline');*/
 		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
@@ -46,15 +47,29 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
 
 		$field['is_all_project'] 	= $this->self_model->return_build_radio('Semua', [['Semua','Semua'],['Sebagian','Sebagian'],['Karyawan','Per Karyawan']], 'is_all_project', '', 'inline');
-		$msproject 					= $this->db->query('select id,
-										(case when jenis_pekerjaan != "" and lokasi != "" then concat(code," (",lokasi," - ",jenis_pekerjaan,")")
-										when jenis_pekerjaan != "" and lokasi = "" then concat(code," (",jenis_pekerjaan,")")
-										when lokasi != "" and jenis_pekerjaan = "" then concat(code," (",lokasi,")")
-										else code end
-										) as project_desc, project_name
-										from project_outsource order by code asc')->result(); 
+		$msproject 				= $this->db->query('select * from project_outsource order by code asc')->result(); 
 		$field['selprojectids'] 	= $this->self_model->return_build_select2me($msproject,'multiple','','','projectIds[]','projectIds','','','id','project_name',' ','','','',3,'-');
 		$field['selproject_edit'] 	= $this->self_model->return_build_select2me($msproject,'','','','project_edit','project_edit','','','id','project_name',' ','','','',3,'-');
+
+
+		$field['selflproject'] = $this->self_model->return_build_select2me(
+			$msproject,
+			'',
+			'',
+			'',
+			'flproject',
+			'flproject',
+			'',
+			'',
+			'id',
+			'project_name',
+			' ',
+			'',
+			'',
+			'',
+			3,
+			'-'
+		);
 
 		
 		return $field;
@@ -124,23 +139,27 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 
 	    $sql = "
 	        select 
-	            c.name_indo as month_name,
-	            a.tahun,
-	            a.tgl_start,
-	            a.tgl_end,
-	            b.full_name,
-	            a.total_hari_kerja,
-	            a.total_masuk,
-	            a.total_ijin,
-	            a.total_cuti,
-	            a.total_alfa,
-	            a.total_lembur,
-	            a.total_jam_kerja,
-	            a.total_jam_lembur
-	        from summary_absen_outsource a 
-	        left join employees b on b.id = a.emp_id 
-	        left join master_month c on c.id = a.bulan
-	        order by a.tahun desc, a.bulan asc, b.full_name asc
+	        a.project_id, d.project_name,
+			c.name_indo as month_name,
+			a.tahun_penggajian as tahun,
+			a.tgl_start_absen as tgl_start,
+			a.tgl_end_absen as tgl_end,
+			bb.full_name,
+			b.total_hari_kerja,
+			b.total_masuk,
+			b.total_ijin,
+			b.total_cuti,
+			b.total_alfa,
+			b.total_lembur,
+			b.total_jam_kerja,
+			b.total_jam_lembur
+			from summary_absen_outsource a 
+			left join summary_absen_outsource_detail b on b.summary_absen_outsource_id = a.id
+			left join employees bb on bb.id = b.emp_id 
+			left join master_month c on c.id = a.bulan_penggajian
+			left join project_outsource d on d.id = a.project_id
+			where a.id = ".$_GET['summary_id']."
+			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 
 	    $data = $this->db->query($sql)->result();
@@ -167,7 +186,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	    // ===== TITLE =====
 	    echo '<Row>
 	            <Cell ss:MergeAcross="12" ss:StyleID="Title">
-	                <Data ss:Type="String">SUMMARY ABSENSI OUTSOURCE</Data>
+	                <Data ss:Type="String">SUMMARY ABSENSI OUTSOURCE - '.$data[0]->project_name.'</Data>
 	            </Cell>
 	          </Row>';
 
@@ -224,8 +243,10 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 
 	    $content = ob_get_clean();
 
+	    $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $data[0]->project_name);
+
 	    header("Content-Type: application/vnd.ms-excel");
-	    header("Content-Disposition: attachment; filename=summary_absen_outsource.xls");
+	    header("Content-Disposition: attachment; filename=Summary Absen - ".$safeProjectName.".xls");
 	    header("Cache-Control: max-age=0");
 	    echo $content;
 	    exit;
@@ -237,23 +258,27 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	{
 	    $sql = "
 	        select 
-	            c.name_indo AS month_name,
-	            a.tahun,
-	            a.tgl_start,
-	            a.tgl_end,
-	            b.full_name,
-	            a.total_hari_kerja,
-	            a.total_masuk,
-	            a.total_ijin,
-	            a.total_cuti,
-	            a.total_alfa,
-	            a.total_lembur,
-	            a.total_jam_kerja,
-	            a.total_jam_lembur
-	        FROM summary_absen_outsource a
-	        LEFT JOIN employees b ON b.id = a.emp_id
-	        LEFT JOIN master_month c ON c.id = a.bulan
-	        ORDER BY a.tahun DESC, a.bulan ASC, b.full_name ASC
+	        a.project_id, d.project_name,
+			c.name_indo as month_name,
+			a.tahun_penggajian as tahun,
+			a.tgl_start_absen as tgl_start,
+			a.tgl_end_absen as tgl_end,
+			bb.full_name,
+			b.total_hari_kerja,
+			b.total_masuk,
+			b.total_ijin,
+			b.total_cuti,
+			b.total_alfa,
+			b.total_lembur,
+			b.total_jam_kerja,
+			b.total_jam_lembur
+			from summary_absen_outsource a 
+			left join summary_absen_outsource_detail b on b.summary_absen_outsource_id = a.id
+			left join employees bb on bb.id = b.emp_id 
+			left join master_month c on c.id = a.bulan_penggajian
+			left join project_outsource d on d.id = a.project_id
+			where a.id = ".$_GET['summary_id']."
+			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 
 	    $data = $this->db->query($sql)->result();
@@ -272,8 +297,10 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 
 	    if (ob_get_level()) ob_end_clean();
 
+	    $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $data[0]->project_name);
+
 	    header("Content-Type: application/pdf");
-	    header("Content-Disposition: attachment; filename=summary_absen_outsource.pdf");
+	    header("Content-Disposition: attachment; filename=Summary Absen - ".$safeProjectName.".pdf");
 	    echo $pdfBinary;
 	    exit;
 	}
@@ -286,6 +313,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
+			$project = trim($post['project']);
 
 			if(isset($post['count']))
 			{  
@@ -295,7 +323,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewAbsenOSRow($row,$id,$view));
+				echo json_encode($this->self_model->getNewAbsenOSRow($row,$id,$project,$view));
 			}
 		}
 		else
@@ -305,7 +333,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	}
 
 
-	public function rekapitulasi(){
+	/*public function rekapitulasi(){
 		
 		$karyawan_id = $_SESSION['worker'];
 
@@ -325,7 +353,6 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 				'tahun' 			=> trim($post['penggajian_year']),
 				'tgl_start' 		=> $period_start,
 				'tgl_end' 			=> $period_end,
-				/*'emp_id' 			=> $emp_id,*/
 				'total_hari_kerja'  => $post['ttl_hari_kerja'],
 				'total_masuk'  		=> $post['ttl_masuk'],
 				'total_ijin'  		=> $post['ttl_ijin'],
@@ -347,7 +374,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 
 		echo json_encode($rs);
 
-	}
+	}*/
 
 
 	public function getAbsenProject(){
@@ -363,13 +390,12 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	}
 
 
-	public function geneditabsenrow()
+	/*public function geneditabsenrow()
 	{ 
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
-			$bln 	= $post['bln'];
-			$thn 	= $post['thn'];
+			$project = trim($post['project']);
 
 			if(isset($post['count']))
 			{  
@@ -377,21 +403,21 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 				echo $this->self_model->getNewEditAbsenRow($row);
 			} else if(isset($post['project'])) { 
 				$row = 0;
-				$id = trim($post['project']);
+				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewEditAbsenRow($row,$id,$bln,$thn,$view));
+				echo json_encode($this->self_model->getNewEditAbsenRow($row,$id,$project,$view));
 			}
 		}
 		else
 		{ 
 			$this->load->view('errors/html/error_hacks_401');
 		}
-	}
+	}*/
 
 
 	
 
-	public function save_edit_per_project()
+	/*public function save_edit_per_project()
 	{
 	    $post = $this->input->post();
 
@@ -525,7 +551,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	            'message' => 'Tidak ada data yang berhasil diproses'
 	        ]);
 	    }
-	}
+	}*/
 
 
 

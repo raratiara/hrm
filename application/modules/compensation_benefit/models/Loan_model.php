@@ -480,13 +480,8 @@ class Loan_model extends MY_Model
 					'id_employee' 	 				=> trim($post['id_employee']),
 					'nominal_pinjaman' 				=> trim($post['nominal_pinjaman']), 
 					'tenor' 						=> trim($post['tenor']),
-					/*'sisa_tenor' 					=> trim($post['sisa_tenor']),*/
-					'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
-					'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   
-					/*'date_pengajuan' 				=> date("Y-m-d", strtotime(trim($post['date_pengajuan']))),   
-					'date_persetujuan' 				=> date("Y-m-d", strtotime(trim($post['date_persetujuan']))),  
-					'date_pencairan' 				=> date("Y-m-d", strtotime(trim($post['date_pencairan']))),  
-					'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))), */   
+					/*'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
+					'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   */
 					'insert_by'						=> $_SESSION["username"],    
 					'insert_date'					=> date("Y-m-d H:i:s"),
 					'date_pengajuan'				=> date("Y-m-d H:i:s"),
@@ -519,13 +514,13 @@ class Loan_model extends MY_Model
 				'id_employee' 	 				=> trim($post['id_employee']),
 				'nominal_pinjaman' 				=> trim($post['nominal_pinjaman']), 
 				'tenor' 						=> trim($post['tenor']),
-				'sisa_tenor' 					=> trim($post['sisa_tenor']),
+				/*'sisa_tenor' 					=> trim($post['sisa_tenor']),
 				'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
 				'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   
 				'date_pengajuan' 				=> date("Y-m-d", strtotime(trim($post['date_pengajuan']))),   
 				'date_persetujuan' 				=> date("Y-m-d", strtotime(trim($post['date_persetujuan']))),  
 				'date_pencairan' 				=> date("Y-m-d", strtotime(trim($post['date_pencairan']))),  
-				'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))),    
+				'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))),  */  
 				'update_by'						=> $_SESSION["username"] ,    
 				'update_date'					=> date("Y-m-d H:i:s")
 			];

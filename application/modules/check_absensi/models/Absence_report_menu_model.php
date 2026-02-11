@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Absence_report_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "hr_menu/absence_report_menu";
+ 	protected $folder_name				= "check_absensi/absence_report_menu";
  	protected $table_name 				= _PREFIX_TABLE."time_attendances";
  	protected $primary_key 				= "id";
 

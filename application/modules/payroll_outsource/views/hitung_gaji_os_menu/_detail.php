@@ -12,6 +12,124 @@
     .table-scrollable {
         margin-bottom: 15px !important;
     }
+
+
+    /* ============================= */
+    /* SET WIDTH KOLOM (WAJIB) */
+    /* ============================= */
+    #tblDetailGajiOSView th:nth-child(1),
+    #tblDetailGajiOSView td:nth-child(1) {
+        width: 50px;
+        min-width: 50px;
+    }
+
+    #tblDetailGajiOSView th:nth-child(2),
+    #tblDetailGajiOSView td:nth-child(2) {
+        width: 150px;
+        min-width: 150px;
+    }
+
+    #tblDetailGajiOSView th:nth-child(3),
+    #tblDetailGajiOSView td:nth-child(3) {
+        width: 200px;
+        min-width: 200px;
+    }
+
+    /* ============================= */
+    /* FREEZE BODY */
+    /* ============================= */
+    #tblDetailGajiOSView td:nth-child(1) {
+        position: sticky !important;
+        left: 0 !important;
+        background: #fff;
+        z-index: 20;
+    }
+
+    #tblDetailGajiOSView td:nth-child(2) {
+        position: sticky !important;
+        left: 0 !important;
+        background: #fff;
+        z-index: 19;
+    }
+
+    #tblDetailGajiOSView td:nth-child(3) {
+        position: sticky !important;
+        left: 200px !important;
+        background: #fff;
+        z-index: 18;
+    }
+
+    /* ============================= */
+    /* FREEZE TITLE (HEADER) */
+    /* ============================= */
+    #tblDetailGajiOSView thead th:nth-child(1) {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        background: #f0f0f0;
+        z-index: 50 !important;
+    }
+
+    #tblDetailGajiOSView thead th:nth-child(2) {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        background: #f0f0f0;
+        z-index: 49 !important;
+    }
+
+    #tblDetailGajiOSView thead th:nth-child(3) {
+        position: sticky !important;
+        top: 0 !important;
+        left: 200px !important;
+        background: #f0f0f0;
+        z-index: 48 !important;
+    }
+
+
+    #tblDetailGajiOSView {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+
+
+    #tblDetailGajiOSView th,
+    #tblDetailGajiOSView td {
+        width: 150px !important;
+        min-width: 150px !important;
+        max-width: 150px !important;
+
+        height: 30px !important;
+        line-height: 30px !important;
+        padding: 0 6px !important;
+
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* JARAK ANTAR ROW (TR) */
+    #tblDetailGajiOSView tbody tr {
+        height: 42px !important;          /* jarak vertikal antar row */
+    }
+
+
+    #tblDetailGajiOSView td {
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        line-height: 1.4 !important;      /* jangan terlalu rapet */
+    }
+
+
+    .table-scroll-x {
+        padding-bottom: 25px !important;  /* jarak ke scrollbar */
+    }
+
+
+    .table-scrollable {
+        margin-bottom: 15px !important;
+    }
+
 </style>
 
 
@@ -32,9 +150,9 @@
             </div>
         </div>
         <div class="row-flex">
-            <label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Karyawan</label>
+            <label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Project</label>
             <div class="col-md-8 col-sm-8 col-xs-8">
-                : <span class="employee"></span>
+                : <span class="project"></span>
             </div>
         </div>
     </div>
@@ -76,7 +194,9 @@
                         <table class="table table-striped table-bordered table-hover gajios-view-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailGajiOSView">
                             <thead>
                                 <tr>
-                                   
+                                    <th scope="col" style="width: 80px !important;"></th>
+                                    <th scope="col">NIK</th>
+                                    <th scope="col">Karyawan</th>
                                     <th scope="col">Jumlah Jam Kerja</th>
                                     <th scope="col">Jumlah Hadir</th>
                                     <th scope="col">Jumlah Tdk Hadir</th>
@@ -104,7 +224,7 @@
                                     <th scope="col">PGK Jkes</th>
 
 
-                                    <th scope="col">Absen</th>
+                                    <!-- <th scope="col">Absen</th> -->
                                     <th scope="col">Seragam</th>
                                     <th scope="col">Pelatihan</th>
                                     <th scope="col">Lain-Lain</th>

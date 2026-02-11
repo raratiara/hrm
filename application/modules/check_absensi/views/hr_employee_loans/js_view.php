@@ -307,12 +307,22 @@ function load_data()
 						document.getElementById('inpStatus').style.display = 'block';
 						$('select#status').val(data.status_id).trigger('change.select2');
 						document.getElementById('listPembayaran').style.display = 'block';
+
+						$('[name="sisa_tenor"]').prop('readonly', false);
+
+					}else{
+						$('[name="sisa_tenor"]').prop('readonly', true);
+						document.getElementById('inpStatus').style.display = 'none';
+						document.getElementById('listPembayaran').style.display = 'none';
 					}
+
 
 					if(data.status_id == 5 || data.status_id == 6){
 						document.getElementById('listPembayaran').style.display = 'block'; 
+						$('[name="bunga_per_bulan"]').prop('readonly', true);
 					}else{
 						document.getElementById('listPembayaran').style.display = 'none';
+						$('[name="bunga_per_bulan"]').prop('readonly', false);
 					}
 					
 
@@ -709,6 +719,22 @@ function approvalLog() {
         alert("Data not found");
     }
 }
+
+
+
+$(document).on("keyup", "#bunga_per_bulan", function() {
+	var nominal_pinjaman = parseFloat($("#nominal_pinjaman").val().replace(/,/g, '')) || 0;
+	var tenor = parseFloat($("#tenor").val()) || 1;
+	var bunga = parseFloat($("#bunga_per_bulan").val()) || 0; ///0.01; // 1% per bulan
+
+	// Rumus bunga flat
+	var total = nominal_pinjaman + (nominal_pinjaman * bunga * tenor);
+	var cicilan = total / tenor;
+
+	cicilan = Math.ceil(cicilan);
+	$("#teks_nominal_cicilan_per_bulan").val(cicilan.toLocaleString('id-ID'));
+	$("#nominal_cicilan_per_bulan").val(cicilan);
+});
 
 
 
