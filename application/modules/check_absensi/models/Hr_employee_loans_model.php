@@ -281,12 +281,17 @@ class Hr_employee_loans_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				if($row->status_name == 'Pinjaman Berjalan' && ($_SESSION['role'] == 1 || $_SESSION['role'] == 4)){ //superadmin / HR
-					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+				/*if($row->status_name == 'Pinjaman Berjalan' && ($_SESSION['role'] == 1 || $_SESSION['role'] == 4)){*/
+
+				//superadmin / HR
+				if(($_SESSION['role'] == 1 || $_SESSION['role'] == 4)){
+					$title_btn="";
+					if($row->status_name == 'Menunggu Pencairan' && ($row->nominal_cicilan_per_bulan == '' || $row->nominal_cicilan_per_bulan == null)){
+						$title_btn = "Update Bunga";
+					}
+					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i> '.$title_btn.'</a>';
 				}
-				/*if($row->status_name == 'Waiting Approval' && $row->employee_id == $karyawan_id){
-					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
-				}*/
+				
 			}
 			$delete_bulk = "";
 			$delete = "";
@@ -306,7 +311,10 @@ class Hr_employee_loans_model extends MY_Model
 
 			$update_pencairan="";
 			if ($row->status_name == 'Menunggu Pencairan') {
-				$update_pencairan = '<a class="btn btn-xs btn-warning" style="background-color: #FFA500;" href="javascript:void(0);" onclick="upd_pencairan('."'".$row->id."'".')" role="button">Update Pencairan</a>';
+				if($row->nominal_cicilan_per_bulan != '' && $row->nominal_cicilan_per_bulan != null){
+					$update_pencairan = '<a class="btn btn-xs btn-warning" style="background-color: #FFA500;" href="javascript:void(0);" onclick="upd_pencairan('."'".$row->id."'".')" role="button">Update Pencairan</a>';
+				}
+				
 			}
 			
 
@@ -433,49 +441,68 @@ class Hr_employee_loans_model extends MY_Model
 
 	public function edit_data($post) {   
 		if(!empty($post['id'])){  
-			$data = [ 
-				'sisa_tenor' 	=> trim($post['sisa_tenor'] ?? ''),
-				'status_id' 	=> trim($post['status'] ?? ''),   
-				'update_date'	=> date("Y-m-d H:i:s")
-			];
 
-			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]); 
+			$cekdata =  $this->db->query("select * from loan where id = '".$post['id']."' ")->result();
 
-
-			/// update detail pembbayaran
-			if(isset($post['hdnid'])){
-				$item_num = count($post['hdnid']); // cek sum
-				$item_len_min = min(array_keys($post['hdnid'])); // cek min key index
-				$item_len = max(array_keys($post['hdnid'])); // cek max key index
-			} else {
-				$item_num = 0;
-			}
-
-			if($item_num>0){
-				for($i=$item_len_min;$i<=$item_len;$i++) 
-				{
-					$hdnid = trim($post['hdnid'][$i]);
-
-					if(!empty($hdnid)){ //update
-
-						if(isset($post['hdnid'][$i])){
-							$itemData = [
-								'status' 	=> trim($post['status_bayar'][$i]),
-								'tgl_bayar' => trim($post['tgl_bayar'][$i])
-							];
-
-							$this->db->update("loan_detail", $itemData, "id = '".$hdnid."'");
-						}
-
-					}
+			if($cekdata[0]->status_id == 5){ ///pinjaman berjalan
+				$data = [ 
 					
+					'sisa_tenor' 	=> trim($post['sisa_tenor'] ?? ''),
+					'status_id' 	=> trim($post['status'] ?? ''),   
+					'update_date'	=> date("Y-m-d H:i:s")
+				];
+
+				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]); 
+
+
+				/// update detail pembbayaran
+				if(isset($post['hdnid'])){
+					$item_num = count($post['hdnid']); // cek sum
+					$item_len_min = min(array_keys($post['hdnid'])); // cek min key index
+					$item_len = max(array_keys($post['hdnid'])); // cek max key index
+				} else {
+					$item_num = 0;
 				}
+
+				if($item_num>0){
+					for($i=$item_len_min;$i<=$item_len;$i++) 
+					{
+						$hdnid = trim($post['hdnid'][$i]);
+
+						if(!empty($hdnid)){ //update
+
+							if(isset($post['hdnid'][$i])){
+								$itemData = [
+									'status' 	=> trim($post['status_bayar'][$i]),
+									'tgl_bayar' => trim($post['tgl_bayar'][$i])
+								];
+
+								$this->db->update("loan_detail", $itemData, "id = '".$hdnid."'");
+							}
+
+						}
+						
+					}
+				}
+
+
+				return $rs;
+
+			}else{
+
+				$data = [ 
+					'bunga_per_bulan' 	=> trim($post['bunga_per_bulan'] ?? ''),
+					'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan'] ?? ''),
+					'update_date'		=> date("Y-m-d H:i:s")
+				];
+
+				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]); 
+
+				return $rs;
 			}
 
 
-
-			return $rs;
-
+			
 		} else return null;
 	}  
 

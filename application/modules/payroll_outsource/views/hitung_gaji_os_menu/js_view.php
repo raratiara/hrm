@@ -936,8 +936,8 @@ $('#penggajian_year').on('keyup', function () {
 	        {  
 				if(data != ''){ 	
 					
-					$('[name="period_start"]').val(data[0].tgl_start);
-					$('[name="period_end"]').val(data[0].tgl_end);
+					$('[name="period_start"]').val(data[0].tgl_start_absen);
+					$('[name="period_end"]').val(data[0].tgl_end_absen);
 
 				} else {  
 					$('[name="period_start"]').val('');
@@ -963,6 +963,9 @@ $('#penggajian_year').on('keyup', function () {
 	        }
 	    });
 
+ 	}else{
+		$('[name="period_start"]').val('');
+		$('[name="period_end"]').val('');
  	}
 
 });
@@ -985,8 +988,8 @@ $('#penggajian_month').on('change', function () {
 	        {  
 				if(data != ''){ 	
 					
-					$('[name="period_start"]').val(data[0].tgl_start);
-					$('[name="period_end"]').val(data[0].tgl_end);
+					$('[name="period_start"]').val(data[0].tgl_start_absen);
+					$('[name="period_end"]').val(data[0].tgl_end_absen);
 
 				} else {  
 					$('[name="period_start"]').val('');
@@ -1012,6 +1015,9 @@ $('#penggajian_month').on('change', function () {
 	        }
 	    });
 
+ 	}else{
+		$('[name="period_start"]').val('');
+		$('[name="period_end"]').val('');
  	}
 
 });
@@ -1071,7 +1077,6 @@ function setSubTotal(val){
 	var row = val.dataset.id;  
 	///var tunjangan = val.value;
 	var ttl_pendapatan 	= $('[name="ttl_pendapatan_gaji['+row+']"]').val();
-	var absen 			= $('[name="absen_gaji['+row+']"]').val();
 	var seragam 		= $('[name="seragam_gaji['+row+']"]').val();
 	var pelatihan 		= $('[name="pelatihan_gaji['+row+']"]').val();
 	var lainlain 		= $('[name="lainlain_gaji['+row+']"]').val();
@@ -1079,9 +1084,7 @@ function setSubTotal(val){
 	var sosial 			= $('[name="sosial_gaji['+row+']"]').val();
 
 	
-	if(absen == ''){
-		absen=0;
-	}
+	
 	if(seragam == ''){
 		seragam=0;
 	}
@@ -1099,7 +1102,7 @@ function setSubTotal(val){
 	}
 
 
-	var subTotal = Number(ttl_pendapatan)-(Number(absen)+Number(seragam)+Number(pelatihan)+Number(lainlain)+Number(hutang)+Number(sosial));
+	var subTotal = Number(ttl_pendapatan)-(Number(seragam)+Number(pelatihan)+Number(lainlain)+Number(hutang)+Number(sosial));
 
 	subTotal = roundUp2Smart(subTotal);
 

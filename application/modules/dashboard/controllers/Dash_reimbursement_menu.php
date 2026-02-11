@@ -316,7 +316,7 @@ class Dash_reimbursement_menu extends MY_Controller
 					left join divisions b on b.id = a.division_id
 					$whereDiv
 				GROUP BY
-					DATE_FORMAT(aa.date_reimbursment, '%Y-%m')
+					DATE_FORMAT(aa.date_reimbursment, '%Y-%m'), a.division_id, b.name
 				ORDER BY date_reimbursment ASC")->result(); 
 
 		$date_reimbursment=[]; $total_waitingapproval=[]; $total_approve=[]; $total_reject=[];

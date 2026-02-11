@@ -42,8 +42,8 @@ class Hr_employee_loans extends MY_Controller
 
 		$field['txt_nominal_pinjaman']				= $this->self_model->return_build_txt('','nominal_pinjaman','nominal_pinjaman','','','readonly');
 		$field['txt_tenor'] 						= $this->self_model->return_build_txt('','tenor','tenor','','','readonly');
-		$field['txt_sisa_tenor'] 					= $this->self_model->return_build_txt('','sisa_tenor','sisa_tenor');
-		$field['txt_bunga_per_bulan'] 				= $this->self_model->return_build_txt($bunga,'bunga_per_bulan','bunga_per_bulan','','','readonly');
+		$field['txt_sisa_tenor'] 					= $this->self_model->return_build_txt('','sisa_tenor','sisa_tenor','','','readonly');
+		$field['txt_bunga_per_bulan'] 				= $this->self_model->return_build_txt($bunga,'bunga_per_bulan','bunga_per_bulan','','','');
 		$field['txt_nominal_cicilan_per_bulan']  	= $this->self_model->return_build_txt('','teks_nominal_cicilan_per_bulan','teks_nominal_cicilan_per_bulan','','','readonly');
 		$field['txt_date_pengajuan'] 				= $this->self_model->return_build_txtdate('','date_pengajuan','date_pengajuan','','','disabled');
 		$field['txt_date_persetujuan'] 				= $this->self_model->return_build_txtdate('','date_persetujuan','date_persetujuan','','','disabled');
@@ -260,7 +260,8 @@ class Hr_employee_loans extends MY_Controller
 			$data = [
 				'status_id' 			=> 5, //Pinjaman Berjalan
 				'date_pencairan'		=> $date_pencairan,
-				'date_start_cicilan'	=> $date_start_cicilan
+				'date_start_cicilan'	=> $date_start_cicilan,
+				'sisa_tenor' 			=> $tenor
 			];
 			$rs = $this->db->update('loan', $data, "id = '".$id."'");
 			if($rs){

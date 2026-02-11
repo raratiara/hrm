@@ -112,7 +112,7 @@
                                     <th scope="col">TP Jkes</th>
                                     <th scope="col">PGK Jkes</th>
 
-                                    <th scope="col">Absen</th>
+                                    <!-- <th scope="col">Absen</th> -->
                                     <th scope="col">Seragam</th>
                                     <th scope="col">Pelatihan</th>
                                     <th scope="col">Lain-Lain</th>

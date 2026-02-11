@@ -348,11 +348,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 
   						$sosial = '5000';
+
+  						$codemonth = $this->db->query("select * from master_month where id = '".$post['penggajian_month']."' ")->result();
+  						$periode_gaji = $post['penggajian_year'].'-'.$codemonth[0]->code; //2026-03
   						//ambil pinjaman yg masih berjalan
-  						$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttt_hutang from loan where id_employee = '".$emp_id."' and status_id = 5")->result();
+  						/*$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttl_hutang from loan where id_employee = '".$emp_id."' and status_id = 5")->result();*/
+  						$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttl_hutang from loan_detail a left join loan b on b.id = a.loan_id
+							where b.id_employee = '".$emp_id."' and DATE_FORMAT(a.tgl_jatuh_tempo, '%Y-%m') = '".$periode_gaji."'")->result();
+
   						$hutang=0;
   						if(!empty($data_pinjaman)){
-  							$hutang = $data_pinjaman[0]->ttt_hutang;
+  							$hutang = $data_pinjaman[0]->ttl_hutang;
   						}
 
   						/// ttl pendapatan - potongan tdk wajib
@@ -464,19 +470,41 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		                
 
 						if($rs){
-							$log_bpjs = [
-								
-								'employee_id' 		=> $emp_id,
-								'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
-								'no_bpjs_tk'  		=> $rowdata_os->no_bpjs_ketenagakerjaan,
-								'gaji_pokok' 		=> $gaji_bulanan,
-								'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
-								'nominal_bpjs_tk'  	=> $bpjs_tk,
-								'tanggal_potong'  	=> date("Y-m-d H:i:s"),
-								'periode_gaji_bulan' 	=> trim($post['penggajian_month']),
-								'periode_gaji_tahun' 	=> trim($post['penggajian_year'])
-							];
-							$this->db->insert("history_bpjs", $log_bpjs);
+							$bpjs_history = $data_payslip_detail = $this->db->query("select * from history_bpjs where project_id = ".$rowdata_os->project_id." and periode_gaji_bulan = ".trim($post['penggajian_month'])." and periode_gaji_tahun = '".trim($post['penggajian_year'])."' ")->result();
+							if(empty($bpjs_history)){
+								$data_bpjs = [
+		  							'project_id' 			=> $rowdata_os->project_id,
+									'periode_gaji_bulan' 	=> trim($post['penggajian_month']),
+									'periode_gaji_tahun' 	=> trim($post['penggajian_year'])
+								];
+								$this->db->insert("history_bpjs", $data_bpjs);
+								$lastIdBpjs = $this->db->insert_id();
+
+								$log_bpjs = [
+									'history_bpjs_id'	=> $lastIdBpjs,
+									'employee_id' 		=> $emp_id,
+									'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
+									'no_bpjs_tk'  		=> $rowdata_os->no_bpjs_ketenagakerjaan,
+									'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
+									'nominal_bpjs_tk'  	=> $bpjs_tk,
+									'tanggal_potong'  	=> date("Y-m-d H:i:s")
+								];
+								$this->db->insert("history_bpjs_detail", $log_bpjs);
+
+							}else{
+								$log_bpjs = [
+									'history_bpjs_id'	=> $bpjs_history[0]->id,
+									'employee_id' 		=> $emp_id,
+									'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
+									'no_bpjs_tk'  		=> $rowdata_os->no_bpjs_ketenagakerjaan,
+									'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
+									'nominal_bpjs_tk'  	=> $bpjs_tk,
+									'tanggal_potong'  	=> date("Y-m-d H:i:s")
+								];
+								$this->db->insert("history_bpjs_detail", $log_bpjs);
+							}
+
+							
 						}
 
   					}
@@ -768,7 +796,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$total_pendapatan = $dataSlip[0]->total_pendapatan;
 					$bpjs_kesehatan = $dataSlip[0]->bpjs_kesehatan;
 					$bpjs_tk = $dataSlip[0]->bpjs_tk;
-					$absen = $dataSlip[0]->absen;
+					/*$absen = $dataSlip[0]->absen;*/
 					$seragam = $dataSlip[0]->seragam;
 					$pelatihan = $dataSlip[0]->pelatihan;
 					$lain_lain = $dataSlip[0]->lain_lain;
@@ -792,7 +820,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$bpjs_kesehatan = ceil(($gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
 					$bpjs_tk = ceil(($gaji_bulanan * 0.0624) * 100) / 100; /// 6.24% dr GP
 					
-					$hari_kerja = (int) ($f->total_hari_kerja ?? 0);
+					/*$hari_kerja = (int) ($f->total_hari_kerja ?? 0);
 
 					if ($hari_kerja > 0) {
 					    $potongan_absen = ceil(
@@ -800,7 +828,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					    ) / 100;
 					} else {
 					    $potongan_absen = 0;
-					}
+					}*/
+
 
 
 					$sosial = '5000';
@@ -812,7 +841,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					}
 
 					/// ttl pendapatan - potongan tdk wajib
-					$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100; 
+					//$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100;
+					$subtotal = ceil(($gaji - ($hutang+$sosial)) * 100) / 100;
+
 					/// subtotal - potongan wajib
 					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk)) * 100) / 100;
 
@@ -846,7 +877,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$total_pendapatan = $gaji;
 					$bpjs_kesehatan = $bpjs_kesehatan;
 					$bpjs_tk = $bpjs_tk;
-					$absen = $potongan_absen;
+					/*$absen = $potongan_absen;*/
 					$seragam = "";
 					$pelatihan = "";
 					$lain_lain = "";
@@ -911,7 +942,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$this->return_build_txt($pgk_jkes,'pgk_jkes['.$row.']','','pgk_jkes','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 
-					$dt .= '<td>'.$this->return_build_txt($absen,'absen_gaji['.$row.']','','absen_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					/*$dt .= '<td>'.$this->return_build_txt($absen,'absen_gaji['.$row.']','','absen_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';*/
 
 					$dt .= '<td>'.$this->return_build_txt($seragam,'seragam_gaji['.$row.']','','seragam_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setSubTotal(this)" ').'</td>';
 
@@ -974,7 +1005,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$tp_jkes.'</td>';
 					$dt .= '<td>'.$pgk_jkes.'</td>';
 
-					$dt .= '<td>'.$absen.'</td>';
+					// $dt .= '<td>'.$absen.'</td>';
 					$dt .= '<td>'.$seragam.'</td>';
 					$dt .= '<td>'.$pelatihan.'</td>';
 					$dt .= '<td>'.$lain_lain.'</td>';
