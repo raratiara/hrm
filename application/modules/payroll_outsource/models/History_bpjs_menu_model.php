@@ -347,28 +347,58 @@ class History_bpjs_menu_model extends MY_Model
 		return $rs;
 	} 
 
-	public function import_data($list_data)
-	{
-		$i = 0;
+	public function import_data($list_data){  
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', 1);*/
 
-		foreach ($list_data as $k => $v) {
-			$i += 1;
+		$error = '';
 
-			$data = [
-				'employee_id' 			=> $v["B"],
-				'task' 					=> $v["C"],
-				'progress_percentage' 	=> $v["D"],
-				'parent_id' 			=> $v["E"],
-				'due_date' 				=> $v["F"],
-				'status_id' 			=> $v["G"],
-				'solve_date' 			=> $v["H"]
-			];
-
-			$rs = $this->db->insert($this->table_name, $data);
-			if (!$rs) $error .=",baris ". $v["A"];
+		if (isset($list_data[0][0]) && is_array($list_data[0][0])) {
+		    $list_data[0] = $list_data[0][0];
 		}
 
+		// Lewati header (baris ke-0)
+		for ($i = 1; $i < count($list_data); $i++) {
+            $row = $list_data[$i];
+            $baris = $i+1;
+
+
+            /// UPDATE DATA
+         	if($row[0] != '' && $row[1] != '' && $row[2] != '' && ($row[3] != '' || $row[4] != '')) 
+         	{ 
+         		$getID = $this->db->query("select id from employees where emp_code = '".$row[0]."'")->result();
+            	$employee_id = $getID[0]->id;
+            	$periode_gaji_bulan = $row[1];
+            	$periode_gaji_tahun = $row[2];
+
+         		if($employee_id != ''){ 
+         			$dataBpjs = $this->db->query("select a.*, b.periode_gaji_bulan, b.periode_gaji_tahun from history_bpjs_detail a left join history_bpjs b on b.id = a.history_bpjs_id where employee_id = '".$employee_id."' and  b.periode_gaji_bulan = '".$periode_gaji_bulan."' and b.periode_gaji_tahun = '".$periode_gaji_tahun."'")->result();
+
+         			if(!empty($dataBpjs)){
+         				$iddetail = $dataBpjs[0]->id;
+
+         				$data = [
+			                'tanggal_setor' 		=> trim($row[3]),
+			                'tanggal_dikembalikan' 	=> trim($row[4])
+			            ];
+
+			            $rs = $this->db->update("history_bpjs_detail", $data, "id = '".$iddetail."'");
+
+
+			            if (!$rs) $error .=",baris ". $baris;
+         			}
+
+            	}else{ 
+            		$error .=",baris ". $baris;
+            	} 
+
+         	}
+
+        }
+
+
 		return $error;
+
 	}
 
 	public function eksport_data()
@@ -457,6 +487,16 @@ class History_bpjs_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
+
+					$tanggal_dikembalikan = $f->tanggal_dikembalikan;
+					if($f->tanggal_dikembalikan == '' || $f->tanggal_dikembalikan == '0000-00-00'){
+						$tanggal_dikembalikan = "";
+					}
+
+					$tanggal_setor = $f->tanggal_setor;
+					if($f->tanggal_setor == '' || $f->tanggal_setor == '0000-00-00'){
+						$tanggal_setor = "";
+					}
 					
 					$dt .= '<td>'.$f->emp_code.'</td>';
 					$dt .= '<td>'.$f->full_name.'</td>';
@@ -465,8 +505,8 @@ class History_bpjs_menu_model extends MY_Model
 					$dt .= '<td>'.$f->no_bpjs_tk.'</td>';
 					$dt .= '<td>'.$f->nominal_bpjs_tk.'</td>';
 					$dt .= '<td>'.$f->tanggal_potong.'</td>';
-					$dt .= '<td>'.$f->tanggal_setor.'</td>';
-					$dt .= '<td>'.$f->tanggal_dikembalikan.'</td>';
+					$dt .= '<td>'.$tanggal_setor.'</td>';
+					$dt .= '<td>'.$tanggal_dikembalikan.'</td>';
 					$dt .= '</tr>';
 
 					

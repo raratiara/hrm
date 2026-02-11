@@ -136,5 +136,30 @@ class History_bpjs_menu extends MY_Controller
 
 
 
+	public function downloadFile(){ 
+
+		$filename = $_GET['file']; // e.g., "example.pdf"
+
+		// Set the full file path
+		/*$filePath = 'documents/' . basename($filename);*/ // folder 'documents'
+		$filePath = "./public/template_imp/" . basename($filename);
+
+
+		if (file_exists($filePath)) {
+		    header('Content-Description: File Transfer');
+		    header('Content-Type: application/octet-stream');
+		    header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+		    header('Content-Length: ' . filesize($filePath));
+		    readfile($filePath);
+		    exit;
+		} else {
+		    http_response_code(404);
+		    echo "File not found.";
+		}
+
+ 	}
+
+
+
 
 }

@@ -492,16 +492,30 @@ class Hitung_gaji_os_menu_model extends MY_Model
 								$this->db->insert("history_bpjs_detail", $log_bpjs);
 
 							}else{
-								$log_bpjs = [
-									'history_bpjs_id'	=> $bpjs_history[0]->id,
-									'employee_id' 		=> $emp_id,
-									'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
-									'no_bpjs_tk'  		=> $rowdata_os->no_bpjs_ketenagakerjaan,
-									'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
-									'nominal_bpjs_tk'  	=> $bpjs_tk,
-									'tanggal_potong'  	=> date("Y-m-d H:i:s")
-								];
-								$this->db->insert("history_bpjs_detail", $log_bpjs);
+
+								$bpjs_history_detail = $this->db->query("select * from history_bpjs_detail where employee_id = '".$emp_id."' and history_bpjs_id = '".$bpjs_history[0]->id."' ")->result();
+								if(!empty($bpjs_history_detail)){
+									$log_bpjs = [
+										'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
+										'no_bpjs_tk'  		=> $rowdata_os->no_bpjs_ketenagakerjaan,
+										'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
+										'nominal_bpjs_tk'  	=> $bpjs_tk,
+										'tanggal_potong'  	=> date("Y-m-d H:i:s")
+									];
+									 $this->db->update("history_bpjs_detail", $log_bpjs, "id = '".$bpjs_history_detail[0]->id."'");
+								}else{
+									$log_bpjs = [
+										'history_bpjs_id'	=> $bpjs_history[0]->id,
+										'employee_id' 		=> $emp_id,
+										'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
+										'no_bpjs_tk'  		=> $rowdata_os->no_bpjs_ketenagakerjaan,
+										'nominal_bpjs_kesehatan'  	=> $bpjs_kesehatan,
+										'nominal_bpjs_tk'  	=> $bpjs_tk,
+										'tanggal_potong'  	=> date("Y-m-d H:i:s")
+									];
+									$this->db->insert("history_bpjs_detail", $log_bpjs);
+								}
+
 							}
 
 							
