@@ -3725,7 +3725,7 @@ class Api extends API_Controller
                 ,q.name as job_level_name
                 ,d.date_of_hire
                 ,d.is_tracking,
-                when d.is_tracking = 1 then 'Track anytime'
+                (case when d.is_tracking = 1 then 'Track anytime'
 					when d.is_tracking = 2 then 'Track during working hours'
 					when d.is_tracking = 0 then 'No tracking'
 					else ''
