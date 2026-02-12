@@ -292,10 +292,206 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	}  
 
 
-	public function add_data($post) { 
+	public function add_data($post)
+	{
+	    if (empty($post['penggajian_month']) || empty($post['penggajian_year'])) {
+	        echo "Bulan Tahun Penggajian harus diisi";
+	        return false;
+	    }
+
+	    $this->db->trans_start();
+
+	    $bulan  = (int)$post['penggajian_month'];
+	    $tahun  = trim($post['penggajian_year']);
+
+	    // =========================
+	    // Ambil kode bulan
+	    // =========================
+	    $codemonth = $this->db
+	        ->select('code')
+	        ->from('master_month')
+	        ->where('id', $bulan)
+	        ->get()
+	        ->row();
+
+	    $periode_gaji = $tahun . '-' . $codemonth->code;
+
+	    // =========================
+	    // MAIN QUERY (1 QUERY SAJA)
+	    // =========================
+	    $this->db->select("
+	        e.id as employee_id,
+	        e.project_id,
+	        e.total_hari_kerja,
+	        e.gaji_bulanan,
+	        e.gaji_harian,
+	        e.no_bpjs,
+	        e.no_bpjs_ketenagakerjaan,
+
+	        sd.total_masuk,
+	        sd.total_ijin,
+	        sd.total_cuti,
+	        sd.total_alfa,
+	        sd.total_lembur,
+	        sd.total_jam_kerja,
+	        sd.total_jam_lembur,
+
+	        s.tgl_start_absen,
+	        s.tgl_end_absen,
+
+	        COALESCE(l.ttl_hutang,0) as hutang
+	    ");
+
+	    $this->db->from('employees e');
+	    $this->db->join('summary_absen_outsource_detail sd', 'sd.emp_id = e.id', 'left');
+	    $this->db->join('summary_absen_outsource s', 's.id = sd.summary_absen_outsource_id', 'left');
+
+	    $this->db->join("(SELECT b.id_employee,
+	                        SUM(a.nominal_cicilan_per_bulan) as ttl_hutang
+	                     FROM loan_detail a
+	                     JOIN loan b ON b.id = a.loan_id
+	                     WHERE DATE_FORMAT(a.tgl_jatuh_tempo,'%Y-%m') = '$periode_gaji'
+	                     GROUP BY b.id_employee) l",
+	                     "l.id_employee = e.id",
+	                     "left");
+
+	    $this->db->where('e.emp_source', 'outsource');
+	    $this->db->where('e.status_id', 1);
+	    $this->db->where('s.bulan_penggajian', $bulan);
+	    $this->db->where('s.tahun_penggajian', $tahun);
+
+	    if ($post['is_all_project'] == 'Karyawan' && !empty($post['employeeIds'])) {
+	        $this->db->where_in('e.id', $post['employeeIds']);
+	    }
+
+	    if ($post['is_all_project'] == 'Sebagian' && !empty($post['projectIds'])) {
+	        $this->db->where_in('e.project_id', $post['projectIds']);
+	    }
+
+	    $data = $this->db->get()->result();
+
+	    if (empty($data)) {
+	        $this->db->trans_complete();
+	        return false;
+	    }
+
+	    // =========================
+	    // Cache Payroll Header Per Project
+	    // =========================
+	    $projectHeader = [];
+	    $insertDetail  = [];
+
+	    foreach ($data as $row) {
+
+	        // =========================
+	        // Buat header payroll jika belum ada
+	        // =========================
+	        if (!isset($projectHeader[$row->project_id])) {
+
+	            $header = $this->db->where([
+	                'project_id'       => $row->project_id,
+	                'bulan_penggajian' => $bulan,
+	                'tahun_penggajian' => $tahun
+	            ])->get('payroll_slip')->row();
+
+	            if (!$header) {
+	                $this->db->insert('payroll_slip', [
+	                    'project_id'       => $row->project_id,
+	                    'bulan_penggajian' => $bulan,
+	                    'tahun_penggajian' => $tahun,
+	                    'tgl_start_absen'  => $row->tgl_start_absen,
+	                    'tgl_end_absen'    => $row->tgl_end_absen
+	                ]);
+	                $projectHeader[$row->project_id] = $this->db->insert_id();
+	            } else {
+	                $projectHeader[$row->project_id] = $header->id;
+	            }
+	        }
+
+	        // =========================
+	        // HITUNG GAJI
+	        // =========================
+	        $gaji_bulanan = (float)$row->gaji_bulanan;
+	        $gaji_harian  = (float)$row->gaji_harian;
+
+	        $total_tidak_masuk =
+	            (int)$row->total_ijin +
+	            (int)$row->total_cuti +
+	            (int)$row->total_alfa;
+
+	        $gaji = $row->total_masuk * $gaji_harian;
+
+	        $lembur_perjam  = $gaji_bulanan / 173;
+	        $lembur_total   = $lembur_perjam * $row->total_jam_lembur;
+
+	        $bpjs_kesehatan = $gaji_bulanan * 0.04;
+	        $bpjs_tk        = $gaji_bulanan * 0.0624;
+
+	        $hari_kerja = (int)$row->total_hari_kerja;
+
+	        $potongan_absen = $hari_kerja > 0
+	            ? $total_tidak_masuk * ($gaji_bulanan / $hari_kerja)
+	            : 0;
+
+	        $sosial = 5000;
+	        $hutang = (float)$row->hutang;
+
+	        $total_pendapatan = $gaji + $lembur_total;
+
+	        $subtotal    = $total_pendapatan - ($potongan_absen + $hutang + $sosial);
+	        $gaji_bersih = $subtotal - ($bpjs_kesehatan + $bpjs_tk);
+
+	        // =========================
+	        // Simpan ke batch insert
+	        // =========================
+	        $insertDetail[] = [
+	            'payroll_slip_id'  => $projectHeader[$row->project_id],
+	            'employee_id'      => $row->employee_id,
+	            'total_hari_kerja' => $row->total_hari_kerja,
+	            'total_masuk'      => $row->total_masuk,
+	            'total_tidak_masuk'=> $total_tidak_masuk,
+	            'total_lembur'     => $row->total_lembur,
+	            'total_jam_kerja'  => $row->total_jam_kerja,
+	            'total_jam_lembur' => $row->total_jam_lembur,
+	            'created_at'       => date("Y-m-d H:i:s"),
+	            'created_by'       => $_SESSION['worker'],
+	            'gaji_bulanan'     => $gaji_bulanan,
+	            'gaji_harian'      => $gaji_harian,
+	            'gaji'             => $gaji,
+	            'lembur_perjam'    => $lembur_perjam,
+	            'ot'               => $lembur_total,
+	            'total_pendapatan' => $total_pendapatan,
+	            'sosial'           => $sosial,
+	            'bpjs_kesehatan'   => $bpjs_kesehatan,
+	            'bpjs_tk'          => $bpjs_tk,
+	            'absen'            => $potongan_absen,
+	            'hutang'           => $hutang,
+	            'subtotal'         => $subtotal,
+	            'gaji_bersih'      => $gaji_bersih
+	        ];
+	    }
+
+	    // =========================
+	    // INSERT BATCH (SUPER CEPAT)
+	    // =========================
+	    if (!empty($insertDetail)) {
+	        $this->db->insert_batch('payroll_slip_detail', $insertDetail);
+	    }
+
+	    $this->db->trans_complete();
+
+	    return $this->db->trans_status();
+	}
+
+
+
+	public function add_data_old($post) { 
 		
 
   		if(!empty($post['penggajian_month']) && !empty($post['penggajian_year']) ){ 
+
+  			$codemonth = $this->db->query("select * from master_month where id = '".$post['penggajian_month']."' ")->result();
+			$periode_gaji = $post['penggajian_year'].'-'.$codemonth[0]->code; //2026-03
   			
 			if ($post['is_all_project'] == 'Karyawan') {
 			    if (!empty($post['employeeIds']) && is_array($post['employeeIds'])) {
@@ -349,8 +545,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
   						$sosial = '5000';
 
-  						$codemonth = $this->db->query("select * from master_month where id = '".$post['penggajian_month']."' ")->result();
-  						$periode_gaji = $post['penggajian_year'].'-'.$codemonth[0]->code; //2026-03
+  						
   						//ambil pinjaman yg masih berjalan
   						/*$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttl_hutang from loan where id_employee = '".$emp_id."' and status_id = 5")->result();*/
   						$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttl_hutang from loan_detail a left join loan b on b.id = a.loan_id

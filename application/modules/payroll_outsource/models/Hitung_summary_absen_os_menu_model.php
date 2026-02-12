@@ -270,7 +270,190 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	}  
 
 
-	public function add_data($post) { 
+	public function add_data($post)
+	{
+	    $getperiod_start = date_create($post['period_start']);
+	    $getperiod_end   = date_create($post['period_end']);
+
+	    $period_start = date_format($getperiod_start, "Y-m-d");
+	    $period_end   = date_format($getperiod_end, "Y-m-d");
+
+	    if (
+	        empty($post['penggajian_month']) ||
+	        empty($post['penggajian_year']) ||
+	        empty($period_start) ||
+	        empty($period_end)
+	    ) {
+	        return "Bulan Tahun Penggajian & Periode Absensi harus diisi";
+	    }
+
+	    $bulan = trim($post['penggajian_month']);
+	    $tahun = trim($post['penggajian_year']);
+
+	    /* ===============================
+	       FILTER EMPLOYEE / PROJECT
+	    =============================== */
+
+	    $filter_employee = "";
+	    $filter_project  = "";
+
+	    if ($post['is_all_project'] == 'Karyawan' && !empty($post['employeeIds'])) {
+	        $ids = implode(',', array_map('intval', $post['employeeIds']));
+	        $filter_employee = " AND b.id IN ($ids) ";
+	    }
+
+	    if ($post['is_all_project'] == 'Sebagian' && !empty($post['projectIds'])) {
+	        $ids = implode(',', array_map('intval', $post['projectIds']));
+	        $filter_project = " AND b.project_id IN ($ids) ";
+	    }
+
+	    /* ===============================
+	       QUERY AGGREGASI (NO LOOP QUERY)
+	    =============================== */
+
+	    $sql = "
+	    SELECT 
+	        b.id as emp_id,
+	        b.project_id,
+	        b.total_hari_kerja,
+
+	        SUM(CASE 
+	            WHEN a.leave_absences_id IS NULL 
+	            AND a.date_attendance_in IS NOT NULL 
+	            THEN 1 ELSE 0 END) as total_masuk,
+
+	        SUM(CASE 
+	            WHEN a.leave_absences_id IS NOT NULL 
+	            AND a.leave_type != 5 
+	            AND h.status_approval = 2 
+	            THEN 1 ELSE 0 END) as total_cuti,
+
+	        SUM(CASE 
+	            WHEN a.leave_absences_id IS NOT NULL 
+	            AND a.leave_type = 5 
+	            AND h.status_approval = 2 
+	            THEN 1 ELSE 0 END) as total_sakit,
+
+	        SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) as total_late,
+
+	        SUM(IFNULL(i.num_of_hour,0)) as total_jam_lembur,
+	        SUM(IFNULL(i.amount,0)) as total_lembur
+
+	    FROM employees b
+	    LEFT JOIN time_attendances a 
+	        ON a.employee_id = b.id
+	        AND a.date_attendance BETWEEN ? AND ?
+
+	    LEFT JOIN leave_absences h 
+	        ON h.id = a.leave_absences_id
+
+	    LEFT JOIN overtimes i 
+	        ON i.employee_id = a.employee_id 
+	        AND a.date_attendance = DATE(i.datetime_start)
+	        AND i.type = 1 
+	        AND i.status_id = 2
+
+	    WHERE b.emp_source = 'outsource'
+	    AND b.status_id = 1
+	    $filter_employee
+	    $filter_project
+
+	    GROUP BY b.id
+	    ";
+
+	    $data_summary = $this->db->query(
+	        $sql,
+	        [$period_start, $period_end]
+	    )->result();
+
+	    if (empty($data_summary)) {
+	        return false;
+	    }
+
+	    /* ===============================
+	       PROCESS PER PROJECT (HEADER)
+	    =============================== */
+
+	    $insert_batch = [];
+
+	    foreach ($data_summary as $row) {
+
+	        if (empty($row->project_id)) continue;
+
+	        /* ---- cek / buat header per project ---- */
+
+	        $header = $this->db
+	            ->where('project_id', $row->project_id)
+	            ->where('bulan_penggajian', $bulan)
+	            ->where('tahun_penggajian', $tahun)
+	            ->get('summary_absen_outsource')
+	            ->row();
+
+	        if (!$header) {
+
+	            $this->db->insert('summary_absen_outsource', [
+	                'project_id'       => $row->project_id,
+	                'bulan_penggajian' => $bulan,
+	                'tahun_penggajian' => $tahun,
+	                'tgl_start_absen'  => $period_start,
+	                'tgl_end_absen'    => $period_end,
+	                'created_at'       => date("Y-m-d H:i:s"),
+	                'created_by'       => $_SESSION['worker']
+	            ]);
+
+	            $header_id = $this->db->insert_id();
+	        } else {
+	            $header_id = $header->id;
+	        }
+
+	        /* ---- hitung alfa ---- */
+
+	        $ttl_ada_absen = 
+	            $row->total_masuk +
+	            $row->total_cuti +
+	            $row->total_sakit;
+
+	        $total_alfa = max(
+	            0,
+	            $row->total_hari_kerja - $ttl_ada_absen
+	        );
+
+	        /* ---- siapkan batch insert ---- */
+
+	        $insert_batch[] = [
+	            'summary_absen_outsource_id' => $header_id,
+	            'emp_id'             => $row->emp_id,
+	            'total_hari_kerja'   => $row->total_hari_kerja,
+	            'total_masuk'        => $row->total_masuk,
+	            'total_ijin'         => $row->total_cuti,
+	            'total_cuti'         => $row->total_cuti,
+	            'total_alfa'         => $total_alfa,
+	            'total_lembur'       => $row->total_lembur,
+	            'total_jam_kerja'    => 0,
+	            'total_jam_lembur'   => $row->total_jam_lembur,
+	            'created_at'         => date("Y-m-d H:i:s"),
+	            'created_by'         => $_SESSION['worker']
+	        ];
+	    }
+
+	    /* ===============================
+	       INSERT BATCH DETAIL
+	    =============================== */
+
+	    if (!empty($insert_batch)) {
+	        $this->db->insert_batch(
+	            'summary_absen_outsource_detail',
+	            $insert_batch
+	        );
+	    }
+
+	    return true;
+	}
+
+	
+
+
+	public function add_data_old($post) { 
 		$getperiod_start 	= date_create($post['period_start']); 
 		$getperiod_end 		= date_create($post['period_end']); 
 		$period_start 		= date_format($getperiod_start,"Y-m-d");
