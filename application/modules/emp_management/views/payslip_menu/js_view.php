@@ -1,5 +1,52 @@
+
+
+
+<div id="modal-report-gaji-peremployee" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-gaji-peremployee" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px !important">
+			<form class="form-horizontal" id="frmReportGajiperEmp" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Report Gaji
+					<input type="hidden" id="hdnempid" name="hdnempid" />
+					<input type="hidden" id="hdnpayrollid_emp" name="hdnpayrollid_emp" />
+					
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadGaji_perEmployee_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: white; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+
+
+
+
+
+
+
 <script type="text/javascript">
-var baseUrl = "<?php echo base_url($base_url); ?>";
+var baseUrl = "<?php echo base_url(); ?>";
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
 var validator;
@@ -197,6 +244,35 @@ function downloadFile(empcode,filename) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+
+
+function getReportGaji_perEmployee(id,employee_id){
+
+	$('#modal-report-gaji-peremployee').modal('show');
+
+	$('[name="hdnpayrollid_emp"]').val(id);
+	$('[name="hdnempid"]').val(employee_id);
+}
+
+function downloadGaji_perEmployee_pdf(){
+
+	var id = $("#hdnpayrollid_emp").val();
+	var emp_id = $("#hdnempid").val();
+	
+	
+
+	if(emp_id != '' && id != ''){
+		send_url = module_path+'/getPayrollReport_perEmployee_pdf?id='+id+'&emp_id='+emp_id+'';
+		formData = $('#frmReportGajiperEmp').serialize();
+		window.location = send_url+'&'+formData;
+		$('#modal-report-gaji-peremployee').modal('hide');
+	}else{
+		alert("Data tidak ditemukan");
+	}
+
+	
 }
 
 

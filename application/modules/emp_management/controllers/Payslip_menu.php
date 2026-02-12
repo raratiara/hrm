@@ -15,7 +15,7 @@ class Payslip_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Employee Name","Period","File"];
+	public $tabel_header 			= ["ID","Period","File"];
 
 	
 	/* Export */
@@ -180,13 +180,14 @@ class Payslip_menu extends MY_Controller
 			e.name as job_level_name, f.name as work_location_name,
 			g.name as grade_name, b.no_npwp, h.name as marital_status_name
 				from payroll_slip a 
-				left join employees b on b.id = a.employee_id 
-				left join payroll_periods c on c.id = a.payroll_periods_id
+			    left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+				left join employees b on b.id = aa.employee_id 
+				left join payroll_periods c on c.id = aa.payroll_periods_id
 				left join departments d on d.id = b.department_id
-			    left join master_job_level e on e.id = b.job_level_id
-			    left join master_work_location f on f.id = b.work_location
-			    left join master_grade g on g.id = b.grade_id
-			    left join master_marital_status h on h.id = b.marital_status_id
+				left join master_job_level e on e.id = b.job_level_id
+				left join master_work_location f on f.id = b.work_location
+				left join master_grade g on g.id = b.grade_id
+				left join master_marital_status h on h.id = b.marital_status_id
 				where a.id = ".$payroll_slip_id."")->result(); 
 
 	    if (!$slip) {
@@ -357,6 +358,81 @@ class Payslip_menu extends MY_Controller
 		$this->db->update('payroll_slip', $dataupd, "id = '".$payroll_slip_id."'");
 
 	    return true;
+	}
+
+
+
+
+	public function getPayrollReport_perEmployee_pdf()
+	{
+		$this->load->library('html_pdf');
+		$this->load->helper('global');
+
+
+		
+		if(isset($_GET['emp_id']) && $_GET['emp_id'] != '' && $_GET['emp_id'] != 0 && 
+		isset($_GET['id']) && $_GET['id'] != '' && $_GET['id'] != 0){
+
+		    $sql = "
+		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name
+				, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				from payroll_slip a 
+				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
+				left join employees b on b.id = bb.employee_id 
+				left join master_month c on c.id = a.bulan_penggajian
+				left join project_outsource d on d.id = b.project_id
+				left join master_job_title_os e on e.id = b.job_title_id
+				left join data_customer f on f.id = d.customer_id
+				where a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
+		    ";
+
+		    $data = $this->db->query($sql)->result();
+
+		    if(!empty($data)){
+		    	$pdfData = [
+				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
+				    'periode_tahun'      		=> $data[0]->periode_tahun,
+				    'nik'    					=> $data[0]->emp_code,
+				    'emp_name'       			=> $data[0]->full_name,
+				    'project_name'    			=> $data[0]->project_name,
+				    'jabatan' 		  			=> $data[0]->job_title_name,
+				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
+				];
+
+
+
+				$pdfBinary = $this->html_pdf->render_to_string_portrait(
+			        'pdf/gaji_os',
+			        $pdfData
+			    );
+
+			    if (ob_get_level()) ob_end_clean();
+
+			    $safeName = preg_replace('/[^A-Za-z0-9 _-]/', '', $data[0]->full_name);
+
+			    header("Content-Type: application/pdf");
+			    header("Content-Disposition: attachment; filename=Gaji - ".$safeName.".pdf");
+			    echo $pdfBinary;
+			    exit;
+
+		    }else{
+		    	echo "<script>
+			        alert('Slip Gaji tidak ditemukan');
+			        window.history.back();
+			    </script>";
+			    exit;
+		    }
+
+		}else{
+			
+			echo "<script>
+		        alert('Slip Gaji tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
+		}
+	    
+	    
 	}
 
 
