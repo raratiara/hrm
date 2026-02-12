@@ -36,9 +36,7 @@ class Login extends CI_Controller {
 			    md5($post['userpasswd'])
 			])->result();
 
-			if(($firstlogin[0]->last_update_login == '' 
-			   || $firstlogin[0]->last_update_login == null 
-			   || $firstlogin[0]->last_update_login == '0000-00-00 00:00:00') && $firstlogin[0]->first_login == 1){
+			if($firstlogin[0]->first_login == 1){
 
 			    $user = $firstlogin[0];
 
