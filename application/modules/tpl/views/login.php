@@ -434,7 +434,11 @@
                 if (data == 'Welcome') {
                   /*window.location.href = '<?= base_url('#') ?>';*/
                   window.location.href = '<?= base_url('profile/profile_menu') ?>';
-                } else {
+                } else if (data === 'FIRST_LOGIN') {
+
+                    window.location.href = '<?= base_url('reset_password') ?>';
+
+                }  else {
                   $('.alert-danger', $('.login-form')).html(data);
                   $('.alert-danger', $('.login-form')).show();
                   $('.login-form [name="username"]').val('');
