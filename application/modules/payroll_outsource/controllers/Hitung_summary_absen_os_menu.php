@@ -164,6 +164,9 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 
 	    $data = $this->db->query($sql)->result();
 
+	    $periode_penggajian = $data[0]->month_name.' '.$data[0]->tahun;
+	    $periode_absensi = $data[0]->tgl_start.' s/d '.$data[0]->tgl_end;
+
 	    ob_start();
 
 	    echo '<?xml version="1.0"?>
@@ -173,6 +176,9 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	     <Styles>
 	        <Style ss:ID="Title">
 	            <Font ss:Bold="1" ss:Size="14"/>
+	        </Style>
+	        <Style ss:ID="Title2">
+	            <Font ss:Bold="1" ss:Size="10"/>
 	        </Style>
 	        <Style ss:ID="Header">
 	            <Font ss:Bold="1"/>
@@ -189,25 +195,31 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	                <Data ss:Type="String">SUMMARY ABSENSI OUTSOURCE - '.$data[0]->project_name.'</Data>
 	            </Cell>
 	          </Row>';
+	    echo '<Row>
+	            <Cell ss:MergeAcross="12" ss:StyleID="Title2">
+	                <Data ss:Type="String">Periode Penggajian : '.$periode_penggajian.'</Data>
+	            </Cell>
+	          </Row>';
+	    echo '<Row>
+	            <Cell ss:MergeAcross="12" ss:StyleID="Title2">
+	                <Data ss:Type="String">Periode Absensi : '.$periode_absensi.'</Data>
+	            </Cell>
+	          </Row>';
 
 	    echo '<Row></Row>';
 
 	    // ===== HEADER =====
 	    $headers = [
 	        'No',
-	        'Bulan Penggajian',
-	        'Tahun Penggajian',
-	        'Periode Mulai',
-	        'Periode Selesai',
 	        'Nama Karyawan',
 	        'Total Hari Kerja',
 	        'Total Masuk',
 	        'Total Ijin',
 	        'Total Cuti',
 	        'Total Alfa',
-	        'Total Lembur (Hari)',
 	        'Total Jam Kerja',
-	        'Total Jam Lembur'
+	        'Total Jam Lembur',
+	        'Total Nominal Lembur'
 	    ];
 
 	    echo '<Row>';
@@ -223,19 +235,15 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	    foreach ($data as $row){
 	        echo '<Row>';
 	        echo '<Cell><Data ss:Type="Number">'.$no++.'</Data></Cell>';
-	        echo '<Cell><Data ss:Type="String">'.htmlspecialchars($row->month_name).'</Data></Cell>';
-	        echo '<Cell><Data ss:Type="Number">'.$row->tahun.'</Data></Cell>';
-	        echo '<Cell><Data ss:Type="String">'.$row->tgl_start.'</Data></Cell>';
-	        echo '<Cell><Data ss:Type="String">'.$row->tgl_end.'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="String">'.htmlspecialchars($row->full_name).'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="Number">'.$row->total_hari_kerja.'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="Number">'.$row->total_masuk.'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="Number">'.$row->total_ijin.'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="Number">'.$row->total_cuti.'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="Number">'.$row->total_alfa.'</Data></Cell>';
-	        echo '<Cell><Data ss:Type="Number">'.$row->total_lembur.'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="Number">'.$row->total_jam_kerja.'</Data></Cell>';
 	        echo '<Cell><Data ss:Type="Number">'.$row->total_jam_lembur.'</Data></Cell>';
+	        echo '<Cell><Data ss:Type="Number">'.$row->total_lembur.'</Data></Cell>';
 	        echo '</Row>';
 	    }
 
@@ -287,6 +295,9 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 
 	    $pdfData = [
 	        'title' => 'SUMMARY ABSENSI OUTSOURCE',
+	        'project' => $data[0]->project_name,
+	        'periode_penggajian' => $data[0]->month_name.' '.$data[0]->tahun,
+	        'periode_absensi' => $data[0]->tgl_start.' s/d '.$data[0]->tgl_end,
 	        'data'  => $data
 	    ];
 

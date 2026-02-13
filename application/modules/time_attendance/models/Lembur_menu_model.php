@@ -456,10 +456,22 @@ class Lembur_menu_model extends MY_Model
 						//$num_of_hour = floor($selisihDetik / 3600);
 						/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-						$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result(); 
+						/*$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result(); */
+						//$biaya=$getbiaya[0]->value;
 
-						$biaya=$getbiaya[0]->value;
-						$amount = $num_of_hour*$biaya;
+
+						$biaya = ceil($dataEmp[0]->gaji_bulanan / 173);
+						if($dataEmp[0]->emp_source == 'outsource'){
+							$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
+							if(!empty($getbiaya)){
+								if($getbiaya[0]->sistem_lembur == 'tidak_sistem_lembur'){
+									$biaya = $getbiaya[0]->nominal_lembur ?? 0;
+								}
+							}
+						}
+
+						
+						$amount = ceil($num_of_hour*$biaya);
 
 
 						$data = [
@@ -532,6 +544,8 @@ class Lembur_menu_model extends MY_Model
 
 			if($post['type'] != '' && $post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
 
+				$dataEmp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result(); 
+
 				if($post['type'] == '1'){ //lembur hari kerja
 
 					$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
@@ -557,9 +571,20 @@ class Lembur_menu_model extends MY_Model
 					//$num_of_hour = floor($selisihDetik / 3600);
 					/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-					$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result(); 
-					
-					$biaya = $getbiaya[0]->value;
+					/*$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result();
+					$biaya = $getbiaya[0]->value;*/
+
+					$biaya = ceil($dataEmp[0]->gaji_bulanan / 173);
+					if($dataEmp[0]->emp_source == 'outsource'){
+						$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
+						if(!empty($getbiaya)){
+							if($getbiaya[0]->sistem_lembur == 'tidak_sistem_lembur'){
+								$biaya = $getbiaya[0]->nominal_lembur ?? 0;
+							}
+						}
+					}
+
+
 					$amount = $num_of_hour*$biaya;
 
 					$data = [

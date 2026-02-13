@@ -211,7 +211,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			
 			$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji('."'".$row->id."'".')">
                 <i class="fa fa-download"></i>
-                Gaji
+                Slip Gaji
             </a>';
             $print_lembur = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportLembur('."'".$row->id."'".')">
                 <i class="fa fa-download"></i>
@@ -219,7 +219,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
             </a>';
             $print_absen = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportAbsenOS_gaji('."'".$row->id."'".')">
                 <i class="fa fa-download"></i>
-                Absen
+                Rekap Absen
+            </a>';
+            $print_rekap_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRekapGajiOS('."'".$row->id."'".')">
+                <i class="fa fa-download"></i>
+                Rekap Gaji
             </a>';
 
 
@@ -229,6 +233,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				'.$print_gaji.'
 				'.$print_lembur.'
 				'.$print_absen.'
+				'.$print_rekap_gaji.'
 				'.$detail.'
 				'.$edit.'
 				'.$delete.'
@@ -291,9 +296,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		} else return null;
 	}  
 
+	/*public function ceil_2($number){
+	    return ceil($number * 100) / 100;
+	}*/
+
+
 
 	public function add_data($post)
 	{
+
+		$this->load->helper('global');
+
 	    if (empty($post['penggajian_month']) || empty($post['penggajian_year'])) {
 	        echo "Bulan Tahun Penggajian harus diisi";
 	        return false;
@@ -338,6 +351,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	        s.tgl_start_absen,
 	        s.tgl_end_absen,
+	        t.sistem_lembur,
+	        t.nominal_lembur,
 
 	        COALESCE(l.ttl_hutang,0) as hutang
 	    ");
@@ -347,13 +362,15 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    $this->db->join('summary_absen_outsource s', 's.id = sd.summary_absen_outsource_id', 'left');
 
 	    $this->db->join("(SELECT b.id_employee,
-	                        SUM(a.nominal_cicilan_per_bulan) as ttl_hutang
+	                        SUM(b.nominal_cicilan_per_bulan) as ttl_hutang
 	                     FROM loan_detail a
 	                     JOIN loan b ON b.id = a.loan_id
 	                     WHERE DATE_FORMAT(a.tgl_jatuh_tempo,'%Y-%m') = '$periode_gaji'
 	                     GROUP BY b.id_employee) l",
 	                     "l.id_employee = e.id",
 	                     "left");
+
+	    $this->db->join('data_customer t', 't.id = e.cust_id', 'left');
 
 	    $this->db->where('e.emp_source', 'outsource');
 	    $this->db->where('e.status_id', 1);
@@ -419,27 +436,36 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            (int)$row->total_cuti +
 	            (int)$row->total_alfa;
 
-	        $gaji = $row->total_masuk * $gaji_harian;
+	        $gaji = ceil($row->total_masuk * $gaji_harian);
 
-	        $lembur_perjam  = $gaji_bulanan / 173;
-	        $lembur_total   = $lembur_perjam * $row->total_jam_lembur;
+	        
+	        if($row->sistem_lembur == 'tidak_sistem_lembur'){
+	        	$lembur_perjam  = $row->nominal_lembur ?? 0;
+	        }else{
+	        	$lembur_perjam  = ceil($gaji_bulanan / 173);
+	        }
 
-	        $bpjs_kesehatan = $gaji_bulanan * 0.04;
-	        $bpjs_tk        = $gaji_bulanan * 0.0624;
+
+	        //$lembur_total   = ceil($lembur_perjam * $row->total_jam_lembur);
+	        $lembur_total = $row->total_lembur;
+
+	        $bpjs_kesehatan = ceil($gaji_bulanan * 0.04);
+	        $bpjs_tk        = ceil($gaji_bulanan * 0.0624);
 
 	        $hari_kerja = (int)$row->total_hari_kerja;
 
-	        $potongan_absen = $hari_kerja > 0
-	            ? $total_tidak_masuk * ($gaji_bulanan / $hari_kerja)
-	            : 0;
+	        /*$potongan_absen = $hari_kerja > 0
+	            ? ceil($total_tidak_masuk * ($gaji_bulanan / $hari_kerja))
+	            : 0;*/
 
 	        $sosial = 5000;
 	        $hutang = (float)$row->hutang;
 
-	        $total_pendapatan = $gaji + $lembur_total;
+	        //$total_pendapatan = ceil($gaji + $lembur_total);
+	        $total_pendapatan = $gaji;
 
-	        $subtotal    = $total_pendapatan - ($potongan_absen + $hutang + $sosial);
-	        $gaji_bersih = $subtotal - ($bpjs_kesehatan + $bpjs_tk);
+	        $subtotal    = ceil($total_pendapatan - ($hutang + $sosial));
+	        $gaji_bersih = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk));
 
 	        // =========================
 	        // Simpan ke batch insert
@@ -450,7 +476,6 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            'total_hari_kerja' => $row->total_hari_kerja,
 	            'total_masuk'      => $row->total_masuk,
 	            'total_tidak_masuk'=> $total_tidak_masuk,
-	            'total_lembur'     => $row->total_lembur,
 	            'total_jam_kerja'  => $row->total_jam_kerja,
 	            'total_jam_lembur' => $row->total_jam_lembur,
 	            'created_at'       => date("Y-m-d H:i:s"),
@@ -459,12 +484,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            'gaji_harian'      => $gaji_harian,
 	            'gaji'             => $gaji,
 	            'lembur_perjam'    => $lembur_perjam,
-	            'ot'               => $lembur_total,
+	            'total_nominal_lembur' => $lembur_total,
 	            'total_pendapatan' => $total_pendapatan,
 	            'sosial'           => $sosial,
 	            'bpjs_kesehatan'   => $bpjs_kesehatan,
 	            'bpjs_tk'          => $bpjs_tk,
-	            'absen'            => $potongan_absen,
 	            'hutang'           => $hutang,
 	            'subtotal'         => $subtotal,
 	            'gaji_bersih'      => $gaji_bersih
@@ -516,9 +540,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
   				foreach($data_os as $rowdata_os){
   					$emp_id = $rowdata_os->id;
   					
-  					$data_summary = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, c.tgl_start_absen, c.tgl_end_absen
+  					$data_summary = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, c.tgl_start_absen, c.tgl_end_absen, d.sistem_lembur, d.nominal_lembur
 						from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 						left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
+						left join data_customer d on d.id = b.cust_id
 						where c.bulan_penggajian = ".$post['penggajian_month']." and c.tahun_penggajian = '".$post['penggajian_year']."' and c.project_id = '".$rowdata_os->project_id."' and a.emp_id = '".$emp_id."'
 						order by b.full_name asc")->result();
 
@@ -529,18 +554,26 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									     ((int)$data_summary[0]->total_cuti ?? 0) +
 									     ((int)$data_summary[0]->total_alfa ?? 0);
   						$gaji = ceil(($data_summary[0]->total_masuk * (int)$rowdata_os->gaji_harian) * 100) / 100;
-  						$lembur_perjam 	= ceil(($gaji_bulanan / 173) * 100) / 100;
+
+  						if($data_summary[0]->sistem_lembur == 'tidak_sistem_lembur'){
+  							$lembur_perjam 	= $data_summary[0]->nominal_lembur ?? 0;
+  						}else{
+  							$lembur_perjam 	= ceil(($gaji_bulanan / 173) * 100) / 100;
+  						}
+  						
+
+  						$total_nominal_lembur = ceil($lembur_perjam*$data_summary[0]->total_jam_lembur);
   						$bpjs_kesehatan = ceil(($gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
   						$bpjs_tk = ceil(($gaji_bulanan * 0.0624) * 100) / 100; /// 6.24% dr GP
 
   						$hari_kerja = (int) ($rowdata_os->total_hari_kerja ?? 0);
-						if ($hari_kerja > 0) {
+						/*if ($hari_kerja > 0) {
 						    $potongan_absen = ceil(
 						        ($total_tidak_masuk * ($gaji_bulanan / $hari_kerja)) * 100
 						    ) / 100;
 						} else {
 						    $potongan_absen = 0;
-						}
+						}*/
 
 
   						$sosial = '5000';
@@ -557,7 +590,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
   						}
 
   						/// ttl pendapatan - potongan tdk wajib
-  						$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100; 
+  						$subtotal = ceil(($gaji - ($hutang+$sosial)) * 100) / 100; 
 
   						/// subtotal - potongan wajib
   						$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk)) * 100) / 100;
@@ -591,12 +624,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 								'gaji_harian' 		=> $rowdata_os->gaji_harian,
 								'gaji' 				=> $gaji,
 								'lembur_perjam' 	=> $lembur_perjam,
-								'ot' 				=> $data_summary[0]->total_lembur,
+								'total_nominal_lembur' 	=> $total_nominal_lembur,
 								'total_pendapatan' 	=> $gaji,
 								'sosial' 			=> $sosial,
 								'bpjs_kesehatan' 	=> $bpjs_kesehatan,
 								'bpjs_tk' 			=> $bpjs_tk,
-								'absen' 			=> $potongan_absen,
 								'hutang' 			=> $hutang,
 								'subtotal' 			=> $subtotal,
 								'gaji_bersih' 		=> $gaji_bersih
@@ -621,12 +653,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'gaji_harian' 		=> $rowdata_os->gaji_harian,
 									'gaji' 				=> $gaji,
 									'lembur_perjam' 	=> $lembur_perjam,
-									'ot' 				=> $data_summary[0]->total_lembur,
+									'total_nominal_lembur' => $total_nominal_lembur,
 									'total_pendapatan' 	=> $gaji,
 									'sosial' 			=> $sosial,
 									'bpjs_kesehatan' 	=> $bpjs_kesehatan,
 									'bpjs_tk' 			=> $bpjs_tk,
-									'absen' 			=> $potongan_absen,
 									'hutang' 			=> $hutang,
 									'subtotal' 			=> $subtotal,
 									'gaji_bersih' 		=> $gaji_bersih
@@ -648,12 +679,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'gaji_harian' 		=> $rowdata_os->gaji_harian,
 									'gaji' 				=> $gaji,
 									'lembur_perjam' 	=> $lembur_perjam,
-									'ot' 				=> $data_summary[0]->total_lembur,
+									'total_nominal_lembur' => $total_nominal_lembur,
 									'total_pendapatan' 	=> $gaji,
 									'sosial' 			=> $sosial,
 									'bpjs_kesehatan' 	=> $bpjs_kesehatan,
 									'bpjs_tk' 			=> $bpjs_tk,
-									'absen' 			=> $potongan_absen,
 									'hutang' 			=> $hutang,
 									'subtotal' 			=> $subtotal,
 									'gaji_bersih' 		=> $gaji_bersih
@@ -781,12 +811,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'gaji_harian' 			=> trim($post['gaji_harian_gaji'][$i]),
 									'gaji' 					=> trim($post['gaji_gaji'][$i]),
 									'lembur_perjam' 		=> trim($post['lembur_perjam_gaji'][$i]),
-									'ot' 					=> trim($post['ot_gaji'][$i]),
+									'total_nominal_lembur' 	=> trim($post['total_nominal_lembur_gaji'][$i]),
 									'total_jam_lembur' 		=> trim($post['jam_lembur_gaji'][$i]),
 									'total_pendapatan' 		=> trim($post['ttl_pendapatan_gaji'][$i]),
 									'bpjs_kesehatan' 		=> trim($post['bpjs_kes_gaji'][$i]),
 									'bpjs_tk' 				=> trim($post['bpjs_tk_gaji'][$i]),
-									'absen' 				=> trim($post['absen_gaji'][$i]),
+									/*'absen' 				=> trim($post['absen_gaji'][$i]),*/
 									'hutang' 				=> trim($post['hutang_gaji'][$i]),
 									'sosial' 				=> trim($post['sosial_gaji'][$i]),
 									'subtotal' 				=> trim($post['subtotal_gaji'][$i]),
@@ -816,12 +846,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'gaji_harian' 			=> trim($post['gaji_harian_gaji'][$i]),
 									'gaji' 					=> trim($post['gaji_gaji'][$i]),
 									'lembur_perjam' 		=> trim($post['lembur_perjam_gaji'][$i]),
-									'ot' 					=> trim($post['ot_gaji'][$i]),
+									'total_nominal_lembur' 	=> trim($post['total_nominal_lembur_gaji'][$i]),
 									'total_jam_lembur' 		=> trim($post['jam_lembur_gaji'][$i]),
 									'total_pendapatan' 		=> trim($post['ttl_pendapatan_gaji'][$i]),
 									'bpjs_kesehatan' 		=> trim($post['bpjs_kes_gaji'][$i]),
 									'bpjs_tk' 				=> trim($post['bpjs_tk_gaji'][$i]),
-									'absen' 				=> trim($post['absen_gaji'][$i]),
+									/*'absen' 				=> trim($post['absen_gaji'][$i]),*/
 									'hutang' 				=> trim($post['hutang_gaji'][$i]),
 									'sosial' 				=> trim($post['sosial_gaji'][$i]),
 									'subtotal' 				=> trim($post['subtotal_gaji'][$i]),
@@ -946,9 +976,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		$dt = ''; 
 		
 
-		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id
+		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur, b.tipe_penggajian
 			from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
+			left join data_customer d on d.id = b.cust_id
 			where c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project."
 			order by b.full_name asc
 
@@ -964,7 +995,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			foreach ($rd as $f){
 				$no = $row+1;
 
-				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.* 
+				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id
 				from employees a left join payroll_slip_detail b on b.employee_id = a.id 
 				left join payroll_slip c on c.id = b.payroll_slip_id
 				where a.emp_source = 'outsource' and a.id = '".$f->emp_id."' and a.status_id = 1 
@@ -986,6 +1017,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 
 					$id = $dataSlip[0]->id;
+					$payroll_id = $dataSlip[0]->payroll_id;
 					$emp_code = $dataSlip[0]->emp_code;
 					$full_name = $dataSlip[0]->full_name;
 					$employee_id = $dataSlip[0]->employee_id;
@@ -1000,7 +1032,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$tunjangan_konsumsi = $dataSlip[0]->tunjangan_konsumsi;
 					$tunjangan_komunikasi = $dataSlip[0]->tunjangan_komunikasi;
 					$lembur_perjam = $dataSlip[0]->lembur_perjam;
-					$ot = $dataSlip[0]->ot;
+					$total_nominal_lembur = $dataSlip[0]->total_nominal_lembur;
 					$total_jam_lembur = $dataSlip[0]->total_jam_lembur;
 					$total_pendapatan = $dataSlip[0]->total_pendapatan;
 					$bpjs_kesehatan = $dataSlip[0]->bpjs_kesehatan;
@@ -1024,7 +1056,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 					$gaji = ceil(($f->total_masuk * (int)$f->gaji_harian) * 100) / 100;
 					
-					$lembur_perjam = ($gaji_bulanan > 0) ? ceil(($gaji_bulanan / 173) * 100) / 100 : 0;
+					if($f->sistem_lembur == 'tidak_sistem_lembur'){
+						$lembur_perjam = $f->nominal_lembur ?? 0;
+					}else{
+						$lembur_perjam = ($gaji_bulanan > 0) ? ceil(($gaji_bulanan / 173) * 100) / 100 : 0;
+					}
+					
 
 					$bpjs_kesehatan = ceil(($gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
 					$bpjs_tk = ceil(($gaji_bulanan * 0.0624) * 100) / 100; /// 6.24% dr GP
@@ -1068,6 +1105,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		             
 					$id = "";
+					$payroll_id = "";
 					$emp_code = $f->emp_code;
 					$full_name = $f->full_name;
 					$employee_id = $f->employee_id;
@@ -1081,8 +1119,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$tunjangan_konsumsi = "";
 					$tunjangan_komunikasi = "";
 					$lembur_perjam = $lembur_perjam;
-					$ot = $f->total_lembur;
 					$total_jam_lembur = $f->total_jam_lembur;
+					$total_nominal_lembur = ceil($lembur_perjam*$total_jam_lembur);
 					$total_pendapatan = $gaji;
 					$bpjs_kesehatan = $bpjs_kesehatan;
 					$bpjs_tk = $bpjs_tk;
@@ -1130,9 +1168,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($lembur_perjam,'lembur_perjam_gaji['.$row.']','','lembur_perjam_gaji','text-align: right;','data-id="'.$row.'" readonly').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($ot,'ot_gaji['.$row.']','','ot_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-
 					$dt .= '<td>'.$this->return_build_txt($total_jam_lembur,'jam_lembur_gaji['.$row.']','','jam_lembur_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($total_nominal_lembur,'total_nominal_lembur_gaji['.$row.']','','total_nominal_lembur_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($total_pendapatan,'ttl_pendapatan_gaji['.$row.']','','ttl_pendapatan_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
@@ -1184,7 +1222,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
-					$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji_perEmployee('."'".$id."'".','."'".$employee_id."'".')"> <i class="fa fa-download"></i> Gaji</a>';
+					$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji_perEmployee('."'".$payroll_id."'".','."'".$employee_id."'".')"> <i class="fa fa-download"></i> Gaji</a>';
 					$dt .= '<td style="text-align:center !important">'.$print_gaji.'</td>';
 					$dt .= '<td>'.$emp_code.'</td>';
 					$dt .= '<td>'.$full_name.'</td>';
@@ -1199,8 +1237,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$tunjangan_konsumsi.'</td>';
 					$dt .= '<td>'.$tunjangan_komunikasi.'</td>';
 					$dt .= '<td>'.$lembur_perjam.'</td>';
-					$dt .= '<td>'.$ot.'</td>';
 					$dt .= '<td>'.$total_jam_lembur.'</td>';
+					$dt .= '<td>'.$total_nominal_lembur.'</td>';
 					$dt .= '<td>'.$total_pendapatan.'</td>';
 					$dt .= '<td>'.$bpjs_kesehatan.'</td>';
 					$dt .= '<td>'.$bpjs_tk.'</td>';

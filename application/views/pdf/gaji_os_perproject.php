@@ -69,6 +69,20 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
 <hr>
 
 <!-- ================= INFO ================= -->
+<?php
+if (!function_exists('rupiah')) {
+    function rupiah($angka){
+        if (empty($angka) || !is_numeric($angka)) {
+            return '-';
+        }
+        return 'Rp ' . number_format((float)$angka, 0, ',', '.');
+    }
+}
+?>
+
+
+
+
 <table>
 <tr>
     <td width="50%">
@@ -94,12 +108,15 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
     <td width="50%" class="border">
         <table width="100%">
             <tr><th colspan="2" class="border-bottom">PENDAPATAN</th></tr>
-            <tr><td>Gaji Pokok</td><td class="right">1.500.000</td></tr>
-            <tr><td>Tunjangan Jabatan</td><td class="right">0</td></tr>
-            <tr><td>Lembur</td><td class="right">0</td></tr>
+            <tr><td>Gaji Pokok</td><td class="right"><?= rupiah($row->gaji) ?></td></tr>
+            <tr><td>Tunjangan Jabatan</td><td class="right"><?= rupiah($row->tunjangan_jabatan) ?></td></tr>
+            <tr><td>Tunjangan Transport</td><td class="right"><?=rupiah($row->tunjangan_transport)?></td></tr>
+            <tr><td>Tunjangan Konsumsi</td><td class="right"><?=rupiah($row->tunjangan_konsumsi)?></td></tr>
+            <tr><td>Tunjangan Komunikasi</td><td class="right"><?=rupiah($row->tunjangan_komunikasi)?></td></tr>
+            <tr><td>Lembur</td><td class="right"></td></tr>
             <tr>
                 <td colspan="2" style="font-size:9px;">
-                    (lembur akan dibayarkan tgl <?= $row->tanggal_pembayaran_lembur ?>)
+                    (lembur <?= rupiah($row->total_nominal_lembur) ?> akan dibayarkan tgl <?=$row->tanggal_pembayaran_lembur?>)
                 </td>
             </tr>
         </table>
@@ -108,13 +125,15 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
     <td width="50%" class="border">
         <table width="100%">
             <tr><th colspan="2" class="border-bottom">POTONGAN</th></tr>
-            <tr><td>BPJS Kesehatan</td><td class="right">0</td></tr>
-            <tr><td>BPJS Tenagakerja</td><td class="right">0</td></tr>
-            <tr><td>Seragam</td><td class="right">0</td></tr>
-            <tr><td>Hutang</td><td class="right">0</td></tr>
-            <tr><td>Payroll</td><td class="right">0</td></tr>
-            <tr><td>Sosial</td><td class="right">0</td></tr>
-            <tr><td>Absensi</td><td class="right">0</td></tr>
+            <tr><td>BPJS Kesehatan</td><td class="right"><?= rupiah($row->bpjs_kesehatan) ?></td></tr>
+            <tr><td>BPJS Tenagakerja</td><td class="right"><?= rupiah($row->bpjs_tk) ?></td></tr>
+            <tr><td>Seragam</td><td class="right"><?= rupiah($row->seragam) ?></td></tr>
+            <tr><td>Pelatihan</td><td class="right"><?= rupiah($row->pelatihan) ?></td></tr>
+            <tr><td>Lain-Lain</td><td class="right"><?= rupiah($row->lain_lain) ?></td></tr>
+            <tr><td>Hutang</td><td class="right"><?= rupiah($row->hutang) ?></td></tr>
+            <tr><td>Payroll</td><td class="right"><?= rupiah($row->payroll) ?></td></tr>
+            <tr><td>Sosial</td><td class="right"><?= rupiah($row->sosial) ?></td></tr>
+            <tr><td>PPH 120</td><td class="right"><?= rupiah($row->pph_120) ?></td></tr>
         </table>
     </td>
 </tr>
@@ -125,19 +144,34 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
 <tr>
     <td width="50%" class="border">
         <table width="100%">
-            <tr class="bold">
-                <td>Jumlah Pendapatan</td>
-                <td class="right">1.500.000</td>
-            </tr>
+            
+            <tr style="font-weight:bold;"><td>Jumlah Pendapatan</td><td class="right"><?= rupiah($row->total_pendapatan) ?></td></tr>
+            
         </table>
     </td>
 
+    <?php
+    $total_potongan =
+        (int)$row->bpjs_kesehatan +
+        (int)$row->bpjs_tk +
+        (int)$row->seragam +
+        (int)$row->pelatihan +
+        (int)$row->lain_lain +
+        (int)$row->hutang +
+        (int)$row->sosial +
+        (int)$row->payroll +
+        (int)$row->pph_120;
+    ?>
+
+    <?php
+    $terbilang = terbilang($row->gaji_bersih);
+    ?>
+
+
+
     <td width="50%" class="border">
         <table width="100%">
-            <tr class="bold">
-                <td>Jumlah Potongan</td>
-                <td class="right">0</td>
-            </tr>
+            <tr style="font-weight:bold;"><td>Jumlah Potongan</td><td class="right"><?= rupiah($total_potongan) ?></td></tr>
         </table>
     </td>
 </tr>
@@ -151,11 +185,11 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
         <table>
             <tr>
                 <td width="30%" class="bold">GAJI BERSIH</td>
-                <td class="right bold" style="font-size:12px">1.500.000</td>
+                <td class="right bold" style="font-size:12px"><?= rupiah($row->gaji_bersih) ?></td>
             </tr>
             <tr class="border">
                 <td colspan="2" style="font-style:italic;">
-                    satu juta lima ratus ribu rupiah
+                    <?=$terbilang?> rupiah
                 </td>
             </tr>
         </table>

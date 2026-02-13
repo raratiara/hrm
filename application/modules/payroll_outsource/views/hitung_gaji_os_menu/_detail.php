@@ -1,136 +1,154 @@
 
 
 <style type="text/css">
-    #tblDetailGajiOSView {
-        min-width: 2000px;
-    }
 
-    .table-scroll-x {
-        padding-bottom: 25px !important;  /* jarak ke scrollbar */
-    }
+/* ============================= */
+/* CONTAINER SCROLL */
+/* ============================= */
+.table-scroll-x {
+    padding-bottom: 25px;
+}
 
-    .table-scrollable {
-        margin-bottom: 15px !important;
-    }
+.table-scrollable {
+    margin-bottom: 15px;
+    overflow: auto;
+    position: relative;
+}
 
+/* ============================= */
+/* TABLE BASE */
+/* ============================= */
+#tblDetailGajiOSView {
+    min-width: 2000px;
+    table-layout: fixed;
+    border-collapse: separate;
+}
 
-    /* ============================= */
-    /* SET WIDTH KOLOM (WAJIB) */
-    /* ============================= */
-    #tblDetailGajiOSView th:nth-child(1),
-    #tblDetailGajiOSView td:nth-child(1) {
-        width: 50px;
-        min-width: 50px;
-    }
+/* ============================= */
+/* SET WIDTH KOLOM WAJIB */
+/* ============================= */
 
-    #tblDetailGajiOSView th:nth-child(2),
-    #tblDetailGajiOSView td:nth-child(2) {
-        width: 150px;
-        min-width: 150px;
-    }
+/* Kolom 1 (File) */
+#tblDetailGajiOSView th:nth-child(1),
+#tblDetailGajiOSView td:nth-child(1) {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
 
-    #tblDetailGajiOSView th:nth-child(3),
-    #tblDetailGajiOSView td:nth-child(3) {
-        width: 200px;
-        min-width: 200px;
-    }
+/* Kolom 2 (NIK) */
+#tblDetailGajiOSView th:nth-child(2),
+#tblDetailGajiOSView td:nth-child(2) {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+}
 
-    /* ============================= */
-    /* FREEZE BODY */
-    /* ============================= */
-    #tblDetailGajiOSView td:nth-child(1) {
-        position: sticky !important;
-        left: 0 !important;
-        background: #fff;
-        z-index: 20;
-    }
+/* Kolom 3 (Karyawan) */
+#tblDetailGajiOSView th:nth-child(3),
+#tblDetailGajiOSView td:nth-child(3) {
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+}
 
-    #tblDetailGajiOSView td:nth-child(2) {
-        position: sticky !important;
-        left: 0 !important;
-        background: #fff;
-        z-index: 19;
-    }
-
-    #tblDetailGajiOSView td:nth-child(3) {
-        position: sticky !important;
-        left: 200px !important;
-        background: #fff;
-        z-index: 18;
-    }
-
-    /* ============================= */
-    /* FREEZE TITLE (HEADER) */
-    /* ============================= */
-    #tblDetailGajiOSView thead th:nth-child(1) {
-        position: sticky !important;
-        top: 0 !important;
-        left: 0 !important;
-        background: #f0f0f0;
-        z-index: 50 !important;
-    }
-
-    #tblDetailGajiOSView thead th:nth-child(2) {
-        position: sticky !important;
-        top: 0 !important;
-        left: 0 !important;
-        background: #f0f0f0;
-        z-index: 49 !important;
-    }
-
-    #tblDetailGajiOSView thead th:nth-child(3) {
-        position: sticky !important;
-        top: 0 !important;
-        left: 200px !important;
-        background: #f0f0f0;
-        z-index: 48 !important;
-    }
+/* Kolom lainnya */
+#tblDetailGajiOSView th:not(:nth-child(-n+3)),
+#tblDetailGajiOSView td:not(:nth-child(-n+3)) {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+}
 
 
-    #tblDetailGajiOSView {
-        table-layout: fixed !important;
-        width: 100% !important;
-    }
+/* WAJIB untuk sticky + tablesaw */
+#tblDetailGajiOSView {
+    border-collapse: separate !important;
+}
+
+#tblDetailGajiOSView thead,
+#tblDetailGajiOSView tbody,
+#tblDetailGajiOSView tr,
+#tblDetailGajiOSView th,
+#tblDetailGajiOSView td {
+    transform: none !important;
+}
 
 
-    #tblDetailGajiOSView th,
-    #tblDetailGajiOSView td {
-        width: 150px !important;
-        min-width: 150px !important;
-        max-width: 150px !important;
+/* ============================= */
+/* FREEZE BODY */
+/* ============================= */
 
-        height: 30px !important;
-        line-height: 30px !important;
-        padding: 0 6px !important;
+#tblDetailGajiOSView td:nth-child(1) {
+    position: sticky !important;
+    left: 0 !important;
+    background: #fff !important;
+    z-index: 5 !important;
+}
 
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
+#tblDetailGajiOSView td:nth-child(2) {
+    position: sticky !important;
+    left: 80px !important;
+    background: #fff !important;
+    z-index: 4 !important;
+}
 
-    /* JARAK ANTAR ROW (TR) */
-    #tblDetailGajiOSView tbody tr {
-        height: 42px !important;          /* jarak vertikal antar row */
-    }
+#tblDetailGajiOSView td:nth-child(3) {
+    position: sticky !important;
+    left: 230px !important;
+    background: #fff !important;
+    z-index: 3 !important;
+}
+
+/* ============================= */
+/* FREEZE HEADER */
+/* ============================= */
+
+#tblDetailGajiOSView thead th {
+    position: sticky !important;
+    top: 0 !important;
+    
+    z-index: 10 !important;
+}
+
+#tblDetailGajiOSView thead th:nth-child(1) {
+    left: 0 !important;
+    z-index: 30 !important;
+}
+
+#tblDetailGajiOSView thead th:nth-child(2) {
+    left: 80px !important;
+    z-index: 29 !important;
+}
+
+#tblDetailGajiOSView thead th:nth-child(3) {
+    left: 230px !important;
+    z-index: 28 !important;
+}
 
 
-    #tblDetailGajiOSView td {
-        padding-top: 6px !important;
-        padding-bottom: 6px !important;
-        line-height: 1.4 !important;      /* jangan terlalu rapet */
-    }
 
 
-    .table-scroll-x {
-        padding-bottom: 25px !important;  /* jarak ke scrollbar */
-    }
 
+/* ============================= */
+/* ROW & TEXT STYLE */
+/* ============================= */
 
-    .table-scrollable {
-        margin-bottom: 15px !important;
-    }
+#tblDetailGajiOSView th,
+#tblDetailGajiOSView td {
+    height: 40px;
+    padding: 6px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#tblDetailGajiOSView tbody tr {
+    height: 42px;
+}
 
 </style>
+
 
 
 
@@ -208,8 +226,8 @@
                                     <th scope="col">Tunj. Konsumsi</th>
                                     <th scope="col">Tunj. Komunikasi</th>
                                     <th scope="col">Lembur per jam</th>
-                                    <th scope="col">OT</th>
-                                    <th scope="col">Jam Lembur</th>
+                                    <th scope="col">Total Jam Lembur</th>
+                                    <th scope="col">Total Nominal Lembur</th>
                                     <th scope="col">Total Pendapatan</th>
                                     <th scope="col">BPJS Kesehatan</th>
                                     <th scope="col">BPJS TK</th>

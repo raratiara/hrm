@@ -337,7 +337,9 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	        SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) as total_late,
 
 	        SUM(IFNULL(i.num_of_hour,0)) as total_jam_lembur,
-	        SUM(IFNULL(i.amount,0)) as total_lembur
+	        SUM(IFNULL(i.amount,0)) as total_lembur,
+	        
+	        SUM(IFNULL(a.num_of_working_hours,0)) as total_jam_kerja
 
 	    FROM employees b
 	    LEFT JOIN time_attendances a 
@@ -415,7 +417,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 	        $total_alfa = max(
 	            0,
-	            $row->total_hari_kerja - $ttl_ada_absen
+	            (int)$row->total_hari_kerja - (int)$ttl_ada_absen
 	        );
 
 	        /* ---- siapkan batch insert ---- */
@@ -429,7 +431,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	            'total_cuti'         => $row->total_cuti,
 	            'total_alfa'         => $total_alfa,
 	            'total_lembur'       => $row->total_lembur,
-	            'total_jam_kerja'    => 0,
+	            'total_jam_kerja'    => $row->total_jam_kerja,
 	            'total_jam_lembur'   => $row->total_jam_lembur,
 	            'created_at'         => date("Y-m-d H:i:s"),
 	            'created_by'         => $_SESSION['worker']
@@ -878,11 +880,11 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa['.$row.']','','ttl_alfa','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur['.$row.']','','ttl_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
-
 					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'ttl_jam_kerja['.$row.']','','ttl_jam_kerja','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'ttl_jam_lembur['.$row.']','','ttl_jam_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur['.$row.']','','ttl_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 					
 					$dt .= '</tr>';
@@ -905,9 +907,9 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 					$dt .= '<td>'.$f->total_ijin.'</td>';
 					$dt .= '<td>'.$f->total_cuti.'</td>';
 					$dt .= '<td>'.$f->total_alfa.'</td>';
-					$dt .= '<td>'.$f->total_lembur.'</td>';
 					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
 					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
+					$dt .= '<td>'.$f->total_lembur.'</td>';
 					$dt .= '</tr>';
 
 					

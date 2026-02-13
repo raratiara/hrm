@@ -76,9 +76,9 @@
 							<th scope="col">Total Ijin</th>
 							<th scope="col">Total Cuti</th>
 							<th scope="col">Total Alfa</th>
-							<th scope="col">Total Lembur</th>
 							<th scope="col">Total Jam Kerja</th>
 							<th scope="col">Total Jam Lembur</th>
+							<th scope="col">Total Nominal Lembur</th>
 						</tr>
 					</thead>
 					<tbody>
