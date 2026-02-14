@@ -397,6 +397,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    // =========================
 	    $projectHeader = [];
 	    $insertDetail  = [];
+	    $bpjsHeaderCache = [];
+
 
 	    foreach ($data as $row) {
 
@@ -467,9 +469,69 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        $subtotal    = ceil($total_pendapatan - ($hutang + $sosial));
 	        $gaji_bersih = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk));
 
+	        
+
 	        // =========================
+			// INSERT / UPDATE HISTORY BPJS
+			// =========================
+
+			if (!isset($bpjsHeaderCache[$row->project_id])) {
+
+			    $bpjs_header = $this->db->where([
+			        'project_id'         => $row->project_id,
+			        'periode_gaji_bulan' => $bulan,
+			        'periode_gaji_tahun' => $tahun
+			    ])->get('history_bpjs')->row();
+
+			    if (!$bpjs_header) {
+
+			        $this->db->insert("history_bpjs", [
+			            'project_id'         => $row->project_id,
+			            'periode_gaji_bulan' => $bulan,
+			            'periode_gaji_tahun' => $tahun
+			        ]);
+
+			        $bpjsHeaderCache[$row->project_id] = $this->db->insert_id();
+
+			    } else {
+			        $bpjsHeaderCache[$row->project_id] = $bpjs_header->id;
+			    }
+			}
+
+			$history_bpjs_id = $bpjsHeaderCache[$row->project_id];
+
+
+			// cek detail bpjs employee
+			$bpjs_detail = $this->db->where([
+			    'history_bpjs_id' => $history_bpjs_id,
+			    'employee_id'     => $row->employee_id
+			])->get('history_bpjs_detail')->row();
+
+			$data_bpjs_detail = [
+			    'history_bpjs_id'       => $history_bpjs_id,
+			    'employee_id'           => $row->employee_id,
+			    'no_bpjs_kesehatan'     => $row->no_bpjs,
+			    'no_bpjs_tk'            => $row->no_bpjs_ketenagakerjaan,
+			    'nominal_bpjs_kesehatan'=> $bpjs_kesehatan,
+			    'nominal_bpjs_tk'       => $bpjs_tk,
+			    'tanggal_potong'        => date("Y-m-d H:i:s")
+			];
+
+			if ($bpjs_detail) {
+			    $this->db->update(
+			        "history_bpjs_detail",
+			        $data_bpjs_detail,
+			        ['id' => $bpjs_detail->id]
+			    );
+			} else {
+			    $this->db->insert("history_bpjs_detail", $data_bpjs_detail);
+			}
+
+
+			// =========================
 	        // Simpan ke batch insert
 	        // =========================
+
 	        $insertDetail[] = [
 	            'payroll_slip_id'  => $projectHeader[$row->project_id],
 	            'employee_id'      => $row->employee_id,
@@ -762,6 +824,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	public function edit_data($post) { 
 
 		if(!empty($post['id'])){
+			$this->db->trans_start();
 
 			$getperiod_start 	= date_create($post['period_start']); 
 			$getperiod_end 		= date_create($post['period_end']); 
@@ -777,6 +840,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					'tgl_end_absen' 	=> $period_end
 				];
 				$rs = $this->db->update("payroll_slip", $data, "id = '".$post['id']."'");
+
+				// ambil project_id sekali saja
+				$slip = $this->db->where('id', $post['id'])
+				                 ->get('payroll_slip')
+				                 ->row();
+
+				$project_id = $slip->project_id;
+				$bulan = trim($post['penggajian_month']);
+				$tahun = trim($post['penggajian_year']);
+
+				$bpjsHeaderCache = [];
 
 
 				if(isset($post['hdnempid_gaji'])){
@@ -861,9 +935,73 @@ class Hitung_gaji_os_menu_model extends MY_Model
 								$this->db->insert('payroll_slip_detail', $itemData);
 							}
 						}
+
+
+						$employee_id = trim($post['hdnempid_gaji'][$i]);
+
+						// =======================
+						// CEK / BUAT HEADER BPJS
+						// =======================
+
+						if (!isset($bpjsHeaderCache[$project_id])) {
+
+						    $bpjs_header = $this->db->where([
+						        'project_id'         => $project_id,
+						        'periode_gaji_bulan' => $bulan,
+						        'periode_gaji_tahun' => $tahun
+						    ])->get('history_bpjs')->row();
+
+						    if (!$bpjs_header) {
+
+						        $this->db->insert("history_bpjs", [
+						            'project_id'         => $project_id,
+						            'periode_gaji_bulan' => $bulan,
+						            'periode_gaji_tahun' => $tahun
+						        ]);
+
+						        $bpjsHeaderCache[$project_id] = $this->db->insert_id();
+
+						    } else {
+						        $bpjsHeaderCache[$project_id] = $bpjs_header->id;
+						    }
+						}
+
+						$history_bpjs_id = $bpjsHeaderCache[$project_id];
+
+
+						// =======================
+						// UPDATE / INSERT DETAIL
+						// =======================
+
+						$bpjs_kesehatan = trim($post['bpjs_kes_gaji'][$i]);
+						$bpjs_tk        = trim($post['bpjs_tk_gaji'][$i]);
+
+						$bpjs_detail = $this->db->where([
+						    'history_bpjs_id' => $history_bpjs_id,
+						    'employee_id'     => $employee_id
+						])->get('history_bpjs_detail')->row();
+
+						$data_bpjs_detail = [
+						    'history_bpjs_id'        => $history_bpjs_id,
+						    'employee_id'            => $employee_id,
+						    'nominal_bpjs_kesehatan' => $bpjs_kesehatan,
+						    'nominal_bpjs_tk'        => $bpjs_tk,
+						    'tanggal_potong'         => date("Y-m-d H:i:s")
+						];
+
+						if ($bpjs_detail) {
+						    $this->db->update(
+						        "history_bpjs_detail",
+						        $data_bpjs_detail,
+						        ['id' => $bpjs_detail->id]
+						    );
+						} else {
+						    $this->db->insert("history_bpjs_detail", $data_bpjs_detail);
+						}
+
 					}
 				}
-
+				$this->db->trans_complete();
 				return $rs;
 
 	  		}else{
