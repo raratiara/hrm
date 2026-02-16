@@ -21,12 +21,11 @@ class Invoice_menu_model extends MY_Model
 			NULL,
 			'dt.id',
 			'dt.project_name',
-			'dt.customer_name',
 			'dt.invoice_no',
 			'dt.invoice_date',
 			'dt.po_number',
-			'dt.periode_start',
-			'dt.periode_end'
+			'dt.periode_penggajian',
+			'dt.project_id'
 		];
 		
 		
@@ -39,11 +38,12 @@ class Invoice_menu_model extends MY_Model
 		$where_project = " and a.project_id = '".$_GET['flproject']."' ";
 		}
 
-		$sTable = '(select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as customer_address, d.name as lokasi_name, b.jenis_pekerjaan
-			from project_invoice a 
-			left join project_outsource b on b.id = a.project_id
-			left join data_customer c on c.id = b.customer_id
-			left join master_work_location_outsource d on d.id = b.lokasi_id where 1=1 '.$where_project.'
+		$sTable = '(select a.*, b.project_name, concat(d.name_indo," ",c.tahun_penggajian) as periode_penggajian
+					from project_invoice a 
+					left join project_outsource b on b.id = a.project_id
+					left join payroll_slip c on c.id = a.payroll_slip_id
+					left join master_month d on d.id = c.bulan_penggajian
+					where 1=1 '.$where_project.'
 				)dt';
 		
 
@@ -196,24 +196,40 @@ class Invoice_menu_model extends MY_Model
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
+
+
+			$print_invoice = '<a class="btn btn-default btn-xs" style="align:center" onclick="getInvoice('."'".$row->id."'".')">
+                <i class="fa fa-download"></i>
+                Invoice
+            </a>';
+
+            $print_rincian_biaya = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRincianBiaya('."'".$row->project_id."'".')">
+                <i class="fa fa-download"></i>
+                Rincian Biaya
+            </a>';
+
+            $print_berita_acara = '<a class="btn btn-default btn-xs" style="align:center" onclick="getBeritaAcaraPekerjaan('."'".$row->id."'".')">
+                <i class="fa fa-download"></i>
+                Berita Acara
+            </a>';
 			
 
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					
+					'.$print_invoice.'
+					'.$print_rincian_biaya.'
+					'.$print_berita_acara.'
 					'.$edit.'
 					'.$delete.'
 				</div>',
 				$row->id,
 				$row->project_name,
-				$row->customer_name,
 				$row->invoice_no,
 				$row->invoice_date,
 				$row->po_number,
-				$row->periode_start,
-				$row->periode_end
+				$row->periode_penggajian
 
 
 			));
@@ -267,64 +283,97 @@ class Invoice_menu_model extends MY_Model
 	}  
 
 
+	public function getNextNumber() { 
+		
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
+		
+
+		$cek = $this->db->query("select * from project_invoice where SUBSTRING(invoice_no, 9, 4) = '".$period."'");
+		$rs_cek = $cek->result_array();
+
+		if(empty($rs_cek)){
+			$num = '00001';
+		}else{
+			$cek2 = $this->db->query("select max(invoice_no) as maxnum from project_invoice where SUBSTRING(invoice_no, 9, 4) = '".$period."'");
+			$rs_cek2 = $cek2->result_array();
+			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,13); 
+			$num = str_pad($getnum + 1, 5, 0, STR_PAD_LEFT);
+			
+		}
+
+		return $num;
+		
+	} 
+
+
 	public function add_data($post) { 
 
-		$date_attendance 	= date_create($post['date_attendance']); 
-		$post_timein 		= strtotime($post['time_in']);
-		$post_timeout 		= strtotime($post['time_out']);
+		$jatuh_tempo 		= trim($post['jatuh_tempo'] ?? '');
 
-		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
-
-		$f_datetime_in='';
-		if(!empty($post['attendance_in'])){
-			$datetime_in 		= date_create($post['attendance_in']);
-			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
-			$f_time_in 			= date_format($datetime_in,"H:i:s");
-			$timestamp_timein 	= strtotime($f_time_in); 
-			$timestamp1 		= strtotime($f_datetime_in); 
-
-			if($timestamp_timein > $post_timein){
-				$is_late='Y';
-			}
-		}
-
-		$f_datetime_out='';
-		if(!empty($post['attendance_out'])){
-			$datetime_out 		= date_create($post['attendance_out']);
-			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
-			$f_time_out 		= date_format($datetime_out,"H:i:s");
-			$timestamp_timeout 	= strtotime($f_time_out);
-			$timestamp2 		= strtotime($f_datetime_out);
-
-			if($timestamp_timeout < $post_timeout){
-				$is_leaving_office_early = 'Y';
-			}
-		}
-
-		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
-			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
-		}
-
-		
+		$lettercode = ('INV-MAS'); // ca code
+		$yearcode = date("y");
+		$monthcode = date("m");
+		$period = $yearcode.$monthcode; 
 		
 
-  		$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".date_format($date_attendance,"Y-m-d")."' and employee_id = '".$post['employee']."'")->result(); 
+		////INV-MAS-2602-01946
+		$runningnumber = $this->getNextNumber(); // next count number
+		$nextnum 	= $lettercode.'-'.$period.'-'.$runningnumber;
 
-  		if(empty($data_attendances)){ 
+		
+  		$data_invoice = $this->db->query("select * from project_invoice where project_id = '".$post['project']."' and payroll_slip_id = '".$post['periode_gaji']."'  ")->result(); 
+
+  		if(empty($data_invoice)){ 
+  			$getCust = $this->db->query("select * from project_outsource where id = '".$post['project']."' ")->result(); 
+
+
   			$data = [
-				'date_attendance' 			=> date_format($date_attendance,"Y-m-d"),
-				'employee_id' 				=> trim($post['employee']),
-				'attendance_type' 			=> trim($post['emp_type']),
-				'time_in' 					=> trim($post['time_in']),
-				'time_out' 					=> trim($post['time_out']),
-				'date_attendance_in' 		=> $f_datetime_in,
-				'date_attendance_out'		=> $f_datetime_out,
-				'is_late'					=> $is_late,
-				'is_leaving_office_early'	=> $is_leaving_office_early,
-				'num_of_working_hours'		=> $num_of_working_hours,
-				'created_at'				=> date("Y-m-d H:i:s")
+				'project_id' 		=> $post['project'],
+				'invoice_no' 		=> $nextnum,
+				'po_number' 		=> trim($post['no_po']),
+				'jatuh_tempo' 		=> date("Y-m-d", strtotime($jatuh_tempo)),
+				'terms' 			=> $getCust[0]->term_payment,
+				'management_fee' 	=> $getCust[0]->management_fee,
+				'payroll_slip_id' 	=> trim($post['periode_gaji']),
+				'invoice_date'		=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->insert($this->table_name, $data);
+			$lastId = $this->db->insert_id();
+
+			if($rs){
+				$getBiaya = $this->db->query("select b.job_title_id, sum(a.gaji_bersih) as total_gaji, count(a.employee_id) as jumlah_personil 
+					from payroll_slip_detail a 
+					left join employees b on b.id = a.employee_id
+					where a.payroll_slip_id = ".$post['periode_gaji']."
+					group by b.job_title_id")->result(); 
+
+				if(!empty($getBiaya)){
+					foreach($getBiaya as $row){
+						$nominal_management_fee = ceil($row->total_gaji*($getCust[0]->management_fee/100));
+						$jumlah_harga_jual = $row->total_gaji+$nominal_management_fee;
+						$ppn_percen = 10;
+						$ppn_nominal = ceil($nominal_management_fee*($ppn_percen/100));
+						$jumlah_sesudah_pajak = $jumlah_harga_jual+$ppn_nominal;
+
+						$data_dtl = [
+							'project_invoice_id' 	=> $lastId,
+							'job_title_id' 			=> $row->job_title_id,
+							'jumlah_personil' 		=> $row->jumlah_personil,
+							'jumlah_biaya' 			=> $row->total_gaji,
+							'nominal_management_fee' => $nominal_management_fee,
+							'jumlah_harga_jual' 	=> $jumlah_harga_jual,
+							'ppn_percen'			=> $ppn_percen,
+							'ppn_nominal'			=> $ppn_nominal,
+							'jumlah_sesudah_pajak' 	=> $jumlah_sesudah_pajak
+						];
+						$this->db->insert("project_invoice_detail", $data_dtl);
+					}
+				}
+				
+			}
 
 			return $rs;
 
@@ -428,14 +477,14 @@ class Invoice_menu_model extends MY_Model
 		
 		$where_project = "";
 		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
-			$where_project = " and b.id = '".$_GET['flproject']."' ";
+			$where_project = " and a.project_id = '".$_GET['flproject']."' ";
 		}
 		
-		$sql = 'select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as 				customer_address, d.name as lokasi_name, b.jenis_pekerjaan 
+		$sql = 'select a.*, b.project_name, concat(d.name_indo," ",c.tahun_penggajian) as periode_penggajian
 				from project_invoice a 
 				left join project_outsource b on b.id = a.project_id
-				left join data_customer c on c.id = b.customer_id
-				left join master_work_location_outsource d on d.id = b.lokasi_id
+				left join payroll_slip c on c.id = a.payroll_slip_id
+				left join master_month d on d.id = c.bulan_penggajian
 				where 1=1 '.$where_project.'
 		';
 
@@ -444,6 +493,33 @@ class Invoice_menu_model extends MY_Model
 		return $rs;
 	}
 
+
+	public function getDataPeriodeGaji($project){ 
+
+		$rs = $this->db->query("select a.*, concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian
+								from payroll_slip a
+								left join master_month b on b.id = a.bulan_penggajian
+								where project_id = ".$project." ")->result(); 
+
+		$data['msperiode'] = $rs;
+
+
+		return $data;
+
+	}
+
+
+	public function getDataPayroll($payroll_id){ 
+
+		$rs = $this->db->query("select * from payroll_slip
+								where id = ".$payroll_id." ")->result(); 
+
+		
+
+
+		return $rs;
+
+	}
 
 	
 

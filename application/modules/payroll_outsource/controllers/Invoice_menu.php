@@ -15,12 +15,12 @@ class Invoice_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Project Name", "Customer Name","Invoice No","Invoice Date","PO Number","Periode Start","Periode End"];
+	public $tabel_header 			= ["ID","Project Name","Invoice No","Invoice Date","PO Number","Periode Penggajian"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Project Name", "Customer Name","Invoice No","Invoice Date","PO Number","Periode Start","Periode End"];
-	public $colfields 				= ["id","project_name","customer_name","invoice_no","invoice_date","po_number","periode_start","periode_end"];
+	public $colnames 				= ["ID","Project Name","Invoice No","Invoice Date","PO Number","Periode Penggajian"];
+	public $colfields 				= ["id","project_name","invoice_no","invoice_date","po_number","periode_penggajian"];
 
 	
 
@@ -31,32 +31,20 @@ class Invoice_menu extends MY_Controller
 
 		$field = [];
 		
-		$msemp 							= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
-		$field['selemployee'] 			= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
-		$field['selflemployee'] 		= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
 		
+		$msproject = $this->db->query("select * FROM project_outsource ORDER BY project_name ASC ")->result();
+		$field['selproject'] = $this->self_model->return_build_select2me($msproject,'','','','project','project','','','id','project_name',' ','','','required',3,'-');
+		$field['selflproject'] = $this->self_model->return_build_select2me($msproject,'','','','flproject','flproject','','','id','project_name',' ','','','',3,'-');
 
-		$msproject = $this->db->query("select id,project_name as project_label FROM project_outsource ORDER BY project_name ASC ")->result();
+		$msperiodegaji 					= array();
+		$field['selperiodegaji'] 		= $this->self_model->return_build_select2me($msperiodegaji,'','','','periode_gaji','periode_gaji','','','id','periode_penggajian',' ','','','required',3,'-');
 
-		$field['selflproject'] = $this->self_model->return_build_select2me(
-			$msproject,
-			'',
-			'',
-			'',
-			'flproject',
-			'flproject',
-			'',
-			'',
-			'id',
-			'project_label',
-			' ',
-			'',
-			'',
-			'',
-			3,
-			'-'
-		);
+		$field['txtstartabsen'] = $this->self_model->return_build_txt('','start_absen','start_absen','','','readonly');
+		$field['txtendabsen'] = $this->self_model->return_build_txt('','end_absen','end_absen','','','readonly');
+		$field['txtnopo'] = $this->self_model->return_build_txt('','no_po','no_po');
+		$field['txtjatuhtempo'] = $this->self_model->return_build_txt('','jatuh_tempo','jatuh_tempo');
 
+		
 
 		
 		return $field;
@@ -234,39 +222,28 @@ class Invoice_menu extends MY_Controller
 
 
 		
-		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+		if(isset($_GET['id']) && $_GET['id'] != '' && $_GET['id'] != 0){
 			
 			$sql = "
-		        select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as customer_address from project_invoice a 
-				left join project_outsource b on b.id = a.project_id
-				left join data_customer c on c.id = b.customer_id
-				where a.project_id = ".$_GET['flproject']."
+		        select a.*, b.project_id, b.invoice_no, b.invoice_date, b.po_number, b.terms, 
+				b.management_fee, b.jatuh_tempo, c.project_name, d.name as job_title_name,
+				concat(f.name_indo,' ',e.tahun_penggajian) as periode_penggajian, e.tgl_start_absen, e.tgl_end_absen
+				, g.name as customer_name, g.address as customer_address, g.npwp as customer_npwp
+				from project_invoice_detail a
+				left join project_invoice b on b.id = a.project_invoice_id
+				left join project_outsource c on c.id = b.project_id
+				left join master_job_title d on d.id = a.job_title_id
+				left join payroll_slip e on e.id = b.payroll_slip_id
+				left join master_month f on f.id = e.bulan_penggajian
+				left join data_customer g on g.id = c.customer_id
+				where a.project_invoice_id = ".$_GET['id']."
 		    ";
 
 		    $data = $this->db->query($sql)->result();
 
 		    if(!empty($data)){
 		    	$pdfData = [
-				    'invoice_no'      => $data[0]->invoice_no,
-				    'invoice_date'    => formatTanggalIndo($data[0]->invoice_date),
-				    'po_number'       => $data[0]->po_number,
-				    'due_date'        => formatTanggalIndo($data[0]->jatuh_tempo),
-				    'terms' 		  => $data[0]->terms,
-				    'customer_name'   => $data[0]->customer_name,
-				    'customer_address'=> $data[0]->customer_address,
-				    'customer_npwp'   => $data[0]->customer_npwp,
-				    'management_fee'  => $data[0]->management_fee,
-				    'item_title'      => $data[0]->item_title,
-				    'project_name'    => $data[0]->project_name,
-				    'periode_start'   => formatTanggalIndo($data[0]->periode_start),
-				    'periode_end'     => formatTanggalIndo($data[0]->periode_end),
-				    'jumlah_harga_jual' => $data[0]->jumlah_harga_jual,
-				    'ppn' 				=> $data[0]->ppn,
-				    'ppn_nominal'       => $data[0]->ppn_nominal,
-				    'jumlah_sesudah_pajak' 		=> $data[0]->jumlah_sesudah_pajak,
-				    'subtotal' 					=> $data[0]->subtotal,
-				    'management_fee_nominal'  	=> $data[0]->management_fee_nominal,
-				    'terbilang'       => terbilang($data[0]->jumlah_sesudah_pajak),
+				    'dataInv'       => $data,
 				    'bank_account'    => '157-00-0754003-3',
 				    'bank_name'       => 'PT. MANDIRI AGANGTA SEJAHTERA',
 				    'bank_branch'     => 'Bank Mandiri Cabang Margonda Depok'
@@ -307,12 +284,18 @@ class Invoice_menu extends MY_Controller
 
 			//$project_id = 3;
 		    $sql = "
-		        select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as customer_address, d.name as lokasi_name, b.jenis_pekerjaan, c.contact_name, c.contact_title 
-		        from project_invoice a 
-				left join project_outsource b on b.id = a.project_id
-				left join data_customer c on c.id = b.customer_id
-				left join master_work_location_outsource d on d.id = b.lokasi_id
-				where a.project_id = ".$_GET['flproject']."
+		        select a.*, b.project_id, b.invoice_no, b.invoice_date, b.po_number, b.terms, 
+				b.management_fee, b.jatuh_tempo, c.project_name, d.name as job_title_name,
+				concat(f.name_indo,' ',e.tahun_penggajian) as periode_penggajian, e.tgl_start_absen, e.tgl_end_absen
+				, g.name as customer_name, g.address as customer_address, g.npwp as customer_npwp
+				from project_invoice_detail a
+				left join project_invoice b on b.id = a.project_invoice_id
+				left join project_outsource c on c.id = b.project_id
+				left join master_job_title d on d.id = a.job_title_id
+				left join payroll_slip e on e.id = b.payroll_slip_id
+				left join master_month f on f.id = e.bulan_penggajian
+				left join data_customer g on g.id = c.customer_id
+				where b.project_id = ".$_GET['flproject']."
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -325,14 +308,8 @@ class Invoice_menu extends MY_Controller
 				    'project'         		=> $data[0]->project_name,
 				    'no_invoice'      		=> $data[0]->invoice_no,
 				    'invoice_date'         	=> formatTanggalIndo($data[0]->invoice_date),
-				    'items' 				=> $items, // array rincian
-				    'sub_total'       		=> $data[0]->subtotal,
-				    'management_fee'  		=> $data[0]->management_fee,
-				    'management_fee_nominal'=> $data[0]->management_fee_nominal,
-				    'ppn'           		=> $data[0]->ppn,
-				    'ppn_nominal'           => $data[0]->ppn_nominal,
-				    'jumlah_sesudah_pajak'  => $data[0]->jumlah_sesudah_pajak,
-				    'jumlah_harga_jual' 	=> $data[0]->jumlah_harga_jual
+				    'items' 				=> $data // array rincian
+				   
 				];
 
 
@@ -371,40 +348,32 @@ class Invoice_menu extends MY_Controller
 
 
 
-	    if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+	    if(isset($_GET['id']) && $_GET['id'] != '' && $_GET['id'] != 0){
 	    	//$project_id = 3;
 		    $sql = "
-		        select a.*, b.project_name, c.name as customer_name, c.npwp as customer_npwp, c.address as customer_address, d.name as lokasi_name, b.jenis_pekerjaan, c.contact_name, c.contact_title 
-		        from project_invoice a 
-				left join project_outsource b on b.id = a.project_id
-				left join data_customer c on c.id = b.customer_id
-				left join master_work_location_outsource d on d.id = b.lokasi_id
-				where a.project_id = ".$_GET['flproject']."
+		        select a.*, b.project_id, b.invoice_no, b.invoice_date, b.po_number, b.terms, 
+				b.management_fee, b.jatuh_tempo, c.project_name, d.name as job_title_name,
+				concat(f.name_indo,' ',e.tahun_penggajian) as periode_penggajian, e.tgl_start_absen, e.tgl_end_absen
+				, g.name as customer_name, g.address as customer_address, g.npwp as customer_npwp
+				, g.contact_name, g.contact_title, h.name as lokasi_name, c.periode_start, c.periode_end
+				from project_invoice_detail a
+				left join project_invoice b on b.id = a.project_invoice_id
+				left join project_outsource c on c.id = b.project_id
+				left join master_job_title d on d.id = a.job_title_id
+				left join payroll_slip e on e.id = b.payroll_slip_id
+				left join master_month f on f.id = e.bulan_penggajian
+				left join data_customer g on g.id = c.customer_id
+				left join master_work_location_outsource h on h.id = c.lokasi_id
+				where a.project_invoice_id = ".$_GET['id']."
 		    ";
 
 		    $data = $this->db->query($sql)->result();
 
 		    if(!empty($data)){
-		    	$get_ttl_emp = $this->db->query("select count(id) as ttl from employees where emp_source = 'outsource' and project_id = '".$project_id."' and status_id = 1")->result(); 
-		    	$ttl_emp=0;
-		    	if(!empty($get_ttl_emp)){
-		    		$ttl_emp = $get_ttl_emp[0]->ttl;
-		    	}
+		    	
 		    	$pdfData = [
-				    'no_surat'        	=> $data[0]->invoice_no,
-				    'customer_name' 	=> $data[0]->customer_name,
-				    'customer_address'  => $data[0]->customer_address,
-				    'periode_start'     => formatTanggalIndo($data[0]->periode_start),
-				    'periode_end'       => formatTanggalIndo($data[0]->periode_end),
-				    'lokasi'          	=> $data[0]->lokasi_name,
-				    'jenis_pekerjaan' 	=> $data[0]->jenis_pekerjaan,
-				    'jumlah_personil' 	=> $ttl_emp,
-				    'invoice_date'      => formatTanggalIndo($data[0]->invoice_date),
-				    'nama_client'     	=> $data[0]->invoice_no,
-				    'nama_ttd_kiri'   => 'Tri Ubaya Adi M.',
-				    'jabatan_ttd_kiri'=> 'Direktur',
-				    'nama_ttd_kanan'  => $data[0]->contact_name,
-				    'jabatan_ttd_kanan'=> $data[0]->contact_title
+		    		'dataInv' => $data
+				  
 				];
 
 
@@ -434,6 +403,31 @@ class Invoice_menu extends MY_Controller
 
 	    
 	}
+
+
+	public function getDataPeriodeGaji(){
+		$post 		= $this->input->post(null, true);
+		$project 	= $post['project'];
+
+		$rs =  $this->self_model->getDataPeriodeGaji($project);
+		
+
+		echo json_encode($rs);
+	}
+
+	public function getDataPayroll(){
+		$post 		= $this->input->post(null, true);
+		$payroll_id = $post['payroll_id'];
+
+		$rs =  $this->self_model->getDataPayroll($payroll_id);
+		
+
+		echo json_encode($rs);
+	}
+
+
+
+	
 
 	
 

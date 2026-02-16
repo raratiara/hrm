@@ -120,81 +120,11 @@
                 </tr>
             </table>
         </td>
-        <!-- <td width="40%">
-            <table class="no-border">
-                <tr>
-                    <td class="bold center" colspan="3">RINCIAN BIAYA</td>
-                </tr>
-                <tr>
-                    <td width="30%">No</td>
-                    <td width="5%">:</td>
-                    <td><?= $no_invoice ?></td>
-                </tr>
-            </table>
-        </td> -->
+       
     </tr>
 </table>
 
 
-<!-- <table class="table-border mt-10">
-    <tr>
-        <th rowspan="2" class="center" width="5%">No</th>
-        <th colspan="9" class="center" width="20%">Uraian</th>
-        <th rowspan="2" class="center" width="10%">Total Harga</th>
-        
-    </tr>
-    <tr>
-       
-        <th class="center">Rincian Prorata</th>
-        <th class="center">aa</th>
-        <th class="center">bb</th>
-        <th class="center">cc</th>
-        <th class="center">dd</th>
-        <th class="center">ff</th>
-        <th class="center">Hari kerja</th>
-        <th class="center">Description</th>
-        <th class="center">vv</th>
-    </tr>
-
-    <?php $no=1; foreach($items as $row): ?>
-    <tr>
-        <td class="center"><?= $no++ ?></td>
-        <td><?= $row->project_outsource_id ?></td>
-        <td class="center"><?= $row->customer_id ?></td>
-        <td class="center"><?= $row->jumlah ?></td>
-        <td class="right"><?= number_format($row->management_fee_percen,0,',','.') ?></td>
-        <td><?= $row->management_fee_harga ?></td>
-        <td class="right"><?= number_format($row->jumlah_total,0,',','.') ?></td>
-        <td><?= $row->project_outsource_id ?></td>
-        <td class="center"><?= $row->customer_id ?></td>
-        <td class="center"><?= $row->jumlah ?></td>
-        <td class="right"><?= number_format($row->management_fee_percen,0,',','.') ?></td>
-        
-    </tr>
-    <?php endforeach; ?>
-
-    
-    <tr>
-        <td colspan="10" class="right bold">Total</td>
-        <td class="right bold"><?= number_format($sub_total,0,',','.') ?></td>
-    </tr>
-    <tr>
-        <td colspan="10" class="right bold">Management Fee (<?=$management_fee?>%)</td>
-        <td class="right bold"><?= number_format($management_fee_nominal,0,',','.') ?></td>
-    </tr>
-    <tr>
-        <td colspan="10" class="right bold">Grand Total</td>
-        <td class="right bold"><?= number_format($jumlah_harga_jual,0,',','.') ?></td>
-    </tr>
-    <tr>
-        <td colspan="10" class="right bold">PPN <?=$ppn?>%</td>
-        <td class="right bold"><?= number_format($ppn_nominal,0,',','.') ?></td>
-    </tr>
-    <tr>
-        <td colspan="10" class="right bold">Grand Total Include Pajak</td>
-        <td class="right bold"><?= number_format($jumlah_sesudah_pajak,0,',','.') ?></td>
-    </tr>
-</table> -->
 
 
 

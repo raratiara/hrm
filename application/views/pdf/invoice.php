@@ -9,14 +9,8 @@
             color: #000;
         }
 
-        .header {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .company {
-            font-size: 10px;
-        }
+        .header { width: 100%; margin-bottom: 10px; }
+        .company { font-size: 10px; }
 
         .title {
             text-align: center;
@@ -25,10 +19,7 @@
             margin-top: 10px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; }
 
         .no-border td {
             border: none;
@@ -46,28 +37,20 @@
             background: #f2f2f2;
         }
 
-        .right {
-            text-align: right;
-        }
-
-        .center {
-            text-align: center;
-        }
-
-        .bold {
-            font-weight: bold;
-        }
-
-        .mt-10 {
-            margin-top: 10px;
-        }
-
-        .mt-20 {
-            margin-top: 20px;
-        }
+        .right { text-align: right; }
+        .center { text-align: center; }
+        .bold { font-weight: bold; }
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
     </style>
 </head>
 <body>
+
+<?php foreach($dataInv as $i => $data): ?>
+
+<?php if($i > 0): ?>
+<div style="page-break-before: always;"></div>
+<?php endif; ?>
 
 <!-- ================= HEADER ================= -->
 <table class="no-border header">
@@ -90,18 +73,11 @@
         <td width="25%"></td>
         <td width="75%">
             <table class="no-border">
-                <tr><td width="20%">No</td><td>: <?= $invoice_no ?></td></tr>
-                <tr><td width="20%">Invoice Date</td><td>: <?= $invoice_date ?></td></tr>
-                <tr><td width="20%">No. PO</td><td>: <?= $po_number ?></td></tr>
+                <tr><td width="20%">No</td><td>: <?= $data->invoice_no ?></td></tr>
+                <tr><td width="20%">Invoice Date</td><td>: <?= formatTanggalIndo($data->invoice_date) ?></td></tr>
+                <tr><td width="20%">No. PO</td><td>: <?= $data->po_number ?></td></tr>
             </table>
         </td>
-        <!-- <td width="50%">
-            <table class="no-border">
-                <tr><td width="35%">Halaman</td><td>: 1</td></tr>
-                <tr><td>Terms</td><td>: 14 Days</td></tr>
-                <tr><td>Jatuh Tempo</td><td>: <?= $due_date ?></td></tr>
-            </table>
-        </td> -->
     </tr>
 </table>
 
@@ -110,35 +86,20 @@
     <tr>
         <td width="70%">
             <table class="no-border">
-                <tr><td width="20%">Dikirim Kepada</td><td>: <b><?= $customer_name ?></b></td></tr>
-                <tr><td>Alamat</td><td>: <?= $customer_address ?></td></tr>
-                <tr><td>NPWP</td><td>: <?= $customer_npwp ?></td></tr>
+                <tr><td width="20%">Dikirim Kepada</td><td>: <b><?= $data->customer_name ?></b></td></tr>
+                <tr><td>Alamat</td><td>: <?= $data->customer_address ?></td></tr>
+                <tr><td>NPWP</td><td>: <?= $data->customer_npwp ?></td></tr>
             </table>
         </td>
         <td width="30%">
             <table class="no-border">
-                <tr><td width="40%">Halaman</td><td>: 1</td></tr>
-                <tr><td width="40%">Terms</td><td>: <?= $terms?></td></tr>
-                <tr><td width="40%">Jatuh Tempo</td><td>: <?= $due_date ?></td></tr>
+                <tr><td width="40%">Halaman</td><td>: <?= $i+1 ?></td></tr>
+                <tr><td width="40%">Terms</td><td>: <?= $data->terms ?></td></tr>
+                <tr><td width="40%">Jatuh Tempo</td><td>: <?= formatTanggalIndo($data->jatuh_tempo) ?></td></tr>
             </table>
         </td>
     </tr>
 </table>
-
-<!-- <table class="no-border mt-10">
-    <tr>
-        <td width="15%">Dikirim Kepada</td>
-        <td width="85%">: <strong><?= $customer_name ?></strong></td>
-    </tr>
-    <tr>
-        <td>Alamat</td>
-        <td>: <?= $customer_address ?></td>
-    </tr>
-    <tr>
-        <td>NPWP</td>
-        <td>: <?= $customer_npwp ?></td>
-    </tr>
-</table> -->
 
 <!-- ================= TABLE ITEM ================= -->
 <table class="border mt-10">
@@ -153,32 +114,46 @@
         <tr>
             <td class="center">1</td>
             <td>
-                <strong><?= $item_title ?></strong><br><br>
-                <?= $customer_name ?><br>
-                Project : <?= $project_name ?><br>
-                Periode : <?= $periode_start ?> s/d <?= $periode_end ?><br><br>
-                Management Fee <?=$management_fee?> %
+                <strong>
+                    PENGADAAN JASA <?= $data->job_title_name ?> 
+                    <?= $data->jumlah_personil ?> Personil
+                </strong><br><br>
+
+                <?= $data->customer_name ?><br>
+                Project : <?= $data->project_name ?><br>
+                Periode Penggajian : <?= $data->periode_penggajian ?><br>
+                Periode Absensi : <?= formatTanggalIndo($data->tgl_start_absen) ?> s/d <?= formatTanggalIndo($data->tgl_end_absen) ?><br><br>
+
+                Management Fee <?= $data->management_fee ?> %
             </td>
             <td class="right">
-                
-
                 <br><br><br>
-                <?= number_format($subtotal,0,',','.') ?> <br><br><br>
-                <?= number_format($management_fee_nominal,0,',','.') ?>
+                <?= number_format($data->jumlah_biaya,0,',','.') ?><br><br><br>
+                <?= number_format($data->nominal_management_fee,0,',','.') ?>
             </td>
         </tr>
 
         <tr>
             <td colspan="2" class="right bold">Jumlah Harga Jual</td>
-            <td class="right bold"><?= number_format($jumlah_harga_jual,0,',','.') ?></td>
+            <td class="right bold">
+                <?= number_format($data->jumlah_harga_jual,0,',','.') ?>
+            </td>
         </tr>
+
         <tr>
-            <td colspan="2" class="right">PPN <?=$ppn?>%</td>
-            <td class="right"><?= number_format($ppn_nominal,0,',','.') ?></td>
+            <td colspan="2" class="right">
+                PPN <?= $data->ppn_percen ?>%
+            </td>
+            <td class="right">
+                <?= number_format($data->ppn_nominal,0,',','.') ?>
+            </td>
         </tr>
+
         <tr>
             <td colspan="2" class="right bold">Jumlah Sesudah Pajak</td>
-            <td class="right bold"><?= number_format($jumlah_sesudah_pajak,0,',','.') ?></td>
+            <td class="right bold">
+                <?= number_format($data->jumlah_sesudah_pajak,0,',','.') ?>
+            </td>
         </tr>
     </tbody>
 </table>
@@ -187,7 +162,9 @@
 <table class="no-border mt-10">
     <tr>
         <td width="15%">Terbilang</td>
-        <td width="85%">: <strong># <?= $terbilang ?> Rupiah #</strong></td>
+        <td width="85%">
+            : <strong># <?= ucfirst(terbilang($data->jumlah_sesudah_pajak)) ?> Rupiah #</strong>
+        </td>
     </tr>
 </table>
 
@@ -195,7 +172,7 @@
 <table class="no-border mt-20">
     <tr>
         <td width="60%">
-            Depok, <?= $invoice_date ?><br><br><br><br><br><br>
+            Depok, <?= formatTanggalIndo($data->invoice_date) ?><br><br><br><br><br><br>
             <strong><u>Tri Ubaya Adri, M</u></strong><br>
             <strong>Direktur</strong>
         </td>
@@ -205,11 +182,13 @@
             2. Pembayaran di Transfer ke:<br>
             No. Rek : <?= $bank_account ?><br>
             A/N : <?= $bank_name ?><br>
-            <?= $bank_branch ?>
+            <?= $bank_branch ?><br>
             Jawa Barat
         </td>
     </tr>
 </table>
+
+<?php endforeach; ?>
 
 </body>
 </html>

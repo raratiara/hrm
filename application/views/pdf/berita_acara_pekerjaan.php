@@ -10,20 +10,6 @@
             color: #000;
         }
 
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .company-name {
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .company-info {
-            font-size: 10px;
-        }
-
         .line {
             border-top: 2px solid #000;
             margin: 6px 0 10px 0;
@@ -62,7 +48,7 @@
 
         .signature td {
             width: 50%;
-            /*text-align: center;*/
+            vertical-align: top;
         }
 
         .sign-name {
@@ -78,21 +64,27 @@
 </head>
 <body>
 
+<?php foreach($dataInv as $i => $data): ?>
+
+<?php if($i > 0): ?>
+<div style="page-break-before: always;"></div>
+<?php endif; ?>
+
 <!-- ================= HEADER ================= -->
 <table width="100%" cellspacing="0" cellpadding="0">
     <tr>
-        <!-- LOGO -->
         <td width="15%" valign="top" align="left">
             <?php
             $path = FCPATH . 'public/assets/images/logo/mas_logo_tsp.png';
-            $type = pathinfo($path, PATHINFO_EXTENSION);
-            $data = file_get_contents($path);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            if(file_exists($path)){
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $imgdata = file_get_contents($path);
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($imgdata);
             ?>
-            <img src="<?= $base64 ?>" height="80" width="80">
+                <img src="<?= $base64 ?>" height="80" width="80">
+            <?php } ?>
         </td>
 
-        <!-- HEADER TEXT -->
         <td width="85%" valign="top" align="left" style="padding-top:15px;">
             <div style="font-size:14px; font-weight:bold; line-height:1.3; padding-left:120px;">
                 PT. MANDIRI AGANGTA SEJAHTERA
@@ -111,11 +103,12 @@
 
 <!-- ================= TITLE ================= -->
 <div class="title"><u>BERITA ACARA PEKERJAAN</u></div>
-<div class="subtitle">No : <?= $no_surat ?></div>
+<div class="subtitle">No : <?= $data->invoice_no ?></div>
 
 <!-- ================= CONTENT ================= -->
 <div class="content">
-    Kami yang bertanda tangan di bawah ini menerangkan bahwa <b>PT. Mandiri Agangta Sejahtera</b>
+    Kami yang bertanda tangan di bawah ini menerangkan bahwa 
+    <b>PT. Mandiri Agangta Sejahtera</b>
     telah selesai melaksanakan pekerjaan dengan rincian sebagai berikut :
     <br><br>
 
@@ -124,64 +117,66 @@
             <td width="3%">1.</td>
             <td width="30%">Nama Perusahaan</td>
             <td width="2%">:</td>
-            <td><?= $customer_name ?></td>
+            <td><?= $data->customer_name ?></td>
         </tr>
         <tr>
             <td>2.</td>
             <td>Alamat</td>
             <td>:</td>
-            <td><?= $customer_address ?></td>
+            <td><?= $data->customer_address ?></td>
         </tr>
         <tr>
             <td>3.</td>
             <td>Periode Pekerjaan</td>
             <td>:</td>
-            <td><?= $periode_start ?> s/d <?= $periode_end?></td>
+            <td><?= formatTanggalIndo($data->periode_start) ?> s/d <?= formatTanggalIndo($data->periode_end) ?></td>
         </tr>
         <tr>
             <td>4.</td>
             <td>Lokasi Pekerjaan</td>
             <td>:</td>
-            <td><?= $lokasi ?></td>
+            <td><?= $data->lokasi_name ?></td>
         </tr>
         <tr>
             <td>5.</td>
             <td>Jenis Pekerjaan</td>
             <td>:</td>
-            <td><?= $jenis_pekerjaan ?></td>
+            <td><?= $data->job_title_name ?></td>
         </tr>
         <tr>
             <td>6.</td>
             <td>Jumlah Personil</td>
             <td>:</td>
-            <td><?= $jumlah_personil ?> Personil</td>
+            <td><?= $data->jumlah_personil ?> Personil</td>
         </tr>
     </table>
 
     <br>
-    Demikian berita acara ini kami buat dengan sebenarnya untuk dipergunakan
-    sebagaimana mestinya.
-    <!-- <br><br>
-
-    Depok, <?= $tanggal ?> -->
+    Demikian berita acara ini kami buat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.
 </div>
 
 <!-- ================= SIGNATURE ================= -->
 <table class="signature">
-    <tr><td style="text-align: left;">Depok, <?= $invoice_date ?></td></tr>
     <tr>
-        <td style="align: left;">
+        <td style="text-align: left;">
+            Depok, <?= formatTanggalIndo($data->invoice_date) ?>
+        </td>
+    </tr>
+    <tr>
+        <td>
             PT. Mandiri Agangta Sejahtera <br><br><br><br>
-            <div class="sign-name"><?= $nama_ttd_kiri ?></div>
-            <div class="sign-title"><?= $jabatan_ttd_kiri ?></div>
+            <div class="sign-name">Tri Ubaya Adi M.</div>
+            <div class="sign-title">Direktur</div>
         </td>
         <td>
-            <?= $customer_name ?> <br><br><br><br>
-            <div class="sign-name"><?= $nama_ttd_kanan ?></div>
-            <div class="sign-title"><?= $jabatan_ttd_kanan ?></div>
+            <?= $data->customer_name ?> <br><br><br><br>
+            <div class="sign-name"><?= $data->contact_name ?></div>
+            <div class="sign-title"><?= $data->contact_title ?></div>
         </td>
     </tr>
 </table>
+
+<?php endforeach; ?>
 
 </body>
 </html>
