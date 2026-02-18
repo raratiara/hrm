@@ -232,7 +232,7 @@ class Invoice_menu extends MY_Controller
 				from project_invoice_detail a
 				left join project_invoice b on b.id = a.project_invoice_id
 				left join project_outsource c on c.id = b.project_id
-				left join master_job_title d on d.id = a.job_title_id
+				left join master_job_title_os d on d.id = a.job_title_id
 				left join payroll_slip e on e.id = b.payroll_slip_id
 				left join master_month f on f.id = e.bulan_penggajian
 				left join data_customer g on g.id = c.customer_id
@@ -291,7 +291,7 @@ class Invoice_menu extends MY_Controller
 				from project_invoice_detail a
 				left join project_invoice b on b.id = a.project_invoice_id
 				left join project_outsource c on c.id = b.project_id
-				left join master_job_title d on d.id = a.job_title_id
+				left join master_job_title_os d on d.id = a.job_title_id
 				left join payroll_slip e on e.id = b.payroll_slip_id
 				left join master_month f on f.id = e.bulan_penggajian
 				left join data_customer g on g.id = c.customer_id
@@ -359,7 +359,7 @@ class Invoice_menu extends MY_Controller
 				from project_invoice_detail a
 				left join project_invoice b on b.id = a.project_invoice_id
 				left join project_outsource c on c.id = b.project_id
-				left join master_job_title d on d.id = a.job_title_id
+				left join master_job_title_os d on d.id = a.job_title_id
 				left join payroll_slip e on e.id = b.payroll_slip_id
 				left join master_month f on f.id = e.bulan_penggajian
 				left join data_customer g on g.id = c.customer_id
