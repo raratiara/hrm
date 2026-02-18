@@ -280,8 +280,25 @@ class Officeinfo_menu_model extends MY_Model
 				'show_date_end' 	=> date("Y-m-d", strtotime($show_date_end)),
 				'created_at'		=> date("Y-m-d H:i:s")
 			];
-			return $rs = $this->db->insert($this->table_name, $data);
-  		}else return null;
+			$rs = $this->db->insert($this->table_name, $data);
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan. Label 1 ,Label 2 dan Title harus diisi"
+			];
+  		}
 
 	}  
 
@@ -309,8 +326,26 @@ class Officeinfo_menu_model extends MY_Model
 				'updated_at'		=> date("Y-m-d H:i:s")
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+			
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

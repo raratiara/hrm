@@ -404,17 +404,40 @@ class Meetings_menu_model extends MY_Model
 	  			
 				//return $rs = $this->db->insert($this->table_name, $data);
 				$rs = $this->db->insert($this->table_name, $data);
-				$dataInput = array(
-					'rs' 	=> $rs,
-					'code' 	=> $meeting_code
-				);
-				
-				return $dataInput;
+				if($rs){
+					$dataInput = array(
+						'rs' 	=> $rs,
+						'code' 	=> $meeting_code
+					);
+
+					return [
+					    "status" => true,
+					    "msg" 	 => "Data berhasil disimpan. Kode meeting = ".$meeting_code.""
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
+				}
 
 
-	  		}else return 'tidak ada ruangan';
-		}else return 'Meeting Name, Date, Type dan Room harus diisi';
+	  		}else{
+	  			return [
+				    "status" => false,
+				    "msg" 	 => "tidak ada ruangan"
+				];
+	  		} 
+		}
+		else
+		{
+			return [
+			    "status" => false,
+			    "msg" 	 => "Meeting Name, Date, Type dan Room harus diisi"
+			];
+		}
 
+		
   			
 	}  
 
@@ -472,11 +495,38 @@ class Meetings_menu_model extends MY_Model
 					];
 					
 				
-					return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+					$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+					if($rs){
+						return [
+						    "status" => true,
+						    "msg" 	 => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg" 	 => "Data gagal disimpan"
+						];
+					}
 		  		}
-		  		else echo "Tidak ada ruangan";
-			}else echo "Meeting Name, Date, Type dan Room harus diisi";
-		} else return null;
+		  		else{
+		  			return [
+					    "status" => false,
+					    "msg" 	 => "Tidak ada ruangan"
+					];
+		  		} 
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Meeting Name, Date, Type dan Room harus diisi"
+				];
+			} 
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}
 
 

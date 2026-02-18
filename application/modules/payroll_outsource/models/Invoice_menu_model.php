@@ -372,12 +372,27 @@ class Invoice_menu_model extends MY_Model
 						$this->db->insert("project_invoice_detail", $data_dtl);
 					}
 				}
+
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
 				
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
 			}
 
-			return $rs;
+			
 
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan. Data Invoice sudah ada"
+			];
+  		}
 
 		
 	}  
@@ -437,8 +452,26 @@ class Invoice_menu_model extends MY_Model
 				'updated_at'				=> date("Y-m-d H:i:s")
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

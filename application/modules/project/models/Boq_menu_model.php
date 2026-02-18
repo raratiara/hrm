@@ -322,11 +322,24 @@ class Boq_menu_model extends MY_Model
 					}
 				}
 
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
 			}
 
 
-			return $rs;
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg" 	 => "Customer dan Project tidak boleh kosong"
+			];
+  		}
 
 	}  
 
@@ -381,11 +394,25 @@ class Boq_menu_model extends MY_Model
 						}
 					}
 				}
+
+				return [
+				    "status" => true,
+				    "msg" 	 => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
 			}
 
 
-			return $rs;
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

@@ -308,8 +308,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		$this->load->helper('global');
 
 	    if (empty($post['penggajian_month']) || empty($post['penggajian_year'])) {
-	        echo "Bulan Tahun Penggajian harus diisi";
-	        return false;
+	        
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Bulan Tahun Penggajian harus diisi"
+			];
 	    }
 
 	    $this->db->trans_start();
@@ -389,7 +392,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	    if (empty($data)) {
 	        $this->db->trans_complete();
-	        return false;
+	        
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan"
+			];
 	    }
 
 	    // =========================
@@ -566,7 +573,19 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	    $this->db->trans_complete();
 
-	    return $this->db->trans_status();
+	    
+
+	    if($this->db->trans_status()){
+			return [
+			    "status" => true,
+			    "msg" => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan"
+			];
+		}
 	}
 
 
@@ -1002,12 +1021,31 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					}
 				}
 				$this->db->trans_complete();
-				return $rs;
+				if($rs){
+					return [
+					    "status" => true,
+					    "msg" => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
+				}
 
 	  		}else{
-	  			echo "Bulan Tahun Penggajian & Periode Absensi harus diisi"; 
+	  			 
+	  			return [
+				    "status" => false,
+				    "msg" 	 => "Bulan Tahun Penggajian & Periode Absensi harus diisi"
+				];
 	  		}
-		}else return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	} 
 
 

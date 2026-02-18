@@ -356,13 +356,32 @@ class Performance_appraisal_menu_model extends MY_Model
 							}
 						}
 					}
-					return $rs;
+
+					return [
+					    "status" => true,
+					    "msg" => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
 				}
 			} else
-				return null;
+			{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan. Data appraisal sudah ada"
+				];
+			}
 
 		} else
-			return null;
+		{
+			return [
+			    "status" => false,
+			    "msg" 	 => "Employee tidak ditemukan"
+			];
+		}
 
 	}
 
@@ -496,12 +515,25 @@ class Performance_appraisal_menu_model extends MY_Model
 				}
 
 
-				return $rs;
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
 			} else
-				return null;
+			{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
 
 		} else
-			return null;
+		{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}
 
 	public function getRowData($id)

@@ -302,10 +302,14 @@ class Project_outsource_model extends MY_Model
 
 
 
-		$dataProject = $this->db->query("select * from project_outsource where project_name = '".$post['nama_project']."' ")->result();
+		$dataProject = $this->db->query("select * from project_outsource where project_name = '".$post['nama_project']."' or code = '".$post['kode_project']."' ")->result();
 		if(!empty($dataProject)){
-			echo "Tidak dapat menyimpan data dengan Nama Project yang sama";
-			return false;
+			
+			return [
+	            "status" => false,
+	            "msg"    => "Tidak dapat menyimpan data dengan Nama/Kode Project yang sama"
+	        ];
+
 		}else{
 
 			$data = [
@@ -320,10 +324,20 @@ class Project_outsource_model extends MY_Model
 				
 			];
 
-			return $rs = $this->db->insert($this->table_name, $data);
+			$rs = $this->db->insert($this->table_name, $data);
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
 		}
-		
-		
+
 
 	}  
 
@@ -375,9 +389,25 @@ class Project_outsource_model extends MY_Model
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]); 
 
-			return $rs;
+			if($rs){
+				return [
+		            "status" => true,
+		            "msg"    => "Data berhasil disimpan"
+		        ];
+			}else{
+				return [
+		            "status" => false,
+		            "msg"    => "Data gagal disimpan",
+		            "debug"  => $this->db->error()
+		        ];
+			}
 
-		} else return null;
+		} else{
+			return [
+	            "status" => false,
+	            "msg"    => "Data gagal disimpan. ID tidak ditemukan"
+	        ];
+		}
 	}  
 
 	public function getRowData($id) { 

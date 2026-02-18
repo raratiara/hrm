@@ -530,17 +530,39 @@ class Training_menu_model extends MY_Model
 						///insert approval path
 						$approval_type_id = 8; //Training
 						$this->getApprovalMatrix($dataemp[0]->work_location, $approval_type_id, '', '', $lastId);
+
+						return [
+						    "status" => true,
+						    "msg" => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg" 	 => "Data gagal disimpan"
+						];
 					}
 
-					return $rs; 
 				}else{
-					echo "Work Location not found";
+					
+					return [
+					    "status" => false,
+					    "msg" 	 => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; 
+				
+				return [
+				    "status" => false,
+				    "msg" 	 => "Employee not found"
+				];
 			}
 
-  		}else return null;
+  		}else{
+  			return [
+				    "status" => false,
+				    "msg" 	 => "Employee not found"
+				];
+  		}
 
 	}  
 
@@ -634,12 +656,27 @@ class Training_menu_model extends MY_Model
 					$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
 					
 				}
+
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
 			}
 
 
-			return $rs;
 
-		} else return null;
+		} else{
+			return [
+			    "status" => true,
+			    "msg" => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

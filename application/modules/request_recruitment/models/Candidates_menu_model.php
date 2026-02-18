@@ -436,10 +436,25 @@ class Candidates_menu_model extends MY_Model
 				}
 			}
 
-			return $rs;
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
 
 		} else
-			return null;
+		{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}
 
 	public function getRowData($id)

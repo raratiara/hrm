@@ -284,7 +284,11 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	        empty($period_start) ||
 	        empty($period_end)
 	    ) {
-	        return "Bulan Tahun Penggajian & Periode Absensi harus diisi";
+	        
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Bulan Tahun Penggajian & Periode Absensi harus diisi"
+			];
 	    }
 
 	    $bulan = trim($post['penggajian_month']);
@@ -369,7 +373,10 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	    )->result();
 
 	    if (empty($data_summary)) {
-	        return false;
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan"
+			];
 	    }
 
 	    /* ===============================
@@ -449,7 +456,10 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	        );
 	    }
 
-	    return true;
+	    return [
+		    "status" => true,
+		    "msg" => "Data berhasil disimpan"
+		];
 	}
 
 	
@@ -710,12 +720,31 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 					}
 				}
 
-				return $rs;
+				if($rs){
+					return [
+					    "status" => true,
+					    "msg" => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
+				}
 
 	  		}else{
-	  			echo "Bulan Tahun Penggajian & Periode Absensi harus diisi"; 
+	  			
+	  			return [
+				    "status" => false,
+				    "msg" 	 => "Bulan Tahun Penggajian & Periode Absensi harus diisi"
+				];
 	  		}
-		}else return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

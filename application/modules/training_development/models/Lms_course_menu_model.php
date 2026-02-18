@@ -331,10 +331,24 @@ class Lms_course_menu_model extends MY_Model
 	            }
 	        }
 
-	        return $rs;
+	        if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
 	    }
-
-	    return null;
+	    else{
+	    	return [
+			    "status" => false,
+			    "msg" 	 => "Course Name not found"
+			];
+	    }
 	}
 
 
@@ -360,9 +374,24 @@ class Lms_course_menu_model extends MY_Model
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 			
 
-			return $rs;
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
 
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 
