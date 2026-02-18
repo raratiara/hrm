@@ -355,7 +355,7 @@ class Invoice_menu_model extends MY_Model
 						$nominal_management_fee = ceil($row->total_gaji*($getCust[0]->management_fee/100));
 						$jumlah_harga_jual = $row->total_gaji+$nominal_management_fee;
 						$ppn_percen = 10;
-						$ppn_nominal = ceil($nominal_management_fee*($ppn_percen/100));
+						$ppn_nominal = ceil($jumlah_harga_jual*($ppn_percen/100));
 						$jumlah_sesudah_pajak = $jumlah_harga_jual+$ppn_nominal;
 
 						$data_dtl = [
