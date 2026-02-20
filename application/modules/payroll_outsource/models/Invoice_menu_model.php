@@ -203,7 +203,7 @@ class Invoice_menu_model extends MY_Model
                 Invoice
             </a>';
 
-            $print_rincian_biaya = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRincianBiaya('."'".$row->project_id."'".')">
+            $print_rincian_biaya = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRincianBiaya('."'".$row->id."'".')">
                 <i class="fa fa-download"></i>
                 Rincian Biaya
             </a>';
@@ -344,7 +344,12 @@ class Invoice_menu_model extends MY_Model
 			$lastId = $this->db->insert_id();
 
 			if($rs){
-				$getBiaya = $this->db->query("select b.job_title_id, sum(a.gaji_bersih) as total_gaji, count(a.employee_id) as jumlah_personil 
+				$getBiaya = $this->db->query("select b.job_title_id, count(a.employee_id) as jumlah_personil, sum(a.gaji) as total_gaji, sum(a.tunjangan_jabatan) as total_tunjangan_jabatan,sum(a.tunjangan_transport) as total_tunjangan_transport, sum(a.tunjangan_konsumsi) as total_tunjangan_konsumsi
+					,sum(a.tunjangan_komunikasi) as total_tunjangan_komunikasi, sum(a.bpjs_kesehatan) as total_bpjs_kesehatan
+					,sum(a.bpjs_tk) as total_bpjs_tk, sum(a.seragam) as total_seragam, sum(a.pelatihan) as total_pelatihan
+					,sum(a.lain_lain) as total_lain_lain, sum(a.hutang) as total_hutang, sum(a.sosial) as total_sosial
+					,sum(a.payroll) as total_payroll, sum(a.pph_120) as total_pph_120, sum(a.gaji_bersih) as total_gaji_bersih
+					,sum(a.total_masuk) as total_masuk
 					from payroll_slip_detail a 
 					left join employees b on b.id = a.employee_id
 					where a.payroll_slip_id = ".$post['periode_gaji']."
@@ -367,7 +372,23 @@ class Invoice_menu_model extends MY_Model
 							'jumlah_harga_jual' 	=> $jumlah_harga_jual,
 							'ppn_percen'			=> $ppn_percen,
 							'ppn_nominal'			=> $ppn_nominal,
-							'jumlah_sesudah_pajak' 	=> $jumlah_sesudah_pajak
+							'jumlah_sesudah_pajak' 	=> $jumlah_sesudah_pajak,
+							'total_gaji' 			=> $row->total_gaji,
+							'total_tunjangan_jabatan' 		=> $row->total_tunjangan_jabatan,
+							'total_tunjangan_transport' 	=> $row->total_tunjangan_transport,
+							'total_tunjangan_konsumsi' 		=> $row->total_tunjangan_konsumsi,
+							'total_tunjangan_komunikasi' 	=> $row->total_tunjangan_komunikasi,
+							'total_bpjs_kesehatan' 	=> $row->total_bpjs_kesehatan,
+							'total_bpjs_tk' 		=> $row->total_bpjs_tk,
+							'total_seragam' 		=> $row->total_seragam,
+							'total_pelatihan' 		=> $row->total_pelatihan,
+							'total_lain_lain' 		=> $row->total_lain_lain,
+							'total_hutang' 			=> $row->total_hutang,
+							'total_sosial' 			=> $row->total_sosial,
+							'total_payroll' 		=> $row->total_payroll,
+							'total_pph_120' 		=> $row->total_pph_120,
+							'total_gaji_bersih' 	=> $row->total_gaji_bersih,
+							'total_masuk' 			=> $row->total_masuk
 						];
 						$this->db->insert("project_invoice_detail", $data_dtl);
 					}
@@ -398,80 +419,7 @@ class Invoice_menu_model extends MY_Model
 	}  
 
 	public function edit_data($post) { 
-		$date_attendance 	= date_create($post['date_attendance']); 
-		$post_timein 		= strtotime($post['time_in']);
-		$post_timeout 		= strtotime($post['time_out']);
-
-		$is_late=''; $is_leaving_office_early = ''; $num_of_working_hours='';
-
-		$f_datetime_in='';
-		if(!empty($post['attendance_in'])){
-			$datetime_in 		= date_create($post['attendance_in']);
-			$f_datetime_in 		= date_format($datetime_in,"Y-m-d H:i:s");
-			$f_time_in 			= date_format($datetime_in,"H:i:s");
-			$timestamp_timein 	= strtotime($f_time_in); 
-			$timestamp1 		= strtotime($f_datetime_in); 
-
-			if($timestamp_timein > $post_timein){
-				$is_late='Y';
-			}
-		}
-
-		$f_datetime_out='';
-		if(!empty($post['attendance_out'])){
-			$datetime_out 		= date_create($post['attendance_out']);
-			$f_datetime_out 	= date_format($datetime_out,"Y-m-d H:i:s");
-			$f_time_out 		= date_format($datetime_out,"H:i:s");
-			$timestamp_timeout 	= strtotime($f_time_out);
-			$timestamp2 		= strtotime($f_datetime_out);
-
-			if($timestamp_timeout < $post_timeout){
-				$is_leaving_office_early = 'Y';
-			}
-		}
-
-		if(!empty($post['attendance_in']) && !empty($post['attendance_out'])){
-			$num_of_working_hours = abs($timestamp2 - $timestamp1)/(60)/(60); //jam
-		}
 		
-
-
-		if(!empty($post['id'])){
-		
-			$data = [
-				/*'date_attendance' 		=> date_format($date_attendance,"Y-m-d"),
-				'employee_id' 				=> trim($post['employee']),
-				'attendance_type' 			=> trim($post['emp_type']),
-				'time_in' 					=> trim($post['time_in']),
-				'time_out' 					=> trim($post['time_out']),*/
-				'date_attendance_in' 		=> $f_datetime_in,
-				'date_attendance_out'		=> $f_datetime_out,
-				'is_late'					=> $is_late,
-				'is_leaving_office_early'	=> $is_leaving_office_early,
-				'num_of_working_hours'		=> $num_of_working_hours,
-				'updated_at'				=> date("Y-m-d H:i:s")
-			];
-
-			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-
-			if($rs){
-				return [
-				    "status" => true,
-				    "msg" => "Data berhasil disimpan"
-				];
-			}else{
-				return [
-				    "status" => false,
-				    "msg" 	 => "Data gagal disimpan"
-				];
-			}
-
-		} else{
-			return [
-			    "status" => false,
-			    "msg" 	 => "ID tidak ditemukan"
-			];
-		}
 	}  
 
 	public function getRowData($id) { 

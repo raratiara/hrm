@@ -1152,7 +1152,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		$dt = ''; 
 		
 
-		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur, b.tipe_penggajian
+		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur
 			from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 			left join data_customer d on d.id = b.cust_id

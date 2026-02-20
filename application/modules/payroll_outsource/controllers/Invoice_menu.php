@@ -280,14 +280,14 @@ class Invoice_menu extends MY_Controller
 		$this->load->library('html_pdf');
 		$this->load->helper('global');
 
-		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+		if(isset($_GET['id']) && $_GET['id'] != '' && $_GET['id'] != 0){
 
 			//$project_id = 3;
 		    $sql = "
 		        select a.*, b.project_id, b.invoice_no, b.invoice_date, b.po_number, b.terms, 
 				b.management_fee, b.jatuh_tempo, c.project_name, d.name as job_title_name,
 				concat(f.name_indo,' ',e.tahun_penggajian) as periode_penggajian, e.tgl_start_absen, e.tgl_end_absen
-				, g.name as customer_name, g.address as customer_address, g.npwp as customer_npwp
+				, g.name as customer_name, g.address as customer_address, g.npwp as customer_npwp, c.jenis_pekerjaan
 				from project_invoice_detail a
 				left join project_invoice b on b.id = a.project_invoice_id
 				left join project_outsource c on c.id = b.project_id
@@ -295,18 +295,22 @@ class Invoice_menu extends MY_Controller
 				left join payroll_slip e on e.id = b.payroll_slip_id
 				left join master_month f on f.id = e.bulan_penggajian
 				left join data_customer g on g.id = c.customer_id
-				where b.project_id = ".$_GET['flproject']."
+				where a.project_invoice_id = ".$_GET['id']."
 		    ";
+
 
 		    $data = $this->db->query($sql)->result();
 		    if(!empty($data)){
-		    	$items = $this->db->query("select * from project_outsource_boq")->result(); 
-
+		    	
 			    $pdfData = [
 				    'nama_customer'   		=> $data[0]->customer_name,
 				    'alamat_customer' 		=> $data[0]->customer_address,
+				    'jenis_pekerjaan' 		=> $data[0]->jenis_pekerjaan,
+				    'tgl_start_absen' 		=> $data[0]->tgl_start_absen,
+				    'tgl_end_absen' 		=> $data[0]->tgl_end_absen,
 				    'project'         		=> $data[0]->project_name,
 				    'no_invoice'      		=> $data[0]->invoice_no,
+				    'management_fee' 		=> $data[0]->management_fee,
 				    'invoice_date'         	=> formatTanggalIndo($data[0]->invoice_date),
 				    'items' 				=> $data // array rincian
 				   

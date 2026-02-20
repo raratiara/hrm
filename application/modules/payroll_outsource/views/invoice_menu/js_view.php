@@ -277,7 +277,7 @@ function downloadRincianBiaya_pdf(){
 
 	if(invoice_id != ''){
 
-		send_url = module_path+'/getRincianBiayaReport_pdf?flproject='+invoice_id+'';
+		send_url = module_path+'/getRincianBiayaReport_pdf?id='+invoice_id+'';
 		formData = $('#frmReportRincianBiaya').serialize();
 		window.location = send_url;
 		$('#modal-rincian-biaya').modal('hide');

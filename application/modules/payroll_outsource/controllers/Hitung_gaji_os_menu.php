@@ -905,10 +905,12 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 	    // ================= DATA =================
 	    $sql = "
-	        select c.emp_code, c.full_name, c.bank_acc_no, c.date_of_hire, c.tipe_penggajian, d.name as jabatan_name, b.* 
+	        select c.emp_code, c.full_name, c.bank_acc_no, c.date_of_hire, e.name as emp_status_name,
+	         d.name as jabatan_name, b.* 
 			from payroll_slip a left join payroll_slip_detail b on b.payroll_slip_id = a.id
 			left join employees c on c.id = b.employee_id
 			left join master_job_title_os d on d.id = c.job_title_id
+			left join master_emp_status e on e.id = c.employment_status_id
 			where a.id = ".$_GET['payroll_id']." and c.project_id = a.project_id
 			order by c.full_name asc
 	    ";
@@ -932,9 +934,9 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 	    foreach ($data as $row) {
 	    	$gaji_bulanan=""; $gaji_harian="";
-	    	if($row->tipe_penggajian == 'bulanan'){
+	    	if($row->emp_status_name == 'Bulanan'){
 	    		$gaji_bulanan = $row->gaji; //ambil dari field gaji karna udah diakumulasikan dengan jml hadir
-	    	}else if($row->tipe_penggajian == 'harian'){
+	    	}else if($row->emp_status_name == 'Harian'){
 	    		$gaji_harian = $row->gaji; //ambil dari field gaji karna udah diakumulasikan dengan jml hadir
 	    	}else{
 	    		$gaji_harian = $row->gaji; 
