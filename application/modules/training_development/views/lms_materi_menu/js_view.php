@@ -227,6 +227,41 @@
 		// INIT load
 		loadMateriGrid();
 
+		// ====== HEADER BUTTON ACTIONS ======
+		$(document).on('click', '#btnAddData', function(e) {
+			e.preventDefault();
+			save_method = 'add';
+			idx = '';
+
+			// kalau project kamu punya function add() dari common_module_js
+			if (typeof add === 'function') {
+				add();
+			} else {
+				// fallback buka modal form (id modal sesuaikan)
+				$('#modal-form-data').modal('show');
+			}
+		});
+
+		$(document).on('click', '#btnImportData', function(e) {
+			e.preventDefault();
+			$('#modal-import-data').modal('show'); // <-- cek ID modal import kamu
+		});
+
+		$(document).on('click', '#btnEksportData', function(e) {
+			e.preventDefault();
+			$('#modal-eksport-data').modal('show'); // <-- cek ID modal eksport kamu
+		});
+
+		$(document).on('click', '#btnBulkData', function(e) {
+			e.preventDefault();
+
+			if ($('.data-check:checked').length < 1) {
+				Swal.fire('Info', 'Pilih minimal 1 data untuk dihapus.', 'info');
+				return;
+			}
+			$('#modal-delete-bulk').modal('show'); // <-- cek ID modal delete bulk kamu
+		});
+
 		// Bikin “myTable” dummy supaya common_module_js bisa call reload_table()
 		myTable = {
 			ajax: {
@@ -237,6 +272,80 @@
 			}
 		};
 	});
+
+	function edit(id) {
+		save_method = 'update';
+		idx = id;
+		load_data();
+	}
+
+	function detail(id) {
+		save_method = 'detail';
+		idx = id;
+		load_data();
+	}
+
+	function deleting(id) {
+		idx = id;
+		$('#modal-delete-data').modal('show');
+	}
+
+	function save() {
+
+		$('#btnSave').text('saving...'); // kalau ada id btnSave
+		$('#btnSave').attr('disabled', true);
+
+		var url;
+		if (save_method == 'add') {
+			url = module_path + "/add_data";
+		} else {
+			url = module_path + "/edit_data";
+		}
+
+		var formData = new FormData($('#form-data')[0]); // pastikan id form kamu benar
+
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			dataType: "JSON",
+			success: function(data) {
+
+				if (data.status) {
+
+					$('#modal-form-data').modal('hide');
+
+					Swal.fire({
+						icon: 'success',
+						title: data.msg,
+						timer: 1500,
+						showConfirmButton: false
+					});
+
+					loadMateriGrid(); // reload grid
+
+				} else {
+
+					Swal.fire('Error', data.msg, 'error');
+
+				}
+
+				$('#btnSave').text('Save');
+				$('#btnSave').attr('disabled', false);
+
+			},
+			error: function() {
+
+				Swal.fire('Error', 'Terjadi kesalahan server', 'error');
+
+				$('#btnSave').text('Save');
+				$('#btnSave').attr('disabled', false);
+
+			}
+		});
+	}
 
 	// ================= FILTER CLICK =================
 	$(document).on('click', '.lms-filters .btn', function(e) {

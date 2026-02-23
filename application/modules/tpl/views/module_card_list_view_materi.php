@@ -264,19 +264,24 @@
 
     <div class="lms-page-actions">
       <?php if (_USER_ACCESS_LEVEL_EKSPORT == "1") { ?>
-        <a class="btn btn-default btn-sm" id="btnEksportData"><i class="fa fa-download"></i> Eksport</a>
+        <a href="javascript:void(0)" class="btn btn-default btn-sm" id="btnEksportData"><i class="fa fa-download"></i> Eksport</a>
       <?php } ?>
       <?php if (_USER_ACCESS_LEVEL_IMPORT == "1") { ?>
-        <a class="btn btn-default btn-sm" id="btnImportData"><i class="fa fa-upload"></i> Import</a>
+        <a href="javascript:void(0)" class="btn btn-default btn-sm" id="btnImportData"><i class="fa fa-upload"></i> Import</a>
       <?php } ?>
       <?php if (_USER_ACCESS_LEVEL_ADD == "1") { ?>
-        <a class="btn btn-default btn-sm" id="btnAddData"><i class="fa fa-plus"></i> Add Materi</a>
+        <a href="javascript:void(0)" class="btn btn-default btn-sm" id="btnAddData"><i class="fa fa-plus"></i> Add Materi</a>
       <?php } ?>
       <?php if (_USER_ACCESS_LEVEL_DELETE == "1") { ?>
-        <a class="btn btn-default btn-sm" id="btnBulkData"><i class="fa fa-times"></i> Delete Bulk</a>
+        <a href="javascript:void(0)" class="btn btn-default btn-sm" id="btnBulkData"><i class="fa fa-times"></i> Delete Bulk</a>
       <?php } ?>
     </div>
   </div>
+
+
+
+
+
 
   <div class="lms-page-body">
     <!-- STAT -->

@@ -163,7 +163,9 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 14px 12px;
+	padding: 0px 15px;
+	width: 100%;
+	height: 80px;
 }
 
 .sidebar-logo-img {
@@ -182,7 +184,8 @@ body {
 
 .page-sidebar .menu-toggler.sidebar-toggler i {
 	color: #727272;
-	font-size: 20px;
+	font-size: 18px;
+	margin-left: 20px;
 }
 
 .page-sidebar-closed .menu-toggler.sidebar-toggler i {
@@ -752,3 +755,14 @@ body {
 	margin: 0 3px;
 	border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
+
+
+
+/* kalau sidebar dibuka, sesuaikan kalau perlu */
+body.sidebar-open .page-content-wrapper,
+body.sidebar-open .page-content,
+body.sidebar-open .main-content {
+	padding-left: 24px;
+	padding-right: 16px;
+}
+

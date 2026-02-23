@@ -30,6 +30,24 @@ function expire()
 	});
 }
 
+// Fallback global agar pemanggilan showLoading/hideLoading di common module
+// tidak error pada halaman yang belum mendefinisikan fungsi tersebut.
+if (typeof window.showLoading !== 'function') {
+	window.showLoading = function() {
+		if ($("#loadingOverlay").length) {
+			$("#loadingOverlay").show();
+		}
+	};
+}
+
+if (typeof window.hideLoading !== 'function') {
+	window.hideLoading = function() {
+		if ($("#loadingOverlay").length) {
+			$("#loadingOverlay").hide();
+		}
+	};
+}
+
 
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1") { ?>
 /* open add form modal */
