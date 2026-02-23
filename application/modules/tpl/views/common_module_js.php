@@ -264,8 +264,8 @@ function save(status='')
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
+					title: 'Gagal menyimpan Data',  ///'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: 'Terjadi kesalahan saat menyimpan data',  ///jqXHR.responseText,
 					buttons: {
 						confirm: {
 							label: 'Ok',

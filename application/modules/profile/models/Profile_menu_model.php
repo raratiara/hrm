@@ -855,9 +855,17 @@ class Profile_menu_model extends MY_Model
 		
 		
 		if($post['date_attendance'] == ''){
-			echo 'Date Attendance is not valid'; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Date Attendance is not valid"
+			];
 		}else if($post['emp_type'] == ''){
-			echo 'Shift Schedule not found'; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Shift Schedule not found"
+			];
 		}else{ 
 			if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00'){
 				$f_datetime_in 		= $post['attendance_in'];
@@ -875,7 +883,11 @@ class Profile_menu_model extends MY_Model
 				$post_timeout 		= strtotime($schedule_out); 
 
 				if($timestamp_timein > $post_timeout){ //jika checkin di atas waktu checkout
-					echo "Check-in time has expired"; die();
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Check-in time has expired"
+					];
 				}else{ 
 					if($timestamp_timein > $post_timein){
 						$is_late='Y';
@@ -902,16 +914,34 @@ class Profile_menu_model extends MY_Model
 						];
 						$rs = $this->db->insert("time_attendances", $data);
 
-						return $rs;
+						if($rs){
+							return [
+							    "status" => true,
+							    "msg"    => "Data berhasil disimpan"
+							];
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Data gagal disimpan"
+							];
+						}
 
 			  		}else{
-			  			echo "Cannot double check in"; die();
+			  			
+			  			return [
+						    "status" => false,
+						    "msg"    => "Cannot double check in"
+						];
 			  		}
 				}
 				
 
 			}else{
-				echo "Attendance IN not valid"; die();
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Attendance IN not valid"
+				];
 			}
 			
 		}
@@ -958,7 +988,11 @@ class Profile_menu_model extends MY_Model
 
 
 			if($is_attendance_type == 0){
-				echo "Attendance type not found"; die();
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Attendance type not found"
+				];
 			}else{ 
 				$date_attendance = $cek_emp[0]->date_attendance;
 
@@ -1034,21 +1068,43 @@ class Profile_menu_model extends MY_Model
 									}
 								}
 							}
+
+							return [
+							    "status" => true,
+							    "msg"    => "Data berhasil disimpan"
+							];
+
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Data gagal disimpan"
+							];
 						}
 
-						return $rs;
-
 					}else{
-						echo "Attendance In not valid"; die();
+						
+						return [
+						    "status" => false,
+						    "msg"    => "Attendance In not valid"
+						];
 					}
 
 				}else{
-					echo "Attendance Out not valid"; die();
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Attendance Out not valid"
+					];
 				}
 
 			}
 			
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	} 
 
 	

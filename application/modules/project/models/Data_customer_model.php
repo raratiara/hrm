@@ -329,7 +329,20 @@ class Data_customer_model extends MY_Model
  
 		$this->db->trans_complete();
 
-		return $rs = $this->db->trans_status();
+		$rs = $this->db->trans_status();
+
+		if($rs){
+			return [
+			    "status" => true,
+			    "msg"    => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
+
 	}  
 
 	// update data
@@ -354,8 +367,25 @@ class Data_customer_model extends MY_Model
 			 
 			$this->db->trans_complete();
 
-			return $rs = $this->db->trans_status();			
-		} else return null;
+			$rs = $this->db->trans_status();	
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	// getting row data for update / detail view

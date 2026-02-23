@@ -643,11 +643,24 @@ class Ijin_menu_model extends MY_Model
 								//update table overtimes
 								$this->update_table_overtimes($post['employee'],$diff_day);
 
-								return $rs;
-							}else return null;
+								return [
+								    "status" => true,
+								    "msg"    => "Data berhasil disimpan"
+								];
+
+							}else{
+								return [
+								    "status" => false,
+								    "msg"    => "Data gagal disimpan"
+								];
+							}
 
 						}else{
-							echo "Sisa day off tidak mencukupi"; die();
+						
+							return [
+							    "status" => false,
+							    "msg"    => "Sisa day off tidak mencukupi"
+							];
 						}
 
 					}else{
@@ -675,7 +688,11 @@ class Ijin_menu_model extends MY_Model
 								
 
 								if($post['leave_type'] == 5 && $document == ''){ //tipe sick harus ada document
-									return null; // tipe sick harus ada document
+									
+									return [
+									    "status" => false,
+									    "msg"    => "Please choose Document"
+									];
 								}else{
 									$data = [
 										'employee_id' 				=> trim($post['employee']),
@@ -698,8 +715,16 @@ class Ijin_menu_model extends MY_Model
 										$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, $post['leave_type'], $diff_day, $lastId);
 
 
-										return $rs;
-									}else return null;
+										return [
+										    "status" => true,
+										    "msg"    => "Data berhasil disimpan"
+										];
+									}else{
+										return [
+										    "status" => false,
+										    "msg"    => "Data gagal disimpan"
+										];
+									}
 
 
 									//update sisa jatah cuti
@@ -736,20 +761,41 @@ class Ijin_menu_model extends MY_Model
 								}
 								
 							}
-							else return null;
+							else{
+								return [
+								    "status" => false,
+								    "msg"    => "Sisa Cuti tidak mencukupi"
+								];
+							}
 						}else{
-							echo "Date not match"; die();
+							
+							return [
+							    "status" => false,
+							    "msg"    => "Date not match"
+							];
 						}
 					}
 				}else{
-					echo "Work Location not found"; die();
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; die();
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Employee not found"
+				];
 			}
 			
 		}else{
-			echo "Please fill Employee, Date Range & Leave Type"; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Please fill Employee, Date Range & Leave Type"
+			];
 		}
 		
 	}  
@@ -833,10 +879,22 @@ class Ijin_menu_model extends MY_Model
 									//update table overtimes
 									$this->update_table_overtimes($getcurrLeave[0]->employee_id,$diff_day);
 
-									return $rs;
-								}else return null;
+									return [
+									    "status" => true,
+									    "msg"    => "Data berhasil disimpan"
+									];
+								}else{
+									return [
+									    "status" => false,
+									    "msg"    => "Data gagal disimpan"
+									];
+								}
 							}else{
-								echo "Sisa day off tidak mencukupi"; die();
+								
+								return [
+								    "status" => false,
+								    "msg"    => "Sisa day off tidak mencukupi"
+								];
 							}
 							
 						}else{
@@ -853,7 +911,17 @@ class Ijin_menu_model extends MY_Model
 								];
 								$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 								
-								return $rs;
+								if($rs){
+									return [
+									    "status" => true,
+									    "msg"    => "Data berhasil disimpan"
+									];
+								}else{
+									return [
+									    "status" => false,
+									    "msg"    => "Data gagal disimpan"
+									];
+								}
 							}else{ //total lama tidak sama dengan total baru
 								if($curr_diff_day < $diff_day){ //nambah dayoff
 									$ttl_dayoff = $this->cek_ttl_dayoff($getcurrLeave[0]->employee_id);
@@ -871,10 +939,24 @@ class Ijin_menu_model extends MY_Model
 										$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 										if($rs){
 											$this->update_table_overtimes($getcurrLeave[0]->employee_id,$selisih_diff_day);
-											return $rs;
-										}else return null;
+											
+											return [
+											    "status" => true,
+											    "msg"    => "Data berhasil disimpan"
+											];
+
+										}else{
+											return [
+											    "status" => false,
+											    "msg"    => "Data gagal disimpan"
+											];
+										}
 									}else{
-										echo "Sisa day off tidak mencukupi"; die();
+										
+										return [
+										    "status" => false,
+										    "msg"    => "Sisa day off tidak mencukupi"
+										];
 									}
 								}else{ //mengembalikan jatah dayoff 
 									$data = [
@@ -891,8 +973,16 @@ class Ijin_menu_model extends MY_Model
 										$selisih_diff_day = $curr_diff_day-$diff_day;
 										$this->pengembalian_jatah_dayoff($getcurrLeave[0]->employee_id,$selisih_diff_day);
 
-										return $rs;
-									}else return null;
+										return [
+										    "status" => true,
+										    "msg"    => "Data berhasil disimpan"
+										];
+									}else{
+										return [
+										    "status" => false,
+										    "msg"    => "Data gagal disimpan"
+										];
+									}
 								}
 							}
 						}
@@ -933,7 +1023,11 @@ class Ijin_menu_model extends MY_Model
 						if($diff_day <= $sisa_cuti || $post['leave_type'] == '2'){ //unpaid leave gak ngecek sisa cuti
 							
 			            	if($post['leave_type'] == 5 && $document == ''){ //tipe sick harus ada document
-			            		echo "Please upload Attachment"; die(); 
+			            		
+			            		return [
+								    "status" => false,
+								    "msg"    => "Please upload Attachment"
+								];
 			            	}else{ 
 			            		$data = [
 
@@ -955,8 +1049,16 @@ class Ijin_menu_model extends MY_Model
 										$this->pengembalian_jatah_dayoff($getcurrLeave[0]->employee_id,$getcurrLeave[0]->total_leave);
 									}
 
-									return $rs;
-								}else return null;
+									return [
+									    "status" => true,
+									    "msg"    => "Data berhasil disimpan"
+									];
+								}else{
+									return [
+									    "status" => false,
+									    "msg"    => "Data gagal disimpan"
+									];
+								}
 
 								//update sisa jatah cuti
 								/*if($rs){
@@ -1054,18 +1156,37 @@ class Ijin_menu_model extends MY_Model
 								// end update jatah cuti
 			            	}
 
-						}else return null; // cuti gak cukup
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Sisa Cuti tidak mencukupi"
+							];
+						}
 
 					}
 
 				}else{
-					return null; //'cannot edit approved leave'
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Cannot edit approved leave"
+					];
 				}
 
 			}
-			else return null;
+			else{
+				return [
+				    "status" => false,
+				    "msg"    => "Date & Leave Type must be filled"
+				];
+			}
 
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

@@ -304,7 +304,11 @@ class Summaryabsen_model extends MY_Model
 
 		
 		if($post['date_attendance'] == ''){
-			echo 'Date Attendance is not valid'; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Date Attendance is not valid"
+			];
 		}else{
 			$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$post['date_attendance']."' and employee_id = '".$post['hdnempid']."'")->result(); 
 
@@ -328,9 +332,24 @@ class Summaryabsen_model extends MY_Model
 				];
 				$rs = $this->db->insert($this->table_name, $data);
 
-				return $rs;
+				if($rs){
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
 
-	  		}else return null;
+	  		}else{
+	  			return [
+				    "status" => false,
+				    "msg"    => "Date Attendance is not valid"
+				];
+	  		}
 		}
 		
 	}  
@@ -423,8 +442,25 @@ class Summaryabsen_model extends MY_Model
 				'work_location' 			=> trim($post['location'])
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

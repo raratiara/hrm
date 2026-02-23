@@ -381,22 +381,55 @@ class Group_shift_schedule_menu_model extends MY_Model
 						}
 					}
 						
-					return $rs;
+					if($rs){
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
+
 				}else{
 					if($is_insert_header == 1){
-						return $rs_shiftschedule;
+						if($rs_shiftschedule){
+							return [
+							    "status" => true,
+							    "msg"    => "Data berhasil disimpan"
+							];
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Data gagal disimpan"
+							];
+						}
 					}else{
-						"No Data insert"; die();
+						
+						return [
+						    "status" => false,
+						    "msg"    => "No Data insert"
+						];
 					}
 				}
 				
 
 
 			}else{
-				echo "Period not valid"; die();
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Period not valid"
+				];
 			}
 		}else{
-			echo "Please choose the Month & Year"; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Please choose the Month & Year"
+			];
 		}
 
 	} 
@@ -475,11 +508,36 @@ class Group_shift_schedule_menu_model extends MY_Model
 
 
 
-					return $rs;
+					if($rs){
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
 
-				}else return null;
-			}else return null;
-		}else return null;
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
 		
 	}  
 
@@ -665,9 +723,24 @@ class Group_shift_schedule_menu_model extends MY_Model
 				}*/
 			}
 				
-			return $rs;
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
 
-		}else return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Period not found"
+			];
+		}
 
 
 	}
@@ -756,12 +829,33 @@ class Group_shift_schedule_menu_model extends MY_Model
 				//end insert employee list
 
 
-				return $rs;
+				if($rs){
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
 
-			}else return null;
+			} else{
+				return [
+				    "status" => false,
+				    "msg"    => "Period / Group not found"
+				];
+			}
+
 				
 
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 

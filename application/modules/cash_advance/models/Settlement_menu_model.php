@@ -576,13 +576,30 @@ class Settlement_menu_model extends MY_Model
 						$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', trim($post['settlement_amount']), $lastId);
 
 
-						return $rs;
-					}else return null;
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
 				}else{
-					echo "Work Location not found"; 
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; 
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Employee not found"
+				];
 			}
 
   		}else return null;
@@ -630,9 +647,20 @@ class Settlement_menu_model extends MY_Model
 							];
 							$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
 						}
+
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
 					}
 					
-					return $rs;
+					
 				}else{
 					$next_level = $approval_level+1;
 					
@@ -658,9 +686,26 @@ class Settlement_menu_model extends MY_Model
 
 							// send emailing to approver
 							$this->approvalemailservice->sendApproval('settlement', $id, $approval_path_id);
+
+
+							return [
+							    "status" => true,
+							    "msg"    => "Data berhasil disimpan"
+							];
+
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Data gagal disimpan"
+							];
 						}
-						return $rs;
-					}else return null;
+						
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Approver not found"
+						];
+					}
 				}
 
 
@@ -797,12 +842,25 @@ class Settlement_menu_model extends MY_Model
 						}
 					}
 
-					return $rs;
-				}else return null;	
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
 
 			}
 
-		}else return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 
 		
 		

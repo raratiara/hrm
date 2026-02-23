@@ -307,9 +307,24 @@ class Lms_course_progress_menu_model extends MY_Model
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 			
 
-			return $rs;
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
 
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

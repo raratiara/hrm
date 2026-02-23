@@ -341,14 +341,32 @@ class Tasklist_menu_model extends MY_Model
 					}
 
 
-					return $rs;
-				}else return null;
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
   			}else{
-  				echo "Submit Failed. Data already exists"; die();
+  				return [
+				    "status" => false,
+				    "msg"    => "Submit Failed. Data already exists"
+				];
+  				
   			}
   			
 
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg"    => "Task not found"
+			];
+  		}
 
 	}  
 
@@ -411,10 +429,23 @@ class Tasklist_menu_model extends MY_Model
 
 
 
-				return $rs;
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
 
-			}else return null;
-		} else return null;
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

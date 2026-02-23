@@ -244,7 +244,19 @@ class Authorization_user_role_model extends MY_Model
 			'insert_by'			=> $_SESSION["username"]
 		];
 
-		return $rs = $this->db->insert($this->table_name, $data);
+		$rs = $this->db->insert($this->table_name, $data);
+		if($rs){
+			return [
+			    "status" => true,
+			    "msg"    => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
+
 	}  
 
 	public function edit_data($post) { 
@@ -255,8 +267,25 @@ class Authorization_user_role_model extends MY_Model
 				'update_by'			=> $_SESSION["username"]
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

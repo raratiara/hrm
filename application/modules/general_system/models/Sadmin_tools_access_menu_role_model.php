@@ -324,7 +324,18 @@ class Sadmin_tools_access_menu_role_model extends MY_Model
 			}
 		}
 
-		return $ops;
+		
+		if($ops){
+			return [
+			    "status" => true,
+			    "msg"    => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
 	}
 
 	public function edit_data($post, $id)
@@ -433,7 +444,18 @@ class Sadmin_tools_access_menu_role_model extends MY_Model
 			}
 		}
 
-		return $ops;
+		
+		if($ops){
+			return [
+			    "status" => true,
+			    "msg"    => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
 	}
 
 	public function getRowData($id)

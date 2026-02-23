@@ -582,18 +582,37 @@ class Perjalanan_dinas_menu_model extends MY_Model
 							}
 						}
 
-						return $rs;
-					} else
-						return null;
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
 				}else{
-					echo "Work Location not found";
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; 
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Employee not found"
+				];
 			}
 
-		} else
-			return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 
 	}
 
@@ -740,12 +759,24 @@ class Perjalanan_dinas_menu_model extends MY_Model
 				}
 
 
-				return $rs;
-			} else
-				return null;
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
 
-		} else
-			return null;
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}
 
 	public function getRowData($id)

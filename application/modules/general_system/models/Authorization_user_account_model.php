@@ -289,7 +289,20 @@ class Authorization_user_account_model extends MY_Model
 			$data['passwd'] = md5($this->db->escape_str(strtolower(trim($post['passwd']))));
 		}
 
-		return $rs = $this->db->insert($this->table_name, $data);
+		$rs = $this->db->insert($this->table_name, $data);
+
+		if($rs){
+			return [
+			    "status" => true,
+			    "msg"    => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
+
 	}
 
 	// update data
@@ -314,9 +327,25 @@ class Authorization_user_account_model extends MY_Model
 				$data['passwd'] = md5($this->db->escape_str(strtolower(trim($post['passwd']))));
 			}
 
-			return $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else
-			return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}
 
 	// getting row data for update / detail view

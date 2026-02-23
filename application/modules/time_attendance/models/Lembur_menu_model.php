@@ -499,19 +499,42 @@ class Lembur_menu_model extends MY_Model
 						}
 						
 						$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $diff, $lastId);
+
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
 					}
 
-					return $rs; 
 				}else{
-					echo "Work Location not found"; die();
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; die();
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Employee not found"
+				];
 			}
 
 			
 
-		}else return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Type, Employee, Date start & end must be filled"
+			];
+		}
 		
 	}  
 
@@ -568,11 +591,32 @@ class Lembur_menu_model extends MY_Model
 				
 				$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
-				return $rs;
-			}else return null;
-				
+				if($rs){
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
 
-		} else return null;
+			} 
+			else{
+				return [
+				    "status" => false,
+				    "msg"    => "Type, Employee, Date start & end must be filled"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

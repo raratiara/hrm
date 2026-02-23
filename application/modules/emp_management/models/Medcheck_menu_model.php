@@ -358,11 +358,34 @@ class Medcheck_menu_model extends MY_Model
 					'file' 			=> $file_medcek,
 					'created_at'	=> date("Y-m-d H:i:s")
 				];
-				return $rs = $this->db->insert($this->table_name, $data);
+				$rs = $this->db->insert($this->table_name, $data);
+
+				if($rs){
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
+
   			}
-  			else return null;
+  			else{
+  				return [
+				    "status" => false,
+				    "msg"    => "Employee Code not found"
+				];
+  			}
   			
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg"    => "Employee not found"
+			];
+  		}
 
 	}  
 
@@ -421,8 +444,26 @@ class Medcheck_menu_model extends MY_Model
 
 		
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}
 
 
