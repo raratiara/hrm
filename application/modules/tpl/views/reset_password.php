@@ -77,7 +77,7 @@
         }
 
         .welcome-text h1 {
-            font-size: 2rem;
+            font-size: 3rem;
             font-weight: 700;
             color: #1a2a3a;
             line-height: 1.3;
@@ -89,7 +89,7 @@
 
         .welcome-text p {
             margin-top: 10px;
-            font-size: 0.95rem;
+            font-size: 1.2rem;
             color: #5a7a9a;
             line-height: 1.6;
         }
@@ -154,14 +154,14 @@
         }
 
         .card-header-section h2 {
-            font-size: 1.65rem;
+            font-size: 2rem;
             font-weight: 700;
             color: #1a2a3a;
             margin-bottom: 6px;
         }
 
         .card-header-section p {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #8a9ab5;
         }
 
@@ -172,7 +172,7 @@
 
         .form-group-custom label {
             display: block;
-            font-size: 0.82rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #2c3e6b;
             margin-bottom: 7px;
@@ -197,7 +197,7 @@
         .form-group-custom input {
             width: 100%;
             padding: 13px 16px 13px 46px;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-family: 'Poppins', sans-serif;
             border: 2px solid #e8edf5;
             border-radius: 14px;
@@ -263,7 +263,7 @@
         .btn-reset {
             width: 100%;
             padding: 14px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             font-family: 'Poppins', sans-serif;
             color: #ffffff;
@@ -313,7 +313,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #5a7a9a;
             text-decoration: none;
             font-weight: 500;
@@ -579,7 +579,7 @@
                 </div>
             </form>
         </div>
-        <div class="copyright"><?php echo _COPYRIGHT; ?></div>
+        
         <!--[if lt IE 9]>
 <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/respond.min.js"></script>
 <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/excanvas.min.js"></script> 
@@ -602,9 +602,7 @@
 			}
 		</script>
         <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>scripts/app.min.js" type="text/javascript"></script>
-<?php
-if($form){
-?>
+<?php if ($form): ?>
 		<script>
 		var Reset = function() {
 			var e = function() {
