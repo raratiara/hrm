@@ -10,12 +10,13 @@
 <div id="modal-invoice" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-invoice" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:500px">
+		<div class="modal-content" style="width:500px !important">
 			<form class="form-horizontal" id="frmReportInvoice" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Report Invoice
+					<input type="hidden" id="hdninvoiceid" name="hdninvoiceid" />
 				</div>
 			</div>
 			 </form>
@@ -49,12 +50,13 @@
 <div id="modal-rincian-biaya" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rincian-biaya" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:500px">
+		<div class="modal-content" style="width:500px !important">
 			<form class="form-horizontal" id="frmReportRincianBiaya" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Report Rincian Biaya
+					<input type="hidden" id="hdninvoiceid2" name="hdninvoiceid2" />
 				</div>
 			</div>
 		 	</form>
@@ -87,12 +89,13 @@
 <div id="modal-berita-acara-pekerjaan" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-berita-acara-pekerjaan" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="width:500px">
+		<div class="modal-content" style="width:500px !important">
 			<form class="form-horizontal" id="frmReportBeritaAcaraPekerjaan" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Report Berita Acara Pekerjaan
+					<input type="hidden" id="hdninvoiceid3" name="hdninvoiceid3" />
 				</div>
 			</div>
 		 	</form>
@@ -135,10 +138,8 @@ var ldx; //for save list index string
 
 
 $(document).ready(function() {
-   	$('input[name="date_attendance"]').datepicker();
-   	$('input[name="attendance_in"]').datetimepicker();
-   	$('input[name="attendance_out"]').datetimepicker();
-	$('input[name="perioddate"]').daterangepicker();
+   	$('input[name="jatuh_tempo"]').datepicker();
+   
 });
 
 
@@ -198,22 +199,28 @@ function subFilter(){
 }
 
 
-function getInvoice(){
+function getInvoice(invoice_id){
 	
 	$('#modal-invoice').modal('show');
 
+	$('[name="hdninvoiceid"]').val(invoice_id);
+
 }
 
 
-function getRincianBiaya(){
+function getRincianBiaya(invoice_id){
 	
 	$('#modal-rincian-biaya').modal('show');
 
+	$('[name="hdninvoiceid2"]').val(invoice_id);
+
 }
 
-function getBeritaAcaraPekerjaan(){
+function getBeritaAcaraPekerjaan(invoice_id){
 	
 	$('#modal-berita-acara-pekerjaan').modal('show');
+
+	$('[name="hdninvoiceid3"]').val(invoice_id);
 
 }
 
@@ -249,29 +256,16 @@ function downloadInvoice(){
 
 function downloadInvoice_pdf(){
 
-	var flproject = $("#flproject option:selected").val();
-	/*var perioddate = $("#perioddate").val();*/
+	var invoice_id = $("#hdninvoiceid").val();
 
 
-	/*fldatestart=0;
-	fldateend=0;
-	if(perioddate != ''){
-		var myArray = perioddate.split(" - ");
-		var start = myArray[0];
-		var end = myArray[1];
-
-		fldatestart=toYYYYMMDD(start);
-		fldateend=toYYYYMMDD(end);
-	}*/
-
-
-	if(flproject != ''){
-		send_url = module_path+'/getInvoiceReport_pdf?flproject='+flproject+'';
+	if(invoice_id != ''){
+		send_url = module_path+'/getInvoiceReport_pdf?id='+invoice_id+'';
 		formData = $('#frmReportData').serialize();
 		window.location = send_url+'&'+formData;
 		$('#modal-invoice').modal('hide');
 	}else{
-		alert("Mohon filter Project terlebih dahulu");
+		alert("Invoice tidak ditemukan");
 	}
 
 	
@@ -279,17 +273,17 @@ function downloadInvoice_pdf(){
 
 
 function downloadRincianBiaya_pdf(){
-	var flproject = $("#flproject option:selected").val();
+	var invoice_id = $("#hdninvoiceid2").val();
 
-	if(flproject != ''){
+	if(invoice_id != ''){
 
-		send_url = module_path+'/getRincianBiayaReport_pdf?flproject='+flproject+'';
+		send_url = module_path+'/getRincianBiayaReport_pdf?id='+invoice_id+'';
 		formData = $('#frmReportRincianBiaya').serialize();
 		window.location = send_url;
 		$('#modal-rincian-biaya').modal('hide');
 
 	}else{
-		alert("Mohon filter Project terlebih dahulu");
+		alert("Data tidak ditemukan");
 	}
 
 	
@@ -297,17 +291,17 @@ function downloadRincianBiaya_pdf(){
 
 
 function downloadBeritaAcaraPekerjaan_pdf(){
-	var flproject = $("#flproject option:selected").val();
+	var invoice_id = $("#hdninvoiceid3").val();
 
-	if(flproject != ''){
+	if(invoice_id != ''){
 		
-		send_url = module_path+'/getBeritaAcaraPekerjaanReport_pdf?flproject='+flproject+'';
+		send_url = module_path+'/getBeritaAcaraPekerjaanReport_pdf?id='+invoice_id+'';
 		formData = $('#frmReportBeritaAcaraPekerjaan').serialize();
 		window.location = send_url;
 		$('#modal-berita-acara-pekerjaan').modal('hide');
 
 	}else{
-		alert("Mohon filter Project terlebih dahulu");
+		alert("Data tidak ditemukan");
 	}
 
 	
@@ -520,6 +514,143 @@ $('#employee').on('change', function () {
  	}
 
 });
+
+
+
+$('#project').on('change', function () {
+    var project = $(this).val();
+
+    $('#periode_gaji')
+        .val(null)
+        .empty()
+        .append('<option value=""></option>')
+        .trigger('change.select2');
+
+    $('[name="start_absen"]').val('');
+	$('[name="end_absen"]').val('');
+
+    if (project) {
+        getPeriodeGaji(project);
+    }
+});
+
+
+
+function getPeriodeGaji(project,selected='',idVal=''){ 
+
+	if(project != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataPeriodeGaji',
+			data: { project: project },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					
+					var $el = $("#periode_gaji");
+
+					$el.empty(); // remove old options
+					$el.append($("<option></option>").attr("value", "").text(""));
+					$.each(data.msperiode, function(key,value) {
+						$el.append($("<option></option>")
+				     	.attr("value", value.id).text(value.periode_penggajian));
+					  	
+					});
+
+					if(selected=='selected'){
+						$('select#periode_gaji').val(idVal).trigger('change.select2');
+					}
+					
+				} else { 
+					
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
+
+
+$('#periode_gaji').on('change', function () {
+    var payroll_id = $(this).val();
+
+
+    $('[name="start_absen"]').val('');
+	$('[name="end_absen"]').val('');
+
+    if (payroll_id) {
+        getPayroll(payroll_id);
+    }
+});
+
+
+
+function getPayroll(payroll_id,selected='',idVal=''){ 
+
+	if(payroll_id != ''){
+ 		
+ 		$.ajax({
+			type: "POST",
+	        url : module_path+'/getDataPayroll',
+			data: { payroll_id: payroll_id },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != null){ 
+					
+					$('[name="start_absen"]').val(data[0].tgl_start_absen);
+					$('[name="end_absen"]').val(data[0].tgl_end_absen);
+					
+				} else { 
+					
+					$('[name="start_absen"]').val('');
+					$('[name="end_absen"]').val('');
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+
+ 	}
+
+}
+
+
+
 
 
 </script>

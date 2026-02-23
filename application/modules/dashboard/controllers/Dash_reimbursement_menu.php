@@ -291,8 +291,63 @@ class Dash_reimbursement_menu extends MY_Controller
 
  	}
 
-
  	public function get_data_monthlyReimbSummary(){
+ 		$post = $this->input->post(null, true);
+ 		$fldiv 	= $post['fldiv'];
+
+
+		// buat where dinamis
+	    $whereDiv = "";
+	    if (!empty($fldiv)) { 
+	        $whereDiv = " WHERE a.division_id = '".$this->db->escape_str($fldiv)."' ";
+	    }
+
+		
+		$rs = $this->db->query("
+							    select
+							        DATE_FORMAT(aa.date_reimbursment, '%Y-%m') AS periode,
+							        a.division_id,
+							        b.name AS division_name,
+
+							        SUM(CASE WHEN aa.status_id = '1' THEN 1 ELSE 0 END) AS total_waitingapproval,
+							        SUM(CASE WHEN aa.status_id = '2' THEN 1 ELSE 0 END) AS total_approve,
+							        SUM(CASE WHEN aa.status_id = '3' THEN 1 ELSE 0 END) AS total_reject,
+							        COUNT(*) AS total_reimburs
+
+							    FROM medicalreimbursements aa 
+							    LEFT JOIN employees a ON a.id = aa.employee_id
+							    LEFT JOIN divisions b ON b.id = a.division_id
+							    $whereDiv
+
+							    GROUP BY 
+							        DATE_FORMAT(aa.date_reimbursment, '%Y-%m'),
+							        a.division_id,
+							        b.name
+							    ORDER BY periode ASC
+							")->result();
+
+
+		$date_reimbursment=[]; $total_waitingapproval=[]; $total_approve=[]; $total_reject=[];
+		foreach($rs as $row){
+		    $date_reimbursment[]   = $row->periode;
+		    $total_waitingapproval[] = $row->total_waitingapproval;
+		    $total_approve[]       = $row->total_approve;
+		    $total_reject[]        = $row->total_reject;
+		}
+
+
+		$data = array(
+			'date_reimbursment' 	=> $date_reimbursment,
+			'total_waitingapproval' => $total_waitingapproval,
+			'total_approve' 		=> $total_approve,
+			'total_reject' 			=> $total_reject
+		);
+
+
+		echo json_encode($data);
+ 	}
+
+ 	public function get_data_monthlyReimbSummary_old(){
  		$post = $this->input->post(null, true);
  		$fldiv 	= $post['fldiv'];
 

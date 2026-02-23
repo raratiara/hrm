@@ -305,8 +305,17 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 				}
 			}
 
-			return $rs;
-		}else return null;
+			
+			return [
+			    "status" => true,
+			    "msg" => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg" => "Data gagal disimpan"
+			];
+		}
 
 
 	}
@@ -368,14 +377,24 @@ class Sapprovalmatrix_approval_menu_model extends MY_Model
 					}
 				}
 
-				return $rs;
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
 
-			}else return null;
+			}else{
+				return [
+				    "status" => true,
+				    "msg" => "Data gagal disimpan"
+				];
+			}
 
 
-			return $rs;
 		} else{ 
-			return null;
+			return [
+			    "status" => true,
+			    "msg" => "ID tidak ditemukan"
+			];
 		}
 	}
 

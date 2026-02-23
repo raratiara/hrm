@@ -301,14 +301,40 @@ class Tbl_timeattendance_menu_model extends MY_Model
 						'isaktif' 		=> 2,
 						'date_insert' 	=> date("Y-m-d H:i:s")
 					];
-					return $rs = $this->db->insert($this->table_name, $data);
+					$rs = $this->db->insert($this->table_name, $data);
 
-					echo 'dd'; die();
-  				}else echo 'cc'; die();//return null;
+					if($rs){
+						return [
+						    "status" => true,
+						    "msg" => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg" 	 => "Data gagal disimpan"
+						];
+					}
+
+  				}else{
+  					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
+  				}
   				
-  			}else echo 'bb'; die();//return null;
+  			}else{
+  				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+  			}
   			
-  		}else echo 'aa'; die();//return null;
+  		}else{
+  			return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+  		}
 
 	}  
 
@@ -351,12 +377,40 @@ class Tbl_timeattendance_menu_model extends MY_Model
 					}
 				
 
-					return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-				}else return null;
-				
-			}else return null;
+					$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 
-		} else return null;
+					if($rs){
+						return [
+						    "status" => true,
+						    "msg" => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg" 	 => "Data gagal disimpan"
+						];
+					}
+
+				}else{
+					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
+				}
+				
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

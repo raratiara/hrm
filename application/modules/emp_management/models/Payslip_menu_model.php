@@ -25,10 +25,8 @@ class Payslip_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.full_name',
-			'dt.period_name',
-			'dt.payslip_pdf_path',
-			'dt.emp_code'
+			'dt.periode_penggajian',
+			'dt.employee_id'
 		];
 		
 		$karyawan_id = $_SESSION['worker'];
@@ -36,10 +34,10 @@ class Payslip_menu_model extends MY_Model
 
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.full_name, c.period_name, b.emp_code from payroll_slip a 
-						left join employees b on b.id = a.employee_id 
-						left join payroll_periods c on c.id = a.payroll_periods_id
-						where a.employee_id = "'.$karyawan_id.'"
+		$sTable = '(select a.employee_id, b.*, concat(c.name_indo," ",b.tahun_penggajian) as periode_penggajian
+					from payroll_slip_detail a left join payroll_slip b on b.id = a.payroll_slip_id
+					left join master_month c on c.id = b.bulan_penggajian
+					where a.employee_id = 12 and b.id is not null order by b.id asc
 					)dt';
 		
 
@@ -185,16 +183,17 @@ class Payslip_menu_model extends MY_Model
 			
 			//$url_file 	= _URL.'/uploads/employee/'.$emp_code.'/payslips/'.$row->payslip_pdf_path;
 
-			$url_file = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="downloadFile('."'".$row->emp_code."'".','."'".$row->payslip_pdf_path."'".')" role="button"><i class="fa fa-download"></i></a>';
+			/*$url_file = '<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="downloadFile('."'".$row->emp_code."'".','."'".$row->payslip_pdf_path."'".')" role="button"><i class="fa fa-download"></i></a>';*/
+
+			$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji_perEmployee('."'".$row->id."'".','."'".$row->employee_id."'".')"> <i class="fa fa-download"></i> Gaji</a>';
 
 			array_push($output["aaData"],array(
 				'<div class="action-buttons">
 					'.$detail.'
 				</div>',
 				$row->id,
-				$row->full_name,
-				$row->period_name,
-				$url_file
+				$row->periode_penggajian,
+				$print_gaji
 
 			));
 		}

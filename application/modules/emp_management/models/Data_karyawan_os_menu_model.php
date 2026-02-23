@@ -438,14 +438,21 @@ class Data_karyawan_os_menu_model extends MY_Model
 
 
 		if($post['full_name'] == '' || $post['status'] == '' || $post['no_ktp'] == '' || $post['marital_status'] == '' || $post['no_bpjs'] == '' || $post['no_bpjs_ketenagakerjaan'] == '' || $post['work_loc'] == '' || $post['shift_type'] == '' || $post['date_of_hire'] == '' || $post['project'] == '' || $post['customer'] == ''){
-			echo "Please fill the Mandatory Field"; 
+			
+			return [
+			    "status" => false,
+			    "msg" 	 => "Please fill the Mandatory Field"
+			];
 		
 		}else{
 
-
 			$dataEmployee = $this->db->query("select * from employees where full_name = '".$post['full_name']."' ")->result();
 			if(!empty($dataEmployee)){
-				echo "Tidak dapat menyimpan data dengan Nama Karyawan yang sama";
+				
+				return [
+				    "status" => false,
+				    "msg" 	 => "Tidak dapat menyimpan data dengan Nama Karyawan yang sama"
+				];
 			}
 			else{
 
@@ -812,11 +819,19 @@ class Data_karyawan_os_menu_model extends MY_Model
 					$this->generate_jatah_cuti_karyawan_baru($lastId,$dateofHired);
 					//end add jatah cuti
 
+
+					return [
+					    "status" => true,
+					    "msg" 	 => "Data berhasil disimpan"
+					];
+
+				}else{
+					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
 				}
 
-
-
-				return $rs;
 
 			}
 		
@@ -1271,12 +1286,24 @@ class Data_karyawan_os_menu_model extends MY_Model
 
 				// end add education detail //
 
-
+				return [
+				    "status" => true,
+				    "msg" 	 => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
 			}
 
 
-			return $rs;
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

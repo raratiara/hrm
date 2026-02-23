@@ -579,128 +579,75 @@
                 </div>
             </form>
         </div>
-    </div>
+        <div class="copyright"><?php echo _COPYRIGHT; ?></div>
+        <!--[if lt IE 9]>
+<script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/respond.min.js"></script>
+<script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/excanvas.min.js"></script> 
+<![endif]-->
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/js.cookie.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery.blockui.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+		<script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			function aPath() {
+				return '<?= _ASSET_METRONIC_TEMPLATE ?>';
+			}
+		</script>
+        <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>scripts/app.min.js" type="text/javascript"></script>
+<?php
+if($form){
+?>
+		<script>
+		var Reset = function() {
+			var e = function() {
+				$(".reset-form").validate({
+					errorElement: "span",
+					errorClass: "help-block",
+					focusInvalid: !1,
+					ignore: "",
+					rules: {
+						password: { required: true, minlength: 5 },
+						rpassword: { equalTo: "#reset_password" }
+					},
+					invalidHandler: function(e, r) {},
+					highlight: function(e) {
+						$(e).closest(".form-group").addClass("has-error")
+					},
+					success: function(e) {
+						e.closest(".form-group").removeClass("has-error"), e.remove()
+					},
+					errorPlacement: function(e, r) {
+						r.closest(".input-icon").size() ? e.insertAfter(r.closest(".input-icon")) : e.insertAfter(r)
+					},
+					submitHandler: function(e) {
+						//e.submit()
+                        
+                        $.ajax({
+                            /*url: '/_hrm/login/reset_password',*/
+                            url: '/login/reset_password',
+                            type: 'POST',
+                            data: $('#reset-form').serialize(),
+                            dataType: 'json',
+                            success: function(data) {
+                                console.log(data); // true / false
 
-    <!-- SCRIPTS -->
-    <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery.min.js" type="text/javascript"></script>
-    <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
-    <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
-    <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        function aPath() {
-            return '<?= _ASSET_METRONIC_TEMPLATE ?>';
-        }
-    </script>
-    <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>scripts/app.min.js" type="text/javascript"></script>
-
-    <script>
-        // Toggle password visibility
-        function togglePass(inputId, btn) {
-            var input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-            } else {
-                input.type = 'password';
-                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-            }
-        }
-
-        // Password strength indicator
-        document.getElementById('reset_password') && document.getElementById('reset_password').addEventListener('input', function() {
-            var val = this.value;
-            var bar = document.getElementById('strengthBar');
-            var text = document.getElementById('strengthText');
-            var score = 0;
-
-            if (val.length >= 5) score++;
-            if (val.length >= 8) score++;
-            if (/[A-Z]/.test(val)) score++;
-            if (/[0-9]/.test(val)) score++;
-            if (/[^A-Za-z0-9]/.test(val)) score++;
-
-            var colors = ['#e74c3c', '#e67e22', '#f1c40f', '#27ae60', '#2ecc71'];
-            var labels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-            var widths = ['20%', '40%', '60%', '80%', '100%'];
-
-            if (val.length === 0) {
-                bar.style.width = '0%';
-                text.textContent = '';
-            } else {
-                var idx = Math.min(score, 5) - 1;
-                if (idx < 0) idx = 0;
-                bar.style.width = widths[idx];
-                bar.style.background = colors[idx];
-                text.textContent = labels[idx];
-                text.style.color = colors[idx];
-            }
-        });
-    </script>
-
-    <?php if ($form): ?>
-        <script>
-            var Reset = function() {
-                var initValidation = function() {
-                    $(".reset-form").validate({
-                        errorElement: "span",
-                        errorClass: "help-block",
-                        focusInvalid: false,
-                        ignore: "",
-                        rules: {
-                            password: {
-                                required: true,
-                                minlength: 5
-                            },
-                            rpassword: {
-                                required: true,
-                                equalTo: "#reset_password"
-                            }
-                        },
-                        messages: {
-                            password: {
-                                required: "Please enter a new password",
-                                minlength: "Password must be at least 5 characters"
-                            },
-                            rpassword: {
-                                required: "Please confirm your password",
-                                equalTo: "Passwords do not match"
-                            }
-                        },
-                        invalidHandler: function(e, r) {},
-                        highlight: function(e) {
-                            $(e).closest(".form-group-custom").addClass("has-error");
-                        },
-                        unhighlight: function(e) {
-                            $(e).closest(".form-group-custom").removeClass("has-error");
-                        },
-                        success: function(e) {
-                            e.closest(".form-group-custom").removeClass("has-error");
-                            e.remove();
-                        },
-                        errorPlacement: function(e, r) {
-                            r.closest(".input-wrapper").after(e);
-                        },
-                        submitHandler: function(e) {
-                            var btn = $(e).find('.btn-reset');
-                            btn.prop('disabled', true).text('Processing...');
-
-                            $.ajax({
-                                url: '/login/reset_password',
-                                type: 'POST',
-                                data: $('#reset-form').serialize(),
-                                dataType: 'json',
-                                success: function(data) {
-                                    if (data === true) {
-                                        var dialog = bootbox.dialog({
-                                            message: '<div style="text-align:center;padding:20px 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><p style="margin-top:15px;font-size:1rem;color:#1a2a3a;font-weight:600;">Password Reset Successful!</p><p style="color:#8a9ab5;font-size:0.85rem;">Redirecting to login page...</p></div>'
-                                        });
-                                    } else {
-                                        var dialog = bootbox.dialog({
-                                            message: '<div style="text-align:center;padding:20px 10px;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg><p style="margin-top:15px;font-size:1rem;color:#1a2a3a;font-weight:600;">Error Processing</p><p style="color:#8a9ab5;font-size:0.85rem;">Please contact us about this issue.</p></div>'
-                                        });
-                                        btn.prop('disabled', false).text('Reset Password');
-                                    }
+                                if (data === true) {
+                                    var dialog = bootbox.dialog({
+                                        message: '<p class="text-center mb-0">Reset Password Success. You may now log in and begin using it.</p>'
+                                    });
+                                } else {
+                                    var dialog = bootbox.dialog({
+                                        message: '<p class="text-center mb-0">Error Processing<br/>Please contact us about this issue.</p>'
+                                    });
+                                }
 
                                     setTimeout(function() {
                                         dialog.modal('hide');

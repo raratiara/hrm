@@ -1,25 +1,24 @@
 <div class="row">
 	
-	<div class="col-md-6 col-sm-12">
-		
+	<div class="col-md-12 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Nama Karyawan</label>
-			<div class="col-md-8">
+			<label class="col-md-2 control-label no-padding-right">Nama Karyawan</label>
+			<div class="col-md-4">
 				<?=$seloPic;?>
 			</div>
 		</div>
+	</div>
+
+	<div class="col-md-6 col-sm-12">
+		
+		
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Nominal Pinjaman</label>
 			<div class="col-md-8">
 				<?=$txt_nominal_pinjaman;?>
 			</div>
 		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Tenor (dlm bulan)</label>
-			<div class="col-md-8">
-				<?=$txt_tenor;?>
-			</div>
-		</div> 
+		
 		<!-- <div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Sisa Tenor</label>
 			<div class="col-md-8">
@@ -40,9 +39,16 @@
 			</div>
 		</div>  -->
 	</div>
-	<!-- <div class="col-md-6 col-sm-12">
-		
+	<div class="col-md-6 col-sm-12">
+
 		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Tenor (dlm bulan)</label>
+			<div class="col-md-6">
+				<?=$txt_tenor;?>
+			</div>
+		</div> 
+		
+		<!-- <div class="form-group">
 			<label class="col-md-4 control-label no-padding-right"> Tgl Pengajuan</label>
 			<div class="col-md-8">
 				<?=$txt_date_pengajuan;?>
@@ -65,8 +71,8 @@
 			<div class="col-md-8">
 				<?=$txt_date_start_cicilan;?>
 			</div>
-		</div>  
-	</div>  -->
+		</div>   -->
+	</div> 
 </div>
 
 

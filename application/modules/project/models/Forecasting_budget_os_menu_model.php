@@ -293,11 +293,25 @@ class Forecasting_budget_os_menu_model extends MY_Model
 						}
 					}
 				}
+
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
 			}
 
 
-			return $rs;
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg" 	 => "Bulan, Tahun dan Project tidak boleh kosong"
+			];
+  		}
 
 	}  
 
@@ -325,8 +339,26 @@ class Forecasting_budget_os_menu_model extends MY_Model
 				'updated_at'		=> date("Y-m-d H:i:s")
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+			
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

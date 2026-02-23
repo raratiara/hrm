@@ -154,6 +154,42 @@
 </div>
 
 
+
+<div id="modal-rekapgajios-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rekapgajios-data" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px !important">
+			<form class="form-horizontal" id="frmRekapGajiOS" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Rekap Gaji OS
+					
+					<input type="hidden" id="hdnpayrollid_rekapgajios" name="hdnpayrollid_rekapgajios" />
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+				
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadRekapGajiOS_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: black; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -1176,6 +1212,35 @@ function downloadReportOS_absengaji_pdf(){
 		formData = $('#frmReportDataOSAbsenGaji').serialize();
 		window.location = send_url+'&'+formData;
 		$('#modal-reportosabsengaji-data').modal('hide');
+
+
+	}else{
+		alert("Data tidak ditemukan");
+	}
+
+	
+}
+
+
+function getRekapGajiOS(payroll_id){
+	
+	$('#modal-rekapgajios-data').modal('show');
+
+	$('[name="hdnpayrollid_rekapgajios"]').val(payroll_id);
+}
+
+function downloadRekapGajiOS_pdf(){
+
+	
+	var payroll_id = $("#hdnpayrollid_rekapgajios").val();
+
+	if(payroll_id != ''){
+
+  		// send_url = 
+		send_url = module_path+'/getRekapGajiOS_pdf?payroll_id='+payroll_id+'';
+		formData = $('#frmRekapGajiOS').serialize();
+		window.location = send_url+'&'+formData;
+		$('#modal-rekapgajios-data').modal('hide');
 
 
 	}else{

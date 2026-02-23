@@ -450,16 +450,14 @@ function save(status='')
 			error: function (jqXHR, textStatus, errorThrown) {
 				unlockSubmit();
 
-				if(module_name == 'request_recruitment_menu'){ alert('error drfat');
+				if(module_name == 'request_recruitment_menu'){ 
 					unlockSubmitDraft();
-				}else{
-					alert('error');
 				}
 
 			
 				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
+					title: 'Gagal menyimpan Data', ///'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: 'Terjadi kesalahan saat menyimpan data',///jqXHR.responseText,
 					buttons: {
 						confirm: {
 							label: 'Ok',

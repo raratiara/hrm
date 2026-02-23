@@ -264,7 +264,19 @@ class Ptkp_categories_model extends MY_Model
  
 		$this->db->trans_complete();
 
-		return $rs = $this->db->trans_status();
+		$rs = $this->db->trans_status();
+
+		if($rs){
+			return [
+			    "status" => true,
+			    "msg" => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan"
+			];
+		}
 	}  
 
 	// update data
@@ -285,8 +297,25 @@ class Ptkp_categories_model extends MY_Model
 			$this->db->update($this->table_name, $data, [$this->primary_key => $uid]); 
 			$this->db->trans_complete();
 
-			return $rs = $this->db->trans_status();			
-		} else return null;
+			$rs = $this->db->trans_status();	
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}  
 	// getting row data for update / detail view
 	public function getRowData($id) { 

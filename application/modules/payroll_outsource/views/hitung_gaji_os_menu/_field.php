@@ -97,8 +97,8 @@
                                     <th scope="col">Tunj. Konsumsi</th>
                                     <th scope="col">Tunj. Komunikasi</th>
                                     <th scope="col">Lembur per jam</th>
-                                    <th scope="col">OT</th>
-                                    <th scope="col">Jam Lembur</th>
+                                    <th scope="col">Total Jam Lembur</th>
+                                    <th scope="col">Total Nominal Lembur</th>
                                     <th scope="col">Total Pendapatan</th>
                                     <th scope="col">BPJS Kesehatan</th>
                                     <th scope="col">BPJS TK</th>

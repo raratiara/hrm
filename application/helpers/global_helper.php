@@ -82,3 +82,8 @@ function terbilang($nilai)
 }
 
 
+function ceil_2($number){
+    return ceil($number * 100) / 100;
+}
+
+

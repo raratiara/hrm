@@ -183,7 +183,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 
         $sql = "
             select a.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
-			e.name AS job_title_name, f.tanggal_pembayaran_lembur
+			e.name AS job_title_name, f.tanggal_pembayaran_lembur, aa.*
 			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
@@ -203,6 +203,8 @@ class Hitung_gaji_os_menu extends MY_Controller
         }
 
         $project_name = $data[0]->project_name;
+
+       
 
         $pdfData = [
             'employees' => $data
@@ -239,7 +241,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 		    $sql = "
 		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name
-				, e.name as job_title_name, f.tanggal_pembayaran_lembur
+				, e.name as job_title_name, f.tanggal_pembayaran_lembur, bb.*
 				from payroll_slip a 
 				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id 
@@ -253,14 +255,35 @@ class Hitung_gaji_os_menu extends MY_Controller
 		    $data = $this->db->query($sql)->result();
 
 		    if(!empty($data)){
+		    	$total_potongan = (int)$data[0]->bpjs_kesehatan + (int)$data[0]->bpjs_tk + (int)$data[0]->seragam + (int)$data[0]->pelatihan + (int)$data[0]->lain_lain + (int)$data[0]->hutang + (int)$data[0]->sosial + (int)$data[0]->payroll + (int)$data[0]->pph_120;
+
 		    	$pdfData = [
 				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
-				    'periode_tahun'      		=> $data[0]->periode_tahun,
+				    'periode_tahun'      		=> $data[0]->tahun_penggajian,
 				    'nik'    					=> $data[0]->emp_code,
 				    'emp_name'       			=> $data[0]->full_name,
 				    'project_name'    			=> $data[0]->project_name,
 				    'jabatan' 		  			=> $data[0]->job_title_name,
-				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
+				    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur,
+				    'gaji_pokok' => $data[0]->gaji,
+				    'tunjangan_jabatan' => $data[0]->tunjangan_jabatan,
+				    'tunjangan_transport' => $data[0]->tunjangan_transport,
+				    'tunjangan_konsumsi' => $data[0]->tunjangan_konsumsi,
+				    'tunjangan_komunikasi' => $data[0]->tunjangan_komunikasi,
+				    'total_nominal_lembur' => $data[0]->total_nominal_lembur,
+				    'bpjs_kesehatan' => $data[0]->bpjs_kesehatan,
+				    'bpjs_tk' => $data[0]->bpjs_tk,
+				    'seragam' => $data[0]->seragam,
+				    'pelatihan' => $data[0]->pelatihan,
+				    'lain_lain' => $data[0]->lain_lain,
+				    'hutang' => $data[0]->hutang,
+				    'sosial' => $data[0]->sosial,
+				    'payroll' => $data[0]->payroll,
+				    'pph_120' => $data[0]->pph_120,
+				    'total_pendapatan' => $data[0]->total_pendapatan,
+				    'total_potongan' => $total_potongan,
+				    'gaji_bersih' => $data[0]->gaji_bersih,
+				    'terbilang' => terbilang($data[0]->gaji_bersih)
 				];
 
 
@@ -374,7 +397,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    // ================= DATA =================
 	    $sql = "
 	        select a.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
-			e.name AS job_title_name, f.tanggal_pembayaran_lembur
+			e.name AS job_title_name, f.tanggal_pembayaran_lembur, aa.employee_id
 			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
@@ -395,6 +418,45 @@ class Hitung_gaji_os_menu extends MY_Controller
 		    </script>";
 		    exit;
 	    }
+
+	    $periode_awal  = $employees[0]->tgl_start_absen;
+		$periode_akhir = $employees[0]->tgl_end_absen . ' 23:59:59';
+
+		foreach ($employees as &$emp) {
+
+		    $sql_lembur = "
+		        SELECT 
+		            a.datetime_start, 
+		            a.datetime_end, 
+		            a.num_of_hour, 
+		            a.amount
+		        FROM overtimes a
+		        LEFT JOIN time_attendances b 
+		            ON b.employee_id = a.employee_id 
+		            AND b.date_attendance = DATE(a.datetime_start)
+		        WHERE a.employee_id = ?
+		        AND a.type = 1 
+		        AND a.status_id = 2
+		        AND a.datetime_start BETWEEN ? AND ?
+		        AND b.id IS NOT NULL
+		    ";
+
+		    $lembur = $this->db->query($sql_lembur, [
+		        $emp->employee_id,
+		        $periode_awal,
+		        $periode_akhir
+		    ])->result();
+
+		    $emp->lembur_detail = $lembur;
+
+		    $emp->total_lembur = 0;
+		    foreach ($lembur as $l) {
+		        $emp->total_lembur += (int)$l->amount;
+		    }
+		}
+
+
+
 
 	    // ================= RENDER PDF =================
 	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
@@ -816,6 +878,131 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    }
 
 	    
+	}
+
+
+
+	public function getRekapGajiOS_pdf()
+	{
+	    if (empty($_GET['payroll_id'])) {
+	        echo "<script>
+		        alert('Data tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
+	    }
+
+	    $this->load->library('html_pdf');
+
+	    $dtPayroll = $this->db->query("select concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian, c.project_name 
+			from payroll_slip a 
+			left join master_month b on b.id = a.bulan_penggajian
+			left join project_outsource c on c.id = a.project_id
+			where a.id = ".$_GET['payroll_id']." ")->result();
+	    $periode_penggajian = $dtPayroll[0]->periode_penggajian;
+	    $projectName = $dtPayroll[0]->project_name;
+
+
+	    // ================= DATA =================
+	    $sql = "
+	        select c.emp_code, c.full_name, c.bank_acc_no, c.date_of_hire, e.name as emp_status_name,
+	         d.name as jabatan_name, b.* 
+			from payroll_slip a left join payroll_slip_detail b on b.payroll_slip_id = a.id
+			left join employees c on c.id = b.employee_id
+			left join master_job_title_os d on d.id = c.job_title_id
+			left join master_emp_status e on e.id = c.employment_status_id
+			where a.id = ".$_GET['payroll_id']." and c.project_id = a.project_id
+			order by c.full_name asc
+	    ";
+
+	    $data = $this->db->query($sql)->result();
+	    
+
+	    if (empty($data)) {
+	       
+	       	echo "<script>
+		        alert('Rekap Gaji tidak ditemukan');
+		        window.history.back();
+		    </script>";
+		    exit;
+
+	    }
+	    
+	    // ================= SUMMARY =================
+	    $valSummary = [];
+	    $no = 1;
+
+	    foreach ($data as $row) {
+	    	$gaji_bulanan=""; $gaji_harian="";
+	    	if($row->emp_status_name == 'Bulanan'){
+	    		$gaji_bulanan = $row->gaji; //ambil dari field gaji karna udah diakumulasikan dengan jml hadir
+	    	}else if($row->emp_status_name == 'Harian'){
+	    		$gaji_harian = $row->gaji; //ambil dari field gaji karna udah diakumulasikan dengan jml hadir
+	    	}else{
+	    		$gaji_harian = $row->gaji; 
+	    	}
+
+	        $valSummary[] = [
+	            $no++,
+	            $row->emp_code,
+	            $row->full_name,
+	            $row->bank_acc_no,
+	            $row->jabatan_name,
+	            $row->date_of_hire,
+	            /*$row->total_jam_kerja,
+	            $row->total_masuk,
+	            $row->total_tidak_masuk,*/
+	            $gaji_bulanan,
+	            $gaji_harian,
+	            /*$row->gaji,*/
+	            (int)$row->tunjangan_jabatan+(int)$row->tunjangan_transport+(int)$row->tunjangan_konsumsi+(int)$row->tunjangan_komunikasi,
+	            /*$row->lembur_perjam,
+	            $row->ot,
+	            $row->total_jam_lembur,*/
+	            $row->total_pendapatan,
+	            $row->bpjs_kesehatan,
+	            $row->bpjs_tk,
+	            /*$row->absen,*/
+	            $row->seragam,
+	            $row->pelatihan,
+	            $row->lain_lain,
+	            $row->hutang,
+	            $row->sosial,
+	            $row->payroll,
+	            $row->pph_120,
+	            /*$row->subtotal,*/
+	            $row->gaji_bersih
+	        ];
+	    }
+
+	    // ================= PDF DATA =================
+	    $pdfData = [
+	        'project_name' => $projectName,
+	        'periode_penggajian' => $periode_penggajian,
+	        'projects' => [[
+	            'project_name' => $projectName,
+	            'summary'      => $valSummary
+	        ]]
+	    ];
+
+	    // ================= RENDER PDF =================
+	    $pdfBinary = $this->html_pdf->render_to_string(
+	        'pdf/rekap_gaji_os',
+	        $pdfData
+	    );
+
+	    // ================= OUTPUT =================
+	    if (ob_get_level()) ob_end_clean();
+
+	    $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $projectName);
+	    $fileName = 'Rekap Gaji - '.$safeProjectName.'.pdf';
+
+	    header('Content-Type: application/pdf');
+	    header('Content-Disposition: attachment; filename="'.$fileName.'"');
+	    header('Content-Length: '.strlen($pdfBinary));
+
+	    echo $pdfBinary;
+	    exit;
 	}
 
 

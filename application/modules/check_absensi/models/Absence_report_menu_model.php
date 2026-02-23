@@ -449,9 +449,24 @@ class Absence_report_menu_model extends MY_Model
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 
-			return $rs;
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" 	 => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
 
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan"
+			];
+  		}
 
 		
 	}  
@@ -511,8 +526,27 @@ class Absence_report_menu_model extends MY_Model
 				'updated_at'				=> date("Y-m-d H:i:s")
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" 	 => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg" 	 => "Data gagal disimpan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

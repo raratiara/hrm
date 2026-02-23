@@ -370,17 +370,31 @@ class Performance_plan_menu_model extends MY_Model
 						}
 					}
 
-					$this->send_email_to_direct($post['employee']);
-
-					return $rs;
+					return [
+					    "status" => true,
+					    "msg" => "Data berhasil disimpan"
+					];
 				} else {
-					return null;
+					return [
+					    "status" => false,
+					    "msg" 	 => "Data gagal disimpan"
+					];
 				}
 			} else
-				return null;
+			{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan. Data Plan sudah ada"
+				];
+			}
 
 		} else
-			return null;
+		{
+			return [
+			    "status" => false,
+			    "msg" 	 => "Employee & Year tidak boleh kosong"
+			];
+		}
 
 	}
 
@@ -474,12 +488,26 @@ class Performance_plan_menu_model extends MY_Model
 					}
 				}
 
-				return $rs;
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
+				];
 			} else
-				return null;
+			{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
 
-		} else
-			return null;
+		} 
+		else
+		{
+			return [
+			    "status" => false,
+			    "msg" 	 => "ID tidak ditemukan"
+			];
+		}
 	}
 
 	public function getRowData($id)

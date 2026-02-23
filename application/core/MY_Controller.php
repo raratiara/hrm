@@ -150,6 +150,31 @@ class MY_Controller extends CI_Controller {
 	{
 		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_ADD == "1") {
 			if ($post = $this->input->post(null, true))
+	        {
+	            $response = $this->self_model->add_data($post);
+	        }
+	        else
+	        {
+	            $response = [
+	                "status" => false,
+	                "msg" => $this->label_gagal_eksekusi
+	            ];
+	        }
+
+	        $this->output
+	            ->set_content_type('application/json')
+	            ->set_output(json_encode($response));
+            
+		} else {
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
+
+	public function add_old()
+	{
+		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_ADD == "1") {
+			if ($post = $this->input->post(null, true))
 			{
 				$rs = $this->self_model->add_data($post);
 

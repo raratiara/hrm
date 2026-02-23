@@ -40,6 +40,20 @@ $dataLogo = file_get_contents($path);
 $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
 ?>
 
+
+<?php
+if (!function_exists('rupiah')) {
+    function rupiah($angka){
+        if (empty($angka) || !is_numeric($angka)) {
+            return '-';
+        }
+        return 'Rp ' . number_format((float)$angka, 0, ',', '.');
+    }
+}
+?>
+
+
+
 <?php foreach ($employees as $i => $row): ?>
 
 <!-- ================= HEADER ================= -->
@@ -94,21 +108,28 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
 </tr>
 
 
+<?php 
+$total_lembur = 0;
+if (!empty($row->lembur_detail)):
+    foreach ($row->lembur_detail as $l): 
+        $total_lembur += $l->amount;
+?>
 <tr>
-    <td class="center">2025-12-05</td>
-    <td class="center">2025-12-05 19:30:00</td>
-    <td class="center">2025-12-05 22:41:00</td>
-    <td class="center">3 jam</td>
-    <td class="right">Rp. 75.000</td>
+    <td class="center"><?= date('Y-m-d', strtotime($l->datetime_start)) ?></td>
+    <td class="center"><?= $l->datetime_start ?></td>
+    <td class="center"><?= $l->datetime_end ?></td>
+    <td class="center"><?= $l->num_of_hour ?> jam</td>
+    <td class="right"><?= rupiah($l->amount) ?></td>
 </tr>
+<?php 
+    endforeach;
+else:
+?>
+<tr>
+    <td colspan="5" class="center">Tidak ada lembur</td>
+</tr>
+<?php endif; ?>
 
-<tr>
-    <td class="center">2025-12-14</td>
-    <td class="center">2025-12-14 18:55:00</td>
-    <td class="center">2025-12-14 23:00:00</td>
-    <td class="center">4.5 jam</td>
-    <td class="right">Rp. 112.000</td>
-</tr>
 
 
 </table>
@@ -119,7 +140,7 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
 <table class="border">
 <tr class="bold">
     <td width="70%">TOTAL LEMBUR</td>
-    <td width="30%" class="right">Rp. 187.000</td>
+    <td width="30%" class="right"><?= rupiah($total_lembur) ?></td>
 </tr>
 </table>
 
@@ -129,7 +150,7 @@ $base64 = 'data:image/' . $type . ';base64,' . base64_encode($dataLogo);
 <tr>
     <td width="50%" class="bold">
         Terbilang:<br>
-        <i>seratus delapan puluh tujuh ribu rupiah rupiah</i>
+        <i><?= ucfirst(terbilang($total_lembur)) ?> </i>
     </td>
     <td width="50%" class="right">
         BENDAHARA<br><br><br><br>

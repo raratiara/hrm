@@ -1,64 +1,50 @@
 <div class="row">
-	<div class="col-md-12 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-2 control-label no-padding-right">Date Attendance </label>
-			<div class="col-md-4">
-				<?=$txtdateattendance;?>
-			</div>
-		</div>
-	</div>
+	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Employee Name</label>
+			<label class="col-md-4 control-label no-padding-right">Project</label>
 			<div class="col-md-8">
-				<?=$selemployee;?>
+				<?=$selproject;?>
 			</div>
 		</div>
 		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Time In</label>
+			<label class="col-md-4 control-label no-padding-right">Periode Absen Mulai</label>
 			<div class="col-md-8">
-				<?=$txtimein;?>
+				<?=$txtstartabsen;?>
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Attendance IN</label>
+			<label class="col-md-4 control-label no-padding-right">No PO</label>
 			<div class="col-md-8">
-				<?=$txtattendancein;?>
+				<?=$txtnopo;?>
 			</div>
 		</div>
-		<!-- <div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Late</label>
-			<div class="col-md-8">
-				<?=$txtlatedesc;?>
-			</div>
-		</div> -->
+		
+		
 	</div>
 	<div class="col-md-6 col-sm-12">
+		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Employee Type</label>
+			<label class="col-md-4 control-label no-padding-right">Periode Penggajian</label>
 			<div class="col-md-8">
-				<?=$txtemptype;?>
+				<?=$selperiodegaji;?>
 			</div>
 		</div>
+
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Time Out </label>
+			<label class="col-md-4 control-label no-padding-right">Periode Absen Selesai</label>
 			<div class="col-md-8">
-				<?=$txtimeout;?>
+				<?=$txtendabsen;?>
 			</div>
 		</div>
+
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Attendance OUT </label>
+			<label class="col-md-4 control-label no-padding-right">Jatuh Tempo</label>
 			<div class="col-md-8">
-				<?=$txtattendanceout;?>
+				<?=$txtjatuhtempo;?>
 			</div>
 		</div>
-		<!-- <div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Leaving Office Early</label>
-			<div class="col-md-8">
-				<?=$txtleavingearlydesc;?>
-			</div>
-		</div> -->
 		
 	</div>
 </div>

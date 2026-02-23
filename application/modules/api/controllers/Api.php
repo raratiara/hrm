@@ -3725,7 +3725,7 @@ class Api extends API_Controller
                 ,q.name as job_level_name
                 ,d.date_of_hire
                 ,d.is_tracking,
-                when d.is_tracking = 1 then 'Track anytime'
+                (case when d.is_tracking = 1 then 'Track anytime'
 					when d.is_tracking = 2 then 'Track during working hours'
 					when d.is_tracking = 0 then 'No tracking'
 					else ''
@@ -7182,7 +7182,7 @@ class Api extends API_Controller
 
     public function get_data_payslip()
 	{
-	    $this->verify_token();
+	    //$this->verify_token();
 
 	  
 	    $jsonData = file_get_contents('php://input');
@@ -7209,14 +7209,15 @@ class Api extends API_Controller
 
 	   
 	    $sql = "
-	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur, aa.*
 				from payroll_slip a 
-				left join employees b on b.id = a.employee_id 
-				left join master_month c on c.id = a.periode_bulan
+				left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+				left join employees b on b.id = aa.employee_id 
+				left join master_month c on c.id = a.bulan_penggajian
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
-				where a.employee_id = ".$islogin_employee." and a.periode_bulan = ".$month." and a.periode_tahun = ".$year."
+				where aa.employee_id = ".$islogin_employee." and a.bulan_penggajian = ".$month." and a.tahun_penggajian = '".$year."'
 	    ";
 
 	    $slip = $this->db->query($sql)->row();
@@ -7231,6 +7232,9 @@ class Api extends API_Controller
 	        return $this->render_json($response, 404);
 	    }
 
+
+	    $total_potongan = (int)$slip->bpjs_kesehatan + (int)$slip->bpjs_tk + (int)$slip->seragam + (int)$slip->pelatihan + (int)$slip->lain_lain + (int)$slip->hutang + (int)$slip->sosial + (int)$slip->payroll + (int)$slip->pph_120;
+
 	  
 	    $pdfData = [
 	       
@@ -7240,7 +7244,26 @@ class Api extends API_Controller
 		    'emp_name'       			=> $slip->full_name,
 		    'project_name'    			=> $slip->project_name,
 		    'jabatan' 		  			=> $slip->job_title_name,
-		    'tanggal_pembayaran_lembur'	=> $slip->tanggal_pembayaran_lembur
+		    'tanggal_pembayaran_lembur'	=> $slip->tanggal_pembayaran_lembur,
+		    'gaji_pokok' => $slip->gaji,
+		    'tunjangan_jabatan' => $slip->tunjangan_jabatan,
+		    'tunjangan_transport' => $slip->tunjangan_transport,
+		    'tunjangan_konsumsi' => $slip->tunjangan_konsumsi,
+		    'tunjangan_komunikasi' => $slip->tunjangan_komunikasi,
+		    'total_nominal_lembur' => $slip->total_nominal_lembur,
+		    'bpjs_kesehatan' => $slip->bpjs_kesehatan,
+		    'bpjs_tk' => $slip->bpjs_tk,
+		    'seragam' => $slip->seragam,
+		    'pelatihan' => $slip->pelatihan,
+		    'lain_lain' => $slip->lain_lain,
+		    'hutang' => $slip->hutang,
+		    'sosial' => $slip->sosial,
+		    'payroll' => $slip->payroll,
+		    'pph_120' => $slip->pph_120,
+		    'total_pendapatan' => $slip->total_pendapatan,
+		    'total_potongan' => $total_potongan,
+		    'gaji_bersih' => $slip->gaji_bersih,
+		    'terbilang' => terbilang($slip->gaji_bersih)
 	        
 	    ];
 
@@ -7262,7 +7285,7 @@ class Api extends API_Controller
 	            'employee_id' => $islogin_employee,
 	            'emp_code'    => $slip->emp_code,
 	            'employee'    => $slip->full_name,
-	            'period'      => $slip->periode_bulan_name . ' ' . $slip->periode_tahun,
+	            'period'      => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
 	            'filename'    => 'payslip_' . $slip->emp_code . '.pdf',
 	            'mime'        => 'application/pdf',
 	            'file_base64' => base64_encode($pdfBinary)
