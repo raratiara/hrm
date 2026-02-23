@@ -36,5 +36,5 @@ application/config/constants.php
 tmp/*
 uploads/*
 #!uploads/report_absensi_bulanan/
-
+application/config/firebase/service-account.json
 
