@@ -93,7 +93,7 @@
                             </button>
                         <?php else: ?>
                             <button class="btn btn-info"
-                                style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;"
+                                style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;"
                                 id="submit-data" data-text="Save" data-loading="Saving..." onclick="save()">
                                 <i class="fa fa-check"></i> Save
                             </button>

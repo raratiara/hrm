@@ -275,12 +275,12 @@
                         <?php if ($this->module_name == 'request_recruitment_menu'): ?>
                             <a class="btn" id="btnDraft" style="background-color: #e8e9ec; color: black; border-radius: 4px !important; margin-right: 5px;" onclick="save('draft')">Save as Draft</a>
 
-                            <button class="btn btn-info" style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;" id="submit-data" data-text="Submit" data-loading="Submitting..." onclick="save('waiting_approval')">
+                            <button class="btn btn-info" style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;" id="submit-data" data-text="Submit" data-loading="Submitting..." onclick="save('waiting_approval')">
                                 <i class="fa fa-check"></i> Submit
                             </button>
                         <?php else: ?>
                             <button class="btn btn-info"
-                                style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;"
+                                style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;"
                                 id="submit-data" data-text="Save" data-loading="Saving..." onclick="save()">
                                 <i class="fa fa-check"></i> Save
                             </button>

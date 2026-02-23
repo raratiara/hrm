@@ -37,7 +37,7 @@
 
 				    <button type="button"
 				        class="btn"
-				        style="background-color: #343851; color: white; border-radius: 4px !important;"
+				        style="background-color: #112D80; color: white; border-radius: 4px !important;"
 				        id="submit-import-data" onclick="save()">
 				        <i class="fa fa-upload"></i>
 				        Import

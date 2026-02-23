@@ -75,7 +75,7 @@
 
     .left-side {
   background: linear-gradient(to bottom, #b7dbfb 0%, #FFFFFF 100%);
-  color: #343851;
+  color: #112D80;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -114,7 +114,7 @@
     .right-side h2 {
       font-size: 35px;
       font-weight: 600;
-      color: #343851;
+      color: #112D80;
       margin-bottom: 3rem;
     }
 
@@ -126,7 +126,7 @@
     .checkbox {
       margin-top: 1.5rem;
       font-size: 12px;
-      color: #343851;
+      color: #112D80;
       margin-left: -20px;
     } */
 
@@ -199,7 +199,7 @@ body{
   margin-bottom: 28px;
   text-align: center;
   font-weight: 600;
-   color: #343851;
+   color: #112D80;
 }
 
 
@@ -212,7 +212,7 @@ body{
 .checkbox{
   margin-top: 1.8rem;
       font-size: 12px;
-      color: #343851;
+      color: #112D80;
       margin-left: -20px;
 }
 
@@ -221,7 +221,7 @@ body{
       font-size: 13px;
       margin-bottom: 0.5rem;
       display: block;
-      color: #343851;
+      color: #112D80;
     }
 
    .form-group input[type="text"],
@@ -232,7 +232,7 @@ body{
   border: 1px solid #e0e0e0;
   outline: none;
   background: #F1F9FF;
-  color: #343851;        
+  color: #112D80;        
 }
 
 .form-group input::placeholder {
@@ -250,7 +250,7 @@ body{
     .form-group .checkbox-label {
       font-size: 12px;
       font-weight: normal;
-      color: #343851;
+      color: #112D80;
     }
 
     .login-button {

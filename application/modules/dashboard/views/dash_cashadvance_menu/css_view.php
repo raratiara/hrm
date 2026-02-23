@@ -107,7 +107,6 @@
 
   .dashboard-container {
     font-family: 'Poppins', sans-serif;
-    max-width: 1000px;
     margin: auto;
     display: flex;
     flex-direction: column;

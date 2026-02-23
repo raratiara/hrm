@@ -115,15 +115,27 @@
 }
 
 .page-sidebar .page-sidebar-menu::-webkit-scrollbar {
-	width: 0; /* Chrome/Safari/Edge hide */
+	width: 6px;
 }
 .page-sidebar .page-sidebar-menu::-webkit-scrollbar-thumb {
+	background: rgb(224, 235, 250) !important;
+	border-radius: 8px;
+}
+.page-sidebar .page-sidebar-menu::-webkit-scrollbar-track {
 	background: transparent;
 }
 
 /* ===== On hover: SHOW scrollbar (kaya gambar) ===== */
 .page-sidebar .page-sidebar-menu:hover {
 	scrollbar-width: thin; /* Firefox show thin */
+	scrollbar-color: rgb(224, 235, 250) transparent;
+}
+
+/* Scrollbar plugin (slimScroll) */
+.page-sidebar .slimScrollBar,
+.page-sidebar-wrapper .slimScrollBar {
+	background: rgb(18, 44, 122) !important;
+	opacity: 1 !important;
 }
 
 body {

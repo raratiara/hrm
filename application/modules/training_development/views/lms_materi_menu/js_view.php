@@ -254,12 +254,17 @@
 
 		$(document).on('click', '#btnBulkData', function(e) {
 			e.preventDefault();
-
-			if ($('.data-check:checked').length < 1) {
+			save_method = 'bulk';
+			ldx = [];
+			$(".data-check:checked").each(function() {
+				ldx.push(this.value);
+			});
+			if (ldx.length < 1) {
 				Swal.fire('Info', 'Pilih minimal 1 data untuk dihapus.', 'info');
 				return;
 			}
-			$('#modal-delete-bulk').modal('show'); // <-- cek ID modal delete bulk kamu
+			$('span#ids').html(ldx.join(", "));
+			$('#modal-delete-bulk-data').modal('show');
 		});
 
 		// Bikin “myTable” dummy supaya common_module_js bisa call reload_table()
@@ -286,23 +291,33 @@
 	}
 
 	function deleting(id) {
+		save_method = 'delete';
 		idx = id;
+		$('span#ids').html(id);
+		$('#frmDeleteData [name="id"]').val(id);
 		$('#modal-delete-data').modal('show');
 	}
 
 	function save() {
-
-		$('#btnSave').text('saving...'); // kalau ada id btnSave
-		$('#btnSave').attr('disabled', true);
-
 		var url;
+		var formData;
 		if (save_method == 'add') {
-			url = module_path + "/add_data";
+			url = module_path + "/add";
+			formData = new FormData($('#frmInputData')[0]);
+		} else if (save_method == 'update') {
+			url = module_path + "/edit";
+			formData = new FormData($('#frmInputData')[0]);
+		} else if (save_method == 'delete') {
+			url = module_path + "/delete";
+			formData = new FormData($('#frmDeleteData')[0]);
+		} else if (save_method == 'bulk') {
+			url = module_path + "/bulk";
+			formData = new FormData($('#frmListData')[0]);
 		} else {
-			url = module_path + "/edit_data";
+			return;
 		}
 
-		var formData = new FormData($('#form-data')[0]); // pastikan id form kamu benar
+		showLoading();
 
 		$.ajax({
 			url: url,
@@ -312,10 +327,14 @@
 			contentType: false,
 			dataType: "JSON",
 			success: function(data) {
-
 				if (data.status) {
-
-					$('#modal-form-data').modal('hide');
+					if (save_method == 'add' || save_method == 'update') {
+						$('#modal-form-data').modal('hide');
+					} else if (save_method == 'delete') {
+						$('#modal-delete-data').modal('hide');
+					} else if (save_method == 'bulk') {
+						$('#modal-delete-bulk-data').modal('hide');
+					}
 
 					Swal.fire({
 						icon: 'success',
@@ -331,18 +350,12 @@
 					Swal.fire('Error', data.msg, 'error');
 
 				}
-
-				$('#btnSave').text('Save');
-				$('#btnSave').attr('disabled', false);
-
 			},
 			error: function() {
-
 				Swal.fire('Error', 'Terjadi kesalahan server', 'error');
-
-				$('#btnSave').text('Save');
-				$('#btnSave').attr('disabled', false);
-
+			},
+			complete: function() {
+				hideLoading();
 			}
 		});
 	}

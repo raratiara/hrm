@@ -51,9 +51,7 @@
 
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Training Date</label>
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Training Date</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="training_date"></span>
 				: <span class="training_date"></span>
 			</div>
 		</div>
