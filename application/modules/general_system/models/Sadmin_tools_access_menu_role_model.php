@@ -185,7 +185,7 @@ class Sadmin_tools_access_menu_role_model extends MY_Model
 		foreach ($rResult as $row) {
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1") {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="' . base_url($this->folder_name . '/detail/' . $row->id) . '"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="' . base_url($this->folder_name . '/detail/' . $row->id) . '"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1") {

@@ -416,7 +416,7 @@ function getStep(id, save_method) {
 	                                        </a>
 	                                        <br><br>
 	                                        <a class="btn btn-xs btn-success detail-btn" 
-	                                           style="background-color: #343851; border-color: #343851;" 
+	                                           style="background-color: #112D80; border-color: #112D80;" 
 	                                           href="javascript:void(0);" 
 	                                           onclick="detail('${item.id}')" role="button">
 	                                           <i class="fa fa-search-plus"></i>
@@ -528,7 +528,7 @@ function getStep(id, save_method) {
 	                                        
 
 	                                        <a class="btn btn-xs btn-success detail-btn" 
-	                                           style="background-color: #343851; border-color: #343851;" 
+	                                           style="background-color: #112D80; border-color: #112D80;" 
 	                                           href="javascript:void(0);" 
 	                                           onclick="detail('${item.id}')" role="button">
 	                                           <i class="fa fa-search-plus"></i>

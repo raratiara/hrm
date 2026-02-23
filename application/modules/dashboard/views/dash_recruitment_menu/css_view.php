@@ -401,6 +401,7 @@
   .summary-card.navy {
     padding: 20px;
     border-radius: 10px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   }
 
   .card-content {
@@ -598,16 +599,15 @@
 
   /* Color variants */
   .navy {
-    background-color: #FED24B;
-    /*#FFB2F7;*/
-    /*#38406F;*/
-    color: #343851;
+    background: linear-gradient(to bottom,
+        #C2E3FF 0%,
+        #EFF5F9 100%);
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: #343851;
+    color: #1A3891;
   }
 
   .yellow {

@@ -61,13 +61,13 @@
 
 
   .modal-header {
-    background: #343851 !important;
+    background: #112D80 !important;
     color: #ffffff !important;
     font-family: 'Poppins', sans-serif;
   }
 
   .btn-addrow {
-    background: #343851 !important;
+    background: #112D80 !important;
     border-radius: 999px !important;
     color: #ffffff !important;
     padding: 8px 16px !important;

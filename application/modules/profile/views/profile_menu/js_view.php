@@ -1,4 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
@@ -79,7 +78,7 @@
 				<div class="modal-footer d-flex justify-content-between flex-wrap no-margin-top" id="mdlFooter">
 					<span class="act-container-btn d-flex flex-wrap gap-2">
 						<button class="btn btn-info"
-							style="background-color: #343851; color: white; border-radius: 4px !important; margin-right: 5px;"
+							style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;"
 							id="submit-data" onclick="save()">
 							<i class="fa fa-check"></i> Save
 						</button>
@@ -88,7 +87,7 @@
 					<!-- Container untuk tombol tetap di kanan -->
 					<span class="d-flex gap-2 ms-auto">
 						<button class="btn"
-							style="background-color: #FED24B; color: #343851; border-radius: 4px !important;"
+							style="background-color: #FED24B; color: #112D80; border-radius: 4px !important;"
 							onclick="reset()" id="btnReset">
 							<i class="fa fa-undo"></i> Reset
 						</button>
@@ -108,6 +107,34 @@
 </div>
 
 <script type="text/javascript">
+
+	function getInitials(fullName) {
+		if (!fullName) return "NA";
+
+		const cleaned = fullName
+			.replace(/\s+/g, " ")
+			.trim();
+
+		if (!cleaned) return "NA";
+
+		const parts = cleaned.split(" ").filter(Boolean);
+
+		// Ambil huruf pertama nama depan & nama belakang (atau 2 huruf nama depan kalau cuma 1 kata)
+		if (parts.length === 1) {
+			const w = parts[0];
+			return (w[0] + (w[1] || w[0] || "")).toUpperCase();
+		}
+
+		return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+		}
+
+		function renderInitialAvatar(initials, extraClass = "") {
+		return `<div class="initial-avatar ${extraClass}">${initials}</div>`;
+	}
+
+
+
+
 	var module_path = "<?php echo base_url($folder_name); ?>";
 	/*var base_url = "<?php echo base_url($base_url); ?>";*/
 	var base_url = "<?php echo base_url(); ?>";
@@ -149,6 +176,9 @@
 
 		});
 	});
+
+
+	
 
 
 	<?php if (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
@@ -260,12 +290,19 @@
 						$('span#amount_persalinan').html(data.sisaplafon_persalinan);
 						
 
-						//emp_photo
-						if (data.dtEmp.emp_photo != '' && data.dtEmp.emp_photo != null) {
-							$('span.emp_photo').html('<img src="' + baseUrl + '/uploads/employee/' + data.dtEmp.emp_code + '/' + data.dtEmp.emp_photo + '" alt="Profile Picture" class="profile-image">');
+						// emp_photo (pakai inisial kalau foto kosong)
+						const fullName = data.dtEmp.full_name || "";
+						const initials = getInitials(fullName);
+
+						if (data.dtEmp.emp_photo && data.dtEmp.emp_photo !== '') {
+						$('span.emp_photo').html(
+							'<img src="' + baseUrl + '/uploads/employee/' + data.dtEmp.emp_code + '/' + data.dtEmp.emp_photo +
+							'" alt="Profile Picture" class="profile-image">'
+						);
 						} else {
-							$('span.emp_photo').html('<img src="' + baseUrl + '/public/assets/images/user.jpg" alt="Profile Picture" class="profile-image">');
+						$('span.emp_photo').html(renderInitialAvatar(initials));
 						}
+
 
 						/// DATA BIRTHDAY
 						if (data.birthdays.length === 0) {
@@ -506,17 +543,59 @@
 					$('span.clyear').html('(' + data.thn + ')');
 					const ctx = document.getElementById('monthly_attendance_summ').getContext('2d');
 
+					function makeVerticalGradient(ctx, topColor, bottomColor) {
+  const chartHeight = ctx.canvas.height || 300;
+  const g = ctx.createLinearGradient(0, 0, 0, chartHeight);
+  g.addColorStop(0, topColor);     // atas
+  g.addColorStop(1, bottomColor);  // bawah
+  return g;
+}
+
+
 					var chartExist = Chart.getChart("monthly_attendance_summ"); // <canvas> id
 					if (chartExist != undefined)
 						chartExist.destroy();
 
 
 					const rawData = [
-						{ label: 'Ontime', data: data.total_ontime, backgroundColor: '#2e3267', borderRadius: 3 },
-						{ label: 'Late', data: data.total_late, backgroundColor: '#fddb5c', borderRadius: 3 },
-						{ label: 'Leaving Early', data: data.total_leaving_early, backgroundColor: '#9b9fd2', borderRadius: 3 },
-						{ label: 'No Attendance', data: data.total_noattendance, backgroundColor: '#b3b3b3', borderRadius: 3 },
-					];
+  {
+    label: 'Ontime',
+    data: data.total_ontime,
+    backgroundColor: (context) => {
+      const c = context.chart.ctx;
+      return makeVerticalGradient(c, '#CDE7FD', '#F4FAFF');
+    },
+    borderRadius: 8
+  },
+  {
+    label: 'Late',
+    data: data.total_late,
+    backgroundColor: (context) => {
+      const c = context.chart.ctx;
+      return makeVerticalGradient(c, '#E2B2ED', '#FBECFF');
+    },
+    borderRadius: 8
+  },
+  {
+    label: 'Leaving Early',
+    data: data.total_leaving_early,
+    backgroundColor: (context) => {
+      const c = context.chart.ctx;
+      return makeVerticalGradient(c, '#837DEB', '#CFCDFF'); // atas 837DEB bawah CFCDFF
+    },
+    borderRadius: 8
+  },
+  {
+    label: 'No Attendance',
+    data: data.total_noattendance,
+    backgroundColor: (context) => {
+      const c = context.chart.ctx;
+      return makeVerticalGradient(c, '#FED24B', '#FFF4D2');
+    },
+    borderRadius: 8
+  },
+];
+
 
 					// Convert data to 100% scale per group
 					const percentageData = rawData.map(dataset => ({ ...dataset }));
@@ -753,31 +832,44 @@
 	let currentIndex = 0;*/
 	
 
-	function displayBirthday(index) { 
-		var getUrl = window.location;
-		//local=> 
-		//var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
-		//var baseUrl = getUrl.protocol + "//" + getUrl.host;
+	function displayBirthday(index) {
+  var baseUrl = "<?php echo base_url(); ?>"; 
 
-		/*var baseUrl = "<?php echo base_url($base_url); ?>";*/
-		var baseUrl = "<?php echo base_url(); ?>"; 
+  let list_birthdays = $("#list_birthdays").val(); 
+  var birthdays = JSON.parse(list_birthdays);
+  const data = birthdays[index];
 
+  const initials = getInitials(data.name || "");
 
-		let list_birthdays = $("#list_birthdays").val(); 
-		
-		var birthdays = JSON.parse(list_birthdays);
-		const data = birthdays[index]; 
+  const avatarEl = document.getElementById("birthday-avatar");
+  const nameEl = document.getElementById("birthday-name");
+  const jobEl  = document.getElementById("birthday-job");
 
-		if (data.emp_photo != '' && data.emp_photo != null) {
-			var image = baseUrl + '/uploads/employee/' + data.emp_code + '/' + data.emp_photo;
-		} else {
-			var image = baseUrl + '/public/assets/images/user.jpg';
-		}
+  nameEl.textContent = data.name || "-";
+  jobEl.textContent  = data.divname || "-";
 
-		document.getElementById("birthday-image").src = image;
-		document.getElementById("birthday-name").textContent = data.name;
-		document.getElementById("birthday-job").textContent = data.divname;
-	}
+  if (data.emp_photo && data.emp_photo !== '') {
+    const image = baseUrl + '/uploads/employee/' + data.emp_code + '/' + data.emp_photo;
+    avatarEl.style.display = "";
+    avatarEl.src = image;
+    avatarEl.alt = data.name || "Birthday";
+    // pastikan kalau sebelumnya sempat diganti jadi div
+    if (avatarEl.previousElementSibling && avatarEl.previousElementSibling.classList.contains("initial-avatar")) {
+      avatarEl.previousElementSibling.remove();
+    }
+  } else {
+    // sembunyikan img, tampilkan inisial
+    avatarEl.style.display = "none";
+
+    // hapus avatar inisial lama kalau ada
+    const existing = avatarEl.parentElement.querySelector(".initial-avatar");
+    if (existing) existing.remove();
+
+    // inject avatar inisial sebelum img
+    avatarEl.insertAdjacentHTML("beforebegin", renderInitialAvatar(initials));
+  }
+}
+
 
 	function showNext() { 
 		let list_birthdays = $("#list_birthdays").val(); 
@@ -863,6 +955,22 @@
 		dailyTasklist();
 	});
 
+	/* =========================
+   HELPER: Batasi dataset biar chart gak rame
+   ========================= */
+	function scoreDataset(ds) {
+	const arr = (ds.data || []).map(v => (v == null ? 0 : v));
+	return Math.max(...arr);
+	}
+
+	function limitDatasets(datasets, limit = 8) {
+	const sorted = [...datasets].sort((a, b) => scoreDataset(b) - scoreDataset(a));
+	const keep = sorted.slice(0, limit);
+	const rest = sorted.slice(limit).map(d => ({ ...d, hidden: true }));
+	return [...keep, ...rest];
+	}
+
+
 
 
 	function dailyTasklist() {
@@ -901,13 +1009,16 @@
 
 	            }));
 
+				
+				const limitedDatasets = limitDatasets(updatedDatasets, 8);
+
+
 	            new Chart(ctx, {
-	            	/*type: 'line',*/
-	                type: 'bar',
-	                data: {
-	                    labels: data.dates,
-	                    datasets: updatedDatasets
-	                },
+					type: 'bar',
+					data: {
+						labels: data.dates,
+						datasets: limitedDatasets
+					},
 	                options: {
 	                    responsive: true,
 	                    maintainAspectRatio: true,
@@ -924,6 +1035,9 @@
 	                            }
 	                        },
 	                        x: {
+								stacked: false,
+								barPercentage: 0.7,
+								categoryPercentage: 0.6,
 	                            title: {
 	                                display: true,
 	                                text: ''
@@ -938,14 +1052,9 @@
 	                            }
 	                        },
 	                        datalabels: {
-	                            formatter: function(value) {
-	                                return value > 0 ? value : '';
-	                            },
-	                            font: {
-	                                size: 9
-	                            },
-	                            color: '#000'
-	                        }
+								display: false
+							}
+
 	                    }
 	                },
 	                plugins: [ChartDataLabels]
@@ -1018,76 +1127,140 @@
 
 
 
-				const tbody = document.getElementById("tasklistBody");
-				tbody.innerHTML = "";
+				// const tbody = document.getElementById("tasklistBody");
+				// tbody.innerHTML = "";
 
-				let previousGroupId = null;
-				let previousTaskType = null;
+				// let previousGroupId = null;
+				// let previousTaskType = null;
 
-				data.taskList.forEach((taskrow, index) => {
-				    let due_date = taskrow.due_date ?? '-';
-				    let tr = document.createElement("tr");
+				// data.taskList.forEach((taskrow, index) => {
+				//     let due_date = taskrow.due_date ?? '-';
+				//     let tr = document.createElement("tr");
 
-				    let currentGroupId = taskrow.project_id ?? `parent-${index}`;
+				//     let currentGroupId = taskrow.project_id ?? `parent-${index}`;
 
-				    const isNotFirst = index > 0;
-				    const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
-				    const isDifferentGroup = currentGroupId !== previousGroupId;
+				//     const isNotFirst = index > 0;
+				//     const isParentOrProject = taskrow.task_type === 'project' || taskrow.task_type === 'parent';
+				//     const isDifferentGroup = currentGroupId !== previousGroupId;
 
-				    // garis standalone
-				    if (taskrow.task_type === 'standalone') {
-				        const hrRow = document.createElement("tr");
-				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
-				        tbody.appendChild(hrRow);
-				    }
-				    // garis antar grup
-				    else if (
-				        isNotFirst &&
-				        isParentOrProject &&
-				        isDifferentGroup &&
-				        previousTaskType !== 'project' &&
-				        previousTaskType !== 'standalone'
-				    ) {
-				        const hrRow = document.createElement("tr");
-				        hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
-				        tbody.appendChild(hrRow);
-				    }
+				//     // garis standalone
+				//     if (taskrow.task_type === 'standalone') {
+				//         const hrRow = document.createElement("tr");
+				//         hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				//         tbody.appendChild(hrRow);
+				//     }
+				//     // garis antar grup
+				//     else if (
+				//         isNotFirst &&
+				//         isParentOrProject &&
+				//         isDifferentGroup &&
+				//         previousTaskType !== 'project' &&
+				//         previousTaskType !== 'standalone'
+				//     ) {
+				//         const hrRow = document.createElement("tr");
+				//         hrRow.innerHTML = `<td colspan="3"><hr style="border-top:1px solid #ccc; margin:4px 0;"></td>`;
+				//         tbody.appendChild(hrRow);
+				//     }
 
-				    // tentukan warna utk seluruh row
-				    let rowStyle = "";
-				    if (taskrow.due_flag === "overdue") {
-				        rowStyle = "color:red;";
-				    } else if (taskrow.due_flag === "near_due") {
-				        rowStyle = "color:orange;";
-				    }
+				//     // tentukan warna utk seluruh row
+				//     let rowStyle = "";
+				//     if (taskrow.due_flag === "overdue") {
+				//         rowStyle = "color:red;";
+				//     } else if (taskrow.due_flag === "near_due") {
+				//         rowStyle = "color:orange;";
+				//     }
 
-				    // Project row
-				    if (taskrow.task_type === 'project') {
-				        tr.innerHTML = `
-				            <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
-				        `;
-				    } else {
-				        let indent = '';
-				        if (taskrow.task_type === 'child') {
-				            indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
-				        } else if (taskrow.task_type === 'parent') {
-				            indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
-				        }
+				//     // Project row
+				//     if (taskrow.task_type === 'project') {
+				//         tr.innerHTML = `
+				//             <td colspan="3" style="font-weight: bold; font-size:10px; background:#EAF3FF;">📁 ${taskrow.task}</td>
+				//         `;
+				//     } else {
+				//         let indent = '';
+				//         if (taskrow.task_type === 'child') {
+				//             indent = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ ';
+				//         } else if (taskrow.task_type === 'parent') {
+				//             indent = taskrow.project_id !== null ? '&nbsp;&nbsp;&nbsp;' : '';
+				//         }
 
-				        tr.innerHTML = `
-				            <td style="font-size:10px">${indent}${taskrow.task}</td>
-				            <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
-				            <td style="font-size:10px">${due_date}</td>
-				        `;
-				    }
+				//         tr.innerHTML = `
+				//             <td style="font-size:10px">${indent}${taskrow.task}</td>
+				//             <td style="font-size:10px;">${taskrow.progress_percentage ?? '-'}</td>
+				//             <td style="font-size:10px">${due_date}</td>
+				//         `;
+				//     }
 
-				    // apply style ke seluruh baris
-				    tr.setAttribute("style", rowStyle);
+				//     // apply style ke seluruh baris
+				//     tr.setAttribute("style", rowStyle);
 
-				    previousGroupId = currentGroupId;
-				    previousTaskType = taskrow.task_type;
-				    tbody.appendChild(tr);
-				});
+				//     previousGroupId = currentGroupId;
+				//     previousTaskType = taskrow.task_type;
+				//     tbody.appendChild(tr);
+				// });
+
+				// tasklist progress (card)
+const container = document.getElementById("tasklistList");
+if (!container) return; // biar aman kalau elem belum ada
+
+container.innerHTML = "";
+
+data.taskList.forEach((taskrow) => {
+  if (taskrow.task_type === "project") {
+    const sep = document.createElement("div");
+    sep.className = "task-card";
+    sep.style.background = "#EAF3FF";
+    sep.style.fontWeight = "700";
+    sep.style.fontSize = "12px";
+    sep.innerHTML = `📁 ${taskrow.task ?? "-"}`;
+    container.appendChild(sep);
+    return;
+  }
+
+  let taskText = taskrow.task ?? "-";
+  if (taskrow.task_type === "child") taskText = `↳ ${taskText}`;
+
+  const dueDate = taskrow.due_date ?? "-";
+  const progress = taskrow.progress_percentage ?? "-";
+
+  let badgeClass = "badge-open";
+  let badgeText = "Open";
+  const p = parseInt(progress, 10);
+
+  if (!isNaN(p) && p >= 100) {
+    badgeClass = "badge-done";
+    badgeText = "Done";
+  } else if (!isNaN(p) && p > 0) {
+    badgeClass = "badge-progress";
+    badgeText = "In Progress";
+  }
+
+  let dueClass = "";
+  if (taskrow.due_flag === "overdue") dueClass = "due-overdue";
+  else if (taskrow.due_flag === "near_due") dueClass = "due-near";
+
+  const card = document.createElement("div");
+  card.className = `task-card ${dueClass}`;
+
+  card.innerHTML = `
+    <div class="task-row">
+      <div class="task-label">Task</div>
+      <div class="task-value">${taskText}</div>
+    </div>
+    <div class="task-row">
+      <div class="task-label">Progress</div>
+      <div class="task-value">
+        <span class="task-badge ${badgeClass}">${badgeText} • ${progress}%</span>
+      </div>
+    </div>
+    <div class="task-row">
+      <div class="task-label">Due Date</div>
+      <div class="task-value">${dueDate}</div>
+    </div>
+  `;
+
+  container.appendChild(card);
+});
+
 
 
 
@@ -1528,38 +1701,42 @@
 	            `;
 	            container.append(actionButtons);*/
 
-	            var url_menu_absen = base_url+'time_attendance/absensi_menu';
-	            var title = 'Daily Absence';
-                let divAbsen = `
-                    <div class="quick-link-item" onclick="window.location.href='${url_menu_absen}'">
-                        <i class="fa fa-calendar"></i>
-                        <span title="${title}">${title}</span>
-                    </div>
-                `;
-                container.append(divAbsen);
+				// tombol Add Quick Link jadi item pertama di grid
+				let divAdd = `
+				<div class="quick-link-item quick-link-add" onclick="addQuickLink()">
+					<div class="quick-link-icon"><i class="fa fa-plus"></i></div>
+					<div class="quick-link-label" title="Add Quick Link">Add Quick Link</div>
+				</div>
+				`;
+				container.append(divAdd);
 
 
+				var url_menu_absen = base_url+'time_attendance/absensi_menu';
+				var title = 'Daily Absence';
 
-	            //if(res.length > 0){
-                res.forEach(item => {
-				    var url_menu = base_url + item.url;
+				let divAbsen = `
+				<div class="quick-link-item" onclick="window.location.href='${url_menu_absen}'">
+					<div class="quick-link-icon"><i class="fa fa-calendar"></i></div>
+					<div class="quick-link-label" title="${title}">${title}</div>
+				</div>
+				`;
+				container.append(divAbsen);
 
-				    // Ambil icon, kalau kosong fallback ke fa-link
-				    let iconClass = item.icon ?? "fa-link";
+				res.forEach(item => {
+				var url_menu = base_url + item.url;
 
-				    // pastikan ada prefix "fa "
-				    if (!iconClass.startsWith("fa ")) {
-				        iconClass = "fa " + iconClass;
-				    }
+				let iconClass = item.icon ?? "fa-link";
+				if (!iconClass.startsWith("fa ")) iconClass = "fa " + iconClass;
 
-				    let div = `
-				        <div class="quick-link-item" onclick="window.location.href='${url_menu}'">
-				            <i class="${iconClass}"></i>
-				            <span title="${item.title}">${item.title}</span>
-				        </div>
-				    `;
-				    container.append(div);
+				let div = `
+					<div class="quick-link-item" onclick="window.location.href='${url_menu}'">
+					<div class="quick-link-icon"><i class="${iconClass}"></i></div>
+					<div class="quick-link-label" title="${item.title}">${item.title}</div>
+					</div>
+				`;
+				container.append(div);
 				});
+
 	            /*} else {
 	                container.html("<small class='text-muted'>Belum ada quick link</small>");
 	            }*/
