@@ -78,10 +78,10 @@
         overflow-x: visible !important;
     }
 
-    /* hilangkan overflow hidden bawaan bootstrap */
+/* 
     .modal-content {
         overflow: visible !important;
-    }
+    } */
 
     .table-scroll-x thead th {
         position: sticky !important;

@@ -37,7 +37,7 @@
     /*margin: auto;*/
     background: #fff;
     padding: 10px;
-    border-radius: 12px;
+    border-radius: 12px ;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
     left: 20px;
     width: 300px;
@@ -485,7 +485,7 @@
   .video-container {
     top: calc(var(--topbar-height) + var(--panel-gap)) !important;
     right: 25px !important;
-    z-index: 9999 !important;
+    z-index: 999 !important;
     height: auto !important;
   }
 
@@ -493,7 +493,7 @@
   .video-toggle {
     top: calc(var(--topbar-height) + 13px) !important;
     right: 25px !important;
-    z-index: 99999 !important;
+    z-index: 9999 !important;
     /* masih di atas panel */
   }
 
@@ -519,7 +519,7 @@
   .filter-input,
   .filter-select {
     height: 34px;
-    border-radius: 10px;
+    border-radius: 10px !important;
     border: 1px solid #d1d5db;
     padding: 6px 10px;
     font-size: 12px;
@@ -540,7 +540,7 @@
 
   .select2-container--default .select2-selection--multiple {
     min-height: 34px;
-    border-radius: 10px;
+    border-radius: 10px !important;
     border: 1px solid #d1d5db;
     padding: 3px 6px;
     font-size: 12px;
@@ -553,7 +553,7 @@
 
   .select2-container--default .select2-selection--multiple .select2-selection__choice {
     border: 0;
-    border-radius: 999px;
+    border-radius: 999px !important;
     padding: 2px 8px;
     font-size: 11px;
     background: rgba(160, 170, 185, 0.12);
@@ -579,9 +579,9 @@
   .table-container thead th {
     position: sticky;
     top: 0;
-    background: #111827;
+    background: #d0e8ff;
     /* dark */
-    color: #fff;
+    color: #323232;
     font-size: 11px;
     font-weight: 600;
     padding: 10px 10px;
@@ -622,6 +622,9 @@
     width: 280px !important;
     border-radius: 12px !important;
   }
+
+  
+
 
   /* Saat ada dropdown/overlay topbar (biasanya z-index lebih tinggi),
    panel filter tidak mengganggu */

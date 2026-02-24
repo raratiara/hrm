@@ -30,8 +30,8 @@
     right: 20px;
     width: 25px;
     height: 25px;
-    background-color: #34495e;
-    color: #ecf0f1;
+    background-color: #b6d4ff;
+    color: #2d2d2d;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -44,7 +44,7 @@
   }
 
   .video-toggle:hover {
-    background-color: #3b5998;
+    background-color: #95adcf;
   }
 
   .video-container {
@@ -58,9 +58,8 @@
     box-sizing: border-box;
     border-radius: 8px !important;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
     transition: left 0.3s ease;
-    width: 250px;
+    width: 280px !important;
     height: 150px;
   }
 
@@ -272,7 +271,7 @@
     /* ubah sesuai kebutuhan (misal 300px) */
     overflow-y: auto;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 6px !important;
   }
 
 
@@ -431,7 +430,7 @@
 
 
 <!-- Peta -->
-<div id="map" style="height: 80vh; width: 100%;"></div>
+<div id="map" style="height: 80vh; width: 100%; border-radius: 15px !important"></div>
 
 
 

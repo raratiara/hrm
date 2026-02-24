@@ -611,26 +611,34 @@
 
   /* Color variants */
   .navy {
-    background-color: #38406F;
-    color: white;
+    background: linear-gradient(to bottom,
+        #C2E3FF 0%,
+        #EFF5F9 100%);
+    color: #1A3891;
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: white;
+    color: #1A3891;
   }
 
   .yellow {
-    background-color: #FED24B;
+    background: linear-gradient(to bottom,
+        #F7F4D0 0%,
+        #FFFFFF 100%);
   }
 
   .beige {
-    background-color: #F8F1E1;
+    background: linear-gradient(to bottom,
+        #E6D3F9 0%,
+        #F2F5FF 100%);
   }
 
   .white {
-    background-color: #ffffff;
+    background: linear-gradient(to bottom,
+        #E2EEDA 0%,
+        #FFFFFF 100%);
   }
 
   .white .title {
