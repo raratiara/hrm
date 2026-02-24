@@ -78,7 +78,7 @@
         overflow-x: visible !important;
     }
 
-/* 
+    /* 
     .modal-content {
         overflow: visible !important;
     } */
@@ -90,10 +90,12 @@
         z-index: 10 !important;
     }
 
+    
+
     .modal-dialog.modal-full {
         width: 98vw !important;
         max-width: 98vw !important;
-        margin: 10px auto;
+        /* margin: 10px auto; */
     }
 
     .modal-content {
@@ -207,7 +209,7 @@
 <div id="modal-form-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-data"
     aria-hidden="true">
     <div class="vertical-alignment-helper">
-        <div class="modal-dialog modal-full modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-full vertical-align-center modal-dialog-scrollable">
             <div class="modal-content">
                 <form class="form-horizontal" id="frmInputData" enctype="multipart/form-data">
                     <div class="modal-header no-padding">
@@ -373,67 +375,67 @@
 
 
 
-                <div class="row absenos_edit" id="inpAbsenOS_edit">
-                    <div class="col-md-12">
-                        <div class="portlet box">
-                            <div class="portlet-title">
-                                <div class="caption">Details </div>
-                                <div class="tools">
-                                   
-                                </div>
-                            </div>
-                            <div class="portlet-body">
-                                <div class="table-scrollable tablesaw-cont">
-                                <table class="table table-striped table-bordered table-hover absenos_edit-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenOSEdit">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">NIK</th>
-                                            <th scope="col">Karyawan</th>
-                                            <th scope="col">Total Hari Kerja</th>
-                                            <th scope="col">Total Masuk</th>
-                                            <th scope="col">Total Ijin</th>
-                                            <th scope="col">Total Cuti</th>
-                                            <th scope="col">Total Alfa</th>
-                                            <th scope="col">Total Lembur</th>
-                                            <th scope="col">Total Jam Kerja</th>
-                                            <th scope="col">Total Jam Lembur</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        
-                                    </tbody>
-                                    <tfoot>
-                                    </tfoot>
-                                </table>
+                        <div class="row absenos_edit" id="inpAbsenOS_edit">
+                            <div class="col-md-12">
+                                <div class="portlet box">
+                                    <div class="portlet-title">
+                                        <div class="caption">Details </div>
+                                        <div class="tools">
+
+                                        </div>
+                                    </div>
+                                    <div class="portlet-body">
+                                        <div class="table-scrollable tablesaw-cont">
+                                            <table class="table table-striped table-bordered table-hover absenos_edit-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenOSEdit">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">NIK</th>
+                                                        <th scope="col">Karyawan</th>
+                                                        <th scope="col">Total Hari Kerja</th>
+                                                        <th scope="col">Total Masuk</th>
+                                                        <th scope="col">Total Ijin</th>
+                                                        <th scope="col">Total Cuti</th>
+                                                        <th scope="col">Total Alfa</th>
+                                                        <th scope="col">Total Lembur</th>
+                                                        <th scope="col">Total Jam Kerja</th>
+                                                        <th scope="col">Total Jam Lembur</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                </tbody>
+                                                <tfoot>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
 
 
                     </div>
                 </form>
 
-            <div class="modal-footer no-margin-top">
-                <span class="act-container-btn">
-                    <button class="btn btn-info" id="submit-data" data-text="Update" data-loading="Updating..." onclick="edit_per_project()">
-                        <i class="fa fa-check"></i>
-                        Update
+                <div class="modal-footer no-margin-top">
+                    <span class="act-container-btn">
+                        <button class="btn btn-info" id="submit-data" data-text="Update" data-loading="Updating..." onclick="edit_per_project()">
+                            <i class="fa fa-check"></i>
+                            Update
+                        </button>
+                        <button class="btn" onclick="reset()">
+                            <i class="fa fa-undo"></i>
+                            Reset
+                        </button>
+                    </span>
+                    <button class="btn red" data-dismiss="modal">
+                        <i class="fa fa-times"></i>
+                        Close
                     </button>
-                    <button class="btn" onclick="reset()">
-                        <i class="fa fa-undo"></i>
-                        Reset
-                    </button>
-                </span>
-                <button class="btn red" data-dismiss="modal">
-                    <i class="fa fa-times"></i>
-                    Close
-                </button>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 </div>
 
@@ -573,24 +575,24 @@
                     </div>
                 </form>
 
-            <div class="modal-footer no-margin-top">
-                <span class="act-container-btn">
-                    <button class="btn btn-info" id="submit-data" data-text="Update" data-loading="Updating..." onclick="edit_gaji_per_project()">
-                        <i class="fa fa-check"></i>
-                        Update
+                <div class="modal-footer no-margin-top">
+                    <span class="act-container-btn">
+                        <button class="btn btn-info" id="submit-data" data-text="Update" data-loading="Updating..." onclick="edit_gaji_per_project()">
+                            <i class="fa fa-check"></i>
+                            Update
+                        </button>
+                        <button class="btn" onclick="reset()">
+                            <i class="fa fa-undo"></i>
+                            Reset
+                        </button>
+                    </span>
+                    <button class="btn red" data-dismiss="modal">
+                        <i class="fa fa-times"></i>
+                        Close
                     </button>
-                    <button class="btn" onclick="reset()">
-                        <i class="fa fa-undo"></i>
-                        Reset
-                    </button>
-                </span>
-                <button class="btn red" data-dismiss="modal">
-                    <i class="fa fa-times"></i>
-                    Close
-                </button>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 </div>
 
