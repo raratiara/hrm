@@ -7,7 +7,7 @@
         }*/
 
         .modal-content {
-            max-height: 80vh;
+            max-height: 100vh !important;
             overflow-y: auto;
             /*width: fit-content !important;*/
             width: 90% !important;
@@ -78,10 +78,10 @@
         overflow-x: visible !important;
     }
 
-    /* 
-    .modal-content {
+     
+    /* .modal-content {
         overflow: visible !important;
-    } */
+    }  */
 
     .table-scroll-x thead th {
         position: sticky !important;

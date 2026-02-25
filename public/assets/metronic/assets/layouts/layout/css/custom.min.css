@@ -792,3 +792,8 @@ modal-header {
 	border-radius: 12px !important;
 }
 
+.modal-footer {
+	display: flex !important;
+	justify-content: flex-end !important;
+}
+

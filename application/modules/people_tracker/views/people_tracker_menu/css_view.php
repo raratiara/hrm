@@ -37,7 +37,7 @@
     /*margin: auto;*/
     background: #fff;
     padding: 10px;
-    border-radius: 12px ;
+    border-radius: 12px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
     left: 20px;
     width: 300px;
@@ -493,8 +493,7 @@
   .video-toggle {
     top: calc(var(--topbar-height) + 13px) !important;
     right: 25px !important;
-    z-index: 9999 !important;
-    /* masih di atas panel */
+
   }
 
   .filter-card {
@@ -567,7 +566,7 @@
     border: 1px solid #e5e7eb;
     overflow: auto;
     background: #fff;
-    
+
   }
 
   .table-container table {
@@ -623,7 +622,43 @@
     border-radius: 12px !important;
   }
 
-  
+  /* =========================
+   MOBILE ADJUSTMENT
+========================= */
+  @media (max-width: 768px) {
+
+    :root {
+      --topbar-height: 120px;
+      /* tambah tinggi topbar mobile */
+    }
+
+    /* PANEL FILTER UTAMA */
+    .video-container {
+      top: calc(var(--topbar-height) + 50px) !important;
+      right: 12px !important;
+     
+    }
+
+    /* PANEL ABSENSI */
+    .video-container-absensi {
+      top: calc(var(--topbar-height) + 270px) !important;
+      right: 12px !important;
+    }
+
+    /* Kalau ada tracker */
+    .video-container-tracker {
+      top: calc(var(--topbar-height) + 300px) !important;
+      right: 12px !important;
+    }
+
+    .video-toggle {
+      top: calc(var(--topbar-height) + 50px) !important;
+      right: 12px !important;
+    }
+
+  }
+
+
 
 
   /* Saat ada dropdown/overlay topbar (biasanya z-index lebih tinggi),
