@@ -11,6 +11,9 @@
         top: 5px;
         right: 10px;
     }
+    .dropdown-menu {
+        z-index: 99999 !important;
+    }
 
 </style>
 

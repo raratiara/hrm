@@ -778,3 +778,17 @@ body.sidebar-open .main-content {
 	padding-right: 16px;
 }
 
+
+
+.btn-success,
+.btn-primary,
+.btn-warning,
+.btn-danger {
+	border-radius: 3px !important;
+}
+
+
+modal-header {
+	border-radius: 12px !important;
+}
+

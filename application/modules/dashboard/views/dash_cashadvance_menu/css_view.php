@@ -24,7 +24,7 @@
     width: 200px !important;
   }
 
-   #fppType {
+  #fppType {
     width: 230px;
     height: 210px;
   }
@@ -66,13 +66,7 @@
   }*/
 
 
-  .summary-item.yellow {
-    background-color: #D9F103;
-    /*#FED24B;*/
-    align-items: center !important;
-    color: #38406F;
 
-  }
 
   .summary-card.beige {
     flex: 1.3 !important;
@@ -140,7 +134,7 @@
     width: 330px;
     height: 250px;
   }
-  
+
 
 
   .dashboard {
@@ -582,28 +576,34 @@
 
   /* Color variants */
   .navy {
-    background-color: #081F5C;
-    /*#FFB2F7;*/
-    /*#38406F;*/
-    color: white;
+    background: linear-gradient(to bottom,
+        #C2E3FF 0%,
+        #EFF5F9 100%);
+    color: #1A3891;
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: white;
+    color: #1A3891;
   }
 
-  .yellow {
-    background-color: #D0E3FF;
-    /*#E3FC87;*/
-    /*#FED24B;*/
+  .purple {
+    background: linear-gradient(to bottom,
+        #E6D3F9 0%,
+        #F2F5FF 100%);/
+  }
+
+  .purple .title,
+  .purple .value,
+  .purple .icon {
+    color: #3e0576;
   }
 
   .beige {
-    background-color: #F7F2EB;
-    /*#C0E0FF;*/
-    /*#F8F1E1;*/
+    background: linear-gradient(to bottom,
+        #E2EEDA 0%,
+        #FFFFFF 100%);
   }
 
   .white {

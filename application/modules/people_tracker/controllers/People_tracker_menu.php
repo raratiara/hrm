@@ -147,9 +147,9 @@ class People_tracker_menu extends MY_Controller
 				    if (!empty($rs)) {
 				        foreach ($rs as $row) {
 				            $dt .= '<tr data-id="'.$row->id.'">';
-				            $dt .= '<td style="font-size:8px">'.$row->nama.'</td>';
-				            $dt .= '<td style="font-size:8px">'.$row->tipe.'</td>';
-				            $dt .= '<td style="font-size:8px">'.$row->datetime_attendance.'</td>';
+				            $dt .= '<td style="font-size:10px">'.$row->nama.'</td>';
+				            $dt .= '<td style="font-size:10px">'.$row->tipe.'</td>';
+				            $dt .= '<td style="font-size:10px">'.$row->datetime_attendance.'</td>';
 				            $dt .= '</tr>';
 				        }
 				    } else {

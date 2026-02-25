@@ -30,7 +30,7 @@
 
 
 
-		<div class="summary-card yellow">
+		<div class="summary-card purple">
 			<div class="card-content">
 				<div>
 					<div class="title">Total Amount Cash Advance</div>
