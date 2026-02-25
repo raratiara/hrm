@@ -208,11 +208,15 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			}
 
 			
+			$print_gaji="";
+			if($row->status == 2){ //terbayar
+				$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji('."'".$row->id."'".')">
+	                <i class="fa fa-download"></i>
+	                Slip Gaji
+	            </a>';
+			}
 			
-			$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji('."'".$row->id."'".')">
-                <i class="fa fa-download"></i>
-                Slip Gaji
-            </a>';
+			
             $print_lembur = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportLembur('."'".$row->id."'".')">
                 <i class="fa fa-download"></i>
                 Lembur
@@ -1171,7 +1175,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			foreach ($rd as $f){
 				$no = $row+1;
 
-				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id
+				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id, c.status as status_payroll
 				from employees a left join payroll_slip_detail b on b.employee_id = a.id 
 				left join payroll_slip c on c.id = b.payroll_slip_id
 				where a.emp_source = 'outsource' and a.id = '".$f->emp_id."' and a.status_id = 1 
@@ -1180,6 +1184,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				$gaji_bulanan = (int)$f->gaji_bulanan;
 
 				if(!empty($dataSlip)){ /// ambil data slip
+					$status_payroll = $dataSlip[0]->status_payroll;
 					
 					///informasi detail bpjs
 					$tp_jkk = ceil(($gaji_bulanan * 0.0024) * 100) / 100; /// 0.24% dr GP
@@ -1225,6 +1230,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$gaji_bersih = $dataSlip[0]->gaji_bersih;
 
 				}else{ /// ambil data dr summary absen
+					$status_payroll="";
 					
 					$total_tidak_masuk = ((int)$f->total_ijin ?? 0) +
 									     ((int)$f->total_cuti ?? 0) +
@@ -1398,8 +1404,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
-					$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji_perEmployee('."'".$payroll_id."'".','."'".$employee_id."'".')"> <i class="fa fa-download"></i> Gaji</a>';
-					$dt .= '<td style="text-align:center !important">'.$print_gaji.'</td>';
+
+					$print_gaji ="";
+					if($status_payroll == 2){
+						$print_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getReportGaji_perEmployee('."'".$payroll_id."'".','."'".$employee_id."'".')"> <i class="fa fa-download"></i> Gaji</a>';
+
+						$dt .= '<td style="text-align:center !important">'.$print_gaji.'</td>';
+					}else{
+						$dt .= '<td style="text-align:center !important">-</td>';
+					}
+					
+					
 					$dt .= '<td>'.$emp_code.'</td>';
 					$dt .= '<td>'.$full_name.'</td>';
 					$dt .= '<td>'.$total_jam_kerja.'</td>';

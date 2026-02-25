@@ -204,6 +204,11 @@ $( "#btnAddData" ).on('click', function(){
 	    });
 
 	}
+
+
+	if(module_name == 'pembayaran_gaji_os_menu'){
+		document.getElementById("inpStatus").style.display = "none";
+	}
 	
 
 	unlockSubmit();
