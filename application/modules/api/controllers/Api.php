@@ -7232,6 +7232,16 @@ class Api extends API_Controller
 	        return $this->render_json($response, 404);
 	    }
 
+	    if ($slip->status != 2) { //status belum terbayar, maka belum bisa lihat payslip
+	        $response = [
+	            'status'  => 404,
+	            'message' => 'Failed',
+	            'error'   => 'The payslip is not ready yet'
+	        ];
+
+	        return $this->render_json($response, 404);
+	    }
+
 
 	    $total_potongan = (int)$slip->bpjs_kesehatan + (int)$slip->bpjs_tk + (int)$slip->seragam + (int)$slip->pelatihan + (int)$slip->lain_lain + (int)$slip->hutang + (int)$slip->sosial + (int)$slip->payroll + (int)$slip->pph_120;
 
