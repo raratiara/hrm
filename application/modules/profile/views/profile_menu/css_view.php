@@ -1664,10 +1664,6 @@
     color: #d97706 !important;
   }
 
-  .health-card .cardbox-1 .icon {
-    background: #fadd94;
-    color: #fff;
-  }
 
   /* Sleep */
   .health-card .cardbox-3 {
@@ -1996,7 +1992,7 @@
 
   /* atur tinggi list task di card agar konsisten */
   .info-3cards-section #tasklistList {
-    height:   110px;
+    height: 110px;
     /* sesuaikan kalau mau lebih tinggi */
     overflow-y: auto;
   }
@@ -2034,5 +2030,88 @@
       width: 100% !important;
       height: 240px !important;
     }
+  }
+
+
+  /* profile jadi 2 kolom: kiri profile-merged, kanan side cards */
+  .profile-section {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* side cards stack */
+  .profile-side-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  /* responsive: mobile jadi 1 kolom */
+  @media (max-width: 768px) {
+    .profile-section {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* section untuk health flex */
+  .info-3cards-section {
+    display: block;
+    /* override grid lama */
+    border-radius: 20px !important;
+    background-color: #fff;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
+    padding: 20px 20px;
+  }
+
+  /* 4 health card flex */
+  .health-monitoring-flex {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  /* masing-masing card */
+  .health-monitoring-flex .card-box {
+    flex: 1 1 calc(25% - 20px);
+    min-width: 220px;
+    margin-bottom: 0 !important;
+    /* biar gap rapi */
+  }
+
+  /* tablet */
+  @media (max-width: 992px) {
+    .health-monitoring-flex .card-box {
+      flex: 1 1 calc(50% - 20px);
+    }
+  }
+
+  /* mobile */
+  @media (max-width: 768px) {
+    .health-monitoring-flex .card-box {
+      flex: 1 1 100%;
+    }
+  }
+
+
+
+  .tasklist-bottom-section .box-1.table-box {
+    width: 100% !important;
+  }
+
+  .tasklist-bottom-section #tasklistList {
+    height: fit-content;
+    max-height: 300px !important;
+    /* atau auto sesuai kebutuhan */
+    overflow-y: auto;
+  }
+
+
+  .health-card .cardbox-1 .icon {
+    background: #fadd94;
+    color: #fff;
   }
 </style>
