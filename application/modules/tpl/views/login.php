@@ -130,91 +130,99 @@
       margin-left: -20px;
     } */
 
-      /* =========================
+    /* =========================
    DESKTOP layout mirip gambar (tanpa ubah HTML)
 ========================= */
-body{
-  height: 100vh;
-  display: flex;
-  align-items: center;            /* vertikal center */
-  justify-content: center;        /* biar ada ruang kiri-kanan */
-  background: linear-gradient(to bottom, #b7dbfb 0%, #FFFFFF 100%);
-  padding: 35px;                  /* ruang tepi seperti gambar */
-}
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      /* vertikal center */
+      justify-content: center;
+      /* biar ada ruang kiri-kanan */
+      background: linear-gradient(to bottom, #b7dbfb 0%, #FFFFFF 100%);
+      padding: 35px;
+      /* ruang tepi seperti gambar */
+    }
 
-/* kiri: rata kiri, hero area */
-.left-side{
-  flex: 1;
-  height: 100%;
-  border-radius: 18px 0 0 18px;   /* kalau mau halus (opsional) */
-  justify-content: center;
-  align-items: center;      /* rata kiri */
-  padding: 30px 100px;
-  position: relative;
-}
+    /* kiri: rata kiri, hero area */
+    .left-side {
+      flex: 1;
+      height: 100%;
+      border-radius: 18px 0 0 18px;
+      /* kalau mau halus (opsional) */
+      justify-content: center;
+      align-items: center;
+      /* rata kiri */
+      padding: 30px 100px;
+      position: relative;
+    }
 
-/* judul kiri atas */
-.left-side h2{
-  padding-right: 0 !important;
-  font-size: 30px;
-  line-height: 1.2;
-  margin: 0;
-  font-weight: 550;
-  color: #1E2A5A;
-}
-
-
-
-
-
-/* logo kiri atas (kecil) */
-.left-side .logo-default{
-  width: 70px !important;
-  margin-bottom: 18px;
-}
-
-/* ilustrasi kiri agak ke bawah */
-.left-side img.illustration{
-  max-width: 520px;
-  width: 100%;
-  
-}
-
-/* kanan: jadi card putih mengambang */
-.right-side{
-  flex: 0 0 600px;                /* lebar card (sesuaikan) */
-  height: 90vh;                   /* jangan full tinggi */
-  background: #fff;
-  border-radius: 38px;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
-  padding: 120px 100px;
-  margin-left: 40px;              /* jarak dari hero kiri */
-  align-items: center;
-  justify-content: center;
-}
-
-/* judul Sign in */
-.right-side h2{
-  font-size: 34px;
-  margin-bottom: 28px;
-  text-align: center;
-  font-weight: 600;
-   color: #112D80;
-}
+    /* judul kiri atas */
+    .left-side h2 {
+      padding-right: 0 !important;
+      font-size: 30px;
+      line-height: 1.2;
+      margin: 0;
+      font-weight: 550;
+      color: #1E2A5A;
+    }
 
 
-/* form lebar pas seperti gambar */
-.form-group{
-  min-width: 100%;
-}
 
-/* rapihin checkbox biar nggak ketarik ke kiri */
-.checkbox{
-  margin-top: 1.8rem;
+
+
+    /* logo kiri atas (kecil) */
+    .left-side .logo-default {
+      width: 70px !important;
+      margin-bottom: 18px;
+    }
+
+    /* ilustrasi kiri agak ke bawah */
+    .left-side img.illustration {
+      max-width: 520px;
+      width: 100%;
+
+    }
+
+    /* kanan: jadi card putih mengambang */
+    .right-side {
+      flex: 0 0 600px;
+      /* lebar card (sesuaikan) */
+      height: 90vh;
+      /* jangan full tinggi */
+      background: #fff;
+      border-radius: 38px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+      padding: 120px 100px;
+      margin-left: 40px;
+      /* jarak dari hero kiri */
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* judul Sign in */
+    .right-side h2 {
+      font-size: 34px;
+      margin-bottom: 28px;
+      text-align: center;
+      font-weight: 600;
+      color: #112D80;
+    }
+
+
+    /* form lebar pas seperti gambar */
+    .form-group {
+      min-width: 100%;
+    }
+
+    /* rapihin checkbox biar nggak ketarik ke kiri */
+    .checkbox {
+      margin-top: 1.8rem;
       font-size: 12px;
       color: #112D80;
       margin-left: -20px;
-}
+    }
 
 
     .form-group label {
@@ -224,26 +232,26 @@ body{
       color: #112D80;
     }
 
-   .form-group input[type="text"],
-.form-group input[type="password"] {
-  width: 100%;
-  padding: 1.2rem 1.8rem;
-  border-radius: 30px;
-  border: 1px solid #e0e0e0;
-  outline: none;
-  background: #F1F9FF;
-  color: #112D80;        
-}
+    .form-group input[type="text"],
+    .form-group input[type="password"] {
+      width: 100%;
+      padding: 1.2rem 1.8rem;
+      border-radius: 30px;
+      border: 1px solid #e0e0e0;
+      outline: none;
+      background: #F1F9FF;
+      color: #112D80;
+    }
 
-.form-group input::placeholder {
-  color: #858585;
-  font-size: 13px;
-}
+    .form-group input::placeholder {
+      color: #858585;
+      font-size: 13px;
+    }
 
-.form-group input[type="text"]:focus,
-.form-group input[type="password"]:focus {
-  box-shadow: 0 0 0 2px rgba(52, 56, 81, 0.15);
-}
+    .form-group input[type="text"]:focus,
+    .form-group input[type="password"]:focus {
+      box-shadow: 0 0 0 2px rgba(52, 56, 81, 0.15);
+    }
 
 
 
@@ -275,139 +283,304 @@ body{
 
     }
 
+    /* ===== Password Toggle ===== */
 
-    
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
 
-   /* =========================
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 50px !important;
+      /* kasih ruang buat icon */
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 18px;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 16px;
+      transition: 0.2s ease;
+    }
+
+    .toggle-password:hover {
+      color: #112D80;
+    }
+
+
+
+
+    /* =========================
    MOBILE (mirip gambar)
 ========================= */
-@media (max-width: 768px) {
+    @media (max-width: 768px) {
 
-  body{
-    display:block;            /* matikan flex 2 kolom */
-    height: 100vh;
-    background: linear-gradient(to bottom, #D7EBFC 0%, #FFFFFF 100%);
-  }
+      body {
+        display: block;
+        /* matikan flex 2 kolom */
+        height: 100vh;
+        background: linear-gradient(to bottom, #D7EBFC 0%, #FFFFFF 100%);
+      }
 
-  /* HERO (atas) */
-  .left-side{
-    width:100%;
-    min-height: 56vh;
-    padding: 0px 0px 0px 0 !important;
-    justify-content: flex-start;
-    align-items: flex-start;
-    position: relative;
-    border-radius: 0;
-  }
+      /* HERO (atas) */
+      .left-side {
+        width: 100%;
+        min-height: 56vh;
+        padding: 0px 0px 0px 0 !important;
+        justify-content: flex-start;
+        align-items: flex-start;
+        position: relative;
+        border-radius: 0;
+      }
 
-  /* judul kiri atas */
-  .left-side h2{
-    padding-right: 0 !important;
-    margin: 0;
-    font-size: 20px;
-    line-height: 1.15;
-  }
+      /* judul kiri atas */
+      .left-side h2 {
+        padding-right: 0 !important;
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.15;
+      }
 
-  /* logo (kalau mau pojok kanan atas seperti gambar) */
-  .left-side .logo-default{
-    position: absolute;
-    right: 16px;
-    top: -8px;
-    width: 60px !important;
-  }
+      /* logo (kalau mau pojok kanan atas seperti gambar) */
+      .left-side .logo-default {
+        position: absolute;
+        right: 16px;
+        top: -8px;
+        width: 60px !important;
+      }
 
-  /* ilustrasi di tengah */
-  .left-side img.illustration{
-    width: 100%;
-    max-width: 360px;
-    margin: 18px auto 0;
-    display:block;
-  }
+      /* ilustrasi di tengah */
+      .left-side img.illustration {
+        width: 100%;
+        max-width: 360px;
+        margin: 18px auto 0;
+        display: block;
+      }
 
-  /* AREA CARD FORM (bawah) */
-  .right-side{
-    width: 100%;
-    margin: 0;
-    padding: 20px 25px 20px 25px !important;
-    height: auto;
-    margin-top: -270px; 
-    border-radius: 30px;
-  }
-
-
-
-  .right-side h2{
-    margin: 0;
-    font-size: 20px;
-    margin-bottom: 22px;
-  }
+      /* AREA CARD FORM (bawah) */
+      .right-side {
+        width: 100%;
+        margin: 0;
+        padding: 20px 25px 20px 25px !important;
+        height: auto;
+        margin-top: -270px;
+        border-radius: 30px;
+      }
 
 
 
-  .form-group{
-    width: 100%;
-    margin-bottom: 15px;
-  }
+      .right-side h2 {
+        margin: 0;
+        font-size: 20px;
+        margin-bottom: 22px;
+      }
 
-  .form-group label{
-    display:none; /* biar mirip gambar: cukup placeholder */
-  }
 
-  .form-group input[type="text"],
-  .form-group input[type="password"]{
-    padding: 8px 15px;
-    border-radius: 30px;
-  }
 
-  .checkbox{
-    font-size: 10px;
-  }
+      .form-group {
+        width: 100%;
+        margin-bottom: 15px;
+      }
 
-  .login-button{
-    margin-top: 6px;
-    padding: 10px;
-    border-radius: 30px;
-    font-size: 12px;
-  }
-}
+      .form-group label {
+        display: none;
+        /* biar mirip gambar: cukup placeholder */
+      }
 
-/* =========================
+      .form-group input[type="text"],
+      .form-group input[type="password"] {
+        padding: 8px 15px;
+        border-radius: 30px;
+      }
+
+      .checkbox {
+        font-size: 10px;
+      }
+
+      .login-button {
+        margin-top: 6px;
+        padding: 10px;
+        border-radius: 30px;
+        font-size: 12px;
+      }
+    }
+
+    /* =========================
    FIX: Mobile input tidak bisa diketik
    (layer ketiban / ke-block)
 ========================= */
-@media (max-width: 768px){
+    @media (max-width: 768px) {
 
-  /* pastikan parent punya konteks stacking */
-  .left-side,
-  .right-side{
-    position: relative !important;
+      /* pastikan parent punya konteks stacking */
+      .left-side,
+      .right-side {
+        position: relative !important;
+      }
+
+      /* card form harus paling atas */
+      .right-side {
+        z-index: 50 !important;
+        pointer-events: auto !important;
+      }
+
+      /* hero/left-side di bawahnya */
+      .left-side {
+        z-index: 1 !important;
+      }
+
+      /* seringnya ilustrasi/asset yang “nahan klik” */
+      .left-side img,
+      .left-side .illustration,
+      .left-side .logo-default {
+        pointer-events: none !important;
+      }
+
+      /* optional: kalau masih ketiban, kasih ruang pakai transform */
+      .right-side {
+        margin-top: 0 !important;
+        /* reset negatif */
+        transform: translateY(-270px);
+        /* ganti negative margin */
+      }
+    }
+
+    /* ===== Branding text kiri ===== */
+    .app-name {
+      letter-spacing: 0.5px;
+
+    }
+
+    .app-brand-sub {
+      margin-top: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(30, 42, 90, 0.75);
+    }
+
+    .app-brand-sub span {
+      color: #1E2A5A;
+
+    }
+
+    /* ===== Footer branding kanan ===== */
+    .brand-footer {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .brand-footer-logo {
+      height: 18px;
+      width: auto;
+      display: inline-block;
+    }
+
+    .brand-footer-textonly {
+      justify-content: center;
+    }
+
+    /* mobile spacing */
+    @media (max-width: 768px) {
+      .app-brand-sub {
+        font-size: 12px;
+      }
+
+      .brand-footer {
+        margin-top: 14px;
+        font-size: 11px;
+      }
+
+    .brand-footer-logo {
+      height: 16px;
+    }
   }
 
-  /* card form harus paling atas */
-  .right-side{
-    z-index: 50 !important;
-    pointer-events: auto !important;
-  }
+    /* ===== Login Error Modal ===== */
+    #loginErrorModal.in {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
 
-  /* hero/left-side di bawahnya */
-  .left-side{
-    z-index: 1 !important;
-  }
+    #loginErrorModal .modal-dialog {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    }
 
-  /* seringnya ilustrasi/asset yang “nahan klik” */
-  .left-side img,
-  .left-side .illustration,
-  .left-side .logo-default{
-    pointer-events: none !important;
-  }
+    #loginErrorModal .modal-content {
+      border: 0;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
 
-  /* optional: kalau masih ketiban, kasih ruang pakai transform */
-  .right-side{
-    margin-top: 0 !important;              /* reset negatif */
-    transform: translateY(-270px);          /* ganti negative margin */
-  }
-}
+    #loginErrorModal .modal-header {
+      border-bottom: 0;
+      padding: 18px 20px 8px;
+    }
 
+    #loginErrorModal .modal-title {
+      width: 100%;
+      margin: 0;
+      text-align: center;
+      color: #1f2a62;
+      font-weight: 600;
+      font-size: 22px;
+    }
+
+    #loginErrorModal .modal-body {
+      text-align: center;
+      padding: 0 24px 20px;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    #loginErrorModal .modal-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: #fee2e2;
+      color: #dc2626;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    #loginErrorModal .modal-footer {
+      border-top: 0;
+      padding: 0 20px 22px;
+      text-align: center;
+    }
+
+    #loginErrorModal .btn-error-ok {
+      min-width: 120px;
+      border: 0;
+      border-radius: 999px;
+      background: #38406F;
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 20px;
+      transition: background-color 0.2s ease;
+    }
+
+    #loginErrorModal .btn-error-ok:hover,
+    #loginErrorModal .btn-error-ok:focus {
+      background: #1f2a62;
+      color: #fff;
+      outline: none;
+    }
   </style>
 
 
@@ -420,12 +593,14 @@ body{
   <!-- BEGIN LOGO -->
   <div class="left-side">
     <div>
- <a href="/">
-      <img width="100" class="logo-default" src="<?php echo _ASSET_LOGO_FRONT; ?>" alt="<?php echo _COMPANY_NAME; ?>" /> </a>
-    <h2>Hello! Welcome to</h2>
-    <h2 style="margin-top: 0rem;">HR System</h2>
+      <a href="/">
+        <img width="100" class="logo-default" src="<?php echo _ASSET_LOGO_FRONT; ?>" alt="<?php echo _COMPANY_NAME; ?>" /> </a>
+      <h2>Hello! Welcome to</h2>
+
+      <h2 class="app-name" style="margin-top: 0rem;">Staffora</h2>
+      <div class="app-brand-sub">by <span>Gerbang Data</span></div>
     </div>
-   
+
     <img width="500" src="<?php echo _ASSET_ILUSTRASI_LOGIN; ?>" alt="Illustration" class="illustration">
   </div>
   <!-- END LOGO -->
@@ -445,9 +620,15 @@ body{
         <input type="text" autocomplete="off" placeholder="Username" name="username" required>
       </div>
 
-      <div class="form-group">
+      <div class="form-group password-group">
         <label class="control-label visible-ie8 visible-ie9">Password</label>
-        <input type="password" autocomplete="off" placeholder="Password" name="userpasswd" required>
+
+        <div class="password-wrapper">
+          <input type="password" autocomplete="off" placeholder="Password" name="userpasswd" id="passwordInput" required>
+          <span class="toggle-password" id="togglePassword">
+            <i class="fa fa-eye"></i>
+          </span>
+        </div>
       </div>
 
       <div class="form-actions">
@@ -458,9 +639,30 @@ body{
         </div>
         <button type="submit" class="login-button" id="btnLogin">Login</button>
 
+        <div class="brand-footer brand-footer-textonly">
+          Powered by <strong>Gerbang Data</strong>
+        </div>
+
       </div>
 
     </form>
+  </div>
+
+  <div class="modal fade" id="loginErrorModal" tabindex="-1" role="dialog" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="loginErrorModalLabel">Login Gagal</h4>
+        </div>
+        <div class="modal-body" id="loginErrorMessage">
+          <div class="modal-icon"><i class="fa fa-exclamation-circle"></i></div>
+          Username atau password salah.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-error-ok" data-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 
@@ -532,73 +734,107 @@ body{
   </script>
   <script src="<?php echo _ASSET_GLOBAL_METRONIC_TEMPLATE; ?>scripts/app.min.js" type="text/javascript"></script>
   <script>
-    var Login = function () {
-      var e = function () {
+    var Login = function() {
+      function showLoginErrorModal(message) {
+        $('#loginErrorMessage').text(message || 'Username atau password salah.');
+        $('#loginErrorModal').modal('show');
+      }
+
+      var e = function() {
         $(".login-form").validate({
-          errorElement: "span",
-          errorClass: "help-block",
-          focusInvalid: false,
-          rules: {
-            username: { required: true },
-            userpasswd: { required: true },
-            remember: { required: false }
-          },
-          messages: {
-            username: { required: "Username is required." },
-            userpasswd: { required: "Password is required." }
-          },
-          invalidHandler: function (e, r) {
-            $('.alert-danger', $('.login-form')).html('<button class="close" data-close="alert"></button><span>Enter your username and password.</span>');
-            $(".alert-danger", $(".login-form")).show()
-          },
-          highlight: function (e) {
-            $(e).closest(".form-group").addClass("has-error")
-          },
-          success: function (e) {
-            e.closest(".form-group").removeClass("has-error"), e.remove()
-          },
-          errorPlacement: function (e, r) {
-            e.insertAfter(r.closest(".input-icon"))
-          },
-          submitHandler: function (e) {
-            //e.submit()
-            $('.alert-danger', $('.login-form')).hide();
-            $.ajax({
-              url: 'login/auth',
-              data: $('#login-form').serialize(),
-              type: "POST",
-              success: function (data) {
-                if (data == 'Welcome') {
-                  /*window.location.href = '<?= base_url('#') ?>';*/
-                  window.location.href = '<?= base_url('profile/profile_menu') ?>';
-                } else if (data === 'FIRST_LOGIN') {
+            errorElement: "span",
+            errorClass: "help-block",
+            focusInvalid: false,
+            rules: {
+              username: {
+                required: true
+              },
+              userpasswd: {
+                required: true
+              },
+              remember: {
+                required: false
+              }
+            },
+            messages: {
+              username: {
+                required: "Username is required."
+              },
+              userpasswd: {
+                required: "Password is required."
+              }
+            },
+            invalidHandler: function(e, r) {
+              $('.alert-danger', $('.login-form')).html('<button class="close" data-close="alert"></button><span>Enter your username and password.</span>');
+              $(".alert-danger", $(".login-form")).show()
+            },
+            highlight: function(e) {
+              $(e).closest(".form-group").addClass("has-error")
+            },
+            success: function(e) {
+              e.closest(".form-group").removeClass("has-error"), e.remove()
+            },
+            errorPlacement: function(e, r) {
+              e.insertAfter(r.closest(".input-icon"))
+            },
+            submitHandler: function(e) {
+              //e.submit()
+              $('.alert-danger', $('.login-form')).hide();
+              $.ajax({
+                url: 'login/auth',
+                data: $('#login-form').serialize(),
+                type: "POST",
+                success: function(data) {
+                  var response = $.trim((data || '').toString());
+                  if (response === 'Welcome' || response.indexOf('Welcome') !== -1) {
+                    /*window.location.href = '<?= base_url('#') ?>';*/
+                    window.location.href = '<?= base_url('profile/profile_menu') ?>';
+                  } else if (response === 'FIRST_LOGIN' || response.indexOf('FIRST_LOGIN') !== -1) {
 
                     window.location.href = '<?= base_url('reset_password') ?>';
 
-                }  else {
-                  $('.alert-danger', $('.login-form')).html(data);
-                  $('.alert-danger', $('.login-form')).show();
-                  $('.login-form [name="username"]').val('');
-                  $('.login-form [name="userpasswd"]').val('');
+                  } else {
+                    showLoginErrorModal('Username atau password salah.');
+                    $('.login-form [name="username"]').val('');
+                    $('.login-form [name="userpasswd"]').val('');
+                  }
                 }
-              }
-            })
+              })
 
-            return false;
-          }
-        }),
-          $(".login-form input").keypress(function (e) {
+              return false;
+            }
+          }),
+          $(".login-form input").keypress(function(e) {
             return 13 == e.which ? ($(".login-form").validate().form() && $(".login-form").submit(), !1) : void 0
           })
       };
       return {
-        init: function () {
+        init: function() {
           e()
         }
       }
     }();
-    jQuery(document).ready(function () {
+    jQuery(document).ready(function() {
       Login.init()
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+      const toggle = document.getElementById("togglePassword");
+      const password = document.getElementById("passwordInput");
+
+      toggle.addEventListener("click", function() {
+        const type = password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+
+        // ganti icon
+        this.innerHTML = type === "password" ?
+          '<i class="fa fa-eye"></i>' :
+          '<i class="fa fa-eye-slash"></i>';
+      });
+
     });
   </script>
 </body>

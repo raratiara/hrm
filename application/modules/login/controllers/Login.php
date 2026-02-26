@@ -34,11 +34,11 @@ class Login extends CI_Controller {
 			$firstlogin = $this->db->query($sql, [
 			    $post['username'],
 			    md5($post['userpasswd'])
-			])->result();
+			])->row();
 
-			if($firstlogin[0]->first_login == 1){
+			if($firstlogin && (int) $firstlogin->first_login === 1){
 
-			    $user = $firstlogin[0];
+			    $user = $firstlogin;
 
 			    // SET SESSION DULU
 			    $this->session->set_userdata([
