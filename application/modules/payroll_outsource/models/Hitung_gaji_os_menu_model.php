@@ -360,6 +360,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        s.tgl_end_absen,
 	        t.sistem_lembur,
 	        t.nominal_lembur,
+	        t.rumus_lembur,
 
 	        COALESCE(l.ttl_hutang,0) as hutang
 	    ");
@@ -456,6 +457,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        	$lembur_perjam  = $row->nominal_lembur ?? 0;
 	        }else{
 	        	$lembur_perjam  = ceil($gaji_bulanan / 173);
+	        
+	        	if($row->rumus_lembur == 'gapok/26/7'){
+					$lembur_perjam = ceil($gaji_bulanan / 26 / 7);
+				}else if($row->rumus_lembur == 'gapok/20/12'){
+					$lembur_perjam = ceil($gaji_bulanan / 20 / 12);
+				}
 	        }
 
 
@@ -625,7 +632,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
   				foreach($data_os as $rowdata_os){
   					$emp_id = $rowdata_os->id;
   					
-  					$data_summary = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, c.tgl_start_absen, c.tgl_end_absen, d.sistem_lembur, d.nominal_lembur
+  					$data_summary = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, c.tgl_start_absen, c.tgl_end_absen, d.sistem_lembur, d.nominal_lembur, d.rumus_lembur
 						from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 						left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 						left join data_customer d on d.id = b.cust_id
@@ -644,6 +651,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
   							$lembur_perjam 	= $data_summary[0]->nominal_lembur ?? 0;
   						}else{
   							$lembur_perjam 	= ceil(($gaji_bulanan / 173) * 100) / 100;
+  							if($data_summary[0]->rumus_lembur == 'gapok/26/7'){
+								$lembur_perjam = ceil($gaji_bulanan / 26 / 7);
+							}else if($data_summary[0]->rumus_lembur == 'gapok/20/12'){
+								$lembur_perjam = ceil($gaji_bulanan / 20 / 12);
+							}
   						}
   						
 
@@ -1156,7 +1168,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		$dt = ''; 
 		
 
-		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur
+		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur, d.rumus_lembur
 			from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 			left join data_customer d on d.id = b.cust_id
@@ -1242,6 +1254,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 						$lembur_perjam = $f->nominal_lembur ?? 0;
 					}else{
 						$lembur_perjam = ($gaji_bulanan > 0) ? ceil(($gaji_bulanan / 173) * 100) / 100 : 0;
+						if($f->rumus_lembur == 'gapok/26/7'){
+							$lembur_perjam = ceil($gaji_bulanan / 26 / 7);
+						}else if($f->rumus_lembur == 'gapok/20/12'){
+							$lembur_perjam = ceil($gaji_bulanan / 20 / 12);
+						}
 					}
 					
 

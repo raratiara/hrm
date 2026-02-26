@@ -465,10 +465,16 @@ class Lembur_menu_model extends MY_Model
 
 						$biaya = ceil($dataEmp[0]->gaji_bulanan / 173);
 						if($dataEmp[0]->emp_source == 'outsource'){
-							$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
+							$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur, rumus_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
 							if(!empty($getbiaya)){
 								if($getbiaya[0]->sistem_lembur == 'tidak_sistem_lembur'){
 									$biaya = $getbiaya[0]->nominal_lembur ?? 0;
+								}else{
+									if($getbiaya[0]->rumus_lembur == 'gapok/26/7'){
+										$biaya = ceil($dataEmp[0]->gaji_bulanan / 26 / 7);
+									}else if($getbiaya[0]->rumus_lembur == 'gapok/20/12'){
+										$biaya = ceil($dataEmp[0]->gaji_bulanan / 20 / 12);
+									}
 								}
 							}
 						}
@@ -601,10 +607,16 @@ class Lembur_menu_model extends MY_Model
 
 					$biaya = ceil($dataEmp[0]->gaji_bulanan / 173);
 					if($dataEmp[0]->emp_source == 'outsource'){
-						$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
+						$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur, rumus_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
 						if(!empty($getbiaya)){
 							if($getbiaya[0]->sistem_lembur == 'tidak_sistem_lembur'){
 								$biaya = $getbiaya[0]->nominal_lembur ?? 0;
+							}else{
+								if($getbiaya[0]->rumus_lembur == 'gapok/26/7'){
+									$biaya = ceil($dataEmp[0]->gaji_bulanan / 26 / 7);
+								}else if($getbiaya[0]->rumus_lembur == 'gapok/20/12'){
+									$biaya = ceil($dataEmp[0]->gaji_bulanan / 20 / 12);
+								}
 							}
 						}
 					}
