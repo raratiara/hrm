@@ -575,6 +575,9 @@ class Settlement_menu_model extends MY_Model
 						$approval_type_id = 3; //settlement
 						$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', trim($post['settlement_amount']), $lastId);
 
+						//send emailing to requester
+						$this->approvalemailservice->sendtoRequester('settlement', $lastId, $post['requested_by'], $_SESSION['worker']);
+
 
 						return [
 						    "status" => true,
