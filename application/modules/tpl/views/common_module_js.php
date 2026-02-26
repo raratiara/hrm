@@ -48,6 +48,30 @@ if (typeof window.hideLoading !== 'function') {
 	};
 }
 
+// Global modal scroll lock: keep main page from scrolling while any modal is open.
+var __tplModalScrollLock = {
+	count: 0,
+	prevBodyOverflow: '',
+	prevHtmlOverflow: ''
+};
+
+$(document)
+	.on('show.bs.modal', '.modal', function () {
+		if (__tplModalScrollLock.count === 0) {
+			__tplModalScrollLock.prevBodyOverflow = $('body').css('overflow') || '';
+			__tplModalScrollLock.prevHtmlOverflow = $('html').css('overflow') || '';
+			$('body, html').css('overflow', 'hidden');
+		}
+		__tplModalScrollLock.count++;
+	})
+	.on('hidden.bs.modal', '.modal', function () {
+		__tplModalScrollLock.count = Math.max(0, __tplModalScrollLock.count - 1);
+		if (__tplModalScrollLock.count === 0) {
+			$('body').css('overflow', __tplModalScrollLock.prevBodyOverflow);
+			$('html').css('overflow', __tplModalScrollLock.prevHtmlOverflow);
+		}
+	});
+
 
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1") { ?>
 /* open add form modal */

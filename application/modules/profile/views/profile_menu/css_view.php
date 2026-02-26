@@ -367,12 +367,6 @@
 
 
 
-  .health-card {
-    background-color: #ffffff;
-    border-radius: 10px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    font-size: 13px !important;
-  }
 
   .profile-merged {
     display: flex;
@@ -386,6 +380,8 @@
 
     /* shadow sama kaya yang lain */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    align-items: center !important;
   }
 
   /* .profile-card,
@@ -412,8 +408,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* center horizontal */
-    justify-content: center;
+   
     /* center vertical */
     text-align: center;
     height: 100%;
@@ -516,7 +511,7 @@
   }
 
   .profile-card,
-  .health-card {
+  .health-monitoring-flex {
     text-align: center;
   }
 
@@ -1097,7 +1092,7 @@
     color: white;
   }
 
-  .health-card {
+  .health-monitoring-flex {
     min-width: 330px;
     /*background: #000000;*/
     /*#D9FB60;*/
@@ -1216,12 +1211,12 @@
     color: #fff;
   }
 
-  .health-card .row {
+  .health-monitoring-flex .row {
     margin-left: 0;
     margin-right: 0;
   }
 
-  .health-card .col-md-6 {
+  .health-monitoring-flex .col-md-6 {
     padding-left: 4px;
     padding-right: 4px;
   }
@@ -1570,26 +1565,26 @@
   @media (max-width: 768px) {
 
     /* card utama */
-    .health-card {
+    .health-monitoring-flex {
       padding: 22px 16px !important;
       border-radius: 14px !important;
     }
 
     /* paksa jadi 1 kolom */
-    .health-card .row {
+    .health-monitoring-flex .row {
       display: flex !important;
       flex-direction: column !important;
       gap: 0px !important;
       /* jarak antar grup */
     }
 
-    .health-card .col-md-6 {
+    .health-monitoring-flex .col-md-6 {
       width: 100% !important;
       padding: 0 !important;
     }
 
     /* jarak antar cardbox */
-    .health-card .card-box {
+    .health-monitoring-flex .card-box {
       margin-bottom: 15px !important;
       height: auto !important;
       min-height: 88px;
@@ -1597,40 +1592,40 @@
     }
 
     /* teks lebih lega */
-    .health-card .card-box h3 {
+    .health-monitoring-flex .card-box h3 {
       margin-top: 6px !important;
       font-size: 15px !important;
     }
 
-    .health-card .card-box p {
+    .health-monitoring-flex .card-box p {
       margin-top: 6px !important;
       font-size: 11px !important;
     }
 
-    .health-card .badge {
+    .health-monitoring-flex .badge {
       margin-top: 6px !important;
     }
 
     /* tombol bawah */
-    .health-card .btn-health {
+    .health-monitoring-flex .btn-health {
       margin-top: 16px !important;
     }
   }
 
   /* HP kecil banget */
   @media (max-width: 480px) {
-    .health-card .card-box {
+    .health-monitoring-flex .card-box {
       min-height: 92px;
     }
   }
 
-  .health-card .card-information-health>[class*="col-"] {
+  .health-monitoring-flex .card-information-health>[class*="col-"] {
     padding-left: 8px;
     padding-right: 8px;
   }
 
 
-  .health-card .card-box {
+  .health-monitoring-flex .card-box {
     border-radius: 16px !important;
     padding: 18px 18px !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
@@ -1643,79 +1638,79 @@
     justify-content: space-between;
   }
 
-  .health-card .card-box:hover {
+  .health-monitoring-flex .card-box:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
   }
 
   /* "header": label (p) + icon */
-  .health-card .card-box {
+  .health-monitoring-flex .card-box {
     position: relative;
   }
 
 
   /* BPM */
-  .health-card .cardbox-1 {
+  .health-monitoring-flex .cardbox-1 {
     border-color: #fef3c7 !important;
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
   }
 
-  .health-card .cardbox-1 h3 {
+  .health-monitoring-flex .cardbox-1 h3 {
     color: #d97706 !important;
   }
 
-  .health-card .cardbox-1 .icon {
+  .health-monitoring-flex .cardbox-1 .icon {
     background: #fadd94;
     color: #fff;
   }
 
   /* Sleep */
-  .health-card .cardbox-3 {
+  .health-monitoring-flex .cardbox-3 {
     border-color: #d1fae5 !important;
     background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%) !important;
   }
 
-  .health-card .cardbox-3 h3 {
+  .health-monitoring-flex .cardbox-3 h3 {
     color: #059669 !important;
   }
 
-  .health-card .cardbox-3 .icon {
+  .health-monitoring-flex .cardbox-3 .icon {
     background: #b7fbb4;
     color: #fff;
   }
 
   /* SPO2 */
-  .health-card .cardbox-2 {
+  .health-monitoring-flex .cardbox-2 {
     border-color: #fedcf0 !important;
     background: linear-gradient(135deg, #fff1f2 0%, #fecdea 100%) !important;
   }
 
-  .health-card .cardbox-2 h3 {
+  .health-monitoring-flex .cardbox-2 h3 {
     color: #e11d8f !important;
   }
 
-  .health-card .cardbox-2 .icon {
+  .health-monitoring-flex .cardbox-2 .icon {
     background: #fb94d0;
     color: #fff;
   }
 
   /* Fatigue/Kritikus (biru) */
-  .health-card .cardbox-4 {
+  .health-monitoring-flex .cardbox-4 {
     border-color: #dbeafe !important;
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
   }
 
-  .health-card .cardbox-4 h3 {
+  .health-monitoring-flex .cardbox-4 h3 {
     color: #2563eb !important;
   }
 
-  .health-card .cardbox-4 .icon {
+  .health-monitoring-flex .cardbox-4 .icon {
     background: #92b3f9;
     color: #fff;
   }
 
   /* label BPM/Sleep/SpO2/Fatigue */
-  .health-card .card-box p {
+  .health-monitoring-flex .card-box p {
     font-size: 13px !important;
     font-weight: 600 !important;
     color: #64748b !important;
@@ -1723,7 +1718,7 @@
 
   }
 
-  .health-card .card-box h3 {
+  .health-monitoring-flex .card-box h3 {
     margin: 8px 0 6px !important;
     /* kasih ruang dari header */
     font-size: 29px !important;
@@ -1731,7 +1726,7 @@
 
   }
 
-  .health-card .card-box .icon {
+  .health-monitoring-flex .card-box .icon {
     /* position: absolute;
   top: 16px;
   right: 16px; */
@@ -1991,12 +1986,12 @@
     background: #fff;
     border-radius: 15px !important;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
-    padding: 15px;
+    
   }
 
   /* atur tinggi list task di card agar konsisten */
   .info-3cards-section #tasklistList {
-    height:   110px;
+    height: 110px;
     /* sesuaikan kalau mau lebih tinggi */
     overflow-y: auto;
   }
@@ -2034,5 +2029,82 @@
       width: 100% !important;
       height: 240px !important;
     }
+  }
+
+
+  /* profile jadi 2 kolom: kiri profile-merged, kanan side cards */
+  .profile-section {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* side cards stack */
+  .profile-side-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  /* responsive: mobile jadi 1 kolom */
+  @media (max-width: 768px) {
+    .profile-section {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* section untuk health flex */
+  .info-3cards-section {
+    display: block;
+    /* override grid lama */
+    border-radius: 20px !important;
+    background-color: #fff;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
+    
+  }
+
+  /* 4 health card flex */
+  .health-monitoring-flex {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  /* masing-masing card */
+  .health-monitoring-flex .card-box {
+    flex: 1 1 calc(25% - 20px);
+    min-width: 220px;
+    margin-bottom: 0 !important;
+    /* biar gap rapi */
+  }
+
+  /* tablet */
+  @media (max-width: 992px) {
+    .health-monitoring-flex .card-box {
+      flex: 1 1 calc(50% - 20px);
+    }
+  }
+
+  /* mobile */
+  @media (max-width: 768px) {
+    .health-monitoring-flex .card-box {
+      flex: 1 1 100%;
+    }
+  }
+
+
+
+  .tasklist-bottom-section .box-1.table-box {
+    width: 100% !important;
+  }
+
+  .tasklist-bottom-section #tasklistList {
+    height: fit-content;
+    max-height: 300px !important;
+    /* atau auto sesuai kebutuhan */
+    overflow-y: auto;
   }
 </style>

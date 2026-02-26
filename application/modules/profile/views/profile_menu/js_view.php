@@ -138,6 +138,8 @@
 	var module_path = "<?php echo base_url($folder_name); ?>";
 	/*var base_url = "<?php echo base_url($base_url); ?>";*/
 	var base_url = "<?php echo base_url(); ?>";
+	var quickLinkPrevBodyOverflow = '';
+	var quickLinkPrevHtmlOverflow = '';
 
 	$(document).ready(function () { 
 		$(function () {
@@ -149,6 +151,20 @@
 				minimumResultsForSearch: 0,
 				width: '100%'
 		  	});
+
+			$('#modal-quicklink')
+				.on('show.bs.modal', function () {
+					quickLinkPrevBodyOverflow = $('body').css('overflow') || '';
+					quickLinkPrevHtmlOverflow = $('html').css('overflow') || '';
+
+					window.scrollTo(0, 0);
+					$('html, body').scrollTop(0);
+					$('html, body').css('overflow', 'hidden');
+				})
+				.on('hidden.bs.modal', function () {
+					$('body').css('overflow', quickLinkPrevBodyOverflow);
+					$('html').css('overflow', quickLinkPrevHtmlOverflow);
+				});
 
 			$('#fltasklistperiod').daterangepicker({
 		        locale: {
