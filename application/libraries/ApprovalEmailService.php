@@ -497,7 +497,7 @@ class ApprovalEmailService {
         $mail = [
             'subject'   => $subject,
             'to_name'   => $approver[0]->names,
-            'to_email'  => 'tiarasanir@gmail.com', ///$approver[0]->emails,
+            'to_email'  => $approver[0]->emails,
             'template'  => 'submitted'
         ];
 
