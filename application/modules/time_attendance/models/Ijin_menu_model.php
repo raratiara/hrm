@@ -579,216 +579,237 @@ class Ijin_menu_model extends MY_Model
 		if($post['employee'] != '' && $post['date_start'] != '' && $post['date_end'] != '' && $post['leave_type'] != ''){
 
 			$dataEmp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result(); 
-			if(!empty($dataEmp)){
-				if(!empty($dataEmp[0]->work_location)){
-					//upload 
-					$dataU = array();
-					$dataU['status'] = FALSE; 
-					$fieldname='attachment';
-					if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-		            { 
-		               
-		                $config['upload_path']   = "./uploads/ijin";
-		                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-		                $config['max_size']      = "0"; 
-		                
-		                $this->load->library('upload', $config); 
-		                
-		                if(!$this->upload->do_upload($fieldname)){ 
-		                    $err_msg = $this->upload->display_errors(); 
-		                    $dataU['error_warning'] = strip_tags($err_msg);              
-		                    $dataU['status'] = FALSE;
-		                } else { 
-		                    $fileData = $this->upload->data();
-		                    $dataU['upload_file'] = $fileData['file_name'];
-		                    $dataU['status'] = TRUE;
-		                }
-		            }
-		            $document = '';
-					if($dataU['status']){ 
-						$document = $dataU['upload_file'];
-					} else if(isset($dataU['error_warning'])){ 
-						//echo $dataU['error_warning']; exit;
-						$document = 'ERROR : '.$dataU['error_warning'];
-					}
-		            //end upload
 
-					            
-					if($post['leave_type'] == '24'){ //DAY OFF
-						$ttl_dayoff = $this->cek_ttl_dayoff($post['employee']);
+			$dataCuti = $this->db->query("select 1 FROM leave_absences WHERE employee_id = '".$post['employee']."'
+						AND ( '".$f_date_start."' <= date_leave_end AND '".$f_date_end."' >= date_leave_start) LIMIT 1")->result(); 
 
-						if($diff_day <= $ttl_dayoff){
+			if(empty($dataCuti)){
+				if(!empty($dataEmp)){
+					if(!empty($dataEmp[0]->work_location)){
+						//upload 
+						$dataU = array();
+						$dataU['status'] = FALSE; 
+						$fieldname='attachment';
+						if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+			            { 
+			               
+			                $config['upload_path']   = "./uploads/ijin";
+			                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+			                $config['max_size']      = "0"; 
+			                
+			                $this->load->library('upload', $config); 
+			                
+			                if(!$this->upload->do_upload($fieldname)){ 
+			                    $err_msg = $this->upload->display_errors(); 
+			                    $dataU['error_warning'] = strip_tags($err_msg);              
+			                    $dataU['status'] = FALSE;
+			                } else { 
+			                    $fileData = $this->upload->data();
+			                    $dataU['upload_file'] = $fileData['file_name'];
+			                    $dataU['status'] = TRUE;
+			                }
+			            }
+			            $document = '';
+						if($dataU['status']){ 
+							$document = $dataU['upload_file'];
+						} else if(isset($dataU['error_warning'])){ 
+							//echo $dataU['error_warning']; exit;
+							$document = 'ERROR : '.$dataU['error_warning'];
+						}
+			            //end upload
 
-							//insert table leave
-							$data = [
-								'employee_id' 				=> trim($post['employee']),
-								'date_leave_start' 			=> $f_date_start,
-								'date_leave_end' 			=> $f_date_end,
-								'masterleave_id' 			=> trim($post['leave_type']),
-								'reason' 					=> trim($post['reason']),
-								'total_leave' 				=> $diff_day,
-								'status_approval' 			=> 1,
-								'photo' 					=> $document,
-								'created_at'				=> date("Y-m-d H:i:s")
-							];
-							$rs = $this->db->insert($this->table_name, $data);
-							$lastId = $this->db->insert_id();
+						            
+						if($post['leave_type'] == '24'){ //DAY OFF
+							$ttl_dayoff = $this->cek_ttl_dayoff($post['employee']);
 
-							if($rs){
-								///insert approval path
-								$approval_type_id = 1; //Absence
-								$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, $post['leave_type'], $diff_day, $lastId);
-								
+							if($diff_day <= $ttl_dayoff){
 
-								//update table overtimes
-								$this->update_table_overtimes($post['employee'],$diff_day);
-
-								return [
-								    "status" => true,
-								    "msg"    => "Data berhasil disimpan"
+								//insert table leave
+								$data = [
+									'employee_id' 				=> trim($post['employee']),
+									'date_leave_start' 			=> $f_date_start,
+									'date_leave_end' 			=> $f_date_end,
+									'masterleave_id' 			=> trim($post['leave_type']),
+									'reason' 					=> trim($post['reason']),
+									'total_leave' 				=> $diff_day,
+									'status_approval' 			=> 1,
+									'photo' 					=> $document,
+									'created_at'				=> date("Y-m-d H:i:s")
 								];
+								$rs = $this->db->insert($this->table_name, $data);
+								$lastId = $this->db->insert_id();
 
-							}else{
-								return [
-								    "status" => false,
-								    "msg"    => "Data gagal disimpan"
-								];
-							}
-
-						}else{
-						
-							return [
-							    "status" => false,
-							    "msg"    => "Sisa day off tidak mencukupi"
-							];
-						}
-
-					}else{
-						/*$cek_sisa_cuti 	= $this->get_data_sisa_cuti($post['employee'], $f_date_start, $f_date_end);
-						$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;*/
-
-						$cek_sisa_cuti = $this->get_data_sisa_cuti($post['employee'], $f_date_start, $f_date_end);
-						if (is_array($cek_sisa_cuti) && isset($cek_sisa_cuti[0]->ttl_sisa_cuti)) {
-						    $sisa_cuti = $cek_sisa_cuti[0]->ttl_sisa_cuti;
-						} else {
-						    $sisa_cuti = 0; // default kalau datanya tidak ada
-						}
-
-						
-						if($post['leave_type'] == '6'){ //Half day leave
-							$diff_day = $diff_day*0.5;
-						}
-						if($post['leave_type'] == '5'){ //Sick Leave
-							$diff_day = 0 ;
-						}
-						
-
-						if($f_date_end >= $f_date_start){
-							if($diff_day <= $sisa_cuti || $post['leave_type'] == '2'){ //unpaid leave gak ngecek sisa cuti
-								
-
-								if($post['leave_type'] == 5 && $document == ''){ //tipe sick harus ada document
+								if($rs){
+									///insert approval path
+									$approval_type_id = 1; //Absence
+									$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, $post['leave_type'], $diff_day, $lastId);
 									
+
+									//update table overtimes
+									$this->update_table_overtimes($post['employee'],$diff_day);
+
+
+									// send emailing to requester
+									$this->approvalemailservice->sendtoRequester('leave_absences', $lastId, $post['employee'], $_SESSION['worker']);
+
+									return [
+									    "status" => true,
+									    "msg"    => "Data berhasil disimpan"
+									];
+
+								}else{
 									return [
 									    "status" => false,
-									    "msg"    => "Please choose Document"
+									    "msg"    => "Data gagal disimpan"
 									];
-								}else{
-									$data = [
-										'employee_id' 				=> trim($post['employee']),
-										'date_leave_start' 			=> $f_date_start,
-										'date_leave_end' 			=> $f_date_end,
-										'masterleave_id' 			=> trim($post['leave_type']),
-										'reason' 					=> trim($post['reason']),
-										'total_leave' 				=> $diff_day,
-										'status_approval' 			=> 1,
-										'photo' 					=> $document,
-										'created_at'				=> date("Y-m-d H:i:s")
-									];
-									$rs = $this->db->insert($this->table_name, $data);
-									$lastId = $this->db->insert_id();
-
-									if($rs){
-
-										///insert approval path
-										$approval_type_id = 1; //Absence
-										$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, $post['leave_type'], $diff_day, $lastId);
-
-
-										return [
-										    "status" => true,
-										    "msg"    => "Data berhasil disimpan"
-										];
-									}else{
-										return [
-										    "status" => false,
-										    "msg"    => "Data gagal disimpan"
-										];
-									}
-
-
-									//update sisa jatah cuti
-									/*if($post['leave_type'] != '2'){ //unpaid leave gak update sisa cuti
-										$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$post['employee']."' and status = 1 order by period_start asc")->result(); 
-
-										$is_update_jatah_selanjutnya=0;
-										$sisa_cuti = $jatahcuti[0]->sisa_cuti-$diff_day;
-
-										if($diff_day > $jatahcuti[0]->sisa_cuti){ 
-											$is_update_jatah_selanjutnya=1;
-											$sisa_cuti = 0;
-											$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
-											$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;
-											
-										}
-										
-										$data2 = [
-													'sisa_cuti' 	=> $sisa_cuti,
-													'updated_date'	=> date("Y-m-d H:i:s")
-												];
-										$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
-
-
-										if($is_update_jatah_selanjutnya == 1){ 
-											$data3 = [
-														'sisa_cuti' 	=> $sisa_cuti2,
-														'updated_date'	=> date("Y-m-d H:i:s")
-													];
-											$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
-										}
-
-									}*/
 								}
-								
-							}
-							else{
+
+							}else{
+							
 								return [
 								    "status" => false,
-								    "msg"    => "Sisa Cuti tidak mencukupi"
+								    "msg"    => "Sisa day off tidak mencukupi"
 								];
 							}
+
 						}else{
+							/*$cek_sisa_cuti 	= $this->get_data_sisa_cuti($post['employee'], $f_date_start, $f_date_end);
+							$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;*/
+
+							$cek_sisa_cuti = $this->get_data_sisa_cuti($post['employee'], $f_date_start, $f_date_end);
+							if (is_array($cek_sisa_cuti) && isset($cek_sisa_cuti[0]->ttl_sisa_cuti)) {
+							    $sisa_cuti = $cek_sisa_cuti[0]->ttl_sisa_cuti;
+							} else {
+							    $sisa_cuti = 0; // default kalau datanya tidak ada
+							}
+
 							
-							return [
-							    "status" => false,
-							    "msg"    => "Date not match"
-							];
+							if($post['leave_type'] == '6'){ //Half day leave
+								$diff_day = $diff_day*0.5;
+							}
+							if($post['leave_type'] == '5'){ //Sick Leave
+								$diff_day = 0 ;
+							}
+							
+
+							if($f_date_end >= $f_date_start){
+								if($diff_day <= $sisa_cuti || $post['leave_type'] == '2'){ //unpaid leave gak ngecek sisa cuti
+									
+
+									if($post['leave_type'] == 5 && $document == ''){ //tipe sick harus ada document
+										
+										return [
+										    "status" => false,
+										    "msg"    => "Please choose Document"
+										];
+									}else{
+										$data = [
+											'employee_id' 				=> trim($post['employee']),
+											'date_leave_start' 			=> $f_date_start,
+											'date_leave_end' 			=> $f_date_end,
+											'masterleave_id' 			=> trim($post['leave_type']),
+											'reason' 					=> trim($post['reason']),
+											'total_leave' 				=> $diff_day,
+											'status_approval' 			=> 1,
+											'photo' 					=> $document,
+											'created_at'				=> date("Y-m-d H:i:s")
+										];
+										$rs = $this->db->insert($this->table_name, $data);
+										$lastId = $this->db->insert_id();
+
+										if($rs){
+
+											///insert approval path
+											$approval_type_id = 1; //Absence
+											$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, $post['leave_type'], $diff_day, $lastId);
+
+
+											// send emailing to requester
+											$this->approvalemailservice->sendtoRequester('leave_absences', $lastId, $post['employee'], $_SESSION['worker']);
+
+
+											return [
+											    "status" => true,
+											    "msg"    => "Data berhasil disimpan"
+											];
+										}else{
+											return [
+											    "status" => false,
+											    "msg"    => "Data gagal disimpan"
+											];
+										}
+
+
+										//update sisa jatah cuti
+										/*if($post['leave_type'] != '2'){ //unpaid leave gak update sisa cuti
+											$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = '".$post['employee']."' and status = 1 order by period_start asc")->result(); 
+
+											$is_update_jatah_selanjutnya=0;
+											$sisa_cuti = $jatahcuti[0]->sisa_cuti-$diff_day;
+
+											if($diff_day > $jatahcuti[0]->sisa_cuti){ 
+												$is_update_jatah_selanjutnya=1;
+												$sisa_cuti = 0;
+												$diff_day2 = $diff_day-$jatahcuti[0]->sisa_cuti;
+												$sisa_cuti2 = $jatahcuti[1]->sisa_cuti-$diff_day2;
+												
+											}
+											
+											$data2 = [
+														'sisa_cuti' 	=> $sisa_cuti,
+														'updated_date'	=> date("Y-m-d H:i:s")
+													];
+											$this->db->update('total_cuti_karyawan', $data2, "id = '".$jatahcuti[0]->id."'");
+
+
+											if($is_update_jatah_selanjutnya == 1){ 
+												$data3 = [
+															'sisa_cuti' 	=> $sisa_cuti2,
+															'updated_date'	=> date("Y-m-d H:i:s")
+														];
+												$this->db->update('total_cuti_karyawan', $data3, "id = '".$jatahcuti[1]->id."'");
+											}
+
+										}*/
+									}
+									
+								}
+								else{
+									return [
+									    "status" => false,
+									    "msg"    => "Sisa Cuti tidak mencukupi"
+									];
+								}
+							}else{
+								
+								return [
+								    "status" => false,
+								    "msg"    => "Date not match"
+								];
+							}
 						}
+					}else{
+						
+						return [
+						    "status" => false,
+						    "msg"    => "Work Location not found"
+						];
 					}
 				}else{
 					
 					return [
 					    "status" => false,
-					    "msg"    => "Work Location not found"
+					    "msg"    => "Employee not found"
 					];
 				}
 			}else{
-				
 				return [
 				    "status" => false,
-				    "msg"    => "Employee not found"
+				    "msg"    => "Date Range not valid"
 				];
 			}
+
+			
 			
 		}else{
 			

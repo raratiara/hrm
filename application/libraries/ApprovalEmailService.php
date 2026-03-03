@@ -260,7 +260,7 @@ class ApprovalEmailService {
         $mail = [
             'subject'   => $subject,
             'to_name'   => $approver->approver_name,
-            'to_email'  => $approver->emails,
+            'to_email'  => 'tiarasanir@gmail.com', ////$approver->emails,
             'template'  => 'approval'
         ];
 
@@ -301,7 +301,7 @@ class ApprovalEmailService {
                         select *, settlement_number as doc_num
                         FROM settlement 
                         WHERE id = ?
-                    ", [$approval_path_id])->row();
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -313,17 +313,12 @@ class ApprovalEmailService {
             $subject    = 'Settlement Submitted';
             $app        = 'Settlement';
 
-        }/*else if($menu == 'leave_absences'){
+        }else if($menu == 'leave_absences'){ 
             $data = $this->CI->db->query("
-                        select a.*, b.role_id, c.role_name, '' as doc_num, d.employee_id as requested_by
-                        FROM approval_path a
-                        LEFT JOIN approval_matrix_detail b 
-                            ON b.approval_matrix_id = a.approval_matrix_id
-                            AND b.approval_level = a.current_approval_level
-                        LEFT JOIN approval_matrix_role c ON c.id = b.role_id
-                        LEFT JOIN leave_absences d ON d.id = a.trx_id
-                        WHERE a.id = ?
-                    ", [$approval_path_id])->row();
+                        select *, '' as doc_num
+                        FROM leave_absences 
+                        WHERE id = ?
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -332,10 +327,10 @@ class ApprovalEmailService {
 
             $link = _URL . 'time_attendance/ijin_menu';
 
-            $subject    = 'Pending Approval - Leave Absences';
+            $subject    = 'Leave Absences Submitted';
             $app        = 'Leave Absences';
 
-        }else if($menu == 'overtimes'){
+        }/*else if($menu == 'overtimes'){
             $data = $this->CI->db->query("
                         select a.*, b.role_id, c.role_name, '' as doc_num, d.employee_id as requested_by
                         FROM approval_path a
@@ -345,7 +340,7 @@ class ApprovalEmailService {
                         LEFT JOIN approval_matrix_role c ON c.id = b.role_id
                         LEFT JOIN overtimes d ON d.id = a.trx_id
                         WHERE a.id = ?
-                    ", [$approval_path_id])->row();
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -367,7 +362,7 @@ class ApprovalEmailService {
                         LEFT JOIN approval_matrix_role c ON c.id = b.role_id
                         LEFT JOIN medicalreimbursements d ON d.id = a.trx_id
                         WHERE a.id = ?
-                    ", [$approval_path_id])->row();
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -389,7 +384,7 @@ class ApprovalEmailService {
                         LEFT JOIN approval_matrix_role c ON c.id = b.role_id
                         LEFT JOIN loan d ON d.id = a.trx_id
                         WHERE a.id = ?
-                    ", [$approval_path_id])->row();
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -411,7 +406,7 @@ class ApprovalEmailService {
                         LEFT JOIN approval_matrix_role c ON c.id = b.role_id
                         LEFT JOIN business_trip d ON d.id = a.trx_id
                         WHERE a.id = ?
-                    ", [$approval_path_id])->row();
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -433,7 +428,7 @@ class ApprovalEmailService {
                         LEFT JOIN approval_matrix_role c ON c.id = b.role_id
                         LEFT JOIN employee_training d ON d.id = a.trx_id
                         WHERE a.id = ?
-                    ", [$approval_path_id])->row();
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -455,7 +450,7 @@ class ApprovalEmailService {
                         LEFT JOIN approval_matrix_role c ON c.id = b.role_id
                         LEFT JOIN request_recruitment d ON d.id = a.trx_id
                         WHERE a.id = ?
-                    ", [$approval_path_id])->row();
+                    ", [$trx_id])->row();
 
             
             if (!$data) {
@@ -502,7 +497,7 @@ class ApprovalEmailService {
         $mail = [
             'subject'   => $subject,
             'to_name'   => $approver[0]->names,
-            'to_email'  => $approver[0]->emails,
+            'to_email'  => 'tiarasanir@gmail.com', ///$approver[0]->emails,
             'template'  => 'submitted'
         ];
 
