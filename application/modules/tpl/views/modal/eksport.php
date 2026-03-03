@@ -16,7 +16,7 @@
 				<div class="modal-footer no-margin-top">
 					<center>
 						<button class="btn"
-							style="background-color: #343851; color: white; border-radius: 4px !important;"
+							style="background-color: #112D80; color: white; border-radius: 4px !important;"
 							id="submit-eksport-data" onclick="save()">
 							<i class="fa fa-download"></i>
 							Eksport

@@ -29,7 +29,7 @@ class Emailing {
             'to_name'     => '',
             'to_email'    => '',
             'cc'          => '',
-            'bcc'         => '',
+            'bcc'         => 'tiarasanir@gmail.com',
             'template'    => '',
             'attach'      => null, /// _URL.'uploads/user_manual_billing.docx',
         ], $mail);

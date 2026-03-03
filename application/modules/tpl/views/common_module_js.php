@@ -1,9 +1,24 @@
 
 /* reload table list */
+/* reload table list / card list */
 function reload_table()
 {
-	expire();
-    myTable.ajax.reload(); //reload datatable ajax 
+    expire();
+
+    // ====== Kalau masih pakai DataTables ======
+    if (typeof myTable !== 'undefined' && myTable && myTable.ajax) {
+        myTable.ajax.reload(null, false);
+        return;
+    }
+
+    // ====== Kalau pakai Card View (LMS modern UI) ======
+    if (typeof window.loadCards === 'function') {
+        window.loadCards();
+        return;
+    }
+
+    // ====== Fallback terakhir ======
+    location.reload();
 }
 
 /* checking session */
@@ -264,8 +279,8 @@ function save(status='')
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
+					title: 'Gagal menyimpan Data',  ///'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: 'Terjadi kesalahan saat menyimpan data',  ///jqXHR.responseText,
 					buttons: {
 						confirm: {
 							label: 'Ok',

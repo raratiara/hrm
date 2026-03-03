@@ -53,7 +53,7 @@
       font-family: "Poppins", sans-serif;
     }
 
-    body {
+    /* body {
       margin: 0;
       display: flex;
       height: 100vh;
@@ -74,37 +74,36 @@
     
 
     .left-side {
-      background-color: #343851;
-      color: white;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
-    }
+  background: linear-gradient(to bottom, #b7dbfb 0%, #FFFFFF 100%);
+  color: #343851;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
 
     .left-side img {
-      width: 80px;
-      margin-bottom: 1rem;
-      border-radius: 50%;
-    }
+  width: 80px;
+  margin-bottom: 1rem;
+  border-radius: 0;
+}
 
-    .left-side h2 {
-      font-size: 24px;
-      font-weight: 600;
-      text-align: center;
-      color: white;
-    }
+   .left-side h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1E2A5A;
+  padding-right: 150px;
+}
 
     .left-side .illustration {
-      margin-top: 2rem;
-      max-width: 430px;
-      width: 100%;
-    }
+  max-width: 500px;
+  width: 100%;
+}
 
     .right-side {
-      background-color: #F5C020;
+      background-color: #FFFFFF;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -113,15 +112,15 @@
     }
 
     .right-side h2 {
-      font-size: 28px;
-      font-weight: 400;
+      font-size: 35px;
+      font-weight: 600;
       color: #343851;
-      margin-bottom: 2rem;
+      margin-bottom: 3rem;
     }
 
     .form-group {
       margin-bottom: 1rem;
-      min-width: 320px;
+      min-width: 350px;
     }
 
     .checkbox {
@@ -129,23 +128,122 @@
       font-size: 12px;
       color: #343851;
       margin-left: -20px;
-    }
+    } */
+
+      /* =========================
+   DESKTOP layout mirip gambar (tanpa ubah HTML)
+========================= */
+body{
+  height: 100vh;
+  display: flex;
+  align-items: center;            /* vertikal center */
+  justify-content: center;        /* biar ada ruang kiri-kanan */
+  background: linear-gradient(to bottom, #b7dbfb 0%, #FFFFFF 100%);
+  padding: 35px;                  /* ruang tepi seperti gambar */
+}
+
+/* kiri: rata kiri, hero area */
+.left-side{
+  flex: 1;
+  height: 100%;
+  border-radius: 18px 0 0 18px;   /* kalau mau halus (opsional) */
+  justify-content: center;
+  align-items: center;      /* rata kiri */
+  padding: 30px 100px;
+  position: relative;
+}
+
+/* judul kiri atas */
+.left-side h2{
+  padding-right: 0 !important;
+  font-size: 30px;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 550;
+  color: #1E2A5A;
+}
+
+
+
+
+
+/* logo kiri atas (kecil) */
+.left-side .logo-default{
+  width: 70px !important;
+  margin-bottom: 18px;
+}
+
+/* ilustrasi kiri agak ke bawah */
+.left-side img.illustration{
+  max-width: 520px;
+  width: 100%;
+  
+}
+
+/* kanan: jadi card putih mengambang */
+.right-side{
+  flex: 0 0 600px;                /* lebar card (sesuaikan) */
+  height: 90vh;                   /* jangan full tinggi */
+  background: #fff;
+  border-radius: 38px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+  padding: 120px 100px;
+  margin-left: 40px;              /* jarak dari hero kiri */
+  align-items: center;
+  justify-content: center;
+}
+
+/* judul Sign in */
+.right-side h2{
+  font-size: 34px;
+  margin-bottom: 28px;
+  text-align: center;
+  font-weight: 600;
+   color: #343851;
+}
+
+
+/* form lebar pas seperti gambar */
+.form-group{
+  min-width: 100%;
+}
+
+/* rapihin checkbox biar nggak ketarik ke kiri */
+.checkbox{
+  margin-top: 1.8rem;
+      font-size: 12px;
+      color: #343851;
+      margin-left: -20px;
+}
+
 
     .form-group label {
-      font-size: 12px;
+      font-size: 13px;
       margin-bottom: 0.5rem;
       display: block;
       color: #343851;
     }
 
-    .form-group input[type="text"],
-    .form-group input[type="password"] {
-      width: 100%;
-      padding: 0.7rem;
-      border-radius: 30px;
-      border: none;
-      outline: none;
-    }
+   .form-group input[type="text"],
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 1.2rem 1.8rem;
+  border-radius: 30px;
+  border: 1px solid #e0e0e0;
+  outline: none;
+  background: #F1F9FF;
+  color: #343851;        
+}
+
+.form-group input::placeholder {
+  color: #858585;
+  font-size: 13px;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
+  box-shadow: 0 0 0 2px rgba(52, 56, 81, 0.15);
+}
 
 
 
@@ -157,8 +255,8 @@
 
     .login-button {
       width: 100%;
-      padding: 0.8rem;
-      background-color: #343851;
+      padding: 1.1rem;
+      background-color: #38406F;
       color: white;
       border: none;
       border-radius: 30px;
@@ -178,101 +276,137 @@
     }
 
 
-    /*.font-sign {
-                color: #32c5d2 !important; 
-            }*/
+    
 
-    /*.login-box {
-              background: #fff;
-              padding: 40px;
-              width: 300px;
-              border-radius: 15px;
-              box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
-              text-align: center;
-            }
+   /* =========================
+   MOBILE (mirip gambar)
+========================= */
+@media (max-width: 768px) {
 
-            .login-box h2 {
-              margin-bottom: 30px;
-              color: #333;
-            }
+  body{
+    display:block;            /* matikan flex 2 kolom */
+    height: 100vh;
+    background: linear-gradient(to bottom, #D7EBFC 0%, #FFFFFF 100%);
+  }
 
-            .input-box {
-              position: relative;
-              margin-bottom: 30px;
-            }
+  /* HERO (atas) */
+  .left-side{
+    width:100%;
+    min-height: 56vh;
+    padding: 0px 0px 0px 0 !important;
+    justify-content: flex-start;
+    align-items: flex-start;
+    position: relative;
+    border-radius: 0;
+  }
 
-            .input-box input {
-              width: 100%;
-              padding: 10px 10px;
-              font-size: 16px;
-              color: #333;
-              border: none;
-              border-bottom: 2px solid #aaa;
-              background: transparent;
-              outline: none;
-            }
+  /* judul kiri atas */
+  .left-side h2{
+    padding-right: 0 !important;
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.15;
+  }
 
-            .input-box label {
-              position: absolute;
-              left: 10px;
-              top: 10px;
-              color: #aaa;
-              pointer-events: none;
-              transition: 0.3s ease;
-            }
+  /* logo (kalau mau pojok kanan atas seperti gambar) */
+  .left-side .logo-default{
+    position: absolute;
+    right: 16px;
+    top: -8px;
+    width: 60px !important;
+  }
 
-            .input-box input:focus ~ label,
-            .input-box input:valid ~ label {
-              top: -10px;
-              font-size: 12px;
-              color: #6e8efb;
-            }
+  /* ilustrasi di tengah */
+  .left-side img.illustration{
+    width: 100%;
+    max-width: 360px;
+    margin: 18px auto 0;
+    display:block;
+  }
 
-            .login-btn {
-              width: 100%;
-              padding: 10px;
-              background: #6e8efb;
-              border: none;
-              color: #fff;
-              border-radius: 25px;
-              font-size: 16px;
-              cursor: pointer;
-              transition: 0.3s;
-            }
-
-            .login-btn:hover {
-              background: #5b78e0;
-            }*/
+  /* AREA CARD FORM (bawah) */
+  .right-side{
+    width: 100%;
+    margin: 0;
+    padding: 20px 25px 20px 25px !important;
+    height: auto;
+    margin-top: -270px; 
+    border-radius: 30px;
+  }
 
 
-      @media (max-width: 768px) {
-          body {
-            flex-direction: column;
-          }
 
-          .left-side, .right-side {
-            flex: 1 1 100%;
-            width: 100%;
-            padding: 1.5rem;
-          }
-
-          .left-side img.illustration {
-            max-width: 100%;
-            height: auto;
-          }
-
-          .form-group {
-            min-width: auto;
-            width: 100%;
-          }
-
-          .checkbox {
-            margin-left: 0;
-            text-align: left;
-          }
-      }
+  .right-side h2{
+    margin: 0;
+    font-size: 20px;
+    margin-bottom: 22px;
+  }
 
 
+
+  .form-group{
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .form-group label{
+    display:none; /* biar mirip gambar: cukup placeholder */
+  }
+
+  .form-group input[type="text"],
+  .form-group input[type="password"]{
+    padding: 8px 15px;
+    border-radius: 30px;
+  }
+
+  .checkbox{
+    font-size: 10px;
+  }
+
+  .login-button{
+    margin-top: 6px;
+    padding: 10px;
+    border-radius: 30px;
+    font-size: 12px;
+  }
+}
+
+/* =========================
+   FIX: Mobile input tidak bisa diketik
+   (layer ketiban / ke-block)
+========================= */
+@media (max-width: 768px){
+
+  /* pastikan parent punya konteks stacking */
+  .left-side,
+  .right-side{
+    position: relative !important;
+  }
+
+  /* card form harus paling atas */
+  .right-side{
+    z-index: 50 !important;
+    pointer-events: auto !important;
+  }
+
+  /* hero/left-side di bawahnya */
+  .left-side{
+    z-index: 1 !important;
+  }
+
+  /* seringnya ilustrasi/asset yang “nahan klik” */
+  .left-side img,
+  .left-side .illustration,
+  .left-side .logo-default{
+    pointer-events: none !important;
+  }
+
+  /* optional: kalau masih ketiban, kasih ruang pakai transform */
+  .right-side{
+    margin-top: 0 !important;              /* reset negatif */
+    transform: translateY(-270px);          /* ganti negative margin */
+  }
+}
 
   </style>
 
@@ -285,10 +419,13 @@
 <body>
   <!-- BEGIN LOGO -->
   <div class="left-side">
-    <a href="/">
+    <div>
+ <a href="/">
       <img width="100" class="logo-default" src="<?php echo _ASSET_LOGO_FRONT; ?>" alt="<?php echo _COMPANY_NAME; ?>" /> </a>
     <h2>Hello! Welcome to</h2>
     <h2 style="margin-top: 0rem;">HR System</h2>
+    </div>
+   
     <img width="500" src="<?php echo _ASSET_ILUSTRASI_LOGIN; ?>" alt="Illustration" class="illustration">
   </div>
   <!-- END LOGO -->
@@ -314,12 +451,12 @@
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="login-button" id="btnLogin">Login</button>
         <div class="checkbox">
           <label class="checkbox-label">
             <input type="checkbox" name="remember" value="1" />Keep me logged in
           </label>
         </div>
+        <button type="submit" class="login-button" id="btnLogin">Login</button>
 
       </div>
 

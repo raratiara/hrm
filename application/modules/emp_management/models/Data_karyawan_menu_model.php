@@ -189,7 +189,7 @@ class Data_karyawan_menu_model extends MY_Model
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -436,11 +436,23 @@ class Data_karyawan_menu_model extends MY_Model
 		$dateofHired = date("Y-m-d", strtotime($date_of_hire));
 
 		if($post['company'] == ''){
-			echo "Please fill the Company"; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Please fill the Company"
+			];
 		}else if(!isset($post['shift_type'])){
-			echo "Please fill the Shift Type"; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Please fill the Shift Type"
+			];
 		}else if(!isset($post['status'])){
-			echo "Please choose Status"; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Please choose Status"
+			];
 		}else{
 			
 			//NBI[2DIGITTAHUNBLN][4DIGITNOURUT]
@@ -777,11 +789,19 @@ class Data_karyawan_menu_model extends MY_Model
 				$this->generate_jatah_cuti_karyawan_baru($lastId,$dateofHired);
 				//end add jatah cuti
 
+
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
 			}
 
-
-
-			return $rs;
 		
 		}
 
@@ -1208,12 +1228,24 @@ class Data_karyawan_menu_model extends MY_Model
 
 				// end add education detail //
 
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
 
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
 			}
 
-
-			return $rs;
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

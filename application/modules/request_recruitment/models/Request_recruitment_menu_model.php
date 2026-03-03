@@ -265,7 +265,7 @@ class Request_recruitment_menu_model extends MY_Model
 
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -529,19 +529,39 @@ class Request_recruitment_menu_model extends MY_Model
 						}
 
 
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
 
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
 					}
 
-					return $rs;
-
 				}else{
-					echo "Work Location not found"; 
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; 
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Employee not found"
+				];
 			}
 
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg"    => "Subject must be filled"
+			];
+  		}
 
 		
 	}  
@@ -652,12 +672,25 @@ class Request_recruitment_menu_model extends MY_Model
 				}
 
 
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
 
-
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
 			}
 
-			return $rs;
-		} else return null;
+			
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

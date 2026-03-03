@@ -259,7 +259,7 @@ class Settlement_menu_model extends MY_Model
 
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -575,14 +575,34 @@ class Settlement_menu_model extends MY_Model
 						$approval_type_id = 3; //settlement
 						$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', trim($post['settlement_amount']), $lastId);
 
+						//send emailing to requester
+						$this->approvalemailservice->sendtoRequester('settlement', $lastId, $post['requested_by'], $_SESSION['worker']);
 
-						return $rs;
-					}else return null;
+
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
 				}else{
-					echo "Work Location not found"; 
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; 
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Employee not found"
+				];
 			}
 
   		}else return null;
@@ -630,9 +650,20 @@ class Settlement_menu_model extends MY_Model
 							];
 							$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
 						}
+
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
 					}
 					
-					return $rs;
+					
 				}else{
 					$next_level = $approval_level+1;
 					
@@ -658,9 +689,26 @@ class Settlement_menu_model extends MY_Model
 
 							// send emailing to approver
 							$this->approvalemailservice->sendApproval('settlement', $id, $approval_path_id);
+
+
+							return [
+							    "status" => true,
+							    "msg"    => "Data berhasil disimpan"
+							];
+
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Data gagal disimpan"
+							];
 						}
-						return $rs;
-					}else return null;
+						
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Approver not found"
+						];
+					}
 				}
 
 
@@ -797,12 +845,25 @@ class Settlement_menu_model extends MY_Model
 						}
 					}
 
-					return $rs;
-				}else return null;	
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
 
 			}
 
-		}else return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 
 		
 		

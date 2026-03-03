@@ -191,7 +191,7 @@ class Performance_plan_menu_model extends MY_Model
 		foreach ($rResult as $row) {
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1") {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail(' . "'" . $row->id . "'" . ')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1" && (($row->status_name == 'RFU' && $karyawan_id == $row->employee_id) || ($row->status_name == 'Waiting Approval' && $row->direct_id == $karyawan_id))) {
@@ -372,15 +372,33 @@ class Performance_plan_menu_model extends MY_Model
 
 					$this->send_email_to_direct($post['employee']);
 
-					return $rs;
+
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+
 				} else {
-					return null;
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
 				}
 			} else
-				return null;
+			{
+				return [
+				    "status" => false,
+				    "msg"    => "Data Plan not found"
+				];
+			}
 
-		} else
-			return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Employee & Year not found"
+			];
+		}
+			
 
 	}
 
@@ -474,12 +492,24 @@ class Performance_plan_menu_model extends MY_Model
 					}
 				}
 
-				return $rs;
-			} else
-				return null;
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
 
-		} else
-			return null;
+			} else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}
 
 	public function getRowData($id)

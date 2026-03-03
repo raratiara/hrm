@@ -196,7 +196,7 @@ class Absen_model extends MY_Model
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$isupdate="0"; $isdelete="0";
 			if($row->attendance_type != '' && $row->attendance_type != null){
@@ -383,7 +383,12 @@ class Absen_model extends MY_Model
 
 		
 		if($post['date_attendance'] == ''){
-			echo 'Date Attendance is not valid'; die();
+			
+			return [
+			    "status" => false,
+			    "msg"    => "Date Attendance is not valid"
+			];
+
 		}else{
 			$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$post['date_attendance']."' and employee_id = '".$post['hdnempid']."'")->result(); 
 
@@ -407,9 +412,24 @@ class Absen_model extends MY_Model
 				];
 				$rs = $this->db->insert($this->table_name, $data);
 
-				return $rs;
+				if($rs){
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
 
-	  		}else return null;
+	  		}else{
+	  			return [
+				    "status" => false,
+				    "msg"    => "Date Attendance is not valid"
+				];
+	  		}
 		}
 		
 	}  
@@ -502,8 +522,27 @@ class Absen_model extends MY_Model
 				'work_location' 			=> trim($post['location'])
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

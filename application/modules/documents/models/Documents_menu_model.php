@@ -186,7 +186,7 @@ class Documents_menu_model extends MY_Model
 		{
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -353,8 +353,26 @@ class Documents_menu_model extends MY_Model
 				'file' 			=> $file,
 				'created_at'	=> date("Y-m-d H:i:s")
 			];
-			return $rs = $this->db->insert($this->table_name, $data);
-  		}else return null;
+			$rs = $this->db->insert($this->table_name, $data);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg"    => "Document Name must be filled"
+			];
+  		}
 
 	}  
 
@@ -384,8 +402,26 @@ class Documents_menu_model extends MY_Model
 				'updated_at'	=> date("Y-m-d H:i:s")
 			];
 
-			return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-		} else return null;
+			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg"    => "Data berhasil disimpan"
+				];
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}
 	
 

@@ -258,7 +258,7 @@ class Fpp_menu_model extends MY_Model
 
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -484,9 +484,6 @@ class Fpp_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
-
 		$lettercode = ('FPP'); // ca code
 		$yearcode = date("y");
 		$monthcode = date("m");
@@ -514,7 +511,7 @@ class Fpp_menu_model extends MY_Model
 						'ca_number' 		=> $nextnum,
 						'ca_type' 			=> 2, //fpp
 						'request_date' 		=> trim($post['request_date']),
-						'prepared_by' 		=> $karyawan_id,
+						'prepared_by' 		=> $_SESSION['worker'],
 						'requested_by'		=> trim($post['requested_by']),
 						'total_cost' 		=> trim($post['total_cost_fpp']),
 						'document' 			=> $document,
@@ -563,24 +560,49 @@ class Fpp_menu_model extends MY_Model
 							}
 						}
 
-						return $rs;
-					}else return null;
+
+						//send emailing to requester
+						$this->approvalemailservice->sendtoRequester('cash_advance', $lastId, $post['requested_by'], $_SESSION['worker']);
+
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
 
 				}else{
-					echo "Work Location not found"; 
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Work Location not found"
+					];
 				}
 			}else{
-				echo "Employee not found"; 
+				
+				return [
+				    "status" => false,
+				    "msg"    => "Employee not found"
+				];
 			}
 
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg"    => "Requested By not found"
+			];
+  		}
 
 	}  
 
 	public function edit_data($post) { 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
 		$id = $post['id'];
 
 		if(!empty($post['id'])){ 
@@ -612,14 +634,25 @@ class Fpp_menu_model extends MY_Model
 						if(!empty($CurrApprovalId)){
 							$updApproval = [
 								'status' 		=> "Approved",
-								'approval_by' 	=> $karyawan_id,
+								'approval_by' 	=> $_SESSION['worker'],
 								'approval_date'	=> date("Y-m-d H:i:s")
 							];
 							$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
 						}
+
+
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
 					}
 
-					return $rs;
 				}else{
 					$next_level = $approval_level+1;
 					
@@ -632,7 +665,7 @@ class Fpp_menu_model extends MY_Model
 						if($rs){
 							$data = [
 								'status' 		=> "Approved",
-								'approval_by' 	=> $karyawan_id,
+								'approval_by' 	=> $_SESSION['worker'],
 								'approval_date'	=> date("Y-m-d H:i:s")
 							];
 							$this->db->update("approval_path_detail", $data, "id = '".$CurrApprovalId."'");
@@ -645,9 +678,26 @@ class Fpp_menu_model extends MY_Model
 
 							// send emailing to approver
 							$this->approvalemailservice->sendApproval('cash_advance', $id, $approval_path_id);
+
+
+							return [
+							    "status" => true,
+							    "msg"    => "Data berhasil disimpan"
+							];
+
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Data gagal disimpan"
+							];
 						}
-						return $rs;
-					}else return null;
+						
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Approver not found"
+						];
+					}
 				}
 
 			}else{
@@ -668,7 +718,7 @@ class Fpp_menu_model extends MY_Model
 
 				$is_rfu=0;
 				$getdata = $this->db->query("select * from cash_advance where id = '".$post['id']."'")->result(); 
-				if($getdata[0]->status_id == 4 && ($karyawan_id == $getdata[0]->prepared_by || $karyawan_id == $getdata[0]->requested_by)){ // edit RFU
+				if($getdata[0]->status_id == 4 && ($_SESSION['worker'] == $getdata[0]->prepared_by || $_SESSION['worker'] == $getdata[0]->requested_by)){ // edit RFU
 					$is_rfu=1;
 
 					$data = [
@@ -771,11 +821,25 @@ class Fpp_menu_model extends MY_Model
 						}
 					}
 
-					return $rs;
-				}else return null;	
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+				}
 
 			}
-		}else return null;
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 
 	
 	}  

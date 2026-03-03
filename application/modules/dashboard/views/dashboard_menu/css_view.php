@@ -355,7 +355,7 @@
     .date-icon {
       position: absolute;
       left: 10px;
-      color: #38406F;
+      color: #1A3891;
       font-size: 10px !important;
     }
 
@@ -363,7 +363,7 @@
       position: relative;
       width: 40% !important;
       padding-left: 18px !important;
-      ym
+
     }
 
     .employee-icon {
@@ -494,7 +494,7 @@
   .date-icon {
     position: absolute;
     left: 10px;
-    color: #38406F;
+    color: #1A3891;
     font-size: 16px;
   }
 
@@ -513,7 +513,7 @@
   .summary-container {
     display: flex;
     gap: 20px;
-    
+
   }
 
   .chart-container {
@@ -616,12 +616,12 @@
 
   .icon-2 {
     font-size: 40px;
-    color: #38406F;
+    color: #1A3891;
   }
 
   .grey {
     background-color: white;
-    color: #38406F;
+    color: #1A3891;
     min-width: 200px !important;
   }
 
@@ -632,31 +632,39 @@
   }
 
   .grey .value {
-    color: #38406F;
+    color: #1A3891;
   }
 
   /* Color variants */
   .navy {
-    background-color: #38406F;
-    color: white;
+    background: linear-gradient(to bottom,
+        #C2E3FF 0%,
+        #EFF5F9 100%);
+    color: #1A3891;
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: white;
+    color: #1A3891;
   }
 
   .yellow {
-    background-color: #FED24B;
+    background: linear-gradient(to bottom,
+        #F7F4D0 0%,
+        #FFFFFF 100%);
   }
 
   .beige {
-    background-color: #F8F1E1;
+    background: linear-gradient(to bottom,
+        #E6D3F9 0%,
+        #F2F5FF 100%);
   }
 
   .white {
-    background-color: #ffffff;
+    background: linear-gradient(to bottom,
+        #E2EEDA 0%,
+        #FFFFFF 100%);
   }
 
   .white .title {
@@ -727,5 +735,34 @@
     display: flex;
     gap: 4px;
     align-items: center;
+  }
+
+  .user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user img,
+  .user .avatar-initial {
+    width: 38px;
+    height: 38px;
+    border-radius: 50% !important;
+    flex: 0 0 38px;
+  }
+
+  /* Avatar inisial */
+  .avatar-initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: .5px;
+    color: #38406F;
+    background: linear-gradient(180deg, #C2E3FF 0%, #EFF5F9 100%);
+    border: 1px solid rgba(56, 64, 111, .15);
+    user-select: none;
+    text-transform: uppercase;
   }
 </style>

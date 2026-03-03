@@ -180,7 +180,7 @@ class Tbl_timeattendance_menu_model extends MY_Model
 		{
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851; href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80; href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -301,14 +301,40 @@ class Tbl_timeattendance_menu_model extends MY_Model
 						'isaktif' 		=> 2,
 						'date_insert' 	=> date("Y-m-d H:i:s")
 					];
-					return $rs = $this->db->insert($this->table_name, $data);
+					$rs = $this->db->insert($this->table_name, $data);
 
-					echo 'dd'; die();
-  				}else echo 'cc'; die();//return null;
+					if($rs){
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
+
+  				}else{
+  					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
+  				}
   				
-  			}else echo 'bb'; die();//return null;
+  			}else{
+  				return [
+				    "status" => false,
+				    "msg"    => "Data gagal disimpan"
+				];
+  			}
   			
-  		}else echo 'aa'; die();//return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+  		}
 
 	}  
 
@@ -351,12 +377,39 @@ class Tbl_timeattendance_menu_model extends MY_Model
 					}
 				
 
-					return  $rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
-				}else return null;
-				
-			}else return null;
+					$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+					if($rs){
+						return [
+						    "status" => true,
+						    "msg"    => "Data berhasil disimpan"
+						];
+					}else{
+						return [
+						    "status" => false,
+						    "msg"    => "Data gagal disimpan"
+						];
+					}
 
-		} else return null;
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data not found"
+					];
+				}
+				
+			}else{
+				return [
+				    "status" => false,
+				    "msg"    => "Data not valid"
+				];
+			}
+
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

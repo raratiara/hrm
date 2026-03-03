@@ -82,19 +82,16 @@
 
 
     <style type="text/css">
-        /* Ubah warna background sidebar */
-        /* .page-sidebar-wrapper {
-            background-color: #343851 !important;
-            
-        } */
-
+       
         * {
             font-family: 'Poppins', sans-serif;
         }
 
+        
+
         /* Warna teks menu sidebar */
-        .page-sidebar .page-sidebar-menu>li>a {
-            color: #ffffff !important;
+         .page-sidebar .page-sidebar-menu>li>a {
+            color: #787878 !important;
             /* Warna teks putih */
             font-weight: 500;
             border: none !important;
@@ -102,7 +99,7 @@
             border-radius: 10px !important;
             margin-left: 6px !important;
             margin-right: 6px !important;
-            font-size: 12px;
+            /* font-size: 12px; */
             margin-bottom: 15px !important;
         }
 
@@ -114,100 +111,75 @@
 
 
         /* Warna teks menu saat dihover */
-        .page-sidebar .page-sidebar-menu>li>a:hover {
-            background-color: #FED24B !important;
+       .page-sidebar .page-sidebar-menu>li>a:hover {
+            background-color: transparent !important;
             /* Hover warna lebih terang */
-            color: #343851 !important;
+            color: #000000 !important;
         }
 
-        .page-sidebar .page-sidebar-menu>li>a:hover>i {
-            /*color: #343851 !important;*/
-            color: #343851 !important;
-        }
-
+     
         .page-sidebar-closed .page-sidebar .page-sidebar-menu>li>a>i {
             margin-left: 3px !important;
         }
 
 
-        /* Warna menu aktif */
+         /* Warna menu aktif */
         .page-sidebar .page-sidebar-menu>li.active>a,
         .page-sidebar .page-sidebar-menu>li.start>a {
 
-            background-color: #FED24B !important;
+            background-color: transparent !important;
             /* Warna menu aktif (biru tua) */
-            color: #343851 !important;
-            font-size: 12px !important;
+            color: #000000 !important;
+            
         }
 
         /* Icon menu aktif jadi hitam */
         .page-sidebar .page-sidebar-menu>li.active>a>i,
         .page-sidebar .page-sidebar-menu>li.start>a>i {
-            color: #343851 !important;
+            color: #112D80 !important;
             font-size: 12px !important;
         }
 
         /* Warna ikon menu sidebar */
         .page-sidebar .page-sidebar-menu>li>a>i {
-            color: #ffffff !important;
+            color: #787878 !important;
             border-bottom: none !important;
             border: none !important;
-            font-size: 12px !important;
+            font-size: 13px !important;
 
         }
 
 
 
-        /* Warna background menu di dalam sidebar */
-        .page-sidebar .page-sidebar-menu {
-            background-color: #343851 !important;
-            width: 235px !important;
-            /*height: 93vh !important;*/
-            height: 94vh !important;
-            /* Tinggi full layar */
-            min-height: 93vh !important;
-            position: fixed !important;
-            /* Tetap di tempatnya, tidak ikut scroll */
-            overflow-y: auto !important;
-            z-index: 9999 !important;
-            scrollbar-width: none !important;
-            transition: width 0.1s ease !important;
-        }
+
+     
 
         .clearfix {
             background-color: #ffffff !important;
             color: #ffffff !important;
         }
 
-        .dropdown-toggle {
-            color: #ffffff !important;
-            background-color: #343851 !important;
-            border-bottom-left-radius: 5px !important;
-            border-bottom-right-radius: 5px !important;
-            height: auto !important;
-            top: -1px !important;
-        }
+         
 
 
 
         @media (max-width: 768px) {
+    .page-sidebar .page-sidebar-menu {
+        left: auto !important;
+        right: 0 !important;
+        top: 40px;
+        transition: top 0.3s ease;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
 
-            .page-sidebar .page-sidebar-menu {
-                left: auto !important;
-                right: 0 !important;
-                top: 45px !important;
-                border-bottom-left-radius: 20px !important;
-                border-bottom-right-radius: 20px !important;
-            }
+    .page-sidebar .page-sidebar-menu.scrolled {
+        top: 0;
+    }
+}
 
-        }
 
-        .page-header.navbar {
-            background-color: #343851 !important;
-            border: none !important;
-            box-shadow: none !important;
-            /* Hilangkan bayangan jika ada */
-        }
+        
 
         /* Warna teks dan icon di page header */
         .page-header.navbar .page-top>.navbar-nav>li>a {
@@ -220,26 +192,26 @@
             /* Warna icon navbar */
         }
 
-        /* Submenu (dropdown) background normal */
+         /* Submenu (dropdown) background normal */
         .page-sidebar .page-sidebar-menu .sub-menu>li>a {
             background-color: transparent !important;
-            color: #ffffff !important;
+            color: #787878 !important;
             font-size: 11px !important;
             /* Warna teks submenu normal */
         }
 
         /* Saat hover di submenu → background kuning, teks hitam */
         .page-sidebar .page-sidebar-menu .sub-menu>li>a:hover {
-            background-color: #D9D9D9 !important;
+            background-color: transparent !important;
             /* Background kuning */
             color: #000000 !important;
             font-size: 11px !important;
             /* Teks submenu saat hover */
         }
 
-        /* Submenu aktif → background abu-abu #D9D9D9, teks hitam */
+         /* Submenu aktif → background abu-abu #D9D9D9, teks hitam */
         .page-sidebar .page-sidebar-menu .sub-menu>li.active>a {
-            background-color: #D9D9D9 !important;
+            background-color: transparent !important;
             color: #000000 !important;
             font-size: 11px !important;
         }
@@ -254,80 +226,64 @@
 
         }
 
-        /*.page-sidebar-wrapper h2 {
-          text-align: center;
-          margin-bottom: 30px;
-          font-size: 24px;
-          font-weight: bold;
-        }*/
 
-        /*.nav-toggle {
-          list-style: none;
-        }
-
-        .nav-toggle li {
-          margin: 15px 0;
-        }
-
-        .nav-toggle a {
-          text-decoration: none;
-          color: #ecf0f1;
-          padding: 10px;
-          display: block;
-          border-radius: 5px;
-          transition: 0.3s;
-        }
-
-        .nav-toggle a:hover {
-          background-color: #34495e;
-        }*/
     </style>
 
 
 </head>
 
-<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
-    <div class="page-header navbar navbar-fixed-top">
-        <div class="page-header-inner ">
-            <div class="page-logo" style="background-color: #FED24B;">
-                <a href="<?= base_url() ?>">
-                    <img src="<?php echo _ASSET_LOGO_INSIDE; ?>" alt="logo"
-                        style="height:40px; margin-top: 0px; margin-left: 30px;" class="logo-default" />
-                </a>
-                <div class="menu-toggler sidebar-toggler"> </div>
-            </div>
-            <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse"
-                data-target=".navbar-collapse"> </a>
-            <?php $this->load->view(_TEMPLATE_PATH . "navbar"); ?>
+<body class=" page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-header navbar navbar-fixed-top mobile-only">
+    <div class="page-header-inner ">
+        <div class="page-logo">
+            <a href="<?= base_url() ?>">
+                <img src="<?php echo _ASSET_LOGO_INSIDE; ?>" alt="logo"
+                    style="height:40px; margin-top: 0px; margin-left: 30px;" class="logo-default" />
+            </a>
         </div>
+
+        <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse"
+            data-target=".navbar-collapse"> </a>
+
+        <?php $this->load->view(_TEMPLATE_PATH . "navbar"); ?>
     </div>
+</div>
+
+
+
     <div class="clearfix"> </div>
     <div class="page-container">
         <?php $this->load->view(_TEMPLATE_PATH . "sidebar"); ?>
         <div class="page-content-wrapper">
             <div class="page-content">
-                <div class="page-bar">
-                    <ul class="page-breadcrumb">
-                        <?php if (isset($breadcrumb) && $breadcrumb): ?>
-                            <?php if (is_array($breadcrumb)): ?>
-                                <li>
-                                    <i class="fa fa-home"></i>
-                                    <a href="<?= base_url() ?>">Home</a>
-                                    <i class="fa fa-circle"></i>
-                                </li>
-                                <?php foreach ($breadcrumb as $i => $b): ?>
-                                    <li>
-                                        <span><?= $b ?></span>
-                                        <?php if ($i < count($breadcrumb) - 1): ?> <i class="fa fa-circle"></i>
-                                        </li>
-                                    <?php endif; ?>
-                                <?php endforeach ?>
-                            <?php else: ?>
-                                <?= $breadcrumb ?>
-                            <?php endif ?>
-                        <?php endif; ?>
-                    </ul>
-                </div>
+                <div class="page-bar page-bar-custom">
+    <ul class="page-breadcrumb">
+        <?php if (isset($breadcrumb) && $breadcrumb): ?>
+            <?php if (is_array($breadcrumb)): ?>
+                <li>
+                    <i class="fa fa-home"></i>
+                    <a href="<?= base_url() ?>">Home</a>
+                    <i class="fa fa-circle"></i>
+                </li>
+                <?php foreach ($breadcrumb as $i => $b): ?>
+                    <li>
+                        <span><?= $b ?></span>
+                        <?php if ($i < count($breadcrumb) - 1): ?> <i class="fa fa-circle"></i>
+                        </li>
+                    <?php endif; ?>
+                <?php endforeach ?>
+            <?php else: ?>
+                <?= $breadcrumb ?>
+            <?php endif ?>
+        <?php endif; ?>
+    </ul>
+
+    <!-- NAVBAR DIPINDAH KE PAGE BAR (DESKTOP ONLY) -->
+    <div class="pagebar-navbar desktop-only">
+        <?php $this->load->view(_TEMPLATE_PATH . "navbar"); ?>
+    </div>
+</div>
+
                 <?php if (isset($sview))
                     $this->load->view($sview); ?>
             </div>
@@ -456,6 +412,21 @@
     <script src="<?php echo _ASSET_LAYOUTS_METRONIC_TEMPLATE; ?>layout/scripts/layout.min.js"
         type="text/javascript"></script>
 
+        <script>
+document.addEventListener("scroll", function () {
+    const sidebar = document.querySelector(".page-sidebar .page-sidebar-menu");
+
+    if (!sidebar) return;
+
+    if (window.scrollY > 10) {
+        sidebar.classList.add("scrolled");
+    } else {
+        sidebar.classList.remove("scrolled");
+    }
+});
+</script>
+
+
     <?php if ($this->session->flashdata('error') == true): ?>
         <script type="text/javascript">
             setTimeout(function () {
@@ -473,6 +444,53 @@
             }, 2000);
         </script>
     <?php endif; ?>
+
+    <script>
+(function () {
+  function scrollToActiveSidebarMenu() {
+    var menu = document.querySelector('.page-sidebar .page-sidebar-menu');
+    if (!menu) return;
+
+    // selector active yang lebih robust (karena tiap dynamic_menu beda)
+    var active =
+      menu.querySelector('li.active > a') ||
+      menu.querySelector('li.open > a') ||
+      menu.querySelector('li.current > a') ||
+      menu.querySelector('li.selected > a') ||
+      menu.querySelector('a.active') ||
+      menu.querySelector('a[aria-expanded="true"]');
+
+    if (!active) return;
+
+    // buka parent submenu kalau ada
+    var li = active.closest('li');
+    if (li) {
+      li.classList.add('active', 'open');
+      var parents = active.closest('ul.sub-menu');
+      if (parents) parents.style.display = 'block';
+    }
+
+    // ini yang bikin pasti jalan (scroll container terdekat = .page-sidebar-menu)
+    active.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+
+  }
+
+  // 1) saat load
+  window.addEventListener('load', function () {
+    // kasih waktu dynamic_menu & layout selesai
+    setTimeout(scrollToActiveSidebarMenu, 600);
+    setTimeout(scrollToActiveSidebarMenu, 1200);
+  });
+
+  // 2) saat sidebar dibuka (custom toggler kamu pakai class body.sidebar-open)
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.menu-toggler')) {
+      setTimeout(scrollToActiveSidebarMenu, 350);
+    }
+  });
+})();
+</script>
+
 </body>
 
 

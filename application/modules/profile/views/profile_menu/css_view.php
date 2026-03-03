@@ -18,13 +18,7 @@
     gap: 20px;
   }
 
-  .page-content {
-    background-color: #EAEDF5 !important;
-  }
-
-  .page-bar {
-    background-color: #EAEDF5 !important;
-  }
+ 
 
 
   .top-bar {
@@ -286,7 +280,8 @@
     display: flex;
     justify-content: space-between;
     gap: 20px;
-
+  margin-top: 20px;
+  
   }
 
 
@@ -371,15 +366,146 @@
   }
 
 
-  .profile-card,
-  .health-card,
-  .profile-info {
+  
+  .health-card {
     background-color: #ffffff;
     border-radius: 10px !important;
-    padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-size: 13px !important;
   }
+
+  .profile-merged{
+  display: flex;
+  gap: 18px;
+  width: 100%;
+  padding: 18px 20px;
+  border-radius: 12px !important;
+
+  /* gradient kiri -> kanan */
+  background: linear-gradient(160deg, rgb(231, 244, 254) 0%, #ffffff  100%);
+
+  /* shadow sama kaya yang lain */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+  /* .profile-card,
+.profile-info {
+  background: #fff;
+  border-radius: 10px !important;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-size: 13px !important;
+} */
+
+  .profile-card,
+.profile-info{
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+
+/* kiri */
+.profile-left{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;       /* center horizontal */
+  justify-content: center;   /* center vertical */
+  text-align: center;
+  height: 100%;
+}
+
+/* divider vertikal */
+.profile-divider{
+  width: 1px;
+  background: rgba(0,0,0,0.1);
+  margin: 6px 0;
+}
+
+/* kanan */
+.profile-right{
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* rapihin info grid supaya mirip card kanan di gambar */
+.profile-right .info-grid{
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;   /* <- 1 kolom */
+  gap: 10px;
+}
+
+
+.profile-right .info-grid strong{
+  color: #888888;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.profile-right .info-grid span{
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2a44;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* tiap baris label-value jadi grid: kolom label fix, value ngikut */
+.profile-right .info-grid .column > div{
+  display: grid;
+  grid-template-columns: 140px auto; /* atur 120-160px sesuai kebutuhan */
+  column-gap: 14px;                  /* jarak label-value */
+  align-items: center;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+
+/* label */
+.profile-right .info-grid strong{
+  color: #888888;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* value: jangan didorong ke kanan */
+.profile-right .info-grid span{
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2a44;
+  text-align: left;       /* penting */
+  max-width: none;        /* penting biar gak “ngunci” */
+  overflow: visible;
+}
+
+
+/* mobile */
+@media (max-width: 768px){
+  .profile-merged{
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .profile-left{
+    width: 100%;
+  }
+
+  .profile-divider{
+    width: 100%;
+    height: 1px;
+  }
+
+  .profile-right .info-grid{
+    grid-template-columns: 1fr; /* jadi 1 kolom biar rapi */
+  }
+
+  .profile-right .info-grid span{
+    max-width: 100%;
+  }
+}
 
   .profile-card,
   .health-card {
@@ -412,40 +538,34 @@
 
   }
 
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-  }
+
 
   .info-grid span {
     font-size: 13px;
   }
 
 
-  .column>div {
+  /* .column>div {
     min-height: 40px;
-    /* Paksa semua baris minimal tinggi yang sama */
     display: flex;
     flex-direction: column;
     justify-content: center;
-  }
+  } */
 
-  .columnlevel>div {
+  /* .columnlevel>div {
     min-height: 40px;
-    /* Paksa semua baris minimal tinggi yang sama */
     display: flex;
     flex-direction: column;
     justify-content: center;
-  }
+  } */
 
-  .info-grid .column div {
+  /* .info-grid .column div {
     margin-bottom: 15px;
     font-size: 13px;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
     white-space: normal !important;
-  }
+  } */
 
   .info-grid strong {
     color: #888888;
@@ -472,7 +592,7 @@
   .right-section {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
     width: 300px;
 
   }
@@ -528,14 +648,14 @@
   }
 
 
-  .birthday-box {
-    /*background-color: white !important;*/
-    background: linear-gradient(to bottom, #FFE69B, #FED24B) !important;
-    padding: 15px;
-    border-radius: 15px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
+.birthday-box {
+  background: linear-gradient(135deg, #f497e9 0%, #add6fa  100%) !important;
+  padding: 15px;
+  border-radius: 15px !important;
 
+  /* shadow sama */
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25) !important;
+}
 
   .birthday-balon {
     width: 120px;
@@ -558,7 +678,7 @@
     background-color: white !important;
     padding: 15px;
     border-radius: 15px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
   }
 
   .event-item {
@@ -587,7 +707,7 @@
   .birthday-title {
     margin-top: 0px;
     font-weight: 600;
-    color: #3d3d5c;
+    color: #ffffff;
     margin-bottom: 10px;
     font-size: 15px;
   }
@@ -615,7 +735,7 @@
   .birthday-name {
     font-weight: bold;
     font-size: 13px;
-    color: #000;
+    color: #ffffff;
   }
 
 
@@ -627,7 +747,7 @@
 
   .birthday-job {
     font-size: 12px;
-    color: #555;
+    color: #ffffff;
   }
 
   .birthday-arrow {
@@ -648,11 +768,12 @@
     display: flex;
     justify-content: space-between;
     text-align: center;
-    gap: 10px;
-    background-color: white !important;
-    padding: 20px;
+    gap: 30px;
+    margin-bottom: 10px;
     border-radius: 20px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
+    padding: 20px 20px;
     flex: 1;
     width: 100%;
   }
@@ -697,21 +818,28 @@
     font-weight: bold;
   }
 
-  .summary-item.highlight {
-    background-color: #38406F;
-    color: white;
-    display: flex !important;
-    align-items: center !important;
-    text-align: left !important;
-  }
+ .summary-item.highlight {
+  background: linear-gradient(to bottom, #C2E3FF 0%, rgb(246, 248, 250) 100%);
+  color: #38406F;
+
+  display: flex !important;
+  align-items: center !important;
+  text-align: left !important;
+
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 18px;
+}
 
   .summary-item.reimbursement {
-    background-color: #9cb4deff;
-    color: white;
-    align-items: center !important;
-    text-align: center !important;
-    width: 100% !important;
-  }
+  background: linear-gradient(to bottom, #f9e7ab 0%, rgb(246, 248, 250) 100%);
+  color: #38406F;
+  align-items: center !important;
+  text-align: center !important;
+  width: 100% !important;
+
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 18px;
+}
 
 
   .reimbursement-grid {
@@ -734,11 +862,13 @@
   }
 
   .summary-item.yellow {
-    background-color: #FED24B;
-    align-items: center !important;
-    color: #38406F;
+  background: linear-gradient(to bottom, #f6b4ee 0%, rgb(246, 248, 250) 100%);
+  align-items: center !important;
+  color: #38406F;
 
-  }
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 18px;
+}
 
 
   .tasklist-line {
@@ -773,13 +903,14 @@
     align-items: stretch;
     /* Biar tingginya otomatis sama */
   }
+  
 
 
   .chart-box {
     background-color: white !important;
     padding: 15px;
     border-radius: 20px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
     flex: 2;
     font-size: 13px !important;
 
@@ -789,7 +920,7 @@
     background-color: white !important;
     padding: 15px;
     border-radius: 20px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
     flex: 2;
     font-size: 13px !important;
   }
@@ -856,7 +987,7 @@
     border-radius: 12px !important;
     padding: 10px;
     justify-content: space-between;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
     flex: 1;
     width: 100% !important;
     background-color: white;
@@ -869,12 +1000,13 @@
 
   .table-container {
     overflow-y: auto;
-    max-height: 320px;
+    height: 500px;
   }
 
   .title_tasklist {
     font-size: 13px;
     font-weight: 600;
+    margin-bottom: 10px;
   }
 
   table {
@@ -958,43 +1090,32 @@
   }
 
   .health-card {
-    min-width: 200px;
+    min-width: 330px;
     /*background: #000000;*/
     /*#D9FB60;*/
     /*#000000;*/
     /*#E9F3FF;*/
     /*#005479;*/
     /* dark mode */
-    padding: 10px;
+    padding: 20px;
     border-radius: 12px;
   }
 
   .card-box {
     /*background: #dbdadaff;*/
     border-radius: 12px !important;
-    padding: 8px;
+    padding: 4px;
     text-align: center;
-    color: #fff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    margin-bottom: 6px;
-    height: 90px;
+    margin-bottom: 15px;
+    min-height: 150px;
   }
 
-  .card-box h3 {
-    margin: 10px 0 0;
-    font-size: 14px;
-    /* lebih kecil */
-    font-weight: bold;
-    color: #ffffff;
-    /*#5c5c5cff;*/
-  }
+ 
 
   .card-box p {
-    margin: 5px;
-    font-size: 10px;
-    /* kecil */
-    color: #ffffff;
-    /*#aaa;*/
+    margin: 0px;
+
   }
 
   .card-box small {
@@ -1005,7 +1126,7 @@
   }
 
   .card-box .icon {
-    font-size: 14px;
+    font-size: 24px;
     /* ikon lebih kecil */
     margin-bottom: 3px;
   }
@@ -1037,17 +1158,17 @@
 
   /* Cardbox 2 */
   .cardbox-2 {
-    background-color: #E6E0EA;
-    border: 1px solid #B458F2;
+    background-color: #FFE2F4;
+    border: 1px solid #FF76CB;
   }
 
   .cardbox-2 h3,
   .cardbox-2 p {
-    color: #B458F2;
+    color: #FF76CB;
   }
 
   .cardbox-2 .badge {
-    background-color: #B458F2;
+    background-color: #FF76CB;
     color: #fff;
   }
 
@@ -1067,23 +1188,23 @@
   }
 
   .cardbox-3 .badge {
-    background-color: #95F753;
+    background-color: #059669;
     color: #fff;
   }
 
   /* Cardbox 4 */
   .cardbox-4 {
-    background-color: #D0DBF7;
-    border: 1px solid #5C8AFF;
+    background-color: #D7EBFC;
+    border: 1px solid #77b8f2;
   }
 
   .cardbox-4 h3,
   .cardbox-4 p {
-    color: #5C8AFF;
+    color: #77b8f2;
   }
 
   .cardbox-4 .badge {
-    background-color: #5C8AFF;
+    background-color: #77b8f2;
     color: #fff;
   }
 
@@ -1105,9 +1226,13 @@
     /* kecilkan tinggi & lebar */
     border-radius: 20px;
     /* biar oval */
-    background-color: #D4E7F5;
+    background-color: #ecf5fd;
     /*#fac86bff;*/
     color: #074069 !important;
+  }
+
+  .btn-health:hover {
+    background-color: #D7EBFC;
   }
 
   /*.action-button {
@@ -1116,10 +1241,11 @@
 
 
   .quick-links {
-    background: #fff;
+    
     padding: 15px;
     border-radius: 12px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    
   }
 
   .quick-links_old {
@@ -1140,23 +1266,25 @@
   }
 
   /* judul jangan terlalu mepet bawah, karena ada button + */
-  .quick-links h4 {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0;
-    /* biar lebih rapat */
-    color: #333;
+  .quick-links h1 {
+     font-size: 16px;
+      font-weight: 700;
+      color: #232323;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
   }
 
   /* grid horizontal scroll */
   .quick-links-grid {
     display: flex;
     flex-wrap: nowrap;
-    gap: 12px;
+    gap: 18px;
     overflow-x: auto;
     padding: 5px 2px 8px;
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
+    margin-top: 10px;
   }
 
   .quick-links-grid::-webkit-scrollbar {
@@ -1172,8 +1300,10 @@
   .quick-link-item {
     flex: 0 0 auto;
     width: 100px;
-    height: 50px;
-    background: #E9F3FF;
+    height: 89px;
+    
+    background: #fffdfd;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25) !important;
     /*#C9E6F0;*/
     /*#BED2E1;*/
     /*#fafafa;*/
@@ -1189,6 +1319,7 @@
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     user-select: none;
+  
     /* biar gak ke-block teks pas di-swipe */
   }
 
@@ -1219,7 +1350,8 @@
 
   /* hover effect */
   .quick-link-item:hover {
-    background: #7096D1;
+    background: #DBEDFC;
+    border-color: #90C9FF;
     /*#f5f5f5;*/
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   }
@@ -1243,8 +1375,525 @@
   }
 
   .card-information-health {
-    margin-top: 10px !important;
-
+    margin-top: 15px !important;
+    
 
   }
-</style>
+
+
+  /* Container list */
+.tasklist-container{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 6px; /* biar ga ketutup scrollbar */
+  height: 480px;
+}
+
+/* Card item */
+.task-card{
+  background: #fff;
+  border: 1px solid #e6e9f2;
+  border-radius: 14px !important;
+  padding: 14px 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Row label-value */
+.task-row{
+  display: grid;
+  grid-template-columns: 110px 1fr; /* kiri label, kanan value */
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 6px;
+}
+
+.task-row:last-child{ margin-bottom: 0; }
+
+.task-label{
+  font-size: 12px;
+  color: #8A8FA3;
+  font-weight: 500;
+}
+
+.task-value{
+  font-size: 11px;
+  color: #1f2a44;
+  font-weight: 600;
+  text-align: right; /* kaya gambar (value rata kanan) */
+  word-break: break-word;
+}
+
+/* Badge status progress */
+.task-badge{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px !important;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  width: fit-content;
+  margin-left: auto; /* dorong ke kanan */
+}
+
+/* contoh warna (silakan sesuaikan) */
+.badge-open{ background:#F7F4D0; color:#38406F; border-color:#F1EAB0; }
+.badge-progress{ background:#DBEDFC; color:#112D80; border-color:#90C9FF; }
+.badge-done{ background:#E2EEDA; color:#3D7B14; border-color:#95F753; }
+
+/* warna due (overdue/near_due) */
+.due-overdue .task-value{ color: #ee4399; }
+.due-near .task-value{ color: #f08a00; }
+
+
+/* ===============================
+   PROFILE - MOBILE 1 COLUMN (NO CUT)
+   =============================== */
+@media (max-width: 768px) {
+
+  .profile-merged{
+    flex-direction: column !important;
+    padding: 14px 14px !important;
+    gap: 12px !important;
+  }
+
+  .profile-left{
+    width: 100% !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .profile-divider{
+    width: 100% !important;
+    height: 1px !important;
+    margin: 6px 0 !important;
+  }
+
+  .profile-right{
+    width: 100% !important;
+    align-items: flex-start !important;
+  }
+
+  /* 1 kolom: label atas, value bawah */
+  .profile-right .info-grid .column > div{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    margin-bottom: 10px !important;
+
+    white-space: normal !important;
+  }
+
+  .profile-right .info-grid strong{
+    font-size: 12px !important;
+    line-height: 1.2;
+  }
+
+  .profile-right .info-grid span{
+    font-size: 12px !important;
+    line-height: 1.3;
+
+    /* ini kunci biar gak kepotong */
+    white-space: normal !important;
+    word-break: break-word !important;     /* email/alamat panjang */
+    overflow-wrap: anywhere !important;    /* paling ampuh */
+    overflow: visible !important;
+    text-overflow: initial !important;
+
+    text-align: left !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* tombol biar rapih di mobile */
+  .profile-left .action-button{
+    width: 100% !important;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}
+
+/* kecil banget */
+@media (max-width: 480px){
+  .profile-right .info-grid span{ font-size: 11px !important; }
+}
+
+
+
+/* ===============================
+   HEALTH CARD - MOBILE SPACING FIX
+   =============================== */
+@media (max-width: 768px) {
+
+  /* card utama */
+  .health-card{
+    padding: 22px 16px !important;
+    border-radius: 14px !important;
+  }
+
+  /* paksa jadi 1 kolom */
+  .health-card .row{
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0px !important;      /* jarak antar grup */
+  }
+
+  .health-card .col-md-6{
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* jarak antar cardbox */
+  .health-card .card-box{
+    margin-bottom: 15px !important;
+    height: auto !important;
+    min-height: 88px;          /* biar napas */
+  }
+
+  /* teks lebih lega */
+  .health-card .card-box h3{
+    margin-top: 6px !important;
+    font-size: 15px !important;
+  }
+
+  .health-card .card-box p{
+    margin-top: 6px !important;
+    font-size: 11px !important;
+  }
+
+  .health-card .badge{
+    margin-top: 6px !important;
+  }
+
+  /* tombol bawah */
+  .health-card .btn-health{
+    margin-top: 16px !important;
+  }
+}
+
+/* HP kecil banget */
+@media (max-width: 480px){
+  .health-card .card-box{
+    min-height: 92px;
+  }
+}
+
+.health-card .card-information-health > [class*="col-"]{
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+
+.health-card .card-box{
+  border-radius: 16px !important;
+  padding: 18px 18px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  border: 2px solid transparent !important;
+  transition: all .3s ease !important;
+  min-height: 150px; /* boleh kamu kecilin */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.health-card .card-box:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+}
+
+/* "header": label (p) + icon */
+.health-card .card-box{
+  position: relative;
+}
+
+
+/* BPM */
+.health-card .cardbox-1{
+  border-color: #fef3c7 !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+}
+.health-card .cardbox-1 h3{ color: #d97706 !important; }
+.health-card .cardbox-1 .icon{
+  background: #fadd94;
+  color: #fff;
+}
+
+/* Sleep */
+.health-card .cardbox-3{
+  border-color: #d1fae5 !important;
+  background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%) !important;
+}
+.health-card .cardbox-3 h3{ color: #059669 !important; }
+.health-card .cardbox-3 .icon{
+  background: #b7fbb4;
+  color: #fff;
+}
+
+/* SPO2 */
+.health-card .cardbox-2{
+  border-color: #fedcf0 !important;
+  background: linear-gradient(135deg, #fff1f2 0%, #fecdea 100%) !important;
+}
+.health-card .cardbox-2 h3{ color: #e11d8f !important; }
+.health-card .cardbox-2 .icon{
+  background: #fb94d0;
+  color: #fff;
+}
+
+/* Fatigue/Kritikus (biru) */
+.health-card .cardbox-4{
+  border-color: #dbeafe !important;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+}
+.health-card .cardbox-4 h3{ color: #2563eb !important; }
+.health-card .cardbox-4 .icon{
+  background: #92b3f9;
+  color: #fff;
+}
+
+/* label BPM/Sleep/SpO2/Fatigue */
+.health-card .card-box p{
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  text-transform: uppercase;
+  
+}
+
+.health-card .card-box h3{
+  margin: 8px 0 6px !important; /* kasih ruang dari header */
+  font-size: 29px !important;
+  font-weight: 700 !important;
+  
+}
+
+.health-card .card-box .icon{
+  /* position: absolute;
+  top: 16px;
+  right: 16px; */
+  width: 28px;
+  height: 28px;
+  border-radius: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px !important;
+  margin: 0 !important;
+}
+
+.title-health {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===== Quick Links = link-card style ===== */
+
+/* container: tetap horizontal scroll seperti sebelumnya */
+.quick-links-grid{
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 20px !important;
+  overflow-x: auto !important;
+  padding: 6px 2px 10px !important;
+  margin-top: 10px !important;
+}
+
+/* card */
+.quick-link-item{
+  flex: 0 0 auto !important;
+  width: 140px !important;
+  min-height: 130px !important;
+
+  background: #fff !important;
+  border-radius: 16px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+
+  transition: all 0.3s ease !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  border: 2px solid transparent !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.quick-link-item:hover{
+  transform: translateY(-6px) !important;
+  border-color: #c5d4f9 !important;
+}
+
+/* icon box gradient */
+.quick-link-icon{
+  width: 50px !important;
+  height: 50px !important;
+  background: linear-gradient(135deg, #f6b4ee 0%, #add6fa  100%) !important;
+  border-radius: 14px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  margin: 0 auto 16px !important;
+  box-shadow: 0 4px 16px rgba(102,126,234,0.3) !important;
+}
+
+.quick-link-icon i{
+  font-size: 20px !important;
+  color: #fff !important;
+  
+}
+
+/* label */
+.quick-link-label{
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* responsive */
+@media (max-width: 768px){
+  .quick-link-item{
+    width: 130px !important;
+    min-height: 130px !important;
+    padding: 20px 16px !important;
+  }
+  .quick-link-icon{
+    width: 54px !important;
+    height: 54px !important;
+    margin-bottom: 12px !important;
+  }
+  .quick-link-icon i{
+    font-size: 24px !important;
+  }
+}
+
+
+/* responsive: di mobile jangan ellipsis (biar tetap kebaca) */
+@media (max-width: 768px){
+  .profile-right .info-grid span{
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: initial !important;
+  }
+}
+
+/* Avatar Inisial */
+.initial-avatar{
+  width: 80px;            /* samakan dengan .profile-image */
+  height: 80px;
+  border-radius: 100% !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: 1px;
+  color: #fff;
+  user-select: none;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #f6b4ee 0%, #add6fa  100%);
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
+
+/* kalau kamu pakai gambar juga, biar konsisten */
+.profile-image{
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+}
+
+
+
+/* ===== PROFILE INFO: jangan ngelebar + ellipsis ===== */
+.profile-merged,
+.profile-right,
+.profile-right .info-grid,
+.profile-right .info-grid .column,
+.profile-right .info-grid .column > div {
+  min-width: 0 !important; /* wajib supaya ellipsis jalan di layout flex/grid */
+}
+
+.profile-right .info-grid .column > div{
+  grid-template-columns: 140px minmax(0, 1fr) !important; /* kolom value boleh mengecil */
+}
+
+/* value (alamat/email/dll) jadi ... */
+.profile-right .info-grid span{
+  display: block !important;
+  max-width: 260px;              /* atur sesuai kebutuhan */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+/* biar di desktop tetap rapi */
+@media (min-width: 992px){
+  .profile-right .info-grid span{
+    max-width: 320px;            /* versi desktop */
+  }
+}
+
+/* mobile biasanya mending wrap (bukan ellipsis), tapi kalau kamu tetap mau ellipsis juga, hapus block ini */
+@media (max-width: 768px){
+  .profile-right .info-grid span{
+    max-width: 100% !important;
+    white-space: normal !important;     /* mobile: turun baris */
+    overflow: visible !important;
+    text-overflow: initial !important;
+  }
+}
+
+
+.birthday-avatar-wrap{
+  width: 48px;        /* samain dgn ukuran avatar kamu */
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex: 0 0 48px;
+}
+
+.birthday-image{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display:block;
+}
+
+.birthday-initial{
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:14px;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  color:#38406F;
+  background: linear-gradient(180deg, #C2E3FF 0%, #EFF5F9 100%);
+  border: 1px solid rgba(56,64,111,.15);
+}
+
+</style>  
+
+

@@ -112,7 +112,7 @@
 
 
     .box {
-        background-color: #343851 !important;
+        background-color: #112D80 !important;
         border: 1px solid #6B6B6B !important;
     }
 
@@ -138,14 +138,14 @@
 
 
     .pagination>li.active>a {
-        background-color: #343851 !important;
-        border-color: #343851 !important;
+        background-color: #112D80 !important;
+        border-color: #112D80 !important;
         color: #fff !important;
     }
 
     .pagination>li>a,
     .pagination>li>span {
-        color: #343851 !important;
+        color: #112D80 !important;
         font-size: 12px !important;
     }
 </style>

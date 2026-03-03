@@ -266,7 +266,7 @@ class Reimbursement_menu_model extends MY_Model
 
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -598,22 +598,48 @@ class Reimbursement_menu_model extends MY_Model
 									}
 								}
 							}
+
+							return [
+							    "status" => true,
+							    "msg"    => "Data berhasil disimpan"
+							];
+
+						}else{
+							return [
+							    "status" => false,
+							    "msg"    => "Data gagal disimpan"
+							];
 						}
 
-						return $rs;
-
 					}else{
-						echo "Work Location not found"; 
+						
+						return [
+						    "status" => false,
+						    "msg"    => "Work Location not found"
+						];
 					}
 				}else{
-					echo "Employee not found"; 
+					
+					return [
+					    "status" => false,
+					    "msg"    => "Employee not found"
+					];
 				}
 
   			}else{
-  				echo 'Tidak ada sisa plafon reimburs'; die();
+  				
+  				return [
+				    "status" => false,
+				    "msg"    => "Tidak ada sisa plafon reimburs"
+				];
   			}
 
-  		}else return null;
+  		}else{
+  			return [
+			    "status" => false,
+			    "msg"    => "Date and Employee must be filled"
+			];
+  		}
 
 	}  
 
@@ -760,15 +786,32 @@ class Reimbursement_menu_model extends MY_Model
 							
 						}
 					}
+
+					return [
+					    "status" => true,
+					    "msg"    => "Data berhasil disimpan"
+					];
+
+				}else{
+					return [
+					    "status" => false,
+					    "msg"    => "Data gagal disimpan"
+					];
 				}
 
-				return $rs;
-
 			}else{
-				return null;
+				return [
+				    "status" => false,
+				    "msg"    => "Plafon tidak mencukupi"
+				];
 			}
 
-		} else return null;
+		} else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data not found"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

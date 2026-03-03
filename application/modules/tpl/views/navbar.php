@@ -71,7 +71,7 @@
                         <li class="dropdown dropdown-user">
                             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                                 <!--img alt="" class="img-circle" src="<?php echo _ASSET_LAYOUTS_METRONIC_TEMPLATE;?>layout/img/avatar3_small.jpg" /-->
-                                <span class="username username-hide-on-mobile">Selamat Datang, <?php echo $_SESSION["name"];?>..</span>
+                                <span class="username username-hide-on-mobile">Hi, <?php echo $_SESSION["name"];?>..</span>
                                 <i class="fa fa-angle-down"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-default">
@@ -118,12 +118,13 @@
             cache: false,
             dataType: "JSON",
             success: function (response) {
-                console.log(response);
-                // tampilkan hasil ke tabel
-                //$('#approvalLogContent tbody').html(response.html);
-                //$('span#ttl_pendingan_approval').html('10');
-                $("li.dropdown.dropdown-user").before(response.html);
-            },
+    console.log(response);
+
+    // CEGAH DUPLIKAT: kalau notif sudah ada, jangan insert lagi
+    if ($(".dropdown-notification").length === 0) {
+        $("li.dropdown.dropdown-user").before(response.html);
+    }
+},
             error: function (jqXHR, textStatus, errorThrown) {
                 var dialog = bootbox.dialog({
                     title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,

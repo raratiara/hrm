@@ -22,7 +22,7 @@
 				</form>
 
 				<div class="modal-footer no-margin-top">
-					<button class="btn" style="background-color: #343851; color: white; border-radius: 4px !important;"
+					<button class="btn" style="background-color: #112D80; color: white; border-radius: 4px !important;"
 						id="submit-import-data" onclick="save()">
 						<i class="fa fa-upload"></i>
 						Import

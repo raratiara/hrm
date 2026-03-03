@@ -1,6 +1,5 @@
 /* Untuk semua item menu */
 
-
 .page-sidebar-menu li > a,
 .page-sidebar-menu li > a > span.title,
 .page-sidebar-menu li > a > i {
@@ -24,16 +23,732 @@
 	display: none !important;
 }
 
-.page-content {
+/* .page-content {
 	background-color: #eaedf5 !important;
-}
+} */
 
 .portlet.box .portlet-title .caption,
 .portlet.box .portlet-title .caption i {
 	font-size: 13px !important;
 }
 
-.modal-header {
-	background: #343851 !important;
-	color: #ffffff !important;
+.page-sidebar {
+	position: fixed;
+	top: 20px;
+	left: 15px;
+	width: 235px;
+
+	min-height: 95vh !important;
+	border-radius: 16px !important;
+	background: #ffffff !important;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+	z-index: 9999;
+}
+
+.page-sidebar .sidebar-logo-img {
+	height: 80px !important; /* coba 32px / 36px / 40px */
+	width: auto !important;
+	max-width: 160px !important; /* biar ga melebar */
+	object-fit: contain;
+	display: block;
+	margin: 0 auto;
+
+	margin-top: 10px !important;
+}
+
+.page-sidebar .page-sidebar-menu {
+	padding-top: 10px !important;
+	margin-bottom: 30px !important;
+	overflow-y: auto;
+}
+
+/* Bagian bawah biru */
+.sidebar-bottom-bg {
+	background: #d7ebfc;
+	padding: 10px 10px;
+	text-align: right;
+	border-bottom-left-radius: 20px !important;
+	border-bottom-right-radius: 20px !important;
+}
+
+/* Gambar bawah */
+.sidebar-bottom-image {
+	width: 100%;
+	max-width: 110px; /* bisa kamu gedein/kecilin */
+	height: auto;
+	margin-top: -70px;
+}
+
+/* 1) Jadikan container sidebar (yang di HTML: .page-sidebar.navbar-collapse) sebagai flex */
+.page-sidebar.navbar-collapse {
+	display: flex !important;
+	flex-direction: column !important;
+	height: 95vh !important; /* ikut tinggi sidebar kamu */
+	padding: 0 !important;
+}
+
+/* 2) Menu ngisi ruang tengah + bisa scroll */
+.page-sidebar.navbar-collapse .page-sidebar-menu {
+	flex: 1 1 auto !important;
+	overflow-y: auto !important;
+}
+
+/* 3) Dorong block bawah ke paling bawah */
+.page-sidebar.navbar-collapse .sidebar-bottom-bg {
+	margin-top: auto !important; /* ini kuncinya */
+	background: #d7ebfc;
+	padding: 10px 10px;
+	text-align: right;
+	border-bottom-left-radius: 16px !important;
+	border-bottom-right-radius: 16px !important;
+}
+
+/* optional: biar scroll gak ketutup area bawah */
+.page-sidebar.navbar-collapse .page-sidebar-menu {
+	padding-bottom: 80px; /* sesuaikan kalau perlu */
+}
+
+/* Lebarin ruang kanan menu biar arrow gak mepet */
+/* Geser arrow agak ke kiri */
+.page-sidebar .page-sidebar-menu li > a > .arrow:before {
+	right: 0px !important;
+}
+
+.page-sidebar .page-sidebar-menu::-webkit-scrollbar {
+	width: 0; /* Chrome/Safari/Edge hide */
+}
+.page-sidebar .page-sidebar-menu::-webkit-scrollbar-thumb {
+	background: transparent;
+}
+
+/* ===== On hover: SHOW scrollbar (kaya gambar) ===== */
+.page-sidebar .page-sidebar-menu:hover {
+	scrollbar-width: thin; /* Firefox show thin */
+}
+
+body {
+	background: #f4f7fd !important;
+}
+
+.page-content {
+	background: transparent !important; /* biar ngikut body */
+}
+
+/* pastikan li bisa jadi anchor untuk ::before */
+.page-sidebar .page-sidebar-menu > li {
+	position: relative;
+}
+
+/* indikator biru di kiri untuk item aktif */
+.page-sidebar .page-sidebar-menu > li.active::before,
+.page-sidebar .page-sidebar-menu > li.open::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 8px; /* tebal garis/kotak */
+	height: 26px; /* tinggi kotak */
+	background: #112d80; /* biru (sesuaikan) */
+	border-radius: 0 5px 5px 0;
+}
+
+/* biar teks item tidak ketutup indikator */
+.page-sidebar .page-sidebar-menu > li.active > a,
+.page-sidebar .page-sidebar-menu > li.open > a {
+	padding-left: 18px; /* sesuaikan dengan layout kamu */
+}
+
+.sidebar-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 12px;
+}
+
+.sidebar-logo-img {
+	height: 40px; /* samain dengan header kamu */
+	display: block;
+}
+
+/* Biar toggler-nya keliatan & clickable */
+.page-sidebar .menu-toggler.sidebar-toggler {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	background: transparent;
+}
+
+.page-sidebar .menu-toggler.sidebar-toggler i {
+	color: #727272;
+	font-size: 20px;
+}
+
+.page-sidebar-closed .menu-toggler.sidebar-toggler i {
+	margin-left: 18px !important;
+}
+
+/* Saat sidebar dikecilin → sembunyikan logo */
+.page-sidebar-closed .page-sidebar .sidebar-logo {
+	display: none !important;
+}
+
+/* Saat sidebar dikecilin → sembunyikan gambar bawah */
+.page-sidebar-closed .page-sidebar .sidebar-bottom-bg {
+	display: none !important;
+}
+
+/* (Optional) rapihin posisi toggler saat sidebar kecil */
+.page-sidebar-closed .page-sidebar .sidebar-header {
+	justify-content: center;
+}
+
+/* (Optional) kasih jarak atas biar ga nempel */
+.page-sidebar-closed .page-sidebar .menu-toggler.sidebar-toggler {
+	margin-top: 10px;
+}
+
+body {
+	background-color: #f3f6fd !important;
+}
+
+/* Default: tampil */
+.mobile-only {
+	display: block;
+}
+.desktop-only {
+	display: none;
+}
+
+/* DESKTOP (>=768px): hide header, show navbar di page-bar */
+@media (min-width: 768px) {
+	.mobile-only {
+		display: none !important;
+	}
+	.desktop-only {
+		display: block !important;
+	}
+
+	/* karena header hilang, hapus offset top konten (Metronic biasanya kasih padding-top) */
+	.page-container {
+		margin-top: 0 !important;
+	}
+	.page-content-wrapper .page-content {
+		padding-top: 0px !important;
+	}
+}
+
+/* MOBILE (<768px): header tampil normal */
+@media (max-width: 767px) {
+	.mobile-only {
+		display: block !important;
+	}
+	.desktop-only {
+		display: none !important;
+	}
+}
+
+.page-bar-custom {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+/* supaya breadcrumb ga turun baris */
+.page-bar-custom .page-breadcrumb {
+	margin: 0 !important;
+}
+
+/* navbar di kanan */
+.pagebar-navbar {
+	margin-left: auto;
+}
+
+/* kalau navbar kamu punya ul.navbar-nav, rapihin */
+.pagebar-navbar .navbar-nav {
+	margin: 0 !important;
+}
+
+.dropdown-user .dropdown-menu {
+	border-radius: 12px !important;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+	overflow: hidden;
+	border: none !important;
+	padding: 0 !important;
+	margin-top: 0px !important;
+	margin-bottom: 15px !important;
+}
+
+.dropdown-notification .dropdown-menu {
+	border-radius: 12px !important;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+	overflow: hidden;
+	border: none !important;
+	padding: 10px !important;
+	margin-top: 15px !important;
+	margin-bottom: 15px !important;
+	width: 200px !important;
+}
+
+/* Hilangkan underline di dropdown notification */
+.dropdown-notification .dropdown-menu a {
+	text-decoration: none !important;
+}
+
+/* Tetap no-underline saat hover & focus */
+.dropdown-notification .dropdown-menu a:hover,
+.dropdown-notification .dropdown-menu a:focus {
+	text-decoration: none !important;
+}
+
+.dropdown-notification .dropdown-menu > li > a {
+	text-decoration: none !important;
+	transition: color 0.2s ease;
+}
+
+/* Tambah jarak antar item dropdown notification */
+.dropdown-notification .dropdown-menu > li {
+	margin-top: 10px;
+}
+
+/* Container dropdown notif */
+.dropdown-notification .dropdown-menu.notif-modern {
+	width: 260px !important;
+	border-radius: 14px !important;
+	border: none !important;
+	padding: 10px !important;
+	margin-top: 0px !important;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+	overflow: hidden;
+}
+
+/* Badge angka */
+.dropdown-notification .notif-badge {
+	border-radius: 999px !important;
+	padding: 3px 7px !important;
+	font-size: 10px !important;
+	line-height: 1 !important;
+}
+
+/* Header */
+.notif-header {
+	padding: 10px 10px 12px 10px !important;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.notif-title {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+}
+
+.notif-count {
+	font-weight: 700;
+	font-size: 16px;
+	color: #111;
+}
+
+.notif-text {
+	font-weight: 600;
+	font-size: 14px;
+	color: #111;
+}
+
+.notif-sub {
+	margin-top: 2px;
+	font-size: 11px;
+	color: #777;
+}
+
+/* Body list */
+.notif-body {
+	padding: 8px 0 0 0 !important;
+}
+
+.dropdown-notification .notif-scroller {
+	max-height: 220px;
+	overflow-y: auto;
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+/* Item */
+.dropdown-notification .notif-item {
+	margin-bottom: 8px;
+}
+
+.dropdown-notification .notif-item:last-child {
+	margin-bottom: 0;
+}
+
+/* Link item */
+.dropdown-notification .notif-link {
+	display: flex !important;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 10px !important;
+	border-radius: 12px;
+	text-decoration: none !important;
+	background: transparent;
+	transition:
+		background 0.2s ease,
+		transform 0.2s ease;
+}
+
+/* no underline on hover */
+.dropdown-notification .notif-link:hover,
+.dropdown-notification .notif-link:focus {
+	text-decoration: none !important;
+	background: rgba(17, 45, 128, 0.06);
+}
+
+/* Left icon */
+.dropdown-notification .notif-icon {
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	background: rgba(17, 45, 128, 0.08);
+}
+
+.dropdown-notification .notif-icon i {
+	color: #112d80;
+	font-size: 13px;
+}
+
+/* Middle text */
+.dropdown-notification .notif-menu {
+	font-size: 12px;
+	font-weight: 600;
+	color: #111;
+	line-height: 1.2;
+}
+
+.dropdown-notification .notif-meta {
+	margin-top: 2px;
+	font-size: 10px;
+	color: #777;
+}
+
+/* Right arrow */
+.dropdown-notification .notif-right i {
+	color: #aaa;
+	font-size: 14px;
+}
+
+.dropdown-notification .notif-link:hover .notif-right i {
+	color: #112d80;
+}
+
+/* Warna icon bell default */
+.page-header.navbar .top-menu .navbar-nav > li.dropdown .dropdown-toggle > i {
+	color: #79869a;
+	transition: color 0.2s ease;
+}
+
+/* Hover & open → jadi biru tua */
+.page-header.navbar
+	.top-menu
+	.navbar-nav
+	> li.dropdown
+	.dropdown-toggle:hover
+	> i,
+.page-header.navbar
+	.top-menu
+	.navbar-nav
+	> li.dropdown.open
+	.dropdown-toggle
+	> i {
+	color: #112d80 !important;
+}
+
+.page-header.navbar
+	.top-menu
+	.navbar-nav
+	> li.dropdown.open
+	.dropdown-toggle
+	> i {
+	text-shadow: 0 0 6px rgba(17, 45, 128, 0.35);
+}
+
+/* ===== DROPDOWN USER (Profile / Reset Password / Log Out) ===== */
+
+/* Hilangkan background hover bawaan Metronic */
+.dropdown-user .dropdown-menu > li > a:hover,
+.dropdown-user .dropdown-menu > li > a:focus {
+	background: transparent !important;
+	color: #112d80 !important; /* biru tua */
+}
+
+/* Icon ikut berubah warna */
+.dropdown-user .dropdown-menu > li > a:hover i,
+.dropdown-user .dropdown-menu > li > a:focus i {
+	color: #112d80 !important;
+}
+
+/* Rapihin spacing + radius */
+.dropdown-user .dropdown-menu > li > a {
+	padding: 10px 14px !important;
+	border-radius: 10px;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
+}
+
+/* Optional: hover lembut (lebih modern) */
+.dropdown-user .dropdown-menu > li > a:hover {
+	background: rgba(17, 45, 128, 0.06) !important;
+}
+
+/* No underline */
+.dropdown-user .dropdown-menu a {
+	text-decoration: none !important;
+}
+
+/* Apply style navbar di header (mobile) dan di pagebar-navbar (desktop) */
+.page-header.navbar .top-menu .navbar-nav > li.dropdown .dropdown-toggle > i,
+.pagebar-navbar .top-menu .navbar-nav > li.dropdown .dropdown-toggle > i {
+	color: #79869a;
+	transition: color 0.2s ease;
+}
+
+/* hover bell jadi biru tua (mobile + desktop) */
+.page-header.navbar
+	.top-menu
+	.navbar-nav
+	> li.dropdown
+	.dropdown-toggle:hover
+	> i,
+.page-header.navbar
+	.top-menu
+	.navbar-nav
+	> li.dropdown.open
+	.dropdown-toggle
+	> i,
+.pagebar-navbar .top-menu .navbar-nav > li.dropdown .dropdown-toggle:hover > i,
+.pagebar-navbar .top-menu .navbar-nav > li.dropdown.open .dropdown-toggle > i {
+	color: #112d80 !important;
+}
+
+/* hover background tetap transparan (mobile + desktop) */
+.page-header.navbar .top-menu .navbar-nav > li.dropdown .dropdown-toggle:hover,
+.page-header.navbar .top-menu .navbar-nav > li.dropdown.open .dropdown-toggle,
+.pagebar-navbar .top-menu .navbar-nav > li.dropdown .dropdown-toggle:hover,
+.pagebar-navbar .top-menu .navbar-nav > li.dropdown.open .dropdown-toggle {
+	background-color: transparent !important;
+}
+
+/* Username default (mobile + desktop) */
+.page-header.navbar .username,
+.pagebar-navbar .username {
+	color: #59626f !important;
+	transition: color 0.2s ease;
+}
+
+/* Hover & open → biru tua */
+.page-header.navbar .dropdown-user > a.dropdown-toggle:hover .username,
+.page-header.navbar .dropdown-user.open > a.dropdown-toggle .username,
+.pagebar-navbar .dropdown-user > a.dropdown-toggle:hover .username,
+.pagebar-navbar .dropdown-user.open > a.dropdown-toggle .username {
+	color: #112d80 !important;
+}
+
+.page-header.navbar .top-menu .navbar-nav > li,
+.pagebar-navbar .top-menu .navbar-nav > li {
+	margin-left: 1px !important;
+	margin-right: 1px !important;
+}
+
+/* ===============================
+   MOBILE: Sidebar floating RIGHT
+   =============================== */
+@media (max-width: 767px) {
+	/* Matikan sidebar fixed desktop di mobile */
+	.page-sidebar {
+		position: static !important;
+		margin-top: 0px !important;
+		top: auto !important;
+		left: auto !important;
+		width: 100% !important;
+		min-height: auto !important;
+		border-radius: 16px !important;
+		box-shadow: none !important;
+	}
+
+	/* Wrapper sidebar jadi drawer kanan */
+	.page-sidebar-wrapper {
+		position: fixed !important;
+		top: 0px !important; /* tinggi header mobile */
+		right: 0px !important;
+		left: auto !important;
+
+		width: min(86vw, 250px) !important;
+		height: 100vh !important;
+
+		z-index: 10050 !important;
+		background: transparent !important;
+
+		/* default hidden (geser ke kanan) */
+		transform: translateX(120%) !important;
+		transition: transform 0.25s ease !important;
+		overflow: hidden !important;
+	}
+
+	/* Saat sidebar dibuka */
+	body.sidebar-open .page-sidebar-wrapper {
+		transform: translateX(0) !important;
+	}
+
+	/* Sidebar layout tetap rapi & bisa scroll */
+	.page-sidebar-wrapper .page-sidebar.navbar-collapse {
+		display: flex !important;
+		flex-direction: column !important;
+		height: 100% !important;
+		padding: 0 !important;
+	}
+
+	.page-sidebar-wrapper .page-sidebar-menu {
+		flex: 1 1 auto !important;
+		overflow-y: auto !important;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Konten tidak terdorong */
+	.page-content-wrapper .page-content {
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+
+	/* Overlay */
+	.sidebar-overlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.35);
+		z-index: 10040;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.2s ease;
+	}
+	body.sidebar-open .sidebar-overlay {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+/* Header lebih tinggi di layar kecil */
+@media (max-width: 480px) {
+	.page-sidebar-wrapper {
+		top: 0 !important;
+		height: 100vh !important;
+	}
+}
+
+/* ===============================
+   MOBILE: Fix dropdown notif kepotong
+   =============================== */
+@media (max-width: 767px) {
+	/* Pastikan dropdown notif selalu masuk viewport */
+	.dropdown-notification .dropdown-menu.notif-modern {
+		width: min(92vw, 260px) !important; /* responsive */
+		right: 10px !important; /* kasih safe margin kanan */
+		left: auto !important; /* jangan pake left */
+		margin-right: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	/* Kadang bootstrap/metronic set transform/posisi aneh, ini bantu */
+	.page-header.navbar
+		.top-menu
+		.navbar-nav
+		> li.dropdown-notification
+		> .dropdown-menu {
+		right: 10px !important;
+		left: auto !important;
+	}
+}
+
+/* Extra kecil (hp sempit) */
+@media (max-width: 360px) {
+	.dropdown-notification .dropdown-menu.notif-modern {
+		width: 94vw !important;
+		right: 6px !important;
+	}
+}
+
+/* Rounded modal */
+.modal-content {
+	border-radius: 16px !important;
+	overflow: hidden; /* penting biar header ikut rounded */
+}
+
+/* ============ PORTLET BOX ============ */
+.portlet.box {
+	border-radius: 14px !important;
+	overflow: hidden; /* biar radius kepake sampai ke header */
+	box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+	border: none !important;
+}
+
+/* header/title portlet */
+.portlet.box > .portlet-title {
+	padding: 6px 16px !important;
+}
+
+/* teks judul */
+.portlet.box > .portlet-title .caption {
+	font-weight: 700;
+	letter-spacing: 0.2px;
+}
+
+/* body portlet */
+.portlet.box > .portlet-body {
+	padding: 14px 16px !important;
+	background: #fff;
+}
+
+/* ============ BUTTON DI PORTLET ============ */
+
+/* ============ TABLE (DataTables) ============ */
+
+/* header table */
+.portlet.box .table thead th {
+	background: #eef2fa;
+	border: 0 !important;
+	padding: 12px 12px !important;
+	font-weight: 700;
+}
+
+/* isi table */
+.portlet.box .table tbody td {
+	border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+	padding: 12px 12px !important;
+	vertical-align: middle;
+}
+
+/* hover row biar enak dilihat */
+.portlet.box .table tbody tr {
+	transition: background 0.15s ease;
+}
+.portlet.box .table tbody tr:hover {
+	background: rgba(0, 0, 0, 0.025);
+}
+
+/* kalau ada wrapper datatables */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+	border-radius: 10px !important;
+	border: 1px solid rgba(0, 0, 0, 0.12) !important;
+	outline: none;
+}
+
+/* pagination */
+.dataTables_wrapper .pagination > li > a,
+.dataTables_wrapper .pagination > li > span {
+	border-radius: 10px !important;
+	margin: 0 3px;
+	border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }

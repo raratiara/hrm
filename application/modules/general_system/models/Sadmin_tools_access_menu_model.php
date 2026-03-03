@@ -185,7 +185,7 @@ class Sadmin_tools_access_menu_model extends MY_Model
 		{
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
-				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #343851; border-color: #343851;" href="'.base_url($this->folder_name.'/detail/' . $row->user_id).'"><i class="fa fa-search-plus"></i></a>';
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="'.base_url($this->folder_name.'/detail/' . $row->user_id).'"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
@@ -321,7 +321,19 @@ class Sadmin_tools_access_menu_model extends MY_Model
 			}
 		}
 
-		return $ops;
+		
+		if($ops){
+			return [
+			    "status" => true,
+			    "msg"    => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
+
 	}  
 
 	public function edit_data($post,$id) { 
@@ -429,7 +441,18 @@ class Sadmin_tools_access_menu_model extends MY_Model
 			}
 		}
 		
-		return $ops;
+		
+		if($ops){
+			return [
+			    "status" => true,
+			    "msg"    => "Data berhasil disimpan"
+			];
+		}else{
+			return [
+			    "status" => false,
+			    "msg"    => "Data gagal disimpan"
+			];
+		}
 	}  
 
 	public function getRowData($id) { 

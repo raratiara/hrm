@@ -1,6 +1,6 @@
 <style>
 	.box {
-		background-color: #343851 !important;
+		background-color: #112D80 !important;
 		border: 1px solid #6b6b6b !important;
 	}
 
@@ -120,7 +120,7 @@
 						Tutup
 					</button>
 					<button class="btn btn-sm  pull-right"
-						style="background-color: #343851; color: white; border-radius: 2px !important"
+						style="background-color: #112D80; color: white; border-radius: 2px !important"
 						id="submit-import-data">
 						<i class="fa fa-times"></i>
 						Import
@@ -149,7 +149,7 @@
 						Tutup
 					</button>
 					<button class="btn btn-sm pull-right"
-						style="background-color: #343851; color: white; border-radius: 2px !important"
+						style="background-color: #112D80; color: white; border-radius: 2px !important"
 						id="submit-eksport-data">
 						<i class="fa fa-times"></i>
 						Eksport
