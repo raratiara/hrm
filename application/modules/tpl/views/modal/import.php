@@ -23,7 +23,7 @@
 
 				<div class="modal-footer no-margin-top clearfix">
 
-				    <?php if($this->module_name == 'history_bpjs_menu'){ ?>
+				    <?php if($this->module_name == 'history_bpjs_menu' || $this->module_name == 'history_bpjs_int_menu'){ ?>
 				        <button type="button"
 				            class="btn pull-left"
 				            style="background-color: #cdcfdf; color: black; border-radius: 4px !important;"

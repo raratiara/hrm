@@ -78,42 +78,14 @@ $(document)
 $( "#btnAddData" ).on('click', function(){
 	var module_name = '<?=$this->module_name?>'; 
 
-	
-
-	if(module_name == 'hitung_summary_absen_os_menu'){
-		<!-- document.getElementById("inp_is_all_employee").style.display = "block"; -->
-		document.getElementById("inp_is_all_project").style.display = "block";
-		document.getElementById("inpEmp").style.display = "none";
-		document.getElementById("inputEmployee").style.display = "none";
-		document.getElementById("inputProject").style.display = "none";
-
-		document.getElementById("inpAbsenOS").style.display = "none";
-		document.getElementById("inpAbsenOS_edit").style.display = "none";
-		document.getElementById("projectView").style.display = "none";
-
-	}
-
-	if(module_name == 'request_recruitment_menu'){
-		document.getElementById("btnDraft").style.display = "";
-		document.getElementById("submit-data").style.display = "";
-
-		var modalFooter =  document.getElementById('mdlFooter');
-		var existingReject = modalFooter.querySelector('.btnReject');
-	 	if (existingReject) {
-	 		document.getElementById("btn-reject").style.display = "none";
-	 	}
-
-
-	 	unlockSubmitDraft();
-
-	}
-
 
 	$("#employee ").prop('disabled', false);
 	expire();
 	save_method = 'add'; 
 	reset();
 	$('#mfdata').text('Add');
+
+
 	if(module_name == 'absensi_menu' || module_name == 'absensi_os_menu'){ 
 		getLocation();
 		
@@ -151,6 +123,46 @@ $( "#btnAddData" ).on('click', function(){
 		$('[name="password"]').val('112233').prop('disabled', false);
 
 	}
+
+
+	if(module_name == 'hitung_summary_absen_os_menu'){
+		<!-- document.getElementById("inp_is_all_employee").style.display = "block"; -->
+		document.getElementById("inp_is_all_project").style.display = "block";
+		document.getElementById("inpEmp").style.display = "none";
+		document.getElementById("inputEmployee").style.display = "none";
+		document.getElementById("inputProject").style.display = "none";
+
+		document.getElementById("inpAbsenOS").style.display = "none";
+		document.getElementById("inpAbsenOS_edit").style.display = "none";
+		document.getElementById("projectView").style.display = "none";
+
+	}
+
+
+	if(module_name == 'hitung_summary_absen_int_menu'){
+		
+		document.getElementById("inp_is_all_employee").style.display = "block";
+		document.getElementById("inpEmp").style.display = "none";
+		document.getElementById("inputEmployee").style.display = "none";
+		document.getElementById("inpAbsen").style.display = "none";
+		
+	}
+
+	if(module_name == 'request_recruitment_menu'){
+		document.getElementById("btnDraft").style.display = "";
+		document.getElementById("submit-data").style.display = "";
+
+		var modalFooter =  document.getElementById('mdlFooter');
+		var existingReject = modalFooter.querySelector('.btnReject');
+	 	if (existingReject) {
+	 		document.getElementById("btn-reject").style.display = "none";
+	 	}
+
+
+	 	unlockSubmitDraft();
+
+	}
+
 
 	if(module_name == 'hitung_gaji_os_menu'){ 
 		document.getElementById("projectViewGaji").style.display = "none";
@@ -206,8 +218,68 @@ $( "#btnAddData" ).on('click', function(){
 	}
 
 
+	if(module_name == 'hitung_gaji_int_menu'){ 
+		document.getElementById("inpAbsenInt_gaji").style.display = "none";
+		
+
+		var now = new Date();
+
+		var monthNow = now.getMonth() + 1; // 1–12
+		var yearNow  = now.getFullYear();  // contoh: 2026
+
+		$('select#penggajian_month').val(monthNow).trigger('change.select2');
+		$('[name="penggajian_year"]').val(yearNow);
+
+		///isi otomatis juga periode absennya
+		$.ajax({
+			type: "POST",
+	        url : module_path+'/getSummaryAbsen',
+			data: { bln: monthNow, thn: yearNow },
+			cache: false,		
+	        dataType: "JSON",
+	        success: function(data)
+	        {  
+				if(data != ''){ 	
+					
+					$('[name="period_start"]').val(data[0].tgl_start_absen);
+					$('[name="period_end"]').val(data[0].tgl_end_absen);
+
+				} else {  
+					$('[name="period_start"]').val('');
+					$('[name="period_end"]').val('');
+
+					alert("Summary Absen di Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Summary Absen terlebih dahulu");
+
+				}
+
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+				var dialog = bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+	        }
+	    });
+
+	}
+
+
 	if(module_name == 'pembayaran_gaji_os_menu'){
 		document.getElementById("inpStatus").style.display = "none";
+
+	}
+
+	if(module_name == 'pembayaran_gaji_int_menu'){
+		document.getElementById("inpStatus").style.display = "none";
+
+		getPeriodeGaji();
 	}
 	
 
