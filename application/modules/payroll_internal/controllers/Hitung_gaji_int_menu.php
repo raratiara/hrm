@@ -51,7 +51,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 		$msmonth 					= $this->db->query("select * from master_month order by id asc")->result(); 
 		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','required',3,'-');
 		
-		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
+		$msemp 						= $this->db->query("select * from employees where emp_source = 'internal' and status_id = 1 order by full_name asc")->result(); 
 		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
 		
 		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
@@ -282,161 +282,6 @@ class Hitung_gaji_int_menu extends MY_Controller
 
 
 
-	public function getOvertimeReport_perEmployee_pdf()
-	{
-		$this->load->library('html_pdf');
-		$this->load->helper('global');
-
-
-		
-	    $sql = "
-	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
-			from payroll_slip a 
-			left join employees b on b.id = a.employee_id 
-			left join master_month c on c.id = a.periode_bulan
-			left join project_outsource d on d.id = b.project_id
-			left join master_job_title_os e on e.id = b.job_title_id
-			left join data_customer f on f.id = d.customer_id
-			where a.employee_id = '".$_GET['flemployee']."'
-	    ";
-
-	    $data = $this->db->query($sql)->result();
-
-	    if(!empty($data)){
-	    	$pdfData = [
-			    'periode_bulan'      		=> $data[0]->periode_bulan_name,
-			    'periode_tahun'      		=> $data[0]->periode_tahun,
-			    'nik'    					=> $data[0]->emp_code,
-			    'emp_name'       			=> $data[0]->full_name,
-			    'project_name'    			=> $data[0]->project_name,
-			    'jabatan' 		  			=> $data[0]->job_title_name,
-			    'tanggal_pembayaran_lembur'	=> $data[0]->tanggal_pembayaran_lembur
-			];
-
-
-
-			$pdfBinary = $this->html_pdf->render_to_string_portrait(
-		        'pdf/lembur_os',
-		        $pdfData
-		    );
-
-		    if (ob_get_level()) ob_end_clean();
-
-
-		    header("Content-Type: application/pdf");
-		    header("Content-Disposition: attachment; filename=lembur_os.pdf");
-		    echo $pdfBinary;
-		    exit;
-
-	    }else{
-	    	
-	    	echo "<script>
-		        alert('Report Lembur tidak ditemukan');
-		        window.history.back();
-		    </script>";
-		    exit;
-	    }
-
-		
-	    
-	}
-
-
-	public function getOvertimeReport_pdf()
-	{
-	    $this->load->library('html_pdf');
-	    $this->load->helper('global');
-
-	    if (empty($_GET['payroll_id'])) {
-	        echo "Report Lembur tidak ditemukan";
-	        return;
-	    }
-
-	    // ================= DATA =================
-	    $sql = "
-	        select a.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
-			e.name AS job_title_name, f.tanggal_pembayaran_lembur, aa.employee_id
-			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
-			LEFT JOIN employees b ON b.id = aa.employee_id 
-			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
-			LEFT JOIN project_outsource d ON d.id = b.project_id
-			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
-			LEFT JOIN data_customer f ON f.id = d.customer_id
-			WHERE a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
-			ORDER BY b.full_name
-	    ";
-
-	    $employees = $this->db->query($sql)->result();
-
-	    if (empty($employees)) {
-	      
-	        echo "<script>
-		        alert('Report Lembur tidak ditemukan');
-		        window.history.back();
-		    </script>";
-		    exit;
-	    }
-
-	    $periode_awal  = $employees[0]->tgl_start_absen;
-		$periode_akhir = $employees[0]->tgl_end_absen . ' 23:59:59';
-
-		foreach ($employees as &$emp) {
-
-		    $sql_lembur = "
-		        SELECT 
-		            a.datetime_start, 
-		            a.datetime_end, 
-		            a.num_of_hour, 
-		            a.amount
-		        FROM overtimes a
-		        LEFT JOIN time_attendances b 
-		            ON b.employee_id = a.employee_id 
-		            AND b.date_attendance = DATE(a.datetime_start)
-		        WHERE a.employee_id = ?
-		        AND a.type = 1 
-		        AND a.status_id = 2
-		        AND a.datetime_start BETWEEN ? AND ?
-		        AND b.id IS NOT NULL
-		    ";
-
-		    $lembur = $this->db->query($sql_lembur, [
-		        $emp->employee_id,
-		        $periode_awal,
-		        $periode_akhir
-		    ])->result();
-
-		    $emp->lembur_detail = $lembur;
-
-		    $emp->total_lembur = 0;
-		    foreach ($lembur as $l) {
-		        $emp->total_lembur += (int)$l->amount;
-		    }
-		}
-
-
-
-
-	    // ================= RENDER PDF =================
-	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	        'pdf/lembur_os_perproject',
-	        [
-	            'employees' => $employees
-	        ]
-	    );
-
-	    if (ob_get_level()) ob_end_clean();
-
-	    $projectName = $employees[0]->project_name;
-	    $safeProjectName = preg_replace('/[^A-Za-z0-9 _-]/', '', $projectName);
-
-	    header("Content-Type: application/pdf");
-	    header("Content-Disposition: attachment; filename=Report Lembur - ".$safeProjectName.".pdf");
-	    echo $pdfBinary;
-	    exit;
-	}
-
-
-
 	public function getSummaryAbsen(){
 		$post = $this->input->post(null, true);
 		$bln 	= $post['bln'];
@@ -636,33 +481,6 @@ class Hitung_gaji_int_menu extends MY_Controller
 	}
 
 
-
-	public function geneditabsenrow()
-	{ 
-		if(_USER_ACCESS_LEVEL_VIEW == "1")
-		{ 
-			$post = $this->input->post(null, true);
-			$bln 	= $post['bln'];
-			$thn 	= $post['thn'];
-
-			if(isset($post['count']))
-			{  
-				$row = trim($post['count']); 
-				echo $this->self_model->getNewEditAbsenRow($row);
-			} else if(isset($post['project'])) { 
-				$row = 0;
-				$id = trim($post['project']);
-				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewEditAbsenRow($row,$id,$bln,$thn,$view));
-			}
-		}
-		else
-		{ 
-			$this->load->view('errors/html/error_hacks_401');
-		}
-	}
-
-
 	public function getAbsenceReportGaji_pdf()
 	{
 	    if (empty($_GET['payroll_id'])) {
@@ -714,9 +532,9 @@ class Hitung_gaji_int_menu extends MY_Controller
 	            $row->total_ijin,
 	            $row->total_cuti,
 	            $row->total_alfa,
-	            $row->total_nominal_lembur,
 	            $row->total_jam_kerja,
-	            $row->total_jam_lembur
+	            $row->total_jam_lembur,
+	            $row->total_nominal_lembur
 	        ];
 	    }
 
@@ -909,6 +727,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 	            $gaji_harian,
 	            /*$row->gaji,*/
 	            (int)$row->tunjangan_jabatan+(int)$row->tunjangan_transport+(int)$row->tunjangan_konsumsi+(int)$row->tunjangan_komunikasi,
+	            (int)$row->total_nominal_lembur,
 	            /*$row->lembur_perjam,
 	            $row->ot,
 	            $row->total_jam_lembur,*/

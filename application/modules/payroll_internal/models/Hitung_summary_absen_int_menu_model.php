@@ -291,156 +291,167 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 	    $bulan = trim($post['penggajian_month']);
 	    $tahun = trim($post['penggajian_year']);
 
-	    /* ===============================
-	       FILTER EMPLOYEE / PROJECT
-	    =============================== */
+	    $cekdata = $this->db->query("select * from summary_absen_internal where bulan_penggajian = ".$bulan." and tahun_penggajian = '".$tahun."' ")->result(); 
 
-	    $filter_employee = "";
-	   
-	    if ($post['is_all_employee'] == 'Karyawan' && !empty($post['employeeIds'])) {
-	        $ids = implode(',', array_map('intval', $post['employeeIds']));
-	        $filter_employee = " AND b.id IN ($ids) ";
-	    }
+	    if(empty($cekdata)){
+	    	/* ===============================
+		       FILTER EMPLOYEE / PROJECT
+		    =============================== */
 
-	    /* ===============================
-	       QUERY AGGREGASI (NO LOOP QUERY)
-	    =============================== */
+		    $filter_employee = "";
+		   
+		    if ($post['is_all_employee'] == 'Karyawan' && !empty($post['employeeIds'])) {
+		        $ids = implode(',', array_map('intval', $post['employeeIds']));
+		        $filter_employee = " AND b.id IN ($ids) ";
+		    }
 
-	    $sql = "
-	    SELECT 
-	        b.id as emp_id,
-	        b.total_hari_kerja,
+		    /* ===============================
+		       QUERY AGGREGASI (NO LOOP QUERY)
+		    =============================== */
 
-	        SUM(CASE 
-	            WHEN a.leave_absences_id IS NULL 
-	            AND a.date_attendance_in IS NOT NULL 
-	            THEN 1 ELSE 0 END) as total_masuk,
+		    $sql = "
+		    SELECT 
+		        b.id as emp_id,
+		        b.total_hari_kerja,
 
-	        SUM(CASE 
-	            WHEN a.leave_absences_id IS NOT NULL 
-	            AND a.leave_type != 5 
-	            AND h.status_approval = 2 
-	            THEN 1 ELSE 0 END) as total_cuti,
+		        SUM(CASE 
+		            WHEN a.leave_absences_id IS NULL 
+		            AND a.date_attendance_in IS NOT NULL 
+		            THEN 1 ELSE 0 END) as total_masuk,
 
-	        SUM(CASE 
-	            WHEN a.leave_absences_id IS NOT NULL 
-	            AND a.leave_type = 5 
-	            AND h.status_approval = 2 
-	            THEN 1 ELSE 0 END) as total_sakit,
+		        SUM(CASE 
+		            WHEN a.leave_absences_id IS NOT NULL 
+		            AND a.leave_type != 5 
+		            AND h.status_approval = 2 
+		            THEN 1 ELSE 0 END) as total_cuti,
 
-	        SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) as total_late,
+		        SUM(CASE 
+		            WHEN a.leave_absences_id IS NOT NULL 
+		            AND a.leave_type = 5 
+		            AND h.status_approval = 2 
+		            THEN 1 ELSE 0 END) as total_sakit,
 
-	        SUM(IFNULL(i.num_of_hour,0)) as total_jam_lembur,
-	        SUM(IFNULL(i.amount,0)) as total_lembur,
-	        
-	        SUM(IFNULL(a.num_of_working_hours,0)) as total_jam_kerja
+		        SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) as total_late,
 
-	    FROM employees b
-	    LEFT JOIN time_attendances a 
-	        ON a.employee_id = b.id
-	        AND a.date_attendance BETWEEN ? AND ?
+		        SUM(IFNULL(i.num_of_hour,0)) as total_jam_lembur,
+		        SUM(IFNULL(i.amount,0)) as total_lembur,
+		        
+		        SUM(IFNULL(a.num_of_working_hours,0)) as total_jam_kerja
 
-	    LEFT JOIN leave_absences h 
-	        ON h.id = a.leave_absences_id
+		    FROM employees b
+		    LEFT JOIN time_attendances a 
+		        ON a.employee_id = b.id
+		        AND a.date_attendance BETWEEN ? AND ?
 
-	    LEFT JOIN overtimes i 
-	        ON i.employee_id = a.employee_id 
-	        AND a.date_attendance = DATE(i.datetime_start)
-	        AND i.type = 1 
-	        AND i.status_id = 2
+		    LEFT JOIN leave_absences h 
+		        ON h.id = a.leave_absences_id
 
-	    WHERE b.emp_source = 'internal'
-	    AND b.status_id = 1
-	    $filter_employee
+		    LEFT JOIN overtimes i 
+		        ON i.employee_id = a.employee_id 
+		        AND a.date_attendance = DATE(i.datetime_start)
+		        AND i.type = 1 
+		        AND i.status_id = 2
 
-	    GROUP BY b.id
-	    ";
+		    WHERE b.emp_source = 'internal'
+		    AND b.status_id = 1
+		    $filter_employee
 
-	    $data_summary = $this->db->query(
-	        $sql,
-	        [$period_start, $period_end]
-	    )->result();
+		    GROUP BY b.id
+		    ";
 
-	    if (empty($data_summary)) {
-	        return [
+		    $data_summary = $this->db->query(
+		        $sql,
+		        [$period_start, $period_end]
+		    )->result();
+
+		    if (empty($data_summary)) {
+		        return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+		    }
+
+		    
+
+		    $insert_batch = [];
+
+		    foreach ($data_summary as $row) {
+
+		        $header = $this->db
+		            ->where('bulan_penggajian', $bulan)
+		            ->where('tahun_penggajian', $tahun)
+		            ->get('summary_absen_internal')
+		            ->row();
+
+		        if (!$header) {
+
+		            $this->db->insert('summary_absen_internal', [
+		                'bulan_penggajian' => $bulan,
+		                'tahun_penggajian' => $tahun,
+		                'tgl_start_absen'  => $period_start,
+		                'tgl_end_absen'    => $period_end,
+		                'created_at'       => date("Y-m-d H:i:s"),
+		                'created_by'       => $_SESSION['worker']
+		            ]);
+
+		            $header_id = $this->db->insert_id();
+		        } else {
+		            $header_id = $header->id;
+		        }
+
+		        /* ---- hitung alfa ---- */
+
+		        $ttl_ada_absen = 
+		            $row->total_masuk +
+		            $row->total_cuti +
+		            $row->total_sakit;
+
+		        $total_alfa = max(
+		            0,
+		            (int)$row->total_hari_kerja - (int)$ttl_ada_absen
+		        );
+
+		        /* ---- siapkan batch insert ---- */
+
+		        $insert_batch[] = [
+		            'summary_absen_internal_id' => $header_id,
+		            'emp_id'             => $row->emp_id,
+		            'total_hari_kerja'   => $row->total_hari_kerja,
+		            'total_masuk'        => $row->total_masuk,
+		            'total_ijin'         => $row->total_cuti,
+		            'total_cuti'         => $row->total_cuti,
+		            'total_alfa'         => $total_alfa,
+		            'total_lembur'       => $row->total_lembur,
+		            'total_jam_kerja'    => $row->total_jam_kerja,
+		            'total_jam_lembur'   => $row->total_jam_lembur,
+		            'created_at'         => date("Y-m-d H:i:s"),
+		            'created_by'         => $_SESSION['worker']
+		        ];
+		    }
+
+		    /* ===============================
+		       INSERT BATCH DETAIL
+		    =============================== */
+
+		    if (!empty($insert_batch)) {
+		        $this->db->insert_batch(
+		            'summary_absen_internal_detail',
+		            $insert_batch
+		        );
+		    }
+
+		    return [
+			    "status" => true,
+			    "msg" => "Data berhasil disimpan"
+			];
+	    }else{
+	    	return [
 			    "status" => false,
-			    "msg" 	 => "Data gagal disimpan"
+			    "msg" 	 => "Bulan Tahun Penggajian tersebut sudah ada"
 			];
 	    }
 
 	    
-
-	    $insert_batch = [];
-
-	    foreach ($data_summary as $row) {
-
-	        $header = $this->db
-	            ->where('bulan_penggajian', $bulan)
-	            ->where('tahun_penggajian', $tahun)
-	            ->get('summary_absen_internal')
-	            ->row();
-
-	        if (!$header) {
-
-	            $this->db->insert('summary_absen_internal', [
-	                'bulan_penggajian' => $bulan,
-	                'tahun_penggajian' => $tahun,
-	                'tgl_start_absen'  => $period_start,
-	                'tgl_end_absen'    => $period_end,
-	                'created_at'       => date("Y-m-d H:i:s"),
-	                'created_by'       => $_SESSION['worker']
-	            ]);
-
-	            $header_id = $this->db->insert_id();
-	        } else {
-	            $header_id = $header->id;
-	        }
-
-	        /* ---- hitung alfa ---- */
-
-	        $ttl_ada_absen = 
-	            $row->total_masuk +
-	            $row->total_cuti +
-	            $row->total_sakit;
-
-	        $total_alfa = max(
-	            0,
-	            (int)$row->total_hari_kerja - (int)$ttl_ada_absen
-	        );
-
-	        /* ---- siapkan batch insert ---- */
-
-	        $insert_batch[] = [
-	            'summary_absen_internal_id' => $header_id,
-	            'emp_id'             => $row->emp_id,
-	            'total_hari_kerja'   => $row->total_hari_kerja,
-	            'total_masuk'        => $row->total_masuk,
-	            'total_ijin'         => $row->total_cuti,
-	            'total_cuti'         => $row->total_cuti,
-	            'total_alfa'         => $total_alfa,
-	            'total_lembur'       => $row->total_lembur,
-	            'total_jam_kerja'    => $row->total_jam_kerja,
-	            'total_jam_lembur'   => $row->total_jam_lembur,
-	            'created_at'         => date("Y-m-d H:i:s"),
-	            'created_by'         => $_SESSION['worker']
-	        ];
-	    }
-
-	    /* ===============================
-	       INSERT BATCH DETAIL
-	    =============================== */
-
-	    if (!empty($insert_batch)) {
-	        $this->db->insert_batch(
-	            'summary_absen_internal_detail',
-	            $insert_batch
-	        );
-	    }
-
-	    return [
-		    "status" => true,
-		    "msg" => "Data berhasil disimpan"
-		];
 	}
 
 	

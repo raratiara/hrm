@@ -390,7 +390,8 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            'bulan_penggajian' => $bulan,
 	            'tahun_penggajian' => $tahun,
 	            'tgl_start_absen'  => $data[0]->tgl_start_absen,
-	            'tgl_end_absen'    => $data[0]->tgl_end_absen
+	            'tgl_end_absen'    => $data[0]->tgl_end_absen,
+	            'status' => 1 ///Menunggu Pembayaran
 	        ]);
 	        $payroll_slip_id = $this->db->insert_id();
 	    } else {
@@ -438,7 +439,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        $sosial = 5000;
 	        $hutang = (float)$row->hutang;
 
-	        $total_pendapatan = $gaji;
+	        $total_pendapatan = ceil($gaji + $lembur_total);
 	        $subtotal         = ceil($total_pendapatan - ($hutang + $sosial));
 	        $gaji_bersih      = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk));
 
@@ -475,6 +476,9 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            'total_hari_kerja' => $row->total_hari_kerja,
 	            'total_masuk'      => $row->total_masuk,
 	            'total_tidak_masuk'=> $total_tidak_masuk,
+	            'total_ijin' 	   => $row->total_ijin,
+	            'total_cuti' 	   => $row->total_cuti,
+	            'total_alfa' 	   => $row->total_alfa,
 	            'total_jam_kerja'  => $row->total_jam_kerja,
 	            'total_jam_lembur' => $row->total_jam_lembur,
 	            'created_at'       => date("Y-m-d H:i:s"),
@@ -828,27 +832,17 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$subtotal = $dataSlip[0]->subtotal;
 					$gaji_bersih = $dataSlip[0]->gaji_bersih;
 
-				}else{ /// ambil data dr summary absen
+				}else{  /// ambil data dr summary absen
 					$status_payroll="";
 					
 					$total_tidak_masuk = ((int)$f->total_ijin ?? 0) +
 									     ((int)$f->total_cuti ?? 0) +
 									     ((int)$f->total_alfa ?? 0);
 
-					$gaji = ceil(($f->total_masuk * (int)$f->gaji_harian) * 100) / 100;
+					$gaji = ceil(((int)$f->total_masuk * (int)$f->gaji_harian) * 100) / 100;
 					
-					if($f->sistem_lembur == 'tidak_sistem_lembur'){
-						$lembur_perjam = $f->nominal_lembur ?? 0;
-					}else{
-						$lembur_perjam = ($gaji_bulanan > 0) ? ceil(($gaji_bulanan / 173) * 100) / 100 : 0;
-						if($f->rumus_lembur == 'gapok/26/7'){
-							$lembur_perjam = ceil($gaji_bulanan / 26 / 7);
-						}else if($f->rumus_lembur == 'gapok/20/12'){
-							$lembur_perjam = ceil($gaji_bulanan / 20 / 12);
-						}
-					}
+					$lembur_perjam = ($gaji_bulanan > 0) ? ceil(($gaji_bulanan / 173) * 100) / 100 : 0;
 					
-
 					$bpjs_kesehatan = ceil(($gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
 					$bpjs_tk = ceil(($gaji_bulanan * 0.0624) * 100) / 100; /// 6.24% dr GP
 					
@@ -896,7 +890,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$tunjangan_komunikasi = "";
 					$lembur_perjam = $lembur_perjam;
 					$total_jam_lembur = $f->total_jam_lembur;
-					$total_nominal_lembur = ceil($lembur_perjam*$total_jam_lembur);
+					$total_nominal_lembur = ceil((int)$lembur_perjam*(int)$total_jam_lembur);
 					$total_pendapatan = $gaji;
 					$bpjs_kesehatan = $bpjs_kesehatan;
 					$bpjs_tk = $bpjs_tk;

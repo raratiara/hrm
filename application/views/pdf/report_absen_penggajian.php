@@ -45,7 +45,7 @@
             <th>No</th><th>NIK</th><th>Karyawan</th>
             <th>Total Hari Kerja</th><th>Total Masuk</th>
             <th>Total Ijin</th><th>Total Cuti</th><th>Total Alfa</th>
-            <th>Total Lembur</th><th>Total Jam Kerja</th><th>Total Jam Lembur</th>
+            <th>Total Jam Kerja</th><th>Total Jam Lembur</th><th>Total Nominal Lembur</th>
         </tr>
         </thead>
         <tbody>

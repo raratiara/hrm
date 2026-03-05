@@ -107,12 +107,8 @@ function rupiah($angka){
             <tr><td>Tunjangan Transport</td><td class="right"><?=rupiah($tunjangan_transport)?></td></tr>
             <tr><td>Tunjangan Konsumsi</td><td class="right"><?=rupiah($tunjangan_konsumsi)?></td></tr>
             <tr><td>Tunjangan Komunikasi</td><td class="right"><?=rupiah($tunjangan_komunikasi)?></td></tr>
-            <tr><td>Lembur</td><td class="right"></td></tr>
-            <tr>
-                <td colspan="2" style="font-size:9px;">
-                    (lembur <?= rupiah($total_nominal_lembur) ?> akan dibayarkan tgl <?=$tanggal_pembayaran_lembur?>)
-                </td>
-            </tr>
+            <tr><td>Lembur</td><td class="right"><?= rupiah($total_nominal_lembur) ?></td></tr>
+           
         </table>
     </td>
 

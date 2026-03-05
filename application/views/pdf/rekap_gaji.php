@@ -95,7 +95,7 @@
                 <th rowspan="2">Jabatan</th>
                 <th rowspan="2">Tgl Masuk</th>
 
-                <th colspan="3">PENDAPATAN</th>
+                <th colspan="4">PENDAPATAN</th>
 
                 <th rowspan="2">Gaji Kotor</th>
 
@@ -109,6 +109,7 @@
                 <th>Gaji Bulanan</th>
                 <th>Gaji Harian</th>
                 <th>Tunjangan</th>
+                <th>Lembur</th>
 
                 <th>BPJS Kesehatan</th>
                 <th>BPJS TK</th>
@@ -130,6 +131,7 @@
             $total_gaji_bulanan = 0;
             $total_gaji_harian  = 0;
             $total_tunjangan    = 0;
+            $total_lembur       = 0;
             $total_gaji_kotor   = 0;
             $total_bpjs_kes     = 0;
             $total_bpjs_tk      = 0;
@@ -150,18 +152,19 @@
                 $total_gaji_bulanan += (int)$row[6];
                 $total_gaji_harian  += (int)$row[7];
                 $total_tunjangan    += (int)$row[8];
-                $total_gaji_kotor   += (int)$row[9];
-                $total_bpjs_kes     += (int)$row[10];
-                $total_bpjs_tk      += (int)$row[11];
+                $total_lembur       += (int)$row[9];
+                $total_gaji_kotor   += (int)$row[10];
+                $total_bpjs_kes     += (int)$row[11];
+                $total_bpjs_tk      += (int)$row[12];
                 /*$total_absen        += (int)$row[12];*/
-                $total_seragam      += (int)$row[12];
-                $total_pelatihan    += (int)$row[13];
-                $total_lain         += (int)$row[14];
-                $total_hutang       += (int)$row[15];
-                $total_sosial       += (int)$row[16];
-                $total_payroll      += (int)$row[17];
-                $total_pph          += (int)$row[18];
-                $total_gaji_bersih  += (int)$row[19];
+                $total_seragam      += (int)$row[13];
+                $total_pelatihan    += (int)$row[14];
+                $total_lain         += (int)$row[15];
+                $total_hutang       += (int)$row[16];
+                $total_sosial       += (int)$row[17];
+                $total_payroll      += (int)$row[18];
+                $total_pph          += (int)$row[19];
+                $total_gaji_bersih  += (int)$row[20];
                 ?>
 
                 <tr>
@@ -193,6 +196,7 @@
                 <td><?= number_format($total_gaji_bulanan) ?></td>
                 <td><?= number_format($total_gaji_harian) ?></td>
                 <td><?= number_format($total_tunjangan) ?></td>
+                <td><?= number_format($total_lembur) ?></td>
                 <td><?= number_format($total_gaji_kotor) ?></td>
                 <td><?= number_format($total_bpjs_kes) ?></td>
                 <td><?= number_format($total_bpjs_tk) ?></td>
