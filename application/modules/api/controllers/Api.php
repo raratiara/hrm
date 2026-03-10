@@ -7234,7 +7234,7 @@ class Api extends API_Controller
 	        WHERE aa.employee_id = ".$islogin_employee."
 	        ".$whr_month."
 	        ".$whr_year."
-	        GROUP BY a.id
+	        
 	        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
 	    ";
 
@@ -7402,7 +7402,7 @@ class Api extends API_Controller
 	        WHERE aa.employee_id = ".$islogin_employee."
 	        ".$whr_month."
 	        ".$whr_year."
-	        GROUP BY a.id
+	       
 	        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
 	    ";
 
