@@ -67,11 +67,13 @@ td, th {
 <!-- INFO -->
 
 <?php
-function rupiah($angka){
-    if (empty($angka) || !is_numeric($angka)) {
-        return '-';
+if (!function_exists('rupiah')) {
+    function rupiah($angka){
+        if (empty($angka) || !is_numeric($angka)) {
+            return '-';
+        }
+        return 'Rp ' . number_format((float)$angka, 0, ',', '.');
     }
-    return 'Rp ' . number_format((float)$angka, 0, ',', '.');
 }
 ?>
 

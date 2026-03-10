@@ -7179,8 +7179,346 @@ class Api extends API_Controller
     }
 
 
-
     public function get_data_payslip()
+	{
+	    $this->verify_token();
+
+	    $jsonData = file_get_contents('php://input');
+	    $dataReq  = json_decode($jsonData, true);
+	    $_REQUEST = $dataReq;
+
+	    $islogin_employee = $_GET['islogin_employee'] ?? '';
+	    $month = $_GET['month_id'] ?? '';
+	    $year = $_GET['year'] ?? '';
+
+	    if ($islogin_employee == '') {
+	        $response = [
+	            'status'  => 401,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+
+	        return $this->render_json($response, 401);
+	    }
+
+	    $this->load->library('html_pdf');
+	    $this->load->helper('global');
+
+	    $whr_month = "";
+	    if ($month != '') {
+	        $whr_month = " AND a.bulan_penggajian = ".$month." ";
+	    }
+
+	    $whr_year = "";
+	    if ($year != '') {
+	        $whr_year = " AND a.tahun_penggajian = '".$year."' ";
+	    }
+
+	    $sql = "
+	        SELECT 
+	            a.*, 
+	            b.full_name, 
+	            c.name_indo AS periode_bulan_name, 
+	            b.emp_code, 
+	            d.project_name, 
+	            e.name AS job_title_name, 
+	            f.tanggal_pembayaran_lembur,
+	            aa.*
+	        FROM payroll_slip a
+	        LEFT JOIN payroll_slip_detail aa ON aa.payroll_slip_id = a.id
+	        LEFT JOIN employees b ON b.id = aa.employee_id
+	        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
+	        LEFT JOIN project_outsource d ON d.id = b.project_id
+	        LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
+	        LEFT JOIN data_customer f ON f.id = d.customer_id
+	        WHERE aa.employee_id = ".$islogin_employee."
+	        ".$whr_month."
+	        ".$whr_year."
+	        GROUP BY a.id
+	        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
+	    ";
+
+	    $slips = $this->db->query($sql)->result();
+
+	    if (!$slips) {
+	        $response = [
+	            'status'  => 404,
+	            'message' => 'Failed',
+	            'error'   => 'Payslip not found'
+	        ];
+
+	        return $this->render_json($response, 404);
+	    }
+
+	    $data_result = [];
+
+	    foreach ($slips as $slip) {
+
+	        // jika belum dibayar maka tidak bisa lihat
+	        if ($slip->status != 2) {
+	            continue;
+	        }
+
+	        $total_potongan =
+	            (int)$slip->bpjs_kesehatan +
+	            (int)$slip->bpjs_tk +
+	            (int)$slip->seragam +
+	            (int)$slip->pelatihan +
+	            (int)$slip->lain_lain +
+	            (int)$slip->hutang +
+	            (int)$slip->sosial +
+	            (int)$slip->payroll +
+	            (int)$slip->pph_120;
+
+	        $pdfData = [
+	            'periode_bulan' => $slip->periode_bulan_name,
+	            'periode_tahun' => $slip->tahun_penggajian,
+	            'nik' => $slip->emp_code,
+	            'emp_name' => $slip->full_name,
+	            'project_name' => $slip->project_name,
+	            'jabatan' => $slip->job_title_name,
+	            'tanggal_pembayaran_lembur' => $slip->tanggal_pembayaran_lembur,
+
+	            'gaji_pokok' => $slip->gaji,
+	            'tunjangan_jabatan' => $slip->tunjangan_jabatan,
+	            'tunjangan_transport' => $slip->tunjangan_transport,
+	            'tunjangan_konsumsi' => $slip->tunjangan_konsumsi,
+	            'tunjangan_komunikasi' => $slip->tunjangan_komunikasi,
+	            'total_nominal_lembur' => $slip->total_nominal_lembur,
+
+	            'bpjs_kesehatan' => $slip->bpjs_kesehatan,
+	            'bpjs_tk' => $slip->bpjs_tk,
+	            'seragam' => $slip->seragam,
+	            'pelatihan' => $slip->pelatihan,
+	            'lain_lain' => $slip->lain_lain,
+	            'hutang' => $slip->hutang,
+	            'sosial' => $slip->sosial,
+	            'payroll' => $slip->payroll,
+	            'pph_120' => $slip->pph_120,
+
+	            'total_pendapatan' => $slip->total_pendapatan,
+	            'total_potongan' => $total_potongan,
+	            'gaji_bersih' => $slip->gaji_bersih,
+	            'terbilang' => terbilang($slip->gaji_bersih)
+	        ];
+
+	        $pdfBinary = $this->html_pdf->render_to_string_portrait(
+	            'pdf/gaji_os',
+	            $pdfData
+	        );
+
+	        if (ob_get_level()) {
+	            ob_end_clean();
+	        }
+
+	        $data_result[] = [
+	            'employee_id' => $islogin_employee,
+	            'emp_code' => $slip->emp_code,
+	            'employee' => $slip->full_name,
+	            'period' => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
+	            'filename' => 'payslip_'.$slip->emp_code.'_'.$slip->tahun_penggajian.'_'.$slip->bulan_penggajian.'.pdf',
+	            'mime' => 'application/pdf',
+	            'file_base64' => base64_encode($pdfBinary)
+	        ];
+	    }
+
+	    if (empty($data_result)) {
+	        $response = [
+	            'status'  => 404,
+	            'message' => 'Failed',
+	            'error'   => 'The payslip is not ready yet'
+	        ];
+
+	        return $this->render_json($response, 404);
+	    }
+
+	    $response = [
+	        'status'   => 200,
+	        'message'  => 'Success',
+	        'data'     => $data_result
+	    ];
+
+	    $this->output->set_header('Access-Control-Allow-Origin: *');
+	    $this->output->set_header('Access-Control-Allow-Methods: POST');
+	    $this->output->set_header('Access-Control-Max-Age: 3600');
+	    $this->output->set_header(
+	        'Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
+	    );
+
+	    $this->render_json($response, 200);
+	}
+
+
+
+	public function get_data_payslip_internal()
+	{
+	    $this->verify_token();
+
+	    $jsonData = file_get_contents('php://input');
+	    $dataReq  = json_decode($jsonData, true);
+	    $_REQUEST = $dataReq;
+
+	    $islogin_employee = $_GET['islogin_employee'] ?? '';
+	    $month = $_GET['month_id'] ?? '';
+	    $year = $_GET['year'] ?? '';
+
+	    if ($islogin_employee == '') {
+	        $response = [
+	            'status'  => 401,
+	            'message' => 'Failed',
+	            'error'   => 'Bad Request'
+	        ];
+
+	        return $this->render_json($response, 401);
+	    }
+
+	    $this->load->library('html_pdf');
+	    $this->load->helper('global');
+
+	    $whr_month = "";
+	    if ($month != '') {
+	        $whr_month = " AND a.bulan_penggajian = ".$month." ";
+	    }
+
+	    $whr_year = "";
+	    if ($year != '') {
+	        $whr_year = " AND a.tahun_penggajian = '".$year."' ";
+	    }
+
+	    $sql = "
+	        SELECT 
+	            a.*, 
+	            b.full_name, 
+	            c.name_indo AS periode_bulan_name, 
+	            b.emp_code, 
+	            e.name AS job_title_name, 
+	            '' as tanggal_pembayaran_lembur,
+	            aa.*
+	        FROM payroll_slip_internal a
+	        LEFT JOIN payroll_slip_detail_internal aa ON aa.payroll_slip_id = a.id
+	        LEFT JOIN employees b ON b.id = aa.employee_id
+	        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
+	        LEFT JOIN master_job_title e ON e.id = b.job_title_id
+	        WHERE aa.employee_id = ".$islogin_employee."
+	        ".$whr_month."
+	        ".$whr_year."
+	        GROUP BY a.id
+	        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
+	    ";
+
+	    $slips = $this->db->query($sql)->result();
+
+	    if (!$slips) {
+	        $response = [
+	            'status'  => 404,
+	            'message' => 'Failed',
+	            'error'   => 'Payslip not found'
+	        ];
+
+	        return $this->render_json($response, 404);
+	    }
+
+	    $data_result = [];
+
+	    foreach ($slips as $slip) {
+
+	        // jika belum dibayar maka tidak bisa lihat
+	        if ($slip->status != 2) {
+	            continue;
+	        }
+
+	        $total_potongan =
+	            (int)$slip->bpjs_kesehatan +
+	            (int)$slip->bpjs_tk +
+	            (int)$slip->seragam +
+	            (int)$slip->pelatihan +
+	            (int)$slip->lain_lain +
+	            (int)$slip->hutang +
+	            (int)$slip->sosial +
+	            (int)$slip->payroll +
+	            (int)$slip->pph_120;
+
+	        $pdfData = [
+	            'periode_bulan' => $slip->periode_bulan_name,
+	            'periode_tahun' => $slip->tahun_penggajian,
+	            'nik' => $slip->emp_code,
+	            'emp_name' => $slip->full_name,
+	            'project_name' => $slip->project_name,
+	            'jabatan' => $slip->job_title_name,
+	            'tanggal_pembayaran_lembur' => $slip->tanggal_pembayaran_lembur,
+
+	            'gaji_pokok' => $slip->gaji,
+	            'tunjangan_jabatan' => $slip->tunjangan_jabatan,
+	            'tunjangan_transport' => $slip->tunjangan_transport,
+	            'tunjangan_konsumsi' => $slip->tunjangan_konsumsi,
+	            'tunjangan_komunikasi' => $slip->tunjangan_komunikasi,
+	            'total_nominal_lembur' => $slip->total_nominal_lembur,
+
+	            'bpjs_kesehatan' => $slip->bpjs_kesehatan,
+	            'bpjs_tk' => $slip->bpjs_tk,
+	            'seragam' => $slip->seragam,
+	            'pelatihan' => $slip->pelatihan,
+	            'lain_lain' => $slip->lain_lain,
+	            'hutang' => $slip->hutang,
+	            'sosial' => $slip->sosial,
+	            'payroll' => $slip->payroll,
+	            'pph_120' => $slip->pph_120,
+
+	            'total_pendapatan' => $slip->total_pendapatan,
+	            'total_potongan' => $total_potongan,
+	            'gaji_bersih' => $slip->gaji_bersih,
+	            'terbilang' => terbilang($slip->gaji_bersih)
+	        ];
+
+	        $pdfBinary = $this->html_pdf->render_to_string_portrait(
+	            'pdf/gaji_internal_perEmp',
+	            $pdfData
+	        );
+
+	        if (ob_get_level()) {
+	            ob_end_clean();
+	        }
+
+	        $data_result[] = [
+	            'employee_id' => $islogin_employee,
+	            'emp_code' => $slip->emp_code,
+	            'employee' => $slip->full_name,
+	            'period' => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
+	            'filename' => 'payslip_'.$slip->emp_code.'_'.$slip->tahun_penggajian.'_'.$slip->bulan_penggajian.'.pdf',
+	            'mime' => 'application/pdf',
+	            'file_base64' => base64_encode($pdfBinary)
+	        ];
+	    }
+
+	    if (empty($data_result)) {
+	        $response = [
+	            'status'  => 404,
+	            'message' => 'Failed',
+	            'error'   => 'The payslip is not ready yet'
+	        ];
+
+	        return $this->render_json($response, 404);
+	    }
+
+	    $response = [
+	        'status'   => 200,
+	        'message'  => 'Success',
+	        'data'     => $data_result
+	    ];
+
+	    $this->output->set_header('Access-Control-Allow-Origin: *');
+	    $this->output->set_header('Access-Control-Allow-Methods: POST');
+	    $this->output->set_header('Access-Control-Max-Age: 3600');
+	    $this->output->set_header(
+	        'Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
+	    );
+
+	    $this->render_json($response, 200);
+	}
+
+
+
+    public function get_data_payslip_old2()
 	{
 	    //$this->verify_token();
 
@@ -7207,6 +7545,18 @@ class Api extends API_Controller
 	    $this->load->library('html_pdf');
 	    $this->load->helper('global');
 
+
+	    $whr_month = "";
+	    if($month != ''){
+	    	$whr_month = " and a.bulan_penggajian = ".$month." "; 
+	    }
+
+	    $whr_year = "";
+	    if($year != ''){
+	    	$whr_year = " and a.tahun_penggajian = '".$year." "; 
+	    }
+
+
 	   
 	    $sql = "
 	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur, aa.*
@@ -7217,7 +7567,7 @@ class Api extends API_Controller
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
-				where aa.employee_id = ".$islogin_employee." and a.bulan_penggajian = ".$month." and a.tahun_penggajian = '".$year."'
+				where aa.employee_id = ".$islogin_employee." ".$whr_month.$whr_year." 
 	    ";
 
 	    $slip = $this->db->query($sql)->row();
