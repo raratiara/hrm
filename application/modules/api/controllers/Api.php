@@ -7181,17 +7181,18 @@ class Api extends API_Controller
 
     public function get_data_payslip()
 	{
-	    $this->verify_token();
+	    //$this->verify_token();
 
 	    $jsonData = file_get_contents('php://input');
 	    $dataReq  = json_decode($jsonData, true);
 	    $_REQUEST = $dataReq;
 
+	    $type = $_GET['type'] ?? '';
 	    $islogin_employee = $_GET['islogin_employee'] ?? '';
 	    $month = $_GET['month_id'] ?? '';
 	    $year = $_GET['year'] ?? '';
 
-	    if ($islogin_employee == '') {
+	    if ($type ==  '' || $islogin_employee == '') {
 	        $response = [
 	            'status'  => 401,
 	            'message' => 'Failed',
@@ -7214,29 +7215,56 @@ class Api extends API_Controller
 	        $whr_year = " AND a.tahun_penggajian = '".$year."' ";
 	    }
 
-	    $sql = "
-	        SELECT 
-	            a.*, 
-	            b.full_name, 
-	            c.name_indo AS periode_bulan_name, 
-	            b.emp_code, 
-	            d.project_name, 
-	            e.name AS job_title_name, 
-	            f.tanggal_pembayaran_lembur,
-	            aa.*
-	        FROM payroll_slip a
-	        LEFT JOIN payroll_slip_detail aa ON aa.payroll_slip_id = a.id
-	        LEFT JOIN employees b ON b.id = aa.employee_id
-	        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
-	        LEFT JOIN project_outsource d ON d.id = b.project_id
-	        LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
-	        LEFT JOIN data_customer f ON f.id = d.customer_id
-	        WHERE aa.employee_id = ".$islogin_employee."
-	        ".$whr_month."
-	        ".$whr_year."
-	        
-	        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
-	    ";
+
+	    if($type == 'outsource'){
+	    	$sql = "
+		        SELECT 
+		            a.*, 
+		            b.full_name, 
+		            c.name_indo AS periode_bulan_name, 
+		            b.emp_code, 
+		            d.project_name, 
+		            e.name AS job_title_name, 
+		            f.tanggal_pembayaran_lembur,
+		            aa.*
+		        FROM payroll_slip a
+		        LEFT JOIN payroll_slip_detail aa ON aa.payroll_slip_id = a.id
+		        LEFT JOIN employees b ON b.id = aa.employee_id
+		        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
+		        LEFT JOIN project_outsource d ON d.id = b.project_id
+		        LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
+		        LEFT JOIN data_customer f ON f.id = d.customer_id
+		        WHERE aa.employee_id = ".$islogin_employee."
+		        ".$whr_month."
+		        ".$whr_year."
+		        
+		        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
+		    ";
+
+	    }else{
+	    	$sql = "
+		        SELECT 
+		            a.*, 
+		            b.full_name, 
+		            c.name_indo AS periode_bulan_name, 
+		            b.emp_code, 
+		            e.name AS job_title_name, 
+		            '' as tanggal_pembayaran_lembur,
+		            aa.*
+		        FROM payroll_slip_internal a
+		        LEFT JOIN payroll_slip_detail_internal aa ON aa.payroll_slip_id = a.id
+		        LEFT JOIN employees b ON b.id = aa.employee_id
+		        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
+		        LEFT JOIN master_job_title e ON e.id = b.job_title_id
+		        WHERE aa.employee_id = ".$islogin_employee."
+		        ".$whr_month."
+		        ".$whr_year."
+		       
+		        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
+		    ";
+
+	    }
+	    
 
 	    $slips = $this->db->query($sql)->result();
 
@@ -7302,10 +7330,19 @@ class Api extends API_Controller
 	            'terbilang' => terbilang($slip->gaji_bersih)
 	        ];
 
-	        $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	            'pdf/gaji_os',
-	            $pdfData
-	        );
+
+	        if($type == 'outsource'){
+	        	$pdfBinary = $this->html_pdf->render_to_string_portrait(
+		            'pdf/gaji_os',
+		            $pdfData
+		        );
+	        }else{
+	        	$pdfBinary = $this->html_pdf->render_to_string_portrait(
+		            'pdf/gaji_internal_perEmp',
+		            $pdfData
+		        );
+	        }
+	        
 
 	        if (ob_get_level()) {
 	            ob_end_clean();
@@ -7317,8 +7354,8 @@ class Api extends API_Controller
 	            'employee' => $slip->full_name,
 	            'period' => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
 	            'filename' => 'payslip_'.$slip->emp_code.'_'.$slip->tahun_penggajian.'_'.$slip->bulan_penggajian.'.pdf',
-	            'mime' => 'application/pdf',
-	            'file_base64' => base64_encode($pdfBinary)
+	            'mime' => 'application/pdf'//,
+	            //'file_base64' => base64_encode($pdfBinary)
 	        ];
 	    }
 

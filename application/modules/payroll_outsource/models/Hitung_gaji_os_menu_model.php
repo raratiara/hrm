@@ -24,7 +24,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			'dt.month_name',
 			'dt.tahun_penggajian',
 			'dt.status',
-			'dt.project_id'
+			'dt.project_id',
+			'dt.bulan_penggajian',
+			'dt.payroll_status'
 		];
 
 		$where_project = "";
@@ -46,10 +48,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			)dt';*/
 
 
-		$sTable = '(select a.*, b.name_indo as month_name, c.project_name 
+		$sTable = '(select a.*, b.name_indo as month_name, c.project_name, d.name as payroll_status 
 					from payroll_slip a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
+					left join master_payroll_status d on d.id = a.status
 					where 1=1 '.$where_project.'
 			)dt';
 		
@@ -189,19 +192,31 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
+			/*$cek_history_bpjs = $this->db->query("select * from history_bpjs where project_id = ".$row->project_id." and periode_gaji_bulan = ".$row->bulan_penggajian." and periode_gaji_tahun = '".$row->tahun_penggajian."' ")->result();*/
+
+			$pembayaran_gaji = $this->db->query("select a.id from payroll_paid_history a left join payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->bulan_penggajian." and b.tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
+
+			$pembayaran_lembur = $this->db->query("select a.id from overtime_paid_history a left join payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->bulan_penggajian." and b.tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
+			$isEdit = 1; $isDelete = 1;
+			if(!empty($pembayaran_gaji) || !empty($pembayaran_lembur)){
+				$isEdit = 0; $isDelete = 0;
+			}
+
+
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $isEdit == 1)  {
 				
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && $isDelete == 1)  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
@@ -246,7 +261,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				$row->project_name,
 				$row->month_name,
 				$row->tahun_penggajian,
-				$row->status
+				$row->payroll_status
 				
 			));
 

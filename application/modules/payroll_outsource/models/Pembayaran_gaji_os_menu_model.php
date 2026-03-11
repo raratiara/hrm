@@ -24,7 +24,8 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 			'dt.project_name',
 			'dt.periode_penggajian',
 			'dt.periode_absensi',
-			'dt.status_payroll'
+			'dt.status_payroll',
+			'dt.status'
 		];
 
 		$where_project = "";
@@ -38,7 +39,7 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 		
 
 		$sTable = '(select a.id, a.payroll_slip_id, c.project_name, concat(d.name_indo," ",
-					b.tahun_penggajian) as periode_penggajian,concat(b.tgl_start_absen," s/d ",b.tgl_end_absen) as periode_absensi, e.name as status_payroll  
+					b.tahun_penggajian) as periode_penggajian,concat(b.tgl_start_absen," s/d ",b.tgl_end_absen) as periode_absensi, e.name as status_payroll, a.status   
 					from payroll_paid_history a 
 					left join payroll_slip b on b.id = a.payroll_slip_id
 					left join project_outsource c on c.id = b.project_id
@@ -189,13 +190,13 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $row->status != 2)  {
 				
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && $row->status != 2)  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';

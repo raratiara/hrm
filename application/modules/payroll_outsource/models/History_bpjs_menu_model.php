@@ -23,7 +23,8 @@ class History_bpjs_menu_model extends MY_Model
 			'dt.project_name',
 			'dt.periode_gaji_bulan_name',
 			'dt.periode_gaji_tahun',
-			'dt.periode'
+			'dt.periode',
+			'dt.periode_gaji_bulan'
 		];
 		
 
@@ -195,19 +196,29 @@ class History_bpjs_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
+			$pembayaran_gaji = $this->db->query("select a.id from payroll_paid_history a left join payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->periode_gaji_bulan." and b.tahun_penggajian = '".$row->periode_gaji_tahun."' ")->result();
+
+			$pembayaran_lembur = $this->db->query("select a.id from overtime_paid_history a left join payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->periode_gaji_bulan." and b.tahun_penggajian = '".$row->periode_gaji_tahun."' ")->result();
+			$isEdit = 1; $isDelete = 1;
+			if(!empty($pembayaran_gaji) || !empty($pembayaran_lembur)){
+				$isEdit = 0; $isDelete = 0;
+			}
+
+
+
 			$detail = "";
 			if (_USER_ACCESS_LEVEL_DETAIL == "1")  {
 				
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $isEdit == 1)  {
 				
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && $isDelete == 1)  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';

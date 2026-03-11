@@ -25,7 +25,8 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 			'dt.tahun_penggajian',
 			'dt.tgl_start_absen',
 			'dt.tgl_end_absen',
-			'dt.project_id'
+			'dt.project_id',
+			'dt.bulan_penggajian'
 		];
 		
 		
@@ -183,8 +184,8 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-			/*$cek_payslip = $this->db->query("select id from payroll_slip where employee_id = ".$row->emp_id." and periode_bulan = ".$row->bulan." and periode_tahun = '".$row->tahun."' ")->result();*/
-			$cek_payslip = '';
+			$cek_payslip = $this->db->query("select id from payroll_slip where project_id = ".$row->project_id." and bulan_penggajian = ".$row->bulan_penggajian." and tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
+			
 
 
 			$detail = "";
