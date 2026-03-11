@@ -7181,7 +7181,7 @@ class Api extends API_Controller
 
     public function get_data_payslip()
 	{
-	    //$this->verify_token();
+	    $this->verify_token();
 
 	    $jsonData = file_get_contents('php://input');
 	    $dataReq  = json_decode($jsonData, true);
@@ -7354,8 +7354,8 @@ class Api extends API_Controller
 	            'employee' => $slip->full_name,
 	            'period' => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
 	            'filename' => 'payslip_'.$slip->emp_code.'_'.$slip->tahun_penggajian.'_'.$slip->bulan_penggajian.'.pdf',
-	            'mime' => 'application/pdf'//,
-	            //'file_base64' => base64_encode($pdfBinary)
+	            'mime' => 'application/pdf',
+	            'file_base64' => base64_encode($pdfBinary)
 	        ];
 	    }
 
