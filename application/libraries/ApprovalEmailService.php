@@ -170,9 +170,9 @@ class ApprovalEmailService {
             $subject    = 'Pending Approval - Business Trip';
             $app        = 'Business Trip';
 
-        }else if($menu == 'training'){
+        }else if($menu == 'training'){ 
             $data = $this->CI->db->query("
-                        select a.*, b.role_id, c.role_name, '' as doc_num, d.employee_id as requested_by
+                        select a.*, b.role_id, c.role_name, '' as doc_num, d.created_by as requested_by
                         FROM approval_path a
                         LEFT JOIN approval_matrix_detail b 
                             ON b.approval_matrix_id = a.approval_matrix_id
@@ -230,7 +230,7 @@ class ApprovalEmailService {
             $approver = $this->CI->db->query("
                 select 
                     c.full_name AS approver_name,
-                    c.personal_email AS emails
+                    c.personal_email AS emails, c.id as approver_empid
                 FROM employees b
                 LEFT JOIN employees c ON c.id = b.direct_id
                 WHERE b.id = ?
@@ -241,7 +241,7 @@ class ApprovalEmailService {
             $approver = $this->CI->db->query("
                 select 
                     GROUP_CONCAT(b.personal_email) AS emails,
-                    c.role_name AS approver_name
+                    c.role_name AS approver_name, GROUP_CONCAT(b.id) as approver_empid
                 FROM approval_matrix_role_pic a
                 LEFT JOIN employees b ON b.id = a.employee_id
                 LEFT JOIN approval_matrix_role c ON c.id = a.approval_matrix_role_id
@@ -253,6 +253,8 @@ class ApprovalEmailService {
             return false;
         }
 
+
+        $this->CI->approvalnotifmobile->send_notif($menu, $approver->approver_empid);
         
         // ===============================
         // SEND EMAIL
