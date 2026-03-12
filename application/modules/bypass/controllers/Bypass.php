@@ -1191,8 +1191,9 @@ class Bypass extends API_Controller
 	            'Reminder Absen',
 	            'Hai '.$u->full_name.', kamu belum absen hari ini..',
 	            [
-					'type' => 'test',
-					'user_id' => (string) $u->user_id
+					'type' => 'absen_reminder',
+					'user_id' => (string) $u->user_id,
+					'message' => 'Hai '.$u->full_name.', kami belum menemukan data absensimu hari ini. Jangan lupa untuk melakukan absen ya :)'
 				]
 	        );
 
