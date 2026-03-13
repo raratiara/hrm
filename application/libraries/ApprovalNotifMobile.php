@@ -16,6 +16,12 @@ class ApprovalNotifMobile {
     public function send_notif($type, $approver_empid)
     {
         if ($approver_empid != '' && $type != '') {
+            // Some environments still use an older `user_devices` schema
+            // without an `fcm_token` column. In that case, skip mobile push
+            // notification so approval flow does not break.
+            if (!$this->CI->db->field_exists('fcm_token', 'user_devices')) {
+                return;
+            }
 
             $ids = explode(',', $approver_empid);
 
