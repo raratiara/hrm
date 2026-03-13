@@ -673,6 +673,8 @@ class Fpp_menu_model extends MY_Model
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
 
+							// send emailing to approver
+							$this->approvalemailservice->sendApproval('cash_advance', $id, $approval_path_id);
 
 							return [
 					            "status" => true,
