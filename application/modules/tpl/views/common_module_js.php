@@ -31,6 +31,50 @@ function expire()
 }
 
 
+// Fallback global agar pemanggilan showLoading/hideLoading di common module
+// tidak error pada halaman yang belum mendefinisikan fungsi tersebut.
+if (typeof window.showLoading !== 'function') {
+	window.showLoading = function() {
+		if ($("#loadingOverlay").length) {
+			$("#loadingOverlay").show();
+		}
+	};
+}
+
+if (typeof window.hideLoading !== 'function') {
+	window.hideLoading = function() {
+		if ($("#loadingOverlay").length) {
+			$("#loadingOverlay").hide();
+		}
+	};
+}
+
+// Global modal scroll lock: keep main page from scrolling while any modal is open.
+var __tplModalScrollLock = {
+	count: 0,
+	prevBodyOverflow: '',
+	prevHtmlOverflow: ''
+};
+
+$(document)
+	.on('show.bs.modal', '.modal', function () {
+		if (__tplModalScrollLock.count === 0) {
+			__tplModalScrollLock.prevBodyOverflow = $('body').css('overflow') || '';
+			__tplModalScrollLock.prevHtmlOverflow = $('html').css('overflow') || '';
+			$('body, html').css('overflow', 'hidden');
+		}
+		__tplModalScrollLock.count++;
+	})
+	.on('hidden.bs.modal', '.modal', function () {
+		__tplModalScrollLock.count = Math.max(0, __tplModalScrollLock.count - 1);
+		if (__tplModalScrollLock.count === 0) {
+			$('body').css('overflow', __tplModalScrollLock.prevBodyOverflow);
+			$('html').css('overflow', __tplModalScrollLock.prevHtmlOverflow);
+		}
+	});
+
+
+
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1") { ?>
 /* open add form modal */
 $( "#btnAddData" ).on('click', function(){
@@ -83,6 +127,25 @@ $( "#btnAddData" ).on('click', function(){
 	}
 
 
+	if(module_name == 'request_recruitment_menu'){
+		document.getElementById("btnDraft").style.display = "";
+		document.getElementById("submit-data").style.display = "";
+
+		var modalFooter =  document.getElementById('mdlFooter');
+		var existingReject = modalFooter.querySelector('.btnReject');
+	 	if (existingReject) {
+	 		document.getElementById("btn-reject").style.display = "none";
+	 	}
+
+
+	 	unlockSubmitDraft();
+
+	}
+
+
+	unlockSubmit();
+
+
 
 	$('#modal-form-data').modal('show');
 });
@@ -92,6 +155,15 @@ $( "#btnAddData" ).on('click', function(){
 /* open edit form modal */
 function edit(id)
 {
+	var module_name = '<?=$this->module_name?>'; 
+
+	unlockSubmit();
+
+	if(module_name == 'request_recruitment_menu'){
+		unlockSubmitDraft();
+	}
+
+
 	expire();
     save_method = 'update';
 	idx = id;
@@ -236,9 +308,21 @@ function save(status='')
 		formData = new FormData($('#frmListData')[0]);
 	}
 <?php } ?>
+
+
+if(save_method == 'add' || save_method == 'update'){
+	if(status == 'draft'){
+		lockSubmitDraft();
+	}else{
+		lockSubmit();
+	}
+    
+}
 	
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1" || _USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DELETE == "1") { ?>
 	if((save_method == 'add') || (save_method == 'update') || (save_method == 'delete') || (save_method == 'bulk')) {
+		var module_name = '<?=$this->module_name?>'; 
+		
 		$.ajax({
 			type: post_type,
 			url: send_url,
@@ -255,6 +339,12 @@ function save(status='')
 					title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-check-circle-o fa-5x" style="color:green"></i></div>';
 					btn = '';
 					if(save_method == 'add' || save_method == 'update') {
+						unlockSubmit();
+
+						if(module_name == 'request_recruitment_menu'){
+							unlockSubmitDraft();
+						}
+
 						$('#frmInputData')[0].reset();
 						$('#modal-form-data').modal('hide');
 					} else if(save_method == 'delete'){
@@ -264,6 +354,12 @@ function save(status='')
 					}
 					reload_table();
 				} else {
+					unlockSubmit();
+
+					if(module_name == 'request_recruitment_menu'){ 
+						unlockSubmitDraft();
+					}
+
 					title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
 					btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
 				}
@@ -278,6 +374,12 @@ function save(status='')
 
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
+				unlockSubmit();
+
+				if(module_name == 'request_recruitment_menu'){ 
+					unlockSubmitDraft();
+				}
+
 				var dialog = bootbox.dialog({
 					title: 'Gagal menyimpan Data',  ///'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: 'Terjadi kesalahan saat menyimpan data',  ///jqXHR.responseText,
@@ -422,3 +524,43 @@ function showLoading() {
 function hideLoading() {
     $("#loadingOverlay").hide();
 }
+
+
+function lockSubmit() {
+	var btn = $('#submit-data');
+    
+    var loadingText = btn.data('loading') || 'Processing...';
+
+    btn.prop('disabled', true)
+       .html('<i class="fa fa-spinner fa-spin"></i> ' + loadingText);
+}
+
+function lockSubmitDraft() {
+	var btn = $('#btnDraft');
+    
+    var loadingText = btn.data('loading') || 'Drafting...';
+
+    btn.prop('disabled', true)
+       .html('<i class="fa fa-spinner fa-spin"></i> ' + loadingText);
+}
+
+function unlockSubmit() {
+	
+	var btn = $('#submit-data');
+    var text = btn.data('text') || 'Save';
+
+    btn.prop('disabled', false)
+   .html('<i class="fa fa-check"></i> ' + text);
+	
+    
+}
+
+
+function unlockSubmitDraft() {
+    var btn = $('#btnDraft');
+    var text = btn.data('text') || 'Save as Draft';
+
+    btn.prop('disabled', false)
+       .html('<i class="fa fa-floppy-o"></i> ' + text);
+}
+
