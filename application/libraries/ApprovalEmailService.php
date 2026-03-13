@@ -254,7 +254,7 @@ class ApprovalEmailService {
         }
 
 
-        $this->CI->ApprovalNotifMobile->send_notif($menu, $approver->approver_empid);
+        $this->CI->approvalnotifmobile->send_notif($menu, $approver->approver_empid);
         
         // ===============================
         // SEND EMAIL
