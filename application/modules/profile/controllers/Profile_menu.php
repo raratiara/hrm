@@ -959,7 +959,7 @@ class Profile_menu extends MY_Controller
 	            $dataSrc = $this->db->query("
 	                select a.*, b.direct_id 
 	                FROM {$row->tbl} a 
-	                LEFT JOIN employees b ON b.id = {$row->tbl_employee_id}
+	                LEFT JOIN employees b ON b.id = a.{$row->tbl_employee_id}
 	                WHERE a.id = ?
 	            ", [$row->trx_id])->result();
 
@@ -986,55 +986,56 @@ class Profile_menu extends MY_Controller
 	        foreach ($grouped as $menu => $data) {
 	            $ttl_pendingan_approval += count($data['items']);
 	        }
-$dt .= '<li class="dropdown dropdown-notification">';
-$dt .= '
-<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
-    <i class="fa fa-bell"></i>
-    <span class="badge badge-danger notif-badge">'.$ttl_pendingan_approval.'</span>
-</a>
 
-<ul class="dropdown-menu dropdown-menu-notif dropdown-menu-right notif-modern">
-    <li class="external notif-header">
-        <div class="notif-title">
-            <span class="notif-count">'.$ttl_pendingan_approval.'</span>
-            <span class="notif-text">Pending Approval</span>
-        </div>
-        <div class="notif-sub">Klik kategori untuk lihat detail</div>
-    </li>
+			$dt .= '<li class="dropdown dropdown-notification">';
+			$dt .= '
+			<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
+			    <i class="fa fa-bell"></i>
+			    <span class="badge badge-danger notif-badge">'.$ttl_pendingan_approval.'</span>
+			</a>
 
-    <li class="notif-body">
-        <ul class="dropdown-menu-list scroller notif-scroller" data-handle-color="#637283">
-';
+			<ul class="dropdown-menu dropdown-menu-notif dropdown-menu-right notif-modern">
+			    <li class="external notif-header">
+			        <div class="notif-title">
+			            <span class="notif-count">'.$ttl_pendingan_approval.'</span>
+			            <span class="notif-text">Pending Approval</span>
+			        </div>
+			        <div class="notif-sub">Klik kategori untuk lihat detail</div>
+			    </li>
 
-foreach ($grouped as $menu => $data) {
-    $total_menu = count($data['items']);
-    $link = !empty($data['link']) ? base_url($data['link']) : 'javascript:void(0);';
+			    <li class="notif-body">
+			        <ul class="dropdown-menu-list scroller notif-scroller" data-handle-color="#637283">
+					';
 
-    $dt .= '
-        <li class="notif-item">
-            <a href="'.$link.'" class="notif-link">
-                <div class="notif-left">
-                    <span class="notif-icon">
-                        <i class="fa fa-folder-open"></i>
-                    </span>
-                </div>
-                <div class="notif-mid">
-                    <div class="notif-menu">'.$menu.'</div>
-                    <div class="notif-meta">'.$total_menu.' pending</div>
-                </div>
-                <div class="notif-right">
-                    <i class="fa fa-angle-right"></i>
-                </div>
-            </a>
-        </li>
-    ';
-}
+					foreach ($grouped as $menu => $data) {
+					    $total_menu = count($data['items']);
+					    $link = !empty($data['link']) ? base_url($data['link']) : 'javascript:void(0);';
 
-$dt .= '
-        </ul>
-    </li>
-</ul>
-';
+					    $dt .= '
+					        <li class="notif-item">
+					            <a href="'.$link.'" class="notif-link">
+					                <div class="notif-left">
+					                    <span class="notif-icon">
+					                        <i class="fa fa-folder-open"></i>
+					                    </span>
+					                </div>
+					                <div class="notif-mid">
+					                    <div class="notif-menu">'.$menu.'</div>
+					                    <div class="notif-meta">'.$total_menu.' pending</div>
+					                </div>
+					                <div class="notif-right">
+					                    <i class="fa fa-angle-right"></i>
+					                </div>
+					            </a>
+					        </li>
+					    ';
+					}
+
+			$dt .= '
+			        </ul>
+			    </li>
+			</ul>
+			';
 $dt .= '</li>';
 		
 	    }

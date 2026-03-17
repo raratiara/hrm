@@ -493,7 +493,7 @@ class Training_menu_model extends MY_Model
 			if(!empty($dataemp)){
 				if(!empty($dataemp[0]->work_location)){
 
-					$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
+					/*$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
 					// Cek apakah folder sudah ada
 					if (!is_dir($upload_dir)) {
 					    // Jika belum ada, buat folder
@@ -507,7 +507,7 @@ class Training_menu_model extends MY_Model
 						$file_sertifikat = $upload_file_sertifikat['upload_file'];
 					} else if(isset($upload_file_sertifikat['error_warning'])){
 						echo $upload_file_sertifikat['error_warning']; exit;
-					}
+					}*/
 
 
 
@@ -520,7 +520,8 @@ class Training_menu_model extends MY_Model
 						'notes' 				=> trim($post['notes']),
 						'status_id' 			=> 1, //waiting approval
 						'created_at'			=> date("Y-m-d H:i:s"),
-						'file_sertifikat' 		=> $file_sertifikat
+						//'file_sertifikat' 		=> $file_sertifikat
+						'created_by' => $_SESSION['worker']
 						
 					];
 					$rs = $this->db->insert($this->table_name, $data);
