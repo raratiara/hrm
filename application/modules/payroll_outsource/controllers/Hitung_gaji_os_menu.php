@@ -255,7 +255,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 		    $data = $this->db->query($sql)->result();
 
 		    if(!empty($data)){
-		    	$total_potongan = (int)$data[0]->bpjs_kesehatan + (int)$data[0]->bpjs_tk + (int)$data[0]->seragam + (int)$data[0]->pelatihan + (int)$data[0]->lain_lain + (int)$data[0]->hutang + (int)$data[0]->sosial + (int)$data[0]->payroll + (int)$data[0]->pph_120;
+		    	$total_potongan = (int)$data[0]->bpjs_kesehatan + (int)$data[0]->bpjs_tk + (int)$data[0]->seragam + (int)$data[0]->pelatihan + (int)$data[0]->lain_lain + (int)$data[0]->hutang + (int)$data[0]->sosial + (int)$data[0]->payroll + (int)$data[0]->pph_120 + (int)$data[0]->pph_21;
 
 		    	$pdfData = [
 				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
@@ -283,7 +283,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 				    'total_pendapatan' => $data[0]->total_pendapatan,
 				    'total_potongan' => $total_potongan,
 				    'gaji_bersih' => $data[0]->gaji_bersih,
-				    'terbilang' => terbilang($data[0]->gaji_bersih)
+				    'terbilang' => terbilang($data[0]->gaji_bersih),
+				    'pph_21' => $data[0]->pph_21
 				];
 
 
@@ -971,7 +972,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 	            $row->payroll,
 	            $row->pph_120,
 	            /*$row->subtotal,*/
-	            $row->gaji_bersih
+	            $row->gaji_bersih,
+	            $row->pph_21
 	        ];
 	    }
 

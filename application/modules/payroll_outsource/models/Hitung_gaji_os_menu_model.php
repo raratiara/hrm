@@ -362,6 +362,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        e.gaji_harian,
 	        e.no_bpjs,
 	        e.no_bpjs_ketenagakerjaan,
+	        e.marital_status_id,
 
 	        sd.total_masuk,
 	        sd.total_ijin,
@@ -499,10 +500,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        //$total_pendapatan = ceil($gaji + $lembur_total);
 	        $total_pendapatan = $gaji;
 
-	        $subtotal    = ceil($total_pendapatan - ($hutang + $sosial));
-	        $gaji_bersih = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk));
+	        $pph_21 =0; $ter_rate=0;
+	        if(!empty($row->marital_status_id)){
+	        	$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$row->marital_status_id." ")->result(); 
+		        $getTer = $this->db->query("select rate from tax_ter where category = '".$getCat[0]->category."' and (".$total_pendapatan." between min_bruto and max_bruto) order by id desc limit 1 ")->result();
+		        $ter_rate = $getTer[0]->rate;
+		        $pph_21 = ceil($total_pendapatan*$ter_rate);
+	        }
 
-	        
+	        $subtotal    = ceil($total_pendapatan - ($hutang + $sosial));
+	        $gaji_bersih = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $pph_21));
+
 
 	        // =========================
 			// INSERT / UPDATE HISTORY BPJS
@@ -586,7 +594,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            'bpjs_tk'          => $bpjs_tk,
 	            'hutang'           => $hutang,
 	            'subtotal'         => $subtotal,
-	            'gaji_bersih'      => $gaji_bersih
+	            'gaji_bersih'      => $gaji_bersih,
+	            'pph_21'      	   => $pph_21,
+	            'pph_21_rate' 	   => $ter_rate
 	        ];
 	    }
 
@@ -944,7 +954,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'hutang' 				=> trim($post['hutang_gaji'][$i]),
 									'sosial' 				=> trim($post['sosial_gaji'][$i]),
 									'subtotal' 				=> trim($post['subtotal_gaji'][$i]),
-									'gaji_bersih' 			=> trim($post['gaji_bersih_gaji'][$i])
+									'gaji_bersih' 			=> trim($post['gaji_bersih_gaji'][$i]),
+									'pph_21' 				=> trim($post['pph21_gaji'][$i])
 									
 								];
 
@@ -979,7 +990,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'hutang' 				=> trim($post['hutang_gaji'][$i]),
 									'sosial' 				=> trim($post['sosial_gaji'][$i]),
 									'subtotal' 				=> trim($post['subtotal_gaji'][$i]),
-									'gaji_bersih' 			=> trim($post['gaji_bersih_gaji'][$i])
+									'gaji_bersih' 			=> trim($post['gaji_bersih_gaji'][$i]),
+									'pph_21' 				=> trim($post['pph21_gaji'][$i])
 								];
 
 								$this->db->insert('payroll_slip_detail', $itemData);
@@ -1183,7 +1195,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		$dt = ''; 
 		
 
-		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur, d.rumus_lembur
+		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur, d.rumus_lembur, b.marital_status_id
 			from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 			left join data_customer d on d.id = b.cust_id
@@ -1209,6 +1221,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' ")->result(); 
 
 				$gaji_bulanan = (int)$f->gaji_bulanan;
+				$ter_rate=0;
 
 				if(!empty($dataSlip)){ /// ambil data slip
 					$status_payroll = $dataSlip[0]->status_payroll;
@@ -1253,6 +1266,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$sosial = $dataSlip[0]->sosial;
 					$payroll = $dataSlip[0]->payroll;
 					$pph_120 = $dataSlip[0]->pph_120;
+					$pph_21 = $dataSlip[0]->pph_21;
+					$pph_21_rate = $dataSlip[0]->pph_21_rate;
 					$subtotal = $dataSlip[0]->subtotal;
 					$gaji_bersih = $dataSlip[0]->gaji_bersih;
 
@@ -1264,6 +1279,17 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									     ((int)$f->total_alfa ?? 0);
 
 					$gaji = ceil(($f->total_masuk * (int)$f->gaji_harian) * 100) / 100;
+
+
+					$pph_21 =0; $ter_rate=0;
+			        if(!empty($f->marital_status_id)){
+			        	$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$f->marital_status_id." ")->result(); 
+				        $getTer = $this->db->query("select rate from tax_ter where category = '".$getCat[0]->category."' and (".$gaji." between min_bruto and max_bruto) order by id desc limit 1 ")->result();
+				        $ter_rate = $getTer[0]->rate;
+				        $pph_21 = ceil($total_pendapatan*$ter_rate);
+			        }
+
+
 					
 					if($f->sistem_lembur == 'tidak_sistem_lembur'){
 						$lembur_perjam = $f->nominal_lembur ?? 0;
@@ -1419,6 +1445,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($pph_120,'pph120_gaji['.$row.']','','pph120_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setGajiBersih(this)" ').'</td>';
 
+					$dt .= '<td>'.$this->return_build_txt($pph_21,'pph21_gaji['.$row.']','','pph21_gaji','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="pph21_rate" name="pph21_rate['.$row.']" value="'.$ter_rate.'"/></td>';
+
 					$dt .= '<td>'.$this->return_build_txt($subtotal,'subtotal_gaji['.$row.']','','subtotal_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($gaji_bersih,'gaji_bersih_gaji['.$row.']','','gaji_bersih_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
@@ -1483,6 +1511,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$sosial.'</td>';
 					$dt .= '<td>'.$payroll.'</td>';
 					$dt .= '<td>'.$pph_120.'</td>';
+					$dt .= '<td>'.$pph_21.'</td>';
 					$dt .= '<td>'.$subtotal.'</td>';
 					$dt .= '<td>'.$gaji_bersih.'</td>';
 					$dt .= '</tr>';

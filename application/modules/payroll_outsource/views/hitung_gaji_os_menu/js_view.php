@@ -1073,6 +1073,7 @@ function setTotalPendapatan(val){
 	var tunj_konsumsi = $('[name="tunj_konsumsi_gaji['+row+']"]').val();
 	var tunj_komunikasi = $('[name="tunj_komunikasi_gaji['+row+']"]').val();
 	var gaji = $('[name="gaji_gaji['+row+']"]').val();
+	var pph21_rate = $('[name="pph21_rate['+row+']"]').val();
 	
 	if(gaji == ''){
 		gaji=0;
@@ -1099,9 +1100,14 @@ function setTotalPendapatan(val){
 
 	total_pendapatan = roundUp2Smart(total_pendapatan);
 
+	var pph21 = Number(total_pendapatan)*Number(pph21_rate);
+	pph21 = roundUp2Smart(pph21);
+
 	$('[name="ttl_pendapatan_gaji['+row+']"]').val(total_pendapatan);
+	$('[name="pph21['+row+']"]').val(pph21);
 
-
+	
+	
 	setSubTotal(val);
 
     
@@ -1167,6 +1173,7 @@ function setGajiBersih(val){
 	var bpjs_tk 	= $('[name="bpjs_tk_gaji['+row+']"]').val();
 	var payroll 	= $('[name="payroll_gaji['+row+']"]').val();
 	var pph120 		= $('[name="pph120_gaji['+row+']"]').val();
+	var pph21 		= $('[name="pph21_gaji['+row+']"]').val();
 	
 	
 	if(bpjs_kes == ''){
@@ -1181,10 +1188,13 @@ function setGajiBersih(val){
 	if(pph120 == ''){
 		pph120=0;
 	}
+	if(pph21 == ''){
+		pph21=0;
+	}
 	
 
 
-	var GajiBersih = Number(subtotal)-(Number(bpjs_kes)+Number(bpjs_tk)+Number(payroll)+Number(pph120));
+	var GajiBersih = Number(subtotal)-(Number(bpjs_kes)+Number(bpjs_tk)+Number(payroll)+Number(pph120)+Number(pph21));
 
 	GajiBersih = roundUp2Smart(GajiBersih);
 

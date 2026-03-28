@@ -268,6 +268,9 @@
                             else if ($this->module_name == 'hitung_gaji_os_menu') {
                                 ?>Hitung Gaji<?php
                             }
+                            else if ($this->module_name == 'spt_os_menu') {
+                                ?>Generate SPT<?php
+                            }
                             else {
                                 ?>Add Data<?php
                             }
