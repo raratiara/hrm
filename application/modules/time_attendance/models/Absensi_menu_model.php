@@ -31,14 +31,16 @@ class Absensi_menu_model extends MY_Model
 			'dt.is_late_desc',
 			'dt.is_leaving_office_early_desc',
 			'dt.num_of_working_hours',
-			'dt.holiday_flag'
+			'dt.holiday_flag',
+			'dt.direct_id',
+			'dt.indirect_id'
 		];
 		
 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
 		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" or b.indirect_id = "'.$karyawan_id.'" ';
 		}
 
 		$sIndexColumn = $this->primary_key;
@@ -55,7 +57,7 @@ class Absensi_menu_model extends MY_Model
 
 		$sTable = '(SELECT 
 					    a.*,
-					    b.full_name,
+					    b.full_name, b.direct_id, b.indirect_id,
 					    IF(a.is_late = "Y","Late", "") AS is_late_desc,
 					    (CASE 
 					        WHEN a.leave_type != "" THEN CONCAT("(", c.name, ")") 
