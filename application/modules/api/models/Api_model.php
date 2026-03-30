@@ -4,9 +4,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Api_model extends MY_Model
 {
-    /* Module */
-    protected $folder_name  = "api/api";
-    protected $table        = "users";
+	/* Module */
+ 	protected $folder_name	= "api/api";
+    protected $table 		= "users";
 
     /* upload */
     protected $attachment_folder    = "./uploads/absensi";
@@ -14,14 +14,14 @@ class Api_model extends MY_Model
     protected $allow_size           = "0"; // 0 for limit by default php conf (in Kb)
 
 
-    function __construct()
-    {
-        parent::__construct();
-    }
+	function __construct()
+	{
+		parent::__construct();
+	}
  
     public function register($data)
     {
-        $query = $this->db->insert($this->table, $data);
+		$query = $this->db->insert($this->table, $data);
 
         return $query;
     }
@@ -29,7 +29,7 @@ class Api_model extends MY_Model
     /*public function cek_login_old($username)
     {
         $query = $this->db->where('name', $username)
-                ->get($this->table)
+				->get($this->table)
                 ->num_rows();
  
         if($query >  0){
@@ -49,7 +49,7 @@ class Api_model extends MY_Model
     { 
         /*$sql = "select * from user where username = '".$username."' AND passwd = '".md5($password)."' AND isaktif = 2 ORDER BY date_insert DESC LIMIT 1";*/
 
-        $sql = "select a.*, b.emp_code, c.logo, c.name, b.id as emp_id, b.emp_source, b.cust_id, b.work_location
+        $sql = "select a.*, b.emp_code, c.logo, c.name
                 from user a left join employees b on b.id = a.id_karyawan
                 left join companies c on c.id = b.company_id
                 where (a.username = '".$username."' or b.emp_code = '".$username."') AND a.passwd = '".md5($password)."'
@@ -60,31 +60,6 @@ class Api_model extends MY_Model
         if($user){
             return $user;
         }else return null;
-    }
-
-    public function get_user_by_employee_id($employee_id) 
-    {
-        return $this->db 
-            ->where('id_karyawan', $employee_id)
-            ->where('isaktif', 2)
-            ->get('user')
-            ->row();
-    }
-
-    public function update_password_by_user_id($user_id, $password)
-    {
-        return $this->db
-            ->where('user_id', $user_id)
-            ->update('user', [
-                'passwd' => $password
-            ]);
-    }
-
-    public function update_user($user_id, $data)
-    {
-        return $this->db
-            ->where('user_id', $user_id)
-            ->update('user', $data);
     }
 
     public function cek_company($url)
@@ -223,25 +198,10 @@ class Api_model extends MY_Model
         $user   = "u1647144_hrm";
         $pass   = "HRM_NBID@2025!";*/
 
-        /// Nathabuana
-        /*$host   = "localhost";
+        $host   = "localhost";
         $dbname = "hrm";
         $user   = "hrm";
-        $pass   = "HRM_NBID@2025!";*/
-
-
-        /// Nathabuana
-        /*$host   = "172.30.2.50";
-        $dbname = "hrm";
-        $user   = "hrm";
-        $pass   = "HRM_NBID@2025!";*/
-
-        
-        /// MAS
-        $host   = "172.30.2.93";
-        $dbname = "hrm";
-        $user   = "hrm";
-        $pass   = "Nbid@2025!";
+        $pass   = "HRM_NBID@2025!";
         
 
         try {
@@ -265,67 +225,7 @@ class Api_model extends MY_Model
     }
 
 
-    public function cek_user_device($user_id, $type)
-    { 
-        
-        $sql = "select * from user_devices where user_id = '".$user_id."' and type = '".$type."' and is_active = 1 ORDER BY id DESC LIMIT 1";
-
-        $user = $this->db->query($sql)->row();
-
-        if($user){
-            return $user;
-        }else return null;
-    }
-
     
-    public function get_active_login_banner()
-    {
-        return $this->db
-            ->select('name, photo')
-            ->from('login_banners')
-            ->where('is_active', 1)
-            ->order_by('created_at', 'DESC')
-            ->limit(1)
-            ->get()
-            ->row();
-    }
-
-    public function deactivate_all_login_banner()
-    {
-        return $this->db->update('login_banners', ['is_active' => 0]);
-    }
-
-    public function insert_login_banner($data)
-    {
-        return $this->db->insert('login_banners', $data);
-    }
-
-    // nonaktifkan semua versi lama
-    public function deactivate_app_versions($platform)
-    {
-        $this->db->where('platform', $platform);
-        $this->db->update('app_versions', [
-            'is_active' => 0
-        ]);
-    }
-
-    // insert versi baru
-    public function insert_app_version($data)
-    {
-        return $this->db->insert('app_versions', $data);
-    }
-
-    // ambil versi aktif
-    public function get_active_app_version($platform)
-    {
-        return $this->db
-            ->where('platform', $platform)
-            ->where('is_active', 1)
-            ->limit(1)
-            ->get('app_versions')
-            ->row();
-    }
-
 
 }
 

@@ -146,275 +146,38 @@ class Api extends API_Controller
 		$this->render_json($response, $response['status']);
     }
 
-
-    function getWorkLocationInfo($modul, $employee_id, $emp_source, $dateNow)
-	{
-		$tbl = 'master_work_location';
-		if($emp_source == 'outsource'){
-			$tbl = 'master_work_location_outsource';
-		}
-
-		if($modul == 'login'){
-
-			// Cek business trip location
-		    $bustrip_q = $this->db->query("
-		        select c.time_zone, c.utc_offset 
-		        from business_trip_location a 
-		        left join business_trip b on b.id = a.business_trip_id
-		        left join ".$tbl." c on c.id = b.work_location_id
-		        where a.employee_id = '".$employee_id."' 
-		        and a.bustrip_date = '".$dateNow."' 
-		        and b.status_id = 2
-		    ")->result();
-
-		    $any_work_location = 0;
-		    $bustrip_time_zone = '-';
-		    $bustrip_utc_offset = '-';
-
-		    if (!empty($bustrip_q)) {
-		        $bustrip_time_zone = $bustrip_q[0]->time_zone;
-		        $bustrip_utc_offset = $bustrip_q[0]->utc_offset;
-		        $any_work_location = 1;
-		    }
-
-		    // Ambil timezone berdasarkan lokasi kerja employee
-		    $emp_q = $this->db->query("
-		        select b.time_zone, b.utc_offset 
-		        from employees a
-		        left join ".$tbl." b on b.id = a.work_location
-		        where a.id = '".$employee_id."'
-		    ")->result();
-
-		    $emp_time_zone = '-';
-		    $emp_utc_offset = '-';
-
-		    if (!empty($emp_q)) {
-		        $emp_time_zone = $emp_q[0]->time_zone;
-		        $emp_utc_offset = $emp_q[0]->utc_offset;
-		        $any_work_location = 1;
-		    }
-
-		    return [
-		        "any_work_location"   => $any_work_location,
-		        "bustrip_time_zone"   => $bustrip_time_zone,
-		        "bustrip_utc_offset"  => $bustrip_utc_offset,
-		        "emp_time_zone"       => $emp_time_zone,
-		        "emp_utc_offset"      => $emp_utc_offset
-		    ];
-
-		}else if($modul == 'absen'){
-
-			// Cek business trip location
-		    $bustrip_q = $this->db->query("
-		        select c.time_zone, c.utc_offset 
-		        from business_trip_location a 
-		        left join business_trip b on b.id = a.business_trip_id
-		        left join ".$tbl." c on c.id = b.work_location_id
-		        where a.employee_id = '".$employee_id."' 
-		        and a.bustrip_date = '".$dateNow."' 
-		        and b.status_id = 2
-		    ")->result();
-
-		    $any_work_location = 0;
-		    $work_location_time_zone = '-';
-		    $work_location_utc_offset = '-';
-
-		    if (!empty($bustrip_q)) {
-		        $work_location_time_zone = $bustrip_q[0]->time_zone;
-		        $work_location_utc_offset = $bustrip_q[0]->utc_offset;
-		        $any_work_location = 1;
-		    }else{
-		    	// Ambil timezone berdasarkan lokasi kerja employee
-			    $emp_q = $this->db->query("
-			        select b.time_zone, b.utc_offset 
-			        from employees a
-			        left join ".$tbl." b on b.id = a.work_location
-			        where a.id = '".$employee_id."'
-			    ")->result();
-
-			    $work_location_time_zone = $emp_q[0]->time_zone;
-		        $work_location_utc_offset = $emp_q[0]->utc_offset;
-		        $any_work_location = 1;
-		    }
-
-		   
-
-		    return [
-		        "any_work_location"   			=> $any_work_location,
-		        "work_location_time_zone"   	=> $work_location_time_zone,
-		        "work_location_utc_offset"  	=> $work_location_utc_offset
-		    ];
-
-		}else{
-			return '';
-		}
-	    
-	}
-
-
-	function checkReportUtcTimezone(
-		$modul,
-	    $time_zone, 
-	    $utc_offset, 
-	    $bustrip_time_zone, 
-	    $bustrip_utc_offset, 
-	    $emp_time_zone, 
-	    $emp_utc_offset
-	){
-		if($modul == 'login'){
-
-			$report_utctimezone = 'match';
-	    	$report_utctimezone_desc = "Timezone & UTC Offset check: MATCH";
-
-		    // jika timezone lokasi scan beda dengan timezone business trip → reject dulu
-		    if ($time_zone != $bustrip_time_zone || $utc_offset != $bustrip_utc_offset) {
-		        $report_utctimezone = 'reject';
-		        $report_utctimezone_desc = "(Reject) Timezone/UTC Offset check: NOT MATCH";
-
-		        // jika scan timezone sama dengan lokasi kerja employee → match lagi (valid)
-		        if ($time_zone == $emp_time_zone && $utc_offset == $emp_utc_offset) {
-		            $report_utctimezone = 'match';
-		            $report_utctimezone_desc = "Timezone & UTC Offset check: MATCH";
-		        }
-		    }
-
-		    return [
-		        "report_utctimezone"      => $report_utctimezone,
-		        "report_utctimezone_desc" => $report_utctimezone_desc
-		    ];
-
-		}else if($modul == 'absen'){
-
-			$work_location_time_zone = $bustrip_time_zone; //pake field yg ke 4
-			$work_location_utc_offset = $bustrip_utc_offset; //pake field yg ke 5
-
-			$report_utctimezone = 'match';
-		    $report_utctimezone_desc = "Timezone & UTC Offset check: MATCH";
-
-		    // jika timezone/utc lokasi  beda 
-		    if ($time_zone != $work_location_time_zone || $utc_offset != $work_location_utc_offset) {
-		        $report_utctimezone = 'reject';
-		        $report_utctimezone_desc = "(Reject) Timezone/UTC Offset check: NOT MATCH";
-		    }
-
-		    return [
-		        "report_utctimezone"      => $report_utctimezone,
-		        "report_utctimezone_desc" => $report_utctimezone_desc
-		    ];
-
-		}else{
-			return '';
-		}
-	    
-	}
-
-
     public function login()
     {
     	$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$username		= $_REQUEST['username'];
-    	$password 		= $_REQUEST['password'];
-    	$device_uuid	= $_REQUEST['device_uuid'];
-    	$time_zone 		= $_REQUEST['time_zone'];
-    	$utc_offset 	= $_REQUEST['utc_offset'];
+    	$username	= $_REQUEST['username'];
+    	$password 	= $_REQUEST['password'];
 
- 		$dateNow = date("Y-m-d"); 
 
-		if($username != '' && $password != '' && $device_uuid != ''){
+		if($username != '' && $password != ''){
 			
 			$cek_login = $this->api->cek_login($username, $password);	
 			
 			if($cek_login != '')
 			{ 
-				$dataDevice = $this->api->cek_user_device($cek_login->user_id, 'mobile');
-				if(empty($dataDevice)){
-					$response = [
-						'status' 	=> 401,
-						'message' 	=> 'Failed',
-						'error' 	=> 'User Device not found, please re-Sync.'
-					];
-				}else{
-					if($device_uuid == $dataDevice->device_uuid){
-
-						$info = $this->getWorkLocationInfo('login', $cek_login->id_karyawan, $cek_login->emp_source, $dateNow);
-
-						$any_work_location  = $info['any_work_location'];
-						$bustrip_time_zone  = $info['bustrip_time_zone'];
-						$bustrip_utc_offset = $info['bustrip_utc_offset'];
-						$emp_time_zone      = $info['emp_time_zone'];
-						$emp_utc_offset     = $info['emp_utc_offset'];
-
-
-						if($any_work_location == 0){
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Work Location not found'
-							];
-						}else{
-
-							// cek timezone
-							$ReportUtcTimezone = $this->checkReportUtcTimezone(
-								'login',
-							    $time_zone,               
-							    $utc_offset,              
-							    $bustrip_time_zone,
-							    $bustrip_utc_offset,
-							    $emp_time_zone,
-							    $emp_utc_offset
-							);
-							$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
-							$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
-							
-
-
-							if($report_utctimezone == 'reject'){
-								$response = [
-									'status' 	=> 401,
-									'message' 	=> 'Failed',
-									'error' 	=> 'Timezone/UTC Offset not valid'
-								];
-							}else{
-
-								$data = array(
-									"id" 			=> $cek_login->user_id,
-									"name" 			=> $cek_login->name,
-									"email" 		=> $cek_login->email,
-									"employee_id" 	=> $cek_login->id_karyawan,
-									"device_uuid" 	=> $device_uuid
-								);
-					 
-								$token = $this->genJWTdata($data);	 
-								$response = [
-									'status' 		=> 200,
-									'message' 		=> 'Success',
-									"token" 		=> $token[0],
-									"expire" 		=> $token[1],
-									"email" 		=> $cek_login->email,
-									"employee_id" 	=> $cek_login->id_karyawan,
-									'first_login' => (int) $cek_login->first_login,
-									"work_location_time_zone" 	=> $emp_time_zone,
-									"work_location_utc_offset" 	=> $emp_utc_offset,
-									"bustrip_time_zone" 		=> $bustrip_time_zone,
-									"bustrip_utc_offset" 		=> $bustrip_utc_offset,
-									"report_utctimezone" 		=> $report_utctimezone_desc
-								];
-							}
-
-						}
-
-					}else{
-						$response = [
-							'status' 	=> 401,
-							'message' 	=> 'Failed',
-							'error' 	=> 'This account is already active on another device.'
-						];
-					}
-				}
-				
+				$data = array(
+					"id" 			=> $cek_login->user_id,
+					"name" 			=> $cek_login->name,
+					"email" 		=> $cek_login->email,
+					"employee_id" 	=> $cek_login->id_karyawan
+				);
+	 
+				$token = $this->genJWTdata($data);	 
+				$response = [
+					'status' 		=> 200,
+					'message' 		=> 'Success',
+					"token" 		=> $token[0],
+					"expire" 		=> $token[1],
+					"email" 		=> $cek_login->email,
+					"employee_id" 	=> $cek_login->id_karyawan 
+				];
 			} else { 
 				$response = [
 					'status' 	=> 401,
@@ -439,270 +202,74 @@ class Api extends API_Controller
     }
 
 
-	public function reset_password()
-	{
-		try {
-			$this->verify_token();
-
-			$data = json_decode(file_get_contents('php://input'), true);
-
-			$employee_id      = $data['employee_id'] ?? '';
-			$old_password     = $data['old_password'] ?? '';
-			$new_password     = $data['new_password'] ?? '';
-			$confirm_password = $data['confirm_password'] ?? '';
-
-			if (!$employee_id || !$old_password || !$new_password || !$confirm_password) {
-				return $this->render_json([
-					'code'    => 400,
-					'status'  => 'failed',
-					'message' => 'Required field not satisfied'
-				], 400);
-			}
-
-			$user = $this->api->get_user_by_employee_id($employee_id);
-
-			if (!$user) {
-				return $this->render_json([
-					'code'    => 404,
-					'status'  => 'failed',
-					'message' => 'User not found'
-				], 404);
-			}
-
-			if ($user->passwd !== md5($old_password)) {
-				return $this->render_json([
-					'code'    => 422,
-					'status'  => 'failed',
-					'message' => 'Old password not match'
-				], 422);
-			}
-
-			if ($new_password !== $confirm_password) {
-				return $this->render_json([
-					'code'    => 422,
-					'status'  => 'failed',
-					'message' => 'New password confirmation not match'
-				], 422);
-			}
-
-			$this->api->update_password_by_user_id(
-				$user->user_id,
-				md5($new_password)
-			);
-
-			$this->api->update_user($user->user_id, [
-				'first_login' => 0
-			]);
-			return $this->render_json([
-				'code'    => 200,
-				'status'  => 'success',
-				'message' => 'Password updated successfully'
-			], 200);
-
-		} catch (Throwable $e) {
-			return $this->render_json([
-				'code'    => 500,
-				'status'  => 'error',
-				'message' => $e->getMessage()
-			], 500);
-		}
-	}
-
-
     public function sync()
     { 
-
-    	ini_set('display_errors', 1);
-		error_reporting(E_ALL);
 
     	
     	$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$url			= $_REQUEST['url'];
-    	$username		= $_REQUEST['username'];
-    	$password 		= $_REQUEST['password'];
-    	$device_uuid 	= $_REQUEST['device_uuid'];
-    	$device_type 	= $_REQUEST['device_type'];
-    	$device_name 	= $_REQUEST['device_name'];
+    	$url		= $_REQUEST['url'];
+    	$username	= $_REQUEST['username'];
+    	$password 	= $_REQUEST['password'];
 
-		$fcm_token     = $_REQUEST['fcm_token'] ?? null;
 
-    	$type = "mobile";
+    	//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
+    	$sql = "select * from companies where website = '".$url."'";
+    	//$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
+    	$cek_url = $this->api->query_db($sql); 
+    
+    	if(!empty($cek_url)){ 
+    		$url_app 			= $cek_url['url_app'];
+    		
+    		$cek_login = $this->api->cek_login($username, $password);
     	
+    		if(!empty($cek_login)){ 
+    			$logo 				= $cek_login->logo;
+    			$nama_perusahaan 	= $cek_login->name;
+    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
 
+				$version 	= $getversion[0]->version;
+    			$urllogo 	= $url.'/uploads/logo/'.$logo;
 
-    	try {
-
-    		if($url != '' && $username != '' && $password != '' && $device_uuid != '' && $device_type != '' && $device_name != ''){
-
-    			//$cek_url = $this->db->query("select * from companies where website = '".$url."'")->result(); 
-		    	$sql = "select * from companies where website = '".$url."'";
-		    	//$nama_db="hrm"; $username_db="hrm"; $password_db="hrm@2025!";
-		    	$cek_url = $this->api->query_db($sql); 
-		    
-		    	if(!empty($cek_url)){ 
-		    		/*$url_app 			= $cek_url['url_app'];*/
-		    		// kalau bentuk object → convert ke array
-				    if (is_object($cek_url)) {
-				        $cek_url = (array) $cek_url;
-				    }
-
-				    // kalau string JSON → decode
-				    if (is_string($cek_url)) {
-				        $cek_url = json_decode($cek_url, true);
-				    }
-
-				    $url_app = $cek_url['url_app'] ?? null;
-		    		
-		    		$cek_login = $this->api->cek_login($username, $password);
-		    	
-		    		if(!empty($cek_login)){ 
-		    			$logo 				= $cek_login->logo;
-		    			$nama_perusahaan 	= $cek_login->name;
-		    			$getversion = $this->db->query("select * from version order by id desc limit 1")->result();
-
-						$version 	= $getversion[0]->version;
-		    			/*$urllogo 	= $url.'/uploads/logo/'.$logo;*/
-		    			$urllogo 	= $url.'/public/assets/images/logo/'.$logo;
-		    			
-		    			$data_radius = $this->db->query("select * from global_radius_location where employee_type = '".$cek_login->emp_source."' ")->result();
-		    			$location_type = $data_radius[0]->location_type ?? '-';
-		    			$radius = $data_radius[0]->radius ?? '-';
-		    			$unit = $data_radius[0]->unit ?? '-';
-
-						$data = array(
-							"nama_perusahaan" => $nama_perusahaan,
-							"logo_perusahaan" => $urllogo,
-							"version" => $version,
-							"url_app" => $url_app,
-							"employee_type" => $cek_login->emp_source,
-							"location_type" => $location_type,
-							"radius" => $radius,
-							"unit" => $unit
-						);
-
-						/// update UID
-						$data_uuid = $this->db->query("select * from user_devices where user_id = '".$cek_login->user_id."' and type = '".$type."' and is_active = 1")->result();
-						if(empty($data_uuid)){
-							$ins_uuid = [
-								'user_id' 			=> $cek_login->user_id,
-								'device_uuid' 		=> $device_uuid,
-								'fcm_token'			=> $fcm_token,
-								'is_active' 		=> 1,
-								'created_at'		=> date("Y-m-d H:i:s"),
-								'device_name' 		=> $device_name,
-								'device_type' 		=> $device_type,
-								'type' => $type
-							];
-
-							$this->db->insert("user_devices", $ins_uuid);
-
-						}else{
-							$upduid = [
-								'device_uuid' 	=> $device_uuid,
-								'device_name' 	=> $device_name,
-								'fcm_token'     => $fcm_token,
-								'device_type' 	=> $device_type
-							];
-							$this->db->update("user_devices", $upduid, "user_id='".$cek_login->user_id."'");
-						}
-
-
-						/// insert ke log
-						$ins_log = [
-							'user_id' 			=> $cek_login->user_id,
-							'device_uuid' 		=> $device_uuid,
-							'fcm_token'     	=> $fcm_token,
-							/*'is_active' 		=> 1,*/
-							'created_at'		=> date("Y-m-d H:i:s"),
-							'device_name' 		=> $device_name,
-							'device_type' 		=> $device_type,
-							'type' => $type
-						];
-
-						$this->db->insert("user_devices_log", $ins_log);
-
-
-
-						$response = [
-							'status' 	=> 200,
-							'message' 	=> 'Success',
-							"data" 		=> $data
-						];
-
-						
-		    		}else{ 
-		    			$response = [
-							'status' 	=> 400,
-							'message' 	=> 'Failed',
-							'error' 	=> 'User not found'
-						];
-		    		}
-		    		
-		    	}else{ 
-		    		$response = [
-						'status' 	=> 400,
-						'message' 	=> 'Failed',
-						'error' 	=> 'URL not found'
-					];
-		    	}
-
-    		}else{
+				$data = array(
+					"nama_perusahaan" => $nama_perusahaan,
+					"logo_perusahaan" => $urllogo,
+					"version" => $version,
+					"url_app" => $url_app
+				);
+	 
+				$response = [
+					'status' 	=> 200,
+					'message' 	=> 'Success',
+					"data" 		=> $data
+				];
+    		}else{ 
     			$response = [
-					'status' 	=> 400,
+					'status' 	=> 401,
 					'message' 	=> 'Failed',
-					'error' 	=> 'URL, Username, Password, UUID, Device Type & Name must be filled'
+					'error' 	=> 'User not found'
 				];
     		}
-
     		
-
-			
-			
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-		}
-		catch (Throwable $e) {
-
-		    /*$response = [
-		        'status' => 500,
-		        'message' => 'Server Error',
-		        'error' => $e->getMessage(),          // pesan error
-		        'line'  => $e->getLine(),             // baris error
-		        'file'  => $e->getFile()              // file error
-		    ];
-		    return $this->render_json($response, 500);*/
-
-
-			$rawMessage = $e->getMessage();
-
-			// Bersihkan pesan error (ambil inti masalah)
-			$cleanMessage = $rawMessage;
-
-			// Hilangkan path & driver noise (kalau ada)
-			$cleanMessage = preg_replace('/in .*? on line \d+/i', '', $cleanMessage);
-			$cleanMessage = trim($cleanMessage);
-
-			$response = [
-				'status'  => 500,
-				'message' => 'Server Error',
-				'error'   => $cleanMessage
+    	}else{ 
+    		$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'URL not found x'
 			];
+    	}
 
-			// Simpan full error untuk debugging
-			log_message('error', $rawMessage);
+		
 
-			return $this->render_json($response, 500);
-
-		}
-
-    	
+		
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
     }
 
 
@@ -1022,1122 +589,582 @@ class Api extends API_Controller
     }
 
 
-    function convertUTCToLocal($datetime_utc, $timezone) {
-	    $utc = new DateTime($datetime_utc, new DateTimeZone('UTC'));
-	    $utc->setTimezone(new DateTimeZone($timezone));
-	    return $utc->format('Y-m-d H:i:s');
-	}
-
-	function convertLocalToUTC($localDatetime, $timezone)
-	{
-	    $dt = new DateTime($localDatetime, new DateTimeZone($timezone));
-	    $dt->setTimezone(new DateTimeZone('UTC'));
-	    return $dt->format('Y-m-d H:i:s');
-	}
-
-
-	public function absen_checkin()
+    public function absen_checkin()
     {
-    	try {
+    	$this->verify_token();
 
-    		$this->verify_token();
-
-	    	$employee	= $_POST['employee_id'];
-	    	$tipe 		= 'checkin';
-	    	$datetime	= $_POST['datetime_attendance'];
-	    	$latitude	= $_POST['latitude'];
-	    	$longitude	= $_POST['longitude'];
-	    	$work_location	= $_POST['work_location'];
-	    	$notes		= $_POST['notes'];
-	    	$photo		= $_FILES['photo'];
-	    	$time_zone 	= $_POST['time_zone']; //MAS
-	    	$utc_offset = $_POST['utc_offset']; //MAS
-	    	
-	    	
-
-			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
-
-				$cek_emp = $this->api->cek_employee($employee);
-
-				$exp 			= explode(" ",$datetime);
-				$date 			= $exp[0];
-				$time 			= $exp[1];
-
-				
-				// cek work location
-				$info = $this->getWorkLocationInfo('absen', $employee, $cek_emp['emp_source'], $date);
-
-				$any_work_location  = $info['any_work_location'];
-				$work_location_time_zone  = $info['work_location_time_zone'];
-				$work_location_utc_offset = $info['work_location_utc_offset'];
+    	$employee	= $_POST['employee_id'];
+    	$tipe 		= 'checkin';
+    	$datetime	= $_POST['datetime_attendance'];
+    	$latitude	= $_POST['latitude'];
+    	$longitude	= $_POST['longitude'];
+    	$work_location	= $_POST['work_location'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['photo'];
+    	/*$utc_time	= $_POST['utc_time'];
+    	$time_zone	= $_POST['time_zone'];
+    	$utc_offset	= $_POST['utc_offset'];*/
+    
 
 
-				if(empty($any_work_location)){
-				  $response = [
-				    'status'  => 401,
-				    'message'   => 'Failed',
-				    'error'   => 'Work Location not found'
-				  ];
-				}else{
+		if($employee != '' && $datetime != ''){
 
-					// cek timezone
-					$ReportUtcTimezone = $this->checkReportUtcTimezone(
-						'absen',
-					    $time_zone,               
-					    $utc_offset,              
-					    $work_location_time_zone,
-					    $work_location_utc_offset,
-					    '',
-					    ''
-					);
-					$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
-					$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
+			$exp 			= explode(" ",$datetime);
+			$date 			= $exp[0];
+			$time 			= $exp[1];
+			$timestamp_time = strtotime($time); 
+			$year = date("Y", strtotime($date));
+			$month = date("m", strtotime($date));
+			$timestamp_datetime = strtotime($datetime);
+			$period = date("Y-m", strtotime($date));
+			$tgl = date("d", strtotime($date));
+
+			$cek_emp = $this->api->cek_employee($employee);	
+
+			if($cek_emp['shift_type'] != '')
+			{
+				$emp_shift_type=1;
+				if($cek_emp['shift_type'] == 'Reguler'){ 
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					
+				}else if($cek_emp['shift_type'] == 'Shift'){ 
+					
+					// $data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
+					// //jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
+					// if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
+
+					// 	$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
+					// 	$period  = date('Y-m', strtotime($dateTomorrow));
+					// 	$tgl = date('d', strtotime($dateTomorrow));
+					// }
+
+					// $dt = $this->db->query("select a.*, b.periode
+					// 		, b.`".$tgl."` as 'shift' 
+					// 		, c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a
+					// 		left join group_shift_schedule b on b.shift_schedule_id = a.id
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+
+					// if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
+					// 	//$emp_shift_type=0;
+					// 	$period = date("Y-m", strtotime($date)); 
+					// 	$tgl = date("d", strtotime($date));
+					// 	$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
+					// }
 
 
-				  	if($report_utctimezone == 'reject'){
-					    $response = [
-					      'status'  => 401,
-					      'message'   => 'Failed',
-					      'error'   => 'Timezone/UTC Offset not valid'
-					    ];
+
+					/// NEW SCRIPT
+					$datetimemax_shift3 = $date.' 08:00:00';
+					if($datetime < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
+						$dateYesterday = date("Y-m-d", strtotime($date . " -1 day"));
+						$period  = date('Y-m', strtotime($dateYesterday));
+					 	$tgl = date('d', strtotime($dateYesterday));
+					 	$date = $dateYesterday;
+					}
+
+
+					$dt = $this->db->query("select 
+					    a.*, 
+					    b.periode, 
+					    b.`".$tgl."` as 'shift', 
+					    c.name,
+					    case 
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
+					    end as expected_checkin,
+					    case 
+					        when c.shift_id = 2 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
+					    end as expected_checkout,
+					    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
+					from shift_schedule a
+					left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					where b.employee_id = '".$employee."'
+					and a.period = '".$period."'
+					")->result(); 
+
+
+					if($dt[0]->shift == ""){
+						$emp_shift_type=0;
+					}
+
+					/// END NEW SCRIPT
+
+				}else{ //tidak ada shift type
+					$emp_shift_type=0;
+				} 
+
+
+				if($emp_shift_type == 1){ 
+					$attendance_type 	= $dt[0]->name;
+					$time_in 			= $dt[0]->time_in;
+					$time_out 			= $dt[0]->time_out;
+					//$post_timein 		= strtotime($time_in);
+					//$post_timeout 		= strtotime($time_out);
+
+					if($attendance_type == 'Shift 3'){
+						$date2 = date("Y-m-d", strtotime($date . " +1 day"));
 					}else{
-				      	////masukin data absen
+						$date2 = $date;
+					}
 
-				      	//convert 
-				      	//$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
-				      	$datetime_local = $datetime;
-						$datetime_utc 	= $this->convertLocalToUTC($datetime, $work_location_time_zone);
-						
-				      	//end convert
+					$schedule 			= $date2.' '.$time_in;
+					$post_timein 		= strtotime($schedule); 
+					$schedule_out 		= $date2.' '.$time_out;
+					$post_timeout 		= strtotime($schedule_out); 
 
+					
 
-						$timestamp_time = strtotime($time); 
-						$year = date("Y", strtotime($date));
-						$month = date("m", strtotime($date));
-						$timestamp_datetime = strtotime($datetime);
-						$period = date("Y-m", strtotime($date));
-						$tgl = date("d", strtotime($date));
+					if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Check-in time has expired'
+						];
 
-						$cek_emp = $this->api->cek_employee($employee);	
+					}else{
 
-						if($cek_emp['shift_type'] != '')
-						{
-							$emp_shift_type=1;
-							if($cek_emp['shift_type'] == 'Reguler'){ 
-								$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
-								
-							}else if($cek_emp['shift_type'] == 'Shift'){ 
-							
+						$is_late=''; 
+						if($timestamp_time > $post_timein){
+							$is_late='Y';
+						}
 
-								/// NEW SCRIPT
-								$datetimemax_shift3 = $date.' 08:00:00';
-								if($datetime < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
-									$dateYesterday = date("Y-m-d", strtotime($date . " -1 day"));
-									$period  = date('Y-m', strtotime($dateYesterday));
-								 	$tgl = date('d', strtotime($dateYesterday));
-								 	$date = $dateYesterday;
-								}
+						$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
 
 
-								$dt = $this->db->query("select 
-								    a.*, 
-								    b.periode, 
-								    b.`".$tgl."` as 'shift', 
-								    c.name,
-								    case 
-								        when c.shift_id = 3 then 
-								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
-								        else 
-								            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
-								    end as expected_checkin,
-								    case 
-								        when c.shift_id = 2 then 
-								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
-								        when c.shift_id = 3 then 
-								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
-								        else 
-								            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
-								    end as expected_checkout,
-								    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
-								from shift_schedule a
-								left join group_shift_schedule b on b.shift_schedule_id = a.id 
-								left join master_shift_time c on c.shift_id = b.`".$tgl."`
-								where b.employee_id = '".$employee."'
-								and a.period = '".$period."'
-								")->result(); 
-
-
-								if($dt[0]->shift == ""){
-									$emp_shift_type=0;
-								}
-
-								/// END NEW SCRIPT
-
-							}else{ //tidak ada shift type
-								$emp_shift_type=0;
-							} 
-
-
-							if($emp_shift_type == 1){ 
-								$attendance_type 	= $dt[0]->name;
-								$time_in 			= $dt[0]->time_in;
-								$time_out 			= $dt[0]->time_out;
-								//$post_timein 		= strtotime($time_in);
-								//$post_timeout 		= strtotime($time_out);
-
-								if($attendance_type == 'Shift 3'){
-									$date2 = date("Y-m-d", strtotime($date . " +1 day"));
-								}else{
-									$date2 = $date;
-								}
-
-								$schedule 			= $date2.' '.$time_in;
-								$post_timein 		= strtotime($schedule); 
-								$schedule_out 		= $date2.' '.$time_out;
-								$post_timeout 		= strtotime($schedule_out); 
-
-								
-
-								if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
-									$response = [
-										'status' 	=> 401,
-										'message' 	=> 'Failed',
-										'error' 	=> 'Check-in time has expired'
-									];
-
-								}else{
-
-									$is_late=''; 
-									if($timestamp_time > $post_timein){
-										$is_late='Y';
-									}
-
-									$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-
-
-									// if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
-									// 	$response = [
-									// 		'status' 	=> 401,
-									// 		'message' 	=> 'Failed',
-									// 		'error' 	=> 'Cannot double checkin'
-									// 	];
-									// }else{ //insert
-										$error=0; 
-										if($cek_emp['shift_type'] == 'Shift'){ 
-											/*if(!empty($cek_data)){  
-												
-												$error='Cannot double checkin';
-											}else{ */
-												$dt = $this->db->query("select a.*, b.periode
-														, b.`".$tgl."` as 'shift' 
-														, c.time_in, c.time_out, c.name 
-														from shift_schedule a
-														left join group_shift_schedule b on b.shift_schedule_id = a.id 
-														left join master_shift_time c on c.shift_id = b.`".$tgl."`
-														where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-												if(empty($dt)){
-													$error='Checkin Date not valid';
-												}
-											//}
-									
-										}
-
-										if($error==0){
-
-											//upload 
-											$dataU = array();
-					        				$dataU['status'] = FALSE; 
-											$fieldname='photo';
-											if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-								            { 
-								               
-								                
-								            	$config['upload_path']   = "uploads/absensi/";
-								                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-								                $config['max_size']      = "0"; 
-								                
-								                $this->load->library('upload', $config); 
-								                
-								                if(!$this->upload->do_upload($fieldname)){ 
-								                    $err_msg = $this->upload->display_errors(); 
-								                    $dataU['error_warning'] = strip_tags($err_msg);              
-								                    $dataU['status'] = FALSE;
-								                } else { 
-								                    $fileData = $this->upload->data();
-								                    $dataU['upload_file'] = $fileData['file_name'];
-								                    $dataU['status'] = TRUE;
-								                }
-								            }
-								            $document = '';
-											if($dataU['status']){ 
-												$document = $dataU['upload_file'];
-											} else if(isset($dataU['error_warning'])){ 
-												//echo $dataU['error_warning']; exit;
-
-												$document = 'ERROR : '.$dataU['error_warning'];
-											}
-								            //end upload
-
-
-											$data = [
-												'date_attendance' 			=> $date,
-												'employee_id' 				=> $employee,
-												'date_attendance_in' 		=> $datetime,
-												'is_late'					=> $is_late,
-												'created_at'				=> date("Y-m-d H:i:s"),
-												'lat_checkin' 				=> $latitude,
-												'long_checkin' 				=> $longitude,
-												'work_location' 			=> $work_location,
-												'notes' 					=> $notes,
-												'photo_checkin' 			=> $document,
-												'time_zone_checkin' 		=> $work_location_time_zone,
-												'utc_offset_checkin' 		=> $work_location_utc_offset,
-												'datetime_local_checkin' 	=> $datetime_local,
-												'utc_time_checkin' 			=> $datetime_utc
-											];
-
-											$rs = $this->db->insert("time_attendances_log", $data);
-
-											if($rs){
-												/// yg dimasukin ke table time_attendances yg checkin pertama kalii aja, kalo yg log bisa kapanpun
-												if(empty($cek_data)){
-													$data2 = [
-														'date_attendance' 			=> $date,
-														'employee_id' 				=> $employee,
-														'attendance_type' 			=> $attendance_type,
-														'time_in' 					=> $time_in,
-														'time_out' 					=> $time_out,
-														'date_attendance_in' 		=> $datetime,
-														'is_late'					=> $is_late,
-														'created_at'				=> date("Y-m-d H:i:s"),
-														'lat_checkin' 				=> $latitude,
-														'long_checkin' 				=> $longitude,
-														'work_location' 			=> $work_location,
-														'notes' 					=> $notes,
-														'photo_checkin' 			=> $document,
-														'time_zone_checkin' 		=> $work_location_time_zone,
-														'utc_offset_checkin' 		=> $work_location_utc_offset,
-														'datetime_local_checkin' 	=> $datetime_local,
-														'utc_time_checkin' 			=> $datetime_utc
-													];
-
-													$this->db->insert("time_attendances", $data2);
-												}
-
-												$upd_emp = [
-													'last_lat' 				=> $latitude,
-													'last_long' 			=> $longitude
-												];
-												$this->db->update("employees", $upd_emp, "id='".$employee."'");
-
-
-												$response = [
-													'status' 	=> 200,
-													'message' 	=> 'Success'
-												];
-											}else{
-												$response = [
-													'status' 	=> 401,
-													'message' 	=> 'Failed',
-													'error' 	=> 'Error submit checkin'
-												];
-											}
-										}else{
-											$response = [
-												'status' 	=> 401,
-												'message' 	=> 'Failed',
-												'error' 	=> $error
-											];
-										}
-
-									///}
-								}
-
-								
-							}else{
-								$response = [
-									'status' 	=> 401,
-									'message' 	=> 'Failed',
-									'error' 	=> 'Data Shift not found'
-								];
-							}
-							
-						} else {
+						if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
 							$response = [
 								'status' 	=> 401,
 								'message' 	=> 'Failed',
-								'error' 	=> 'Employee not found'
+								'error' 	=> 'Cannot double checkin'
 							];
-						}
-
-				  }
-
-				}
-
-			} else {
-				$response = [
-					'status' 	=> 400, // Bad Request
-					'message' 	=>'Failed',
-					'error' 	=> 'Require not satisfied'
-				];
-			}
-			
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}
-    	catch (Throwable $e) {
-	        $response = [
-	            'status' => 500,
-	            'message' => 'Server Error',
-	            'error' => $e->getMessage(),          // pesan error
-	            'line'  => $e->getLine(),             // baris error
-	            'file'  => $e->getFile()              // file error
-	        ];
-	        return $this->render_json($response, 500);
-	    }
-    	
-    }
-
-
-    public function absen_checkin_old()
-    {
-    	try {
-
-    		$this->verify_token();
-
-	    	$employee	= $_POST['employee_id'];
-	    	$tipe 		= 'checkin';
-	    	$datetime	= $_POST['datetime_attendance'];
-	    	$latitude	= $_POST['latitude'];
-	    	$longitude	= $_POST['longitude'];
-	    	$work_location	= $_POST['work_location'];
-	    	$notes		= $_POST['notes'];
-	    	$photo		= $_FILES['photo'];
-	    	$time_zone 	= $_POST['time_zone']; //MAS
-	    	$utc_offset = $_POST['utc_offset']; //MAS
-	    	
-	    	
-
-			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
-
-				$cek_emp = $this->api->cek_employee($employee);
-
-				$exp 			= explode(" ",$datetime);
-				$date 			= $exp[0];
-				$time 			= $exp[1];
-
-				
-				// cek work location
-				$info = $this->getWorkLocationInfo('absen', $employee, $cek_emp['emp_source'], $date);
-
-				$any_work_location  = $info['any_work_location'];
-				$work_location_time_zone  = $info['work_location_time_zone'];
-				$work_location_utc_offset = $info['work_location_utc_offset'];
-
-
-				if(empty($any_work_location)){
-				  $response = [
-				    'status'  => 401,
-				    'message'   => 'Failed',
-				    'error'   => 'Work Location not found'
-				  ];
-				}else{
-
-					// cek timezone
-					$ReportUtcTimezone = $this->checkReportUtcTimezone(
-						'absen',
-					    $time_zone,               
-					    $utc_offset,              
-					    $work_location_time_zone,
-					    $work_location_utc_offset,
-					    '',
-					    ''
-					);
-					$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
-					$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
-
-
-				  	if($report_utctimezone == 'reject'){
-					    $response = [
-					      'status'  => 401,
-					      'message'   => 'Failed',
-					      'error'   => 'Timezone/UTC Offset not valid'
-					    ];
-					}else{
-				      	////masukin data absen
-
-				      	//convert 
-				      	//$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);
-				      	$datetime_local = $datetime;
-						$datetime_utc 	= $this->convertLocalToUTC($datetime, $work_location_time_zone);
-						
-				      	//end convert
-
-
-						$timestamp_time = strtotime($time); 
-						$year = date("Y", strtotime($date));
-						$month = date("m", strtotime($date));
-						$timestamp_datetime = strtotime($datetime);
-						$period = date("Y-m", strtotime($date));
-						$tgl = date("d", strtotime($date));
-
-						$cek_emp = $this->api->cek_employee($employee);	
-
-						if($cek_emp['shift_type'] != '')
-						{
-							$emp_shift_type=1;
-							if($cek_emp['shift_type'] == 'Reguler'){ 
-								$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+						}else{ //insert
+							$error=0; 
+							if($cek_emp['shift_type'] == 'Shift'){ 
+								if(!empty($cek_data)){  
+									// $cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
+									// if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
 								
-							}else if($cek_emp['shift_type'] == 'Shift'){ 
-								
-								// $data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
-								// //jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
-								// if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
+									// 	$date = date("Y-m-d", strtotime($date . " +1 day"));
 
-								// 	$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
-								// 	$period  = date('Y-m', strtotime($dateTomorrow));
-								// 	$tgl = date('d', strtotime($dateTomorrow));
-								// }
-
-								// $dt = $this->db->query("select a.*, b.periode
-								// 		, b.`".$tgl."` as 'shift' 
-								// 		, c.time_in, c.time_out, c.name 
-								// 		from shift_schedule a
-								// 		left join group_shift_schedule b on b.shift_schedule_id = a.id
-								// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
-								// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-
-								// if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
-								// 	//$emp_shift_type=0;
-								// 	$period = date("Y-m", strtotime($date)); 
-								// 	$tgl = date("d", strtotime($date));
-								// 	$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-								// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
-								// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
-								// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
-								// }
-
-
-
-								/// NEW SCRIPT
-								$datetimemax_shift3 = $date.' 08:00:00';
-								if($datetime < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
-									$dateYesterday = date("Y-m-d", strtotime($date . " -1 day"));
-									$period  = date('Y-m', strtotime($dateYesterday));
-								 	$tgl = date('d', strtotime($dateYesterday));
-								 	$date = $dateYesterday;
-								}
-
-
-								$dt = $this->db->query("select 
-								    a.*, 
-								    b.periode, 
-								    b.`".$tgl."` as 'shift', 
-								    c.name,
-								    case 
-								        when c.shift_id = 3 then 
-								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
-								        else 
-								            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
-								    end as expected_checkin,
-								    case 
-								        when c.shift_id = 2 then 
-								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
-								        when c.shift_id = 3 then 
-								            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
-								        else 
-								            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
-								    end as expected_checkout,
-								    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
-								from shift_schedule a
-								left join group_shift_schedule b on b.shift_schedule_id = a.id 
-								left join master_shift_time c on c.shift_id = b.`".$tgl."`
-								where b.employee_id = '".$employee."'
-								and a.period = '".$period."'
-								")->result(); 
-
-
-								if($dt[0]->shift == ""){
-									$emp_shift_type=0;
-								}
-
-								/// END NEW SCRIPT
-
-							}else{ //tidak ada shift type
-								$emp_shift_type=0;
-							} 
-
-
-							if($emp_shift_type == 1){ 
-								$attendance_type 	= $dt[0]->name;
-								$time_in 			= $dt[0]->time_in;
-								$time_out 			= $dt[0]->time_out;
-								//$post_timein 		= strtotime($time_in);
-								//$post_timeout 		= strtotime($time_out);
-
-								if($attendance_type == 'Shift 3'){
-									$date2 = date("Y-m-d", strtotime($date . " +1 day"));
-								}else{
-									$date2 = $date;
-								}
-
-								$schedule 			= $date2.' '.$time_in;
-								$post_timein 		= strtotime($schedule); 
-								$schedule_out 		= $date2.' '.$time_out;
-								$post_timeout 		= strtotime($schedule_out); 
-
-								
-
-								if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
-									$response = [
-										'status' 	=> 401,
-										'message' 	=> 'Failed',
-										'error' 	=> 'Check-in time has expired'
-									];
-
-								}else{
-
-									$is_late=''; 
-									if($timestamp_time > $post_timein){
-										$is_late='Y';
-									}
-
-									$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-
-
-									if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
-										$response = [
-											'status' 	=> 401,
-											'message' 	=> 'Failed',
-											'error' 	=> 'Cannot double checkin'
-										];
-									}else{ //insert
-										$error=0; 
-										if($cek_emp['shift_type'] == 'Shift'){ 
-											if(!empty($cek_data)){  
-												// $cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
-												// if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
+									// 	$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+									// 	if(!empty($cek_data_shift_besok)){ 
+									// 		$error='Cannot double checkin';
+									// 	}else{ 
 											
-												// 	$date = date("Y-m-d", strtotime($date . " +1 day"));
+									// 		$dt = $this->db->query("select a.*, b.periode
+									// 				, b.`".$tgl."` as 'shift' 
+									// 				, c.time_in, c.time_out, c.name 
+									// 				from shift_schedule a
+									// 				left join group_shift_schedule b on b.shift_schedule_id = a.id 
+									// 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
+									// 				where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
-												// 	$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-												// 	if(!empty($cek_data_shift_besok)){ 
-												// 		$error='Cannot double checkin';
-												// 	}else{ 
-														
-												// 		$dt = $this->db->query("select a.*, b.periode
-												// 				, b.`".$tgl."` as 'shift' 
-												// 				, c.time_in, c.time_out, c.name 
-												// 				from shift_schedule a
-												// 				left join group_shift_schedule b on b.shift_schedule_id = a.id 
-												// 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
-												// 				where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+									// 		if(empty($dt)){
+									// 			$error='Checkin Date not valid';
+									// 		}else{
+									// 			$attendance_type 	= $dt[0]->name;
+									// 			$time_in 			= $dt[0]->time_in;
+									// 			$time_out 			= $dt[0]->time_out;
+									// 			$datetime_in 		= $date.' '.$time_in;
+									// 			$post_datetimein 	= strtotime($datetime_in);
+												
 
-												// 		if(empty($dt)){
-												// 			$error='Checkin Date not valid';
-												// 		}else{
-												// 			$attendance_type 	= $dt[0]->name;
-												// 			$time_in 			= $dt[0]->time_in;
-												// 			$time_out 			= $dt[0]->time_out;
-												// 			$datetime_in 		= $date.' '.$time_in;
-												// 			$post_datetimein 	= strtotime($datetime_in);
-															
+									// 			$is_late=''; 
+									// 			if($timestamp_datetime > $post_datetimein){
+									// 				$is_late='Y';
+									// 			}
+									// 		}
+									// 	}
 
-												// 			$is_late=''; 
-												// 			if($timestamp_datetime > $post_datetimein){
-												// 				$is_late='Y';
-												// 			}
-												// 		}
-												// 	}
+									// }else{ 
+									// 	/*$error='Checkin Date not valid';*/
+									// 	$error='Cannot double checkin';
+									// }
 
-												// }else{ 
-												// 	/*$error='Checkin Date not valid';*/
-												// 	$error='Cannot double checkin';
-												// }
-
-												$error='Cannot double checkin';
-											}else{ 
-												$dt = $this->db->query("select a.*, b.periode
-														, b.`".$tgl."` as 'shift' 
-														, c.time_in, c.time_out, c.name 
-														from shift_schedule a
-														left join group_shift_schedule b on b.shift_schedule_id = a.id 
-														left join master_shift_time c on c.shift_id = b.`".$tgl."`
-														where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-												if(empty($dt)){
-													$error='Checkin Date not valid';
-												}
-											}
-									
-										}
-
-										if($error==0){
-
-											//upload 
-											$dataU = array();
-					        				$dataU['status'] = FALSE; 
-											$fieldname='photo';
-											if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-								            { 
-								               
-								                
-								            	$config['upload_path']   = "uploads/absensi/";
-								                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-								                $config['max_size']      = "0"; 
-								                
-								                $this->load->library('upload', $config); 
-								                
-								                if(!$this->upload->do_upload($fieldname)){ 
-								                    $err_msg = $this->upload->display_errors(); 
-								                    $dataU['error_warning'] = strip_tags($err_msg);              
-								                    $dataU['status'] = FALSE;
-								                } else { 
-								                    $fileData = $this->upload->data();
-								                    $dataU['upload_file'] = $fileData['file_name'];
-								                    $dataU['status'] = TRUE;
-								                }
-								            }
-								            $document = '';
-											if($dataU['status']){ 
-												$document = $dataU['upload_file'];
-											} else if(isset($dataU['error_warning'])){ 
-												//echo $dataU['error_warning']; exit;
-
-												$document = 'ERROR : '.$dataU['error_warning'];
-											}
-								            //end upload
-
-
-											$data = [
-												'date_attendance' 			=> $date,
-												'employee_id' 				=> $employee,
-												'attendance_type' 			=> $attendance_type,
-												'time_in' 					=> $time_in,
-												'time_out' 					=> $time_out,
-												'date_attendance_in' 		=> $datetime,
-												'is_late'					=> $is_late,
-												'created_at'				=> date("Y-m-d H:i:s"),
-												'lat_checkin' 				=> $latitude,
-												'long_checkin' 				=> $longitude,
-												'work_location' 			=> $work_location,
-												'notes' 					=> $notes,
-												'photo' 					=> $document,
-												'time_zone_checkin' 		=> $work_location_time_zone,
-												'utc_offset_checkin' 		=> $work_location_utc_offset,
-												'datetime_local_checkin' 	=> $datetime_local,
-												'utc_time_checkin' 			=> $datetime_utc
-											];
-
-											$rs = $this->db->insert("time_attendances", $data);
-
-											if($rs){
-												$upd_emp = [
-													'last_lat' 				=> $latitude,
-													'last_long' 			=> $longitude
-												];
-												$this->db->update("employees", $upd_emp, "id='".$employee."'");
-
-
-												$response = [
-													'status' 	=> 200,
-													'message' 	=> 'Success'
-												];
-											}else{
-												$response = [
-													'status' 	=> 401,
-													'message' 	=> 'Failed',
-													'error' 	=> 'Error submit checkin'
-												];
-											}
-										}else{
-											$response = [
-												'status' 	=> 401,
-												'message' 	=> 'Failed',
-												'error' 	=> $error
-											];
-										}
-
+									$error='Cannot double checkin';
+								}else{ 
+									$dt = $this->db->query("select a.*, b.periode
+											, b.`".$tgl."` as 'shift' 
+											, c.time_in, c.time_out, c.name 
+											from shift_schedule a
+											left join group_shift_schedule b on b.shift_schedule_id = a.id 
+											left join master_shift_time c on c.shift_id = b.`".$tgl."`
+											where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+									if(empty($dt)){
+										$error='Checkin Date not valid';
 									}
 								}
+						
+							}
 
-								
+							if($error==0){
+
+								//upload 
+								$dataU = array();
+		        				$dataU['status'] = FALSE; 
+								$fieldname='photo';
+								if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+					            { 
+					               
+					                
+					            	$config['upload_path']   = "uploads/absensi/";
+					                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+					                $config['max_size']      = "0"; 
+					                
+					                $this->load->library('upload', $config); 
+					                
+					                if(!$this->upload->do_upload($fieldname)){ 
+					                    $err_msg = $this->upload->display_errors(); 
+					                    $dataU['error_warning'] = strip_tags($err_msg);              
+					                    $dataU['status'] = FALSE;
+					                } else { 
+					                    $fileData = $this->upload->data();
+					                    $dataU['upload_file'] = $fileData['file_name'];
+					                    $dataU['status'] = TRUE;
+					                }
+					            }
+					            $document = '';
+								if($dataU['status']){ 
+									$document = $dataU['upload_file'];
+								} else if(isset($dataU['error_warning'])){ 
+									//echo $dataU['error_warning']; exit;
+
+									$document = 'ERROR : '.$dataU['error_warning'];
+								}
+					            //end upload
+
+
+								$data = [
+									'date_attendance' 			=> $date,
+									'employee_id' 				=> $employee,
+									'attendance_type' 			=> $attendance_type,
+									'time_in' 					=> $time_in,
+									'time_out' 					=> $time_out,
+									'date_attendance_in' 		=> $datetime,
+									'is_late'					=> $is_late,
+									'created_at'				=> date("Y-m-d H:i:s"),
+									'lat_checkin' 				=> $latitude,
+									'long_checkin' 				=> $longitude,
+									'work_location' 			=> $work_location,
+									'notes' 					=> $notes,
+									'photo' 					=> $document/*,
+									'utc_time_checkin' 			=> $utc_time,
+									'time_zone_checkin' 		=> $time_zone,
+									'utc_offset_checkin' 		=> $utc_offset*/
+								];
+
+								$rs = $this->db->insert("time_attendances", $data);
+
+								if($rs){
+									$upd_emp = [
+										'last_lat' 				=> $latitude,
+										'last_long' 			=> $longitude
+									];
+									$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+
+									$response = [
+										'status' 	=> 200,
+										'message' 	=> 'Success'
+									];
+								}else{
+									$response = [
+										'status' 	=> 401,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Error submit checkin'
+									];
+								}
 							}else{
 								$response = [
 									'status' 	=> 401,
 									'message' 	=> 'Failed',
-									'error' 	=> 'Data Shift not found'
+									'error' 	=> $error
 								];
 							}
-							
-						} else {
-							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Employee not found'
-							];
+
 						}
+					}
 
-				  }
-
+					
+				}else{
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Data Shift not found'
+					];
 				}
-
+				
 			} else {
 				$response = [
-					'status' 	=> 400, // Bad Request
-					'message' 	=>'Failed',
-					'error' 	=> 'Require not satisfied'
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
 				];
 			}
 			
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}
-    	catch (Throwable $e) {
-	        $response = [
-	            'status' => 500,
-	            'message' => 'Server Error',
-	            'error' => $e->getMessage(),          // pesan error
-	            'line'  => $e->getLine(),             // baris error
-	            'file'  => $e->getFile()              // file error
-	        ];
-	        return $this->render_json($response, 500);
-	    }
-    	
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
     }
 
 
     public function absen_checkout()
     {
+    	$this->verify_token();
 
-    	try {
-
-    		$this->verify_token();
-
-	    	$employee	= $_POST['employee_id'];
-	    	$tipe 		= 'checkout';
-	    	$datetime	= $_POST['datetime_attendance'];
-	    	$notes		= $_POST['notes'];
-	    	$photo		= $_FILES['photo'];
-	    	$latitude	= $_POST['latitude'];
-	    	$longitude	= $_POST['longitude'];
-	    	$work_location	= $_POST['work_location'];
-	    	$time_zone 	= $_POST['time_zone']; //MAS
-	    	$utc_offset = $_POST['utc_offset']; //MAS
-
-	    	
-
-			if($employee != '' && $datetime != '' && $time_zone != '' && $utc_offset != ''){
-
-				$cek_emp = $this->api->cek_employee($employee);
-
-				$exp 			= explode(" ",$datetime);
-				$date 			= $exp[0];
-				$time 			= $exp[1];
+    	$employee	= $_POST['employee_id'];
+    	$tipe 		= 'checkout';
+    	$datetime	= $_POST['datetime_attendance'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['photo'];
+    	$latitude	= $_POST['latitude'];
+    	$longitude	= $_POST['longitude'];
+    	$work_location	= $_POST['work_location'];
+    	/*$utc_time	= $_POST['utc_time'];
+    	$time_zone	= $_POST['time_zone'];
+    	$utc_offset	= $_POST['utc_offset'];*/
 
 
-				$info = $this->getWorkLocationInfo('absen', $employee, $cek_emp['emp_source'], $date);
+		if($employee != '' && $datetime != ''){
 
-				$any_work_location  		= $info['any_work_location'];
-				$work_location_time_zone  	= $info['work_location_time_zone'];
-				$work_location_utc_offset 	= $info['work_location_utc_offset'];
+			$exp 			= explode(" ",$datetime);
+			$date 			= $exp[0];
+			$time 			= $exp[1];
+			$timestamp_time = strtotime($time); 
+			$year 			= date("Y", strtotime($date));
+			$month 			= date("m", strtotime($date));
+			$tgl 			= date("d", strtotime($date));
+			$period 		= date("Y-m", strtotime($date));
+
+			$cek_emp = $this->api->cek_employee($employee);	
+
+			if($cek_emp['shift_type'] != '')
+			{
+
+				$emp_shift_type=1;
+				if($cek_emp['shift_type'] == 'Reguler'){
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					$datetime_out = $date.' '.$dt[0]->time_out;
+				}else if($cek_emp['shift_type'] == 'Shift'){ 
+					/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
+					left join master_shift_time b on b.id = a.master_shift_time_id
+					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+					
+					$dt = $this->db->query("select a.*, b.periode
+							, b.`".$tgl."` as 'shift' 
+							, c.time_in, c.time_out, c.name 
+							from shift_schedule a
+							left join group_shift_schedule b on b.shift_schedule_id = a.id 
+							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+					
+					if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
+						$date_attendance = date("Y-m-d", strtotime($dt[0]->date . " +1 day"));
+					}
+
+					$datetime_out = $date_attendance.' '.$dt[0]->time_out;
+				}else{ //tidak ada shift type
+					$emp_shift_type=0;
+				} 
+
+				if($emp_shift_type == 1){
+					/*$attendance_type 	= $dt[0]->name;
+					$time_out 			= $dt[0]->time_out;
+					$post_timeout 		= strtotime($time_out);*/
+
+					$timestamp_datetime = strtotime($datetime);
+					$post_datetimeout 	= strtotime($datetime_out);
 
 
-				if(empty($any_work_location)){
-				  $response = [
-				    'status'  => 401,
-				    'message'   => 'Failed',
-				    'error'   => 'Work Location not found'
-				  ];
-				}else{
-				  	// cek timezone
-					$ReportUtcTimezone = $this->checkReportUtcTimezone(
-						'absen',
-					    $time_zone,               
-					    $utc_offset,              
-					    $work_location_time_zone,
-					    $work_location_utc_offset,
-					    '',
-					    ''
-					);
-					$report_utctimezone      = $ReportUtcTimezone['report_utctimezone'];
-					$report_utctimezone_desc = $ReportUtcTimezone['report_utctimezone_desc'];
+
+					$is_leaving_office_early = '';
+					if($timestamp_datetime < $post_datetimeout){
+						$is_leaving_office_early = 'Y';
+					}
+
+					$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+
+					$err_checkout=0;
+					if(empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){ 
+						$err_checkout = 'Please CheckIn first';
+					}else if($cek_emp['shift_type'] == 'Shift'){ 
+						if(empty($cek_data)){ 
+							$previousDay = date("Y-m-d", strtotime($date . " -1 day")); 
+							
+							/*$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' and (date_attendance_out is null or date_attendance_out = '0000-00-00') ")->result();*/
+							$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' ")->result();
+						}else{ 
+							$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+							if(empty($cek_data)){
+								$err_checkout='Checkout Date not valid';
+							}
+						}
+					}
 
 
-				  	if($report_utctimezone == 'reject'){
-					    $response = [
-					      'status'  => 401,
-					      'message'   => 'Failed',
-					      'error'   => 'Timezone/UTC Offset not valid'
-					    ];
+					if($err_checkout==0){  
+						if($cek_data[0]->id != ''){ //update checkout
+							
+							$f_datetime_in 			= $cek_data[0]->date_attendance_in;
+							$f_datetime_out 		= $datetime;
+							$timestamp1 			= strtotime($f_datetime_in); 
+							$timestamp2 			= strtotime($f_datetime_out);
+							$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
 
-				  	}else{ ///masukin absen
 
-				  		/*$datetime_local = $this->convertUTCToLocal($datetime, $data_work_location[0]->time_zone);*/
-				  		$datetime_local = $datetime;
-						$datetime_utc 	= $this->convertLocalToUTC($datetime, $work_location_time_zone);
+							//upload 
+							$dataU = array();
+	        				$dataU['status'] = FALSE; 
+							$fieldname='photo';
+							if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+				            { 
+				               
+				                
+				            	$config['upload_path']   = "uploads/absensi/";
+				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+				                $config['max_size']      = "0"; 
+				                
+				                $this->load->library('upload', $config); 
+				                
+				                if(!$this->upload->do_upload($fieldname)){ 
+				                    $err_msg = $this->upload->display_errors(); 
+				                    $dataU['error_warning'] = strip_tags($err_msg);              
+				                    $dataU['status'] = FALSE;
+				                } else { 
+				                    $fileData = $this->upload->data();
+				                    $dataU['upload_file'] = $fileData['file_name'];
+				                    $dataU['status'] = TRUE;
+				                }
+				            }
+				            $document = '';
+							if($dataU['status']){ 
+								$document = $dataU['upload_file'];
+							} else if(isset($dataU['error_warning'])){ 
+								//echo $dataU['error_warning']; exit;
 
-					  	
-						$timestamp_time = strtotime($time); 
-						$year 			= date("Y", strtotime($date));
-						$month 			= date("m", strtotime($date));
-						$tgl 			= date("d", strtotime($date));
-						$period 		= date("Y-m", strtotime($date));
+								$document = 'ERROR : '.$dataU['error_warning'];
+							}
+				            //end upload
 
-						$cek_emp = $this->api->cek_employee($employee);	
+				            $cektime = $this->db->query("select * from time_attendances where id = '".$cek_data[0]->id."'")->result();
+				            if($notes == '' && $cektime[0]->notes != ''){
+				            	$notes = $cektime[0]->notes;
+				            }
+				            if($document == '' && $cektime[0]->photo != ''){
+				            	$document = $cektime[0]->photo;
+				            }
 
-						if($cek_emp['shift_type'] != '')
-						{
+				            if($cektime[0]->date_attendance_in < $datetime){
+				            	$data = [
+									'date_attendance_out' 		=> $datetime,
+									'is_leaving_office_early'	=> $is_leaving_office_early,
+									'num_of_working_hours'		=> $num_of_working_hours,
+									'updated_at'				=> date("Y-m-d H:i:s"),
+									'notes' 					=> $notes,
+									'photo' 					=> $document,
+									'lat_checkout' 				=> $latitude,
+									'long_checkout' 			=> $longitude,
+									'work_location' 			=> $work_location/*,
+									'utc_time_checkout' 		=> $utc_time,
+									'time_zone_checkout' 		=> $time_zone,
+									'utc_offset_checkout' 		=> $utc_offset*/
+								];
+								$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
 
-							$emp_shift_type=1;
-							if($cek_emp['shift_type'] == 'Reguler'){
-								$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
-								$datetime_out = $date.' '.$dt[0]->time_out;
-							}else if($cek_emp['shift_type'] == 'Shift'){ 
-								/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
-								left join master_shift_time b on b.id = a.master_shift_time_id
-								where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+								if($rs){
+									$upd_emp = [
+										'last_lat' 				=> $latitude,
+										'last_long' 			=> $longitude
+									];
+									$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+
 								
-								$dt = $this->db->query("select a.*, b.periode
-										, b.`".$tgl."` as 'shift' 
-										, c.time_in, c.time_out, c.name 
-										from shift_schedule a
-										left join group_shift_schedule b on b.shift_schedule_id = a.id 
-										left join master_shift_time c on c.shift_id = b.`".$tgl."`
-										where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
-								
-								if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
-									$date_attendance = date("Y-m-d", strtotime($dt[0]->date . " +1 day"));
-								}
-
-								$datetime_out = $date_attendance.' '.$dt[0]->time_out;
-							}else{ //tidak ada shift type
-								$emp_shift_type=0;
-							} 
-
-							if($emp_shift_type == 1){
-								/*$attendance_type 	= $dt[0]->name;
-								$time_out 			= $dt[0]->time_out;
-								$post_timeout 		= strtotime($time_out);*/
-
-								$timestamp_datetime = strtotime($datetime);
-								$post_datetimeout 	= strtotime($datetime_out);
-
-
-
-								$is_leaving_office_early = '';
-								if($timestamp_datetime < $post_datetimeout){
-									$is_leaving_office_early = 'Y';
-								}
-
-								$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-
-								$err_checkout=0;
-								if(empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){ 
-									$err_checkout = 'Please CheckIn first';
-								}else if($cek_emp['shift_type'] == 'Shift'){ 
-									if(empty($cek_data)){ 
-										$previousDay = date("Y-m-d", strtotime($date . " -1 day")); 
-										
-										/*$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' and (date_attendance_out is null or date_attendance_out = '0000-00-00') ")->result();*/
-										$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' ")->result();
-									}else{ 
-										$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
-										if(empty($cek_data)){
-											$err_checkout='Checkout Date not valid';
-										}
-									}
-								}
-
-
-								if($err_checkout==0){  
-									if($cek_data[0]->id != ''){ //update checkout
-										
-										$f_datetime_in 			= $cek_data[0]->date_attendance_in;
-										$f_datetime_out 		= $datetime;
-										$timestamp1 			= strtotime($f_datetime_in); 
-										$timestamp2 			= strtotime($f_datetime_out);
-										$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
-
-
-										//upload 
-										$dataU = array();
-				        				$dataU['status'] = FALSE; 
-										$fieldname='photo';
-										if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-							            { 
-							               
-							                
-							            	$config['upload_path']   = "uploads/absensi/";
-							                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-							                $config['max_size']      = "0"; 
-							                
-							                $this->load->library('upload', $config); 
-							                
-							                if(!$this->upload->do_upload($fieldname)){ 
-							                    $err_msg = $this->upload->display_errors(); 
-							                    $dataU['error_warning'] = strip_tags($err_msg);              
-							                    $dataU['status'] = FALSE;
-							                } else { 
-							                    $fileData = $this->upload->data();
-							                    $dataU['upload_file'] = $fileData['file_name'];
-							                    $dataU['status'] = TRUE;
-							                }
-							            }
-							            $document = '';
-										if($dataU['status']){ 
-											$document = $dataU['upload_file'];
-										} else if(isset($dataU['error_warning'])){ 
-											//echo $dataU['error_warning']; exit;
-
-											$document = 'ERROR : '.$dataU['error_warning'];
-										}
-							            //end upload
-
-							            $cektime = $this->db->query("select * from time_attendances where id = '".$cek_data[0]->id."'")->result();
-							            if($notes == '' && $cektime[0]->notes != ''){
-							            	$notes = $cektime[0]->notes;
-							            }
-							            if($document == '' && $cektime[0]->photo != ''){
-							            	$document = $cektime[0]->photo;
-							            }
-
-							            if($cektime[0]->date_attendance_in < $datetime){
-							            	$data = [
-												'date_attendance_out' 		=> $datetime,
-												'is_leaving_office_early'	=> $is_leaving_office_early,
-												'num_of_working_hours'		=> $num_of_working_hours,
-												'updated_at'				=> date("Y-m-d H:i:s"),
-												'notes' 					=> $notes,
-												'photo_checkout' 			=> $document,
-												'lat_checkout' 				=> $latitude,
-												'long_checkout' 			=> $longitude,
-												'work_location' 			=> $work_location,
-												'time_zone_checkout' 		=> $work_location_time_zone,
-												'utc_offset_checkout' 		=> $work_location_utc_offset,
-												'datetime_local_checkout' 	=> $datetime_local,
-												'utc_time_checkout' 		=> $datetime_utc
-											];
-											$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
-
-											if($rs){
-												/// tambahin log
-												$data2 = [
-													'date_attendance' 			=> $cek_data[0]->date_attendance,
-													'employee_id' 				=> $cek_data[0]->employee_id,
-													'date_attendance_out' 		=> $datetime,
-													'is_leaving_office_early'	=> $is_leaving_office_early,
-													'num_of_working_hours'		=> $num_of_working_hours,
-													'updated_at'				=> date("Y-m-d H:i:s"),
-													'notes' 					=> $notes,
-													'photo_checkout' 			=> $document,
-													'lat_checkout' 				=> $latitude,
-													'long_checkout' 			=> $longitude,
-													'work_location' 			=> $work_location,
-													'time_zone_checkout' 		=> $work_location_time_zone,
-													'utc_offset_checkout' 		=> $work_location_utc_offset,
-													'datetime_local_checkout' 	=> $datetime_local,
-													'utc_time_checkout' 		=> $datetime_utc
-												];
-
-												$this->db->insert("time_attendances_log", $data2);
-
-
-												$upd_emp = [
-													'last_lat' 				=> $latitude,
-													'last_long' 			=> $longitude
-												];
-												$this->db->update("employees", $upd_emp, "id='".$employee."'");
-
-
-											
-												$response = [
-													'status' 	=> 200,
-													'message' 	=> 'Success'
-												];
-											}else{
-												$response = [
-													'status' 	=> 401,
-													'message' 	=> 'Failed',
-													'error' 	=> 'Error update checkout'
-												];
-											}
-							            }else{
-							            	$response = [
-												'status' 	=> 401,
-												'message' 	=> 'Failed',
-												'error' 	=> 'Checkout date is greater than checkin date'
-											];
-							            }
-							           
-									}else{
-										$response = [
-											'status' 	=> 400, // Bad Request
-											'message' 	=>'Failed',
-											'error' 	=> 'Require not satisfied'
-										];
-									}
-								}else{ //insert
+									$response = [
+										'status' 	=> 200,
+										'message' 	=> 'Success'
+									];
+								}else{
 									$response = [
 										'status' 	=> 401,
 										'message' 	=> 'Failed',
-										'error' 	=> $err_checkout
+										'error' 	=> 'Error update checkout'
 									];
 								}
-							}else{ //tidak ada shift type
-								$response = [
+				            }else{
+				            	$response = [
 									'status' 	=> 401,
 									'message' 	=> 'Failed',
-									'error' 	=> 'Data Shift not found'
+									'error' 	=> 'Checkout date is greater than checkin date'
 								];
-							}
-
-						} else {
+				            }
+				           
+						}else{
 							$response = [
-								'status' 	=> 401,
-								'message' 	=> 'Failed',
-								'error' 	=> 'Employee not found'
+								'status' 	=> 400, // Bad Request
+								'message' 	=>'Failed',
+								'error' 	=> 'Require not satisfied'
 							];
 						}
-
+					}else{ //insert
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> $err_checkout
+						];
 					}
+				}else{ //tidak ada shift type
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Data Shift not found'
+					];
 				}
-				
+
 			} else {
 				$response = [
-					'status' 	=> 400, // Bad Request
-					'message' 	=>'Failed',
-					'error' 	=> 'Require not satisfied'
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
 				];
 			}
 			
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}
-    	catch (Throwable $e) {
-		    $response = [
-		        'status' => 500,
-		        'message' => 'Server Error',
-		        'error' => $e->getMessage(),          // pesan error
-		        'line'  => $e->getLine(),             // baris error
-		        'file'  => $e->getFile()              // file error
-		    ];
-		    return $this->render_json($response, 500);
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
 		}
-
-    	
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
     }
 
 
@@ -2351,8 +1378,8 @@ class Api extends API_Controller
 	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $diff_day='', $trx_id){
 
 		if($work_location_id != '' && $approval_type_id != ''){
-			if($approval_type_id == 1){ ///Absence
-				if($leave_type_id != ''){ 
+			//if($approval_type_id == 1){ ///Absence
+				//if($leave_type_id != ''){ 
 					$whr_leavetype = "";
 					if($approval_type_id == 1){ ///Absence
 						$whr_leavetype = " and leave_type_id = '".$leave_type_id."'";
@@ -2395,124 +1422,8 @@ class Api extends API_Controller
 						}
 					}
 
-				}
-			}else if($approval_type_id == 4){ ///Reimburs
-				$amount = $diff_day;
-				if($work_location_id != '' && $approval_type_id != ''){
-					
-					if($amount == ''){
-						$amount=0;
-					}
-					
-					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
-							(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
-							(".$amount." >= min and min != '' and max = '') or
-							(".$amount." <= max and max != '' and min = '')
-						)  ")->result(); 
-
-					if(empty($getmatrix)){
-						$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
-					}
-
-					
-					if(!empty($getmatrix)){
-						$approvalMatrixId = $getmatrix[0]->id;
-						if($approvalMatrixId != ''){
-							$dataApproval = [
-								'approval_matrix_type_id' 	=> $approval_type_id, 
-								'trx_id' 					=> $trx_id,
-								'approval_matrix_id' 		=> $approvalMatrixId,
-								'current_approval_level' 	=> 1
-							];
-							$rs = $this->db->insert("approval_path", $dataApproval);
-							$approval_path_id = $this->db->insert_id();
-							if($rs){
-								$dataApprovalDetail = [
-									'approval_path_id' 	=> $approval_path_id, 
-									'approval_level' 	=> 1
-								];
-								$this->db->insert("approval_path_detail", $dataApprovalDetail);
-							}
-						}
-					}
-					
-				}
-
-			}else if($approval_type_id == 2){ ///cash advance
-				$amount = $diff_day;
-				if($amount == ''){
-					$amount=0;
-				}
-				
-				$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
-						(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
-						(".$amount." >= min and min != '' and max = '') or
-						(".$amount." <= max and max != '' and min = '')
-					)  ")->result(); 
-
-				if(empty($getmatrix)){
-					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
-				}
-
-				
-				if(!empty($getmatrix)){
-					$approvalMatrixId = $getmatrix[0]->id;
-					if($approvalMatrixId != ''){
-						$dataApproval = [
-							'approval_matrix_type_id' 	=> $approval_type_id, //cash advance
-							'trx_id' 					=> $trx_id,
-							'approval_matrix_id' 		=> $approvalMatrixId,
-							'current_approval_level' 	=> 1
-						];
-						$rs = $this->db->insert("approval_path", $dataApproval);
-						$approval_path_id = $this->db->insert_id();
-						if($rs){
-							$dataApprovalDetail = [
-								'approval_path_id' 	=> $approval_path_id, 
-								'approval_level' 	=> 1
-							];
-							$this->db->insert("approval_path_detail", $dataApprovalDetail);
-						}
-					}
-				}
-			}else if($approval_type_id == 3){ ///settlement
-				$amount = $diff_day;
-				if($amount == ''){
-					$amount=0;
-				}
-				
-				$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and (
-						(".$amount." >= min and ".$amount." <= max and min != '' and max != '') or
-						(".$amount." >= min and min != '' and max = '') or
-						(".$amount." <= max and max != '' and min = '')
-					)  ")->result(); 
-
-				if(empty($getmatrix)){
-					$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' and ((min is null or min = '') and (max is null or max = ''))   ")->result(); 
-				}
-
-				
-				if(!empty($getmatrix)){
-					$approvalMatrixId = $getmatrix[0]->id;
-					if($approvalMatrixId != ''){
-						$dataApproval = [
-							'approval_matrix_type_id' 	=> $approval_type_id, 
-							'trx_id' 					=> $trx_id,
-							'approval_matrix_id' 		=> $approvalMatrixId,
-							'current_approval_level' 	=> 1
-						];
-						$rs = $this->db->insert("approval_path", $dataApproval);
-						$approval_path_id = $this->db->insert_id();
-						if($rs){
-							$dataApprovalDetail = [
-								'approval_path_id' 	=> $approval_path_id, 
-								'approval_level' 	=> 1
-							];
-							$this->db->insert("approval_path_detail", $dataApprovalDetail);
-						}
-					}
-				}
-			}
+				//}
+			//}
 
 		}
 
@@ -2528,11 +1439,7 @@ class Api extends API_Controller
     			if(!empty($dataEmp[0]->work_location)){
 
     				$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
-    				$sisa_cuti=0;
-    				if(!empty($cek_sisa_cuti)){
-    					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
-    				}
-					
+					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
 
 					$diff_day		= $this->api->dayCount($date_start, $date_end);
 					$diff_day 		= number_format($diff_day);
@@ -2832,11 +1739,7 @@ class Api extends API_Controller
 						$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti+$getcurrTotalCuti;*/
 
 						$cek_sisa_cuti 	= $this->api->get_data_sisa_cuti($employee, $date_start, $date_end);
-						$sisa_cuti=0;
-						if(!empty($cek_sisa_cuti)){
-							$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
-						}
-						
+						$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
 
 
 						if($leave_type == '6'){ //Half day leave
@@ -2987,22 +1890,16 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    
-    	
-    	$islogin_employee	= $_GET['islogin_employee'];
-    	$filter_employee	= $_GET['filter_employee'];
-    	$filter_isapprover	= $_GET['filter_isapprover'];
+    	$islogin_employee	= $_REQUEST['islogin_employee'];
+    	$employee			= $_REQUEST['employee']; //filter employee
 
 
     	if($islogin_employee != ''){
 
-    		$where=""; $whr_isapprover="";
-	    	if($filter_employee != ''){
+    		$where=""; 
+	    	if($employee != ''){
 	    		/*$where = " and a.employee_id = '".$employee."' ";*/
-	    		$where = " and ao.employee_id = '".$filter_employee."' ";
-	    	}
-	    	if($filter_isapprover != ''){
-	    		$whr_isapprover=' and ao.is_approver = 1 ';
+	    		$where = " and ao.employee_id = '".$employee."' ";
 	    	}
 
 	    	/*$dataijin = $this->db->query("select a.id, b.full_name, a.date_leave_start, a.date_leave_end, c.name as 			leave_name, a.reason, a.total_leave, 
@@ -3123,7 +2020,7 @@ class Api extends API_Controller
 						    GROUP BY a.id
 						) ao
 						where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
-	                    '.$where.$whr_isapprover.' ')->result();  
+	                    '.$where.' ')->result();  
 
 
 	    	$response = [
@@ -3183,138 +2080,10 @@ class Api extends API_Controller
     	$this->verify_token();
 
 
-		/*$jsonData = file_get_contents('php://input');
+		$jsonData = file_get_contents('php://input');
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
-    	$employee = $_REQUEST['employee'];*/ //filter employee
-
-
-    	// $employee = $_GET['employee'];
-		$employee   = $_GET['employee'] ?? '';
-		$startDate  = $_GET['start_date'] ?? '';
-		$endDate    = $_GET['end_date'] ?? '';
-		$where = " WHERE 1=1 ";
-
-		if ($employee != '') {
-			$where .= " AND a.employee_id = '".$employee."' ";
-		}
-
-		if ($startDate != '' && $endDate != '') {
-			$where .= " AND a.date_attendance BETWEEN '".$startDate."' AND '".$endDate."' ";
-		}
-
-    	
-		/*$dataabsen = $this->db->query("select a.id, a.date_attendance, b.full_name, a.date_attendance_in, a.date_attendance_out, a.num_of_working_hours, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
-			if(a.is_leaving_office_early = 'Y','Leaving Office Early','') as 'is_leaving_office_early_desc', b.direct_id from time_attendances a left join employees b on b.id = a.employee_id ".$where." ")->result();  */
-
-		$dataabsen = $this->db->query("select 
-					    a.id,
-					    a.date_attendance,
-					    b.full_name,
-					    a.date_attendance_in,
-					    a.date_attendance_out,
-					    a.num_of_working_hours,
-					    IF(a.is_late = 'Y', 'Late', '') AS is_late_desc,
-					    IF(a.is_leaving_office_early = 'Y','Leaving Office Early','') AS is_leaving_office_early_desc,
-					    b.direct_id,
-					    b.shift_type,
-					    CASE 
-					     	WHEN a.date_attendance_in IS NOT NULL THEN ''
-					        WHEN o.id IS NOT NULL THEN '' 
-					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Holiday'
-					        WHEN h.date IS NOT NULL THEN 'Holiday'
-					        WHEN a.leave_absences_id IS NOT NULL THEN 'Holiday'
-					        WHEN b.shift_type = 'Shift' AND (
-					            CASE DAY(a.date_attendance)
-					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
-					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
-					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
-					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
-					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
-					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
-					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
-					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
-					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
-					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
-					                WHEN 31 THEN gss.`31`
-					            END
-					        ) IS NULL THEN 'Holiday'
-					        ELSE ''
-					    END AS holiday_flag,
-					    CASE 
-					    	WHEN a.date_attendance_in IS NOT NULL THEN ''  
-					        WHEN o.id IS NOT NULL THEN ''  
-					        WHEN b.shift_type = 'Reguler' AND DAYOFWEEK(a.date_attendance) IN (1,7) THEN 'Weekend'
-					        WHEN h.date IS NOT NULL THEN h.description
-					        WHEN a.leave_absences_id IS NOT NULL THEN 'Leave'
-					        WHEN b.shift_type = 'Shift' AND (
-					            CASE DAY(a.date_attendance)
-					                WHEN 1  THEN gss.`01` WHEN 2  THEN gss.`02` WHEN 3  THEN gss.`03`
-					                WHEN 4  THEN gss.`04` WHEN 5  THEN gss.`05` WHEN 6  THEN gss.`06`
-					                WHEN 7  THEN gss.`07` WHEN 8  THEN gss.`08` WHEN 9  THEN gss.`09`
-					                WHEN 10 THEN gss.`10` WHEN 11 THEN gss.`11` WHEN 12 THEN gss.`12`
-					                WHEN 13 THEN gss.`13` WHEN 14 THEN gss.`14` WHEN 15 THEN gss.`15`
-					                WHEN 16 THEN gss.`16` WHEN 17 THEN gss.`17` WHEN 18 THEN gss.`18`
-					                WHEN 19 THEN gss.`19` WHEN 20 THEN gss.`20` WHEN 21 THEN gss.`21`
-					                WHEN 22 THEN gss.`22` WHEN 23 THEN gss.`23` WHEN 24 THEN gss.`24`
-					                WHEN 25 THEN gss.`25` WHEN 26 THEN gss.`26` WHEN 27 THEN gss.`27`
-					                WHEN 28 THEN gss.`28` WHEN 29 THEN gss.`29` WHEN 30 THEN gss.`30`
-					                WHEN 31 THEN gss.`31`
-					            END
-					        ) IS NULL THEN 'No Shift'
-					        ELSE ''
-					    END AS holiday_type,
-					    CASE 
-					        WHEN o.id IS NOT NULL THEN 'Y'
-					        ELSE ''
-					    END AS overtime_flag
-					FROM time_attendances a
-					LEFT JOIN employees b ON b.id = a.employee_id
-					LEFT JOIN master_holidays h ON h.date = a.date_attendance
-					LEFT JOIN overtimes o 
-					       ON o.employee_id = a.employee_id
-					      AND a.date_attendance BETWEEN DATE(o.datetime_start) AND DATE(o.datetime_end)
-					      AND o.status_id = 2 
-					      AND o.type = 2
-					LEFT JOIN group_shift_schedule gss 
-					       ON gss.employee_id = a.employee_id
-					      AND gss.periode = DATE_FORMAT(a.date_attendance, '%Y-%m')
-					     	".$where."
-					 ")->result();
-				
-			
-
-    	$response = [
-    		'status' 	=> 200,
-			'message' 	=> 'Success',
-			'data' 		=> $dataabsen
-		];
-
-    	
-
-    
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-
-    public function get_data_absen_log()
-    { 
-    	$this->verify_token();
-
-
-		/*$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-    	$employee = $_REQUEST['employee'];*/ //filter employee
-
-
-    	$employee = $_GET['employee'];
+    	$employee = $_REQUEST['employee']; //filter employee
 
 		$where=''; 
     	if($employee != ''){
@@ -3385,8 +2154,10 @@ class Api extends API_Controller
 					    CASE 
 					        WHEN o.id IS NOT NULL THEN 'Y'
 					        ELSE ''
-					    END AS overtime_flag
-					FROM time_attendances_log a
+					    END AS overtime_flag,
+					    a.utc_time_checkin, a.time_zone_checkin, a.utc_offset_checkin,
+					    a.utc_time_checkout, a.time_zone_checkout, a.utc_offset_checkout
+					FROM time_attendances a
 					LEFT JOIN employees b ON b.id = a.employee_id
 					LEFT JOIN master_holidays h ON h.date = a.date_attendance
 					LEFT JOIN overtimes o 
@@ -3682,27 +2453,17 @@ class Api extends API_Controller
                         ,q.name as job_level_name
                         ,a.date_of_hire
                         ,a.is_tracking
-                        ,(case 
-						when a.is_tracking = 1 then 'Track anytime'
-						when a.is_tracking = 2 then 'Track during working hours'
-						when a.is_tracking = 0 then 'No tracking'
-						else ''
-						end) as is_tracking_desc,
-						r.name as work_location_name,
-					    r.time_zone as work_location_time_zone,
-					    r.utc_offset as work_location_utc_offset
-					from employees a
-					left join divisions b on b.id = a.division_id
-					left join master_shift_time c on c.shift_type = a.shift_type
-					LEFT JOIN
-				    departments h ON h.id = a.department_id
-                    LEFT JOIN
-				    master_emp_status i ON i.id = a.employment_status_id
-                    LEFT JOIN
-				    employees p ON p.id = a.direct_id
-                    left join master_job_level q on q.id = a.job_level_id
-                    left join master_work_location r on r.id = a.work_location
-                	".$where." ")->result();  
+						from employees a
+						left join divisions b on b.id = a.division_id
+						left join master_shift_time c on c.shift_type = a.shift_type
+						LEFT JOIN
+					    departments h ON h.id = a.department_id
+                        LEFT JOIN
+					    master_emp_status i ON i.id = a.employment_status_id
+                        LEFT JOIN
+					    employees p ON p.id = a.direct_id
+                        left join master_job_level q on q.id = a.job_level_id
+                    	".$where." ")->result();  
     	}else if($empType[0]->shift_type == 'Shift'){
     		if($employee == null || $employee == ''){
 	    		$where=''; 
@@ -3727,29 +2488,20 @@ class Api extends API_Controller
                 ,p.full_name AS direct_name
                 ,q.name as job_level_name
                 ,d.date_of_hire
-                ,d.is_tracking,
-                (case when d.is_tracking = 1 then 'Track anytime'
-					when d.is_tracking = 2 then 'Track during working hours'
-					when d.is_tracking = 0 then 'No tracking'
-					else ''
-					end) as is_tracking_desc,
-                r.name as work_location_name,
-			    r.time_zone as work_location_time_zone,
-			    r.utc_offset as work_location_utc_offset
-			from shift_schedule a
-			left join group_shift_schedule b on b.shift_schedule_id = a.id
-			left join master_shift_time c on c.shift_id = b.`".$tgl."`
-			left join employees d on d.id = b.employee_id
-			left join divisions e on e.id = d.division_id
-			LEFT JOIN
-		    departments h ON h.id = d.department_id
-            LEFT JOIN
-		    master_emp_status i ON i.id = d.employment_status_id
-            LEFT JOIN
-		    employees p ON p.id = d.direct_id
-            left join master_job_level q on q.id = d.job_level_id
-            left join master_work_location r on r.id = d.work_location
-			".$where." ")->result();  
+                ,d.is_tracking
+				from shift_schedule a
+				left join group_shift_schedule b on b.shift_schedule_id = a.id
+				left join master_shift_time c on c.shift_id = b.`".$tgl."`
+				left join employees d on d.id = b.employee_id
+				left join divisions e on e.id = d.division_id
+				LEFT JOIN
+			    departments h ON h.id = d.department_id
+                LEFT JOIN
+			    master_emp_status i ON i.id = d.employment_status_id
+                LEFT JOIN
+			    employees p ON p.id = d.direct_id
+                left join master_job_level q on q.id = d.job_level_id
+				".$where." ")->result();  
     	} 
     	
 
@@ -3928,33 +2680,25 @@ class Api extends API_Controller
     	$data = json_decode($jsonData, true);
     	$_REQUEST = $data;
 
-    	$matrix_type_id = 1;
 
 		if(!empty($_REQUEST)){
 			$status = $_REQUEST['status']; //approve or reject
 			$id 	= $_REQUEST['id'];
-			//$approval_level = $_REQUEST['approval_level'];
+			$approval_level = $_REQUEST['approval_level'];
 			$employee_login = $_REQUEST['employee_login'];
 
 
 
 			if($status != ''){
 				if($id != ''){
-					$is_approver = $this->checkApprover($matrix_type_id, $id, $employee_login);
-
-					if($is_approver == 1){
-
-					//if($approval_level != ''){ 
-						
-						/*$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);*/
-						$CurrApproval = $this->getCurrApproval($matrix_type_id, $id);
+					if($approval_level != ''){ 
+						$matrix_type_id = 1;
+						$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);
 						if(!empty($CurrApproval)){ 
-							
-							$approval_path_id		= $CurrApproval[0]->id;
-							$current_approval_level = $CurrApproval[0]->current_approval_level;
+							$CurrApprovalId		= $CurrApproval[0]->id;
+							$approval_path_id	= $CurrApproval[0]->approval_path_id;
 
-							$cekApproval = $this->db->query("select * from approval_path_detail where approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ")->result(); 
-
+							$cekApproval = $this->db->query("select * from approval_path_detail where id = '".$CurrApprovalId."' ")->result(); 
 							if($cekApproval[0]->status != ''){
 								$response = [
 										'status' 	=> 401,
@@ -3963,9 +2707,9 @@ class Api extends API_Controller
 									];
 							}else{
 								if($status == 'approve'){ 
-
+									$matrix_type_id = 1;
 									$maxApproval = $this->getMaxApproval($matrix_type_id, $id); 
-									if($current_approval_level == $maxApproval){   //last approver
+									if($approval_level == $maxApproval){   //last approver
 										$data1 = [
 											'status_approval' 	=> 2,
 											'date_approval'		=> date("Y-m-d H:i:s")
@@ -4051,14 +2795,14 @@ class Api extends API_Controller
 												'approval_by' 	=> $employee_login,
 												'approval_date'	=> date("Y-m-d H:i:s")
 											];
-											$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+											$this->db->update("approval_path_detail", $updApproval, "id = '".$CurrApprovalId."'");
 												
 
 										}
 										
 										
 									}else{
-										$next_level = $current_approval_level+1;
+										$next_level = $approval_level+1;
 										//$nextApproval = getNextApproval($id, $next_level);
 										
 										$data2 = [
@@ -4072,7 +2816,7 @@ class Api extends API_Controller
 												'approval_by' 	=> $employee_login,
 												'approval_date'	=> date("Y-m-d H:i:s")
 											];
-											$this->db->update("approval_path_detail", $data, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+											$this->db->update("approval_path_detail", $data, "id = '".$CurrApprovalId."'");
 
 											$dataApprovalDetail = [
 												'approval_path_id' 	=> $approval_path_id, 
@@ -4140,7 +2884,7 @@ class Api extends API_Controller
 											'approval_by' 	=> $employee_login,
 											'approval_date'	=> date("Y-m-d H:i:s")
 										];
-										$this->db->update("approval_path_detail", $dataapproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+										$this->db->update("approval_path_detail", $dataapproval, "id = '".$CurrApprovalId."'");
 
 
 
@@ -4172,19 +2916,11 @@ class Api extends API_Controller
 								'error' 	=> 'Approval Level not found'
 							];
 						}
-					/*}else{
-						$response = [
-							'status' 	=> 400, // Bad Request
-							'message' 	=>'Failed',
-							'error' 	=> 'Approval Level not found'
-						];
-					}*/
-
 					}else{
 						$response = [
 							'status' 	=> 400, // Bad Request
 							'message' 	=>'Failed',
-							'error' 	=> 'You are not authorized to approve this data'
+							'error' 	=> 'Approval Level not found'
 						];
 					}
 				}else{
@@ -4235,11 +2971,7 @@ class Api extends API_Controller
 
 			if($employee != ''){
 				$cek_sisa_cuti 	= $this->db->query("select sum(sisa_cuti) as ttl_sisa_cuti from total_cuti_karyawan where employee_id = '".$employee."' and status = 1")->result(); 
-				$sisa_cuti 		= 0;
-				if(!empty($cek_sisa_cuti)){
-					$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
-				}
-				
+				$sisa_cuti 		= $cek_sisa_cuti[0]->ttl_sisa_cuti;
 
 
 
@@ -5385,30 +4117,31 @@ class Api extends API_Controller
 		
     }
 
-
-    /*public function getCurrApproval($approval_matrix_type_id, $trx_id, $approval_level){
+    public function getApprovalLevel($approval_matrix_type_id, $trx_id){
 		$post 		= $this->input->post(null, true);
 		
 
-		//$approval_matrix_type_id = 1;
-		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
+		$rs =  $this->db->query("select * from approval_path where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = ".$trx_id." ")->result();
 		
 
-		return $rs;
-	}*/
+		return $rs[0]->current_approval_level;
+	}
 
 
-	public function getCurrApproval($approval_matrix_type_id, $trx_id){
-		$rs =  $this->db->query("select * from approval_path where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = ".$trx_id." ")->result();
+    public function getCurrApproval($approval_matrix_type_id, $trx_id, $approval_level){
+		$post 		= $this->input->post(null, true);
+		
+
+		$rs =  $this->db->query("select b.* from approval_path a left join approval_path_detail b on b.approval_path_id = a.id and approval_level = ".$approval_level." where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."")->result();
 		
 
 		return $rs;
 	}
 
-
-
 	public function getMaxApproval($approval_matrix_type_id, $trx_id){ 
 		$post 		= $this->input->post(null, true);
+		
+
 		
 		$rs =  $this->db->query("select b.*, a.current_approval_level, c.role_name from approval_path a 
 				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id
@@ -5418,42 +4151,6 @@ class Api extends API_Controller
 		
 
 		return $rs[0]->approval_level;
-	}
-
-
-	public function checkApprover($approval_matrix_type_id, $trx_id, $employee_id){
-
-		$dataApproval = $this->db->query("select a.*, b.role_id, c.role_name from approval_path a
-				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id and b.approval_level = a.current_approval_level
-				left join approval_matrix_role c on c.id = b.role_id
-				where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id." ")->result();
-
-		$approver = 0;
-
-		if($dataApproval[0]->role_name == 'Direct'){ 
-			$getTbl = $this->db->query("select * from approval_matrix_mstype where id = ".$approval_matrix_type_id."
-				")->result();
-			$getDirect = $this->db->query("select b.direct_id from ".$getTbl[0]->tbl." a left join employees b on b.id = a.".$getTbl[0]->tbl_employee_id." where a.id = ".$trx_id."
-				")->result();
-			if($getDirect[0]->direct_id == $employee_id){
-				$approver = 1;
-			}
-		}else{
-			$rs =  $this->db->query("select a.*, b.role_id, c.employee_id 
-				from approval_path a
-				left join approval_matrix_detail b on b.approval_matrix_id = a.approval_matrix_id and b.approval_level = a.current_approval_level
-				left join approval_matrix_role_pic c on c.approval_matrix_role_id = b.role_id
-				where a.approval_matrix_type_id = ".$approval_matrix_type_id." and a.trx_id = ".$trx_id."
-				and c.employee_id = ".$employee_id." ")->result();
-
-			if(!empty($rs)){
-				$approver = 1;
-			}
-		}
-
-		
-
-		return $approver;
 	}
 
 
@@ -5552,7 +4249,7 @@ class Api extends API_Controller
 
     	$islogin_employee	= $_GET['islogin_employee'];
     	$filter_employee	= $_GET['filter_employee']; //filter employee
-    	$filter_isapprover	= $_GET['filter_isapprover'];
+    	$filter_isapprover	= $_GET['filter_isapprover']; //filter employee
 
 
     	if($islogin_employee != ''){
@@ -5566,7 +4263,7 @@ class Api extends API_Controller
 	    	$where_isapprover=""; 
 	    	if($filter_isapprover != ''){
 	    		/*$where = " and a.employee_id = '".$employee."' ";*/
-	    		$where_isapprover = " and ao.is_approver = '".$filter_isapprover."' ";
+	    		$where_isapprover = " and ao.is_approver = ".$filter_isapprover." ";
 	    	}
 
 	    	
@@ -5637,7 +4334,7 @@ class Api extends API_Controller
 
     	}else{
     		$response = [
-				'status' 	=> 400,
+				'status' 	=> 401,
 				'message' 	=> 'Failed',
 				'error' 	=> 'Employee ID Login not found'
 			];
@@ -6298,23 +4995,13 @@ class Api extends API_Controller
 	    $latitude    = $this->input->post('latitude');
 	    $longitude   = $this->input->post('longitude');
 	    $datetime    = $this->input->post('datetime');
-	    $altitude    = $this->input->post('altitude');
-	    $speed    	 = $this->input->post('speed');
-	    $speed_accuracy    	= $this->input->post('speed_accuracy');
-	    $heading    		= $this->input->post('heading');
-	    $heading_accuracy	= $this->input->post('heading_accuracy');
 
 	    if ($employee_id && $latitude && $longitude && $datetime) {
 	        $data = [
 	            'emp_id'    => $employee_id,
 	            'latitude'  => $latitude,
 	            'longitude' => $longitude,
-	            'datetime'  => $datetime,
-	            'altitude' 	=> $altitude,
-	            'speed' 	=> $speed,
-	            'speed_accuracy' 	=> $speed_accuracy,
-	            'heading' 			=> $heading,
-	            'heading_accuracy' 	=> $heading_accuracy
+	            'datetime'  => $datetime
 	        ];
 
 	        $rs = $this->db->insert("tracker_history", $data);
@@ -6326,14 +5013,14 @@ class Api extends API_Controller
 	            ];
 	        } else {
 	            $response = [
-	                'status'  => 401,
+	                'status'  => 400,
 	                'message' => 'Failed',
 	                'error'   => 'Error submit'
 	            ];
 	        }
 	    } else {
 	        $response = [
-	            'status'  => 401,
+	            'status'  => 400,
 	            'message' => 'Failed',
 	            'error'   => 'Bad Request'
 	        ];
@@ -6350,1425 +5037,715 @@ class Api extends API_Controller
 
 
 
-   	public function get_data_reimburs()
+    public function save_tracker_old()
     { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
     	
-    	$islogin_employee	= $_GET['islogin_employee'];
-    	$filter_employee	= $_GET['filter_employee'];
-    	$filter_isapprover	= $_GET['filter_isapprover'];
+
+    	$employee_id	= $_POST['employee_id']; 
+    	$latitude 		= $_POST['latitude'];
+    	$longitude		= $_POST['longitude'];
+    	$datetime 		= $_POST['datetime'];
 
 
-    	if($islogin_employee != ''){
-
-    		$whr=''; $whr_isapprover='';
-	    	if($filter_employee != ''){
-	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
-	    	}
-	    	if($filter_isapprover != ''){
-	    		$whr_isapprover=' and ao.is_approver = 1 ';
-	    	}
-
-	    	$dataReimburs = $this->db->query('select ao.* from (select a.*, b.full_name as employee_name, c.name as reimburse_for_name,
-							(case 
-								when a.status_id = 1 then "Waiting Approval"
-								when a.status_id = 2 then "Approved"
-								when a.status_id = 3 then "Rejected"
-								when a.status_id = 4 then "Request for Update"
-								else ""
-							end) as status_name, b.direct_id,
-							max(d2.current_approval_level) AS current_approval_level,
-							max(h.role_id) AS current_role_id,
-							max(i.role_name) AS current_role_name,
-							GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
-							max(
-								IF(
-									i.role_name = "Direct",
-									b.direct_id,
-									(
-										SELECT GROUP_CONCAT(employee_id) 
-										FROM approval_matrix_role_pic 
-										WHERE approval_matrix_role_id = h.role_id
-									)
-								)
-							) AS current_employeeid_approver,
-							CASE 
-								WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
-								ELSE 0 
-							END AS is_approver_view,
-							CASE 
-								WHEN FIND_IN_SET(
-									'.$islogin_employee.', 
-									(
-										SELECT GROUP_CONCAT(employee_id) 
-										FROM approval_matrix_role_pic 
-										WHERE approval_matrix_role_id = max(h.role_id)
-									)
-								) > 0 THEN 1
-								WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$islogin_employee.' THEN 1  
-								ELSE 0 
-							END AS is_approver  
-							from medicalreimbursements a left join employees b on b.id = a.employee_id
-							left join master_reimbursfor_type c on c.id = a.reimburse_for
-							LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 4
-							LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
-							LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
-							LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
-							LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
-							LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
-							LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
-							LEFT JOIN approval_matrix_role i ON i.id = h.role_id
-							GROUP BY a.id) ao
-							where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
-						'.$whr.$whr_isapprover.' ')->result();  
-
-	    	if (!empty($dataReimburs)) {
-			    foreach ($dataReimburs as $key => $row) {
-
-			        $detail = $this->db->query("
-			            select a.id as id_detail, b.name as subtype_name, a.biaya, a.document, a.notes
-			            from reimbursement_detail a
-			            left join master_reimburs_subtype b 
-			                on b.id = a.subtype_id
-			            where a.reimbursement_id = ?
-			        ", [$row->id])->result();
-
-			        // inject ke object reimburs
-			        $dataReimburs[$key]->details = $detail;
-			    }
-			}
-
-
-
-	    	$response = [
-	    		'status' 	=> 200,
-				'message' 	=> 'Success',
-				'data' 		=> $dataReimburs
+    	if($employee_id != '' && $latitude != '' && $longitude != '' && $datetime != ''){
+    		$data = [
+				'emp_id' 		=> $employee_id,
+				'latitude' 		=> $latitude,
+				'longitude'		=> $longitude,
+				'datetime'		=> $datetime
 			];
-
-	    	
-	    	
-
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
+			$rs = $this->db->insert("tracker_history", $data);
+			
+			if($rs){
+				$response = [
+		    		'status' 	=> 200,
+					'message' 	=> 'Success'
+				];
+			}else{
+				$response = [
+					'status' 	=> 400,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Error submit'
+				];
+			}
     	}else{
     		$response = [
-	            'status'  => 401,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
+				'status' 	=> 400,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Bad Request'
+			];
     	}
 
-		
+    	
+
+
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
 		
     }
 
 
-    public function get_sisa_plafon($emp_id, $type_id){
-		$year = date("Y");
 
-		$getplafon = $this->db->query("select a.id, b.nominal_plafon, b.reimburs_type_id 
-				from employees a left join master_plafon b on b.grade_id = a.grade_id and b.reimburs_type_id = '".$type_id."' where a.id = '".$emp_id."' ")->result(); 
-		$plafon=0;
-		if($getplafon != ''){
-			$plafon = $getplafon[0]->nominal_plafon;
-		}
+    public function absen_checkin_fr()
+    {
+    	
+    	// --- Basic Auth Validation ---
+	    $headers = $this->input->request_headers();
+	    if (!isset($headers['Authorization'])) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Missing Authorization header'
+	        ], 401);
+	        return;
+	    }
 
-		$getpemakaian = $this->db->query("select sum(nominal_reimburse) as total_pemakaian from medicalreimbursements where employee_id = '".$emp_id."' and reimburs_type_id = '".$type_id."' and (DATE_FORMAT(date_reimbursment, '%Y')) = '".$year."' ")->result(); 
-		$pemakaian=0;
-		if($getpemakaian != ''){
-			$pemakaian = $getpemakaian[0]->total_pemakaian;
-		}
+	    // Ambil header Authorization: "Basic base64(username:password)"
+	    $authHeader = $headers['Authorization'];
+	    if (strpos($authHeader, 'Basic ') !== 0) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Invalid Authorization format'
+	        ], 401);
+	        return;
+	    }
 
-		$sisa = $plafon-$pemakaian;
-		if($sisa <= 0){
-			$sisa=0;
-		} 
+	    // Decode username & password
+	    $encoded = substr($authHeader, 6); // hapus "Basic "
+	    $decoded = base64_decode($encoded);
+	    list($username, $password) = explode(':', $decoded, 2);
 
+	    // --- Ganti ini dengan kredensial yang kamu tentukan sendiri ---
+	    $valid_username = "adminGDI!@";
+	    $valid_password = "12345GDI!@";
 
-		return $sisa;
-	}
-
-
-	public function uploadFiles($fieldname, $upload_path){
-		$dataU = array();
-		$dataU['status'] = FALSE; 
-		
-		if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
-        { 
-           
-            
-        	$config['upload_path']   = $upload_path;
-            $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
-            $config['max_size']      = "0"; 
-            
-            $this->load->library('upload', $config); 
-            
-            if(!$this->upload->do_upload($fieldname)){ 
-                $err_msg = $this->upload->display_errors(); 
-                $dataU['error_warning'] = strip_tags($err_msg);              
-                $dataU['status'] = FALSE;
-            } else { 
-                $fileData = $this->upload->data();
-                $dataU['upload_file'] = $fileData['file_name'];
-                $dataU['status'] = TRUE;
-            }
-        }
-        $document = '';
-		if($dataU['status']){ 
-			$document = $dataU['upload_file'];
-		} else if(isset($dataU['error_warning'])){ 
-			//echo $dataU['error_warning']; exit;
-
-			$document = 'ERROR : '.$dataU['error_warning'];
-		}
-		
-
-		return $document;
-	}
+	    if ($username !== $valid_username || $password !== $valid_password) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Unauthorized'
+	        ], 401);
+	        return;
+	    }
 
 
 
-    public function save_reimburs()
-    { 
-    	$this->verify_token();
 
-    	$islogin_employee	= $_POST['islogin_employee'];
-    	$method_save		= $_POST['method_save'];
-    	$id 				= $_POST['id'];
-    	$date_reimbursment	= $_POST['date_reimbursment'];
-    	$employee_id 		= $_POST['employee_id'];
-    	$type_id			= $_POST['type_id'];
-    	$reimburs_for_id	= $_POST['reimburs_for_id'];
-    	$atas_nama 			= $_POST['atas_nama'];
-    	$diagnosa			= $_POST['diagnosa'];
+
+    	$employee	= $_POST['employee_id'];
+    	$tipe 		= 'checkin';
+    	$datetime	= $_POST['datetime_attendance'];
+    	$latitude	= $_POST['latitude'];
+    	$longitude	= $_POST['longitude'];
+    	$work_location	= $_POST['work_location'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['photo'];
     	
 
-    	///detail
-    	$id_detail 	= $_POST['id_detail'];
-    	$subtype	= $_POST['subtype_id'];
-    	$biaya		= $_POST['biaya'];
-    	$notes		= $_POST['notes'];
-    	$photo		= $_FILES['document'];
+
+		if($employee != '' && $datetime != ''){
+
+			$exp 			= explode(" ",$datetime);
+			$date 			= $exp[0];
+			$time 			= $exp[1];
+			$timestamp_time = strtotime($time); 
+			$year = date("Y", strtotime($date));
+			$month = date("m", strtotime($date));
+			$timestamp_datetime = strtotime($datetime);
+			$period = date("Y-m", strtotime($date));
+			$tgl = date("d", strtotime($date));
+
+			$cek_emp = $this->api->cek_employee($employee);	
+
+			if($cek_emp['shift_type'] != '')
+			{
+				$emp_shift_type=1;
+				if($cek_emp['shift_type'] == 'Reguler'){ 
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					
+				}else if($cek_emp['shift_type'] == 'Shift'){ 
+					
+					// $data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$date."' and employee_id = '".$employee."'")->result(); 
+					// //jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
+					// if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
+
+					// 	$dateTomorrow = date("Y-m-d", strtotime($date . " +1 day"));
+					// 	$period  = date('Y-m', strtotime($dateTomorrow));
+					// 	$tgl = date('d', strtotime($dateTomorrow));
+					// }
+
+					// $dt = $this->db->query("select a.*, b.periode
+					// 		, b.`".$tgl."` as 'shift' 
+					// 		, c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a
+					// 		left join group_shift_schedule b on b.shift_schedule_id = a.id
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+
+					// if($dt[0]->shift != 3){ //bukan shift 3, tidak bisa checkin di tgl sebelumnya
+					// 	//$emp_shift_type=0;
+					// 	$period = date("Y-m", strtotime($date)); 
+					// 	$tgl = date("d", strtotime($date));
+					// 	$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
+					// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					// 		where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result();
+					// }
 
 
-    	// HITUNG TOTAL DETAIL
-		$total_biaya = 0;
-		if (!empty($biaya)) {
-		    foreach ($biaya as $b) {
-		        $total_biaya += (int)$b;
-		    }
-		}
 
-		$nominal_billing  = $total_biaya;
-		$nominal_reimburs = $total_biaya;
-				
-		$sisa_plafon = $this->get_sisa_plafon($employee_id, $type_id);
+					/// NEW SCRIPT
+					$datetimemax_shift3 = $date.' 08:00:00';
+					if($datetime < $datetimemax_shift3){ //brarti dia sdg checkin shift 3 di tgl sebelumnya (late)
+						$dateYesterday = date("Y-m-d", strtotime($date . " -1 day"));
+						$period  = date('Y-m', strtotime($dateYesterday));
+					 	$tgl = date('d', strtotime($dateYesterday));
+					 	$date = $dateYesterday;
+					}
 
 
-    	if($method_save == 'insert'){
+					$dt = $this->db->query("select 
+					    a.*, 
+					    b.periode, 
+					    b.`".$tgl."` as 'shift', 
+					    c.name,
+					    case 
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_in)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_in)
+					    end as expected_checkin,
+					    case 
+					        when c.shift_id = 2 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' 00:00:00')
+					        when c.shift_id = 3 then 
+					            concat(date_add(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), interval 1 day), ' ', c.time_out)
+					        else 
+					            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
+					    end as expected_checkout,
+					    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
+					from shift_schedule a
+					left join group_shift_schedule b on b.shift_schedule_id = a.id 
+					left join master_shift_time c on c.shift_id = b.`".$tgl."`
+					where b.employee_id = '".$employee."'
+					and a.period = '".$period."'
+					")->result(); 
 
-	  		if(!empty($date_reimbursment) && !empty($employee_id)){ 
-	  			if($nominal_reimburs <= $sisa_plafon){ //jika masih ada plafon
-	  				$dataEmp = $this->db->query("select * from employees where id = '".$employee_id."'")->result(); 
-					if(!empty($dataEmp)){
-						if(!empty($dataEmp[0]->work_location)){
 
-							$data = [
-								'date_reimbursment' 	=> $date_reimbursment,
-								'employee_id' 			=> $employee_id,
-								'reimburs_type_id' 		=> $type_id,
-								'reimburse_for'			=> $reimburs_for_id,
-								'atas_nama' 			=> $atas_nama,
-								'diagnosa' 				=> $diagnosa,
-								'nominal_billing' 		=> $nominal_billing,
-								'nominal_reimburse' 	=> $nominal_reimburs, 
-								'created_at'			=> date("Y-m-d H:i:s"),
-								'status_id' 			=> 1 //waiting approval
+					if($dt[0]->shift == ""){
+						$emp_shift_type=0;
+					}
+
+					/// END NEW SCRIPT
+
+				}else{ //tidak ada shift type
+					$emp_shift_type=0;
+				} 
+
+
+				if($emp_shift_type == 1){ 
+					$attendance_type 	= $dt[0]->name;
+					$time_in 			= $dt[0]->time_in;
+					$time_out 			= $dt[0]->time_out;
+					//$post_timein 		= strtotime($time_in);
+					//$post_timeout 		= strtotime($time_out);
+
+					if($attendance_type == 'Shift 3'){
+						$date2 = date("Y-m-d", strtotime($date . " +1 day"));
+					}else{
+						$date2 = $date;
+					}
+
+					$schedule 			= $date2.' '.$time_in;
+					$post_timein 		= strtotime($schedule); 
+					$schedule_out 		= $date2.' '.$time_out;
+					$post_timeout 		= strtotime($schedule_out); 
+
+					
+
+					if($timestamp_time > $post_timeout){ //jika checkin di atas waktu checkout
+						$response = [
+							'status' 	=> 400,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Check-in time has expired'
+						];
+
+					}else{
+
+						$is_late=''; 
+						if($timestamp_time > $post_timein){
+							$is_late='Y';
+						}
+
+						$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+
+
+						if(!empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){  
+							$response = [
+								'status' 	=> 400,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Cannot double checkin'
 							];
-							$rs = $this->db->insert('medicalreimbursements', $data);
-							$lastId = $this->db->insert_id();
+						}else{ //insert
+							$error=0; 
+							if($cek_emp['shift_type'] == 'Shift'){ 
+								if(!empty($cek_data)){  
+									// $cek_data_shift = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' and (date_attendance_in is not null and date_attendance_in != '0000-00-00') and (date_attendance_out is not null and date_attendance_out != '0000-00-00') ")->result();
+									// if(!empty($cek_data_shift) && $attendance_type == 'Shift 3'){ //maka set bahwa absen yg akan dilakukan adalah absen utk hari besok (hanya utk shift 3)
+								
+									// 	$date = date("Y-m-d", strtotime($date . " +1 day"));
 
-							if($rs){
-								///insert approval path
-								$approval_type_id = 4; //Reimbursement
-								$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $nominal_reimburs, $lastId);
+									// 	$cek_data_shift_besok = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+									// 	if(!empty($cek_data_shift_besok)){ 
+									// 		$error='Cannot double checkin';
+									// 	}else{ 
+											
+									// 		$dt = $this->db->query("select a.*, b.periode
+									// 				, b.`".$tgl."` as 'shift' 
+									// 				, c.time_in, c.time_out, c.name 
+									// 				from shift_schedule a
+									// 				left join group_shift_schedule b on b.shift_schedule_id = a.id 
+									// 				left join master_shift_time c on c.shift_id = b.`".$tgl."`
+									// 				where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
 
+									// 		if(empty($dt)){
+									// 			$error='Checkin Date not valid';
+									// 		}else{
+									// 			$attendance_type 	= $dt[0]->name;
+									// 			$time_in 			= $dt[0]->time_in;
+									// 			$time_out 			= $dt[0]->time_out;
+									// 			$datetime_in 		= $date.' '.$time_in;
+									// 			$post_datetimein 	= strtotime($datetime_in);
+												
 
-								if(isset($subtype)){
-									$item_num = count($subtype); // cek sum
-									$item_len_min = min(array_keys($subtype)); // cek min key index
-									$item_len = max(array_keys($subtype)); // cek max key index
-								} else {
-									$item_num = 0;
-								}
+									// 			$is_late=''; 
+									// 			if($timestamp_datetime > $post_datetimein){
+									// 				$is_late='Y';
+									// 			}
+									// 		}
+									// 	}
 
-								if($item_num>0){
-									for($i=$item_len_min;$i<=$item_len;$i++) 
-									{
-										
-										//START UPLOAD 
-										$fieldname 		= 'document'.$i.'';
-										$upload_path 	= "uploads/reimbursement/";
-							            $document 		= $this->uploadFiles($fieldname, $upload_path);
-							            //END UPLOAD
+									// }else{ 
+									// 	/*$error='Checkin Date not valid';*/
+									// 	$error='Cannot double checkin';
+									// }
 
-
-										if(isset($subtype[$i])){
-											$itemData = [
-												'reimbursement_id' 	=> $lastId,
-												'subtype_id' 		=> $subtype[$i],
-												'document' 			=> $document,
-												'biaya' 			=> $biaya[$i],
-												'notes' 			=> $notes[$i]
-											];
-
-											$this->db->insert('reimbursement_detail', $itemData);
-										}
+									$error='Cannot double checkin';
+								}else{ 
+									$dt = $this->db->query("select a.*, b.periode
+											, b.`".$tgl."` as 'shift' 
+											, c.time_in, c.time_out, c.name 
+											from shift_schedule a
+											left join group_shift_schedule b on b.shift_schedule_id = a.id 
+											left join master_shift_time c on c.shift_id = b.`".$tgl."`
+											where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+									if(empty($dt)){
+										$error='Checkin Date not valid';
 									}
 								}
+						
+							}
 
-								$response = [
-					                'status'  => 200,
-					                'message' => 'Success'
-					            ];
+							if($error==0){
+
+								//upload 
+								$dataU = array();
+		        				$dataU['status'] = FALSE; 
+								$fieldname='photo';
+								if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+					            { 
+					               
+					                
+					            	$config['upload_path']   = "uploads/absensi/";
+					                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+					                $config['max_size']      = "0"; 
+					                
+					                $this->load->library('upload', $config); 
+					                
+					                if(!$this->upload->do_upload($fieldname)){ 
+					                    $err_msg = $this->upload->display_errors(); 
+					                    $dataU['error_warning'] = strip_tags($err_msg);              
+					                    $dataU['status'] = FALSE;
+					                } else { 
+					                    $fileData = $this->upload->data();
+					                    $dataU['upload_file'] = $fileData['file_name'];
+					                    $dataU['status'] = TRUE;
+					                }
+					            }
+					            $document = '';
+								if($dataU['status']){ 
+									$document = $dataU['upload_file'];
+								} else if(isset($dataU['error_warning'])){ 
+									//echo $dataU['error_warning']; exit;
+
+									$document = 'ERROR : '.$dataU['error_warning'];
+								}
+					            //end upload
+
+
+								$data = [
+									'date_attendance' 			=> $date,
+									'employee_id' 				=> $employee,
+									'attendance_type' 			=> $attendance_type,
+									'time_in' 					=> $time_in,
+									'time_out' 					=> $time_out,
+									'date_attendance_in' 		=> $datetime,
+									'is_late'					=> $is_late,
+									'created_at'				=> date("Y-m-d H:i:s"),
+									'lat_checkin' 				=> $latitude,
+									'long_checkin' 				=> $longitude,
+									'work_location' 			=> $work_location,
+									'notes' 					=> $notes,
+									'photo' 					=> $document
+								];
+
+								$rs = $this->db->insert("time_attendances", $data);
+
+								if($rs){
+									$upd_emp = [
+										'last_lat' 				=> $latitude,
+										'last_long' 			=> $longitude
+									];
+									$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+
+									$response = [
+										'status' 	=> 200,
+										'message' 	=> 'Success'
+									];
+								}else{
+									$response = [
+										'status' 	=> 400,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Error submit checkin'
+									];
+								}
 							}else{
 								$response = [
-					                'status'  => 401,
-					                'message' => 'Failed',
-					                'error'   => 'Error submit'
-					            ];
+									'status' 	=> 400,
+									'message' 	=> 'Failed',
+									'error' 	=> $error
+								];
 							}
 
-						}else{
-							
-							$response = [
-				                'status'  => 401,
-				                'message' => 'Failed',
-				                'error'   => 'Work Location not found'
-				            ];
 						}
-					}else{
-						
-						$response = [
-			                'status'  => 401,
-			                'message' => 'Failed',
-			                'error'   => 'Employee not found'
-			            ];
 					}
 
-	  			}else{
-	  				
-	  				$response = [
-		                'status'  => 401,
-		                'message' => 'Failed',
-		                'error'   => 'Tidak ada sisa plafon reimburs'
-		            ];
-	  			}
-
-	  		}else{
-	  			 $response = [
-	                'status'  => 401,
-	                'message' => 'Failed',
-	                'error'   => 'Error submit'
-	            ];
-	  		}
-			
-
-    	}else if($method_save == 'update'){
-    		
-    		if(!empty($id)){ 
-				$is_rfu=0;
-				$getdata = $this->db->query("select * from medicalreimbursements where id = '".$id."' ")->result(); 
-
-				$curr_nominal_reimburs = $getdata[0]->nominal_reimburse;
-				$sisa_plafon = $sisa_plafon+$curr_nominal_reimburs;
-
-				if($nominal_reimburs <= $sisa_plafon){ //jika masih ada plafon
-					if($getdata[0]->status_id == 4 && $islogin_employee == $getdata[0]->employee_id){ // edit RFU
-						$is_rfu=1;
-
-						$data = [
-							'date_reimbursment' 	=> $date_reimbursment,
-							'employee_id' 			=> $employee_id,
-							'reimburs_type_id' 		=> $type_id,
-							'reimburse_for'			=> $reimburs_for_id,
-							'atas_nama' 			=> $atas_nama,
-							'diagnosa' 				=> $diagnosa,
-							'nominal_billing' 		=> $nominal_billing,
-							'nominal_reimburse' 	=> $nominal_reimburs,
-							'updated_at'			=> date("Y-m-d H:i:s"),
-							'status_id' 			=> 1
-						];
-					}else{
-						$data = [
-							'date_reimbursment' 	=> $date_reimbursment,
-							'employee_id' 			=> $employee_id,
-							'reimburs_type_id' 		=> $type_id,
-							'reimburse_for'			=> $reimburs_for_id,
-							'atas_nama' 			=> $atas_nama,
-							'diagnosa' 				=> $diagnosa,
-							'nominal_billing' 		=> $nominal_billing,
-							'nominal_reimburse' 	=> $nominal_reimburs,
-							'updated_at'			=> date("Y-m-d H:i:s")
-						];
-					}
-
-					$rs = $this->db->update('medicalreimbursements', $data, "id='".$id."'");
-
-					if($rs){
-
-						/// update approval path
-						$matrix_type_id = 4;
-						$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
-						$CurrApprovalPathId	= $CurrApproval[0]->id;
-
-						if($is_rfu == 1){
-							$updapproval_path = [
-								'current_approval_level' => 1
-							];
-							$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
-
-							$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
-
-							$updApproval2 = [
-								'status' 		=> "",
-								'approval_by' 	=> "",
-								'approval_date'	=> ""
-							];
-							$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
-							
-						}
-
-
-
-						if(isset($subtype)){
-							$item_num = count($subtype); // cek sum
-							$item_len_min = min(array_keys($subtype)); // cek min key index
-							$item_len = max(array_keys($subtype)); // cek max key index
-						} else {
-							$item_num = 0;
-						}
-
-						if($item_num>0){
-							for($i=$item_len_min;$i<=$item_len;$i++) 
-							{
-								$hdnid = $id_detail[$i];
-
-								if(!empty($hdnid)){ //update
-
-									//START UPLOAD 
-									$fieldname 		= 'document'.$i.'';
-									$upload_path 	= "uploads/reimbursement/";
-						            $document 		= $this->uploadFiles($fieldname, $upload_path);
-						            //END UPLOAD
-
-
-									if(isset($subtype[$i])){
-										if($document == ''){
-											$itemData = [
-												'subtype_id' 		=> $subtype[$i],
-												'biaya' 			=> $biaya[$i],
-												'notes' 			=> $notes[$i]
-											];
-										}else{
-											$itemData = [
-												'subtype_id' 		=> $subtype[$i],
-												'document' 			=> $document,
-												'biaya' 			=> $biaya[$i],
-												'notes' 			=> $notes[$i]
-											];
-										}
-										
-										$this->db->update("reimbursement_detail", $itemData, "id = '".$hdnid."'");
-									}
-
-								}else{ //insert
-
-									//START UPLOAD 
-									$fieldname 		= 'document'.$i.'';
-									$upload_path 	= "uploads/reimbursement/";
-						            $document 		= $this->uploadFiles($fieldname, $upload_path);
-						            //END UPLOAD
-
-									if(isset($subtype[$i])){
-										$itemData = [
-											'reimbursement_id' 	=> $id,
-											'subtype_id' 		=> $subtype[$i],
-											'document' 			=> $document,
-											'biaya' 			=> $biaya[$i],
-											'notes' 			=> $notes[$i]
-										];
-
-										$this->db->insert('reimbursement_detail', $itemData);
-									}
-
-								}
-								
-							}
-						}
-
-						$response = [
-						    'status'  => 200,
-						    'message' => 'Success'
-						];
-
-
-					}else{
-						$response = [
-						    'status'  => 401,
-						    'message' => 'Failed',
-						    'error'   => 'Error submit'
-						];
-					}
-
+					
 				}else{
 					$response = [
-					    'status'  => 401,
-					    'message' => 'Failed',
-					    'error'   => 'Tidak ada sisa plafon reimburs'
+						'status' 	=> 400,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Data Shift not found'
+					];
+				}
+				
+			} else {
+				$response = [
+					'status' 	=> 400,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
+				];
+			}
+			
+		} else {
+			$response = [
+				'status' 	=> 400, // Bad Request
+				'message' 	=>'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+		}
+		
+		$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+
+    public function absen_checkout_fr()
+    {
+    	// --- Basic Auth Validation ---
+	    $headers = $this->input->request_headers();
+	    if (!isset($headers['Authorization'])) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Missing Authorization header'
+	        ], 401);
+	        return;
+	    }
+
+	    // Ambil header Authorization: "Basic base64(username:password)"
+	    $authHeader = $headers['Authorization'];
+	    if (strpos($authHeader, 'Basic ') !== 0) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Invalid Authorization format'
+	        ], 401);
+	        return;
+	    }
+
+	    // Decode username & password
+	    $encoded = substr($authHeader, 6); // hapus "Basic "
+	    $decoded = base64_decode($encoded);
+	    list($username, $password) = explode(':', $decoded, 2);
+
+	    // --- Ganti ini dengan kredensial yang kamu tentukan sendiri ---
+	    $valid_username = "adminGDI!@";
+	    $valid_password = "12345GDI!@";
+
+	    if ($username !== $valid_username || $password !== $valid_password) {
+	        $this->render_json([
+	            'status' => 401,
+	            'message' => 'Failed',
+	            'error' => 'Unauthorized'
+	        ], 401);
+	        return;
+	    }
+
+
+
+
+    	$employee	= $_POST['employee_id'];
+    	$tipe 		= 'checkout';
+    	$datetime	= $_POST['datetime_attendance'];
+    	$notes		= $_POST['notes'];
+    	$photo		= $_FILES['photo'];
+    	$latitude	= $_POST['latitude'];
+    	$longitude	= $_POST['longitude'];
+    	$work_location	= $_POST['work_location'];
+
+
+		if($employee != '' && $datetime != ''){
+
+			$exp 			= explode(" ",$datetime);
+			$date 			= $exp[0];
+			$time 			= $exp[1];
+			$timestamp_time = strtotime($time); 
+			$year 			= date("Y", strtotime($date));
+			$month 			= date("m", strtotime($date));
+			$tgl 			= date("d", strtotime($date));
+			$period 		= date("Y-m", strtotime($date));
+
+			$cek_emp = $this->api->cek_employee($employee);	
+
+			if($cek_emp['shift_type'] != '')
+			{
+
+				$emp_shift_type=1;
+				if($cek_emp['shift_type'] == 'Reguler'){
+					$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
+					$datetime_out = $date.' '.$dt[0]->time_out;
+				}else if($cek_emp['shift_type'] == 'Shift'){ 
+					/*$dt = $this->db->query("select a.*, b.time_in, b.time_out, b.name from shift_schedule a
+					left join master_shift_time b on b.id = a.master_shift_time_id
+					where a.employee_id = '".$employee."' and a.year_periode = '".$year."' and a.month_periode = '".$month."' and date = '".$date."' ")->result(); */
+					
+					$dt = $this->db->query("select a.*, b.periode
+							, b.`".$tgl."` as 'shift' 
+							, c.time_in, c.time_out, c.name 
+							from shift_schedule a
+							left join group_shift_schedule b on b.shift_schedule_id = a.id 
+							left join master_shift_time c on c.shift_id = b.`".$tgl."`
+							where b.employee_id = '".$employee."' and a.period = '".$period."' ")->result(); 
+					
+					if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
+						$date_attendance = date("Y-m-d", strtotime($dt[0]->date . " +1 day"));
+					}
+
+					$datetime_out = $date_attendance.' '.$dt[0]->time_out;
+				}else{ //tidak ada shift type
+					$emp_shift_type=0;
+				} 
+
+				if($emp_shift_type == 1){
+					/*$attendance_type 	= $dt[0]->name;
+					$time_out 			= $dt[0]->time_out;
+					$post_timeout 		= strtotime($time_out);*/
+
+					$timestamp_datetime = strtotime($datetime);
+					$post_datetimeout 	= strtotime($datetime_out);
+
+
+
+					$is_leaving_office_early = '';
+					if($timestamp_datetime < $post_datetimeout){
+						$is_leaving_office_early = 'Y';
+					}
+
+					$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+
+					$err_checkout=0;
+					if(empty($cek_data) && $cek_emp['shift_type'] == 'Reguler'){ 
+						$err_checkout = 'Please CheckIn first';
+					}else if($cek_emp['shift_type'] == 'Shift'){ 
+						if(empty($cek_data)){ 
+							$previousDay = date("Y-m-d", strtotime($date . " -1 day")); 
+							
+							/*$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' and (date_attendance_out is null or date_attendance_out = '0000-00-00') ")->result();*/
+							$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$previousDay."' ")->result();
+						}else{ 
+							$cek_data = $this->db->query("select * from time_attendances where employee_id = '".$employee."' and date_attendance = '".$date."' ")->result();
+							if(empty($cek_data)){
+								$err_checkout='Checkout Date not valid';
+							}
+						}
+					}
+
+
+					if($err_checkout==0){  
+						if($cek_data[0]->id != ''){ //update checkout
+							
+							$f_datetime_in 			= $cek_data[0]->date_attendance_in;
+							$f_datetime_out 		= $datetime;
+							$timestamp1 			= strtotime($f_datetime_in); 
+							$timestamp2 			= strtotime($f_datetime_out);
+							$num_of_working_hours 	= abs($timestamp2 - $timestamp1)/(60)/(60); //jam
+
+
+							//upload 
+							$dataU = array();
+	        				$dataU['status'] = FALSE; 
+							$fieldname='photo';
+							if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+				            { 
+				               
+				                
+				            	$config['upload_path']   = "uploads/absensi/";
+				                $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+				                $config['max_size']      = "0"; 
+				                
+				                $this->load->library('upload', $config); 
+				                
+				                if(!$this->upload->do_upload($fieldname)){ 
+				                    $err_msg = $this->upload->display_errors(); 
+				                    $dataU['error_warning'] = strip_tags($err_msg);              
+				                    $dataU['status'] = FALSE;
+				                } else { 
+				                    $fileData = $this->upload->data();
+				                    $dataU['upload_file'] = $fileData['file_name'];
+				                    $dataU['status'] = TRUE;
+				                }
+				            }
+				            $document = '';
+							if($dataU['status']){ 
+								$document = $dataU['upload_file'];
+							} else if(isset($dataU['error_warning'])){ 
+								//echo $dataU['error_warning']; exit;
+
+								$document = 'ERROR : '.$dataU['error_warning'];
+							}
+				            //end upload
+
+				            $cektime = $this->db->query("select * from time_attendances where id = '".$cek_data[0]->id."'")->result();
+				            if($notes == '' && $cektime[0]->notes != ''){
+				            	$notes = $cektime[0]->notes;
+				            }
+				            if($document == '' && $cektime[0]->photo != ''){
+				            	$document = $cektime[0]->photo;
+				            }
+
+				            if($cektime[0]->date_attendance_in < $datetime){
+				            	$data = [
+									'date_attendance_out' 		=> $datetime,
+									'is_leaving_office_early'	=> $is_leaving_office_early,
+									'num_of_working_hours'		=> $num_of_working_hours,
+									'updated_at'				=> date("Y-m-d H:i:s"),
+									'notes' 					=> $notes,
+									'photo' 					=> $document,
+									'lat_checkout' 				=> $latitude,
+									'long_checkout' 			=> $longitude,
+									'work_location' 			=> $work_location
+								];
+								$rs = $this->db->update("time_attendances", $data, "id='".$cek_data[0]->id."'");
+
+								if($rs){
+									$upd_emp = [
+										'last_lat' 				=> $latitude,
+										'last_long' 			=> $longitude
+									];
+									$this->db->update("employees", $upd_emp, "id='".$employee."'");
+
+
+								
+									$response = [
+										'status' 	=> 200,
+										'message' 	=> 'Success'
+									];
+								}else{
+									$response = [
+										'status' 	=> 401,
+										'message' 	=> 'Failed',
+										'error' 	=> 'Error update checkout'
+									];
+								}
+				            }else{
+				            	$response = [
+									'status' 	=> 401,
+									'message' 	=> 'Failed',
+									'error' 	=> 'Checkout date is greater than checkin date'
+								];
+				            }
+				           
+						}else{
+							$response = [
+								'status' 	=> 400, // Bad Request
+								'message' 	=>'Failed',
+								'error' 	=> 'Require not satisfied'
+							];
+						}
+					}else{ //insert
+						$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> $err_checkout
+						];
+					}
+				}else{ //tidak ada shift type
+					$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Data Shift not found'
 					];
 				}
 
-			} else{
+			} else {
 				$response = [
-				    'status'  => 401,
-				    'message' => 'Failed',
-				    'error'   => 'Data not found'
+					'status' 	=> 401,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
 				];
 			}
-
-    	}else{
-    		$response = [
+			
+		} else {
+			$response = [
 				'status' 	=> 400, // Bad Request
 				'message' 	=>'Failed',
-				'error' 	=> 'Method Save not found'
+				'error' 	=> 'Require not satisfied'
 			];
-    	}
-
-
-
+		}
+		
 		$this->output->set_header('Access-Control-Allow-Origin: *');
 		$this->output->set_header('Access-Control-Allow-Methods: POST');
 		$this->output->set_header('Access-Control-Max-Age: 3600');
 		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 		$this->render_json($response, $response['status']);
-		
     }
 
 
-    public function get_master_reimburs_type()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-
-    	$datamaster = $this->db->query("select * from master_reimburs_type order by name asc ")->result();  
-
-    	$response = [
-    		'status' 	=> 200,
-			'message' 	=> 'Success',
-			'data' 		=> $datamaster
-		];
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-    public function get_master_reimburs_subtype()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	$type	= $_GET['type'];
-
-    	$where = "";
-    	if($type != ""){
-    		$where = " where reimburs_type_id = ".$type." ";
-    	}
-    	
-
-    	$datamaster = $this->db->query("select * from master_reimburs_subtype ".$where." order by name asc ")->result();  
-
-    	$response = [
-    		'status' 	=> 200,
-			'message' 	=> 'Success',
-			'data' 		=> $datamaster
-		];
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-
-    public function get_master_reimburs_for()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-
-    	$datamaster = $this->db->query("select * from master_reimbursfor_type order by name asc ")->result();  
-
-    	$response = [
-    		'status' 	=> 200,
-			'message' 	=> 'Success',
-			'data' 		=> $datamaster
-		];
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-
-    public function get_list_employee()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-
-    	$datamaster = $this->db->query("select id, full_name from employees where status_id = 1 order by full_name asc ")->result();  
-
-    	$response = [
-    		'status' 	=> 200,
-			'message' 	=> 'Success',
-			'data' 		=> $datamaster
-		];
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-
-    public function approval_reimburs()
-    { 
-    	$this->verify_token();
-
-    	$islogin_employee	= $_POST['islogin_employee'];
-    	$status				= $_POST['status']; // approve / reject /rfu
-    	$id 				= $_POST['id'];
-    	$reason				= $_POST['reason']; // for reject or rfu
-    	
-    	$matrix_type_id = 4; //reimbursement
-
-    	if($islogin_employee != '' && $status != '' && $id != ''){ 
-    		$is_approver = $this->checkApprover($matrix_type_id, $id, $islogin_employee); 
-    		if($is_approver == 1){
-
-				$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id); 
-	  			$maxApproval 	= $this->getMaxApproval($matrix_type_id, $id); 
-	  			$current_approval_level = $CurrApproval[0]->current_approval_level;
-	  			$next_level 		= $current_approval_level+1;
-				$approval_path_id	= $CurrApproval[0]->id;
-
-
-				$cekApproval = $this->db->query("select * from approval_path_detail where approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ")->result(); 
-
-				if($cekApproval[0]->status != ''){
-					$response = [
-							'status' 	=> 401,
-							'message' 	=> 'Failed',
-							'error' 	=> 'Cannot double approval'
-						];
-				}else{
-
-					if($status == 'approve'){
-
-						if($current_approval_level == $maxApproval){   //last approver
-							$data = [
-								'status_id' 	=> 2, //approved
-								'date_approved'	=> date("Y-m-d H:i:s")
-							];
-							$rs = $this->db->update('medicalreimbursements', $data, "id = '".$id."'");
-
-							if($rs){
-								
-								$updApproval = [
-									'status' 		=> "Approved",
-									'approval_by' 	=> $islogin_employee,
-									'approval_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-
-								$response = [
-					                'status'  => 200,
-					                'message' => 'Success'
-					            ];
-							}else{
-								$response = [
-								    'status'  => 401,
-								    'message' => 'Failed',
-								    'error'   => 'Error submit'
-								];
-							}
-
-						}else{  
-							
-							$data2 = [
-								'current_approval_level' => $next_level
-							];
-							$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
-							
-							if($rs){
-								$data = [
-									'status' 		=> "Approved",
-									'approval_by' 	=> $islogin_employee,
-									'approval_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update("approval_path_detail", $data, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ");
-
-								$dataApprovalDetail = [
-									'approval_path_id' 	=> $approval_path_id, 
-									'approval_level' 	=> $next_level
-								];
-								$this->db->insert("approval_path_detail", $dataApprovalDetail);
-
-
-								$response = [
-					                'status'  => 200,
-					                'message' => 'Success'
-					            ];
-							}else{
-								$response = [
-								    'status'  => 401,
-								    'message' => 'Failed',
-								    'error'   => 'Error submit'
-								];
-							}
-							
-						}
-					
-
-			    	}else if($status == 'reject'){
-			    		
-			    		$data = [
-							'status_id' 	=> 3, //Rejected
-							'date_approved'	=> date("Y-m-d H:i:s"),
-							'reject_reason' => $reason
-						];
-						$rs = $this->db->update('medicalreimbursements', $data, "id = '".$id."'");
-
-						
-						if($rs){
-							$dataapproval = [
-								'status' 		=> "Rejected",
-								'approval_by' 	=> $islogin_employee,
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							$this->db->update("approval_path_detail", $dataapproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ");
-
-
-							$response = [
-				                'status'  => 200,
-				                'message' => 'Success'
-				            ];
-						}else{
-							$response = [
-							    'status'  => 401,
-							    'message' => 'Failed',
-							    'error'   => 'Error submit'
-							];
-						}
-
-			    	}else if($status == 'rfu'){
-
-			    		$data = [
-							'status_id' 	=> 4, //rfu
-							'rfu_reason' 	=> $reason,
-							'date_approved'	=> date("Y-m-d H:i:s")
-						];
-						$rs = $this->db->update('medicalreimbursements', $data, "id = '".$id."'");
-
-						if($rs){
-							$updApproval = [
-								'status' 		=> "Request for Update",
-								'approval_by' 	=> $islogin_employee,
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-
-							$response = [
-				                'status'  => 200,
-				                'message' => 'Success'
-				            ];
-						}else{
-							$response = [
-							    'status'  => 401,
-							    'message' => 'Failed',
-							    'error'   => 'Error submit'
-							];
-						}
-
-			    	}else{
-			    		$response = [
-							'status' 	=> 400, // Bad Request
-							'message' 	=>'Failed',
-							'error' 	=> 'Status not found'
-						];
-			    	}
-				}
-	    		
-    		}else{
-    			$response = [
-		            'status'  => 401,
-		            'message' => 'Failed',
-		            'error'   => 'You are not authorized to approve this data'
-		        ];
-    		}
-
-    	}else{
-    		$response = [
-	            'status'  => 401,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-
-
-    	$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-
-		
-    }
-
-
-    public function get_data_payslip()
-	{
-	    $this->verify_token();
-
-	    $jsonData = file_get_contents('php://input');
-	    $dataReq  = json_decode($jsonData, true);
-	    $_REQUEST = $dataReq;
-
-	    $type = $_GET['type'] ?? '';
-	    $islogin_employee = $_GET['islogin_employee'] ?? '';
-	    $month = $_GET['month_id'] ?? '';
-	    $year = $_GET['year'] ?? '';
-
-	    if ($type ==  '' || $islogin_employee == '') {
-	        $response = [
-	            'status'  => 401,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-
-	        return $this->render_json($response, 401);
-	    }
-
-	    $this->load->library('html_pdf');
-	    $this->load->helper('global');
-
-	    $whr_month = "";
-	    if ($month != '') {
-	        $whr_month = " AND a.bulan_penggajian = ".$month." ";
-	    }
-
-	    $whr_year = "";
-	    if ($year != '') {
-	        $whr_year = " AND a.tahun_penggajian = '".$year."' ";
-	    }
-
-
-	    if($type == 'outsource'){
-	    	$sql = "
-		        SELECT 
-		            a.*, 
-		            b.full_name, 
-		            c.name_indo AS periode_bulan_name, 
-		            b.emp_code, 
-		            d.project_name, 
-		            e.name AS job_title_name, 
-		            f.tanggal_pembayaran_lembur,
-		            aa.*
-		        FROM payroll_slip a
-		        LEFT JOIN payroll_slip_detail aa ON aa.payroll_slip_id = a.id
-		        LEFT JOIN employees b ON b.id = aa.employee_id
-		        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
-		        LEFT JOIN project_outsource d ON d.id = b.project_id
-		        LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
-		        LEFT JOIN data_customer f ON f.id = d.customer_id
-		        WHERE aa.employee_id = ".$islogin_employee."
-		        ".$whr_month."
-		        ".$whr_year."
-		        
-		        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
-		    ";
-
-	    }else{
-	    	$sql = "
-		        SELECT 
-		            a.*, 
-		            b.full_name, 
-		            c.name_indo AS periode_bulan_name, 
-		            b.emp_code, 
-		            e.name AS job_title_name, 
-		            '' as tanggal_pembayaran_lembur,
-		            aa.*
-		        FROM payroll_slip_internal a
-		        LEFT JOIN payroll_slip_detail_internal aa ON aa.payroll_slip_id = a.id
-		        LEFT JOIN employees b ON b.id = aa.employee_id
-		        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
-		        LEFT JOIN master_job_title e ON e.id = b.job_title_id
-		        WHERE aa.employee_id = ".$islogin_employee."
-		        ".$whr_month."
-		        ".$whr_year."
-		       
-		        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
-		    ";
-
-	    }
-	    
-
-	    $slips = $this->db->query($sql)->result();
-
-	    if (!$slips) {
-	        $response = [
-	            'status'  => 404,
-	            'message' => 'Failed',
-	            'error'   => 'Payslip not found'
-	        ];
-
-	        return $this->render_json($response, 404);
-	    }
-
-	    $data_result = [];
-
-	    foreach ($slips as $slip) {
-
-	        // jika belum dibayar maka tidak bisa lihat
-	        if ($slip->status != 2) {
-	            continue;
-	        }
-
-	        $total_potongan =
-	            (int)$slip->bpjs_kesehatan +
-	            (int)$slip->bpjs_tk +
-	            (int)$slip->seragam +
-	            (int)$slip->pelatihan +
-	            (int)$slip->lain_lain +
-	            (int)$slip->hutang +
-	            (int)$slip->sosial +
-	            (int)$slip->payroll +
-	            (int)$slip->pph_120;
-
-	        $pdfData = [
-	            'periode_bulan' => $slip->periode_bulan_name,
-	            'periode_tahun' => $slip->tahun_penggajian,
-	            'nik' => $slip->emp_code,
-	            'emp_name' => $slip->full_name,
-	            'project_name' => $slip->project_name,
-	            'jabatan' => $slip->job_title_name,
-	            'tanggal_pembayaran_lembur' => $slip->tanggal_pembayaran_lembur,
-
-	            'gaji_pokok' => $slip->gaji,
-	            'tunjangan_jabatan' => $slip->tunjangan_jabatan,
-	            'tunjangan_transport' => $slip->tunjangan_transport,
-	            'tunjangan_konsumsi' => $slip->tunjangan_konsumsi,
-	            'tunjangan_komunikasi' => $slip->tunjangan_komunikasi,
-	            'total_nominal_lembur' => $slip->total_nominal_lembur,
-
-	            'bpjs_kesehatan' => $slip->bpjs_kesehatan,
-	            'bpjs_tk' => $slip->bpjs_tk,
-	            'seragam' => $slip->seragam,
-	            'pelatihan' => $slip->pelatihan,
-	            'lain_lain' => $slip->lain_lain,
-	            'hutang' => $slip->hutang,
-	            'sosial' => $slip->sosial,
-	            'payroll' => $slip->payroll,
-	            'pph_120' => $slip->pph_120,
-
-	            'total_pendapatan' => $slip->total_pendapatan,
-	            'total_potongan' => $total_potongan,
-	            'gaji_bersih' => $slip->gaji_bersih,
-	            'terbilang' => terbilang($slip->gaji_bersih)
-	        ];
-
-
-	        if($type == 'outsource'){
-	        	$pdfBinary = $this->html_pdf->render_to_string_portrait(
-		            'pdf/gaji_os',
-		            $pdfData
-		        );
-	        }else{
-	        	$pdfBinary = $this->html_pdf->render_to_string_portrait(
-		            'pdf/gaji_internal_perEmp',
-		            $pdfData
-		        );
-	        }
-	        
-
-	        if (ob_get_level()) {
-	            ob_end_clean();
-	        }
-
-	        $data_result[] = [
-	            'employee_id' => $islogin_employee,
-	            'emp_code' => $slip->emp_code,
-	            'employee' => $slip->full_name,
-	            'period' => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
-	            'filename' => 'payslip_'.$slip->emp_code.'_'.$slip->tahun_penggajian.'_'.$slip->bulan_penggajian.'.pdf',
-	            'mime' => 'application/pdf',
-	            'file_base64' => base64_encode($pdfBinary)
-	        ];
-	    }
-
-	    if (empty($data_result)) {
-	        $response = [
-	            'status'  => 404,
-	            'message' => 'Failed',
-	            'error'   => 'The payslip is not ready yet'
-	        ];
-
-	        return $this->render_json($response, 404);
-	    }
-
-	    $response = [
-	        'status'   => 200,
-	        'message'  => 'Success',
-	        'data'     => $data_result
-	    ];
-
-	    $this->output->set_header('Access-Control-Allow-Origin: *');
-	    $this->output->set_header('Access-Control-Allow-Methods: POST');
-	    $this->output->set_header('Access-Control-Max-Age: 3600');
-	    $this->output->set_header(
-	        'Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
-	    );
-
-	    $this->render_json($response, 200);
+    public function dayCount($from, $to) {
+	    $first_date = strtotime($from);
+	    $second_date = strtotime($to);
+	    $days_diff = $second_date - $first_date;
+	    return date('d',$days_diff);
 	}
-
-
-
-	public function get_data_payslip_internal()
-	{
-	    $this->verify_token();
-
-	    $jsonData = file_get_contents('php://input');
-	    $dataReq  = json_decode($jsonData, true);
-	    $_REQUEST = $dataReq;
-
-	    $islogin_employee = $_GET['islogin_employee'] ?? '';
-	    $month = $_GET['month_id'] ?? '';
-	    $year = $_GET['year'] ?? '';
-
-	    if ($islogin_employee == '') {
-	        $response = [
-	            'status'  => 401,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-
-	        return $this->render_json($response, 401);
-	    }
-
-	    $this->load->library('html_pdf');
-	    $this->load->helper('global');
-
-	    $whr_month = "";
-	    if ($month != '') {
-	        $whr_month = " AND a.bulan_penggajian = ".$month." ";
-	    }
-
-	    $whr_year = "";
-	    if ($year != '') {
-	        $whr_year = " AND a.tahun_penggajian = '".$year."' ";
-	    }
-
-	    $sql = "
-	        SELECT 
-	            a.*, 
-	            b.full_name, 
-	            c.name_indo AS periode_bulan_name, 
-	            b.emp_code, 
-	            e.name AS job_title_name, 
-	            '' as tanggal_pembayaran_lembur,
-	            aa.*
-	        FROM payroll_slip_internal a
-	        LEFT JOIN payroll_slip_detail_internal aa ON aa.payroll_slip_id = a.id
-	        LEFT JOIN employees b ON b.id = aa.employee_id
-	        LEFT JOIN master_month c ON c.id = a.bulan_penggajian
-	        LEFT JOIN master_job_title e ON e.id = b.job_title_id
-	        WHERE aa.employee_id = ".$islogin_employee."
-	        ".$whr_month."
-	        ".$whr_year."
-	       
-	        ORDER BY a.tahun_penggajian DESC, a.bulan_penggajian DESC
-	    ";
-
-	    $slips = $this->db->query($sql)->result();
-
-	    if (!$slips) {
-	        $response = [
-	            'status'  => 404,
-	            'message' => 'Failed',
-	            'error'   => 'Payslip not found'
-	        ];
-
-	        return $this->render_json($response, 404);
-	    }
-
-	    $data_result = [];
-
-	    foreach ($slips as $slip) {
-
-	        // jika belum dibayar maka tidak bisa lihat
-	        if ($slip->status != 2) {
-	            continue;
-	        }
-
-	        $total_potongan =
-	            (int)$slip->bpjs_kesehatan +
-	            (int)$slip->bpjs_tk +
-	            (int)$slip->seragam +
-	            (int)$slip->pelatihan +
-	            (int)$slip->lain_lain +
-	            (int)$slip->hutang +
-	            (int)$slip->sosial +
-	            (int)$slip->payroll +
-	            (int)$slip->pph_120;
-
-	        $pdfData = [
-	            'periode_bulan' => $slip->periode_bulan_name,
-	            'periode_tahun' => $slip->tahun_penggajian,
-	            'nik' => $slip->emp_code,
-	            'emp_name' => $slip->full_name,
-	            'project_name' => $slip->project_name,
-	            'jabatan' => $slip->job_title_name,
-	            'tanggal_pembayaran_lembur' => $slip->tanggal_pembayaran_lembur,
-
-	            'gaji_pokok' => $slip->gaji,
-	            'tunjangan_jabatan' => $slip->tunjangan_jabatan,
-	            'tunjangan_transport' => $slip->tunjangan_transport,
-	            'tunjangan_konsumsi' => $slip->tunjangan_konsumsi,
-	            'tunjangan_komunikasi' => $slip->tunjangan_komunikasi,
-	            'total_nominal_lembur' => $slip->total_nominal_lembur,
-
-	            'bpjs_kesehatan' => $slip->bpjs_kesehatan,
-	            'bpjs_tk' => $slip->bpjs_tk,
-	            'seragam' => $slip->seragam,
-	            'pelatihan' => $slip->pelatihan,
-	            'lain_lain' => $slip->lain_lain,
-	            'hutang' => $slip->hutang,
-	            'sosial' => $slip->sosial,
-	            'payroll' => $slip->payroll,
-	            'pph_120' => $slip->pph_120,
-
-	            'total_pendapatan' => $slip->total_pendapatan,
-	            'total_potongan' => $total_potongan,
-	            'gaji_bersih' => $slip->gaji_bersih,
-	            'terbilang' => terbilang($slip->gaji_bersih)
-	        ];
-
-	        $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	            'pdf/gaji_internal_perEmp',
-	            $pdfData
-	        );
-
-	        if (ob_get_level()) {
-	            ob_end_clean();
-	        }
-
-	        $data_result[] = [
-	            'employee_id' => $islogin_employee,
-	            'emp_code' => $slip->emp_code,
-	            'employee' => $slip->full_name,
-	            'period' => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
-	            'filename' => 'payslip_'.$slip->emp_code.'_'.$slip->tahun_penggajian.'_'.$slip->bulan_penggajian.'.pdf',
-	            'mime' => 'application/pdf',
-	            'file_base64' => base64_encode($pdfBinary)
-	        ];
-	    }
-
-	    if (empty($data_result)) {
-	        $response = [
-	            'status'  => 404,
-	            'message' => 'Failed',
-	            'error'   => 'The payslip is not ready yet'
-	        ];
-
-	        return $this->render_json($response, 404);
-	    }
-
-	    $response = [
-	        'status'   => 200,
-	        'message'  => 'Success',
-	        'data'     => $data_result
-	    ];
-
-	    $this->output->set_header('Access-Control-Allow-Origin: *');
-	    $this->output->set_header('Access-Control-Allow-Methods: POST');
-	    $this->output->set_header('Access-Control-Max-Age: 3600');
-	    $this->output->set_header(
-	        'Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
-	    );
-
-	    $this->render_json($response, 200);
-	}
-
-
-
-    public function get_data_payslip_old2()
-	{
-	    //$this->verify_token();
-
-	  
-	    $jsonData = file_get_contents('php://input');
-	    $dataReq  = json_decode($jsonData, true);
-	    $_REQUEST = $dataReq;
-
-	    $islogin_employee = $_GET['islogin_employee'] ?? '';
-	    $month = $_GET['month_id'] ?? '';
-	    $year = $_GET['year'] ?? '';
-
-	    if ($islogin_employee == '') {
-	        $response = [
-	            'status'  => 401,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-
-	        return $this->render_json($response, 401);
-	    }
-
-	   
-	    $this->load->library('html_pdf');
-	    $this->load->helper('global');
-
-
-	    $whr_month = "";
-	    if($month != ''){
-	    	$whr_month = " and a.bulan_penggajian = ".$month." "; 
-	    }
-
-	    $whr_year = "";
-	    if($year != ''){
-	    	$whr_year = " and a.tahun_penggajian = '".$year." "; 
-	    }
-
-
-	   
-	    $sql = "
-	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur, aa.*
-				from payroll_slip a 
-				left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
-				left join employees b on b.id = aa.employee_id 
-				left join master_month c on c.id = a.bulan_penggajian
-				left join project_outsource d on d.id = b.project_id
-				left join master_job_title_os e on e.id = b.job_title_id
-				left join data_customer f on f.id = d.customer_id
-				where aa.employee_id = ".$islogin_employee." ".$whr_month.$whr_year." 
-	    ";
-
-	    $slip = $this->db->query($sql)->row();
-
-	    if (!$slip) {
-	        $response = [
-	            'status'  => 404,
-	            'message' => 'Failed',
-	            'error'   => 'Payslip not found'
-	        ];
-
-	        return $this->render_json($response, 404);
-	    }
-
-	    if ($slip->status != 2) { //status belum terbayar, maka belum bisa lihat payslip
-	        $response = [
-	            'status'  => 404,
-	            'message' => 'Failed',
-	            'error'   => 'The payslip is not ready yet'
-	        ];
-
-	        return $this->render_json($response, 404);
-	    }
-
-
-	    $total_potongan = (int)$slip->bpjs_kesehatan + (int)$slip->bpjs_tk + (int)$slip->seragam + (int)$slip->pelatihan + (int)$slip->lain_lain + (int)$slip->hutang + (int)$slip->sosial + (int)$slip->payroll + (int)$slip->pph_120;
-
-	  
-	    $pdfData = [
-	       
-	        'periode_bulan'      		=> $slip->periode_bulan_name,
-		    'periode_tahun'      		=> $slip->periode_tahun,
-		    'nik'    					=> $slip->emp_code,
-		    'emp_name'       			=> $slip->full_name,
-		    'project_name'    			=> $slip->project_name,
-		    'jabatan' 		  			=> $slip->job_title_name,
-		    'tanggal_pembayaran_lembur'	=> $slip->tanggal_pembayaran_lembur,
-		    'gaji_pokok' => $slip->gaji,
-		    'tunjangan_jabatan' => $slip->tunjangan_jabatan,
-		    'tunjangan_transport' => $slip->tunjangan_transport,
-		    'tunjangan_konsumsi' => $slip->tunjangan_konsumsi,
-		    'tunjangan_komunikasi' => $slip->tunjangan_komunikasi,
-		    'total_nominal_lembur' => $slip->total_nominal_lembur,
-		    'bpjs_kesehatan' => $slip->bpjs_kesehatan,
-		    'bpjs_tk' => $slip->bpjs_tk,
-		    'seragam' => $slip->seragam,
-		    'pelatihan' => $slip->pelatihan,
-		    'lain_lain' => $slip->lain_lain,
-		    'hutang' => $slip->hutang,
-		    'sosial' => $slip->sosial,
-		    'payroll' => $slip->payroll,
-		    'pph_120' => $slip->pph_120,
-		    'total_pendapatan' => $slip->total_pendapatan,
-		    'total_potongan' => $total_potongan,
-		    'gaji_bersih' => $slip->gaji_bersih,
-		    'terbilang' => terbilang($slip->gaji_bersih)
-	        
-	    ];
-
-	   
-	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
-	        'pdf/gaji_os',
-	        $pdfData
-	    );
-
-	    if (ob_get_level()) {
-	        ob_end_clean();
-	    }
-
-	   
-	    $response = [
-	        'status'   => 200,
-	        'message'  => 'Success',
-	        'data'     => [
-	            'employee_id' => $islogin_employee,
-	            'emp_code'    => $slip->emp_code,
-	            'employee'    => $slip->full_name,
-	            'period'      => $slip->periode_bulan_name . ' ' . $slip->tahun_penggajian,
-	            'filename'    => 'payslip_' . $slip->emp_code . '.pdf',
-	            'mime'        => 'application/pdf',
-	            'file_base64' => base64_encode($pdfBinary)
-	        ]
-	    ];
-
-	   
-	    $this->output->set_header('Access-Control-Allow-Origin: *');
-	    $this->output->set_header('Access-Control-Allow-Methods: POST');
-	    $this->output->set_header('Access-Control-Max-Age: 3600');
-	    $this->output->set_header(
-	        'Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
-	    );
-
-	    $this->render_json($response, 200);
-	}
-
-
-
-    public function get_data_payslip_old()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-    	$islogin_employee	= $_GET['islogin_employee'];
-    	$link_url = _URL;
-
-    	if($islogin_employee != ''){
-
-	    	$dataSlip = $this->db->query('select b.full_name, b.emp_code 
-	    				, c.year as year_period, c.month as month_period,
-						(case when c.month = 1 then "January"
-						when c.month = 2 then "Februari"
-						when c.month = 3 then "March"
-						when c.month = 4 then "April"
-						when c.month = 5 then "May"
-						when c.month = 6 then "June"
-						when c.month = 7 then "July"
-						when c.month = 8 then "August"
-						when c.month = 9 then "September"
-						when c.month = 10 then "October"
-						when c.month = 11 then "November"
-						when c.month = 12 then "December"
-						else "" end) as month_period_name,
-						CONCAT("'.$link_url.'", a.payslip_pdf_path) AS pdf_path
-	    				from payroll_slip a 
-						left join employees b on b.id = a.employee_id 
-						left join payroll_periods c on c.id = a.payroll_periods_id
-						where a.employee_id = "'.$islogin_employee.'"
-						')->result();  
-
-	    	$response = [
-	    		'status' 	=> 200,
-				'message' 	=> 'Success',
-				'data' 		=> $dataSlip
-			];
-
-	    	
-	    	
-
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}else{
-    		$response = [
-	            'status'  => 401,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-		
-		
-    }
-
 
 
     public function save_overtime() { 
@@ -7831,7 +5808,7 @@ class Api extends API_Controller
 							$datetime_start = date('Y-m-d', strtotime($datetime_start));
 							$datetime_end = date('Y-m-d', strtotime($datetime_end));
 
-							$count_day = $this->api->dayCount($datetime_start, $datetime_end); 
+							$count_day = $this->dayCount($datetime_start, $datetime_end); 
 							$data = [
 								/*'date_overtime' 			=> $date_overtime,*/
 								'type' 						=> $type,
@@ -7915,7 +5892,7 @@ class Api extends API_Controller
 						$datetime_start = date('Y-m-d', strtotime($datetime_start));
 						$datetime_end = date('Y-m-d', strtotime($datetime_end));
 
-						$count_day = $this->api->dayCount($datetime_start, $datetime_end);
+						$count_day = $this->dayCount($datetime_start, $datetime_end);
 						$data = [
 							/*'date_overtime' 			=> $date_overtime,*/
 							'employee_id' 				=> $employee,
@@ -7995,8 +5972,8 @@ class Api extends API_Controller
     		}else if($getData[0]->type == 2){
     			$matrix_type_id = 6;
     		}
-    		//$approval_level = $this->getApprovalLevel($matrix_type_id, $id);
-    		$CurrApproval = $this->getCurrApproval($matrix_type_id, $id);
+    		$approval_level = $this->getApprovalLevel($matrix_type_id, $id);
+    		$CurrApproval = $this->getCurrApproval($matrix_type_id, $id, $approval_level);
 
     		if($status == 'reject'){
     			$data = [
@@ -8090,7 +6067,7 @@ class Api extends API_Controller
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
 
 							// send emailing to approver
-							//$this->approvalemailservice->sendApproval('overtimes', $id, $approval_path_id);
+							$this->approvalemailservice->sendApproval('overtimes', $id, $approval_path_id);
 
 
 							$response = [
@@ -8127,2191 +6104,7 @@ class Api extends API_Controller
 
 	}
 
-	public function get_attendance_location()
-    { 
-    	$this->verify_token();
 
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-    	$employee	= $_GET['employee'];
-    	
-
-    	if($employee != ''){
-
-    		$dataEmp = $this->db->query('select emp_source, cust_id, work_location from employees where id = '.$employee.' ')->result(); 
-    		if(!empty($dataEmp)){
-    			
-    			if($dataEmp[0]->emp_source == 'internal'){
-					$data_loc = $this->db->query("select b.id, b.name, b.latitude, b.longitude from employee_work_location a 
-						left join attendance_location b on b.id = a.attendance_location_id
-						where a.employee_id = ".$employee."")->result();
-
-					$response = [
-						'status' 	=> 200,
-						'message' 	=> 'Success',
-						"attendance_location" => $data_loc
-					];
-				}else if($dataEmp[0]->emp_source == 'outsource'){ /// hanya 1 lokasi berdasarkan work location
-
-					$data_loc = $this->db->query("select id, name, latitude, longitude from master_work_location_outsource where cust_id = ".$dataEmp[0]->cust_id." and id = ".$dataEmp[0]->work_location." ")->result();
-
-					$response = [
-						'status' 	=> 200,
-						'message' 	=> 'Success',
-						"attendance_location" => $data_loc
-					];
-				}else{
-					$response = [
-						'status' 	=> 400,
-						'message' 	=> 'Failed',
-						'error' 	=> 'Emp Source not found'
-					];
-				}
-
-    		}else{
-    			$response = [
-		            'status'  => 400,
-		            'message' => 'Failed',
-		            'error'   => 'Emp not found'
-		        ];
-    		}
-
-	    
-	    	
-
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}else{
-    		$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-		
-		
-    }
-
-
-    public function master_post_budget()
-    { 
-    	$this->verify_token();
-
-
-		$data = $this->db->query('select * from master_post_budget order by name asc ')->result(); 
-		if(!empty($data)){
-			
-			$response = [
-				'status' 	=> 200,
-				'message' 	=> 'Success',
-				"data" 		=> $data
-			];
-
-		}else{
-			$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'No Data'
-	        ];
-		}
-
-    
-    	
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-
-    	
-    }
-
-    // Get next number 
-	public function getNextNumber($ca_type) { 
-		
-		$yearcode = date("y");
-		$monthcode = date("m");
-		$period = $yearcode.$monthcode; 
-		
-
-		$cek = $this->db->query("select * from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
-		$rs_cek = $cek->result_array();
-
-		if(empty($rs_cek)){
-			$num = '0001';
-		}else{
-			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = ".$ca_type." and SUBSTRING(ca_number, 5, 4) = '".$period."'");
-			$rs_cek2 = $cek2->result_array();
-			$dt = $rs_cek2[0]['maxnum']; 
-			$getnum = substr($dt,9); 
-			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
-			
-		}
-
-		return $num;
-		
-	} 
-
-
-	public function get_data_fpu()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-    	$islogin_employee	= $_GET['islogin_employee'];
-    	$filter_employee	= $_GET['filter_employee'];
-    	$filter_isapprover	= $_GET['filter_isapprover'];
-
-
-    	if($islogin_employee != ''){
-
-			$whr=''; $whr_isapprover='';
-	    	if($filter_employee != ''){
-	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
-	    	}
-	    	if($filter_isapprover != ''){
-	    		$whr_isapprover=' and ao.is_approver = 1 ';
-	    	}
-
-	    	$dataCA = $this->db->query('select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id,
-					max(d2.current_approval_level) AS current_approval_level,
-					max(h.role_id) AS current_role_id,
-					max(i.role_name) AS current_role_name,
-					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
-					max(
-						IF(
-							i.role_name = "Direct",
-							c.direct_id,
-							(
-								SELECT GROUP_CONCAT(employee_id) 
-								FROM approval_matrix_role_pic 
-								WHERE approval_matrix_role_id = h.role_id
-							)
-						)
-					) AS current_employeeid_approver,
-					CASE 
-						WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
-						ELSE 0 
-					END AS is_approver_view,
-					CASE 
-						WHEN FIND_IN_SET(
-							'.$islogin_employee.', 
-							(
-								SELECT GROUP_CONCAT(employee_id) 
-								FROM approval_matrix_role_pic 
-								WHERE approval_matrix_role_id = max(h.role_id)
-							)
-						) > 0 THEN 1
-						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$islogin_employee.' THEN 1  
-						ELSE 0 
-					END AS is_approver   
-					from cash_advance a left join employees b on b.id = a.prepared_by
-					left join employees c on c.id = a.requested_by
-					left join master_status_cashadvance d on d.id = a.status_id
-					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 2
-					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
-					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
-					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
-					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
-					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
-					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
-					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
-					GROUP BY a.id)ao 
-					where ao.ca_type = 1
-					'.$whr.$whr_isapprover.' ')->result();  
-
-	    	if (!empty($dataCA)) {
-			    foreach ($dataCA as $key => $row) {
-
-			        $detail = $this->db->query("
-			            select a.*, b.name as post_budget_name 
-						from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id 
-						where a.cash_advance_id = ?
-			        ", [$row->id])->result();
-
-			        // inject ke object reimburs
-			        $dataCA[$key]->details = $detail;
-			    }
-			}
-
-
-
-	    	$response = [
-	    		'status' 	=> 200,
-				'message' 	=> 'Success',
-				'data' 		=> $dataCA
-			];
-
-    		
-	    	
-	    	
-
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}else{
-    		$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-		
-		
-    }
-
-
-    public function save_fpu()
-    { 
-    	$this->verify_token();
-
-    	$islogin_employee	= $_POST['islogin_employee'];
-    	$method_save		= $_POST['method_save'];
-    	$id 				= $_POST['id'];
-    	$request_date		= $_POST['request_date'];
-    	$requested_by 		= $_POST['requested_by'];
-    	$total_cost			= $_POST['total_cost'];
-    	$project			= $_POST['project_id'];
-    	$fpu_document		= $_FILES['fpu_document'];
-    	
-
-    	///detail
-    	$id_detail 		= $_POST['id_detail'];
-    	$post_budget	= $_POST['post_budget_id'];
-    	$amount			= $_POST['amount'];
-    	$ppn_pph		= $_POST['ppn_pph'];
-    	$total_amount	= $_POST['total_amount'];
-    	$notes 			= $_POST['ppn_pph'];
-
-    	
-
-    	if($method_save == 'insert'){
-
-    		$lettercode = ('FPU'); // ca code
-			$yearcode = date("y");
-			$monthcode = date("m");
-			$period = $yearcode.$monthcode; 
-			
-			$runningnumber = $this->getNextNumber(1); // next count number
-			$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
-
-
-			if(!empty($islogin_employee)){ 
-
-  				$dataEmp = $this->db->query("select * from employees where id = '".$islogin_employee."'")->result(); 
-				if(!empty($dataEmp)){
-					if(!empty($dataEmp[0]->work_location)){
-
-						//START UPLOAD 
-						$fieldname 		= 'fpu_document';
-						$upload_path 	= "uploads/cashadvance/fpu/";
-			            $document 		= $this->uploadFiles($fieldname, $upload_path);
-			            //END UPLOAD
-
-
-						$data = [
-							'ca_number' 	=> $nextnum,
-							'ca_type' 		=> 1, //fpu
-							'request_date' 	=> $request_date,
-							'prepared_by' 	=> $islogin_employee,
-							'requested_by'	=> $requested_by,
-							'total_cost' 	=> $total_cost,
-							'document' 		=> $document,
-							'status_id' 	=> 1, //waiting approval
-							'project_id' 	=> $project
-						];
-						$rs = $this->db->insert("cash_advance", $data);
-						$lastId = $this->db->insert_id();
-
-						if($rs){
-							if(isset($post_budget)){
-								$item_num = count($post_budget); // cek sum
-								$item_len_min = min(array_keys($post_budget)); // cek min key index
-								$item_len = max(array_keys($post_budget)); // cek max key index
-							} else {
-								$item_num = 0;
-							}
-
-							if($item_num>0){
-								for($i=$item_len_min;$i<=$item_len;$i++) 
-								{
-									if(isset($post_budget[$i])){ 
-										$itemData = [
-											'cash_advance_id'	=> $lastId,
-											'post_budget_id' 	=> $post_budget[$i],
-											'amount' 			=> $amount[$i],
-											'ppn_pph' 			=> $ppn_pph[$i],
-											'total_amount'		=> $total_amount[$i],
-											'notes' 			=> $notes[$i]
-										];
-
-										$this->db->insert('cash_advance_details', $itemData);
-									}
-								}
-							}
-
-							///insert approval path
-							$approval_type_id = 2; //Cash advance
-							$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $total_cost, $lastId);
-
-
-
-							$response = [
-					            'status'  => 200,
-					            'message' => 'Success'
-					        ];
-
-						}else{
-							$response = [
-					            'status'  => 400,
-					            'message' => 'Failed',
-					            'error'   => 'Error Submit'
-					        ];
-						}
-
-					}else{
-						
-						$response = [
-				            'status'  => 400,
-				            'message' => 'Failed',
-				            'error'   => 'Work Location not found'
-				        ];
-					}
-				}else{
-					
-					$response = [
-			            'status'  => 400,
-			            'message' => 'Failed',
-			            'error'   => 'Employee not found'
-			        ];
-				}
-
-	  		}else{
-	  			$response = [
-		            'status'  => 400,
-		            'message' => 'Failed',
-		            'error'   => 'Error Submit'
-		        ];
-	  		}
-	  		
-			
-
-    	}else if($method_save == 'update'){
-    		
-    		if(!empty($id)){ 
-				
-				//START UPLOAD 
-				$fieldname 		= 'fpu_document';
-				$upload_path 	= "uploads/cashadvance/fpu/";
-	            $document 		= $this->uploadFiles($fieldname, $upload_path);
-	            //END UPLOAD
-
-	            $getdata = $this->db->query("select * from cash_advance where id = '".$id."'")->result(); 
-				$hdndoc = $getdata[0]->document;
-
-				if($document == '' && $hdndoc != ''){
-					$document = $hdndoc;
-				}
-
-
-				$is_rfu=0;
-				
-				if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
-					$is_rfu=1;
-
-					$data = [
-						'requested_by'	=> $requested_by,
-						'total_cost' 	=> $total_cost,
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s"),
-						'status_id' 	=> 1,
-						'project_id' 	=> $project
-					];
-				}else{
-					$data = [
-						'requested_by'	=> $requested_by,
-						'total_cost' 	=> $total_cost,
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s"),
-						'project_id' 	=> $project
-					];
-				}
-
-				
-				$rs = $this->db->update("cash_advance", $data, "id = ".$id."");
-
-				if($rs){
-					/// update approval path
-					$matrix_type_id = 2;
-					$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
-					$CurrApprovalPathId	= $CurrApproval[0]->id;
-
-					if($is_rfu == 1){ 
-						$updapproval_path = [
-							'current_approval_level' => 1
-						];
-						$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
-
-						$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
-
-						$updApproval2 = [
-							'status' 		=> "",
-							'approval_by' 	=> "",
-							'approval_date'	=> ""
-						];
-						$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
-						
-					}
-
-
-
-					if(isset($post_budget)){
-						$item_num = count($post_budget); // cek sum
-						$item_len_min = min(array_keys($post_budget)); // cek min key index
-						$item_len = max(array_keys($post_budget)); // cek max key index
-					} else {
-						$item_num = 0;
-					}
-
-					if($item_num>0){
-						for($i=$item_len_min;$i<=$item_len;$i++) 
-						{
-							$hdnid = $id_detail[$i];
-
-							if(!empty($hdnid)){ //update
-								if(isset($post_budget[$i])){
-									$itemData = [
-										'post_budget_id'	=> $post_budget[$i],
-										'amount' 		=> $amount[$i],
-										'ppn_pph' 		=> $ppn_pph[$i],
-										'total_amount'	=> $total_amount[$i],
-										'notes' 		=> $notes[$i]
-									];
-
-									$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
-								}
-							}else{ //insert
-								if(isset($post_budget[$i])){
-									$itemData = [
-										'cash_advance_id'	=> $id,
-										'post_budget_id' 	=> $post_budget[$i],
-										'amount' 			=> $amount[$i],
-										'ppn_pph' 			=> $ppn_pph[$i],
-										'total_amount'		=> $total_amount[$i],
-										'notes' 			=> $notes[$i]
-									];
-
-									$this->db->insert('cash_advance_details', $itemData);
-								}
-							}
-						}
-					}
-
-					$response = [
-			            'status'  => 200,
-			            'message' => 'Success'
-			        ];
-
-				}else{
-					$response = [
-			            'status'  => 400,
-			            'message' => 'Failed',
-			            'error'   => 'Error Submit'
-			        ];
-				}
-
-			} else{
-				$response = [
-				    'status'  => 400,
-				    'message' => 'Failed',
-				    'error'   => 'Data not found'
-				];
-			}
-
-    	}else{
-    		$response = [
-				'status' 	=> 400, // Bad Request
-				'message' 	=>'Failed',
-				'error' 	=> 'Method Save not found'
-			];
-    	}
-
-
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-
-
-    public function approval_cashadvance()
-    { 
-    	$this->verify_token();
-
-    	$islogin_employee	= $_POST['islogin_employee'];
-    	$status				= $_POST['status']; // approve / reject /rfu
-    	$id 				= $_POST['id'];
-    	$reason				= $_POST['reason']; // for reject or rfu
-    	
-    	$matrix_type_id = 2; //cash advance
-
-    	if($islogin_employee != '' && $status != '' && $id != ''){ 
-    		$is_approver = $this->checkApprover($matrix_type_id, $id, $islogin_employee); 
-    		if($is_approver == 1){
-
-				$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id); 
-	  			$maxApproval 	= $this->getMaxApproval($matrix_type_id, $id); 
-	  			$current_approval_level = $CurrApproval[0]->current_approval_level;
-	  			$next_level 		= $current_approval_level+1;
-				$approval_path_id	= $CurrApproval[0]->id;
-				
-
-				$cekApproval = $this->db->query("select * from approval_path_detail where approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ")->result(); 
-
-				if($cekApproval[0]->status != ''){
-					$response = [
-						'status' 	=> 400,
-						'message' 	=> 'Failed',
-						'error' 	=> 'Cannot double approval'
-					];
-				}else{
-
-					if($status == 'approve'){
-						if($current_approval_level == $maxApproval){   //last approver
-							$data = [
-								'status_id'		=> 2, //approved
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							
-							$rs = $this->db->update("cash_advance", $data, "id = ".$id."");
-
-							if($rs){
-								//update approval path
-								$updApproval = [
-									'status' 		=> "Approved",
-									'approval_by' 	=> $islogin_employee,
-									'approval_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-
-								$response = [
-									'status' 	=> 200,
-									'message' 	=> 'Success'
-								];
-								
-							}else{
-								$response = [
-									'status' 	=> 400,
-									'message' 	=> 'Failed',
-									'error' 	=> 'Failed'
-								];
-							}
-							
-							
-						}else{
-
-							$data2 = [
-								'current_approval_level' => $next_level
-							];
-							$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
-							
-							if($rs){
-								$data = [
-									'status' 		=> "Approved",
-									'approval_by' 	=> $karyawan_id,
-									'approval_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update("approval_path_detail", $data, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-								$dataApprovalDetail = [
-									'approval_path_id' 	=> $approval_path_id, 
-									'approval_level' 	=> $next_level
-								];
-								$this->db->insert("approval_path_detail", $dataApprovalDetail);
-
-
-								$response = [
-									'status' 	=> 200,
-									'message' 	=> 'Success'
-								];
-
-							}
-							else{
-								$response = [
-									'status' 	=> 400,
-									'message' 	=> 'Failed',
-									'error' 	=> 'Failed'
-								];
-							}
-							
-						}
-					
-
-			    	}else if($status == 'reject'){
-			    		
-			    		$data = [
-							'status_id' 	=> 3, //Rejected
-							'approval_date'	=> date("Y-m-d H:i:s"),
-							'reject_reason' => $reason
-						];
-						$rs = $this->db->update('cash_advance', $data, "id = '".$id."'");
-
-						
-						if($rs){
-							$dataapproval = [
-								'status' 		=> "Rejected",
-								'approval_by' 	=> $islogin_employee,
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							$this->db->update("approval_path_detail", $dataapproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ");
-
-
-							$response = [
-				                'status'  => 200,
-				                'message' => 'Success'
-				            ];
-						}else{
-							$response = [
-							    'status'  => 400,
-							    'message' => 'Failed',
-							    'error'   => 'Failed'
-							];
-						}
-
-			    	}else if($status == 'rfu'){
-
-			    		$data = [
-							'status_id' 	=> 4, //rfu
-							'rfu_reason' 	=> $reason,
-							'approval_date'	=> date("Y-m-d H:i:s")
-						];
-						$rs = $this->db->update('cash_advance', $data, "id = '".$id."'");
-
-						if($rs){
-							$updApproval = [
-								'status' 		=> "Request for Update",
-								'approval_by' 	=> $islogin_employee,
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-
-							$response = [
-				                'status'  => 200,
-				                'message' => 'Success'
-				            ];
-						}else{
-							$response = [
-							    'status'  => 400,
-							    'message' => 'Failed',
-							    'error'   => 'Failed'
-							];
-						}
-
-			    	}else{
-			    		$response = [
-							'status' 	=> 400, // Bad Request
-							'message' 	=>'Failed',
-							'error' 	=> 'Status not found'
-						];
-			    	}
-				}
-	    		
-    		}else{
-    			$response = [
-		            'status'  => 400,
-		            'message' => 'Failed',
-		            'error'   => 'You are not authorized to approve this data'
-		        ];
-    		}
-
-    	}else{
-    		$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-
-
-    	$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-
-		
-    }
-
-
-    public function get_data_fpp()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-    	$islogin_employee	= $_GET['islogin_employee'];
-    	$filter_employee	= $_GET['filter_employee'];
-    	$filter_isapprover	= $_GET['filter_isapprover'];
-
-
-    	if($islogin_employee != ''){
-
-			$whr=''; $whr_isapprover='';
-	    	if($filter_employee != ''){
-	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
-	    	}
-	    	if($filter_isapprover != ''){
-	    		$whr_isapprover=' and ao.is_approver = 1 ';
-	    	}
-
-	    	$dataCA = $this->db->query('select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id,
-					max(d2.current_approval_level) AS current_approval_level,
-					max(h.role_id) AS current_role_id,
-					max(i.role_name) AS current_role_name,
-					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
-					max(
-						IF(
-							i.role_name = "Direct",
-							c.direct_id,
-							(
-								SELECT GROUP_CONCAT(employee_id) 
-								FROM approval_matrix_role_pic 
-								WHERE approval_matrix_role_id = h.role_id
-							)
-						)
-					) AS current_employeeid_approver,
-					CASE 
-						WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
-						ELSE 0 
-					END AS is_approver_view,
-					CASE 
-						WHEN FIND_IN_SET(
-							'.$islogin_employee.', 
-							(
-								SELECT GROUP_CONCAT(employee_id) 
-								FROM approval_matrix_role_pic 
-								WHERE approval_matrix_role_id = max(h.role_id)
-							)
-						) > 0 THEN 1
-						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$islogin_employee.' THEN 1  
-						ELSE 0 
-					END AS is_approver   
-					from cash_advance a left join employees b on b.id = a.prepared_by
-					left join employees c on c.id = a.requested_by
-					left join master_status_cashadvance d on d.id = a.status_id
-					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 2
-					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
-					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
-					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
-					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
-					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
-					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
-					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
-					GROUP BY a.id)ao 
-					where ao.ca_type = 2
-					'.$whr.$whr_isapprover.' ')->result();  
-
-	    	if (!empty($dataCA)) {
-			    foreach ($dataCA as $key => $row) {
-
-			        $detail = $this->db->query("
-			            select a.*, b.name as post_budget_name 
-						from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id 
-						where a.cash_advance_id = ?
-			        ", [$row->id])->result();
-
-			        // inject ke object reimburs
-			        $dataCA[$key]->details = $detail;
-			    }
-			}
-
-
-
-	    	$response = [
-	    		'status' 	=> 200,
-				'message' 	=> 'Success',
-				'data' 		=> $dataCA
-			];
-
-    		
-	    	
-	    	
-
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}else{
-    		$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-		
-		
-    }
-
-
-
-    public function save_fpp()
-    { 
-    	$this->verify_token();
-
-    	$islogin_employee	= $_POST['islogin_employee'];
-    	$method_save		= $_POST['method_save'];
-    	$id 				= $_POST['id'];
-    	$request_date		= $_POST['request_date'];
-    	$requested_by 		= $_POST['requested_by'];
-    	$total_cost			= $_POST['total_cost'];
-    	$project			= $_POST['project_id'];
-    	$fpp_document		= $_FILES['fpp_document'];
-    	$fpp_type 			= $_POST['fpp_type'];
-    	$no_rekening 		= $_POST['no_rekening'];
-    	$vendor_name 		= $_POST['vendor_name'];
-    	$invoice_number 	= $_POST['invoice_number'];
-    	$invoice_date 		= $_POST['invoice_date'];
-    	
-
-    	///detail
-    	$id_detail 		= $_POST['id_detail'];
-    	$post_budget	= $_POST['post_budget_id'];
-    	$amount			= $_POST['amount'];
-    	$ppn_pph		= $_POST['ppn_pph'];
-    	$total_amount	= $_POST['total_amount'];
-    	$notes 			= $_POST['ppn_pph'];
-
-    	
-
-    	if($method_save == 'insert'){ 
-
-    		$lettercode = ('FPP'); // ca code
-			$yearcode = date("y");
-			$monthcode = date("m");
-			$period = $yearcode.$monthcode; 
-			
-			$runningnumber = $this->getNextNumber(1); // next count number
-			$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
-
-
-			if(!empty($islogin_employee)){ 
-
-  				$dataEmp = $this->db->query("select * from employees where id = '".$islogin_employee."'")->result(); 
-				if(!empty($dataEmp)){
-					if(!empty($dataEmp[0]->work_location)){
-
-						//START UPLOAD 
-						$fieldname 		= 'fpp_document';
-						$upload_path 	= "uploads/cashadvance/fpp/";
-			            $document 		= $this->uploadFiles($fieldname, $upload_path);
-			            //END UPLOAD
-
-
-						$data = [
-							'ca_number' 	=> $nextnum,
-							'ca_type' 		=> 2, //fpp
-							'request_date' 	=> $request_date,
-							'prepared_by' 	=> $islogin_employee,
-							'requested_by'	=> $requested_by,
-							'total_cost' 	=> $total_cost,
-							'document' 		=> $document,
-							'status_id' 	=> 1, //waiting approval
-							'project_id' 	=> $project,
-							'fpp_type' 			=> $fpp_type,
-							'no_rekening' 		=> $no_rekening,
-							'vendor_name' 		=> $vendor_name,
-							'invoice_number' 	=> $invoice_number,
-							'invoice_date' 		=> $invoice_date
-						];
-						$rs = $this->db->insert("cash_advance", $data);
-						$lastId = $this->db->insert_id();
-
-						if($rs){
-							if(isset($post_budget)){
-								$item_num = count($post_budget); // cek sum
-								$item_len_min = min(array_keys($post_budget)); // cek min key index
-								$item_len = max(array_keys($post_budget)); // cek max key index
-							} else {
-								$item_num = 0;
-							}
-
-							if($item_num>0){
-								for($i=$item_len_min;$i<=$item_len;$i++) 
-								{
-									if(isset($post_budget[$i])){ 
-										$itemData = [
-											'cash_advance_id'	=> $lastId,
-											'post_budget_id' 	=> $post_budget[$i],
-											'amount' 			=> $amount[$i],
-											'ppn_pph' 			=> $ppn_pph[$i],
-											'total_amount'		=> $total_amount[$i],
-											'notes' 			=> $notes[$i]
-										];
-
-										$this->db->insert('cash_advance_details', $itemData);
-									}
-								}
-							}
-
-							///insert approval path
-							$approval_type_id = 2; //Cash advance
-							$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $total_cost, $lastId);
-
-
-
-							$response = [
-					            'status'  => 200,
-					            'message' => 'Success'
-					        ];
-
-						}else{
-							$response = [
-					            'status'  => 400,
-					            'message' => 'Failed',
-					            'error'   => 'Error Submit'
-					        ];
-						}
-
-					}else{
-						
-						$response = [
-				            'status'  => 400,
-				            'message' => 'Failed',
-				            'error'   => 'Work Location not found'
-				        ];
-					}
-				}else{
-					
-					$response = [
-			            'status'  => 400,
-			            'message' => 'Failed',
-			            'error'   => 'Employee not found'
-			        ];
-				}
-
-	  		}else{
-	  			$response = [
-		            'status'  => 400,
-		            'message' => 'Failed',
-		            'error'   => 'Error Submit'
-		        ];
-	  		}
-	  		
-			
-
-    	}else if($method_save == 'update'){
-    		
-    		if(!empty($id)){ 
-				
-				//START UPLOAD 
-				$fieldname 		= 'fpp_document';
-				$upload_path 	= "uploads/cashadvance/fpp/";
-	            $document 		= $this->uploadFiles($fieldname, $upload_path);
-	            //END UPLOAD
-
-	            $getdata = $this->db->query("select * from cash_advance where id = '".$id."'")->result(); 
-				$hdndoc = $getdata[0]->document;
-
-				if($document == '' && $hdndoc != ''){
-					$document = $hdndoc;
-				}
-
-
-				$is_rfu=0;
-				
-				if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
-					$is_rfu=1;
-
-					$data = [
-						'requested_by'	=> $requested_by,
-						'total_cost' 	=> $total_cost,
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s"),
-						'status_id' 	=> 1,
-						'project_id' 	=> $project,
-						'fpp_type' 			=> $fpp_type,
-						'no_rekening' 		=> $no_rekening,
-						'vendor_name' 		=> $vendor_name,
-						'invoice_number' 	=> $invoice_number,
-						'invoice_date' 		=> $invoice_date
-					];
-				}else{
-					$data = [
-						'requested_by'	=> $requested_by,
-						'total_cost' 	=> $total_cost,
-						'document' 		=> $document,
-						'updated_at'	=> date("Y-m-d H:i:s"),
-						'project_id' 	=> $project,
-						'fpp_type' 			=> $fpp_type,
-						'no_rekening' 		=> $no_rekening,
-						'vendor_name' 		=> $vendor_name,
-						'invoice_number' 	=> $invoice_number,
-						'invoice_date' 		=> $invoice_date
-					];
-				}
-
-				
-				$rs = $this->db->update("cash_advance", $data, "id = ".$id."");
-
-				if($rs){
-					/// update approval path
-					$matrix_type_id = 2;
-					$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
-					$CurrApprovalPathId	= $CurrApproval[0]->id;
-
-					if($is_rfu == 1){ 
-						$updapproval_path = [
-							'current_approval_level' => 1
-						];
-						$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
-
-						$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
-
-						$updApproval2 = [
-							'status' 		=> "",
-							'approval_by' 	=> "",
-							'approval_date'	=> ""
-						];
-						$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
-						
-					}
-
-
-
-					if(isset($post_budget)){
-						$item_num = count($post_budget); // cek sum
-						$item_len_min = min(array_keys($post_budget)); // cek min key index
-						$item_len = max(array_keys($post_budget)); // cek max key index
-					} else {
-						$item_num = 0;
-					}
-
-					if($item_num>0){
-						for($i=$item_len_min;$i<=$item_len;$i++) 
-						{
-							$hdnid = $id_detail[$i];
-
-							if(!empty($hdnid)){ //update
-								if(isset($post_budget[$i])){
-									$itemData = [
-										'post_budget_id'	=> $post_budget[$i],
-										'amount' 		=> $amount[$i],
-										'ppn_pph' 		=> $ppn_pph[$i],
-										'total_amount'	=> $total_amount[$i],
-										'notes' 		=> $notes[$i]
-									];
-
-									$this->db->update("cash_advance_details", $itemData, "id = '".$hdnid."'");
-								}
-							}else{ //insert
-								if(isset($post_budget[$i])){
-									$itemData = [
-										'cash_advance_id'	=> $id,
-										'post_budget_id' 	=> $post_budget[$i],
-										'amount' 			=> $amount[$i],
-										'ppn_pph' 			=> $ppn_pph[$i],
-										'total_amount'		=> $total_amount[$i],
-										'notes' 			=> $notes[$i]
-									];
-
-									$this->db->insert('cash_advance_details', $itemData);
-								}
-							}
-						}
-					}
-
-					$response = [
-			            'status'  => 200,
-			            'message' => 'Success'
-			        ];
-
-				}else{
-					$response = [
-			            'status'  => 400,
-			            'message' => 'Failed',
-			            'error'   => 'Error Submit'
-			        ];
-				}
-
-			} else{
-				$response = [
-				    'status'  => 400,
-				    'message' => 'Failed',
-				    'error'   => 'Data not found'
-				];
-			}
-
-    	}else{
-    		$response = [
-				'status' 	=> 400, // Bad Request
-				'message' 	=>'Failed',
-				'error' 	=> 'Method Save not found'
-			];
-    	}
-
-
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-
-    public function get_data_settlement()
-    { 
-    	$this->verify_token();
-
-
-		$jsonData = file_get_contents('php://input');
-    	$data = json_decode($jsonData, true);
-    	$_REQUEST = $data;
-
-    	
-    	$islogin_employee	= $_GET['islogin_employee'];
-    	$filter_employee	= $_GET['filter_employee'];
-    	$filter_isapprover	= $_GET['filter_isapprover'];
-
-
-    	if($islogin_employee != ''){
-
-			$whr=''; $whr_isapprover='';
-	    	if($filter_employee != ''){
-	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
-	    	}
-	    	if($filter_isapprover != ''){
-	    		$whr_isapprover=' and ao.is_approver = 1 ';
-	    	}
-
-	    	$dataCA = $this->db->query('select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id, ab.ca_number,
-					max(d2.current_approval_level) AS current_approval_level,
-					max(h.role_id) AS current_role_id,
-					max(i.role_name) AS current_role_name,
-					GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
-					max(
-						IF(
-							i.role_name = "Direct",
-							c.direct_id,
-							(
-								SELECT GROUP_CONCAT(employee_id) 
-								FROM approval_matrix_role_pic 
-								WHERE approval_matrix_role_id = h.role_id
-							)
-						)
-					) AS current_employeeid_approver,
-					CASE 
-						WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1 
-						ELSE 0 
-					END AS is_approver_view,
-					CASE 
-						WHEN FIND_IN_SET(
-							'.$islogin_employee.', 
-							(
-								SELECT GROUP_CONCAT(employee_id) 
-								FROM approval_matrix_role_pic 
-								WHERE approval_matrix_role_id = max(h.role_id)
-							)
-						) > 0 THEN 1
-						WHEN max(i.role_name) = "Direct" AND max(c.direct_id) = '.$islogin_employee.' THEN 1  
-						ELSE 0 
-					END AS is_approver   
-					from settlement a left join employees b on b.id = a.prepared_by
-					left join cash_advance ab on ab.id = a.cash_advance_id
-					left join employees c on c.id = a.requested_by
-					left join master_status_cashadvance d on d.id = a.status_id
-					LEFT JOIN approval_path d2 ON d2.trx_id = a.id AND d2.approval_matrix_type_id = 3
-					LEFT JOIN approval_matrix bb ON bb.id = d2.approval_matrix_id
-					LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
-					LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
-					LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d2.id AND ee.approval_level = cc.approval_level
-					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
-					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
-					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
-					GROUP BY a.id)ao 
-					'.$whr.$whr_isapprover.' ')->result();  
-
-	    	if (!empty($dataCA)) {
-			    foreach ($dataCA as $key => $row) {
-			    	$data_sett = $this->db->query("select * from settlement where id = '".$row->id."' ")->result();
-
-			        if(!empty($data_sett)){ 
-						$detail = $this->db->query("select a.*, b.name as post_budget_name from settlement_details a left join master_post_budget b on b.id = a.post_budget_id where a.settlement_id = '".$row->id."' ")->result(); 
-					}else{ 
-						$detail = $this->db->query("select a.*, b.name as post_budget_name from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id where a.cash_advance_id = '".$row->id."' ")->result(); 
-					}
-
-			        // inject ke object reimburs
-			        $dataCA[$key]->details = $detail;
-			    }
-			}
-
-
-
-	    	$response = [
-	    		'status' 	=> 200,
-				'message' 	=> 'Success',
-				'data' 		=> $dataCA
-			];
-
-    		
-	    	
-	    	
-
-			$this->output->set_header('Access-Control-Allow-Origin: *');
-			$this->output->set_header('Access-Control-Allow-Methods: POST');
-			$this->output->set_header('Access-Control-Max-Age: 3600');
-			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-			$this->render_json($response, $response['status']);
-
-    	}else{
-    		$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-		
-		
-    }
-
-
-
-    public function save_settlement()
-    { 
-    	$this->verify_token();
-
-    	$islogin_employee	= $_POST['islogin_employee'];
-    	$method_save		= $_POST['method_save'];
-    	$id 				= $_POST['id'];
-    	$request_date		= $_POST['request_date'];
-    	$requested_by 		= $_POST['requested_by'];
-    	$cash_advance_id	= $_POST['cash_advance_id'];
-    	$total_cost_sett	= $_POST['total_cost'];
-    	$settlement_amount 	= $_POST['settlement_amount'];
-    	$no_rekening 		= $_POST['no_rekening'];
-    	$nama_rekening 		= $_POST['nama_rekening'];
-    	$bank 				= $_POST['bank'];
-    	$settlement_document 	= $_FILES['settlement_document'];
-    	$bukti_transfer 		= $_FILES['bukti_transfer'];
-
-    	
-
-    	///detail
-    	$id_detail 		= $_POST['id_detail'];
-    	$post_budget	= $_POST['post_budget_id'];
-    	$amount			= $_POST['amount'];
-    	$ppn_pph		= $_POST['ppn_pph'];
-    	$total_amount	= $_POST['total_amount'];
-    	$notes 			= $_POST['ppn_pph'];
-
-    	
-
-    	if($method_save == 'insert'){ 
-
-    		$lettercode = ('STL'); // ca code
-			$yearcode = date("y");
-			$monthcode = date("m");
-			$period = $yearcode.$monthcode; 
-			
-			$runningnumber = $this->getNextNumber(1); // next count number
-			$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
-
-
-			if(!empty($islogin_employee)){ 
-
-  				$dataEmp = $this->db->query("select * from employees where id = '".$islogin_employee."'")->result(); 
-				if(!empty($dataEmp)){
-					if(!empty($dataEmp[0]->work_location)){
-
-						//START UPLOAD 
-						$fieldname 		= 'settlement_document';
-						$upload_path 	= "uploads/cashadvance/settlement/";
-			            $document 		= $this->uploadFiles($fieldname, $upload_path);
-
-
-			            $fieldname2 	= 'bukti_transfer';
-						$upload_path2 	= "uploads/cashadvance/settlement/";
-			            $document_buktitransfer = $this->uploadFiles($fieldname2, $upload_path2);
-			            //END UPLOAD
-
-
-						$data = [
-							'settlement_number'	=> $nextnum,
-							'settlement_date' 	=> $request_date,
-							'cash_advance_id' 	=> $cash_advance_id, 
-							'prepared_by' 		=> $islogin_employee,
-							'requested_by'		=> $requested_by,
-							'total_cost' 		=> $total_cost_sett,
-							'settlement_amount' => $settlement_amount,
-							'document' 			=> $document,
-							'status_id' 		=> 1, //waiting approval
-							'bukti_transfer' 	=> $document_buktitransfer,
-							'no_rekening' 		=> $no_rekening,
-							'nama_rekening' 	=> $nama_rekening,
-							'bank_rekening' 	=> $bank
-						];
-						$rs = $this->db->insert("settlement", $data);
-						$lastId = $this->db->insert_id();
-
-						if($rs){
-							if(isset($post_budget)){
-								$item_num = count($post_budget); // cek sum
-								$item_len_min = min(array_keys($post_budget)); // cek min key index
-								$item_len = max(array_keys($post_budget)); // cek max key index
-							} else {
-								$item_num = 0;
-							}
-
-							if($item_num>0){
-								for($i=$item_len_min;$i<=$item_len;$i++) 
-								{
-									if(isset($post_budget[$i])){ 
-										$itemData = [
-											'settlement_id'		=> $lastId,
-											'post_budget_id' 	=> $post_budget[$i],
-											'amount' 			=> $amount[$i],
-											'ppn_pph' 			=> $ppn_pph[$i],
-											'total_amount'		=> $total_amount[$i],
-											'notes' 			=> $notes[$i]
-										];
-
-										$this->db->insert('settlement_details', $itemData);
-									}
-								}
-							}
-
-							///insert approval path
-							$approval_type_id = 3; //settlement
-							$this->getApprovalMatrix($dataEmp[0]->work_location, $approval_type_id, '', $total_cost, $lastId);
-
-							$upd_ca = [
-								'settlement_id' => $lastId
-							];
-							$this->db->update("cash_advance", $upd_ca, "id = '".$cash_advance_id."' ");
-
-
-							$response = [
-					            'status'  => 200,
-					            'message' => 'Success'
-					        ];
-
-						}else{
-							$response = [
-					            'status'  => 400,
-					            'message' => 'Failed',
-					            'error'   => 'Error Submit'
-					        ];
-						}
-
-					}else{
-						
-						$response = [
-				            'status'  => 400,
-				            'message' => 'Failed',
-				            'error'   => 'Work Location not found'
-				        ];
-					}
-				}else{
-					
-					$response = [
-			            'status'  => 400,
-			            'message' => 'Failed',
-			            'error'   => 'Employee not found'
-			        ];
-				}
-
-	  		}else{
-	  			$response = [
-		            'status'  => 400,
-		            'message' => 'Failed',
-		            'error'   => 'Error Submit'
-		        ];
-	  		}
-	  		
-			
-
-    	}else if($method_save == 'update'){
-    		
-    		if(!empty($id)){ 
-				
-				//START UPLOAD 
-				$fieldname 		= 'settlement_document';
-				$upload_path 	= "uploads/cashadvance/settlement/";
-	            $document 		= $this->uploadFiles($fieldname, $upload_path);
-
-
-	            $fieldname2 	= 'bukti_transfer';
-				$upload_path2 	= "uploads/cashadvance/settlement/";
-	            $document_buktitransfer = $this->uploadFiles($fieldname2, $upload_path2);
-	            //END UPLOAD
-
-	            $getdata = $this->db->query("select * from settlement where id = '".$id."'")->result(); 
-				$hdndoc = $getdata[0]->document;
-				$hdndoc_buktitransfer = $getdata[0]->bukti_transfer;
-
-				if($document == '' && $hdndoc != ''){
-					$document = $hdndoc;
-				}
-
-				if($document_buktitransfer == '' && $hdndoc_buktitransfer != ''){
-					$document_buktitransfer = $hdndoc_buktitransfer;
-				}
-
-
-				$is_rfu=0;
-				
-				if($getdata[0]->status_id == 4 && ($islogin_employee == $getdata[0]->prepared_by || $islogin_employee == $getdata[0]->requested_by)){ // edit RFU
-					$is_rfu=1;
-
-					$data = [
-						'requested_by'		=> $requested_by,
-						'total_cost' 		=> $total_cost_sett,
-						'settlement_amount' => $settlement_amount,
-						'document' 			=> $document,
-						'updated_at'		=> date("Y-m-d H:i:s"),
-						'status_id' 		=> 1,
-						'bukti_transfer' 	=> $document_buktitransfer,
-						'no_rekening' 		=> $no_rekening,
-						'nama_rekening' 	=> $nama_rekening,
-						'bank_rekening' 	=> $bank
-					];
-				}else{
-					$data = [
-						'requested_by'		=> $requested_by,
-						'total_cost' 		=> $total_cost_sett,
-						'settlement_amount' => $settlement_amount,
-						'document' 			=> $document,
-						'updated_at'		=> date("Y-m-d H:i:s"),
-						'bukti_transfer' 	=> $document_buktitransfer,
-						'no_rekening' 		=> $no_rekening,
-						'nama_rekening' 	=> $nama_rekening,
-						'bank_rekening' 	=> $bank
-					];
-				}
-
-				
-				$rs = $this->db->update("settlement", $data, "id = ".$id."");
-
-				if($rs){
-					/// update approval path
-					$matrix_type_id = 3;
-					$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id);
-					$CurrApprovalPathId	= $CurrApproval[0]->id;
-
-					if($is_rfu == 1){ 
-						$updapproval_path = [
-							'current_approval_level' => 1
-						];
-						$this->db->update("approval_path", $updapproval_path, "id = '".$CurrApprovalPathId."' ");
-
-						$this->db->delete('approval_path_detail',"approval_path_id = '".$CurrApprovalPathId."'and approval_level != 1");
-
-						$updApproval2 = [
-							'status' 		=> "",
-							'approval_by' 	=> "",
-							'approval_date'	=> ""
-						];
-						$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
-						
-					}
-
-
-
-					if(isset($post_budget)){
-						$item_num = count($post_budget); // cek sum
-						$item_len_min = min(array_keys($post_budget)); // cek min key index
-						$item_len = max(array_keys($post_budget)); // cek max key index
-					} else {
-						$item_num = 0;
-					}
-
-					if($item_num>0){
-						for($i=$item_len_min;$i<=$item_len;$i++) 
-						{
-							$hdnid = $id_detail[$i];
-
-							if(!empty($hdnid)){ //update
-								if(isset($post_budget[$i])){
-									$itemData = [
-										'post_budget_id'	=> $post_budget[$i],
-										'amount' 		=> $amount[$i],
-										'ppn_pph' 		=> $ppn_pph[$i],
-										'total_amount'	=> $total_amount[$i],
-										'notes' 		=> $notes[$i]
-									];
-
-									$this->db->update("settlement_details", $itemData, "id = '".$hdnid."'");
-								}
-							}else{ //insert
-								if(isset($post_budget[$i])){
-									$itemData = [
-										'settlement_id'	=> $id,
-										'post_budget_id' 	=> $post_budget[$i],
-										'amount' 			=> $amount[$i],
-										'ppn_pph' 			=> $ppn_pph[$i],
-										'total_amount'		=> $total_amount[$i],
-										'notes' 			=> $notes[$i]
-									];
-
-									$this->db->insert('settlement_details', $itemData);
-								}
-							}
-						}
-					}
-
-					$response = [
-			            'status'  => 200,
-			            'message' => 'Success'
-			        ];
-
-				}else{
-					$response = [
-			            'status'  => 400,
-			            'message' => 'Failed',
-			            'error'   => 'Error Submit'
-			        ];
-				}
-
-			} else{
-				$response = [
-				    'status'  => 400,
-				    'message' => 'Failed',
-				    'error'   => 'Data not found'
-				];
-			}
-
-    	}else{
-    		$response = [
-				'status' 	=> 400, // Bad Request
-				'message' 	=>'Failed',
-				'error' 	=> 'Method Save not found'
-			];
-    	}
-
-
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-		
-    }
-
-
-    public function list_cashadvance_no_settlement()
-    { 
-    	$this->verify_token();
-
-
-		$dataCA = $this->db->query("select * from cash_advance where status_id in ('2','5') and settlement_id is null 
-			")->result(); 
-
-		if(!empty($dataCA)){
-		    foreach ($dataCA as $key => $row) {
-
-		        $detail = $this->db->query("
-		            select a.*, b.name as post_budget_name 
-					from cash_advance_details a left join master_post_budget b on b.id = a.post_budget_id 
-					where a.cash_advance_id = ?
-		        ", [$row->id])->result();
-
-		        // inject ke object reimburs
-		        $dataCA[$key]->details = $detail;
-		    }
-			
-			
-			$response = [
-				'status' 	=> 200,
-				'message' 	=> 'Success',
-				"data" 		=> $dataCA
-			];
-
-		}else{
-			$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'No Data'
-	        ];
-		}
-
-    
-    	
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-
-    	
-    }
-
-
-    public function approval_settlement()
-    { 
-    	$this->verify_token();
-
-    	$islogin_employee	= $_POST['islogin_employee'];
-    	$status				= $_POST['status']; // approve / reject /rfu
-    	$id 				= $_POST['id'];
-    	$reason				= $_POST['reason']; // for reject or rfu
-    	
-    	$matrix_type_id = 3; //settlement
-
-    	if($islogin_employee != '' && $status != '' && $id != ''){ 
-    		$is_approver = $this->checkApprover($matrix_type_id, $id, $islogin_employee); 
-    		if($is_approver == 1){
-
-				$CurrApproval 	= $this->getCurrApproval($matrix_type_id, $id); 
-	  			$maxApproval 	= $this->getMaxApproval($matrix_type_id, $id); 
-	  			$current_approval_level = $CurrApproval[0]->current_approval_level;
-	  			$next_level 		= $current_approval_level+1;
-				$approval_path_id	= $CurrApproval[0]->id;
-				
-
-				$cekApproval = $this->db->query("select * from approval_path_detail where approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ")->result(); 
-
-				if($cekApproval[0]->status != ''){
-					$response = [
-						'status' 	=> 400,
-						'message' 	=> 'Failed',
-						'error' 	=> 'Cannot double approval'
-					];
-				}else{
-
-					if($status == 'approve'){
-						if($current_approval_level == $maxApproval){   //last approver
-							$data = [
-								'status_id'		=> 2, //approved
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							
-							$rs = $this->db->update("settlement", $data, "id = ".$id."");
-
-							if($rs){
-								//update approval path
-								$updApproval = [
-									'status' 		=> "Approved",
-									'approval_by' 	=> $islogin_employee,
-									'approval_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-
-								$response = [
-									'status' 	=> 200,
-									'message' 	=> 'Success'
-								];
-								
-							}else{
-								$response = [
-									'status' 	=> 400,
-									'message' 	=> 'Failed',
-									'error' 	=> 'Failed'
-								];
-							}
-							
-							
-						}else{
-
-							$data2 = [
-								'current_approval_level' => $next_level
-							];
-							$rs = $this->db->update("approval_path", $data2, "id = '".$approval_path_id."'");
-							
-							if($rs){
-								$data = [
-									'status' 		=> "Approved",
-									'approval_by' 	=> $karyawan_id,
-									'approval_date'	=> date("Y-m-d H:i:s")
-								];
-								$this->db->update("approval_path_detail", $data, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-								$dataApprovalDetail = [
-									'approval_path_id' 	=> $approval_path_id, 
-									'approval_level' 	=> $next_level
-								];
-								$this->db->insert("approval_path_detail", $dataApprovalDetail);
-
-
-								$response = [
-									'status' 	=> 200,
-									'message' 	=> 'Success'
-								];
-
-							}
-							else{
-								$response = [
-									'status' 	=> 400,
-									'message' 	=> 'Failed',
-									'error' 	=> 'Failed'
-								];
-							}
-							
-						}
-					
-
-			    	}else if($status == 'reject'){
-			    		
-			    		$data = [
-							'status_id' 	=> 3, //Rejected
-							'approval_date'	=> date("Y-m-d H:i:s"),
-							'reject_reason' => $reason
-						];
-						$rs = $this->db->update('settlement', $data, "id = '".$id."'");
-
-						
-						if($rs){
-							$dataapproval = [
-								'status' 		=> "Rejected",
-								'approval_by' 	=> $islogin_employee,
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							$this->db->update("approval_path_detail", $dataapproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level." ");
-
-
-							$response = [
-				                'status'  => 200,
-				                'message' => 'Success'
-				            ];
-						}else{
-							$response = [
-							    'status'  => 400,
-							    'message' => 'Failed',
-							    'error'   => 'Failed'
-							];
-						}
-
-			    	}else if($status == 'rfu'){
-
-			    		$data = [
-							'status_id' 	=> 4, //rfu
-							'rfu_reason' 	=> $reason,
-							'approval_date'	=> date("Y-m-d H:i:s")
-						];
-						$rs = $this->db->update('settlement', $data, "id = '".$id."'");
-
-						if($rs){
-							$updApproval = [
-								'status' 		=> "Request for Update",
-								'approval_by' 	=> $islogin_employee,
-								'approval_date'	=> date("Y-m-d H:i:s")
-							];
-							$this->db->update("approval_path_detail", $updApproval, "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
-
-
-							$response = [
-				                'status'  => 200,
-				                'message' => 'Success'
-				            ];
-						}else{
-							$response = [
-							    'status'  => 400,
-							    'message' => 'Failed',
-							    'error'   => 'Failed'
-							];
-						}
-
-			    	}else{
-			    		$response = [
-							'status' 	=> 400, // Bad Request
-							'message' 	=>'Failed',
-							'error' 	=> 'Status not found'
-						];
-			    	}
-				}
-	    		
-    		}else{
-    			$response = [
-		            'status'  => 400,
-		            'message' => 'Failed',
-		            'error'   => 'You are not authorized to approve this data'
-		        ];
-    		}
-
-    	}else{
-    		$response = [
-	            'status'  => 400,
-	            'message' => 'Failed',
-	            'error'   => 'Bad Request'
-	        ];
-    	}
-
-
-
-    	$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-
-		
-    }
-
-
-    public function master_overtime_type()
-    { 
-    	$this->verify_token();
-
-		
-		$response = [
-			'status' 	=> 200,
-			'message' 	=> 'Success',
-			"data" 		=> [
-	            [
-	                "id"=> "1",
-	                "name"=> "Lembur hari kerja"
-	            ],
-	            [
-	                "id"=> "2",
-	                "name"=> "Masuk di hari libur"
-	            ]
-	        ]
-		];
-
-		
-
-    
-    	
-
-		$this->output->set_header('Access-Control-Allow-Origin: *');
-		$this->output->set_header('Access-Control-Allow-Methods: POST');
-		$this->output->set_header('Access-Control-Max-Age: 3600');
-		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
-		$this->render_json($response, $response['status']);
-
-    	
-    }
-
-
-	public function test_push_notification()
-	{
-		$userId = $this->param('user_id');
-		$title_notif = $this->param('title_notif');
-		$value_notif = $this->param('value_notif');
-
-
-		if (!$userId) {
-			return $this->render_json([
-				'status' => false,
-				'message' => 'user_id is required'
-			], 400);
-		}
-
-		$device = $this->db
-			->where('user_id', $userId)
-			->where('type', 'mobile')
-			->where('is_active', 1)
-			->order_by('id', 'DESC')
-			->get('user_devices')
-			->row();
-
-		if (!$device || empty($device->fcm_token)) {
-			return $this->render_json([
-				'status' => false,
-				'message' => 'FCM token not found'
-			], 404);
-		}
-
-		$this->load->model('notification/Notification_model', 'notif');
-
-		$result = $this->notif->sendNotification(
-			$device->fcm_token,
-			/*'Test Notification',
-			'Ini test push notification dari API 🔔',*/
-			$title_notif,
-			$value_notif,
-			[
-				'type' => 'test',
-				'user_id' => (string) $userId
-			]
-		);
-
-		// token invalid → nonaktifkan
-		if (
-			isset($result['error']['status']) &&
-			$result['error']['status'] === 'UNREGISTERED'
-		) {
-			$this->db
-				->where('id', $device->id)
-				->update('user_devices', ['is_active' => 0]);
-		}
-
-		return $this->render_json([
-			'status' => $result['success'],
-			'device_id' => $device->id,
-			'firebase' => $result
-		]);
-	}
-
-	public function add_login_banner()
-	{
-		try {
-			$this->verify_token();
-
-			$name       = $this->input->post('name');
-			$created_by = $this->input->post('created_by');
-
-			if (empty($name) || empty($_FILES['photo']['name'])) {
-				return $this->render_json([
-					'status'  => 400,
-					'message' => 'Name and photo are required'
-				], 400);
-			}
-
-			$upload_path = FCPATH . 'public/assets/images/login/';
-			if (!is_dir($upload_path)) {
-				mkdir($upload_path, 0777, true);
-			}
-
-			$config['upload_path']   = $upload_path;
-			$config['allowed_types'] = 'jpg|jpeg|png|webp';
-			$config['max_size']      = 2048;
-			$config['encrypt_name']  = true;
-
-			$this->load->library('upload', $config);
-
-			if (!$this->upload->do_upload('photo')) {
-				return $this->render_json([
-					'status'  => 400,
-					'message' => $this->upload->display_errors('', '')
-				], 400);
-			}
-
-			$upload = $this->upload->data();
-
-			$this->api->deactivate_all_login_banner();
-
-			$data = [
-				'name'       => $name,
-				'photo'      => $upload['file_name'],
-				'is_active'  => 1,
-				'created_at' => date('Y-m-d H:i:s'),
-				'created_by' => $created_by
-			];
-
-			$this->api->insert_login_banner($data);
-
-			return $this->render_json([
-				'status'  => 200,
-				'message' => 'Login banner added successfully',
-				'data'    => [
-					'name'  => $name,
-					'photo' => base_url('public/assets/images/login/' . $upload['file_name'])
-				]
-			], 200);
-
-		} catch (Throwable $e) {
-
-			log_message('error', $e->getMessage());
-
-			return $this->render_json([
-				'status'  => 500,
-				'message' => 'Server Error'
-			], 500);
-		}
-	}
-
-	public function login_banner()
-	{
-		try {
-			$banner = $this->api->get_active_login_banner();
-
-			if (!$banner) {
-				return $this->render_json([
-					'status'  => 200,
-					'message' => 'No banner',
-					'data'    => null
-				], 200);
-			}
-
-			return $this->render_json([
-				'status'  => 200,
-				'message' => 'Success',
-				'data'    => [
-					'name'  => $banner->name,
-					'photo' => base_url('public/assets/images/login/' . $banner->photo)
-				]
-			], 200);
-
-		} catch (Throwable $e) {
-			log_message('error', $e->getMessage());
-			return $this->render_json([
-				'status'  => 500,
-				'message' => $e->getMessage(),
-				'data'    => null
-			], 500);
-		}
-	}
-
-	public function add_app_version()
-	{
-		try {
-			$this->verify_token();
-			$platform        = $this->input->post('platform');
-			$latest_version  = $this->input->post('latest_version');
-			$minimum_version = $this->input->post('minimum_version');
-			$force_update    = $this->input->post('force_update');
-			$release_notes   = $this->input->post('release_notes');
-
-			if (
-				empty($platform) ||
-				empty($latest_version) ||
-				empty($minimum_version) ||
-				empty($_FILES['apk']['name'])
-			) {
-				return $this->render_json([
-					'status'  => 400,
-					'message' => 'Platform, version, minimum version and APK are required'
-				], 400);
-			}
-			$upload_path = FCPATH . 'public/assets/apk/';
-
-			if (!is_dir($upload_path)) {
-				mkdir($upload_path, 0777, true);
-			}
-
-			if (!is_writable($upload_path)) {
-				chmod($upload_path, 0777);
-			}
-
-			$config = [
-				'upload_path'   => $upload_path,
-				'allowed_types' => 'apk',
-				'max_size'      => 0,
-				'encrypt_name'  => true
-			];
-
-			$this->load->library('upload', $config);
-
-			if (!$this->upload->do_upload('apk')) {
-				return $this->render_json([
-					'status'  => 400,
-					'message' => $this->upload->display_errors('', '')
-				], 400);
-			}
-
-			$upload = $this->upload->data();
-
-			$this->api->deactivate_app_versions($platform);
-
-			$data = [
-				'platform'        => $platform,
-				'latest_version'  => $latest_version,
-				'minimum_version' => $minimum_version,
-				'apk_url'         => base_url('public/assets/apk/' . $upload['file_name']),
-				'force_update'    => (int) $force_update,
-				'release_notes'   => $release_notes,
-				'is_active'       => 1,
-				'created_at'      => date('Y-m-d H:i:s')
-			];
-
-			$this->api->insert_app_version($data);
-
-			return $this->render_json([
-				'status'  => 200,
-				'message' => 'App version updated successfully',
-				'data'    => $data
-			], 200);
-
-		} catch (Throwable $e) {
-			log_message('error', $e->getMessage());
-
-			return $this->render_json([
-				'status'  => 500,
-				'message' => 'Server Error'
-			], 500);
-		}
-	}
-
-	public function app_version()
-	{
-		try {
-			$platform = $this->input->get('platform')
-					?? $this->input->post('platform');
-
-			if (!$platform) {
-				$raw = json_decode(file_get_contents('php://input'), true);
-				$platform = $raw['platform'] ?? null;
-			}
-
-			if (empty($platform)) {
-				return $this->render_json([
-					'status'  => 400,
-					'message' => 'Platform is required'
-				], 400);
-			}
-
-			$version = $this->api->get_active_app_version($platform);
-
-			if (!$version) {
-				return $this->render_json([
-					'status'  => 200,
-					'message' => 'No version found',
-					'data'    => null
-				], 200);
-			}
-
-			return $this->render_json([
-				'status'  => 200,
-				'message' => 'Success',
-				'data'    => [
-					'latest_version'  => $version->latest_version,
-					'minimum_version' => $version->minimum_version,
-					'apk_url'         => $version->apk_url,
-					'force_update'    => (int) $version->force_update,
-					'release_notes'   => $version->release_notes
-				]
-			], 200);
-
-		} catch (Throwable $e) {
-			log_message('error', $e->getMessage());
-
-			return $this->render_json([
-				'status'  => 500,
-				'message' => 'Server Error'
-			], 500);
-		}
-	}
 
 }
+
