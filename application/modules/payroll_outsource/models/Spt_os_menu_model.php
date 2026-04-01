@@ -453,7 +453,8 @@ class Spt_os_menu_model extends MY_Model
 	                'project_id'       => $row->project_id,
 	                'tahun' 		   => $tahun,
 	                'created_at'       => date("Y-m-d H:i:s"),
-	                'created_by' 	   => $_SESSION['worker']
+	                'created_by' 	   => $_SESSION['worker'],
+	                'status_id'=> 1 ///draft
 	            ]);
 
 	            $header_id = $this->db->insert_id();
@@ -474,7 +475,14 @@ class Spt_os_menu_model extends MY_Model
 			$pkp = floor($pkp / 1000) * 1000;
 
 	        $pph21_tahunan = $this->getPph21_tahunan($pkp); 
+	        $kurang_lebih_bayar = $pph21_tahunan-$row->ttl_pph21;
 
+	        $kurang_lebih_bayar_desc = 'pas';
+	        if ($kurang_lebih_bayar > 0) {
+			    $kurang_lebih_bayar_desc = 'kurang bayar';
+			} else if($kurang_lebih_bayar < 0) {
+			    $kurang_lebih_bayar_desc = 'lebih bayar';
+			}
 
 	        /* ---- siapkan batch insert ---- */
 
@@ -489,8 +497,8 @@ class Spt_os_menu_model extends MY_Model
 	            'pkp'    				=> $pkp,
 	            'pph21_tahunan'   		=> $pph21_tahunan,
 	            'pph21_ter_total'		=> $row->ttl_pph21,
-	            'kurang_lebih_bayar'	=> '',
-	            //'status_id'=> '',
+	            'kurang_lebih_bayar'	=> $kurang_lebih_bayar,
+	            ///'status_id'=> 1, ///draft
 	            'periode_start'			=> $row->periode_start_desc,
 	            'periode_end'			=> $row->periode_end_desc
 	            
@@ -760,7 +768,7 @@ class Spt_os_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($f->pph21_ter_total,'ttl_pph21_ter_total['.$row.']','','ttl_pph21_ter_total','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					/*$dt .= '<td>'.$this->return_build_txt($f->kurang_lebih_bayar,'ttl_kurang_lebih_bayar['.$row.']','','ttl_kurang_lebih_bayar','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+					$dt .= '<td>'.$this->return_build_txt($f->kurang_lebih_bayar,'ttl_kurang_lebih_bayar['.$row.']','','ttl_kurang_lebih_bayar','text-align: right;','data-id="'.$row.'" ').'</td>';
 
 					
 
@@ -790,7 +798,7 @@ class Spt_os_menu_model extends MY_Model
 					$dt .= '<td>'.$f->pkp.'</td>';
 					$dt .= '<td>'.$f->pph21_tahunan.'</td>';
 					$dt .= '<td>'.$f->pph21_ter_total.'</td>';
-					///$dt .= '<td>'.$f->kurang_lebih_bayar.'</td>';
+					$dt .= '<td>'.$f->kurang_lebih_bayar.'</td>';
 					$dt .= '</tr>';
 
 					

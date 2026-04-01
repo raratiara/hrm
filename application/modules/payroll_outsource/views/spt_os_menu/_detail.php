@@ -60,7 +60,7 @@
 							<th scope="col">PKP</th>
 							<th scope="col">PPH 21 Tahunan</th>
 							<th scope="col">PPH 21 Ter Total</th>
-							<!-- <th scope="col">Kurang Lebih Bayar</th> -->
+							<th scope="col">Kurang Lebih Bayar</th>
 							
 						</tr>
 					</thead>
