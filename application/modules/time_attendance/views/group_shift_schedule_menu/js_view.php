@@ -535,9 +535,9 @@ function generateCalendar(year, month, shiftData='') {
 
     	const shiftOptions  = [
 		  { label: "", value: "" },
-		  { label: "Shift 1", value: "1" },
-		  { label: "Shift 2", value: "2" },
-		  { label: "Shift 3", value: "3" },
+		  { label: "Shift Pagi", value: "1" },
+		  /*{ label: "Shift 2", value: "2" },*/
+		  { label: "Shift Malam", value: "3" },
 		  { label: "OFF", value: "0" }
 		];
 
@@ -619,9 +619,9 @@ function generateCalendarView(year, month, shiftData='') {
 
     	const shiftOptions  = [
 		  { label: "", value: "" },
-		  { label: "Shift 1", value: "1" },
-		  { label: "Shift 2", value: "2" },
-		  { label: "Shift 3", value: "3" },
+		  { label: "Shift Pagi", value: "1" },
+		  /*{ label: "Shift 2", value: "2" },*/
+		  { label: "Shift Malam", value: "3" },
 		  { label: "OFF", value: "0" }
 		];
 
@@ -708,9 +708,9 @@ function formatDateLocal(date) {
 }
 
 
-function renderSchedule(currentWeek, jadwalData = '', tanggalList = '') {
+function renderSchedule(currentWeek, jadwalData = '', tanggalList = '') { 
 
-  let hdnjadwalTersimpana = $("#hdnjadwalTersimpan").val();
+  let hdnjadwalTersimpana = $("#hdnjadwalTersimpan").val(); 
   let jadwalTersimpan = hdnjadwalTersimpana ? JSON.parse(hdnjadwalTersimpana) : [];
   //console.log("jadwalTersimpan", jadwalTersimpan);
 
@@ -795,7 +795,14 @@ function renderSchedule(currentWeek, jadwalData = '', tanggalList = '') {
 
             if (jadwal) {
               const shiftClass = jadwal.shift.toLowerCase().replace(/\s+/g, '');
-              const shiftName = jadwal.shift;
+              /*const shiftName = jadwal.shift;*/
+              var jShift="";
+              if(jadwal.shift == 'Shift 3'){
+              	jShift = 'Shift Malam';
+              }else if(jadwal.shift == 'Shift 1'){
+              	jShift = 'Shift Pagi';
+              }
+              const shiftName = jShift;///jadwal.shift;
               td.innerHTML = `
                 <div class="assigned ${shiftClass}" 
                      onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">
@@ -808,8 +815,16 @@ function renderSchedule(currentWeek, jadwalData = '', tanggalList = '') {
             td.addEventListener('drop', e => {
               e.preventDefault();
               let shift = e.dataTransfer.getData('text/plain');
+              nShift = shift;
+              if(shift == 'Shift 1'){
+              	nShift = 'Shift Pagi';
+              }else if(shift == 'Shift 3'){
+              	nShift = 'Shift Malam';
+              }
+              /*td.innerHTML = `<div class="assigned ${shift.toLowerCase().replace(/\s+/g, '')}" 
+                              onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${shift}</div>`;*/
               td.innerHTML = `<div class="assigned ${shift.toLowerCase().replace(/\s+/g, '')}" 
-                              onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${shift}</div>`;
+                              onclick="deleteShift(this, '${emp.full_name}', '${tgl}')">${nShift}</div>`;
 
               // Ambil data lama
               let allData = $('[name="selectedshift"]').val();
