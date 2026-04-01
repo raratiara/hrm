@@ -23,7 +23,8 @@ class Spt_os_menu_model extends MY_Model
 			'dt.project_id',
 			'dt.tahun',
 			'dt.created_at',
-			'dt.project_name'
+			'dt.project_name',
+			'dt.status_name'
 		];
 		
 		
@@ -34,12 +35,12 @@ class Spt_os_menu_model extends MY_Model
 		$dateNow = date("Y-m-d");
 
 		
-		/*$where_project = "";
+		$where_project = "";
 			if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
 			$where_project = " and a.project_id = '".$_GET['flproject']."' ";
-		}*/
+		}
 
-		$sTable = '(select a.*, b.project_name from spt_pph21 a left join project_outsource b on b.id = a.project_id
+		$sTable = '(select a.*, b.project_name, c.name as status_name from spt_pph21 a left join project_outsource b on b.id = a.project_id left join master_status_spt c on c.id = a.status_id where 1=1 '.$where_project.'
 				)dt';
 		
 
@@ -185,17 +186,18 @@ class Spt_os_menu_model extends MY_Model
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $row->status_name == 'Draft')  {
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && $row->status_name == 'Draft')  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
-			$print_spt = '<a class="btn btn-default btn-xs" onclick="getReport_summ_absen_os('."'".$row->id."'".')"><i class="fa fa-download"></i> Report</a>';
+			$print_spt="";
+			/*$print_spt = '<a class="btn btn-default btn-xs" onclick="getReport_summ_absen_os('."'".$row->id."'".')"><i class="fa fa-download"></i> Report</a>';*/
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
@@ -208,8 +210,8 @@ class Spt_os_menu_model extends MY_Model
 				$row->id,
 				$row->project_name,
 				$row->tahun,
-				$row->created_at
-
+				$row->created_at,
+				$row->status_name
 			));
 		}
 
@@ -263,6 +265,8 @@ class Spt_os_menu_model extends MY_Model
 
 	public function getBiayaJabatan($type, $bruto) { 
 
+		if ($bruto <= 0) return 0;
+
 		$biaya_jabatan=0;
 
 		if($type == 'tahunan'){
@@ -277,6 +281,55 @@ class Spt_os_menu_model extends MY_Model
 		return $biaya_jabatan;
 		
 	} 
+
+
+	public function getPph21_tahunan($pkp) { 
+
+		if ($pkp <= 0) return 0;
+
+		$pajak = 0;
+
+	    if($pkp <= 60000000){ /// 60juta
+	        $pajak += $pkp * 0.05; /// 5%
+	    }
+	    else{
+	    	$pajak += 60000000 * 0.05; /// 5%
+	        $pkp -= 60000000;
+
+	        if($pkp <= 190000000){ /// 190jt
+	            $pajak += $pkp * 0.15; /// 15%
+	        }
+	        else{
+	        	$pajak += 190000000 * 0.15; /// 15%
+	            $pkp -= 190000000;
+
+	            if($pkp <= 250000000){ ///250jt
+	                $pajak += $pkp * 0.25; /// 25%
+	            }
+	            else{
+	            	$pajak += 250000000 * 0.25; /// 25%
+	                $pkp -= 250000000;
+
+	                if($pkp <= 4500000000){ /// 4.5 M
+	                    $pajak += $pkp * 0.3; ///30%
+	                }
+	                else{
+	                	$pajak += 4500000000 * 0.3; ///30%
+	                    $pkp -= 4500000000;
+
+	                    $pajak += $pkp * 0.35; ///35%
+	                }
+	            }
+	        }
+	    }
+	        
+	                
+	             
+
+    	return $pajak;
+
+	} 
+
 
 	public function getPTKP($marital_status_id) { 
 
@@ -332,15 +385,37 @@ class Spt_os_menu_model extends MY_Model
 	    =============================== */
 
 	    $sql = "
-	    SELECT 
-	        select b.project_id, b.tahun_penggajian , a.*, c.marital_status_id
-			from payroll_slip_detail a left join payroll_slip b on b.id = a.payroll_slip_id
-			left join employees c on c.id = a.employee_id
-			where b.tahun_penggajian = '".$tahun."' 
-	    $filter_employee
+	    select dt.*, concat(dt.tahun_penggajian, '-', bb.code) as periode_start_desc
+	    , concat(dt.tahun_penggajian, '-', cc.code) as periode_end_desc
+		from (SELECT 
+		    a.employee_id,
+		    b.project_id,
+		    c.marital_status_id,
+			b.tahun_penggajian,
+		    MIN(b.bulan_penggajian) AS periode_start,
+		    MAX(b.bulan_penggajian) AS periode_end,
+
+		    SUM(a.total_pendapatan) AS ttl_pendapatan,
+		    SUM(a.pph_21) AS ttl_pph21,
+		    SUM(a.bpjs_kesehatan) AS ttl_bpjs_kesehatan,
+		    SUM(a.bpjs_tk) AS ttl_bpjs_tk
+
+		FROM payroll_slip_detail a
+		LEFT JOIN payroll_slip b ON b.id = a.payroll_slip_id
+		LEFT JOIN employees c ON c.id = a.employee_id
+
+		WHERE b.tahun_penggajian = '".$tahun."'
+
+		$filter_employee
 	    $filter_project
 
-	    GROUP BY a.id
+		GROUP BY 
+		    a.employee_id,
+		    b.project_id,
+		    c.marital_status_id) dt
+		    left join master_month bb on bb.id = dt.periode_start
+		    left join master_month cc on cc.id = dt.periode_end
+	    
 	    ";
 
 	    $data_summary = $this->db->query(
@@ -388,30 +463,36 @@ class Spt_os_menu_model extends MY_Model
 
 	       
 	       	$iuran_pensiun = 0 ; ///belum ada
-	        $biaya_jabatan = $this->getBiayaJabatan('tahunan',$row->total_pendapatan); 
-	        $iuran = $row->bpjs_kesehatan + $row->bpjs_tk + $iuran_pensiun;
-	        $neto = $row->total_pendapatan - $biaya_jabatan - $iuran;
+	        $biaya_jabatan = $this->getBiayaJabatan('tahunan',$row->ttl_pendapatan); 
+	        $iuran = $row->ttl_bpjs_kesehatan + $row->ttl_bpjs_tk + $iuran_pensiun;
+	        $neto = max(0, $row->ttl_pendapatan - $biaya_jabatan - $iuran);
 	        $ptkp = $this->getPTKP($row->marital_status_id); 
-	        $pkp = $neto - $ptkp;
+
+	        // PKP tidak boleh negatif
+			$pkp = max(0, $neto - $ptkp);
+			// pembulatan ribuan ke bawah
+			$pkp = floor($pkp / 1000) * 1000;
+
+	        $pph21_tahunan = $this->getPph21_tahunan($pkp); 
 
 
 	        /* ---- siapkan batch insert ---- */
 
 	        $insert_batch[] = [
-	            'spt_pph21_id' 	=> $header_id,
+	            'spt_pph21_id' 			=> $header_id,
 	            'employee_id'           => $row->employee_id,
-	            'bruto_tahunan'        	=> $row->total_pendapatan,
+	            'bruto_tahunan'        	=> $row->ttl_pendapatan,
 	            'biaya_jabatan'         => $biaya_jabatan,
 	            'iuran'         		=> $iuran,
 	            'neto_tahunan'         	=> $neto,
 	            'ptkp'       			=> $ptkp,
 	            'pkp'    				=> $pkp,
-	            'pph21_tahunan'   		=> $row->total_jam_lembur,
-	            'pph21_ter_total'		=> '',
-	            'kurang_lebih_bayar'=> '',
-	            'is_finalized'=> '',
-	            'periode_start'=> '',
-	            'periode_end'=> ''
+	            'pph21_tahunan'   		=> $pph21_tahunan,
+	            'pph21_ter_total'		=> $row->ttl_pph21,
+	            'kurang_lebih_bayar'	=> '',
+	            //'status_id'=> '',
+	            'periode_start'			=> $row->periode_start_desc,
+	            'periode_end'			=> $row->periode_end_desc
 	            
 	        ];
 	    }
@@ -438,89 +519,82 @@ class Spt_os_menu_model extends MY_Model
 
 		if(!empty($post['id'])){
 
-			$getperiod_start 	= date_create($post['period_start']); 
-			$getperiod_end 		= date_create($post['period_end']); 
-			$period_start 		= date_format($getperiod_start,"Y-m-d");
-			$period_end 		= date_format($getperiod_end,"Y-m-d");
+			$item = [
+				'status_id' => trim($post['status']) 
+			];
 
-	  		if(!empty($post['penggajian_month']) && !empty($post['penggajian_year']) && !empty($period_start) && !empty($period_end)){ 
-	  			
-	  			$data = [
-					'bulan_penggajian' 	=> trim($post['penggajian_month']),
-					'tahun_penggajian' 	=> trim($post['penggajian_year']),
-					'tgl_start_absen' 	=> $period_start,
-					'tgl_end_absen' 	=> $period_end
-				];
-				$rs = $this->db->update("summary_absen_outsource", $data, "id = '".$post['id']."'");
+			$rs = $this->db->update("spt_pph21", $item, "id = '".$post['id']."'");
 
 
-				if(isset($post['hdnempid'])){
-					$item_num = count($post['hdnempid']); // cek sum
-					$item_len_min = min(array_keys($post['hdnempid'])); // cek min key index
-					$item_len = max(array_keys($post['hdnempid'])); // cek max key index
-				} else {
-					$item_num = 0;
-				}
+			/// update detail
+			if(isset($post['hdnempid'])){
+				$item_num = count($post['hdnempid']); // cek sum
+				$item_len_min = min(array_keys($post['hdnempid'])); // cek min key index
+				$item_len = max(array_keys($post['hdnempid'])); // cek max key index
+			} else {
+				$item_num = 0;
+			}
 
-				if($item_num>0){
-					for($i=$item_len_min;$i<=$item_len;$i++) 
-					{
-						$hdnid = trim($post['hdnid'][$i]);
+			if($item_num>0){
+				for($i=$item_len_min;$i<=$item_len;$i++) 
+				{
+					$hdnid = trim($post['hdnid'][$i]);
 
-						if(!empty($hdnid)){ //update
-							if(isset($post['hdnempid'][$i])){
-								$itemData = [
-									'total_hari_kerja'	=> trim($post['ttl_hari_kerja'][$i]),
-									'total_masuk' 		=> trim($post['ttl_masuk'][$i]),
-									'total_ijin' 		=> trim($post['ttl_ijin'][$i]),
-									'total_cuti'		=> trim($post['ttl_cuti'][$i]),
-									'total_alfa' 		=> trim($post['ttl_alfa'][$i]),
-									'total_lembur' 		=> trim($post['ttl_lembur'][$i]),
-									'total_jam_kerja' 	=> trim($post['ttl_jam_kerja'][$i]),
-									'total_jam_lembur' 	=> trim($post['ttl_jam_lembur'][$i])
-								];
+					if(!empty($hdnid)){ //update
+						if(isset($post['hdnempid'][$i])){
+							$itemData = [
+								'periode_start'			=> trim($post['periode_start'][$i]),
+								'periode_end' 			=> trim($post['periode_end'][$i]),
+								'bruto_tahunan' 		=> trim($post['ttl_bruto_tahunan'][$i]),
+								'biaya_jabatan'			=> trim($post['ttl_biaya_jabatan'][$i]),
+								'iuran' 				=> trim($post['ttl_iuran'][$i]),
+								'neto_tahunan' 			=> trim($post['ttl_neto_tahunan'][$i]),
+								'ptkp' 					=> trim($post['ttl_ptkp'][$i]),
+								'pkp' 					=> trim($post['ttl_pkp'][$i]),
+								'pph21_tahunan' 		=> trim($post['ttl_pph21_tahunan'][$i]),
+								'pph21_ter_total' 		=> trim($post['ttl_pph21_ter_total'][$i]),
+								'kurang_lebih_bayar' 	=> trim($post['ttl_kurang_lebih_bayar'][$i])
+							];
 
-								$this->db->update("summary_absen_outsource_detail", $itemData, "id = '".$hdnid."'");
-							}
-						}else{ //insert
-							if(isset($post['hdnempid'][$i])){
-								$itemData = [
-									'summary_absen_outsource_id'	=> $post['id'],
-									'total_hari_kerja'	=> trim($post['ttl_hari_kerja'][$i]),
-									'total_masuk' 		=> trim($post['ttl_masuk'][$i]),
-									'total_ijin' 		=> trim($post['ttl_ijin'][$i]),
-									'total_cuti'		=> trim($post['ttl_cuti'][$i]),
-									'total_alfa' 		=> trim($post['ttl_alfa'][$i]),
-									'total_lembur' 		=> trim($post['ttl_lembur'][$i]),
-									'total_jam_kerja' 	=> trim($post['ttl_jam_kerja'][$i]),
-									'total_jam_lembur' 	=> trim($post['ttl_jam_lembur'][$i])
-								];
+							$this->db->update("spt_pph21_detail", $itemData, "id = '".$hdnid."'");
+						}
+					}else{ //insert
+						if(isset($post['hdnempid'][$i])){
+							$itemData = [
+								'spt_pph21_id'			=> $post['id'],
+								'employee_id' 			=> $trim($post['hdnempid'][$i]),
+								'periode_start'			=> trim($post['periode_start'][$i]),
+								'periode_end' 			=> trim($post['periode_end'][$i]),
+								'bruto_tahunan' 		=> trim($post['ttl_bruto_tahunan'][$i]),
+								'biaya_jabatan'			=> trim($post['ttl_biaya_jabatan'][$i]),
+								'iuran' 				=> trim($post['ttl_iuran'][$i]),
+								'neto_tahunan' 			=> trim($post['ttl_neto_tahunan'][$i]),
+								'ptkp' 					=> trim($post['ttl_ptkp'][$i]),
+								'pkp' 					=> trim($post['ttl_pkp'][$i]),
+								'pph21_tahunan' 		=> trim($post['ttl_pph21_tahunan'][$i]),
+								'pph21_ter_total' 		=> trim($post['ttl_pph21_ter_total'][$i]),
+								'kurang_lebih_bayar' 	=> trim($post['ttl_kurang_lebih_bayar'][$i])
+							];
 
-								$this->db->insert('summary_absen_outsource_detail', $itemData);
-							}
+							$this->db->insert('spt_pph21_detail', $itemData);
 						}
 					}
 				}
+			}
 
-				if($rs){
-					return [
-					    "status" => true,
-					    "msg" => "Data berhasil disimpan"
-					];
-				}else{
-					return [
-					    "status" => false,
-					    "msg" 	 => "Data gagal disimpan"
-					];
-				}
-
-	  		}else{
-	  			
-	  			return [
-				    "status" => false,
-				    "msg" 	 => "Bulan Tahun Penggajian & Periode Absensi harus diisi"
+			if($rs){
+				return [
+				    "status" => true,
+				    "msg" => "Data berhasil disimpan"
 				];
-	  		}
+			}else{
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data gagal disimpan"
+				];
+			}
+
+	  		
 		}else{
 			return [
 			    "status" => false,
@@ -530,10 +604,9 @@ class Spt_os_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.name_indo as month_name, c.project_name from summary_absen_outsource a 
-					left join master_month b on b.id = a.bulan_penggajian
-					left join project_outsource c on c.id = a.project_id
-			)dt';
+		$mTable = '(
+					select a.*, b.project_name, c.name as status_name from spt_pph21 a left join project_outsource b on b.id = a.project_id left join master_status_spt c on c.id = a.status_id
+				)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		
@@ -564,28 +637,13 @@ class Spt_os_menu_model extends MY_Model
 
 	public function eksport_data()
 	{ 
-		$where_date = " where 1=1 ";
-
-		if (
-		    isset($_GET['fldatestart'], $_GET['fldateend']) &&
-		    $_GET['fldatestart'] != '' &&
-		    $_GET['fldateend'] != '' &&
-		    $_GET['fldatestart'] != 0 &&
-		    $_GET['fldateend'] != 0
-		) {
-		    $where_date = " WHERE (a.tgl_start <= '".$_GET['fldateend']."'
-		                    AND a.tgl_end   >= '".$_GET['fldatestart']."') ";
-		}
-
-		$where_emp="";
-		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
-			$where_emp = " and a.emp_id = '".$_GET['flemployee']."' ";
+		$where_project = "";
+			if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			$where_project = " and a.project_id = '".$_GET['flproject']."' ";
 		}
 
 
-		
-		$sql = 'select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
-	   			ORDER BY id ASC
+		$sql = 'select a.*, b.project_name, c.name as status_name from spt_pph21 a left join project_outsource b on b.id = a.project_id left join master_status_spt c on c.id = a.status_id '.$where_project.'
 		';
 
 		$res = $this->db->query($sql);
@@ -614,10 +672,10 @@ class Spt_os_menu_model extends MY_Model
 	}
 
 
-	public function getNewAbsenOSRow($row,$id=0,$project,$view=FALSE)
+	public function getNewSptOSRow($row,$id=0,$project,$view=FALSE)
 	{ 
 		if($id > 0){ 
-			$data = $this->getAbsenOSRows($id,$project,$view);
+			$data = $this->getSptOSRows($id,$project,$view);
 		} else { 
 			$data = '';
 			$no = $row+1;
@@ -638,6 +696,14 @@ class Spt_os_menu_model extends MY_Model
 
 			$data 	.= '<td>'.$this->return_build_txt('','ttl_jam_lembur','ttl_jam_lembur','ttl_jam_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
 
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_alfa','ttl_alfa','ttl_alfa','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_lembur','ttl_lembur','ttl_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_jam_kerja','ttl_jam_kerja','ttl_jam_kerja','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+			$data 	.= '<td>'.$this->return_build_txt('','ttl_jam_lembur','ttl_jam_lembur','ttl_jam_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+
 			$hdnid='';
 			$data 	.= '<td><input type="button" class="btn btn-md btn-danger ibtnDel" onclick="del_fpp(\''.$row.'\',\''.$hdnid.'\')" value="Delete"></td>';
 		}
@@ -646,24 +712,17 @@ class Spt_os_menu_model extends MY_Model
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function getAbsenOSRows($id,$project,$view,$print=FALSE){ 
+	public function getSptOSRows($id,$project,$view,$print=FALSE){ 
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select 
-								    a.id AS employee_id,
-								    a.emp_code,
-								    a.full_name,
-								    a.project_id,
-								    b.*
-								FROM employees a
-								LEFT JOIN summary_absen_outsource_detail b 
-								    ON b.emp_id = a.id
-								    AND b.summary_absen_outsource_id = ".$id."
-								WHERE a.emp_source = 'outsource'
-								  AND a.status_id = 1
-								  AND a.project_id = '".$project."'
-								ORDER BY a.full_name ASC
+		$rs = $this->db->query("select a.*, c.emp_code, c.full_name, d.project_name
+								from spt_pph21_detail a
+								left join spt_pph21 b on b.id = a.spt_pph21_id
+								left join employees c on c.id = a.employee_id
+								left join project_outsource d on d.id = b.project_id
+								where a.spt_pph21_id = 1
+								ORDER BY c.full_name ASC
 								")->result(); 
 		$rd = $rs;
 
@@ -681,21 +740,29 @@ class Spt_os_menu_model extends MY_Model
 					$dt .= '<td>'.$f->emp_code.'</td>';
 					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_hari_kerja,'ttl_hari_kerja['.$row.']','','ttl_hari_kerja','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
+					$dt .= '<td>'.$this->return_build_txt($f->periode_start,'periode_start['.$row.']','','periode_start','text-align: right;','data-id="'.$row.'"  ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'ttl_masuk['.$row.']','','ttl_masuk','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->periode_end,'periode_end['.$row.']','','periode_end','text-align: right;','data-id="'.$row.'"  ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_ijin,'ttl_ijin['.$row.']','','ttl_ijin','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->bruto_tahunan,'ttl_bruto_tahunan['.$row.']','','ttl_bruto_tahunan','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid" name="hdnid['.$row.']" value="'.$f->id.'"/></td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_cuti,'ttl_cuti['.$row.']','','ttl_cuti','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->biaya_jabatan,'ttl_biaya_jabatan['.$row.']','','ttl_biaya_jabatan','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa['.$row.']','','ttl_alfa','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->iuran,'ttl_iuran['.$row.']','','ttl_iuran','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'ttl_jam_kerja['.$row.']','','ttl_jam_kerja','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->neto_tahunan,'ttl_neto_tahunan['.$row.']','','ttl_neto_tahunan','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'ttl_jam_lembur['.$row.']','','ttl_jam_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->ptkp,'ttl_ptkp['.$row.']','','ttl_ptkp','text-align: right;','data-id="'.$row.'" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur['.$row.']','','ttl_lembur','text-align: right;','data-id="'.$row.'" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($f->pkp,'ttl_pkp['.$row.']','','ttl_pkp','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->pph21_tahunan,'ttl_pph21_tahunan['.$row.']','','ttl_pph21_tahunan','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($f->pph21_ter_total,'ttl_pph21_ter_total['.$row.']','','ttl_pph21_ter_total','text-align: right;','data-id="'.$row.'" ').'</td>';
+
+					/*$dt .= '<td>'.$this->return_build_txt($f->kurang_lebih_bayar,'ttl_kurang_lebih_bayar['.$row.']','','ttl_kurang_lebih_bayar','text-align: right;','data-id="'.$row.'" ').'</td>';*/
+
+					
 
 					
 					$dt .= '</tr>';
@@ -713,14 +780,17 @@ class Spt_os_menu_model extends MY_Model
 					
 					$dt .= '<td>'.$f->emp_code.'</td>';
 					$dt .= '<td>'.$f->full_name.'</td>';
-					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
-					$dt .= '<td>'.$f->total_masuk.'</td>';
-					$dt .= '<td>'.$f->total_ijin.'</td>';
-					$dt .= '<td>'.$f->total_cuti.'</td>';
-					$dt .= '<td>'.$f->total_alfa.'</td>';
-					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
-					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
-					$dt .= '<td>'.$f->total_lembur.'</td>';
+					$dt .= '<td>'.$f->periode_start.'</td>';
+					$dt .= '<td>'.$f->periode_end.'</td>';
+					$dt .= '<td>'.$f->bruto_tahunan.'</td>';
+					$dt .= '<td>'.$f->biaya_jabatan.'</td>';
+					$dt .= '<td>'.$f->iuran.'</td>';
+					$dt .= '<td>'.$f->neto_tahunan.'</td>';
+					$dt .= '<td>'.$f->ptkp.'</td>';
+					$dt .= '<td>'.$f->pkp.'</td>';
+					$dt .= '<td>'.$f->pph21_tahunan.'</td>';
+					$dt .= '<td>'.$f->pph21_ter_total.'</td>';
+					///$dt .= '<td>'.$f->kurang_lebih_bayar.'</td>';
 					$dt .= '</tr>';
 
 					
@@ -735,108 +805,6 @@ class Spt_os_menu_model extends MY_Model
 
 
 
-	public function getAbsenProject($project, $bln, $thn){ 
 
-		$rs = $this->db->query("select a.*, b.project_id from summary_absen_outsource a 
-								left join employees b on b.id = a.emp_id
-								where a.bulan = '".$bln."' and a.tahun = '".$thn."' and b.project_id = '".$project."'")->result(); 
-
-		
-
-		return $rs;
-
-	}
-
-
-	/*public function getNewEditAbsenRow($row,$id=0,$project,$view=FALSE)
-	{ 
-		if($id > 0){ 
-			$data = $this->getEditAbsenRow($id,$project,$view);
-		} else { 
-			$data = '';
-			$no = $row+1;
-
-			$data 	.= '<td>No Data</td>';
-
-			
-		}
-
-		return $data;
-	} 
-	
-	// Generate expenses item rows for edit & view
-	public function getEditAbsenRow($id,$project,$view,$print=FALSE){ 
-
-		$dt = ''; 
-		
-		$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, a.project_id, b.* from         employees a left join summary_absen_outsource_detail b on b.emp_id = a.id
-			where a.emp_source = 'outsource' and a.status_id = 1 and (b.summary_absen_outsource_id = ".$id." or a.project_id = ".$project.")")->result(); 
-		$rd = $rs;
-
-		$row = 0; 
-		if(!empty($rd)){ 
-			$rs_num = count($rd); 
-			
-			foreach ($rd as $f){
-				$no = $row+1;
-				
-				if(!$view){ 
-
-					$dt .= '<tr>';
-
-					$dt .= '<td>'.$f->emp_code.'</td>';
-					$dt .= '<td>'.$f->full_name.'<input type="hidden" id="hdnempid" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_hari_kerja,'ttl_hari_kerja_edit['.$row.']','','ttl_hari_kerja_edit','text-align: right;','data-id="'.$row.'" ').'<input type="hidden" id="hdnid_edit" name="hdnid_edit['.$row.']" value="'.$f->id.'"/></td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_masuk,'ttl_masuk_edit['.$row.']','','ttl_masuk_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_ijin,'ttl_ijin_edit['.$row.']','','ttl_ijin_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_cuti,'ttl_cuti_edit['.$row.']','','ttl_cuti_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_alfa,'ttl_alfa_edit['.$row.']','','ttl_alfa_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_lembur,'ttl_lembur_edit['.$row.']','','ttl_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_kerja,'ttl_jam_kerja_edit['.$row.']','','ttl_jam_kerja_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					$dt .= '<td>'.$this->return_build_txt($f->total_jam_lembur,'ttl_jam_lembur_edit['.$row.']','','ttl_jam_lembur_edit','text-align: right;','data-id="'.$row.'" ').'</td>';
-
-					
-					$dt .= '</tr>';
-				} else { 
-					
-					if($print){
-						if($row == ($rs_num-1)){
-							$dt .= '<tr class="item last">';
-						} else {
-							$dt .= '<tr class="item">';
-						}
-					} else {
-						$dt .= '<tr>';
-					} 
-					
-					$dt .= '<td>'.$f->emp_code.'</td>';
-					$dt .= '<td>'.$f->full_name.'</td>';
-					$dt .= '<td>'.$f->total_hari_kerja.'</td>';
-					$dt .= '<td>'.$f->total_masuk.'</td>';
-					$dt .= '<td>'.$f->total_ijin.'</td>';
-					$dt .= '<td>'.$f->total_cuti.'</td>';
-					$dt .= '<td>'.$f->total_alfa.'</td>';
-					$dt .= '<td>'.$f->total_lembur.'</td>';
-					$dt .= '<td>'.$f->total_jam_kerja.'</td>';
-					$dt .= '<td>'.$f->total_jam_lembur.'</td>';
-					$dt .= '</tr>';
-
-					
-				}
-
-				$row++;
-			}
-		}
-
-		return [$dt,$row];
-	}*/
 
 }

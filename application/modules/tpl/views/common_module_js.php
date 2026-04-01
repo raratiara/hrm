@@ -281,6 +281,17 @@ $( "#btnAddData" ).on('click', function(){
 
 		getPeriodeGaji();
 	}
+
+	if(module_name == 'spt_os_menu'){
+		var locate = 'table.sptos-list';
+		$(locate + ' tbody').empty();
+
+		document.getElementById("inpSptOS").style.display = "none";
+		document.getElementById("statusView").style.display = "none";
+		document.getElementById("projectView").style.display = "none";
+		$('[name="tahun_pajak"]').val('').prop('readonly', false);
+		document.getElementById("inp_is_all_project").style.display = "block";
+	}
 	
 
 	unlockSubmit();

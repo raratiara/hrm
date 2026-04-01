@@ -36,5 +36,12 @@
             margin: 0;
         }
     }
+
+    #tblDetailSptOS input,
+    #tblDetailSptOS select {
+        width: 100% !important;
+        min-width: 120px; /* biar gak kekecilan */
+        box-sizing: border-box;
+    }
     
 </style>
