@@ -713,7 +713,7 @@ class Api extends API_Controller
 					//$post_timein 		= strtotime($time_in);
 					//$post_timeout 		= strtotime($time_out);
 
-					if($attendance_type == 'Shift 3'){
+					if($attendance_type == 'Shift 3' || $attendance_type == 'Shift Malam'){
 						$date2 = date("Y-m-d", strtotime($date . " +1 day"));
 					}else{
 						$date2 = $date;
@@ -5253,7 +5253,7 @@ class Api extends API_Controller
 					//$post_timein 		= strtotime($time_in);
 					//$post_timeout 		= strtotime($time_out);
 
-					if($attendance_type == 'Shift 3'){
+					if($attendance_type == 'Shift 3' || $attendance_type == 'Shift Malam'){
 						$date2 = date("Y-m-d", strtotime($date . " +1 day"));
 					}else{
 						$date2 = $date;

@@ -279,10 +279,10 @@ class Absensi_menu_model extends MY_Model
 			if($row->attendance_type != '' && $row->attendance_type != null){
 				if(
 					($row->attendance_type == 'Reguler' && $row->date_attendance == $dateNow) || 
-					($row->attendance_type == 'Shift 1' && $row->date_attendance == $dateNow) || 
+					(($row->attendance_type == 'Shift 1' || $row->attendance_type == 'Shift Pagi') && $row->date_attendance == $dateNow) || 
 					($row->attendance_type == 'Shift 2' && $dateNow <= $date_attendance_tomorrow) || 
 					/*($row->attendance_type == 'Shift 3' && $row->date_attendance == $dateNow)*/
-					($row->attendance_type == 'Shift 3' && $dateNow <= $date_attendance_tomorrow)
+					(($row->attendance_type == 'Shift 3' || $row->attendance_type == 'Shift Malam' ) && $dateNow <= $date_attendance_tomorrow)
 				){
 					$isupdate="1"; $isdelete="1";
 				}
@@ -497,7 +497,7 @@ class Absensi_menu_model extends MY_Model
 				$f_time_in 			= date("H:i:s", strtotime($post['attendance_in']));
 				$timestamp_timein 	= strtotime($post['attendance_in']); 
 
-				if($post['emp_type'] == 'Shift 3'){
+				if($post['emp_type'] == 'Shift 3' || $post['emp_type'] == 'Shift Malam'){
 					$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
 				}
 
@@ -597,7 +597,7 @@ class Absensi_menu_model extends MY_Model
 
 				$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 
-			}else if($cek_emp[0]->attendance_type == 'Shift 1' || $cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){ 
+			}else if($cek_emp[0]->attendance_type == 'Shift 1' || $cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3' || $cek_emp[0]->attendance_type == 'Shift Pagi' || $cek_emp[0]->attendance_type == 'Shift Malam'){ 
 
 				$tgl 	= date("d", strtotime($cek_emp[0]->date_attendance));
 				$period = date("Y-m", strtotime($cek_emp[0]->date_attendance));
@@ -623,7 +623,7 @@ class Absensi_menu_model extends MY_Model
 			}else{
 				$date_attendance = $cek_emp[0]->date_attendance;
 
-				if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
+				if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3' || $cek_emp[0]->attendance_type == 'Shift Malam'){
 					$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
 				}
 

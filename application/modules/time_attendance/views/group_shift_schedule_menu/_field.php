@@ -79,9 +79,9 @@
     <div class="shift-options">
       <!-- <span class="shift-btn pagi" draggable="true" data-shift="Pagi" ondragstart="drag(event)">☀ Shift Pagi</span>
       <span class="shift-btn malam" draggable="true" data-shift="Malam" ondragstart="drag(event)">🌙 Shift Malam</span> -->
-      <span class="shift-btn shift1" draggable="true" data-shift="Shift 1" ondragstart="drag(event)">Shift 1</span>
-      <span class="shift-btn shift2" draggable="true" data-shift="Shift 2" ondragstart="drag(event)">Shift 2</span>
-      <span class="shift-btn shift3" draggable="true" data-shift="Shift 3" ondragstart="drag(event)">Shift 3</span>
+      <span class="shift-btn shift1" draggable="true" data-shift="Shift 1" ondragstart="drag(event)">Shift Pagi</span>
+      <!-- <span class="shift-btn shift2" draggable="true" data-shift="Shift 2" ondragstart="drag(event)">Shift 2</span> -->
+      <span class="shift-btn shift3" draggable="true" data-shift="Shift 3" ondragstart="drag(event)">Shift Malam</span>
 
     </div>
 
