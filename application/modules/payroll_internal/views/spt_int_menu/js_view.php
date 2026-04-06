@@ -1,3 +1,52 @@
+
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script> -->
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script> -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+
+
+
+
+
+<div id="modal-form-spt_int" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-spt_int" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px !important">
+			<form class="form-horizontal" id="frmFormSptInt" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Download SPT
+					<input type="hidden" id="hdnformid" name="hdnformid" />
+				</div>
+			</div>
+			 </form>
+
+			<div class="modal-footer no-margin-top">
+				<center>
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadFormSptInt_pdf()">
+					<i class="fa fa-download"></i>
+					Download 
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: black; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+
+
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+
+
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -9,13 +58,50 @@ var ldx; //for save list index string
 
 
 $(document).ready(function() {
-   	$(function() {
-   		
-        $( "#period_start_fcast" ).datepicker();
-        $( "#period_end_fcast" ).datepicker();
-		
-   	});
+   	
+   	initFilterEmployee();
+   	
 });
+
+
+
+
+function subFilter(){
+	var flemployee = $("#flemployee option:selected").val();
+	
+
+	if(flemployee == ''){
+		flemployee=0;
+	}
+
+
+	
+	
+	$('#dynamic-table').DataTable().clear().destroy(); 
+	$('#dynamic-table')
+	.DataTable( {
+		fixedHeader: {
+			headerOffset: $('.page-header').outerHeight()
+		},
+		responsive: true,
+		bAutoWidth: false,
+		"aoColumnDefs": [
+		  { "bSortable": false, "aTargets": [ 0,1 ] },
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] },
+		],
+		"aaSorting": [
+		  	[2,'asc'] 
+		],
+		"sAjaxSource": module_path+"/get_data?flemp="+flemployee+"",
+		"bProcessing": true,
+        "bServerSide": true,
+		"pagingType": "bootstrap_full_number",
+		"colReorder": true
+    } );
+
+}
+
+
 
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
@@ -31,11 +117,13 @@ jQuery(function($) {
 		bAutoWidth: false,
 		"aoColumnDefs": [
 		  { "bSortable": false, "aTargets": [ 0,1 ] },
-		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] },
+		  { "flemployee": 12,},
 		],
 		"aaSorting": [
 		  	[2,'asc'] 
 		],
+		/*"sAjaxSource": module_path+"/get_data?flemployee=12",*/
 		"sAjaxSource": module_path+"/get_data",
 		"bProcessing": true,
         "bServerSide": true,
@@ -119,30 +207,60 @@ function load_data()
 			if(data != false){
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
+					$('[name="tahun_pajak"]').val(data.tahun).prop('readonly', true);
 					
-					$('[name="label1"]').val(data.label1);
-					$('[name="label2"]').val(data.label2);
-					$('[name="title"]').val(data.title);
-					$('[name="description"]').val(data.description);
 
-					var show_date_start = getFormattedDateTime(data.show_date_start);
-					var show_date_end = getFormattedDateTime(data.show_date_end);
-					$('[name="show_date_start"]').val(show_date_start);
-					$('[name="show_date_end"]').val(show_date_end);
-					$('[name="info_type"][value="'+data.type+'"]').prop('checked', true);
+					document.getElementById("inp_is_all_employee").style.display = "none";
+					document.getElementById("inputEmployee").style.display = "none";
+				
+					//document.getElementById("inpEmp").style.display = "none";
+					document.getElementById("inpSptInt").style.display = "block";
+					
+
+					document.getElementById("statusView").style.display = "block";
+					$('select#status').val(data.status_id).trigger('change.select2');
+
+					var locate = 'table.sptint-list';
+					$.ajax({type: 'post',url: module_path+'/gensptintrow',data: { id:data.id },success: function (response) { 
+							var obj = JSON.parse(response); console.log(obj);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+
+
 
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
+
+					
 				}
 				if(save_method == 'detail'){ 
-					$('span.penggajian_month_fcast').html(data.bulan_penggajian_name);
-					$('span.penggajian_year_fcast').html(data.tahun_penggajian);
-					
+					$('span.tahun_pajak').html(data.tahun);
+					$('span.status').html(data.status_name);
 
-					list_fcast_view(data.id, data.bulan_penggajian, data.tahun_penggajian, project='');
-					
+					/*document.getElementById("inpAbsenOSView").style.display = "block"; */
+
+					var locate = 'table.sptint-list-view';
+					$.ajax({type: 'post',url: module_path+'/gensptintrow',data: { id:data.id, view:true },success: function (response) { 
+							var obj = JSON.parse(response);
+							$(locate+' tbody').html(obj[0]);
+							
+							wcount=obj[1];
+						}
+					}).done(function() {
+						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						tSawBclear(locate);
+						///expenseviewadjust(lstatus);
+					});
+				
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -178,160 +296,84 @@ function load_data()
 <?php } ?>
 
 
-
-function getFormattedDateTime(inputDate) { 
+document.querySelectorAll('input[name="is_all_employee"]').forEach(function(radio) {
+  radio.addEventListener('click', function() {
   	
-	const date = new Date(inputDate);
-
-	// Format jadi MM/DD/YYYY
-	const formattedDate = 
-	  String(date.getMonth() + 1).padStart(2, '0') + '/' +
-	  String(date.getDate()).padStart(2, '0') + '/' +
-	  date.getFullYear();
-
-	console.log(formattedDate); // Output: 07/13/2025
-	 return `${formattedDate}`;
-}
-
-
-function resetTableFcast() {
-    $('#tblDetailListFcast tbody').html('');
-    $('#listFcast').hide(); // sekalian sembunyikan
-}
-
-
-
-$('input[name="is_all_project_fcast"]').on('change', function () {
-
-    let val = $(this).val();
-    let penggajian_month = $("#penggajian_month_fcast").val();
-    let penggajian_year  = $("#penggajian_year_fcast").val();
-
-    if (penggajian_month === '' || penggajian_year === '') {
-        alert('Bulan & Tahun Penggajian harap diisi terlebih dahulu');
-        $(this).prop('checked', false);
-        return;
-    }
-
-    // RESET setiap ganti radio
-    resetTableFcast();
-
-    if (val === 'Sebagian') {
-
-        // tampilkan select project
-        $("#inputProject_fcast").show();
-
-        // reset pilihan project
-        $('#projectIds_fcast').val(null).trigger('change');
-
-    } else {
-
-        // SEMUA
-        $("#inputProject_fcast").hide();
-
-        let project = '';
-        list_fcast(penggajian_month, penggajian_year, project);
-    }
-});
-
-
-
-
-$('#projectIds_fcast').on('change', function () {
-
-    let val = $(this).val(); // array project_id
-
-    if (!val || val.length === 0) {
-        resetTableFcast();
-        return;
-    }
-
-    let penggajian_month = $("#penggajian_month_fcast").val();
-    let penggajian_year  = $("#penggajian_year_fcast").val();
-
-    if (penggajian_month === '' || penggajian_year === '') {
-        alert('Bulan & Tahun Penggajian harap diisi terlebih dahulu');
-        $(this).val(null).trigger('change');
-        resetTableFcast();
-        return;
-    }
-
-    list_fcast(penggajian_month, penggajian_year, val);
-});
-
-
-
-
-function list_fcast(penggajian_month, penggajian_year, project){
-
-    document.getElementById("listFcast").style.display = "block";
-
-    var locate = 'table.listfcast-list';
-
+	  	if(this.value == 'Karyawan'){
+	  		document.getElementById("inputEmployee").style.display = "block";
+	  		
+	  	}else{
+	  		document.getElementById("inputEmployee").style.display = "none";
+	  		
+	  	}
     
-    $(locate + ' tbody').html(`
-        <tr>
-            <td colspan="20" style="text-align:center;">
-                <i class="fa fa-spinner fa-spin"></i> Loading data...
-            </td>
-        </tr>
-    `);
+  });
+});
 
-    $.ajax({
-        type: 'post',
-        url: module_path + '/genfcastrow',
-        data: {
-            id: 0,
-            penggajian_month: penggajian_month,
-            penggajian_year: penggajian_year,
-            project: project
-        },
-        success: function (response) {
-            var obj = JSON.parse(response);
-            $(locate + ' tbody').html(obj[0]);
-            wcount = obj[1];
-        },
-        error: function () {
-            $(locate + ' tbody').html(`
-                <tr>
-                    <td colspan="20" style="text-align:center;color:red;">
-                        Gagal memuat data
-                    </td>
-                </tr>
-            `);
-        },
-        complete: function () {
-            tSawBclear(locate);
-        }
+
+
+
+function initFilterEmployee() {
+  if ($('#flemployee').hasClass('select2-hidden-accessible')) {
+    $('#flemployee').select2('destroy');
+  }
+
+  $('#flemployee').select2({
+    theme: 'bootstrap',
+    width: '100%'
+  });
+}
+
+
+function initSelect2(scope) { 
+  $(scope).find('.select2me').each(function () {
+
+    if ($(this).hasClass("select2-hidden-accessible")) {
+      $(this).select2('destroy');
+    }
+
+    $(this).select2({
+      theme: 'bootstrap',
+      width: '100%',
+      dropdownParent: $(scope) 
     });
+  });
 }
 
 
 
+$('#modal-form-data').on('hide.bs.modal', function () {
+  initFilterEmployee();
+});
 
-function list_fcast_view(id, penggajian_month, penggajian_year, project){
 
+function getFormSpt_int(form_id){
+	
+	$('#modal-form-spt_int').modal('show');
 
+	$('[name="hdnformid"]').val(form_id);
 
-	var locate = 'table.listfcast-list_view';
-	$.ajax({type: 'post',url: module_path+'/genfcastrow',data: { id:id, penggajian_month: penggajian_month, penggajian_year: penggajian_year, project: project, view: true },success: function (response) {
-		var obj = JSON.parse(response);
-		$(locate+' tbody').html(obj[0]);
+}
+
+function downloadFormSptInt_pdf(){ 
+
+	
+	var form_id = $("#hdnformid").val();
+
+	if(form_id != ''){
+		send_url = module_path+'/getFormSptInt_pdf?form_id='+form_id+'';
+		formData = $('#frmFormSptInt').serialize();
+		window.location = send_url+'&'+formData;
 		
-		wcount=obj[1];
+		
+		//window.location = send_url;
+		$('#modal-form-spt_int').modal('hide');
+		
+	}else{
+		alert("Data tidak ditemukan");
 	}
-	}).done(function() {
-		//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-		tSawBclear(locate);
-		///expenseviewadjust(lstatus);
-	});
 
 }
-
-
-
-
-
 
 
 </script>

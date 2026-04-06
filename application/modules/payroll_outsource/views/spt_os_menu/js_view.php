@@ -9,16 +9,16 @@
 
 
 
-<div id="modal-report-summary_absen_os" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-summary_absen_os" aria-hidden="true">
+<div id="modal-form-spt_os" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-form-spt_os" aria-hidden="true">
 	<div class="vertical-alignment-helper">
 	<div class="modal-dialog vertical-align-center">
 		<div class="modal-content" style="width:500px !important">
-			<form class="form-horizontal" id="frmReportSummaryAbsenOS" enctype="multipart/form-data">
+			<form class="form-horizontal" id="frmFormSptOS" enctype="multipart/form-data">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
 				<div class="table-header">
 					Download SPT
-					<input type="hidden" id="hdnsummaryid" name="hdnsummaryid" />
+					<input type="hidden" id="hdnformid" name="hdnformid" />
 				</div>
 			</div>
 			 </form>
@@ -26,14 +26,9 @@
 			<div class="modal-footer no-margin-top">
 				<center>
 
-				<button class="btn" style="background-color: #8ec1f5; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportSummaryAbsenOS()">
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadFormSptOS_pdf()">
 					<i class="fa fa-download"></i>
-					Download EXCEL
-				</button>
-
-				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportSummaryAbsenOS_pdf()">
-					<i class="fa fa-download"></i>
-					Download PDF
+					Download 
 				</button>
 				
 				<button class="btn" style="background-color: #fc596b; color: black; border-radius: 2px !important;" data-dismiss="modal">
@@ -354,5 +349,35 @@ function initSelect2(scope) {
 $('#modal-form-data').on('hide.bs.modal', function () {
   initFilterEmployee();
 });
+
+
+function getFormSpt_os(form_id){
+	
+	$('#modal-form-spt_os').modal('show');
+
+	$('[name="hdnformid"]').val(form_id);
+
+}
+
+function downloadFormSptOS_pdf(){ 
+
+	
+	var form_id = $("#hdnformid").val();
+
+	if(form_id != ''){
+		send_url = module_path+'/getFormSptOS_pdf?form_id='+form_id+'';
+		formData = $('#frmFormSptOS').serialize();
+		window.location = send_url+'&'+formData;
+		
+		
+		//window.location = send_url;
+		$('#modal-form-spt_os').modal('hide');
+		
+	}else{
+		alert("Data tidak ditemukan");
+	}
+
+}
+
 
 </script>

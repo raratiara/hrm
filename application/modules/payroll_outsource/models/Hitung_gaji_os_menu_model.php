@@ -320,6 +320,28 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	}*/
 
 
+	public function getRateTer($total_pendapatan, $emp_id){
+		$pph_21 =0; $ter_rate=0;
+
+		$emp = $this->db->query("select marital_status_id from employees where id = ".$emp_id." ")->result(); 
+		if(!empty($emp)){
+			$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$emp[0]->marital_status_id." ")->result(); 
+			if(!empty($getCat)){
+				$getTer = $this->db->query("select rate from tax_ter where category = '".$getCat[0]->category."' and (".$total_pendapatan." between min_bruto and max_bruto) order by id desc limit 1 ")->result();
+		        $ter_rate = $getTer[0]->rate;
+		        $pph_21 = ceil($total_pendapatan*$ter_rate);
+			}
+		}
+
+
+		return [
+		    'ter_rate' => $ter_rate,
+		    'pph_21'   => $pph_21
+		]; 
+
+	}
+
+
 
 	public function add_data($post)
 	{
@@ -500,13 +522,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        //$total_pendapatan = ceil($gaji + $lembur_total);
 	        $total_pendapatan = $gaji;
 
-	        $pph_21 =0; $ter_rate=0;
-	        if(!empty($row->marital_status_id)){
-	        	$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$row->marital_status_id." ")->result(); 
-		        $getTer = $this->db->query("select rate from tax_ter where category = '".$getCat[0]->category."' and (".$total_pendapatan." between min_bruto and max_bruto) order by id desc limit 1 ")->result();
-		        $ter_rate = $getTer[0]->rate;
-		        $pph_21 = ceil($total_pendapatan*$ter_rate);
-	        }
+	        $getTer = $this->getRateTer($total_pendapatan, $row->employee_id);
+			$ter_rate = $getTer['ter_rate'];
+			$pph_21   = $getTer['pph_21'];
 
 	        $subtotal    = ceil($total_pendapatan - ($hutang + $sosial));
 	        $gaji_bersih = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $pph_21));
@@ -1270,6 +1288,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$pph_21_rate = $dataSlip[0]->pph_21_rate;
 					$subtotal = $dataSlip[0]->subtotal;
 					$gaji_bersih = $dataSlip[0]->gaji_bersih;
+					$ter_rate= $dataSlip[0]->pph_21_rate;
 
 				}else{ /// ambil data dr summary absen
 					$status_payroll="";

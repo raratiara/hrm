@@ -48,6 +48,7 @@
 				<table class="table table-striped table-bordered table-hover sptos-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSptOS">
 					<thead>
 						<tr>
+							<th scope="col"></th>
 							<th scope="col">NIK</th>
 							<th scope="col">Karyawan</th>
 							<th scope="col">Start Period</th>

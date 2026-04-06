@@ -1,79 +1,89 @@
 <div class="row">
+
+	<div class="col-md-6 col-sm-12">
+		
+		
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Tahun</label>
+			<div class="col-md-8">
+				<?=$txtyear;?>
+			</div>
+		</div>
+
+		<div class="form-group" id="inp_is_all_employee">
+			<label class="col-md-4 control-label no-padding-right">Generate Semua Karyawan?</label>
+			<div class="col-md-8">
+				<?=$is_all_employee;?>
+			</div>
+		</div>
+
+		<div class="form-group" id="inputEmployee" style="display: none;">
+			<label class="col-md-4 control-label no-padding-right">Karyawan</label>
+			<div class="col-md-8">
+				<?=$selemployeeids;?>
+			</div>
+		</div>
+		
+	</div>
+
+	<div class="col-md-6 col-sm-12">
+		<div class="form-group" id="statusView" style="display:none">
+			<label class="col-md-4 control-label no-padding-right">Status</label>
+			<div class="col-md-8">
+				<?=$selstatus;?>
+			</div>
+		</div>
+		
+	</div>
+
+
+
 	
-	<div class="col-md-6 col-sm-12">
-
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Bulan Penggajian</label>
-			<div class="col-md-8">
-				<?=$sel_penggajian_bulan;?>
-			</div>
-		</div>
-		<div class="form-group" id="inp_is_all_project_fcast">
-			<label class="col-md-4 control-label no-padding-right">Semua Project?</label>
-			<div class="col-md-8">
-				<?=$is_all_project;?>
-			</div>
-		</div>
-
-		<div class="form-group" id="inputProject_fcast" style="display: none;">
-			<label class="col-md-4 control-label no-padding-right">Project</label>
-			<div class="col-md-8">
-				<?=$selprojectids;?>
-			</div>
-		</div>
-
-		
-	</div>
-
-	<div class="col-md-6 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Tahun Penggajian</label>
-			<div class="col-md-8">
-				<?=$txt_penggajian_tahun;?>
-			</div>
-		</div>
-		
-		
-		
-	</div>
 </div>
 
 
 
-<div class="row listfcast" id="listFcast" style="display:none;">
+
+<div class="row sptint" id="inpSptInt" style="display:none">
     <div class="col-md-12">
-        <div class="portlet box">
-            <div class="portlet-title">
-                <div class="caption">Details </div>
-                <div class="tools">
-                   
-                </div>
-            </div>
-            <div class="portlet-body">
-                <div class="table-scrollable tablesaw-cont">
-                <table class="table table-striped table-bordered table-hover listfcast-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailListFcast">
-                    <thead>
-                        <tr>
-                        	<th scope="col">No</th>
-                            <th scope="col">NIK</th>
-                            <th scope="col">Karyawan</th>
-                            <th scope="col">Project</th>
-                            <th scope="col">Total Masuk</th>
-                            <th scope="col">Total Masuk (Nominal)</th>
-                            <th scope="col">Total Lembur</th>
-                            <th scope="col">Total Lembur (Nominal)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                    </tbody>
-                    <tfoot>
-                    </tfoot>
-                </table>
-                </div>
-            </div>
-        </div>
-    </div>
+		<div class="portlet box">
+			<div class="portlet-title">
+				<div class="caption">Details </div>
+				<div class="tools">
+					
+				</div>
+			</div>
+			<div class="portlet-body">
+				<div class="table-scrollable tablesaw-cont">
+				<table class="table table-striped table-bordered table-hover sptint-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSptInt">
+					<thead>
+						<tr>
+							<th scope="col">NIK</th>
+							<th scope="col">Karyawan</th>
+							<th scope="col">Start Period</th>
+							<th scope="col">End Period</th>
+							<th scope="col">Bruto Tahunan</th>
+							<th scope="col">Biaya Jabatan</th>
+							<th scope="col">Iuran</th>
+							<th scope="col">Neto Tahunan</th>
+							<th scope="col">PTKP</th>
+							<th scope="col">PKP</th>
+							<th scope="col">PPH 21 Tahunan</th>
+							<th scope="col">PPH 21 Ter Total</th>
+							<th scope="col">Kurang Lebih Bayar</th>
+							
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+					<tfoot>
+					</tfoot>
+				</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
-								
+

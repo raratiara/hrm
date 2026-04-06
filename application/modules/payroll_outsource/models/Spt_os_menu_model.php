@@ -196,13 +196,12 @@ class Spt_os_menu_model extends MY_Model
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
 			}
 
-			$print_spt="";
-			/*$print_spt = '<a class="btn btn-default btn-xs" onclick="getReport_summ_absen_os('."'".$row->id."'".')"><i class="fa fa-download"></i> Report</a>';*/
+			
+			
 
 			array_push($output["aaData"],array(
 				$delete_bulk,
 				'<div class="action-buttons">
-					'.$print_spt.'
 					'.$detail.'
 					'.$edit.'
 					'.$delete.'
@@ -398,7 +397,12 @@ class Spt_os_menu_model extends MY_Model
 		    SUM(a.total_pendapatan) AS ttl_pendapatan,
 		    SUM(a.pph_21) AS ttl_pph21,
 		    SUM(a.bpjs_kesehatan) AS ttl_bpjs_kesehatan,
-		    SUM(a.bpjs_tk) AS ttl_bpjs_tk
+		    SUM(a.bpjs_tk) AS ttl_bpjs_tk,
+		    SUM(a.tunjangan_jabatan) AS ttl_tunjangan_jabatan,
+		    SUM(a.tunjangan_transport) AS ttl_tunjangan_transport,
+		    SUM(a.tunjangan_konsumsi) AS ttl_tunjangan_konsumsi,
+		    SUM(a.tunjangan_komunikasi) AS ttl_tunjangan_komunikasi,
+		    sum(a.gaji) as ttl_gaji
 
 		FROM payroll_slip_detail a
 		LEFT JOIN payroll_slip b ON b.id = a.payroll_slip_id
@@ -484,6 +488,9 @@ class Spt_os_menu_model extends MY_Model
 			    $kurang_lebih_bayar_desc = 'lebih bayar';
 			}
 
+			$total_tunjangan = $row->ttl_tunjangan_jabatan + $row->ttl_tunjangan_transport + $row->ttl_tunjangan_konsumsi + $row->ttl_tunjangan_komunikasi;
+			
+
 	        /* ---- siapkan batch insert ---- */
 
 	        $insert_batch[] = [
@@ -500,7 +507,9 @@ class Spt_os_menu_model extends MY_Model
 	            'kurang_lebih_bayar'	=> $kurang_lebih_bayar,
 	            ///'status_id'=> 1, ///draft
 	            'periode_start'			=> $row->periode_start_desc,
-	            'periode_end'			=> $row->periode_end_desc
+	            'periode_end'			=> $row->periode_end_desc,
+	            'total_tunjangan' 		=> $total_tunjangan,
+	            'total_gaji' 			=> $row->ttl_gaji
 	            
 	        ];
 	    }
@@ -724,7 +733,7 @@ class Spt_os_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.*, c.emp_code, c.full_name, d.project_name
+		$rs = $this->db->query("select a.*, c.emp_code, c.full_name, d.project_name, b.status_id as status_id_header
 								from spt_pph21_detail a
 								left join spt_pph21 b on b.id = a.spt_pph21_id
 								left join employees c on c.id = a.employee_id
@@ -785,7 +794,13 @@ class Spt_os_menu_model extends MY_Model
 					} else {
 						$dt .= '<tr>';
 					} 
+
+					$print_spt = '-';
+					if($f->status_id_header == '2'){ ///Final
+						$print_spt = '<a class="btn btn-default btn-xs" onclick="getFormSpt_os('."'".$f->id."'".')"><i class="fa fa-download"></i> Form 1721</a>';
+					}
 					
+					$dt .= '<td>'.$print_spt.'</td>';
 					$dt .= '<td>'.$f->emp_code.'</td>';
 					$dt .= '<td>'.$f->full_name.'</td>';
 					$dt .= '<td>'.$f->periode_start.'</td>';

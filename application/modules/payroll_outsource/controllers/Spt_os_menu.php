@@ -144,5 +144,56 @@ class Spt_os_menu extends MY_Controller
 	}
 
 
+	public function getFormSptOS_pdf()
+	{
+	    $sql = "
+	        select a.*, b.tahun, b.project_id, c.project_name, b.status_id as status_header_id, d.name as status_header, e.full_name, e.no_npwp, e.no_ktp, e.address_ktp, if(e.gender = 'M', 'Laki-Laki','Perempuan') as gender_name, f.name as status_marital_name, g.name as job_title_name, e.nationality, h.name as company_name, h.npwp as company_npwp,
+		        (case when e.nationality = '' then '-' 
+			    when e.nationality like '%indonesia%' then 'no' 
+			    else 'yes' end) as is_karyawan_asing, b.created_at
+			from spt_pph21_detail a 
+			left join spt_pph21 b on b.id = a.spt_pph21_id
+			left join project_outsource c on c.id = b.project_id
+			left join master_status_spt d on d.id = b.status_id
+			left join employees e on e.id = a.employee_id
+			left join master_marital_status f on f.id = e.marital_status_id
+			left join master_job_title_os g on g.id = e.job_title_id
+			left join companies h on h.id = e.company_id
+			where a.id = ".$_GET['form_id']."
+	    ";
+
+	    /*$sql = "
+	        select * from employees limit 1
+	    ";*/
+
+
+	    $data = $this->db->query($sql)->result();
+
+	    $this->load->library('html_pdf');
+
+	    $pdfData = [
+	        'title' 		=> 'FORM 1721 OUTSOURCE',
+	        'emp_name' 		=> $data[0]->full_name,
+	        'tahun_pajak' 	=> $data[0]->tahun,
+	        'periode' 		=> $data[0]->periode_start.' s/d '.$data[0]->periode_end,
+	        'data'  		=> $data
+	    ];
+
+	    $pdfBinary = $this->html_pdf->render_to_string(
+	        'pdf/form_spt_os',
+	        $pdfData
+	    );
+
+	    if (ob_get_level()) ob_end_clean();
+
+	    $safeName = preg_replace('/[^A-Za-z0-9 _-]/', '', $data[0]->full_name);
+
+	    header("Content-Type: application/pdf");
+	    header("Content-Disposition: attachment; filename=FORM 1721 - ".$safeName.".pdf");
+	    echo $pdfBinary;
+	    exit;
+	}
+
+
 
 }

@@ -292,6 +292,17 @@ $( "#btnAddData" ).on('click', function(){
 		$('[name="tahun_pajak"]').val('').prop('readonly', false);
 		document.getElementById("inp_is_all_project").style.display = "block";
 	}
+
+
+	if(module_name == 'spt_int_menu'){
+		var locate = 'table.sptint-list';
+		$(locate + ' tbody').empty();
+
+		document.getElementById("inpSptInt").style.display = "none";
+		document.getElementById("statusView").style.display = "none";
+		$('[name="tahun_pajak"]').val('').prop('readonly', false);
+		document.getElementById("inp_is_all_employee").style.display = "block";
+	}
 	
 
 	unlockSubmit();

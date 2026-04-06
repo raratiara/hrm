@@ -1065,6 +1065,41 @@ function roundUp2Smart(num) {
 }
 
 
+function getRate(total_pendapatan, emp_id, callback){
+
+	$.ajax({
+		type: "POST",
+        url : module_path+'/getRateTer',
+		data: { total_pendapatan: total_pendapatan, emp_id: emp_id },
+		cache: false,		
+        dataType: "JSON",
+        success: function(data)
+        {  
+			if(data){
+				callback(data.ter_rate);
+			} else {
+				callback(0);
+			}
+
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+			var dialog = bootbox.dialog({
+				title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+				message: jqXHR.responseText,
+				buttons: {
+					confirm: {
+						label: 'Ok',
+						className: 'btn blue'
+					}
+				}
+			});
+        }
+    });
+
+}
+
+
 function setTotalPendapatan(val){ 
 	var row = val.dataset.id;  
 	///var tunjangan = val.value;
@@ -1073,7 +1108,9 @@ function setTotalPendapatan(val){
 	var tunj_konsumsi = $('[name="tunj_konsumsi_gaji['+row+']"]').val();
 	var tunj_komunikasi = $('[name="tunj_komunikasi_gaji['+row+']"]').val();
 	var gaji = $('[name="gaji_gaji['+row+']"]').val();
-	var pph21_rate = $('[name="pph21_rate['+row+']"]').val();
+	///var pph21_rate = $('[name="pph21_rate['+row+']"]').val();
+	var emp_id = $('[name="hdnempid_gaji['+row+']"]').val();
+
 	
 	if(gaji == ''){
 		gaji=0;
@@ -1100,11 +1137,18 @@ function setTotalPendapatan(val){
 
 	total_pendapatan = roundUp2Smart(total_pendapatan);
 
-	var pph21 = Number(total_pendapatan)*Number(pph21_rate);
-	pph21 = roundUp2Smart(pph21);
-
+	
 	$('[name="ttl_pendapatan_gaji['+row+']"]').val(total_pendapatan);
-	$('[name="pph21['+row+']"]').val(pph21);
+
+	getRate(total_pendapatan, emp_id, function(pph21_rate){
+
+		var pph21 = Number(total_pendapatan) * Number(pph21_rate);
+		pph21 = roundUp2Smart(pph21);
+
+		
+		$('[name="pph21_gaji['+row+']"]').val(pph21);
+
+	});
 
 	
 	

@@ -17,7 +17,7 @@
         width: 90% !important;
     }
 
-    .row-flex {
+     .row-flex {
         display: flex;
         margin: 0;
     }
@@ -30,12 +30,18 @@
             margin-bottom: 8px ! important;
             align-items: flex-start;
         }
-
         .row-flex label {
-            width: 150px ! important;
+            width: 200px ! important;
             /* lebar label lebih kecil di HP */
             margin: 0;
         }
+    }
+
+    #tblDetailSptOS input,
+    #tblDetailSptOS select {
+        width: 100% !important;
+        min-width: 120px; /* biar gak kekecilan */
+        box-sizing: border-box;
     }
     
 </style>

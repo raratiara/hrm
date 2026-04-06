@@ -491,6 +491,19 @@ class Hitung_gaji_os_menu extends MY_Controller
 		echo json_encode($rs);
 	}
 
+
+	public function getRateTer(){
+		$post = $this->input->post(null, true);
+		$total_pendapatan 	= $post['total_pendapatan'];
+		$emp_id 	= $post['emp_id'];
+
+		$rs =  $this->self_model->getRateTer($total_pendapatan, $emp_id);
+		
+
+		echo json_encode($rs);
+	}
+
+
 	public function getGaji(){
 		$post = $this->input->post(null, true);
 		$project = $post['project'];
