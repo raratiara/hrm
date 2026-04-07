@@ -266,6 +266,9 @@ function fetchTrainingCards(){
   });
 }
 
+// supaya reload_table() di common_module_js bisa memanggil card refresh
+window.loadCards = fetchTrainingCards;
+
 // ===== Events =====
 var searchTimer = null;
 
@@ -312,5 +315,251 @@ $(document).ready(function(){
   $("#check-all").on("click", function(){
     $(".data-check").prop('checked', $(this).prop('checked'));
   });
+
+  <?php if  (_USER_ACCESS_LEVEL_ADD == "1" || _USER_ACCESS_LEVEL_UPDATE == "1") { ?>
+  validator = $("#frmInputData").validate({
+    errorElement: 'span',
+    errorClass: 'help-block help-block-error',
+    focusInvalid: false,
+    ignore: "",
+    rules: {
+      training_name: { required: true },
+      training_date: { required: true }
+    },
+    messages: {},
+    errorPlacement: function (error, element) {
+      if (element.parent(".input-group").size() > 0) {
+        error.insertAfter(element.parent(".input-group"));
+      } else if (element.attr("data-error-container")) {
+        error.appendTo(element.attr("data-error-container"));
+      } else if (element.parents('.radio-list').size() > 0) {
+        error.appendTo(element.parents('.radio-list').attr("data-error-container"));
+      } else if (element.parents('.radio-inline').size() > 0) {
+        error.appendTo(element.parents('.radio-inline').attr("data-error-container"));
+      } else if (element.parents('.checkbox-list').size() > 0) {
+        error.appendTo(element.parents('.checkbox-list').attr("data-error-container"));
+      } else if (element.parents('.checkbox-inline').size() > 0) {
+        error.appendTo(element.parents('.checkbox-inline').attr("data-error-container"));
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    highlight: function (element) {
+      $(element).closest('.form-group').addClass('has-error');
+    },
+    unhighlight: function (element) {
+      $(element).closest('.form-group').removeClass('has-error');
+    },
+    success: function (label) {
+      label.closest('.form-group').removeClass('has-error');
+    }
+  });
+  <?php } ?>
+
 });
+
+<?php $this->load->view(_TEMPLATE_PATH . "common_module_js"); ?>
+
+<?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
+function load_data()
+{
+    $.ajax({
+      type: "POST",
+      url : module_path+'/get_detail_data',
+      data: { id: idx },
+      cache: false,
+      dataType: "JSON",
+      success: function(data)
+      {
+        if(data != false){
+          if(save_method == 'update'){
+            $('[name="id"]').val(data.id);
+            $('[name="training_name"]').val(data.training_name);
+            $('[name="trainer"]').val(data.trainer);
+            $('[name="training_date"]').val(data.training_date);
+            $('[name="location"]').val(data.location);
+            $('[name="notes"]').val(data.notes);
+
+            if(data.lms_course_id){
+              $('select#lms_course').val(data.lms_course_id).trigger('change');
+            }
+
+            if(data.participants){
+              var empIds = data.participants.split(',');
+              $('select#employee').val(empIds).trigger('change');
+            }
+
+            if(data.rfu_reason && data.rfu_reason != ''){
+              $('#rfuReasonEdit').show();
+              $('span.rfu_reason_edit').html(data.rfu_reason);
+            } else {
+              $('#rfuReasonEdit').hide();
+            }
+
+            $.uniform.update();
+            $('#mfdata').text('Update');
+            $('#modal-form-data').modal('show');
+          }
+          if(save_method == 'detail'){
+            $('span.training_name').html(data.training_name);
+            $('span.trainer').html(data.trainer);
+            $('span.training_date').html(data.training_date);
+            $('span.location').html(data.location);
+            $('span.notes').html(data.notes);
+            $('span.lms_course').html(data.course_name || '-');
+            $('span.participant').html(data.participant_names || '-');
+            $('span.created_by_name').html(data.created_by_name || '-');
+
+            if(data.rfu_reason && data.rfu_reason != ''){
+              $('#rfuReason').show();
+              $('span.rfu_reason').html(data.rfu_reason);
+            } else {
+              $('#rfuReason').hide();
+            }
+
+            if(data.reject_reason && data.reject_reason != ''){
+              $('#rejectReason').show();
+              $('span.reject_reason').html(data.reject_reason);
+            } else {
+              $('#rejectReason').hide();
+            }
+
+            $('#modal-view-data').modal('show');
+          }
+        } else {
+          title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
+          btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
+          msg = '<p>Gagal peroleh data.</p>';
+          var dialog = bootbox.dialog({
+            message: title+'<center>'+msg+btn+'</center>'
+          });
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown)
+      {
+        var dialog = bootbox.dialog({
+          title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+          message: jqXHR.responseText,
+          buttons: {
+            confirm: {
+              label: 'Ok',
+              className: 'btn blue'
+            }
+          }
+        });
+      }
+    });
+}
+<?php } ?>
+
+function reject(id, approval_level){
+  expire();
+  Swal.fire({
+    title: 'Reject Training',
+    input: 'textarea',
+    inputLabel: 'Reject Reason',
+    inputPlaceholder: 'Type your reason here...',
+    showCancelButton: true,
+    confirmButtonText: 'Reject',
+    confirmButtonColor: '#A01818',
+    preConfirm: (reason) => {
+      if (!reason) {
+        Swal.showValidationMessage('Please enter a reason');
+      }
+      return reason;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        type: 'POST',
+        url: module_path + '/reject',
+        data: { id: id, approval_level: approval_level, reject_reason: result.value },
+        dataType: 'JSON',
+        success: function(response) {
+          if(response){
+            Swal.fire('Rejected!', 'Training has been rejected.', 'success');
+            reload_table();
+          } else {
+            Swal.fire('Error', 'Failed to reject.', 'error');
+          }
+        },
+        error: function() {
+          Swal.fire('Error', 'Server error.', 'error');
+        }
+      });
+    }
+  });
+}
+
+function approve(id, approval_level){
+  expire();
+  Swal.fire({
+    title: 'Approve Training?',
+    text: 'Are you sure you want to approve this training?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Approve',
+    confirmButtonColor: '#2c9e1f'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        type: 'POST',
+        url: module_path + '/approve',
+        data: { id: id, approval_level: approval_level },
+        dataType: 'JSON',
+        success: function(response) {
+          if(response){
+            Swal.fire('Approved!', 'Training has been approved.', 'success');
+            reload_table();
+          } else {
+            Swal.fire('Error', 'Failed to approve.', 'error');
+          }
+        },
+        error: function() {
+          Swal.fire('Error', 'Server error.', 'error');
+        }
+      });
+    }
+  });
+}
+
+function rfu(id, approval_level){
+  expire();
+  Swal.fire({
+    title: 'Request for Update',
+    input: 'textarea',
+    inputLabel: 'RFU Reason',
+    inputPlaceholder: 'Type your reason here...',
+    showCancelButton: true,
+    confirmButtonText: 'Submit',
+    confirmButtonColor: '#fd9b00',
+    preConfirm: (reason) => {
+      if (!reason) {
+        Swal.showValidationMessage('Please enter a reason');
+      }
+      return reason;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        type: 'POST',
+        url: module_path + '/rfu',
+        data: { id: id, approval_level: approval_level, reason: result.value },
+        dataType: 'JSON',
+        success: function(response) {
+          if(response){
+            Swal.fire('Submitted!', 'Request for Update has been sent.', 'success');
+            reload_table();
+          } else {
+            Swal.fire('Error', 'Failed to submit.', 'error');
+          }
+        },
+        error: function() {
+          Swal.fire('Error', 'Server error.', 'error');
+        }
+      });
+    }
+  });
+}
+
 </script>
