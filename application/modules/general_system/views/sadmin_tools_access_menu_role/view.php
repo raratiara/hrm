@@ -155,63 +155,67 @@
 	</div>
 </div>
 <div id="modal-import-data" class="modal fade" tabindex="-1">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form class="form-horizontal" method="POST" id="frmImportData" enctype="multipart/form-data"
-				action="<?php echo base_url($sfolder . '/import_action'); ?>">
-				<div class="modal-header no-padding">
-					<div class="table-header " id="title_materi_paket_sesi">
-						Import <?php echo $smodul; ?>
+	<div class="vertical-alignment-helper">
+		<div class="modal-dialog vertical-align-center">
+			<div class="modal-content">
+				<form class="form-horizontal" method="POST" id="frmImportData" enctype="multipart/form-data"
+					action="<?php echo base_url($sfolder . '/import_action'); ?>">
+					<div class="modal-header no-padding">
+						<div class="table-header " id="title_materi_paket_sesi">
+							Import <?php echo $smodul; ?>
+						</div>
 					</div>
-				</div>
 
-				<div class="modal-body" style="min-height:100px; margin:10px">
-					<div class="progress"></div>
-					<?php $this->mylib->inputfile("userfile"); ?>
-				</div>
+					<div class="modal-body" style="min-height:100px; margin:10px">
+						<div class="progress"></div>
+						<?php $this->mylib->inputfile("userfile"); ?>
+					</div>
 
-				<div class="modal-footer no-margin-top">
-					<button class="btn btn-sm pull-left"
-						style="background-color:red; color:white; border-radius:2px !important" data-dismiss="modal">
-						<i class="fa fa-times"></i>
-						Tutup
-					</button>
-					<button class="btn btn-sm pull-right"
-						style="background-color:#112D80; color:white; border-radius:2px !important"
-						id="submit-import-data">
-						<i class="fa fa-times"></i>
-						Import
-					</button>
-				</div>
-			</form>
+					<div class="modal-footer no-margin-top">
+						<button class="btn btn-sm pull-left"
+							style="background-color:red; color:white; border-radius:2px !important" data-dismiss="modal">
+							<i class="fa fa-times"></i>
+							Tutup
+						</button>
+						<button class="btn btn-sm pull-right"
+							style="background-color:#112D80; color:white; border-radius:2px !important"
+							id="submit-import-data">
+							<i class="fa fa-times"></i>
+							Import
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 </div>
 <div id="modal-eksport-data" class="modal fade" tabindex="-1">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form class="form-horizontal" method="POST" id="frmEksportData" enctype="multipart/form-data"
-				action="<?php echo base_url($sfolder . '/eksport_action'); ?>">
-				<div class="modal-header no-padding">
-					<div class="table-header " id="title_materi_paket_sesi">
-						Eksport <?php echo $smodul; ?>
+	<div class="vertical-alignment-helper">
+		<div class="modal-dialog vertical-align-center">
+			<div class="modal-content">
+				<form class="form-horizontal" method="POST" id="frmEksportData" enctype="multipart/form-data"
+					action="<?php echo base_url($sfolder . '/eksport_action'); ?>">
+					<div class="modal-header no-padding">
+						<div class="table-header " id="title_materi_paket_sesi">
+							Eksport <?php echo $smodul; ?>
+						</div>
 					</div>
-				</div>
 
-				<div class="modal-footer no-margin-top">
-					<button class="btn btn-sm pull-left"
-						style="background-color:red; color:white; border-radius:2px !important" data-dismiss="modal">
-						<i class="fa fa-times"></i>
-						Tutup
-					</button>
-					<button class="btn btn-sm pull-right"
-						style="background-color:#112D80; color:white; border-radius:2px !important"
-						id="submit-eksport-data">
-						<i class="fa fa-times"></i>
-						Eksport
-					</button>
-				</div>
-			</form>
+					<div class="modal-footer no-margin-top">
+						<button class="btn btn-sm pull-left"
+							style="background-color:red; color:white; border-radius:2px !important" data-dismiss="modal">
+							<i class="fa fa-times"></i>
+							Tutup
+						</button>
+						<button class="btn btn-sm pull-right"
+							style="background-color:#112D80; color:white; border-radius:2px !important"
+							id="submit-eksport-data">
+							<i class="fa fa-times"></i>
+							Eksport
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 </div>

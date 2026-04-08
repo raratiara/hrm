@@ -93,8 +93,8 @@ class Detail_health_menu extends MY_Controller
 
 
  	public function get_data_total(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		
+		$karyawan_id = $_SESSION['worker'];
 
  		$post = $this->input->post(null, true);
 		$flemp 	= $post['flemp'];
@@ -316,8 +316,8 @@ class Detail_health_menu extends MY_Controller
 
 
  	public function get_data_steps(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		
+		$karyawan_id = $_SESSION['worker'];
 
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];
@@ -373,8 +373,8 @@ class Detail_health_menu extends MY_Controller
 
 
  	public function get_data_sleeps(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		
+		$karyawan_id = $_SESSION['worker'];
 		
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];
@@ -430,8 +430,8 @@ class Detail_health_menu extends MY_Controller
 
  	public function get_data_vitalSigns()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		 
+		$karyawan_id = $_SESSION['worker'];
 		
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];

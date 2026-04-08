@@ -46,10 +46,9 @@ class Loan_model extends MY_Model
 		];
 
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			$whr = ' where ao.id_employee = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
 		}
 
@@ -291,7 +290,7 @@ class Loan_model extends MY_Model
 			}
 			$edit = "";
 			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
-				if($row->status_name == 'Waiting Approval' && $row->employee_id == $karyawan_id){
+				if($row->status_name == 'Waiting Approval' && $row->id_employee == $karyawan_id){
 					$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 				}
 			}
@@ -481,13 +480,8 @@ class Loan_model extends MY_Model
 					'id_employee' 	 				=> trim($post['id_employee']),
 					'nominal_pinjaman' 				=> trim($post['nominal_pinjaman']), 
 					'tenor' 						=> trim($post['tenor']),
-					/*'sisa_tenor' 					=> trim($post['sisa_tenor']),*/
-					'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
-					'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   
-					/*'date_pengajuan' 				=> date("Y-m-d", strtotime(trim($post['date_pengajuan']))),   
-					'date_persetujuan' 				=> date("Y-m-d", strtotime(trim($post['date_persetujuan']))),  
-					'date_pencairan' 				=> date("Y-m-d", strtotime(trim($post['date_pencairan']))),  
-					'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))), */   
+					/*'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
+					'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   */
 					'insert_by'						=> $_SESSION["username"],    
 					'insert_date'					=> date("Y-m-d H:i:s"),
 					'date_pengajuan'				=> date("Y-m-d H:i:s"),
@@ -537,13 +531,13 @@ class Loan_model extends MY_Model
 				'id_employee' 	 				=> trim($post['id_employee']),
 				'nominal_pinjaman' 				=> trim($post['nominal_pinjaman']), 
 				'tenor' 						=> trim($post['tenor']),
-				'sisa_tenor' 					=> trim($post['sisa_tenor']),
+				/*'sisa_tenor' 					=> trim($post['sisa_tenor']),
 				'bunga_per_bulan' 				=> trim($post['bunga_per_bulan']),  
 				'nominal_cicilan_per_bulan' 	=> trim($post['nominal_cicilan_per_bulan']),   
 				'date_pengajuan' 				=> date("Y-m-d", strtotime(trim($post['date_pengajuan']))),   
 				'date_persetujuan' 				=> date("Y-m-d", strtotime(trim($post['date_persetujuan']))),  
 				'date_pencairan' 				=> date("Y-m-d", strtotime(trim($post['date_pencairan']))),  
-				'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))),    
+				'date_start_cicilan'			=> date("Y-m-d", strtotime(trim($post['date_start_cicilan']))),  */  
 				'update_by'						=> $_SESSION["username"] ,    
 				'update_date'					=> date("Y-m-d H:i:s")
 			];
@@ -572,10 +566,9 @@ class Loan_model extends MY_Model
 
 	public function getRowData($id) {
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 			$whr = ' where ao.id_employee = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
 		}
 
@@ -775,10 +768,10 @@ class Loan_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 

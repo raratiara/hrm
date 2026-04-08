@@ -36,8 +36,8 @@ class Documents_menu_model extends MY_Model
 
 		$sIndexColumn = $this->primary_key;
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$emp_id = $getdata[0]->id_karyawan;
+		
+		$emp_id = $_SESSION['worker'];
 
 		$dtemp = $this->db->query("select * from employees where id = '".$emp_id."'")->result(); 
 		$whr ="";

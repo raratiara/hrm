@@ -44,10 +44,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 			'dt.employee_id'
 		];
 
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$whr = '';
-		if ($getdata[0]->id_groups != 1) { //bukan super user
+		if ($_SESSION['role'] != 1) { //bukan super user
 			/*$whr = ' where a.employee_id = "' . $karyawan_id . '" or b.direct_id = "' . $karyawan_id . '" ';*/
 			$whr = ' where ao.employee_id = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
 		}
@@ -521,6 +520,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 		$runningnumber = $this->getNextNumber(); // next count number
 		$nextnum 	= $lettercode.'/'.$period.'/'.$runningnumber;
 
+		$different_work_location = trim($post['different_work_location'] ?? '');
+		$bustrip_loc = trim($post['bustrip_loc'] ?? '');
+
 
 		if (!empty($post['employee'])) {
 			$dataEmp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result(); 
@@ -536,7 +538,9 @@ class Perjalanan_dinas_menu_model extends MY_Model
 						'status_id' 	=> 1, //waiting approval
 						'created_date' 	=> date("Y-m-d H:i:s"),
 						'ttl_days' 		=> $diff_day,
-						'ttl_cost' 		=> trim($post['total_amount'])
+						'ttl_cost' 		=> trim($post['total_amount']),
+						'is_different_work_location' 	=> $different_work_location,
+						'work_location_id' 				=> $bustrip_loc
 
 					];
 					$rs = $this->db->insert($this->table_name, $data);
@@ -618,8 +622,8 @@ class Perjalanan_dinas_menu_model extends MY_Model
 
 	public function edit_data($post)
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$id = trim($post['id']);
 
 		$start_date = date_create($post['start_date']);
@@ -787,8 +791,10 @@ class Perjalanan_dinas_menu_model extends MY_Model
 					when a.status_id = 2 then "Approved"
 					when a.status_id = 3 then "Rejected"
 					else ""
-					end) as status_name 
+					end) as status_name,
+				    if(a.is_different_work_location =1, "Yes","No") as is_different_work_location_desc, c.name as location_name
 					from business_trip a left join employees b on b.id = a.employee_id
+				    left join master_work_location c on c.id = a.work_location_id
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -826,10 +832,10 @@ class Perjalanan_dinas_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr = '';
-		if ($getdata[0]->id_groups != 1) { //bukan super user
+		if ($_SESSION['role'] != 1) { //bukan super user
 			$whr = ' where a.employee_id = "' . $karyawan_id . '" or b.direct_id = "' . $karyawan_id . '" ';
 		}
 

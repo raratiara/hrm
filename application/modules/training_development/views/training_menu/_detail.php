@@ -3,12 +3,16 @@
 	<div class="col-md-6 col-sm-12 col-xs-12">
 		
 		
+		
 		<div class="row">
+			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Training Name</label>
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Training Name</label>
 			<div class="col-md-8 col-sm-8 col-xs-8">
 				: <span class="training_name"></span>
+				: <span class="training_name"></span>
 			</div>
 		</div>
+
 
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Trainer</label>
@@ -38,16 +42,12 @@
 			</div>
 		</div> 
 		
-		<!-- <div class="row">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Sertifikat</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">
-				: <span class="file_sertifikat"></span>
-			</div>
-		</div> -->
+		
 	</div>
 
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
+
 
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Training Date</label>
@@ -55,6 +55,7 @@
 				: <span class="training_date"></span>
 			</div>
 		</div>
+		
 		
 		<div class="row">
 			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Location</label>

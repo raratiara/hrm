@@ -42,10 +42,9 @@ class Fpu_menu_model extends MY_Model
 			'dt.is_approver_view'
 		];
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			/*$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';*/
 			$whr=' and (ao.prepared_by = "'.$karyawan_id.'" or ao.requested_by = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1) ';
 		}
@@ -418,14 +417,16 @@ class Fpu_menu_model extends MY_Model
 		
 
 		$cek = $this->db->query("select * from cash_advance where ca_type = '1' and SUBSTRING(ca_number, 5, 4) = '".$period."'");
+		$cek = $this->db->query("select * from cash_advance where ca_type = '1' and SUBSTRING(ca_number, 5, 4) = '".$period."'");
 		$rs_cek = $cek->result_array();
 
 		if(empty($rs_cek)){
 			$num = '0001';
-		}else{ 
+		}else{
 			$cek2 = $this->db->query("select max(ca_number) as maxnum from cash_advance where ca_type = '1' and SUBSTRING(ca_number, 5, 4) = '".$period."'");
 			$rs_cek2 = $cek2->result_array();
 			$dt = $rs_cek2[0]['maxnum']; 
+			$getnum = substr($dt,9); 
 			$getnum = substr($dt,9); 
 			$num = str_pad($getnum + 1, 4, 0, STR_PAD_LEFT);
 			
@@ -567,6 +568,10 @@ class Fpu_menu_model extends MY_Model
 						$this->approvalemailservice->sendtoRequester('cash_advance', $lastId, $post['requested_by'], $_SESSION['worker']);
 
 
+						//send emailing to requester
+						$this->approvalemailservice->sendtoRequester('cash_advance', $lastId, $post['requested_by'], $_SESSION['worker']);
+
+
 
 						return [
 						    "status" => true,
@@ -682,7 +687,6 @@ class Fpu_menu_model extends MY_Model
 								'approval_level' 	=> $next_level
 							];
 							$this->db->insert("approval_path_detail", $dataApprovalDetail);
-
 
 							// send emailing to approver
 							$this->approvalemailservice->sendApproval('cash_advance', $id, $approval_path_id);
@@ -842,8 +846,8 @@ class Fpu_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 
 		/*$mTable = '(select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
 					, d.name as status_name, c.direct_id, e.title as project_name  
@@ -949,10 +953,10 @@ class Fpu_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' and (a.prepared_by = "'.$karyawan_id.'" or a.requested_by = "'.$karyawan_id.'" or c.direct_id = "'.$karyawan_id.'") ';
 		}
 

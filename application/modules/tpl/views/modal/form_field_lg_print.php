@@ -17,40 +17,27 @@
 			</div>
 			</form>
 
-			<div class="modal-footer no-margin-top">
-				<span class="act-container-btn">
-					<button class="btn btn-info" id="submit-data" onclick="save()">
-						<i class="fa fa-check"></i>
-						Save
-					</button>
-					<button class="btn btn-info" id="submit-print-data" onclick="saveprint()">
-						<i class="fa fa-check"></i>
-						Save & Print
-					</button>
-					<button class="btn" onclick="reset()">
-						<i class="fa fa-undo"></i>
-						Reset
-					</button>
-				</span>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Close
-				</button>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
-
-
-
-
-<!-- Loading Overlay -->
-<div id="loadingOverlay" 
-     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-     background:rgba(255,255,255,0.8); z-index:99999; text-align:center; padding-top:20%;">
-    <i class="fa fa-spinner fa-spin fa-4x"></i>
-    <div style="margin-top:20px; font-size:18px; font-weight:bold; color:#112D80;">
-        Processing, please wait...
-    </div>
-</div>
+								<div class="modal-footer no-margin-top">
+									<span class="act-container-btn">
+										<button class="btn btn-info" id="submit-data" data-text="Save" data-loading="Saving..." onclick="save()">
+											<i class="fa fa-check"></i>
+											Save
+										</button>
+										<button class="btn btn-info" id="submit-print-data" onclick="saveprint()">
+											<i class="fa fa-check"></i>
+											Save & Print
+										</button>
+										<button class="btn" onclick="reset()">
+											<i class="fa fa-undo"></i>
+											Reset
+										</button>
+									</span>
+									<button class="btn blue" data-dismiss="modal">
+										<i class="fa fa-times"></i>
+										Close
+									</button>
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>

@@ -295,6 +295,14 @@ function load_data()
 					$('[name="start_date"]').val(data.start_date);
 					$('[name="end_date"]').val(data.end_date);
 					$('[name="total_amount"]').val(data.ttl_cost);
+					$('[name="different_work_location"][value="'+data.is_different_work_location+'"]').prop('checked', true);
+
+					if(data.is_different_work_location == 1){ 
+						document.getElementById('inpLocation').style.display = 'block';
+						$('select#bustrip_loc').val(data.work_location_id).trigger('change.select2');
+					}else{
+						document.getElementById('inpLocation').style.display = 'none';
+					}
 
 
 					$.ajax({type: 'post',url: module_path+'/genbustriprow',data: { id:data.id },success: function (response) {
@@ -334,6 +342,15 @@ function load_data()
 					$('span.start_date').html(data.start_date);
 					$('span.end_date').html(data.end_date);
 					$('span.total_amount').html(data.ttl_cost);
+					$('span.different_work_location').html(data.is_different_work_location_desc);
+					
+					if(data.is_different_work_location == 1){ 
+						document.getElementById('inpLocationView').style.display = 'block';
+						$('span.bustrip_loc').html(data.location_name);
+					}else{
+						document.getElementById('inpLocationView').style.display = 'none';
+					}
+					
 				
 
 					$.ajax({type: 'post',url: module_path+'/genbustriprow',data: { id:data.id, view:true },success: function (response) { 
@@ -741,6 +758,19 @@ $(document).on("keyup", ".amount", function() {
     });
     $("#total_amount").val(sum);
 });
+
+
+
+$("input[name='different_work_location']").on("change", function () {
+    if ($(this).val() == "1") {
+        $("#inpLocation").show();     
+    } else {
+        $("#inpLocation").hide();     
+        $("#bustrip_loc").val("");            
+    }
+});
+
+
 
 
 </script>

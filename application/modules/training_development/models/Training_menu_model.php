@@ -144,17 +144,25 @@ class Training_menu_model extends MY_Model
 		if(isset($_GET['iSortCol_0'])) {
 			$sOrder = "ORDER BY  ";
 			for ($i=0 ; $i<intval($_GET['iSortingCols']) ; $i++){
-				if($_GET['bSortable_'.intval($_GET['iSortCol_'.$i])] == "true"){
-					$srcCol = $aColumns[ intval($_GET['iSortCol_'.$i])];
+				$sortColIndex = intval($_GET['iSortCol_'.$i]);
+				$isSortableKey = 'bSortable_'.$sortColIndex;
+				$sortDirKey = 'sSortDir_'.$i;
+
+				if(
+					isset($_GET[$isSortableKey]) &&
+					$_GET[$isSortableKey] == "true" &&
+					isset($aColumns[$sortColIndex])
+				){
+					$srcCol = $aColumns[$sortColIndex];
 					$findme   = ' as ';
 					$pos = strpos($srcCol, $findme);
 					if ($pos !== false) {
 						$pieces = explode($findme, trim($srcCol));
 						$sOrder .= trim($pieces[0])."
-						".($_GET['sSortDir_'.$i]) .", ";
+						".(isset($_GET[$sortDirKey]) ? $_GET[$sortDirKey] : 'asc') .", ";
 					} else {
-						$sOrder .= $aColumns[ intval($_GET['iSortCol_'.$i])]."
-						".($_GET['sSortDir_'.$i]) .", ";
+						$sOrder .= $aColumns[$sortColIndex]."
+						".(isset($_GET[$sortDirKey]) ? $_GET[$sortDirKey] : 'asc') .", ";
 					}
 				}
 			}
@@ -314,6 +322,7 @@ class Training_menu_model extends MY_Model
 				'<div class="action-buttons">
 					'.$detail.'
 					'.$edit.'
+					'.$delete.'
 					'.$reject.'
 					'.$approve.'
 					'.$rfu.'
@@ -341,8 +350,26 @@ class Training_menu_model extends MY_Model
 
 	public function delete($id= "") {
 		if (isset($id) && $id <> "") {
-			//$this->db->trans_off(); // Disable transaction
-			$this->db->trans_start(); // set "True" for query will be rolled back
+			$this->db->trans_start();
+			$this->db->where('employee_training_id', $id)->delete('employee_training_emp');
+
+			$approvalPathIds = $this->db
+				->select('id')
+				->from('approval_path')
+				->where('approval_matrix_type_id', 8)
+				->where('trx_id', $id)
+				->get()
+				->result();
+
+			if (!empty($approvalPathIds)) {
+				$pathIds = array_map(function($row) {
+					return $row->id;
+				}, $approvalPathIds);
+
+				$this->db->where_in('approval_path_id', $pathIds)->delete('approval_path_detail');
+				$this->db->where_in('id', $pathIds)->delete('approval_path');
+			}
+
 			$this->db->where([$this->primary_key => $id])->delete($this->table_name);
 			$this->db->trans_complete();
 
@@ -355,11 +382,7 @@ class Training_menu_model extends MY_Model
 		if (is_array($id) && count($id)) {
 			$err = '';
 			foreach ($id as $pid) {
-				//$this->db->trans_off(); // Disable transaction
-				$this->db->trans_start(); // set "True" for query will be rolled back
-				$this->db->where([$this->primary_key => $pid])->delete($this->table_name);
-				$this->db->trans_complete();
-				$deleted = $this->db->trans_status();
+				$deleted = $this->delete($pid);
                 if ($deleted == false) {
 					if(!empty($err)) $err .= ", ";
                     $err .= $pid;
@@ -482,17 +505,26 @@ class Training_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$training_date 		= date_create($post['training_date']); 
-		$f_training_date	= date_format($training_date,"Y-m-d H:i:s");
+		$training_date = date_create($post['training_date']);
+		if(!$training_date){
+			return [
+				"status" => false,
+				"msg" => "Format tanggal training tidak valid"
+			];
+		}
+		$f_training_date = date_format($training_date,"Y-m-d H:i:s");
+
+		$employeeIds = isset($post['employee']) ? (array) $post['employee'] : [];
+		$employeeIds = array_values(array_filter(array_map('trim', $employeeIds)));
 		
-		
-		
-  		if(!empty($post['employee'])){ 
-  			$dataemp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result();
+  		if(!empty($employeeIds)){ 
+  			$firstEmployeeId = (int) $employeeIds[0];
+  			$dataemp = $this->db->query("select * from employees where id = '".$firstEmployeeId."'")->result();
 
 			if(!empty($dataemp)){
 				if(!empty($dataemp[0]->work_location)){
 
+					/*$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
 					/*$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
 					// Cek apakah folder sudah ada
 					if (!is_dir($upload_dir)) {
@@ -508,11 +540,11 @@ class Training_menu_model extends MY_Model
 					} else if(isset($upload_file_sertifikat['error_warning'])){
 						echo $upload_file_sertifikat['error_warning']; exit;
 					}*/
+					}*/
 
 
 
 		  			$data = [
-						'employee_id' 			=> trim($post['employee']),
 						'training_name' 		=> trim($post['training_name']),
 						'training_date'			=> $f_training_date,
 						'location' 				=> trim($post['location']),
@@ -528,6 +560,13 @@ class Training_menu_model extends MY_Model
 					$lastId = $this->db->insert_id();
 
 					if($rs){
+						foreach($employeeIds as $employeeId){
+							$this->db->insert('employee_training_emp', [
+								'employee_training_id' => $lastId,
+								'employee_id' => (int) $employeeId
+							]);
+						}
+
 						///insert approval path
 						$approval_type_id = 8; //Training
 						$this->getApprovalMatrix($dataemp[0]->work_location, $approval_type_id, '', '', $lastId);
@@ -574,12 +613,34 @@ class Training_menu_model extends MY_Model
 		$id = trim($post['id']);
 
 
-		$training_date 		= date_create($post['training_date']); 
-		$f_training_date	= date_format($training_date,"Y-m-d H:i:s");
+		$training_date = date_create($post['training_date']); 
+		if(!$training_date){
+			return [
+				"status" => false,
+				"msg" => "Format tanggal training tidak valid"
+			];
+		}
+		$f_training_date = date_format($training_date,"Y-m-d H:i:s");
 
 
 		if(!empty($post['id'])){ 
-			$dataemp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result();
+			$employeeIds = isset($post['employee']) ? (array) $post['employee'] : [];
+			$employeeIds = array_values(array_filter(array_map('trim', $employeeIds)));
+			if(empty($employeeIds)){
+				return [
+					"status" => false,
+					"msg" 	 => "Employee not found"
+				];
+			}
+
+			$firstEmployeeId = (int) $employeeIds[0];
+			$dataemp = $this->db->query("select * from employees where id = '".$firstEmployeeId."'")->result();
+			if(empty($dataemp)){
+				return [
+					"status" => false,
+					"msg" 	 => "Employee not found"
+				];
+			}
 
   			$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
 			// Cek apakah folder sudah ada
@@ -604,10 +665,9 @@ class Training_menu_model extends MY_Model
 
 			$is_rfu=0;
 			$getdata = $this->db->query("select * from employee_training where id = '".$post['id']."' ")->result(); 
-			if($getdata[0]->status_id == 4 && $karyawan_id == $getdata[0]->employee_id){ // edit RFU
+			if($getdata[0]->status_id == 4 && $karyawan_id == $getdata[0]->created_by){ // edit RFU
 				$is_rfu=1;
 				$data = [
-					'employee_id' 			=> trim($post['employee']),
 					'training_name' 		=> trim($post['training_name']),
 					'training_date'			=> $f_training_date,
 					'location' 				=> trim($post['location']),
@@ -615,19 +675,20 @@ class Training_menu_model extends MY_Model
 					'notes' 				=> trim($post['notes']),
 					'updated_at'			=> date("Y-m-d H:i:s"),
 					'file_sertifikat' 		=> $file_sertifikat,
+					'lms_course_id' 		=> !empty($post['lms_course']) ? trim($post['lms_course']) : null,
 					'status_id' 			=> 1
 					
 				];
 			}else{
 				$data = [
-					'employee_id' 			=> trim($post['employee']),
 					'training_name' 		=> trim($post['training_name']),
 					'training_date'			=> $f_training_date,
 					'location' 				=> trim($post['location']),
 					'trainer' 				=> trim($post['trainer']),
 					'notes' 				=> trim($post['notes']),
 					'updated_at'			=> date("Y-m-d H:i:s"),
-					'file_sertifikat' 		=> $file_sertifikat
+					'file_sertifikat' 		=> $file_sertifikat,
+					'lms_course_id' 		=> !empty($post['lms_course']) ? trim($post['lms_course']) : null
 					
 				];
 			}
@@ -636,6 +697,14 @@ class Training_menu_model extends MY_Model
 			
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 			if($rs){
+				$this->db->delete('employee_training_emp', ['employee_training_id' => $id]);
+				foreach($employeeIds as $employeeId){
+					$this->db->insert('employee_training_emp', [
+						'employee_training_id' => $id,
+						'employee_id' => (int) $employeeId
+					]);
+				}
+
 				/// update approval path
 				$getapprovallevel = $this->db->query("select * from approval_path where approval_matrix_type_id = 8 and trx_id = '".$id."'")->result(); 
 				$approval_level = $getapprovallevel[0]->current_approval_level;
@@ -705,8 +774,11 @@ class Training_menu_model extends MY_Model
 					)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
-		
-		
+		if($rs && !empty($rs->participants)){
+			$rs->employee_id = explode(',', $rs->participants);
+		}else if($rs){
+			$rs->employee_id = [];
+		}
 		
 		return $rs;
 	} 

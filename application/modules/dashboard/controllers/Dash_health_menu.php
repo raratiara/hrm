@@ -275,8 +275,8 @@ class Dash_health_menu extends MY_Controller
 
 
  	public function get_data_total_emp(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		
+		$karyawan_id = $_SESSION['worker'];
 
  		$post = $this->input->post(null, true);
 		$flemp 	= $post['flemp'];
@@ -504,8 +504,8 @@ class Dash_health_menu extends MY_Controller
 
 
  	public function get_data_steps_emp(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		
+		$karyawan_id = $_SESSION['worker'];
 
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];
@@ -562,8 +562,8 @@ class Dash_health_menu extends MY_Controller
 
 
  	public function get_data_steps() {
-	    $getdata = $this->db->query("SELECT * FROM user WHERE user_id = '".$_SESSION['id']."'")->result(); 
-	    $karyawan_id = $getdata[0]->id_karyawan;
+	   
+	    $karyawan_id = $_SESSION['worker'];
 
 	    $post = $this->input->post(null, true);
 	    $flemp  = $post['flemp'];
@@ -658,8 +658,8 @@ class Dash_health_menu extends MY_Controller
 
 
  	public function get_data_sleeps() {
-	    $getdata = $this->db->query("SELECT * FROM user WHERE user_id = '".$_SESSION['id']."'")->result(); 
-	    $karyawan_id = $getdata[0]->id_karyawan;
+	    
+	    $karyawan_id = $_SESSION['worker'];
 
 	    $post = $this->input->post(null, true);
 	    $flemp  = $post['flemp'];
@@ -758,8 +758,8 @@ class Dash_health_menu extends MY_Controller
 
 
  	public function get_data_sleeps_emp(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		
+		$karyawan_id = $_SESSION['worker'];
 		
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];
@@ -821,8 +821,8 @@ class Dash_health_menu extends MY_Controller
 
  	public function get_data_vitalSigns_emp()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		
  		$post = $this->input->post(null, true);
  		$flemp 	= $post['flemp'];

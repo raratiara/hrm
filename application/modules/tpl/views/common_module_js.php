@@ -79,16 +79,6 @@ $(document)
 /* open add form modal */
 $( "#btnAddData" ).on('click', function(){
 	var module_name = '<?=$this->module_name?>'; 
-	if(module_name == 'request_recruitment_menu'){
-		document.getElementById("btnDraft").style.display = "";
-		document.getElementById("submit-data").style.display = "";
-
-		var modalFooter =  document.getElementById('mdlFooter');
-		var existingReject = modalFooter.querySelector('.btnReject');
-	 	if (existingReject) {
-	 		document.getElementById("btn-reject").style.display = "none";
-	 	}
-	}
 
 
 	$("#employee ").prop('disabled', false);
@@ -96,7 +86,9 @@ $( "#btnAddData" ).on('click', function(){
 	save_method = 'add'; 
 	reset();
 	$('#mfdata').text('Add');
-	if(module_name == 'absensi_menu'){ 
+
+
+	if(module_name == 'absensi_menu' || module_name == 'absensi_os_menu'){ 
 		getLocation();
 		
 		var hdnempid = $("#hdnempid").val();
@@ -169,7 +161,58 @@ function edit(id)
 	idx = id;
 	reset();
 }
-<?php } ?>
+
+$( "#btnEditPerProject" ).on('click', function(){
+	var module_name = '<?=$this->module_name?>'; 
+
+	if(module_name == 'hitung_summary_absen_os_menu'){ 
+
+		<!-- tutup semua dropdown aktif dulu -->
+		$('.select2me').select2('close');
+
+		<!-- clear semua field dulu -->
+    	resetEditProjectForm();
+
+		$('#mfdata').text('Edit Perhitungan');
+		$('#modal-form-editperproject').modal('show');
+
+	}
+
+
+});
+
+
+$( "#btnEditGajiPerProject" ).on('click', function(){
+	var module_name = '<?=$this->module_name?>'; 
+
+	if(module_name == 'hitung_gaji_os_menu'){ 
+
+		<!-- tutup semua dropdown aktif dulu -->
+		$('.select2me').select2('close');
+
+		<!-- clear semua field dulu -->
+    	resetEditGajiProjectForm();
+
+
+    	var now = new Date();
+
+		var monthNow = now.getMonth() + 1; // 1–12
+		var yearNow  = now.getFullYear();  // contoh: 2026
+
+		$('select#penggajian_month_edit_gaji').val(monthNow).trigger('change.select2');
+		$('[name="penggajian_year_edit_gaji"]').val(yearNow);
+		
+		$('#mfdata').text('Edit Gaji');
+		$('#modal-form-editgajiperproject').modal('show');
+
+	}
+
+
+});
+
+<?php 
+
+} ?>
 
 
 <?php if  (_USER_ACCESS_LEVEL_DETAIL == "1") { ?>
@@ -307,6 +350,18 @@ function save(status='')
 		send_url = module_path+'/bulk';
 		formData = new FormData($('#frmListData')[0]);
 	}
+
+
+	if(save_method == 'add' || save_method == 'update'){
+		if(status == 'draft'){
+			lockSubmitDraft();
+		}else{
+			lockSubmit();
+		}
+	    
+	}
+
+
 <?php } ?>
 
 
@@ -339,6 +394,12 @@ if(save_method == 'add' || save_method == 'update'){
 					title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-check-circle-o fa-5x" style="color:green"></i></div>';
 					btn = '';
 					if(save_method == 'add' || save_method == 'update') {
+						unlockSubmit();
+
+						if(module_name == 'request_recruitment_menu'){
+							unlockSubmitDraft();
+						}
+
 						unlockSubmit();
 
 						if(module_name == 'request_recruitment_menu'){
@@ -517,12 +578,42 @@ function tSawBclear(elem){
 
 
 
-function showLoading() { 
-    $("#loadingOverlay").show();
+function lockSubmit() {
+	var btn = $('#submit-data');
+    
+    var loadingText = btn.data('loading') || 'Processing...';
+
+    btn.prop('disabled', true)
+       .html('<i class="fa fa-spinner fa-spin"></i> ' + loadingText);
 }
 
-function hideLoading() {
-    $("#loadingOverlay").hide();
+function lockSubmitDraft() {
+	var btn = $('#btnDraft');
+    
+    var loadingText = btn.data('loading') || 'Drafting...';
+
+    btn.prop('disabled', true)
+       .html('<i class="fa fa-spinner fa-spin"></i> ' + loadingText);
+}
+
+function unlockSubmit() {
+	
+	var btn = $('#submit-data');
+    var text = btn.data('text') || 'Save';
+
+    btn.prop('disabled', false)
+   .html('<i class="fa fa-check"></i> ' + text);
+	
+    
+}
+
+
+function unlockSubmitDraft() {
+    var btn = $('#btnDraft');
+    var text = btn.data('text') || 'Save as Draft';
+
+    btn.prop('disabled', false)
+       .html('<i class="fa fa-floppy-o"></i> ' + text);
 }
 
 

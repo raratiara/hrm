@@ -39,10 +39,10 @@ class Lembur_menu_model extends MY_Model
 			'dt.employee_id'
 		];
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		 
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			/*$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';*/
 			$whr=' where ao.employee_id = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1  ';
 		}
@@ -223,8 +223,8 @@ class Lembur_menu_model extends MY_Model
 			}
 		}
 
-		$getdirect = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$direct_karyawan_id = $getdirect[0]->id_karyawan;
+		
+		$direct_karyawan_id = $_SESSION['worker'];
 
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value
@@ -444,11 +444,43 @@ class Lembur_menu_model extends MY_Model
 						$end = strtotime($datetime_end);
 
 						$selisihDetik = $end - $start;
-						$num_of_hour = floor($selisihDetik / 3600);
+
+						// total menit
+						$totalMenit = floor($selisihDetik / 60);
+
+						// aturan lembur (dibulatkan keatas)
+						if ($totalMenit < 30) {
+						    $num_of_hour = 0;
+						} else {
+						    $num_of_hour = ceil($totalMenit / 60);
+						}
+
+
+						//$num_of_hour = floor($selisihDetik / 3600);
 						/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-						$biaya='50000';
-						$amount = $num_of_hour*$biaya;
+						/*$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result(); */
+						//$biaya=$getbiaya[0]->value;
+
+
+						$biaya = ceil($dataEmp[0]->gaji_bulanan / 173);
+						if($dataEmp[0]->emp_source == 'outsource'){
+							$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur, rumus_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
+							if(!empty($getbiaya)){
+								if($getbiaya[0]->sistem_lembur == 'tidak_sistem_lembur'){
+									$biaya = $getbiaya[0]->nominal_lembur ?? 0;
+								}else{
+									if($getbiaya[0]->rumus_lembur == 'gapok/26/7'){
+										$biaya = ceil($dataEmp[0]->gaji_bulanan / 26 / 7);
+									}else if($getbiaya[0]->rumus_lembur == 'gapok/20/12'){
+										$biaya = ceil($dataEmp[0]->gaji_bulanan / 20 / 12);
+									}
+								}
+							}
+						}
+
+						
+						$amount = ceil($num_of_hour*$biaya);
 
 
 						$data = [
@@ -544,6 +576,8 @@ class Lembur_menu_model extends MY_Model
 
 			if($post['type'] != '' && $post['employee'] != '' && $post['datetime_start'] != '' && $post['datetime_end'] != ''){
 
+				$dataEmp = $this->db->query("select * from employees where id = '".$post['employee']."'")->result(); 
+
 				if($post['type'] == '1'){ //lembur hari kerja
 
 					$datetime_start = date('Y-m-d H:i:s', strtotime($post['datetime_start']));
@@ -554,10 +588,41 @@ class Lembur_menu_model extends MY_Model
 					$end = strtotime($datetime_end);
 
 					$selisihDetik = $end - $start;
-					$num_of_hour = floor($selisihDetik / 3600);
+
+					// total menit
+					$totalMenit = floor($selisihDetik / 60);
+
+					// aturan lembur (dibulatkan keatas)
+					if ($totalMenit < 30) {
+					    $num_of_hour = 0;
+					} else {
+					    $num_of_hour = ceil($totalMenit / 60);
+					}
+
+
+					//$num_of_hour = floor($selisihDetik / 3600);
 					/*$menit = floor(($selisihDetik % 3600) / 60);*/
 
-					$biaya='50000';
+					/*$getbiaya = $this->db->query("select * from setup_global where name = 'biaya_lembur'")->result();
+					$biaya = $getbiaya[0]->value;*/
+
+					$biaya = ceil($dataEmp[0]->gaji_bulanan / 173);
+					if($dataEmp[0]->emp_source == 'outsource'){
+						$getbiaya = $this->db->query("select sistem_lembur, nominal_lembur, rumus_lembur from data_customer where id = ".$dataEmp[0]->cust_id." ")->result(); 
+						if(!empty($getbiaya)){
+							if($getbiaya[0]->sistem_lembur == 'tidak_sistem_lembur'){
+								$biaya = $getbiaya[0]->nominal_lembur ?? 0;
+							}else{
+								if($getbiaya[0]->rumus_lembur == 'gapok/26/7'){
+									$biaya = ceil($dataEmp[0]->gaji_bulanan / 26 / 7);
+								}else if($getbiaya[0]->rumus_lembur == 'gapok/20/12'){
+									$biaya = ceil($dataEmp[0]->gaji_bulanan / 20 / 12);
+								}
+							}
+						}
+					}
+
+
 					$amount = $num_of_hour*$biaya;
 
 					$data = [
@@ -680,10 +745,10 @@ class Lembur_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		
+		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
+		if($_SESSION['role'] != 1){ //bukan super user
 			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 

@@ -100,8 +100,8 @@ class People_tracker_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			if($tipe == 'absensi'){
-				if($empid == '' && $period == ''){
-			
+				if($empid == '' && $period == ''){ 
+					$start = microtime(true);                      // mulai stopwatch
 					$rs =  $this->db->query("
 							select 
 								a.id,
@@ -127,10 +127,10 @@ class People_tracker_menu extends MY_Controller
 							    when t.date_attendance_in is not null then date_attendance_in
 							    else '-'
 							    end) as datetime_attendance
-								FROM time_attendances t
+								FROM time_attendances_log t
 								INNER JOIN (
 									SELECT employee_id, MAX(date_attendance) AS max_date
-									FROM time_attendances 
+									FROM time_attendances_log
 									where ((lat_checkin is not null and long_checkin is not null)or (lat_checkout is not null and long_checkout is not null))
 									GROUP BY employee_id
 								) tm ON t.employee_id = tm.employee_id AND t.date_attendance = tm.max_date
@@ -140,6 +140,39 @@ class People_tracker_menu extends MY_Controller
 								a.last_lat IS NOT NULL AND a.last_lat != ''
 								AND a.last_long IS NOT NULL AND a.last_long != ''
 							")->result();
+
+
+					/// get detail absensi
+				    $dt = '';
+				    if (!empty($rs)) {
+				        foreach ($rs as $row) {
+				            $dt .= '<tr data-id="'.$row->id.'">';
+				            $dt .= '<td style="font-size:10px">'.$row->nama.'</td>';
+				            $dt .= '<td style="font-size:10px">'.$row->tipe.'</td>';
+				            $dt .= '<td style="font-size:10px">'.$row->datetime_attendance.'</td>';
+				            $dt .= '</tr>';
+				        }
+				    } else {
+				        $dt .= '<tr><td colspan="2" class="text-center text-muted">No data</td></tr>';
+				    }
+
+					/// end get detail tracker
+
+
+					$valResult = [
+			            'data_maps'   => $rs,
+			            'data_table'  => $dt
+			        ];
+			        
+
+					$afterQuery = microtime(true);                 // setelah SQL
+
+					$json = json_encode($valResult);                        // proses encode JSON
+					$afterJson = microtime(true);                  // setelah JSON encode
+
+					log_message('error', 'Query time A: ' . ($afterQuery - $start));
+					log_message('error', 'JSON encode time A: ' . ($afterJson - $afterQuery));
+					log_message('error', 'Total time A: ' . ($afterJson - $start));
 
 				}else{
 					$whr_emp=""; $whr_period=""; $whr_emp2=""; $whr_period2="";
@@ -159,6 +192,7 @@ class People_tracker_menu extends MY_Controller
 						$whr_period2 = " and (a.datetime between '".$start."' and '".$end."')";
 					}
 
+					$start = microtime(true);                      // mulai stopwatch
 
 					$rs =  $this->db->query("
 						select a.id,a.employee_id, b.full_name as nama,
@@ -176,8 +210,8 @@ class People_tracker_menu extends MY_Controller
 							    else '-'
 							end) as datetime_attendance
 							, a.photo
-							,a.work_location, 'time_attendances' as source
-						from time_attendances a 
+							,a.work_location, 'time_attendances_log' as source
+						from time_attendances_log a 
 						left join employees b on b.id = a.employee_id
 						where 
 							(((lat_checkin is not null or lat_checkin != '') and (long_checkin is not null or long_checkin != '')) or ((lat_checkout is not null or lat_checkout != '') and (long_checkout is not null or long_checkout != ''))) 
@@ -185,54 +219,44 @@ class People_tracker_menu extends MY_Controller
 								
 					")->result();
 
-					/*$rs =  $this->db->query("
-						select a.id,a.employee_id, b.full_name as nama,
-							 a.date_attendance,  a.date_attendance_in, a.date_attendance_out
-							, if(lat_checkout is null or lat_checkout='',lat_checkin,lat_checkout) as lat
-							, if(long_checkout is null or long_checkout='',long_checkin,long_checkout) as lng
-							,(case 
-							    when a.date_attendance_out is not null then 'checkout'
-							    when a.date_attendance_in is not null then 'checkin'
-							    else '-'
-							end) as tipe,
-							(case 
-							    when a.date_attendance_out is not null then date_attendance_out
-							    when a.date_attendance_in is not null then date_attendance_in
-							    else '-'
-							end) as datetime_attendance
-							, a.photo
-							,a.work_location, 'time_attendances' as source
-						from time_attendances a 
-						left join employees b on b.id = a.employee_id
-						where 
-							(((lat_checkin is not null or lat_checkin != '') and (long_checkin is not null or long_checkin != '')) or ((lat_checkout is not null or lat_checkout != '') and (long_checkout is not null or long_checkout != ''))) 
-							".$whr_emp.$whr_period."
-						
-						UNION
 
-						select a.id, 
-							a.emp_id as employee_id, 
-							b.full_name as nama, 
-							DATE_FORMAT(a.datetime, '%Y-%m-%d') as date_attendance, 
-							a.datetime as date_attendance_in, 
-							a.datetime as date_attendance_out, 
-							a.latitude as lat, 
-							a.longitude as lng,
-							'' as tipe,
-							a.datetime as datetime_attendance,
-							'' as photo, 
-							'' as work_location,
-							'tracker_history' as source
-						from tracker_history a
-						left join employees b on b.id = a.emp_id
-						where ((a.latitude is not null or a.latitude != '') and (a.longitude is not null or a.longitude != ''))
-								".$whr_emp2.$whr_period2."
-								
-					")->result();*/
+					/// get detail absensi
+				    $dt = '';
+				    if (!empty($rs)) {
+				        foreach ($rs as $row) {
+				            $dt .= '<tr data-id="'.$row->id.'">';
+				            $dt .= '<td style="font-size:8px">'.$row->nama.'</td>';
+				            $dt .= '<td style="font-size:8px">'.$row->tipe.'</td>';
+				            $dt .= '<td style="font-size:8px">'.$row->datetime_attendance.'</td>';
+				            $dt .= '</tr>';
+				        }
+				    } else {
+				        $dt .= '<tr><td colspan="2" class="text-center text-muted">No data</td></tr>';
+				    }
+
+					/// end get detail tracker
+
+
+					$valResult = [
+			            'data_maps'   => $rs,
+			            'data_table'  => $dt
+			        ];
+
+					
+
+					$afterQuery = microtime(true);                 // setelah SQL
+
+					$json = json_encode($valResult);                        // proses encode JSON
+					$afterJson = microtime(true);                  // setelah JSON encode
+
+					log_message('error', 'Query time B: ' . ($afterQuery - $start));
+					log_message('error', 'JSON encode time B: ' . ($afterJson - $afterQuery));
+					log_message('error', 'Total time B: ' . ($afterJson - $start));
 
 				}
 
-				echo json_encode($rs);
+				/*echo json_encode($rs);*/
+				echo $json; // output ke frontend
 
 			}else{ //tracker
 				$whr_emp2=""; $whr_period2="";
@@ -248,7 +272,7 @@ class People_tracker_menu extends MY_Controller
 					$whr_period2 = " and (a.datetime between '".$start."' and '".$end."')";
 				}	
 
-
+				$start = microtime(true);                      // mulai stopwatch
 				$rs =  $this->db->query("
 						select a.id, 
 							a.emp_id as employee_id, 
@@ -262,7 +286,12 @@ class People_tracker_menu extends MY_Controller
 							a.datetime as datetime_attendance,
 							'' as photo, 
 							'' as work_location,
-							'tracker_history' as source
+							'tracker_history' as source,
+							a.heading,
+							a.altitude,
+							a.speed,
+							a.speed_accuracy,
+							a.heading_accuracy
 						from tracker_history a
 						left join employees b on b.id = a.emp_id
 						where ((a.latitude is not null or a.latitude != '') and (a.longitude is not null or a.longitude != ''))
@@ -296,7 +325,17 @@ class People_tracker_menu extends MY_Controller
 
 
 
-				echo json_encode($valResult);
+				/*echo json_encode($valResult);*/
+				$afterQuery = microtime(true);                 // setelah SQL
+
+				$json = json_encode($valResult);                        // proses encode JSON
+				$afterJson = microtime(true);                  // setelah JSON encode
+
+				log_message('error', 'Query time C: ' . ($afterQuery - $start));
+				log_message('error', 'JSON encode time C: ' . ($afterJson - $afterQuery));
+				log_message('error', 'Total time C: ' . ($afterJson - $start));
+
+				echo $json; // output ke frontend
 
 			}
 			

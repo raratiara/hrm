@@ -97,12 +97,19 @@ defined('_SUB_DOMAIN')        	OR define('_SUB_DOMAIN',''); #localhost
 #defined('_PREFIX_TABLE')        OR define('_PREFIX_TABLE','erp_');
 defined('_PREFIX_TABLE')        OR define('_PREFIX_TABLE','');
  
-defined('_APP_NAME')        	OR define('_APP_NAME','PT. Gerbang Data Indonesia - HR System');
+/*defined('_APP_NAME')        	OR define('_APP_NAME','PT. Gerbang Data Indonesia - HR System');
 defined('_SUP_APP_NAME')        OR define('_SUP_APP_NAME','PT. Gerbang Data Indonesia');
 defined('_TITLE')        		OR define('_TITLE', 'PT. Gerbang Data Indonesia - HR System');
 defined('_COMPANY_NAME')        OR define('_COMPANY_NAME','PT. Gerbang Data Indonesia');
 defined('_COMPANY_NAME_ABBR')   OR define('_COMPANY_NAME_ABBR','GDI');
-defined('_COPYRIGHT')        	OR define('_COPYRIGHT','Copyright &copy; PT. Gerbang Data Indonesia');
+defined('_COPYRIGHT')        	OR define('_COPYRIGHT','Copyright &copy; PT. Gerbang Data Indonesia');*/
+
+defined('_APP_NAME')        	OR define('_APP_NAME','PT. Mandiri Agangta Sejahtera - HR System');
+defined('_SUP_APP_NAME')        OR define('_SUP_APP_NAME','PT. Mandiri Agangta Sejahtera');
+defined('_TITLE')        		OR define('_TITLE', 'PT. Mandiri Agangta Sejahtera - HR System');
+defined('_COMPANY_NAME')        OR define('_COMPANY_NAME','PT. Mandiri Agangta Sejahtera');
+defined('_COMPANY_NAME_ABBR')   OR define('_COMPANY_NAME_ABBR','MAS');
+defined('_COPYRIGHT')        	OR define('_COPYRIGHT','Copyright &copy; PT. Mandiri Agangta Sejahtera');
  
 defined('_URL_ADMIN')        	OR define('_URL_ADMIN','https://hrm.nathabuana.com/');
 defined('_URL')        			OR define('_URL','https://hrm.nathabuana.com/');
@@ -127,9 +134,14 @@ defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/ge
 defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gerbangdata.PNG");*/
 defined('_ASSET_ILUSTRASI_LOGIN') OR define('_ASSET_ILUSTRASI_LOGIN', _ASSET_IMG . "login/ilustrasi.png");
 defined('_ASSET_SIDEBAR_IMAGE') OR define('_ASSET_SIDEBAR_IMAGE', _ASSET_IMG."logo/sidebar_image.png");
-defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.jpg");  
-defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.PNG");  
-defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gdi_inside.png");  
+/*defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/gerbangdata.jpg");  
+defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/gerbangdata.jpg"); */
+defined('_ASSET_LOGO')        	OR define('_ASSET_LOGO',_ASSET_IMG."logo/mas_logo_tsp.png");  
+defined('_ASSET_LOGO_2022')     OR define('_ASSET_LOGO_2022',_ASSET_IMG."logo/mas_logo_tsp.png"); 
+
+//defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/gdi_inside.png");
+defined('_ASSET_LOGO_2022_INSIDE')     OR define('_ASSET_LOGO_2022_INSIDE',_ASSET_IMG."logo/mas_inside_tsp.png");
+
 defined('_ASSET_LOGO_2022_SURAT')     OR define('_ASSET_LOGO_2022_SURAT',_ASSET_IMG."logo/nbid_new_logo_surat.png");
 defined('_ASSET_PROFILE_PICTURE') OR define('_ASSET_PROFILE_PICTURE', _ASSET_IMG . "logo/profile.jpg");  
 defined('_ASSET_LOGO_TSP')        	OR define('_ASSET_LOGO_TSP',_ASSET_IMG."logo/gerbangdata.PNG"); 

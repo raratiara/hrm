@@ -37,8 +37,7 @@ class Profile_menu extends MY_Controller
 		$date_attendance = $dateNow;
 		
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		
 
 		$empData = $this->db->query("select full_name, shift_type from employees where id = '".$karyawan_id."'")->result(); 
@@ -169,8 +168,8 @@ class Profile_menu extends MY_Controller
 		define('_USER_ACCESS_LEVEL_IMPORT',$akses["import"]);
 		define('_USER_ACCESS_LEVEL_EKSPORT',$akses["eksport"]);
 
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan; 
+	
+		$karyawan_id = $_SESSION['worker']; 
 		define('_USER_EMPLOYEE_ID',$karyawan_id); 
 
     }
@@ -394,9 +393,8 @@ class Profile_menu extends MY_Controller
  			$whrStatus3 = " and status_id = '".$flstatus."'";
  		}
  		
-
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 
+		$karyawan_id = $_SESSION['worker'];
 
 		
 		$query = $this->db->query("
@@ -607,8 +605,8 @@ class Profile_menu extends MY_Controller
  		}
  		
 
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		 
+		$karyawan_id = $_SESSION['worker'];
 
 		
 		$query = $this->db->query("
@@ -801,8 +799,7 @@ class Profile_menu extends MY_Controller
 	public function get_data_checkout(){
  		//$post = $this->input->post(null, true);
 
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		$dateNow = date("Y-m-d");
  		
 		
@@ -837,8 +834,8 @@ class Profile_menu extends MY_Controller
 
 
  	public function add_quick_link(){
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+ 		
+		$karyawan_id = $_SESSION['worker'];
 
 		$post = $this->input->post(null, true);
 		$menu = $post['menu'];
@@ -863,9 +860,7 @@ class Profile_menu extends MY_Controller
 
 	public function get_data_quicklink(){
  		//$post = $this->input->post(null, true);
-
- 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
 		
 
 		$rs = $this->db->query('select a.*, b.title, b.url, if(b.um_class != "", b.um_class, c.um_class) as icon 						from quick_links a 
@@ -883,8 +878,8 @@ class Profile_menu extends MY_Controller
 
  	public function getPendinganApproval()
 	{
-	    $getdata = $this->db->query("select * FROM user WHERE user_id = ?", [$_SESSION['id']])->result(); 
-	    $karyawan_id = $getdata[0]->id_karyawan;
+	  
+	    $karyawan_id = $_SESSION['worker'];
 
 	    $rs = $this->db->query("
 	        select dt.*

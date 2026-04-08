@@ -20,6 +20,18 @@
 				<?=$txtreason;?>
 			</div>
 		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Different from current work location?  </label>
+			<div class="col-md-8">
+				<?=$different_work_location;?>
+			</div>
+		</div>
+		<div class="form-group" id="inpLocation" style="display: none;">
+			<label class="col-md-4 control-label no-padding-right"> Location</label>
+			<div class="col-md-8">
+				<?=$selbustriploc;?>
+			</div>
+		</div>
 		
 	</div>
 	<div class="col-md-6 col-sm-12">

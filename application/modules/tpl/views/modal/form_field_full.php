@@ -17,26 +17,26 @@
 			</div>
 			</form>
 
-			<div class="modal-footer no-margin-top">
-				<span class="act-container-btn">
-					<button class="btn btn-info" id="submit-data" onclick="save()">
-						<i class="fa fa-check"></i>
-						Save
-					</button>
-					<button class="btn" onclick="reset()">
-						<i class="fa fa-undo"></i>
-						Reset
-					</button>
-				</span>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Close
-				</button>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
+								<div class="modal-footer no-margin-top">
+									<span class="act-container-btn">
+										<button class="btn btn-info" id="submit-data" data-text="Save" data-loading="Saving..." onclick="save()">
+											<i class="fa fa-check"></i>
+											Save
+										</button>
+										<button class="btn" onclick="reset()">
+											<i class="fa fa-undo"></i>
+											Reset
+										</button>
+									</span>
+									<button class="btn blue" data-dismiss="modal">
+										<i class="fa fa-times"></i>
+										Close
+									</button>
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>
 
 
 

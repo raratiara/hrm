@@ -16,8 +16,8 @@
 <script type="text/javascript">
 	var module_path = "<?php echo base_url($folder_name); ?>"; //for save method string
 
-	$(document).ready(function () {
-		$(function () {
+	$(document).ready(function() {
+		$(function() {
 
 			/*$('#fldashemp').select2({
 		        width: 'resolve', // atau bisa diganti 'style' atau '100%'
@@ -41,19 +41,19 @@
 	}*/
 
 	function formatRupiah(angka) {
-	    if (angka == null || angka === "") return "0,00";
+		if (angka == null || angka === "") return "0,00";
 
-	    // pastikan angka float (hilangkan karakter non angka dulu)
-	    let number = parseFloat(angka.toString().replace(/[^0-9.-]/g, ""));
-	    if (isNaN(number)) number = 0;
+		// pastikan angka float (hilangkan karakter non angka dulu)
+		let number = parseFloat(angka.toString().replace(/[^0-9.-]/g, ""));
+		if (isNaN(number)) number = 0;
 
-	    // fixed 2 decimal → diganti koma
-	    let parts = number.toFixed(2).toString().split(".");
+		// fixed 2 decimal → diganti koma
+		let parts = number.toFixed(2).toString().split(".");
 
-	    // format ribuan
-	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+		// format ribuan
+		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-	    return parts.join(",");
+		return parts.join(",");
 	}
 
 
@@ -63,33 +63,35 @@
 	function dataTotal() {
 
 		var fldiv = $("#fldiv option:selected").val();
-		
+
 
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_total',
-			data: { fldiv: fldiv},
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					$('span#ttl_reimburs').html(data.ttl_reimburs);
 					/*var ttl_amount_reimburs = 'Rp. '+data.ttl_amount_reimburs;*/
 					var ttl_amount_reimburs = 'Rp. ' + formatRupiah(data.ttl_amount_reimburs);
 					$('span#ttl_amount_reimburs').html(ttl_amount_reimburs);
-					
+
 					$('p.total_rawatinap').html(data.total_rawatinap);
 					$('p.total_kacamata').html(data.total_kacamata);
 					$('p.total_persalinan').html(data.total_persalinan);
 					$('p.total_rawatjalan').html(data.total_rawatjalan);
 
-					
+
 				} else {
 					var valnull = 0;
 					$('span#ttl_reimburs').html(valnull);
 					$('span#ttl_amount_reimburs').html(valnull);
-					
+
 					$('p.total_rawatinap').html(valnull);
 					$('p.total_kacamata').html(valnull);
 					$('p.total_persalinan').html(valnull);
@@ -97,7 +99,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -123,18 +125,29 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_byDiv',
-			data: { fldiv: fldiv},
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					const ctx = document.getElementById('reimbyDiv').getContext('2d');
 
+
+					// bikin gradient hijau pastel (atas -> bawah)
+					const h = ctx.canvas.height || 300;
+					const gradientGreen = ctx.createLinearGradient(0, 0, 0, h);
+					gradientGreen.addColorStop(0, '#d3ebc3'); // atas
+					gradientGreen.addColorStop(1, '#f3faef'); // bawah (lebih light)
+
 					var chartExist = Chart.getChart("reimbyDiv"); // <canvas> id
 					if (chartExist != undefined)
 						chartExist.destroy();
-									
+
+
+
 					const barChart = new Chart(ctx, {
 						type: 'bar',
 						data: {
@@ -142,13 +155,7 @@
 							datasets: [{
 								label: 'Reimbursement',
 								data: data.total,
-								backgroundColor: [
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F',
-									'#9EE06F'
-								],
+								backgroundColor: gradientGreen,
 								borderRadius: 3
 							}]
 						},
@@ -157,21 +164,21 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return value;
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+										    .toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return value;
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									display: false
 								},
@@ -191,7 +198,9 @@
 									},
 									ticks: {
 										color: '#666',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									}
 								},
 								x: {
@@ -200,12 +209,14 @@
 									},
 									ticks: {
 										color: '#666',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									}
 								}
 							}
-						}
-						,plugins: [ChartDataLabels]
+						},
+						plugins: [ChartDataLabels]
 					});
 
 				} else {
@@ -213,7 +224,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -238,10 +249,12 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_projectSummary',
-			data: { fldiv: fldiv},
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					const ctx = document.getElementById('project_summary').getContext('2d');
@@ -251,15 +264,31 @@
 						chartExist.destroy();
 
 
-					const rawData = [
-						{ label: 'Open', data: data.total_open, backgroundColor: '#D9F103', borderRadius: 3 },
-						{ label: 'In Progress', data: data.total_inprogress, backgroundColor: '#FF99DC', borderRadius: 3 },
-						{ label: 'Done', data: data.total_closed, backgroundColor: '#D2C7FF', borderRadius: 3 },
-				
+					const rawData = [{
+							label: 'Open',
+							data: data.total_open,
+							backgroundColor: '#D9F103',
+							borderRadius: 3
+						},
+						{
+							label: 'In Progress',
+							data: data.total_inprogress,
+							backgroundColor: '#FF99DC',
+							borderRadius: 3
+						},
+						{
+							label: 'Done',
+							data: data.total_closed,
+							backgroundColor: '#D2C7FF',
+							borderRadius: 3
+						},
+
 					];
 
 					// Convert data to 100% scale per group
-					const percentageData = rawData.map(dataset => ({ ...dataset }));
+					const percentageData = rawData.map(dataset => ({
+						...dataset
+					}));
 					const groupCount = rawData[0].data.length;
 
 					for (let i = 0; i < groupCount; i++) {
@@ -273,7 +302,7 @@
 					new Chart(ctx, {
 						type: 'bar',
 						data: {
-							
+
 							labels: data.division_name,
 							datasets: percentageData
 						},
@@ -282,24 +311,24 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+										    .toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return parseInt(value);
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								tooltip: {
 									callbacks: {
-										label: function (context) {
+										label: function(context) {
 											/*return `${context.dataset.label}: ${context.parsed.y}%`;*/
 											return `${context.dataset.label}: ${context.parsed.y}`;
 										}
@@ -308,11 +337,11 @@
 								legend: {
 									labels: {
 										font: {
-											size: 8  // kecilkan ukuran legend text
+											size: 8 // kecilkan ukuran legend text
 										},
-										boxWidth: 12,        // kecilkan ukuran kotak warna
-										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-										borderRadius: 4,     // ubah jadi bulat (opsional)
+										boxWidth: 12, // kecilkan ukuran kotak warna
+										boxHeight: 8, // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4, // ubah jadi bulat (opsional)
 										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
 									},
 									position: 'bottom'
@@ -326,9 +355,13 @@
 									stacked: true,
 									ticks: {
 										color: '#333',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									},
-									grid: { display: false }
+									grid: {
+										display: false
+									}
 								},
 								y: {
 									stacked: true,
@@ -339,9 +372,13 @@
 										/*callback: (value) => value + '%',*/
 										callback: (value) => value,
 										color: '#333',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									},
-									grid: { color: '#eee' }
+									grid: {
+										color: '#eee'
+									}
 								}
 							}
 						},
@@ -352,7 +389,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -378,10 +415,12 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_monthlyReimbSummary',
-			data: { fldiv: fldiv},
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					const ctx = document.getElementById('monthly_reimb_summ').getContext('2d');
@@ -389,43 +428,45 @@
 					if (chartExist != undefined)
 						chartExist.destroy();
 
+					const chartHeight = ctx.canvas.height;
+
+					const gradientBlue = ctx.createLinearGradient(0, 0, 0, chartHeight);
+					gradientBlue.addColorStop(0, "#9ccef9");
+					gradientBlue.addColorStop(1, "#EFF5F9");
+
+					const gradientYellow = ctx.createLinearGradient(0, 0, 0, chartHeight);
+					gradientYellow.addColorStop(0, "#FED24B");
+					gradientYellow.addColorStop(1, "#FFF4D2");
+
+					const gradientPink = ctx.createLinearGradient(0, 0, 0, chartHeight);
+					gradientPink.addColorStop(0, "#fff1f2");
+					gradientPink.addColorStop(1, "#fecdea");
+
 					new Chart(ctx, {
 						type: 'bar',
 						data: {
-							labels: data.date_reimbursment, /*['HRGA', 'IT', 'Marketing'],*/
-							datasets: [
-								{
+							labels: data.date_reimbursment,
+							/*['HRGA', 'IT', 'Marketing'],*/
+							datasets: [{
 									label: 'Waiting Approval',
 									type: 'bar',
 									data: data.total_waitingapproval,
-									borderColor: '#3381fc',
-									backgroundColor: '#3F51B5', /*'#3381fc',*/
-									fill: false,
-									tension: 0.4,
-									yAxisID: 'y1',
-									borderRadius: 3
+									backgroundColor: gradientBlue,
+									borderRadius: 6
 								},
 								{
 									label: 'Approved',
 									type: 'bar',
 									data: data.total_approve,
-									borderColor: '#81fc33',
-									backgroundColor: '#81fc33',/*'#fc3381',*/
-									fill: false,
-									tension: 0.4,
-									yAxisID: 'y1',
-									borderRadius: 3
+									backgroundColor: gradientYellow,
+									borderRadius: 6
 								},
 								{
 									label: 'Rejected',
 									type: 'bar',
 									data: data.total_reject,
-									borderColor: '#FF4081',
-									backgroundColor: '#FF4081',/*'#fc3381',*/
-									fill: false,
-									tension: 0.4,
-									yAxisID: 'y1',
-									borderRadius: 3
+									backgroundColor: gradientPink,
+									borderRadius: 6
 								}
 							]
 						},
@@ -439,74 +480,75 @@
 							stacked: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+										    .toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return parseInt(value);
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									labels: {
 										font: {
-											size: 8  // kecilkan ukuran legend text
+											size: 8 // kecilkan ukuran legend text
 										},
-										boxWidth: 12,        // kecilkan ukuran kotak warna
-										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-										borderRadius: 4,     // ubah jadi bulat (opsional)
+										boxWidth: 12, // kecilkan ukuran kotak warna
+										boxHeight: 8, // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4, // ubah jadi bulat (opsional)
 										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
 									},
 									position: 'bottom'
 								},
 								tooltip: {
 									callbacks: {
-										label: function (context) {
+										label: function(context) {
 											return context.dataset.label + ': ' + context.formattedValue +
 												(context.dataset.label.includes('%') ? '%' : '');
 										}
 									}
 								}
-							}/*,
-						scales: {
-							  y: {
-								type: 'linear',
-								position: 'left',
-								title: {
-								  display: true,
-								  text: 'Male',
-								  color: '#3381fc'
-								},
-								ticks: {
-								  color: '#3381fc'
-								},
-								grid: {
-								  drawOnChartArea: true
-								}
-							  },
-							y1: {
-								type: 'linear',
-								position: 'right',
-								title: {
-								  display: true,
-								  text: 'Female',
-								  color: '#fc3381'
-								},
-								ticks: {
-								  color: '#fc3381'
-								},
-								grid: {
-								  drawOnChartArea: false
-								}
-							  }
-						}*/
+							}
+							/*,
+													scales: {
+														  y: {
+															type: 'linear',
+															position: 'left',
+															title: {
+															  display: true,
+															  text: 'Male',
+															  color: '#3381fc'
+															},
+															ticks: {
+															  color: '#3381fc'
+															},
+															grid: {
+															  drawOnChartArea: true
+															}
+														  },
+														y1: {
+															type: 'linear',
+															position: 'right',
+															title: {
+															  display: true,
+															  text: 'Female',
+															  color: '#fc3381'
+															},
+															ticks: {
+															  color: '#fc3381'
+															},
+															grid: {
+															  drawOnChartArea: false
+															}
+														  }
+													}*/
 						},
 						plugins: [ChartDataLabels]
 					});
@@ -515,7 +557,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -535,92 +577,103 @@
 
 
 	function reimbursFor() {
-	    var fldiv = $("#fldiv option:selected").val();
+		var fldiv = $("#fldiv option:selected").val();
 
-	    $.ajax({
-	        type: "POST",
-	        url: module_path + '/get_data_reimFor',
-	        data: { fldiv: fldiv },
-	        cache: false,
-	        dataType: "JSON",
-	        success: function (data) {
-	            if (data && data.length > 0) {
-	                const labels = data.map(item => item.label);
-	                const values = data.map(item => item.value);
+		$.ajax({
+			type: "POST",
+			url: module_path + '/get_data_reimFor',
+			data: {
+				fldiv: fldiv
+			},
+			cache: false,
+			dataType: "JSON",
+			success: function(data) {
+				if (data && data.length > 0) {
+					const labels = data.map(item => item.label);
+					const values = data.map(item => item.value);
 
-	                const ctx = document.getElementById('reimFor').getContext('2d');
-	                var chartExist = Chart.getChart("reimFor");
-	                if (chartExist) chartExist.destroy();
+					const ctx = document.getElementById('reimFor').getContext('2d');
+					var chartExist = Chart.getChart("reimFor");
+					if (chartExist) chartExist.destroy();
 
-	                new Chart(ctx, {
-	                    type: 'pie',
-	                    data: {
-	                        labels: labels,
-	                        datasets: [{
-	                            label: 'Reimburse For',
-	                            data: values,
-	                            backgroundColor: [
-	                                '#FED24B',
-	                                '#38406F',
-	                                '#74DCE0',
-	                                '#D9CAAA',
-	                                '#A1C181',
-	                                '#F28482',
-	                                '#84A59D',
-	                                '#F6BD60'
-	                            ],
-	                            borderWidth: 2,
-	                            borderColor: '#fff',
-	                            hoverOffset: 10
-	                        }]
-	                    },
-	                    options: {
-	                        responsive: true,
-	                        maintainAspectRatio: false,
-	                        plugins: {
-	                            datalabels: {
-	                                formatter: (value) => {
-	                                    return value === 0 ? '' : value;
-	                                },
-	                                color: '#fff',
-	                                font: { size: 10 }
-	                            },
-	                            legend: {
-	                                labels: {
-	                                    font: { size: 8 },
-	                                    boxWidth: 12,
-	                                    boxHeight: 8,
-	                                    borderRadius: 4,
-	                                    usePointStyle: true
-	                                },
-	                                position: 'bottom'
-	                            },
-	                            tooltip: {
-	                                callbacks: {
-	                                    label: function (context) {
-	                                        let label = context.label || '';
-	                                        let value = context.parsed;
-	                                        return `${label}: ${value}`;
-	                                    }
-	                                }
-	                            },
-	                            title: { display: false }
-	                        }
-	                    },
-	                    plugins: [ChartDataLabels]
-	                });
-	            }
-	        },
-	        error: function (jqXHR, textStatus, errorThrown) {
-	            bootbox.dialog({
-	                title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-	                message: jqXHR.responseText,
-	                buttons: {
-	                    confirm: { label: 'Ok', className: 'btn blue' }
-	                }
-	            });
-	        }
-	    });
+					new Chart(ctx, {
+						type: 'pie',
+						data: {
+							labels: labels,
+							datasets: [{
+								label: 'Reimburse For',
+								data: values,
+								backgroundColor: [
+									'#FED24B',
+									'#9dc1ff',
+									'#cdf4a7',
+									'#D9CAAA',
+									'#74DCE0',
+									'#F28482',
+									'#84A59D',
+									'#F6BD60'
+								],
+								borderWidth: 2,
+								borderColor: '#fff',
+								hoverOffset: 10
+							}]
+						},
+						options: {
+							responsive: true,
+							maintainAspectRatio: false,
+							plugins: {
+								datalabels: {
+									formatter: (value) => {
+										return value === 0 ? '' : value;
+									},
+									color: '#fff',
+									font: {
+										size: 10
+									}
+								},
+								legend: {
+									labels: {
+										font: {
+											size: 8
+										},
+										boxWidth: 12,
+										boxHeight: 8,
+										borderRadius: 4,
+										usePointStyle: true
+									},
+									position: 'bottom'
+								},
+								tooltip: {
+									callbacks: {
+										label: function(context) {
+											let label = context.label || '';
+											let value = context.parsed;
+											return `${label}: ${value}`;
+										}
+									}
+								},
+								title: {
+									display: false
+								}
+							}
+						},
+						plugins: [ChartDataLabels]
+					});
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				bootbox.dialog({
+					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+					message: jqXHR.responseText,
+					buttons: {
+						confirm: {
+							label: 'Ok',
+							className: 'btn blue'
+						}
+					}
+				});
+			}
+		});
 	}
 
 
@@ -633,10 +686,12 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_reimFor',
-			data: { fldiv: fldiv},
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					const ctx = document.getElementById('reimFor').getContext('2d');
@@ -667,36 +722,36 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+										    .toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return parseInt(value);
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									labels: {
 										font: {
-											size: 8  // kecilkan ukuran legend text
+											size: 8 // kecilkan ukuran legend text
 										},
-										boxWidth: 12,        // kecilkan ukuran kotak warna
-										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-										borderRadius: 4,     // ubah jadi bulat (opsional)
+										boxWidth: 12, // kecilkan ukuran kotak warna
+										boxHeight: 8, // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4, // ubah jadi bulat (opsional)
 										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
 									},
 									position: 'bottom'
 								},
 								tooltip: {
 									callbacks: {
-										label: function (context) {
+										label: function(context) {
 											let label = context.label || '';
 											let value = context.parsed;
 											/*return `${label}: ${value}%`;*/
@@ -720,7 +775,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -747,10 +802,12 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_empbyMaritalStatus',
-			data: { fldiv: fldiv},
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					const ctx = document.getElementById('empby_maritalStatus').getContext('2d');
@@ -764,7 +821,7 @@
 							labels: ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'],
 							datasets: [{
 								label: 'Generation',
-								data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3,data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],
+								data: [data.ttl_tk0, data.ttl_tk1, data.ttl_tk2, data.ttl_tk3, data.ttl_k0, data.ttl_k1, data.ttl_k2, data.ttl_k3],
 								backgroundColor: [
 									'#99B7F5',
 									'#267F53',
@@ -785,36 +842,36 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return parseInt(value);
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+										    .toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return parseInt(value);
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									labels: {
 										font: {
-											size: 8  // kecilkan ukuran legend text
+											size: 8 // kecilkan ukuran legend text
 										},
-										boxWidth: 12,        // kecilkan ukuran kotak warna
-										boxHeight: 8,        // atur tinggi (Chart.js 4.x ke atas)
-										borderRadius: 4,     // ubah jadi bulat (opsional)
+										boxWidth: 12, // kecilkan ukuran kotak warna
+										boxHeight: 8, // atur tinggi (Chart.js 4.x ke atas)
+										borderRadius: 4, // ubah jadi bulat (opsional)
 										usePointStyle: true // ubah ke true jika ingin lingkaran, segitiga, dll.
 									},
 									position: 'bottom'
 								},
 								tooltip: {
 									callbacks: {
-										label: function (context) {
+										label: function(context) {
 											let label = context.label || '';
 											let value = context.parsed;
 											/*return `${label}: ${value}%`;*/
@@ -838,7 +895,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -865,10 +922,12 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_bySubtype',
-			data: { fldiv: fldiv},
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					const ctx = document.getElementById('reimbySubtype').getContext('2d');
@@ -876,7 +935,13 @@
 					var chartExist = Chart.getChart("reimbySubtype"); // <canvas> id
 					if (chartExist != undefined)
 						chartExist.destroy();
-									
+
+					const h = ctx.canvas.height || 300;
+
+					const gradientYellow = ctx.createLinearGradient(0, 0, 0, h);
+					gradientYellow.addColorStop(0, '#fcda73'); // atas (kuning lebih kuat)
+					gradientYellow.addColorStop(1, '#fff6da'); // bawah (lebih soft/cream)
+
 					const barChart = new Chart(ctx, {
 						type: 'bar',
 						data: {
@@ -884,18 +949,7 @@
 							datasets: [{
 								label: 'Reimbursement',
 								data: data.total,
-								backgroundColor: [
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B',
-									'#FED24B'
-								],
+								backgroundColor: gradientYellow,
 								borderRadius: 3
 							}]
 						},
@@ -904,21 +958,21 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        formatter: (value, context) => {
-			                            /*let percentage = (value / context.chart._metasets
-			                            [context.datasetIndex].total * 100)
-			                                .toFixed(2) + '%';*/
-			                            /*return percentage + '\n' + value;*/
-			                            if (parseFloat(value) === 0) {
-								            return ''; // tidak ditampilkan
-								        }
-			                            return value;
-			                        },
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									formatter: (value, context) => {
+										/*let percentage = (value / context.chart._metasets
+										[context.datasetIndex].total * 100)
+										    .toFixed(2) + '%';*/
+										/*return percentage + '\n' + value;*/
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										return value;
+									},
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									display: false
 								},
@@ -938,7 +992,9 @@
 									},
 									ticks: {
 										color: '#666',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									}
 								},
 								x: {
@@ -947,12 +1003,14 @@
 									},
 									ticks: {
 										color: '#666',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									}
 								}
 							}
-						}
-						,plugins: [ChartDataLabels]
+						},
+						plugins: [ChartDataLabels]
 					});
 
 				} else {
@@ -960,7 +1018,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -986,10 +1044,12 @@
 		$.ajax({
 			type: "POST",
 			url: module_path + '/get_data_monthlyReimbAmount',
-			data: { fldiv: fldiv },
+			data: {
+				fldiv: fldiv
+			},
 			cache: false,
 			dataType: "JSON",
-			success: function (data) {
+			success: function(data) {
 				if (data != false) {
 
 					const ctx = document.getElementById('monthly_reimb_amount').getContext('2d');
@@ -1003,11 +1063,11 @@
 						type: 'bar',
 						data: {
 							labels: data.periode,
-							
+
 							datasets: [{
 								label: 'Amount',
 								data: data.nominal_raw,
-								backgroundColor: Array(12).fill('#081F5C'),
+								backgroundColor: Array(12).fill('#b8cbff'),
 								borderRadius: 3
 							}]
 						},
@@ -1016,31 +1076,31 @@
 							maintainAspectRatio: false,
 							plugins: {
 								datalabels: {
-			                        // formatter: (value, context) => {
-			                        //     /*let percentage = (value / context.chart._metasets
-			                        //     [context.datasetIndex].total * 100)
-			                        //         .toFixed(2) + '%';*/
-			                        //     /*return percentage + '\n' + value;*/
-			                        //     if (parseFloat(value) === 0) {
-								    //         return ''; // tidak ditampilkan
-								    //     }
-			                        //     return value;
-			                        // },
-			                        formatter: (value, context) => {
-									    if (parseFloat(value) === 0) {
-									        return ''; // tidak ditampilkan
-									    }
-									    // Format angka pakai titik ribuan
-									    return parseFloat(value).toLocaleString('id-ID', {
-									        minimumFractionDigits: 2,
-									        maximumFractionDigits: 2
-									    });
+									// formatter: (value, context) => {
+									//     /*let percentage = (value / context.chart._metasets
+									//     [context.datasetIndex].total * 100)
+									//         .toFixed(2) + '%';*/
+									//     /*return percentage + '\n' + value;*/
+									//     if (parseFloat(value) === 0) {
+									//         return ''; // tidak ditampilkan
+									//     }
+									//     return value;
+									// },
+									formatter: (value, context) => {
+										if (parseFloat(value) === 0) {
+											return ''; // tidak ditampilkan
+										}
+										// Format angka pakai titik ribuan
+										return parseFloat(value).toLocaleString('id-ID', {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2
+										});
 									},
-			                        color: '#fff',
-			                        font: {
-			                            size: 10,
-			                        }
-			                    },
+									color: '#fff',
+									font: {
+										size: 10,
+									}
+								},
 								legend: {
 									display: false
 								},
@@ -1060,7 +1120,9 @@
 									},
 									ticks: {
 										color: '#666',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									}
 								},
 								x: {
@@ -1069,12 +1131,14 @@
 									},
 									ticks: {
 										color: '#666',
-										font: { size: 10 }
+										font: {
+											size: 10
+										}
 									}
 								}
 							}
-						}
-						,plugins: [ChartDataLabels]
+						},
+						plugins: [ChartDataLabels]
 					});
 
 				} else {
@@ -1082,7 +1146,7 @@
 
 				}
 			},
-			error: function (jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				var dialog = bootbox.dialog({
 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
 					message: jqXHR.responseText,
@@ -1112,7 +1176,7 @@
 	}
 
 
-	$('#fldiv').on('change', function () {
+	$('#fldiv').on('change', function() {
 
 		monthlyReimbSummary();
 		reimbByDiv();
@@ -1124,11 +1188,9 @@
 		monthlyReimbAmount();
 
 	});
-
-
 </script>
 
 <script>
-	
+
 
 </script>

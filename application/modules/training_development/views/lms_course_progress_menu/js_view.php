@@ -18,6 +18,13 @@ var LMS = {
 
 $(document).ready(function () {
   initProgressCardView();
+  myTable = {
+    ajax: {
+      reload: function () {
+        fetchProgressData();
+      }
+    }
+  };
 });
 
 function initProgressCardView() {
@@ -46,6 +53,39 @@ function initProgressCardView() {
   // check all
   $("#check-all").on("click", function () {
     $(".data-check").prop("checked", $(this).prop("checked"));
+  });
+
+  // action buttons
+  $(document).on("click", "#btnImportData", function (e) {
+    e.preventDefault();
+    save_method = "import";
+    if ($("#frmImportData").length) {
+      $("#frmImportData")[0].reset();
+    }
+    $(".progress-bar").width("0%");
+    $(".progress-bar").html("0%");
+    $("#modal-import-data").modal("show");
+  });
+
+  $(document).on("click", "#btnEksportData", function (e) {
+    e.preventDefault();
+    save_method = "export";
+    $("#modal-eksport-data").modal("show");
+  });
+
+  $(document).on("click", "#btnBulkData", function (e) {
+    e.preventDefault();
+    save_method = "bulk";
+    ldx = [];
+    $(".data-check:checked").each(function () {
+      ldx.push(this.value);
+    });
+    if (ldx.length < 1) {
+      Swal.fire("Info", "Pilih minimal 1 data untuk dihapus.", "info");
+      return;
+    }
+    $("span#ids").html(ldx.join(", "));
+    $("#modal-delete-bulk-data").modal("show");
   });
 
   // first load
@@ -256,5 +296,134 @@ function showLoading() {
 }
 function hideLoading() {
   if ($("#loadingOverlay").length) $("#loadingOverlay").hide();
+}
+
+function edit(id) {
+  save_method = "update";
+  idx = id;
+  load_data();
+}
+
+function detail(id) {
+  save_method = "detail";
+  idx = id;
+  load_data();
+}
+
+function deleting(id) {
+  save_method = "delete";
+  idx = id;
+  $("span#ids").html(id);
+  $("#frmDeleteData [name=\"id\"]").val(id);
+  $("#modal-delete-data").modal("show");
+}
+
+function load_data() {
+  $.ajax({
+    type: "POST",
+    url: module_path + "/get_detail_data",
+    data: { id: idx },
+    cache: false,
+    dataType: "JSON",
+    success: function (data) {
+      if (!data) {
+        Swal.fire("Error", "Gagal peroleh data.", "error");
+        return;
+      }
+
+      if (save_method === "update") {
+        $("[name=\"id\"]").val(data.id || "");
+        $("[name=\"course_name\"]").val(data.course_name || "");
+        $("[name=\"employee\"]").val(data.full_name || "");
+        $("[name=\"progress\"]").val(data.progress_percentage || "");
+        $("#mfdata").text("Update");
+        $("#modal-form-data").modal("show");
+      } else if (save_method === "detail") {
+        $("span.course_name").html(data.course_name || "-");
+        $("span.employee").html(data.full_name || "-");
+        $("span.progress").html((data.progress_percentage || "0") + "%");
+        $("span.completed_at").html(data.completed_at || "-");
+        $("#modal-view-data").modal("show");
+      }
+    },
+    error: function (jqXHR) {
+      Swal.fire("Error", jqXHR.responseText || "Terjadi kesalahan server", "error");
+    }
+  });
+}
+
+function save() {
+  var sendUrl = "";
+  var formData = null;
+
+  if (save_method === "update") {
+    sendUrl = module_path + "/edit";
+    formData = new FormData($("#frmInputData")[0]);
+  } else if (save_method === "delete") {
+    sendUrl = module_path + "/delete";
+    formData = new FormData($("#frmDeleteData")[0]);
+  } else if (save_method === "bulk") {
+    sendUrl = module_path + "/bulk";
+    formData = new FormData($("#frmListData")[0]);
+  } else if (save_method === "import") {
+    sendUrl = module_path + "/import";
+    formData = new FormData($("#frmImportData")[0]);
+  } else if (save_method === "export") {
+    sendUrl = module_path + "/eksport";
+    formData = $("#frmEksportData").serialize();
+    window.location = sendUrl + "?" + formData;
+    $("#modal-eksport-data").modal("hide");
+    return;
+  } else {
+    return;
+  }
+
+  $.ajax({
+    xhr: function () {
+      var xhr = new window.XMLHttpRequest();
+      if (save_method === "import") {
+        xhr.upload.addEventListener("progress", function (evt) {
+          if (evt.lengthComputable) {
+            var percentComplete = ((evt.loaded / evt.total) * 100);
+            $(".progress-bar").width(percentComplete + "%");
+            $(".progress-bar").html(percentComplete.toFixed(0) + "%");
+          }
+        }, false);
+      }
+      return xhr;
+    },
+    type: "POST",
+    url: sendUrl,
+    data: formData,
+    contentType: false,
+    processData: false,
+    cache: false,
+    dataType: "JSON",
+    beforeSend: function () {
+      showLoading();
+      if (save_method === "import") {
+        $(".progress-bar").width("0%");
+        $(".progress-bar").html("0%");
+      }
+    },
+    success: function (response) {
+      if (response && response.status) {
+        if (save_method === "update") $("#modal-form-data").modal("hide");
+        if (save_method === "delete") $("#modal-delete-data").modal("hide");
+        if (save_method === "bulk") $("#modal-delete-bulk-data").modal("hide");
+        if (save_method === "import") $("#modal-import-data").modal("hide");
+        Swal.fire("Success", response.msg || "Berhasil", "success");
+        fetchProgressData();
+      } else {
+        Swal.fire("Error", (response && response.msg) ? response.msg : "Gagal memproses data", "error");
+      }
+    },
+    error: function (jqXHR) {
+      Swal.fire("Error", jqXHR.responseText || "Terjadi kesalahan server", "error");
+    },
+    complete: function () {
+      hideLoading();
+    }
+  });
 }
 </script>

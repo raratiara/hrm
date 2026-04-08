@@ -1102,6 +1102,153 @@ class MY_Model extends CI_Model {
 		return $data;
 	}
 
+
+	public function return_build_select2me_lokasi($rs, $multi='', $val=[], $set=[], $var_name, $id_name='', $addclass='', $addstyle='', $option, $flabel, $mlabel='', $llabel='', $disabled='', $attrib='',$padln='0',$padstr='',$padtype=STR_PAD_RIGHT)
+	{ 
+		$data = "";
+		$idname = "";
+		if(!empty($id_name)){
+			$idname = " id=\"".$id_name."\"";
+		}
+		$style = "";
+		if(!empty($addstyle)){
+			$style = " style=\"".$addstyle."\"";
+		}
+		$multiple = "";
+		if(!empty($multi) && $multi=='multiple'){
+			$multiple = " multiple";
+		}
+		$set_rule = FALSE;
+		if(!empty($set)){
+			$set_rule = TRUE;
+		}
+		$multi_llabel = FALSE;
+		$multi_llabel_num = 0;
+		if(!empty($llabel)){
+			$arr_llabel = explode(',',$llabel);
+			$multi_llabel_num = count($arr_llabel);
+			if($multi_llabel_num>1){
+				$multi_llabel = TRUE;
+			}
+		}
+
+		$data .= "<select".$multiple." name=\"".$var_name."\"".$idname." class=\"form-control select2me ".$addclass."\"".$style." ".$disabled." data-tags='true' ".$attrib.">";
+		if(empty($multi) || $multi!=='multiple'){
+			$data .= "<option value=\"\"></option>";
+
+		}
+		if (count($rs) > 0)  {
+			foreach($rs AS $r) {
+				if($set_rule){
+					if(is_array($set)){
+						if(in_array($r->$option, $set)) {
+							$select = "";
+							if(!empty($val)){
+								if(is_array($val)){
+									if(in_array($r->$option, $val)){
+										$select = " selected";
+									}
+								} else {
+									if($r->$option == $val){
+										$select = " selected";
+									}
+								}
+							}
+							$data .= "<option value=\"".$r->$option."\"".$select.">".str_pad($r->$flabel, $padln, $padstr, $padtype);
+							if(!empty($mlabel)){
+								$data .= " ".$mlabel." ";
+							}
+							if(!empty($llabel)){
+								if($multi_llabel){
+									$alc = 0;
+									foreach($arr_llabel as $al){
+										if($alc>0){
+											$data .= " ".$mlabel." ";
+										}
+										$data .= $r->$al;
+										$alc++;
+									}
+								} else {
+									$data .= $r->$llabel;
+								}
+							}
+							$data .= "</option>";
+						}
+					} else {
+						if($r->$option==$set){
+							$select = "";
+							if(!empty($val)){
+								if(is_array($val)){
+									if(in_array($r->$option, $val)){
+										$select = " selected";
+									}
+								} else {
+									if($r->$option == $val){
+										$select = " selected";
+									}
+								}
+							}
+							$data .= "<option value=\"".$r->$option."\"".$select.">".str_pad($r->$flabel, $padln, $padstr, $padtype);
+							if(!empty($mlabel)){
+								$data .= " ".$mlabel." ";
+							}
+							if(!empty($llabel)){
+								if($multi_llabel){
+									$alc = 0;
+									foreach($arr_llabel as $al){
+										if($alc>0){
+											$data .= " ".$mlabel." ";
+										}
+										$data .= $r->$al;
+										$alc++;
+									}
+								} else {
+									$data .= $r->$llabel;
+								}
+							}
+							$data .= "</option>";
+						}
+					}
+				} else {
+					$select = "";
+					if(!empty($val)){
+						if(is_array($val)){
+							if(in_array($r->$option, $val)){
+								$select = " selected";
+							}
+						} else {
+							if($r->$option == $val){
+								$select = " selected";
+							}
+						}
+					}
+					$data .= "<option value=\"".$r->$option."\"".$select.">".str_pad($r->$flabel, $padln, $padstr, $padtype);
+					if(!empty($mlabel)){
+						$data .= " ".$mlabel." ";
+					}
+					if(!empty($llabel)){
+						if($multi_llabel){
+							$alc = 0;
+							foreach($arr_llabel as $al){
+								if($alc>0){
+									$data .= " ".$mlabel." ";
+								}
+								$data .= $r->$al;
+								$alc++;
+							}
+						} else {
+							$data .= $r->$llabel;
+						}
+					}
+					$data .= "</option>";
+				}
+			}
+		}
+		$data .= "</select>";
+
+		return $data;
+	}
+
 	public function return_build_chosenme($rs, $multi='', $val=[], $set=[], $var_name, $id_name='', $addclass='', $addstyle='', $option, $flabel, $mlabel='', $llabel='', $disabled='', $attrib='',$padln='0',$padstr='',$padtype=STR_PAD_RIGHT)
 	{ 
 		$data = "";
