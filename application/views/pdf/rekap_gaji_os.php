@@ -120,7 +120,10 @@
                 <th>Sosial</th>
                 <th>Payroll</th>
                 <th>PPH 120</th>
+<<<<<<< HEAD
                 <th>PPH 21</th>
+=======
+>>>>>>> tracker
             </tr>
 
         </thead>
@@ -143,7 +146,10 @@
             $total_payroll      = 0;
             $total_pph          = 0;
             $total_gaji_bersih  = 0;
+<<<<<<< HEAD
             $total_pph_21       = 0;
+=======
+>>>>>>> tracker
             ?>
 
             <?php foreach ($project['summary'] as $row): ?>
@@ -164,7 +170,10 @@
                 $total_payroll      += (int)$row[17];
                 $total_pph          += (int)$row[18];
                 $total_gaji_bersih  += (int)$row[19];
+<<<<<<< HEAD
                 $total_pph21        += (int)$row[20];
+=======
+>>>>>>> tracker
                 ?>
 
                 <tr>
@@ -208,7 +217,10 @@
                 <td><?= number_format($total_payroll) ?></td>
                 <td><?= number_format($total_pph) ?></td>
                 <td><?= number_format($total_gaji_bersih) ?></td>
+<<<<<<< HEAD
                 <td><?= number_format($total_pph21) ?></td>
+=======
+>>>>>>> tracker
             </tr>
 
         </tbody>
