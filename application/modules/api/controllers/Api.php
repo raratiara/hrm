@@ -2455,7 +2455,7 @@ class Api extends API_Controller
                         ,a.is_tracking
 						from employees a
 						left join divisions b on b.id = a.division_id
-						left join master_shift_time c on c.shift_type = a.shift_type
+						left join master_shift_time c on c.shift_type COLLATE utf8mb4_general_ci = a.shift_type
 						LEFT JOIN
 					    departments h ON h.id = a.department_id
                         LEFT JOIN
