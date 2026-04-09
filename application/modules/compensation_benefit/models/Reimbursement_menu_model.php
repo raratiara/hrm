@@ -43,10 +43,10 @@ class Reimbursement_menu_model extends MY_Model
 			'dt.employee_id'
 		];
 		
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($_SESSION['role'] != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1){ //bukan super user
 			/*$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';*/
 
 			$whr=' where ao.employee_id = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1 ';
@@ -518,7 +518,8 @@ class Reimbursement_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		$date 		= date_create($post['date']); 
@@ -644,7 +645,8 @@ class Reimbursement_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$id = trim($post['id']);
 
 		$date 		= date_create($post['date']); 
@@ -784,8 +786,6 @@ class Reimbursement_menu_model extends MY_Model
 							
 						}
 					}
-						}
-					}
 
 					return [
 					    "status" => true,
@@ -856,10 +856,10 @@ class Reimbursement_menu_model extends MY_Model
 
 	public function eksport_data()
 	{ 
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($_SESSION['role'] != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1){ //bukan super user
 			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 

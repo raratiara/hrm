@@ -138,8 +138,6 @@
 	var module_path = "<?php echo base_url($folder_name); ?>";
 	/*var base_url = "<?php echo base_url($base_url); ?>";*/
 	var base_url = "<?php echo base_url(); ?>";
-	var quickLinkPrevBodyOverflow = '';
-	var quickLinkPrevHtmlOverflow = '';
 
 	$(document).ready(function () { 
 		$(function () {
@@ -151,20 +149,6 @@
 				minimumResultsForSearch: 0,
 				width: '100%'
 		  	});
-
-			$('#modal-quicklink')
-				.on('show.bs.modal', function () {
-					quickLinkPrevBodyOverflow = $('body').css('overflow') || '';
-					quickLinkPrevHtmlOverflow = $('html').css('overflow') || '';
-
-					window.scrollTo(0, 0);
-					$('html, body').scrollTop(0);
-					$('html, body').css('overflow', 'hidden');
-				})
-				.on('hidden.bs.modal', function () {
-					$('body').css('overflow', quickLinkPrevBodyOverflow);
-					$('html').css('overflow', quickLinkPrevHtmlOverflow);
-				});
 
 			$('#fltasklistperiod').daterangepicker({
 		        locale: {
@@ -1397,6 +1381,11 @@ data.taskList.forEach((taskrow) => {
 		//reset();
 
 
+		var getUrl = window.location;
+		//local=> 
+		var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+		//var baseUrl = getUrl .protocol + "//" + getUrl.host;
+
 
 	    $.ajax({
 			type: "POST",
@@ -1439,7 +1428,7 @@ data.taskList.forEach((taskrow) => {
 
 
 							if(data.dataabsen[0].photo != '' && data.dataabsen[0].photo != null){
-								$('span.photo').html('<img src="'+base_url+'/uploads/absensi/'+data.dataabsen[0].photo+'" width="150" height="150" >');
+								$('span.photo').html('<img src="'+baseUrl+'/uploads/absensi/'+data.dataabsen[0].photo+'" width="150" height="150" >');
 							}else{
 								$('span.photo').html('');
 							}

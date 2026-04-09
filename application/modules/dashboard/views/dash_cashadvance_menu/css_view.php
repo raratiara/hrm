@@ -24,7 +24,7 @@
     width: 200px !important;
   }
 
-  #fppType {
+   #fppType {
     width: 230px;
     height: 210px;
   }
@@ -66,7 +66,13 @@
   }*/
 
 
+  .summary-item.yellow {
+    background-color: #D9F103;
+    /*#FED24B;*/
+    align-items: center !important;
+    color: #38406F;
 
+  }
 
   .summary-card.beige {
     flex: 1.3 !important;
@@ -101,6 +107,7 @@
 
   .dashboard-container {
     font-family: 'Poppins', sans-serif;
+    max-width: 1000px;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -134,7 +141,7 @@
     width: 330px;
     height: 250px;
   }
-
+  
 
 
   .dashboard {
@@ -576,34 +583,28 @@
 
   /* Color variants */
   .navy {
-    background: linear-gradient(to bottom,
-        #C2E3FF 0%,
-        #EFF5F9 100%);
-    color: #1A3891;
+    background-color: #081F5C;
+    /*#FFB2F7;*/
+    /*#38406F;*/
+    color: white;
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: #1A3891;
+    color: white;
   }
 
-  .purple {
-    background: linear-gradient(to bottom,
-        #E6D3F9 0%,
-        #F2F5FF 100%);/
-  }
-
-  .purple .title,
-  .purple .value,
-  .purple .icon {
-    color: #3e0576;
+  .yellow {
+    background-color: #D0E3FF;
+    /*#E3FC87;*/
+    /*#FED24B;*/
   }
 
   .beige {
-    background: linear-gradient(to bottom,
-        #E2EEDA 0%,
-        #FFFFFF 100%);
+    background-color: #F7F2EB;
+    /*#C0E0FF;*/
+    /*#F8F1E1;*/
   }
 
   .white {

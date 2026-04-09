@@ -27,8 +27,6 @@
 			font-size: 14px;
 		}
 
-		
-
 	}
 </style>
 <div class="row-flex">

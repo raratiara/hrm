@@ -155,19 +155,11 @@ class Training_menu extends MY_Controller
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
 		$approval_level = $post['approval_level'];
-		$rs = false;
 
 
 		if($id != ''){
 			$maxApproval = $this->getMaxApproval($id); 
-			if($maxApproval === null){
-				// Fallback for old training rows that were saved without approval_path.
-				$data = [
-					'status_id' 	=> 2,
-					'approval_date'	=> date("Y-m-d H:i:s")
-				];
-				$rs = $this->db->update('employee_training', $data, "id = '".$id."'");
-			}else if($approval_level == $maxApproval){   //last approver
+			if($approval_level == $maxApproval){   //last approver
 				$data = [
 					'status_id' 	=> 2, 
 					'approval_date'	=> date("Y-m-d H:i:s")
@@ -285,9 +277,6 @@ class Training_menu extends MY_Controller
 				where approval_matrix_type_id = ".$approval_matrix_type_id." and trx_id = ".$trx_id." 
 				order by b.approval_level desc limit 1 ")->result();
 		
-		if(empty($rs) || !isset($rs[0]->approval_level)){
-			return null;
-		}
 
 		return $rs[0]->approval_level;
 	}

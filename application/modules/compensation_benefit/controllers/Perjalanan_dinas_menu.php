@@ -25,10 +25,10 @@ class Perjalanan_dinas_menu extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($_SESSION['role'] != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1){ //bukan super user
 			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
 		}
 
@@ -47,11 +47,6 @@ class Perjalanan_dinas_menu extends MY_Controller
 		$field['reject_reason']	= $this->self_model->return_build_txtarea('','reject_reason','reject_reason');
 		$field['rfu_reason']	= $this->self_model->return_build_txtarea('','rfu_reason','rfu_reason');
 		$field['txttotalamount'] 	= $this->self_model->return_build_txt('','total_amount','total_amount','','','readonly');
-
-		$field['different_work_location'] 	= $this->self_model->return_build_radio('', [['1','Yes'],['0','No']], 'different_work_location', 'different_work_location', 'inline');
-		
-		$msloc 					= $this->db->query("select * from master_work_location order by name asc")->result(); 
-		$field['selbustriploc'] = $this->self_model->return_build_select2me($msloc,'','','','bustrip_loc','bustrip_loc','','','id','name',' ','','','',3,'-');
 
 
 		
@@ -108,8 +103,8 @@ class Perjalanan_dinas_menu extends MY_Controller
 
 
  	public function reject(){
- 		
-		$karyawan_id = $_SESSION['worker'];
+ 		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 		$post = $this->input->post(null, true);
 		$id = $post['id'];
@@ -146,8 +141,8 @@ class Perjalanan_dinas_menu extends MY_Controller
 	}
 
 	public function approve(){
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		$post = $this->input->post(null, true);
@@ -226,7 +221,8 @@ class Perjalanan_dinas_menu extends MY_Controller
 		$approval_level = $post['approval_level'];
 
 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		if($id != ''){

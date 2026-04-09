@@ -178,57 +178,7 @@
                                 Report
                             </a>
                             <?php
-                        }
-                        else if ($this->module_name == 'absence_report_os_menu') {
-                            ?>
-                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportOS_absen()">
-                                <i class="fa fa-download"></i>
-                                Report
-                            </a>
-                            <?php
-                        }
-                        else if ($this->module_name == 'hitung_summary_absen_os_menu') {
-                            ?>
-                            <!-- <a class="btn btn-default btn-sm btn-circle" onclick="getReport_summ_absen_os()">
-                                <i class="fa fa-download"></i>
-                                Report
-                            </a> -->
-                            <?php
-                        }
-                        else if ($this->module_name == 'invoice_menu') {
-                            ?>
-                            <!-- <a class="btn btn-default btn-sm btn-circle" onclick="getInvoice()">
-                                <i class="fa fa-download"></i>
-                                Invoice
-                            </a> -->
-                            <!-- <a class="btn btn-default btn-sm btn-circle" onclick="getRincianBiaya()">
-                                <i class="fa fa-download"></i>
-                                Rincian Biaya
-                            </a>
-                            <a class="btn btn-default btn-sm btn-circle" onclick="getBeritaAcaraPekerjaan()">
-                                <i class="fa fa-download"></i>
-                                Berita Acara Pekerjaan
-                            </a> -->
-                            <?php
-                        }
-                        else if ($this->module_name == 'hitung_gaji_os_menu') {
-                            ?>
-                            <!-- <a class="btn btn-default btn-sm btn-circle" onclick="getReportGaji()">
-                                <i class="fa fa-download"></i>
-                                Report Gaji
-                            </a>
-                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportLembur()">
-                                <i class="fa fa-download"></i>
-                                Report Lembur
-                            </a>
-                            <a class="btn btn-default btn-sm btn-circle" onclick="getReportAbsenOS_gaji()">
-                                <i class="fa fa-download"></i>
-                                Report Absen
-                            </a> -->
-                          
-                            <?php
-                        }
-                        else {
+                        } else {
                             ?>
                             <a class="btn btn-default btn-sm btn-circle" id="btnEksportData">
                                 <i class="fa fa-download"></i>
@@ -259,48 +209,16 @@
                         <a class="btn btn-default btn-sm btn-circle" id="btnAddData">
                             <i class="fa fa-floppy-o"></i>
                             <?php
-                            if ($this->module_name == 'absensi_menu' || $this->module_name == 'absensi_os_menu') {
+                            if ($this->module_name == 'absensi_menu') {
                                 ?>Check-IN<?php
-                            }
-                            else if ($this->module_name == 'hitung_summary_absen_os_menu') {
-                                ?>Hitung Absen<?php
-                            }
-                            else if ($this->module_name == 'hitung_gaji_os_menu') {
-                                ?>Hitung Gaji<?php
-                            }
-                            else {
+                            } else {
                                 ?>Add Data<?php
                             }
                             ?>
 
                         </a>
                     <?php } ?>
-
-                    <?php if (_USER_ACCESS_LEVEL_UPDATE == "1") { ?>
-
-                            <?php
-                            /*if ($this->module_name == 'hitung_summary_absen_os_menu') {
-                                ?>   
-                                <a class="btn btn-default btn-sm btn-circle" id="btnEditPerProject">
-                                    <i class="fa fa-pencil"></i>     
-                                    Edit Perhitungan per Project
-                                </a>
-                                <?php
-                            }*/
-                            /*else if ($this->module_name == 'hitung_gaji_os_menu') {
-                                ?>   
-                                <a class="btn btn-default btn-sm btn-circle" id="btnEditGajiPerProject">
-                                    <i class="fa fa-pencil"></i>     
-                                    Edit Gaji per Project
-                                </a>
-                                <?php
-                            }*/
-                            ?>
-
-                        
-                    <?php } ?>
-
-                    <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu" && $this->module_name != "absensi_os_menu") { ?>
+                    <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
 
                         <a class="btn btn-default btn-sm btn-circle" id="btnBulkData">
                             <i class="fa fa-times"></i>
@@ -318,7 +236,7 @@
                                 style="width:100%;">
                                 <thead>
                                     <tr>
-                                        <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu" && $this->module_name != "absensi_os_menu") { ?>
+                                        <?php if (_USER_ACCESS_LEVEL_DELETE == "1" && $this->module_name != "absensi_menu") { ?>
                                             <!-- <th width="15px"><input type="checkbox" id="check-all"></th> -->
                                             <th><input type="checkbox" id="check-all"></th>
                                         <?php } ?>

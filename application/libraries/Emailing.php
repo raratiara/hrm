@@ -63,31 +63,11 @@ class Emailing {
             $this->CI->email->attach($mail['attach']);
         }
 
-        $phpWarnings = [];
-        ob_start();
-        set_error_handler(function ($severity, $message, $file, $line) use (&$phpWarnings) {
-            $phpWarnings[] = $message.' in '.$file.':'.$line;
-            return true;
-        });
-
-        try {
-            $isSent = $this->CI->email->send();
-        } finally {
-            restore_error_handler();
-            $bufferedOutput = ob_get_clean();
-        }
-
         // send
-        if ($isSent) {
+        if ($this->CI->email->send()) {
             return true;
         }
 
-        if (!empty($phpWarnings)) {
-            log_message('error', implode("\n", $phpWarnings));
-        }
-        if (!empty($bufferedOutput)) {
-            log_message('error', $bufferedOutput);
-        }
         log_message('error', $this->CI->email->print_debugger());
         return false;
     }

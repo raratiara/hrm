@@ -25,10 +25,10 @@ class Reimbursement_menu extends MY_Controller
 	/* Form Field Asset */
 	public function form_field_asset()
 	{
-	 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr='';
-		if($_SESSION['role'] != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1){ //bukan super user
 			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
 		}
 
@@ -157,7 +157,8 @@ class Reimbursement_menu extends MY_Controller
 		$reject_reason 	= $post['reject_reason'];
 
 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		if($id != ''){
@@ -191,8 +192,8 @@ class Reimbursement_menu extends MY_Controller
 	}
 
 	public function approveReimb(){
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		$post = $this->input->post(null, true);
@@ -275,7 +276,8 @@ class Reimbursement_menu extends MY_Controller
 		$approval_level = $post['approval_level'];
 
 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		if($id != ''){

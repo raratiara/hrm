@@ -20,25 +20,6 @@ class Lms_course_progress_menu_model extends MY_Model
 		parent::__construct();
 	}
 
-	private function build_scope_where()
-	{
-		$karyawan_id = isset($_SESSION['id_karyawan']) ? $_SESSION['id_karyawan'] : null;
-		$role = isset($_SESSION['role']) ? $_SESSION['role'] : (isset($_SESSION['id_groups']) ? $_SESSION['id_groups'] : null);
-
-		// Super user can see all records.
-		if ((string) $role === "1") {
-			return '';
-		}
-
-		// If employee scope is unknown, return no rows to avoid leaking data.
-		if (empty($karyawan_id)) {
-			return ' where 1 = 0 ';
-		}
-
-		$escaped_id = $this->db->escape($karyawan_id);
-		return ' where a.employee_id = ' . $escaped_id . ' or c.direct_id = ' . $escaped_id . ' ';
-	}
-
 	// fix
 	public function get_list_data()
 	{
@@ -54,7 +35,11 @@ class Lms_course_progress_menu_model extends MY_Model
 		];
 		
 		
-		$whr = $this->build_scope_where();
+		$karyawan_id = $_SESSION['id_karyawan'];
+		$whr='';
+		if($_SESSION['role'] != 1){ //bukan super user
+			$whr = ' where a.employee_id = "' . $karyawan_id . '" or c.direct_id = "' . $karyawan_id . '" ';
+		}
 		
 
 		$sIndexColumn = $this->primary_key;
@@ -71,7 +56,7 @@ class Lms_course_progress_menu_model extends MY_Model
 
 		/* Paging */
 		$sLimit = "";
-		if (isset($_GET['iDisplayStart']) && isset($_GET['iDisplayLength']) && $_GET['iDisplayLength'] != '-1') {
+		if(isset($_GET['iDisplayStart']) && $_GET['iDisplayLength'] != '-1'){
 			$sLimit = "LIMIT ".($_GET['iDisplayStart']).", ".
 			($_GET['iDisplayLength']);
 		}
@@ -198,7 +183,7 @@ class Lms_course_progress_menu_model extends MY_Model
 		$iTotal = $aResultTotal->total;
 
 		$output = array(
-			"sEcho" => intval(isset($_GET['sEcho']) ? $_GET['sEcho'] : 0),
+			"sEcho" => intval($_GET['sEcho']),
 			"iTotalRecords" => $iTotal,
 			"iTotalDisplayRecords" => $iFilteredTotal,
 			"aaData" => array()
@@ -364,7 +349,11 @@ class Lms_course_progress_menu_model extends MY_Model
 	public function eksport_data()
 	{
 
-		$whr = $this->build_scope_where();
+		$karyawan_id = $_SESSION['id_karyawan'];
+		$whr='';
+		if($_SESSION['role'] != 1){ //bukan super user
+			$whr = ' where a.employee_id = "' . $karyawan_id . '" or c.direct_id = "' . $karyawan_id . '" ';
+		}
 
 		
 		$sql = 'select a.*, b.course_name, c.full_name 

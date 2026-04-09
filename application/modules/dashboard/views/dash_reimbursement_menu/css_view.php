@@ -24,7 +24,7 @@
     width: 200px !important;
   }
 
-  #reimFor {
+   #reimFor {
     width: 230px;
     height: 210px;
   }
@@ -74,7 +74,7 @@
 
   }
 
-  .summary-card.green {
+  .summary-card.beige {
     flex: 1.3 !important;
   }
 
@@ -107,7 +107,7 @@
 
   .dashboard-container {
     font-family: 'Poppins', sans-serif;
-
+    max-width: 1000px;
     margin: auto;
     display: flex;
     flex-direction: column;
@@ -582,27 +582,28 @@
 
   /* Color variants */
   .navy {
-    background: linear-gradient(to bottom,
-        #C2E3FF 0%,
-        #EFF5F9 100%);
+    background-color: #081F5C;
+    /*#FFB2F7;*/
+    /*#38406F;*/
+    color: white;
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: #1A3891;
+    color: white;
   }
 
   .yellow {
-    background: linear-gradient(to bottom,
-        #F7F4D0 0%,
-        #FFFFFF 100%);
+    background-color: #D0E3FF;
+    /*#E3FC87;*/
+    /*#FED24B;*/
   }
 
-  .green {
-    background: linear-gradient(to bottom,
-        #E2EEDA 0%,
-        #FFFFFF 100%);
+  .beige {
+    background-color: #F7F2EB;
+    /*#C0E0FF;*/
+    /*#F8F1E1;*/
   }
 
   .white {
@@ -693,7 +694,7 @@
       flex-direction: column !important;
     }
 
-    .summary-card .green {
+    .summary-card .beige {
       width: 100% !important;
     }
 

@@ -48,7 +48,7 @@
 			</div>
 		</div>
 
-		<div class="summary-card green">
+		<div class="summary-card beige">
 			<div class="card-content">
 				<div>
 					<div class="title">Reimbursement Type</div>

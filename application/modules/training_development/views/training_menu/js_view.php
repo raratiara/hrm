@@ -1,264 +1,96 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Modal Reject Data -->
-<div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="text-align:center;">
-			<form class="form-horizontal" id="frmRejectData">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					Reject Training
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center">Are you sure to reject this data?</p>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Reason</label>
-					<div class="col-md-8">
-						<?=$reject_reason;?>
-						<input type="hidden" name="approval_id_reject" id="approval_id_reject" value="">
-						<input type="hidden" name="approval_level_reject" id="approval_level_reject" value="">
-					</div>
-				</div>
-			</div>
-			 </form>
-
-			<div class="modal-footer no-margin-top">
-				<center>
-				<button class="btn blue" id="submit-reject-data" onclick="save_reject()">
-					<i class="fa fa-check"></i>
-					Ok
-				</button>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Cancel
-				</button>
-				</center>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
-
-<!-- Modal Approve Data -->
-<div id="modal-approve-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-approve-data" aria-hidden="true">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content">
-			<form class="form-horizontal" id="frmApproveData">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					Approve Training
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center">Are you sure to approve this data?</p>
-				<input type="hidden" name="approval_id_approve" id="approval_id_approve" value="">
-				<input type="hidden" name="approval_level_approve" id="approval_level_approve" value="">
-			</div>
-			 </form>
-
-			<div class="modal-footer no-margin-top">
-				<center>
-				<button class="btn blue" id="submit-approve-data" onclick="save_approve()">
-					<i class="fa fa-check"></i>
-					Ok
-				</button>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Cancel
-				</button>
-				</center>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
-
-<!-- Modal RFU Data -->
-<div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true">
-	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
-		<div class="modal-content" style="text-align:center;">
-			<form class="form-horizontal" id="frmRFUData">
-			<div class="modal-header bg-blue bg-font-blue no-padding">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-				<div class="table-header">
-					Request For Update
-				</div>
-			</div>
-
-			<div class="modal-body" style="min-height:100px; margin:10px">
-				<p class="text-center">Are you sure to request update for this data?</p>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Reason</label>
-					<div class="col-md-8">
-						<?=$rfu_reason;?>
-						<input type="hidden" name="approval_id_rfu" id="approval_id_rfu" value="">
-						<input type="hidden" name="approval_level_rfu" id="approval_level_rfu" value="">
-					</div>
-				</div>
-			</div>
-			 </form>
-
-			<div class="modal-footer no-margin-top">
-				<center>
-				<button class="btn blue" id="submit-rfu-data" onclick="save_rfu()">
-					<i class="fa fa-check"></i>
-					Ok
-				</button>
-				<button class="btn blue" data-dismiss="modal">
-					<i class="fa fa-times"></i>
-					Cancel
-				</button>
-				</center>
-			</div>
-		</div>
-	</div>
-	</div>
-</div>
-
 <script type="text/javascript">
-var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
-var myTable;
-var validator;
-var save_method; //for save method string
-var idx; //for save index string
-var ldx; //for save list index string
-var TRAINING_UI = {
-	page: 1,
-	pageSize: 9,
-	search: '',
-	status: '',
-	isLoading: false
+var module_path = "<?php echo base_url($folder_name);?>";
+var save_method;
+var idx;
+var ldx;
+
+// ===== CARD LIST STATE =====
+var LMS = {
+  page: 0,           // 0-based
+  length: 9,         // cards per page
+  search: "",
+  status: "",        // filter status text
+  totalRecords: 0,
+  totalDisplay: 0,
+  lastEcho: 1
 };
 
-
-
-
-$(document).ready(function() {
-   	$(function() {
-   		
-        $( "#training_date" ).datetimepicker();
-		
-	});
-});
-
-function escapeHtml(text) {
-	return $('<div>').text(text == null ? '' : text).html();
+// ===== Helpers =====
+function escapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
-function getTrainingStatusBadge(status) {
-	var label = status || '-';
-	var style = 'background:#eef2f7;color:#475569;';
-
-	if (label === 'Waiting Approval') {
-		style = 'background:#f3e8ff;color:#7c3aed;';
-	} else if (label === 'Approved') {
-		style = 'background:#dcfce7;color:#166534;';
-	} else if (label === 'Rejected') {
-		style = 'background:#fee2e2;color:#b91c1c;';
-	} else if (label === 'Request for Update') {
-		style = 'background:#ffedd5;color:#c2410c;';
-	}
-
-	return '<span class="badge-status" style="' + style + '">' + escapeHtml(label) + '</span>';
+function showEmptyState(){
+  var $grid = $("#lmsGrid");
+  $grid.empty();
+  $grid.append(
+    '<div class="col-md-12">'+
+      '<div class="alert alert-info" style="border-radius:12px;">'+
+        '<b>No data found.</b> Coba ubah keyword search / filter status.'+
+      '</div>'+
+    '</div>'
+  );
+  $("#lmsPagination").empty();
 }
 
-function buildTrainingCard(row) {
-	var checkboxHtml = row[0] || '';
-	var actionHtml = row[1] || '';
-	var id = row[2] || '';
-	var trainingName = row[3] || '-';
-	var trainingDate = row[4] || '-';
-	var location = row[5] || '-';
-	var trainer = row[6] || '-';
-	var notes = row[7] || '-';
-	var status = row[8] || '-';
-	var participants = row[9] || '-';
-	var createdBy = row[10] || '-';
+function buildBadge(status){
+  // kamu bisa rapihin warna sesuai selera
+  var bg = "#f1f5f9";
+  var color = "#111";
 
-	return '' +
-		'<div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom:16px;">' +
-			'<div class="lms-card">' +
-				'<div class="cover">' +
-					getTrainingStatusBadge(status) +
-					'<div style="position:absolute;left:14px;bottom:12px;font-size:22px;color:#112D80;">' +
-						'<i class="fa fa-graduation-cap"></i>' +
-					'</div>' +
-				'</div>' +
-				'<div class="body">' +
-					'<div class="title">' + escapeHtml(trainingName) + '</div>' +
-					'<div class="meta">' +
-						'<div class="row-meta"><i class="fa fa-calendar"></i><span>' + escapeHtml(trainingDate) + '</span></div>' +
-						'<div class="row-meta"><i class="fa fa-map-marker"></i><span>' + escapeHtml(location) + '</span></div>' +
-						'<div class="row-meta"><i class="fa fa-user"></i><span>' + escapeHtml(trainer) + '</span></div>' +
-						'<div class="row-meta"><i class="fa fa-users"></i><span>' + escapeHtml(participants) + '</span></div>' +
-						'<div class="row-meta"><i class="fa fa-pencil-square-o"></i><span>' + escapeHtml(createdBy) + '</span></div>' +
-						'<div class="row-meta"><i class="fa fa-sticky-note-o"></i><span>' + escapeHtml(notes) + '</span></div>' +
-					'</div>' +
-				'</div>' +
-				'<div class="footer">' +
-					'<div class="select-box">' + checkboxHtml + ' <span>#' + escapeHtml(id) + '</span></div>' +
-					'<div class="actions">' + actionHtml + '</div>' +
-				'</div>' +
-			'</div>' +
-		'</div>';
+  if(status === "Approved"){ bg="#dcfce7"; color="#166534"; }
+  else if(status === "Rejected"){ bg="#fee2e2"; color="#991b1b"; }
+  else if(status === "Waiting Approval"){ bg="#e0e7ff"; color="#3730a3"; }
+  else if(status === "Request for Update"){ bg="#ffedd5"; color="#9a3412"; }
+
+  return '<span class="badge-status" style="background:'+bg+';color:'+color+';">'+escapeHtml(status)+'</span>';
 }
 
-function renderTrainingPagination(totalRecords) {
-	var $p = $('#lmsPagination');
-	if (!$p.length) return;
-
-	$p.empty();
-
-	var totalPages = Math.ceil((totalRecords || 0) / TRAINING_UI.pageSize);
-	if (totalPages <= 1) return;
-
-	function addItem(page, label, active, disabled) {
-		$p.append(
-			'<li class="' + (active ? 'active' : '') + ' ' + (disabled ? 'disabled' : '') + '">' +
-				'<a href="javascript:void(0);" data-page="' + page + '">' + label + '</a>' +
-			'</li>'
-		);
-	}
-
-	addItem(TRAINING_UI.page - 1, '&laquo;', false, TRAINING_UI.page <= 1);
-
-	var start = Math.max(1, TRAINING_UI.page - 2);
-	var end = Math.min(totalPages, TRAINING_UI.page + 2);
-
-	if (start > 1) {
-		addItem(1, '1', TRAINING_UI.page === 1, false);
-		if (start > 2) $p.append('<li class="disabled"><span>...</span></li>');
-	}
-
-	for (var i = start; i <= end; i++) {
-		addItem(i, i, TRAINING_UI.page === i, false);
-	}
-
-	if (end < totalPages) {
-		if (end < totalPages - 1) $p.append('<li class="disabled"><span>...</span></li>');
-		addItem(totalPages, totalPages, TRAINING_UI.page === totalPages, false);
-	}
-
-	addItem(TRAINING_UI.page + 1, '&raquo;', false, TRAINING_UI.page >= totalPages);
+function parseRow(aaRow){
+  // mapping dari model Training_menu_model:
+  // 0 checkbox html
+  // 1 actions html
+  // 2 id
+  // 3 training_name
+  // 4 training_date
+  // 5 location
+  // 6 trainer
+  // 7 notes
+  // 8 status_name
+  // 9 participant_names
+  // 10 created_by_name
+  return {
+    checkboxHtml: aaRow[0] || '',
+    actionsHtml: aaRow[1] || '',
+    id: aaRow[2] || '',
+    training_name: aaRow[3] || '',
+    training_date: aaRow[4] || '',
+    location: aaRow[5] || '',
+    trainer: aaRow[6] || '',
+    notes: aaRow[7] || '',
+    status_name: aaRow[8] || '',
+    participant_names: aaRow[9] || '',
+    created_by_name: aaRow[10] || ''
+  };
 }
 
-function loadCards() {
-	if (TRAINING_UI.isLoading) return;
-	TRAINING_UI.isLoading = true;
+// ===== Render =====
+function renderCards(rows){
+  var $grid = $("#lmsGrid");
+  $grid.empty();
 
-	var $grid = $('#lmsGrid');
-	if (!$grid.length) {
-		TRAINING_UI.isLoading = false;
-		return;
-	}
+  if(!rows || rows.length === 0){
+    showEmptyState();
+    return;
+  }
 
   rows.forEach(function(r){
     var badge = buildBadge(r.status_name);

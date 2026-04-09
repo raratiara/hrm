@@ -478,8 +478,8 @@ document.addEventListener("scroll", function () {
   // 1) saat load
   window.addEventListener('load', function () {
     // kasih waktu dynamic_menu & layout selesai
-    setTimeout(scrollToActiveSidebarMenu, 300);
-    setTimeout(scrollToActiveSidebarMenu, 300);
+    setTimeout(scrollToActiveSidebarMenu, 600);
+    setTimeout(scrollToActiveSidebarMenu, 1200);
   });
 
   // 2) saat sidebar dibuka (custom toggler kamu pakai class body.sidebar-open)

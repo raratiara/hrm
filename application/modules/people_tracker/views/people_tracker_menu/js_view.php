@@ -13,7 +13,6 @@
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-<script src="https://rawcdn.githack.com/bbecquet/Leaflet.RotatedMarker/master/leaflet.rotatedMarker.js"></script>
 
 
 
@@ -22,8 +21,7 @@
 
 
 <script type="text/javascript">
-/*var baseUrl = "<?php echo base_url($base_url); ?>";*/
-var baseUrl = "https://mas.gerbangdata.co.id/"; 
+var baseUrl = "<?php echo base_url($base_url); ?>";
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 
 // $(document).ready(function() {
@@ -158,40 +156,20 @@ function adjustTooltipPosition(el) {
 
 
 // Icon biru (default)
-// var blueIcon = L.icon({
-//   iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',
-//   iconSize: [32, 32],
-//   iconAnchor: [16, 32],
-//   popupAnchor: [0, -32]
-// });
-
-// // Icon merah (untuk tanggal bukan hari ini)
-// var redIcon = L.icon({
-//   iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
-//   iconSize: [32, 32],
-//   iconAnchor: [16, 32],
-//   popupAnchor: [0, -32]
-// });
-
-
-// ICON BIRU (hari ini)
-var blueIcon = L.divIcon({
-    html: '<i class="fa-solid fa-location-arrow fa-marker leaflet-fa-icon"></i>',
-    className: '', // kosongkan biar tidak ada styling bawaan Leaflet
-    iconSize: [35, 35],
-    iconAnchor: [17, 35]
+var blueIcon = L.icon({
+  iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
 });
 
-// ICON MERAH (bukan hari ini)
-var redIcon = L.divIcon({
-    html: '<i class="fa-solid fa-location-arrow fa-marker-red leaflet-fa-icon"></i>',
-    className: '',
-    iconSize: [35, 35],
-    iconAnchor: [17, 35]
+// Icon merah (untuk tanggal bukan hari ini)
+var redIcon = L.icon({
+  iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
 });
-
-
-
 
 
 // Buat clusterGroup di luar ajax
@@ -218,14 +196,9 @@ function getMaps(empid = '', period = '', tipe) {
           markersCluster.clearLayers();
 
           // === ABSENSI MODE ===
-          if (tipe === 'absensi') { 
+          if (tipe === 'absensi') {
             document.body.classList.remove('tracker-mode');
             document.body.classList.add('absensi-mode');
-
-            
-
-            document.getElementById("videoContainerAbsensi").style.display = "block";
-            $('#videoContainerAbsensi tbody').html(data.data_table);
 
             document.getElementById("videoContainerTracker").style.display = "none";
             $('#videoContainerTracker tbody').html('');
@@ -269,13 +242,13 @@ function getMaps(empid = '', period = '', tipe) {
                   : 'tooltip-nama tooltip-red';
 
                 const marker = L.marker([lat, lng], { icon: icon })
-                  /*.bindTooltip(titik.nama, {
+                  .bindTooltip(titik.nama, {
                     permanent: true,
                     direction: dir,
                     offset: [0, -25],
                     className: tooltipClass,
                     interactive: true
-                  })*/
+                  })
                   .bindPopup(`
                     <div class="popup-card">
                       <div class="popup-image"><img src="${url_photo}" alt="photo"></div>
@@ -323,38 +296,10 @@ function getMaps(empid = '', period = '', tipe) {
             document.getElementById("videoContainerTracker").style.display = "block";
             $('#videoContainerTracker tbody').html(data.data_table);
 
-            document.getElementById("videoContainerAbsensi").style.display = "none";
-            $('#videoContainerAbsensi tbody').html('');
-
             let markersMap = {};
             const today = moment().format('YYYY-MM-DD');
 
             data.data_maps.forEach(titik => {
-              altitude = titik.altitude;
-              if(titik.altitude == null){
-                altitude = '';
-              }
-
-              speed = titik.speed;
-              if(titik.speed == null){
-                speed = '';
-              }
-
-              speed_accuracy = titik.speed_accuracy;
-              if(titik.speed_accuracy == null){
-                speed_accuracy = '';
-              }
-
-              heading = titik.heading;
-              if(titik.heading == null){
-                heading = '';
-              }
-
-              heading_accuracy = titik.heading_accuracy;
-              if(titik.heading_accuracy == null){
-                heading_accuracy = '';
-              }
-
               const lat = parseFloat(titik.lat);
               const lng = parseFloat(titik.lng);
               if (isNaN(lat) || isNaN(lng)) return;
@@ -365,35 +310,23 @@ function getMaps(empid = '', period = '', tipe) {
                 ? 'tooltip-nama tooltip-blue'
                 : 'tooltip-nama tooltip-red';
 
-              /*const marker = L.marker([lat, lng], { icon: icon })*/
-              const marker = L.marker([lat, lng], { 
-                icon: icon,
-                rotationAngle: titik.heading ? parseFloat(titik.heading) : 0,
-                rotationOrigin: 'center center'
-              })
-              .addTo(map)
-              /*.bindTooltip(titik.nama, {
-                permanent: true,
-                direction: 'top',
-                offset: [0, -25],
-                className: tooltipClass,
-                interactive: true
-              })*/
-              .bindPopup(`
-                <div class="popup-card">
-                  <div class="popup-info">
-                    <h4>${titik.nama}</h4>
-                    <p><b>Date:</b> ${titik.datetime_attendance}</p>
-                    <p><b>Altitude:</b> ${altitude}</p>
-                    <p><b>Speed:</b> ${speed}</p>
-                    <p><b>Heading:</b> ${heading}</p>
-                    <p><b>Latitude:</b> ${lat}</p>
-                    <p><b>Longitude:</b> ${lng}</p>
+              const marker = L.marker([lat, lng], { icon: icon })
+                .addTo(map)
+                .bindTooltip(titik.nama, {
+                  permanent: true,
+                  direction: 'top',
+                  offset: [0, -25],
+                  className: tooltipClass,
+                  interactive: true
+                })
+                .bindPopup(`
+                  <div class="popup-card">
+                    <div class="popup-info">
+                      <h4>${titik.nama}</h4>
+                      <p><b>Date:</b> ${titik.datetime_attendance}</p>
+                    </div>
                   </div>
-                </div>
-              `);
-
-
+                `);
 
               marker.on("tooltipclick", () => marker.openPopup());
               markersMap[titik.id] = marker;

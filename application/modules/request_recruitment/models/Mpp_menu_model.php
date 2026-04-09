@@ -27,8 +27,8 @@ class Mpp_menu_model extends MY_Model
 			'dt.notes'
 		];
 
-		/*
-		$karyawan_id = $_SESSION['worker'];*/
+		/*$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;*/
 
 		$sIndexColumn = $this->primary_key;
 
@@ -262,8 +262,8 @@ class Mpp_menu_model extends MY_Model
 
 	public function add_data($post)
 	{
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 		if (!empty($post['year'])) {
 			$data = [
@@ -302,8 +302,8 @@ class Mpp_menu_model extends MY_Model
 
 	public function edit_data($post)
 	{
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		if (!empty($post['id'])) {

@@ -380,7 +380,7 @@
     box-sizing: border-box;
   }
 
-  
+  /* Tinggi canvas agar stabil dan tidak kependekan */
   .bydiv canvas {
     width: 100% !important;
     height: 250px !important;
@@ -411,13 +411,12 @@
   }
 
   .card-content .title {
-    font-weight: 500;
-    font-size: 1.2rem;
+    font-weight: bold;
+    font-size: 1rem;
   }
 
   .card-content .value {
     font-size: 2rem;
-    font-weight: 600;
   }
 
   .card-content .icon {
@@ -532,12 +531,12 @@
 
 
 
-  .box-title {
-    font-size: 13px;
+  /*.box-title {
+    font-size: 14px;
     color: #303030;
-    font-weight: 500;
+    font-weight: 600;
 
-  }
+  }*/
 
   .box-value {
     font-size: 15px;

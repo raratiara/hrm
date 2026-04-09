@@ -508,7 +508,7 @@
   .summary-container {
     display: flex;
     gap: 20px;
-
+    
   }
 
   .chart-container {
@@ -630,35 +630,28 @@
     color: #38406F;
   }
 
+  /* Color variants */
   .navy {
-    background: linear-gradient(to bottom,
-        #C2E3FF 0%,
-        #EFF5F9 100%);
-    color: #1A3891;
+    background-color: #38406F;
+    color: white;
   }
 
   .navy .title,
   .navy .value,
   .navy .icon {
-    color: #1A3891;
+    color: white;
   }
 
   .yellow {
-    background: linear-gradient(to bottom,
-        #F7F4D0 0%,
-        #FFFFFF 100%);
+    background-color: #FED24B;
   }
 
   .beige {
-    background: linear-gradient(to bottom,
-        #E6D3F9 0%,
-        #F2F5FF 100%);
+    background-color: #F8F1E1;
   }
 
   .white {
-    background: linear-gradient(to bottom,
-        #E2EEDA 0%,
-        #FFFFFF 100%);
+    background-color: #ffffff;
   }
 
   .white .title {
@@ -734,8 +727,7 @@
   .earlylogin-line {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    /* jarak antar baris */
+    gap: 4px; /* jarak antar baris */
   }
 
   .status-row {
@@ -745,21 +737,23 @@
 
   .status-row strong {
     display: inline-block;
-    width: 20px;
-    /* lebar tetap supaya angka rata */
+    width: 20px;   /* lebar tetap supaya angka rata */
     text-align: right;
     margin-right: 6px;
 
   }
 
   .txtt {
-    font-size: 12px;
-    /* teks lebih kecil */
-    color: #333;
+    font-size: 12px;   /* teks lebih kecil */
+    color: #333;  
   }
 
   .txtdays {
-    font-size: 10px;
-    /* teks lebih kecil */
+    font-size: 10px;   /* teks lebih kecil */
   }
+
+
+  
+
+
 </style>

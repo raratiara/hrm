@@ -17,18 +17,6 @@
 			                                <?php
 			                            }
 										?>
-
-
-										<?php
-										if ($this->module_name == 'unbind_devices_menu') {
-			                                ?>
-			                                <button type="button" id="btnLogView" class="btn-sm btn-circle btn-LogView" onclick="Log()">
-			                                    <i class="fa fa-history"></i> Log
-			                                </button>
-			                                <?php
-			                            }
-										?>
-
 									</div>
 								</div>
 

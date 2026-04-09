@@ -302,7 +302,6 @@ class Tbl_timeattendance_menu_model extends MY_Model
 						'date_insert' 	=> date("Y-m-d H:i:s")
 					];
 					$rs = $this->db->insert($this->table_name, $data);
-					$rs = $this->db->insert($this->table_name, $data);
 
 					if($rs){
 						return [

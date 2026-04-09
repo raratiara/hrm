@@ -31,10 +31,10 @@ class Performance_plan_menu_model extends MY_Model
 			'dt.employee_id'
 		];
 
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr = '';
-		if ($_SESSION['role'] != 1) { //bukan super user
+		if ($getdata[0]->id_groups != 1) { //bukan super user
 			$whr = ' where a.employee_id = "' . $karyawan_id . '" or b.direct_id = "' . $karyawan_id . '" ';
 		}
 
@@ -534,7 +534,8 @@ class Performance_plan_menu_model extends MY_Model
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 
 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 		$isdirect = 0;
 		if ($rs->direct_id == $karyawan_id) {
@@ -575,10 +576,10 @@ class Performance_plan_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 		$whr = '';
-		if ($_SESSION['role'] != 1) { //bukan super user
+		if ($getdata[0]->id_groups != 1) { //bukan super user
 			$whr = ' where a.employee_id = "' . $karyawan_id . '" or b.direct_id = "' . $karyawan_id . '" ';
 		}
 

@@ -132,8 +132,8 @@ class Group_shift_schedule_menu_model extends MY_Model
 			}
 		}
 
-		
-		$direct_karyawan_id = $_SESSION['worker'];
+		$getdirect = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$direct_karyawan_id = $getdirect[0]->id_karyawan;
 
 		/* Get data to display */
 		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']); // Filtering NULL value

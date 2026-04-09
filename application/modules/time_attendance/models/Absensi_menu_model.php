@@ -43,7 +43,6 @@ class Absensi_menu_model extends MY_Model
 			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" or b.indirect_id = "'.$karyawan_id.'" ';
 		}
 
-
 		$sIndexColumn = $this->primary_key;
 		/*$sTable = '(select a.*, b.full_name, if(a.is_late = "Y","Late", "") as "is_late_desc", 
 					(case 
@@ -577,7 +576,6 @@ class Absensi_menu_model extends MY_Model
 		
 	}  
 
-
 	public function edit_data($post) { 
 		
 		$date_attendance 	= date_create($post['date_attendance']); 
@@ -666,35 +664,6 @@ class Absensi_menu_model extends MY_Model
 
 						$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 						if($rs){
-
-							$data2 = [
-								'date_attendance' 			=> $cek_emp[0]->date_attendance,
-								'employee_id' 				=> $cek_emp[0]->employee_id,
-								'date_attendance_out' 		=> $f_datetime_out,
-								'is_leaving_office_early'	=> $is_leaving_office_early,
-								'num_of_working_hours'		=> $num_of_working_hours,
-								'updated_at'				=> date("Y-m-d H:i:s"),
-								'notes' 					=> trim($post['description']),
-								'lat_checkout' 				=> trim($post['latitude']),
-								'long_checkout' 			=> trim($post['longitude']),
-								'work_location' 			=> trim($post['location'])
-								/*'time_zone_checkout' 		=> $work_location_time_zone,
-								'utc_offset_checkout' 		=> $work_location_utc_offset,
-								'datetime_local_checkout' 	=> $datetime_local,
-								'utc_time_checkout' 		=> $datetime_utc*/
-							];
-
-							$this->db->insert("time_attendances_log", $data2);
-
-
-							$upd_emp = [
-								'last_lat' 				=> trim($post['latitude']),
-								'last_long' 			=> trim($post['longitude'])
-							];
-							$this->db->update("employees", $upd_emp, "id='".$cek_emp[0]->employee_id."'");
-
-
-
 							if(isset($post['hdnid'])){
 								$item_num = count($post['hdnid']); // cek sum
 								$item_len_min = min(array_keys($post['hdnid'])); // cek min key index
@@ -804,19 +773,12 @@ class Absensi_menu_model extends MY_Model
 
 	public function eksport_data()
 	{ 
-		
-		$karyawan_id = $_SESSION['worker'];
-
-		$whr = ' WHERE 1=1 ';
-
-		// FILTER: cuma internal
-		$whr .= ' AND (b.emp_source = "internal") ';
-
-		// FILTER role (kalau bukan super user & HR admin)
-		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){
-			$whr .= ' AND (a.employee_id = "'.$karyawan_id.'" OR b.direct_id = "'.$karyawan_id.'") ';
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan;
+		$whr='';
+		if($getdata[0]->id_groups != 1 && $getdata[0]->id_groups != 4){ //bukan super user && bukan HR admin
+			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
-
 
 
 

@@ -37,10 +37,10 @@ class Meetings_menu_model extends MY_Model
 			'dt.created_by'
 		];
 		
-		
-		$karyawan_id = $_SESSION['worker']; 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan; 
 		$whr="";
-		if($_SESSION['role'] != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1){ //bukan super user
 			$whr=" and (ao.created_by = ".$karyawan_id." or ao.direct_id = ".$karyawan_id." or ao.is_participant = 1) ";
 		}
 
@@ -333,7 +333,8 @@ class Meetings_menu_model extends MY_Model
 	
 	public function add_data($post) { 
 
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 		if($post['meeting_name'] != '' && $post['meeting_date'] != '' && $post['type'] != '' && $post['meeting_room'] != ''){
 			$get_meeting_date 		= trim($post['meeting_date'] ?? '');
@@ -441,7 +442,8 @@ class Meetings_menu_model extends MY_Model
 
 	public function edit_data($post) { 
 	
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 		$get_meeting_date 	= trim($post['meeting_date'] ?? '');
 		$meeting_date 		= date("Y-m-d", strtotime($get_meeting_date));
@@ -530,8 +532,8 @@ class Meetings_menu_model extends MY_Model
 
 
 	public function getRowData($id) { 
-		
-		$karyawan_id = $_SESSION['worker'];
+		$getdata = $this->db->query("select * from user where user_id = '" . $_SESSION['id'] . "'")->result();
+		$karyawan_id = $getdata[0]->id_karyawan;
 
 
 		$mTable = "(SELECT 
@@ -600,10 +602,10 @@ class Meetings_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		
-		$karyawan_id = $_SESSION['worker']; 
+		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
+		$karyawan_id = $getdata[0]->id_karyawan; 
 		$whr="";
-		if($_SESSION['role'] != 1){ //bukan super user
+		if($getdata[0]->id_groups != 1){ //bukan super user
 			$whr=" and (ao.created_by = ".$karyawan_id." or ao.direct_id = ".$karyawan_id." or ao.is_participant = 1) ";
 		}
 

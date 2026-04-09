@@ -30,8 +30,6 @@ $(document).ready(function() {
         $( "#date_of_birth" ).datepicker();
         $( "#date_of_hire" ).datepicker();
         $( "#date_permanent" ).datepicker();
-        $( "#start_pkwt" ).datepicker();
-        $( "#end_pkwt" ).datepicker();
 		
    	});
 });
@@ -168,7 +166,6 @@ function load_data()
 					$('[name="no_ktp"]').val(data.no_ktp);
 					$('[name="sim_c"]').val(data.sim_c);
 					$('[name="no_bpjs"]').val(data.no_bpjs);
-					$('[name="no_bpjs_ketenagakerjaan"]').val(data.no_bpjs_ketenagakerjaan);
 					
 					$('[name="emergency_name"]').val(data.emergency_contact_name);
 					$('[name="emergency_email"]').val(data.emergency_contact_email);
@@ -221,15 +218,6 @@ function load_data()
 					}else{
 						document.getElementById("form_file_bpjs").style.display = "none";
 						$('span.file_bpjs').html('');
-					}
-
-					$('[name="hdnfotobpjs_ketenagakerjaan"]').val(data.foto_bpjs_ketenagakerjaan);
-					if(data.foto_bpjs_ketenagakerjaan != '' && data.foto_bpjs_ketenagakerjaan != null){
-						document.getElementById("form_file_bpjs_ketenagakerjaan").style.display = "";
-						$('span.file_bpjs_ketenagakerjaan').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs_ketenagakerjaan+'" width="150" height="150" >');
-					}else{
-						document.getElementById("form_file_bpjs_ketenagakerjaan").style.display = "none";
-						$('span.file_bpjs_ketenagakerjaan').html('');
 					}
 
 					$('[name="hdnfotosima"]').val(data.foto_sima);
@@ -355,18 +343,6 @@ function load_data()
 						///expenseviewadjust(lstatus);
 					});
 					
-					$('[name="username"]').val(data.username);
-					$('[name="gaji_bulanan"]').val(data.gaji_bulanan);
-					$('[name="gaji_harian"]').val(data.gaji_harian);
-					$('[name="ttl_hari_kerja"]').val(data.total_hari_kerja);
-					$('[name="status_bpjs_kes"][value="'+data.status_bpjs_kesehatan+'"]').prop('checked', true);
-					$('[name="status_bpjs_ket"][value="'+data.status_bpjs_ketenagakerjaan+'"]').prop('checked', true);
-					document.getElementById("inpUsername").style.display = "block";
-					document.getElementById("inpPassword").style.display = "block";
-					$('[name="password"]')
-					  .val('******')
-					  .prop('disabled', true);
-
 					
 					
 					$.uniform.update();
@@ -387,27 +363,13 @@ function load_data()
 					$('span.address2').html(data.address_residen);
 					$('span.postal_code1').html(data.postal_code_ktp);
 					$('span.postal_code2').html(data.postal_code_residen);
-
-					var date_end_probation = data.date_end_probation;
-					if(data.date_end_probation == '1970-01-01'){
-						date_end_probation = '';
-					}
-					$('span.date_end_prob').html(date_end_probation);
-					$('span.work_loc').html(data.work_location_name);
+					$('span.date_end_prob').html(data.date_end_probation);
+					$('span.work_loc').html(data.work_location);
 					$('span.emergency_phone').html(data.emergency_contact_phone);
 					$('span.bank_address').html(data.bank_address);
 					$('span.bank_acc_no').html(data.bank_acc_no);
-
-					var date_resign_letter = data.date_resign_letter;
-					if(data.date_resign_letter == '1970-01-01'){
-						date_resign_letter = '';
-					}
-					$('span.date_resign_letter').html(date_resign_letter);
-					var date_resign_active = data.date_resign_active;
-					if(data.date_resign_active == '1970-01-01'){
-						date_resign_active = '';
-					}
-					$('span.date_resign_active').html(date_resign_active);
+					$('span.date_resign_letter').html(data.date_resign_letter);
+					$('span.date_resign_active').html(data.date_resign_active);
 					$('span.resign_category').html(data.resign_category);
 					$('span.nick_name').html(data.nick_name);
 					$('span.phone').html(data.personal_phone);
@@ -415,26 +377,10 @@ function load_data()
 					$('span.no_ktp').html(data.no_ktp);
 					$('span.sim_c').html(data.sim_c);
 					$('span.no_bpjs').html(data.no_bpjs);
-					$('span.no_bpjs_ketenagakerjaan').html(data.no_bpjs_ketenagakerjaan);
-
-					var date_of_birth = data.date_of_birth;
-					if(data.date_of_birth == '1970-01-01'){
-						date_of_birth = '';
-					}
-					$('span.date_of_birth').html(date_of_birth);
+					$('span.date_of_birth').html(data.date_of_birth);
 					$('span.address2').html(data.address_2);
-
-					var date_of_hire = data.date_of_hire;
-					if(data.date_of_hire == '1970-01-01'){
-						date_of_hire = '';
-					}
-					$('span.date_of_hire').html(date_of_hire);
-
-					var date_permanent = data.date_permanent;
-					if(data.date_permanent == '1970-01-01'){
-						date_permanent = '';
-					}
-					$('span.date_permanent').html(date_permanent);
+					$('span.date_of_hire').html(data.date_of_hire);
+					$('span.date_permanent').html(data.date_permanent);
 					$('span.shift_type').html(data.shift_type);
 					$('span.emergency_name').html(data.emergency_contact_name);
 					$('span.emergency_email').html(data.emergency_contact_email);
@@ -465,16 +411,6 @@ function load_data()
 					$('span.status').html(data.status_name);
 					$('span.job_level').html(data.job_level_name);
 					$('span.grade').html(data.grade_name);
-					$('span.emp_source').html(data.emp_source);
-					$('span.is_tracking').html(data.is_tracking_name);
-					$('span.username').html(data.username);
-					$('span.start_pkwt').html(data.start_pkwt);
-					$('span.end_pkwt').html(data.end_pkwt);
-					$('span.ttl_hari_kerja').html(data.total_hari_kerja);
-					$('span.status_bpjs_kes').html(data.status_bpjs_kesehatan_desc);
-					$('span.status_bpjs_ket').html(data.status_bpjs_ketenagakerjaan_desc);
-					$('span.gaji_bulanan').html(data.gaji_bulanan);
-					$('span.gaji_harian').html(data.gaji_harian);
 
 
 					if(data.emp_photo != '' && data.emp_photo != null){
@@ -514,14 +450,6 @@ function load_data()
 					}else{
 						document.getElementById("view_foto_bpjs").style.display = "none";
 						$('span.foto_bpjs').html('');
-					}
-
-					if(data.foto_bpjs_ketenagakerjaan != '' && data.foto_bpjs_ketenagakerjaan != null){
-						document.getElementById("view_foto_bpjs_ketenagakerjaan").style.display = "";
-						$('span.foto_bpjs_ketenagakerjaan').html('<img src="'+baseUrl+'/uploads/employee/'+data.emp_code+'/'+data.foto_bpjs_ketenagakerjaan+'" width="150" height="150" >');
-					}else{
-						document.getElementById("view_foto_bpjs_ketenagakerjaan").style.display = "none";
-						$('span.foto_bpjs_ketenagakerjaan').html('');
 					}
 
 						
@@ -1046,36 +974,6 @@ $('#village1').on('change', function () {
 		getVillage(district1,regency1,province1,'2','selected');
  	}
  	
-});
-
-
-function generateUsername(fullName) { 
-	
-	if (!fullName) return '';
-
-    // strtolower + trim
-    let username = fullName.toLowerCase().trim();
-
-    // explode by space
-    let words = username.split(' ');
-
-    // kalau lebih dari 1 kata → ganti spasi jadi underscore
-    if (words.length > 1) {
-        username = username.replace(/\s+/g, '_');
-    }
-
-    return username;
-	
-
-    
-}
-
-// trigger saat diketik / diubah
-document.getElementById('full_name').addEventListener('input', function () { 
-	
-	if(save_method == 'add'){ ///add
-	    document.getElementById('username').value = generateUsername(this.value);
-	}
 });
 
 

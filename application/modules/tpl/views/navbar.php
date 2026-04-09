@@ -11,11 +11,6 @@
         top: 5px;
         right: 10px;
     }
-    .dropdown-menu {
-        z-index: 99999 !important;
-    }
-
-    
 
 </style>
 
@@ -110,8 +105,8 @@
 
 
     function getPendinganApproval(){ 
-        /*var baseUrl = "<?php echo base_url($base_url); ?>"; */
-        var baseUrl = "https://mas.gerbangdata.co.id/"; 
+        /*var baseUrl = "<?php echo base_url($base_url); ?>";*/
+        var baseUrl = "<?php echo base_url(); ?>"; 
         var path = baseUrl+'profile/profile_menu';
 
 
