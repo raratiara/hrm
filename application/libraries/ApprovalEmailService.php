@@ -513,4 +513,97 @@ class ApprovalEmailService {
         return $this->CI->emailing->send($mail, $emailData);
     }
 
+
+    public function sendReminder($menu)
+    {
+        if($menu == 'end_pkwt'){
+            $subject    = 'Reminder - End PKWT';
+
+            $data = $this->CI->db->query("select full_name, end_pkwt FROM employees WHERE end_pkwt = DATE_ADD(CURDATE(), INTERVAL 30 DAY);
+                                     ")->result();
+        }
+
+
+        // ===============================
+        // GET APPROVER EMAIL
+        // ===============================
+        
+        /*$recipient = $this->CI->db->query("
+                select 
+                    GROUP_CONCAT(b.personal_email) AS emails,
+                    c.role_name AS approver_name, GROUP_CONCAT(b.id) as approver_empid
+                FROM approval_matrix_role_pic a
+                LEFT JOIN employees b ON b.id = a.employee_id
+                LEFT JOIN approval_matrix_role c ON c.id = a.approval_matrix_role_id
+                WHERE a.approval_matrix_role_id = ?
+            ", [$data->role_id])->row();*/
+
+        $recipient = $this->CI->db->query("
+                select id as recipient_empid, personal_email as emails, full_name as recipient_name 
+                from employees where id = 12
+            ", [])->row();
+
+
+        if (!$recipient || empty($recipient->emails)) {
+            return false;
+        }
+
+        // ===============================
+        // BUILD TABLE HTML
+        // ===============================
+        $employee_table = '';
+
+        if (!empty($data)) {
+
+            $employee_table .= '
+            <table border="1" cellpadding="6" cellspacing="0" width="100%" style="border-collapse: collapse; font-size:14px;">
+                <thead>
+                    <tr style="background:#f2f2f2;">
+                        <th align="left">No</th>
+                        <th align="left">Employee Name</th>
+                        <th align="left">Contract End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+            ';
+
+            $no = 1;
+            foreach ($data as $row) {
+                $employee_table .= '
+                    <tr>
+                        <td>'.$no++.'</td>
+                        <td>'.$row->full_name.'</td>
+                        <td>'.date('d M Y', strtotime($row->end_pkwt)).'</td>
+                    </tr>
+                ';
+            }
+
+            $employee_table .= '</tbody></table>';
+
+        } else {
+            $employee_table = '<p>No employee contract is expiring.</p>';
+        }
+
+
+        $this->CI->approvalnotifmobile->send_reminder($menu, $recipient->recipient_empid);
+        
+        // ===============================
+        // SEND EMAIL
+        // ===============================
+        $mail = [
+            'subject'   => $subject,
+            'to_name'   => $recipient->recipient_name,
+            'to_email'  => $recipient->emails,
+            'template'  => 'reminder'
+        ];
+
+        $emailData = [
+            'recipient_name' => $recipient->recipient_name,
+            'employee_table' => $employee_table
+           
+        ];
+
+        return $this->CI->emailing->send($mail, $emailData);
+    }
+
 }

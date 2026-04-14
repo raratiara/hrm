@@ -90,7 +90,58 @@ class ApprovalNotifMobile {
         }
     }
 
+    public function send_reminder($type, $recipient_empid)
+    {
+        if ($recipient_empid != '' && $type != '') {
+            // Some environments still use an older `user_devices` schema
+            // without an `fcm_token` column. In that case, skip mobile push
+            // notification so approval flow does not break.
+            if (!$this->CI->db->field_exists('fcm_token', 'user_devices')) {
+                return;
+            }
 
+            $ids = explode(',', $recipient_empid);
+
+            $this->CI->db->select('a.id as employee_id, a.full_name, c.fcm_token, b.user_id');
+            $this->CI->db->from('employees a');
+            $this->CI->db->join('user b','b.id_karyawan = a.id','left');
+            $this->CI->db->join('user_devices c','c.user_id = b.user_id','left');
+            $this->CI->db->where_in('a.id',$ids);
+            $this->CI->db->where('a.status_id',1);
+            $this->CI->db->where('c.fcm_token IS NOT NULL');
+            $this->CI->db->where('c.fcm_token !=','');
+
+            $users = $this->CI->db->get()->result();
+
+            if (!empty($users)) { 
+                $title = "-- Reminder";
+                foreach ($users as $u) {
+
+                    if ($type == 'end_pkwt') {
+                        $title = "Reminder - End PKWT";
+
+                    }
+
+                    $body = "Hi ".$u->full_name.", an employee contract will expire today.
+                    Kindly take the necessary action.";
+                    $message = "Hi ".$u->full_name.", an employee contract will expire today.
+                    Kindly take the necessary action.";
+
+                    $this->CI->notif->sendNotification(
+                        $u->fcm_token,
+                        $title,
+                        $body,
+                        [
+                            'type' => $type,
+                            'user_id' => (string) $u->user_id,
+                            'message' => $message
+                        ]
+                    );
+
+                }
+            }
+        }
+    }
     
 
 }

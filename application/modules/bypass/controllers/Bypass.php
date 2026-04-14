@@ -1329,6 +1329,18 @@ class Bypass extends API_Controller
 	}
 
 
+	/// jalan setiap hari jam 8 pagi
+	public function endPkwtReminder(){
+
+		$rs = $this->db->query("select *
+								FROM employees
+								WHERE end_pkwt = DATE_ADD(CURDATE(), INTERVAL 30 DAY);")->result();
+
+		if(!empty($rs)){
+			$this->approvalemailservice->sendReminder('end_pkwt');
+		}
+
+	}
 
 
 
