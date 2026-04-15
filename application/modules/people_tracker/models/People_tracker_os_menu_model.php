@@ -1,10 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class People_tracker_menu_model extends MY_Model
+class People_tracker_os_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "people_tracker/people_tracker_menu";
+ 	protected $folder_name				= "people_tracker/people_tracker_os_menu";
  	protected $table_name 				= _PREFIX_TABLE."employees";
  	protected $primary_key 				= "id";
 
@@ -28,7 +28,7 @@ class People_tracker_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select * from employees where emp_source = "internal")dt';
+		$sTable = '(select * from employees where emp_source = "outsource")dt';
 		
 
 		/* Paging */
@@ -263,7 +263,7 @@ class People_tracker_menu_model extends MY_Model
 	
 	public function eksport_data()
 	{
-		$sql = "select * from employees where emp_source = 'internal'
+		$sql = "select * from employees where emp_source = 'outsource'
 	   		ORDER BY id ASC
 		";
 

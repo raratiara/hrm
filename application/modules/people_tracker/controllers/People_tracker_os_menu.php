@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class People_tracker_menu extends MY_Controller
+class People_tracker_os_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "people_tracker_menu"; // identify menu
- 	const  LABELMASTER				= "Menu People Tracker";
+ 	const  LABELMODULE				= "people_tracker_os_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu People Tracker - OS";
  	const  LABELFOLDER				= "people_tracker"; // module folder
- 	const  LABELPATH				= "people_tracker_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "people_tracker_os_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "people_tracker"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "People Tracker"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -30,10 +30,10 @@ class People_tracker_menu extends MY_Controller
 		$field = [];
 
 
-		$msemp 				= $this->db->query("select * from employees where emp_source = 'internal'")->result(); 
+		$msemp 				= $this->db->query("select * from employees where emp_source = 'outsource'")->result(); 
 		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','fldashemp','fldashemp','','','id','full_name',' ','','','',3,'-');
 
-		$field['master_emp'] = $this->db->query("select * from employees where emp_source = 'internal' order by full_name asc")->result(); 
+		$field['master_emp'] = $this->db->query("select * from employees where emp_source = 'outsource' order by full_name asc")->result(); 
 		
 		return $field;
 	}
@@ -136,7 +136,7 @@ class People_tracker_menu extends MY_Controller
 								) tm ON t.employee_id = tm.employee_id AND t.date_attendance = tm.max_date
 							) ta_latest
 								ON ta_latest.employee_id = a.id
-							WHERE a.emp_source = 'internal'
+							WHERE a.emp_source = 'outsource'
 								and a.last_lat IS NOT NULL AND a.last_lat != ''
 								AND a.last_long IS NOT NULL AND a.last_long != ''
 							")->result();
@@ -213,8 +213,8 @@ class People_tracker_menu extends MY_Controller
 							,a.work_location, 'time_attendances_log' as source
 						from time_attendances_log a 
 						left join employees b on b.id = a.employee_id
-						where b.emp_source = 'internal' and
-							(((lat_checkin is not null or lat_checkin != '') and (long_checkin is not null or long_checkin != '')) or ((lat_checkout is not null or lat_checkout != '') and (long_checkout is not null or long_checkout != ''))) 
+						where b.emp_source = 'outsource'
+							and (((lat_checkin is not null or lat_checkin != '') and (long_checkin is not null or long_checkin != '')) or ((lat_checkout is not null or lat_checkout != '') and (long_checkout is not null or long_checkout != ''))) 
 							".$whr_emp.$whr_period."
 								
 					")->result();
@@ -294,7 +294,7 @@ class People_tracker_menu extends MY_Controller
 							a.heading_accuracy
 						from tracker_history a
 						left join employees b on b.id = a.emp_id
-						where b.emp_source = 'internal' and ((a.latitude is not null or a.latitude != '') and (a.longitude is not null or a.longitude != ''))
+						where b.emp_source = 'outsource' and ((a.latitude is not null or a.latitude != '') and (a.longitude is not null or a.longitude != ''))
 						".$whr_emp2.$whr_period2."
 								
 				")->result();
