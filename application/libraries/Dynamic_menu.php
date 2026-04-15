@@ -87,7 +87,8 @@ class Dynamic_menu {
     {
         $menu = array();
  
-        $query = $this->ci->db->query("select * from ".$this->user_menu_tabel." where parent_id = 0 AND show_menu = '1' order by um_order");
+        $type_filter = ($type != "") ? " AND (type = '".$type."' OR type = 'all')" : "";
+        $query = $this->ci->db->query("select * from ".$this->user_menu_tabel." where parent_id = 0 AND show_menu = '1'".$type_filter." order by um_order");
   
         $html_out = '<ul class="page-sidebar-menu  page-header-fixed " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px">';
 
@@ -124,7 +125,7 @@ class Dynamic_menu {
 						$html_out .= '<span class="arrow '.$mactive.'"></span>
 							</a>';
                     }
-					$html_out .= $this->get_childs($id,$check_menu); 
+					$html_out .= $this->get_childs($id,$check_menu,$type);
                 }  else {
 					$active = "";
 					if ($module_name == $check_menu["sub_menu"]) $active = "active open";
@@ -154,13 +155,14 @@ class Dynamic_menu {
      * @param    string    $id usuario
      * @return    mixed    $html_out if has subcats else FALSE
      */
-    function get_childs($id, $check_menu ="")
+    function get_childs($id, $check_menu ="", $type="")
     {
         $has_subcats = FALSE;
         $html_out  = '';
-        $html_out  .= '<ul class="sub-menu">';  
+        $html_out  .= '<ul class="sub-menu">';
 
-        $query = $this->ci->db->query("select * from ".$this->user_menu_tabel." where parent_id = $id AND show_menu = '1'  ORDER BY um_order");
+        $type_filter = ($type != "") ? " AND (type = '".$type."' OR type = 'all')" : "";
+        $query = $this->ci->db->query("select * from ".$this->user_menu_tabel." where parent_id = $id AND show_menu = '1'".$type_filter."  ORDER BY um_order");
  
         foreach ($query->result() as $row) {
             $id             	= $row->user_menu_id;
@@ -199,7 +201,7 @@ class Dynamic_menu {
 					$html_out .= '<span class="arrow '.$sactive.'"></span>
 						</a>';
                 }
-				$html_out .= $this->get_childs($id, $check_menu);
+				$html_out .= $this->get_childs($id, $check_menu, $type);
             } else {
                 $active = "";
                 if ($module_name == $check_menu["sub_menu"]) $active = "active open";

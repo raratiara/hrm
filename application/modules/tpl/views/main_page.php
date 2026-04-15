@@ -226,6 +226,45 @@
 
         }
 
+        /* Sidebar tabs */
+        .sidebar-menu-tabs {
+            display: flex;
+            padding: 8px 12px 0;
+            gap: 6px;
+        }
+
+        .sidebar-tab-btn {
+            flex: 1;
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: 6px 6px 0 0;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #999;
+            background: transparent;
+            border: 1px solid transparent;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none !important;
+            display: block;
+        }
+
+        .sidebar-tab-btn:hover {
+            color: #555;
+        }
+
+        .sidebar-tab-btn.active {
+            color: #112D80;
+            border-bottom-color: #112D80;
+            background: transparent;
+        }
+
+        .page-sidebar-closed .sidebar-menu-tabs {
+            display: none;
+        }
 
     </style>
 
@@ -414,8 +453,17 @@
 
         <script>
 document.addEventListener("scroll", function () {
-    const sidebar = document.querySelector(".page-sidebar .page-sidebar-menu");
-
+    // Target only the visible page-sidebar-menu
+    var tabContents = document.querySelectorAll('.sidebar-tab-content');
+    var sidebar = null;
+    if (tabContents.length > 0) {
+        tabContents.forEach(function(tab) {
+            if (window.getComputedStyle(tab).display !== 'none') {
+                sidebar = tab.querySelector('.page-sidebar-menu');
+            }
+        });
+    }
+    if (!sidebar) sidebar = document.querySelector('.page-sidebar .page-sidebar-menu');
     if (!sidebar) return;
 
     if (window.scrollY > 10) {
@@ -448,17 +496,27 @@ document.addEventListener("scroll", function () {
     <script>
 (function () {
   function scrollToActiveSidebarMenu() {
-    var menu = document.querySelector('.page-sidebar .page-sidebar-menu');
-    if (!menu) return;
+    // Cari menu di tab yang sedang aktif (visible)
+    var searchRoot = null;
+    var tabContents = document.querySelectorAll('.sidebar-tab-content');
+    if (tabContents.length > 0) {
+      tabContents.forEach(function(tab) {
+        if (window.getComputedStyle(tab).display !== 'none') {
+          searchRoot = tab;
+        }
+      });
+    }
+    if (!searchRoot) searchRoot = document.querySelector('.page-sidebar');
+    if (!searchRoot) return;
 
     // selector active yang lebih robust (karena tiap dynamic_menu beda)
     var active =
-      menu.querySelector('li.active > a') ||
-      menu.querySelector('li.open > a') ||
-      menu.querySelector('li.current > a') ||
-      menu.querySelector('li.selected > a') ||
-      menu.querySelector('a.active') ||
-      menu.querySelector('a[aria-expanded="true"]');
+      searchRoot.querySelector('li.active > a') ||
+      searchRoot.querySelector('li.open > a') ||
+      searchRoot.querySelector('li.current > a') ||
+      searchRoot.querySelector('li.selected > a') ||
+      searchRoot.querySelector('a.active') ||
+      searchRoot.querySelector('a[aria-expanded="true"]');
 
     if (!active) return;
 
