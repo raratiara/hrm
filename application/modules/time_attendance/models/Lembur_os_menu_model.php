@@ -1,10 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Lembur_menu_model extends MY_Model
+class Lembur_os_menu_model extends MY_Model
 {
 	/* Module */
- 	protected $folder_name				= "time_attendance/lembur_menu";
+ 	protected $folder_name				= "time_attendance/lembur_os_menu";
  	protected $table_name 				= _PREFIX_TABLE."overtimes";
  	protected $primary_key 				= "id";
 
@@ -118,7 +118,7 @@ class Lembur_menu_model extends MY_Model
 					LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
 					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
 					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
-					where b.emp_source = "internal"
+					where b.emp_source = "outsource"
 					GROUP BY a.id) ao
 					'.$whr.'
 				)dt';
@@ -766,7 +766,7 @@ class Lembur_menu_model extends MY_Model
 					else ""
 					end) as type_name 
 				from overtimes a left join employees b on b.id = a.employee_id
-				where b.emp_source = "internal"
+				where b.emp_source = "outsource"
 				'.$whr.'
 				order by a.id asc
 		';

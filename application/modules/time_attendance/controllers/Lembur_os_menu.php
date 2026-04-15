@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Lembur_menu extends MY_Controller
+class Lembur_os_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "lembur_menu"; // identify menu
+ 	const  LABELMODULE				= "lembur_os_menu"; // identify menu
  	const  LABELMASTER				= "Menu Lembur";
  	const  LABELFOLDER				= "time_attendance"; // module folder
- 	const  LABELPATH				= "lembur_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "lembur_os_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "time_attendance"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -35,7 +35,7 @@ class Lembur_menu extends MY_Controller
 
 		$field = [];
 		
-		$msemp 					= $this->db->query("select * from employees where status_id = 1 and emp_source = 'internal' ".$whr." order by full_name asc")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 and emp_source = 'outsource' ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 		
 		$field['txtdate']			= $this->self_model->return_build_txt('','date','date');

@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Ijin_menu extends MY_Controller
+class Ijin_os_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "ijin_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Ijin Karyawan";
+ 	const  LABELMODULE				= "ijin_os_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Ijin Karyawan - OS";
  	const  LABELFOLDER				= "time_attendance"; // module folder
- 	const  LABELPATH				= "ijin_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "ijin_os_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "time_attendance"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Master"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -36,7 +36,7 @@ class Ijin_menu extends MY_Controller
 
 		$field = [];
 		
-		$msemp 					= $this->db->query("select * from employees where status_id = 1 and emp_source = 'internal' ".$whr." order by full_name asc")->result(); 
+		$msemp 					= $this->db->query("select * from employees where status_id = 1 and emp_source = 'outsource' ".$whr." order by full_name asc")->result(); 
 		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','required',3,'-');
 		$msleave 				= $this->db->query("select * from master_leaves where name != 'Absence' ")->result(); 
 		$field['selleavetype'] 	= $this->self_model->return_build_select2me($msleave,'','','','leave_type','leave_type','','','id','name',' ','','','required',3,'-');
