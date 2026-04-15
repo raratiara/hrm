@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Dashboard_menu extends MY_Controller
+class Dashboard_os_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "dashboard_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Dashboard";
+ 	const  LABELMODULE				= "dashboard_os_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Dashboard - OS";
  	const  LABELFOLDER				= "dashboard"; // module folder
- 	const  LABELPATH				= "dashboard_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "dashboard_os_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "dashboard"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Dashboard"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -30,10 +30,10 @@ class Dashboard_menu extends MY_Controller
 		$field = [];
 
 
-		$msemp 				= $this->db->query("select * from employees where status_id = 1 and emp_source = 'internal' order by full_name asc")->result(); 
+		$msemp 				= $this->db->query("select * from employees where status_id = 1 and emp_source = 'outsource' order by full_name asc")->result(); 
 		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','fldashemp','fldashemp','','','id','full_name',' ','','','',3,'-');
 
-		$field['master_emp'] = $this->db->query("select * from employees where status_id = 1 and emp_source = 'internal' order by full_name asc")->result(); 
+		$field['master_emp'] = $this->db->query("select * from employees where status_id = 1 and emp_source = 'outsource' order by full_name asc")->result(); 
 		
 		return $field;
 	}
@@ -119,7 +119,7 @@ class Dashboard_menu extends MY_Controller
 		}
 
 		
-		$ttl_emp = $this->db->query("select count(id) as ttl from employees where status_id = 1 and emp_source = 'internal' ".$whr_emp.$whr2_emp."")->result(); 
+		$ttl_emp = $this->db->query("select count(id) as ttl from employees where status_id = 1 and emp_source = 'outsource' ".$whr_emp.$whr2_emp."")->result(); 
 		$ttl_attendance = $this->db->query("select count(distinct(date_attendance)) as ttl_absences_days from time_attendances where 1=1 ".$whr_att.$whr2_att." ")->result(); 
 		$ttl_latelogin = $this->db->query("select count(id) as ttl from time_attendances where is_late = 'Y' ".$whr_latelogin.$whr2_latelogin." ")->result(); 
 		$ttl_earlylogin = $this->db->query("select count(id) as ttl from time_attendances where (is_late != 'Y' or is_late = '' or is_late is null) ".$whr_earlylogin.$whr2_earlylogin." ")->result(); 
@@ -136,7 +136,7 @@ class Dashboard_menu extends MY_Controller
 						  ) AS disiplin_score
 						FROM time_attendances a left join employees b on b.id = a.employee_id
 						left join divisions c on c.id = b.division_id
-						WHERE b.emp_source = 'internal' and a.date_attendance_in IS NOT NULL 
+						WHERE b.emp_source = 'outsource' and a.date_attendance_in IS NOT NULL 
 						  AND a.date_attendance_out IS NOT NULL and b.status_id = 1 ".$whr_topemp."
 						GROUP BY a.employee_id
 						ORDER BY disiplin_score ASC) dt
@@ -169,7 +169,7 @@ class Dashboard_menu extends MY_Controller
 		$employee 	= $post['employee'];
 
 
-		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees where status_id = 1 and emp_source = 'internal'")->result(); 
+		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees where status_id = 1 and emo_source = 'outsource'")->result(); 
 
 		$boomer=0; 		$gen_x=0; 		$gen_z=0;
 		$gen_mill=0; 	$gen_alpha=0; 	$unkgen=0;
@@ -267,7 +267,7 @@ class Dashboard_menu extends MY_Controller
 				FROM
 				    employees a
 				    left join departments b on b.id = a.department_id
-				where a.status_id = 1 and a.emp_source = 'internal'
+				where a.status_id = 1 and a.emp_source = 'outsource'
 				GROUP BY
 				    a.department_id ")->result(); 
 

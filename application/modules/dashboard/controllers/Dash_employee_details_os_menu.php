@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Dash_employee_details_menu extends MY_Controller
+class Dash_employee_details_os_menu extends MY_Controller
 {
 	/* Module */
- 	const  LABELMODULE				= "dash_employee_details_menu"; // identify menu
- 	const  LABELMASTER				= "Menu Dashboard Employee Details";
+ 	const  LABELMODULE				= "dash_employee_details_os_menu"; // identify menu
+ 	const  LABELMASTER				= "Menu Dashboard Employee Details - OS";
  	const  LABELFOLDER				= "dashboard"; // module folder
- 	const  LABELPATH				= "dash_employee_details_menu"; // controller file (lowercase)
+ 	const  LABELPATH				= "dash_employee_details_os_menu"; // controller file (lowercase)
  	const  LABELNAVSEG1				= "dashboard"; // adjusted 1st sub parent segment
  	const  LABELSUBPARENTSEG1		= "Dashboard"; // 
  	const  LABELNAVSEG2				= ""; // adjusted 2nd sub parent segment
@@ -30,13 +30,13 @@ class Dash_employee_details_menu extends MY_Controller
 		$field = [];
 
 
-		$msemp 				= $this->db->query("select * from employees where status_id = 1 and emp_source = 'internal' order by full_name asc")->result(); 
+		$msemp 				= $this->db->query("select * from employees where status_id = 1 and emp_source = 'outsource' order by full_name asc")->result(); 
 		$field['selemp'] 	= $this->self_model->return_build_select2me($msemp,'','','','fldashemp','fldashemp','','','id','full_name',' ','','','',3,'-');
 
 		$msdiv 				= $this->db->query("select * from divisions order by name asc")->result(); 
 		$field['seldiv'] 	= $this->self_model->return_build_select2me($msdiv,'','','','fldiv','fldiv','','','id','name',' ','','','',1,'-');
 
-		$field['master_emp'] = $this->db->query("select * from employees where status_id = 1 and emp_source = 'internal' order by full_name asc")->result(); 
+		$field['master_emp'] = $this->db->query("select * from employees where status_id = 1 and emp_source = 'outsource' order by full_name asc")->result(); 
 		
 		return $field;
 	}
@@ -104,15 +104,15 @@ class Dash_employee_details_menu extends MY_Controller
 
 		
 		$shiftType = $this->db->query("select SUM(CASE WHEN shift_type = 'Reguler' THEN 1 ELSE 0 END) AS total_reguler, SUM(CASE WHEN shift_type = 'Shift' THEN 1 ELSE 0 END) AS total_shift
- 			from employees where status_id = 1 and emp_source = 'internal' ".$whereDiv."")->result(); 
+ 			from employees where status_id = 1 and emp_source = 'outsource' ".$whereDiv."")->result(); 
 		$joLevel = $this->db->query("select SUM(CASE WHEN job_level_id <= 5 THEN 1 ELSE 0 END) AS total_managerial,
  					SUM(CASE WHEN job_level_id > 5 THEN 1 ELSE 0 END) AS total_nonmanagerial
- 					from employees where status_id = 1 and emp_source = 'internal' ".$whereDiv."")->result(); 
+ 					from employees where status_id = 1 and emp_source = 'outsource' ".$whereDiv."")->result(); 
 		$grade = $this->db->query("select SUM(CASE WHEN grade_id = 1 THEN 1 ELSE 0 END) AS total_grade_a,
 								 	SUM(CASE WHEN grade_id = 2 THEN 1 ELSE 0 END) AS total_grade_b,
 								  	SUM(CASE WHEN grade_id = 3 THEN 1 ELSE 0 END) AS total_grade_c,
 								   	SUM(CASE WHEN grade_id = 4 THEN 1 ELSE 0 END) AS total_grade_d
-								from employees where status_id = 1 and emp_source = 'internal' ".$whereDiv." ")->result(); 
+								from employees where status_id = 1 and emp_source = 'outsource' ".$whereDiv." ")->result(); 
 		
 
 
@@ -144,7 +144,7 @@ class Dash_employee_details_menu extends MY_Controller
 		}
 
 
-		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees where status_id = 1 and emp_source = 'internal' ".$whereDiv."")->result(); 
+		$data_emp = $this->db->query("select year(date_of_birth) as year_of_birth from employees where status_id = 1 and emp_source = 'outsource' ".$whereDiv."")->result(); 
 
 		$boomer=0; 		$gen_x=0; 		$gen_z=0;
 		$gen_mill=0; 	$gen_alpha=0; 	$unkgen=0;
@@ -192,7 +192,7 @@ class Dash_employee_details_menu extends MY_Controller
 		}
 
 
-		$data_emp = $this->db->query("select * from employees where status_id = 1 and emp_source = 'internal' ".$whereDiv."")->result(); 
+		$data_emp = $this->db->query("select * from employees where status_id = 1 and emp_source = 'outsource' ".$whereDiv."")->result(); 
 
 		$ttl_tk0=0; 	$ttl_tk2=0; 	$ttl_k0=0;			$ttl_k1=0; 		$ttl_k3=0;
 		$ttl_tk1=0; 	$ttl_tk3=0; 	$ttl_undefined=0; 	$ttl_k2=0; 
@@ -258,7 +258,7 @@ class Dash_employee_details_menu extends MY_Controller
 				FROM
 				    employees a
 				    left join divisions b on b.id = a.division_id
-				where a.emp_source = 'internal' and a.status_id = 1 and a.division_id != 0 ".$whereDiv."
+				where a.emp_source = 'outsource' and a.status_id = 1 and a.division_id != 0 ".$whereDiv."
 				GROUP BY
 				    a.division_id ")->result(); 
 
@@ -300,7 +300,7 @@ class Dash_employee_details_menu extends MY_Controller
 								LEFT JOIN employees a 
 								  ON a.employment_status_id = b.id 
 								  AND a.status_id = 1 
-								where a.emp_source = 'internal' ".$whereDiv."
+								where a.emp_source = 'outsource' ".$whereDiv."
 								GROUP BY b.id, b.name
 								ORDER BY status")->result(); 
 
@@ -344,8 +344,8 @@ class Dash_employee_details_menu extends MY_Controller
 								    SUM(CASE WHEN a.status_id = 3 THEN 1 ELSE 0 END) AS total_closed
 								FROM divisions c
 								LEFT JOIN employees b ON b.division_id = c.id
-								LEFT JOIN tasklist a ON a.employee_id = b.id and a.status_id != '' ".$whereDiv."
-								where b.emp_source = 'internal'
+								LEFT JOIN tasklist a ON a.employee_id = b.id and a.status_id != '' 
+								where b.emp_source = 'outsource' ".$whereDiv."
 								GROUP BY c.id, c.name
 
 						 ")->result(); 

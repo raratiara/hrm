@@ -28,7 +28,7 @@ class Dashboard_menu_model extends MY_Model
 		
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select * from employees)dt';
+		$sTable = '(select * from employees where emp_source = "internal")dt';
 		
 
 		/* Paging */
@@ -263,7 +263,7 @@ class Dashboard_menu_model extends MY_Model
 	
 	public function eksport_data()
 	{
-		$sql = "select * from employees
+		$sql = "select * from employees where emp_source = 'internal'
 	   		ORDER BY id ASC
 		";
 
