@@ -87,25 +87,36 @@
 	padding: 0 !important;
 }
 
-/* 2) Menu ngisi ruang tengah + bisa scroll */
-.page-sidebar.navbar-collapse .page-sidebar-menu {
-	flex: 1 1 auto !important;
-	overflow-y: auto !important;
+/* 2) sidebar-tab-content: max-height agar bisa scroll saat menu kebanyakan */
+/* 95vh dikurangi: header(80px) + tabs(44px) + bottom-bg(80px) + sedikit buffer(16px) */
+.page-sidebar.navbar-collapse .sidebar-tab-content {
+	max-height: calc(95vh - 220px);
+	overflow-y: auto;
+	overflow-x: hidden;
+	flex-shrink: 0;
 }
 
-/* 3) Dorong block bawah ke paling bawah */
+/* Scrollbar tipis di tab-content */
+.page-sidebar.navbar-collapse .sidebar-tab-content::-webkit-scrollbar {
+	width: 4px;
+}
+.page-sidebar.navbar-collapse .sidebar-tab-content::-webkit-scrollbar-thumb {
+	background: rgb(224, 235, 250);
+	border-radius: 8px;
+}
+.page-sidebar.navbar-collapse .sidebar-tab-content::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* 3) Block bawah selalu nempel di pojok paling bawah sidebar */
 .page-sidebar.navbar-collapse .sidebar-bottom-bg {
-	margin-top: auto !important; /* ini kuncinya */
+	margin-top: auto;
+	flex-shrink: 0;
 	background: #d7ebfc;
 	padding: 10px 10px;
 	text-align: right;
 	border-bottom-left-radius: 16px !important;
 	border-bottom-right-radius: 16px !important;
-}
-
-/* optional: biar scroll gak ketutup area bawah */
-.page-sidebar.navbar-collapse .page-sidebar-menu {
-	padding-bottom: 80px; /* sesuaikan kalau perlu */
 }
 
 /* Lebarin ruang kanan menu biar arrow gak mepet */
@@ -626,9 +637,11 @@ body {
 		padding: 0 !important;
 	}
 
-	.page-sidebar-wrapper .page-sidebar-menu {
-		flex: 1 1 auto !important;
-		overflow-y: auto !important;
+	/* mobile: sidebar-tab-content scroll saat menu kebanyakan */
+	.page-sidebar-wrapper .page-sidebar.navbar-collapse .sidebar-tab-content {
+		max-height: calc(100vh - 220px);
+		overflow-y: auto;
+		overflow-x: hidden;
 		-webkit-overflow-scrolling: touch;
 	}
 
