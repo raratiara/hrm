@@ -32,7 +32,8 @@ class Project_outsource extends MY_Controller
 		
 		$field['txtperiodstart']	= $this->self_model->return_build_txtdate('','periode_start','periode_start','','','required');	
 		$field['txtperiodend']	= $this->self_model->return_build_txtdate('','periode_end','periode_end','','','required');
-		$field['txtjenispekerjaan'] = $this->self_model->return_build_txt('','jenis_pekerjaan','jenis_pekerjaan','','','required');
+		$msjenis					= $this->db->query("select * from master_jenis_pekerjaan order by name asc")->result();
+		$field['seljenispekerjaan']	= $this->self_model->return_build_select2me($msjenis,'','','','jenis_pekerjaan_id','jenis_pekerjaan_id','','','id','name',' ','','','required',3,'-');
 		$field['txtmanagementfee'] 	= $this->self_model->return_build_txt('','management_fee','management_fee','','','required');
 		
 

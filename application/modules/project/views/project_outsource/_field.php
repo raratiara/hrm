@@ -48,7 +48,7 @@
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Jenis Pekerjaan</label>
 			<div class="col-md-8">
-				<?=$txtjenispekerjaan;?>
+				<?=$seljenispekerjaan;?>
 			</div>
 		</div> 
 		<div class="form-group">

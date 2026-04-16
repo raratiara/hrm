@@ -161,7 +161,7 @@ function load_data()
 					$('[name="nama_project"]').val(data.project_name);
 					$('select#customer').val(data.customer_id).trigger('change.select2');
 					
-					$('[name="jenis_pekerjaan"]').val(data.jenis_pekerjaan);
+					$('select#jenis_pekerjaan_id').val(data.jenis_pekerjaan_id).trigger('change.select2');
 					$('[name="management_fee"]').val(data.management_fee); 
 					
 					var periode_start = dateFormat(data.periode_start);
@@ -182,7 +182,7 @@ function load_data()
 					$('span.nama_project').html(data.project_name);
 					$('span.customer').html(data.customer_name);
 					$('span.lokasi').html(data.lokasi_name);
-					$('span.jenis_pekerjaan').html(data.jenis_pekerjaan);
+					$('span.jenis_pekerjaan').html(data.jenis_pekerjaan_name);
 					$('span.management_fee').html(data.management_fee);
 					$('span.periode_start').html(data.periode_start);
 					$('span.periode_end').html(data.periode_end);

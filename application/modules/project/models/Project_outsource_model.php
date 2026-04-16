@@ -33,7 +33,7 @@ class Project_outsource_model extends MY_Model
 			'dt.code',
 			'dt.customer_name',
 			'dt.lokasi', 
-			'dt.jenis_pekerjaan',
+			'dt.jenis_pekerjaan_name',
 			'dt.management_fee',
 			'dt.periode_start',
 			'dt.periode_end',
@@ -43,9 +43,10 @@ class Project_outsource_model extends MY_Model
 		];
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.name as customer_name, c.name as lokasi_name from project_outsource  a 
-					left join data_customer b on b.id = a.customer_id 
+		$sTable = '(select a.*, b.name as customer_name, c.name as lokasi_name, d.name as jenis_pekerjaan_name from project_outsource  a
+					left join data_customer b on b.id = a.customer_id
 					left join master_work_location_outsource c on c.id = a.lokasi_id
+					left join master_jenis_pekerjaan d on d.id = a.jenis_pekerjaan_id
 					order by a.code asc)dt';
 			 
 
@@ -214,8 +215,8 @@ class Project_outsource_model extends MY_Model
 				$row->code,
 				$row->project_name,
 				$row->customer_name,
-				$row->lokasi_name, 
-				$row->jenis_pekerjaan,
+				$row->lokasi_name,
+				$row->jenis_pekerjaan_name,
 				$row->management_fee,
 				$row->periode_start,
 				$row->periode_end
@@ -317,11 +318,11 @@ class Project_outsource_model extends MY_Model
 				'project_name' 		=> trim($post['nama_project']),
 				'customer_id' 		=> $customer,
 				'lokasi_id' 		=> $lokasi,
-				'jenis_pekerjaan' 	=> trim($post['jenis_pekerjaan']),
+				'jenis_pekerjaan_id'=> trim($post['jenis_pekerjaan_id']),
 				'management_fee' 	=> trim($post['management_fee']),
-				'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))), 
+				'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))),
 				'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end'])))
-				
+
 			];
 
 			$rs = $this->db->insert($this->table_name, $data);
@@ -380,11 +381,11 @@ class Project_outsource_model extends MY_Model
 				'project_name' 		=> trim($post['nama_project']),
 				'customer_id' 		=> $customer,
 				'lokasi_id' 		=> $lokasi,
-				'jenis_pekerjaan' 	=> trim($post['jenis_pekerjaan']),
+				'jenis_pekerjaan_id'=> trim($post['jenis_pekerjaan_id']),
 				'management_fee' 	=> trim($post['management_fee']),
-				'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))), 
+				'periode_start' 	=> date("Y-m-d", strtotime(trim($post['periode_start']))),
 				'periode_end' 		=> date("Y-m-d", strtotime(trim($post['periode_end'])))
-				
+
 			];
 
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]); 
@@ -411,10 +412,10 @@ class Project_outsource_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.name as customer_name, c.name as lokasi_name from project_outsource  a 
-					left join data_customer b on b.id = a.customer_id 
+		$mTable = '(select a.*, b.name as customer_name, c.name as lokasi_name, d.name as jenis_pekerjaan_name from project_outsource  a
+					left join data_customer b on b.id = a.customer_id
 					left join master_work_location_outsource c on c.id = a.lokasi_id
-					
+					left join master_jenis_pekerjaan d on d.id = a.jenis_pekerjaan_id
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
