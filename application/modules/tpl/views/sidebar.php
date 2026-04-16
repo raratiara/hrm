@@ -85,13 +85,27 @@
 
     tabBtns.forEach(function(btn) {
       btn.addEventListener('click', function() {
+        localStorage.setItem('sidebarActiveTab', this.dataset.tab);
         activateTab(this.dataset.tab);
       });
     });
 
-    // Auto-detect: buka tab yang punya menu aktif, lalu sembunyikan yang lain
+    // Auto-detect: prioritaskan pilihan tersimpan, fallback ke tab yang punya menu aktif
+    var savedTab = localStorage.getItem('sidebarActiveTab');
+    var internalHasActive = document.querySelector('#sidebar-tab-internal .nav-item.active');
     var outsourceHasActive = document.querySelector('#sidebar-tab-outsource .nav-item.active');
-    activateTab(outsourceHasActive ? 'outsource' : 'internal');
+
+    var defaultTab;
+    if (savedTab) {
+      defaultTab = savedTab;
+    } else if (internalHasActive && !outsourceHasActive) {
+      defaultTab = 'internal';
+    } else if (outsourceHasActive && !internalHasActive) {
+      defaultTab = 'outsource';
+    } else {
+      defaultTab = 'internal';
+    }
+    activateTab(defaultTab);
 
     // Setelah semua script load: tampilkan tab tersembunyi sebentar untuk ukur tinggi penuh,
     // lalu update minHeight & panggil fixContentHeight agar scroll tidak hilang
