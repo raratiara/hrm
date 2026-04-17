@@ -75,7 +75,7 @@ $(document)
 
 <?php if  (_USER_ACCESS_LEVEL_ADD == "1") { ?>
 /* open add form modal */
-$( "#btnAddData" ).on('click', function(){
+$( "#btnAddData" ).on('click', function(){ 
 	var module_name = '<?=$this->module_name?>'; 
 
 
@@ -302,6 +302,12 @@ $( "#btnAddData" ).on('click', function(){
 		document.getElementById("statusView").style.display = "none";
 		$('[name="tahun_pajak"]').val('').prop('readonly', false);
 		document.getElementById("inp_is_all_employee").style.display = "block";
+	}
+
+	if(module_name == 'meetings_menu'){ 
+		$('select#meeting_room').trigger('change.select2').prop('disabled', true);
+		$('select#meeting_platform').trigger('change.select2').prop('disabled', true);
+			
 	}
 	
 

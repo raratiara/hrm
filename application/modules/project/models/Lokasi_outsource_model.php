@@ -33,12 +33,11 @@ class Lokasi_outsource_model extends MY_Model
 			'dt.time_zone',
 			'dt.utc_offset', 
 			'dt.latitude',
-			'dt.longitude',
-			'dt.customer_name'
+			'dt.longitude'
 		];
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.name as customer_name from master_work_location_outsource a left join data_customer b on b.id = a.cust_id order by a.name asc)dt';
+		$sTable = '(select a.* from master_work_location_outsource a order by a.name asc)dt';
 			 
 
 
@@ -204,7 +203,6 @@ class Lokasi_outsource_model extends MY_Model
 				</div>',
 				$row->id,
 				$row->name,
-				$row->customer_name,
 				$row->time_zone,
 				$row->utc_offset, 
 				$row->latitude,
@@ -269,7 +267,7 @@ class Lokasi_outsource_model extends MY_Model
 			$data = [
 				'name' 			=> trim($post['lokasi']),
 				'time_zone' 	=> trim($post['zona_waktu']),
-				'cust_id' 		=> $customer,
+				///'cust_id' 		=> $customer,
 				'utc_offset' 	=> trim($post['selisih_waktu']),
 				'latitude' 		=> trim($post['latitude']),
 				'longitude' 	=> trim($post['longitude'])
@@ -309,7 +307,7 @@ class Lokasi_outsource_model extends MY_Model
 			$data = [
 				'name' 			=> trim($post['lokasi']),
 				'time_zone' 	=> trim($post['zona_waktu']),
-				'cust_id' 		=> $customer,
+				///'cust_id' 		=> $customer,
 				'utc_offset' 	=> trim($post['selisih_waktu']),
 				'latitude' 		=> trim($post['latitude']),
 				'longitude' 	=> trim($post['longitude'])
@@ -339,7 +337,7 @@ class Lokasi_outsource_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.name as customer_name from master_work_location_outsource a left join data_customer b on b.id = a.cust_id 
+		$mTable = '(select a.* from master_work_location_outsource a  
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();

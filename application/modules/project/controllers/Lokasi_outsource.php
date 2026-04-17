@@ -15,11 +15,11 @@ class Lokasi_outsource extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Lokasi","Customer","Zona Waktu","Selisih Waktu","Latitude","Longitude"];
+	public $tabel_header 			= ["ID","Lokasi","Zona Waktu","Selisih Waktu","Latitude","Longitude"];
 	
 	/* Export */
-	public $colnames 				= ["ID","Lokasi","Customer","Zona Waktu","Selisih Waktu","Latitude","Longitude"];
-	public $colfields 				= ["id","name","customer_name","time_zone","utc_offset","latitude", "longitude"];
+	public $colnames 				= ["ID","Lokasi","Zona Waktu","Selisih Waktu","Latitude","Longitude"];
+	public $colfields 				= ["id","name","time_zone","utc_offset","latitude", "longitude"];
 
 
 	/* Form Field Asset */
@@ -94,15 +94,15 @@ class Lokasi_outsource extends MY_Controller
 
 
 
-	public function getDataLokasi(){
-		$post 		= $this->input->post(null, true);
-		$customer 	= $post['customer'];
+	// public function getDataLokasi(){
+	// 	$post 		= $this->input->post(null, true);
+	// 	$customer 	= $post['customer'];
 
-		$rs =  $this->self_model->getDataLokasi($customer);
+	// 	$rs =  $this->self_model->getDataLokasi($customer);
 		
 
-		echo json_encode($rs);
-	}
+	// 	echo json_encode($rs);
+	// }
 
  
  	

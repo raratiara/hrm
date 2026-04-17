@@ -15,12 +15,12 @@ class Meetings_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Meeting Name","Meeting Date","Meeting Time","Meeting Room","Status","Booking Date","Booking By","Description","Participants"];
+	public $tabel_header 			= ["ID","Type","Meeting Name","Meeting Date","Meeting Time","Meeting Room/Platform","Status","Booking Date","Booking By","Description","Participants"];
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Meeting Name","Meeting Date","Meeting Time","Meeting Room","Status","Booking Date","Booking By","Description","Participants"];
-	public $colfields 				= ["id","meeting_name","meeting_date","meeting_times","room_name","status","booking_date","created_by_name","description","participants_name"];
+	public $colnames 				= ["ID","Type","Meeting Name","Meeting Date","Meeting Time","Meeting Room","Status","Booking Date","Booking By","Description","Participants"];
+	public $colfields 				= ["id","type_name","meeting_name","meeting_date","meeting_times","room_name","status","booking_date","created_by_name","description","participants_name"];
 
 
 
@@ -35,18 +35,23 @@ class Meetings_menu extends MY_Controller
 		$field['selmeetingroom'] 	= $this->self_model->return_build_select2me($msroom,'','','','meeting_room','meeting_room','','','id','room_name',' ','','','',3,'-');
 
 		$msemp 						= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
-		$field['selparticipants'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','participants[]','participants','','','id','full_name',' ','','','',3,'-');
+		$field['selparticipants'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','participants[]','participants','','','id','full_name',' ','','','required',3,'-');
 
 		$field['txtdesc'] 			= $this->self_model->return_build_txtarea('','description','description');
-		$field['txtmeetingname'] 	= $this->self_model->return_build_txt('','meeting_name','meeting_name');
-		$field['txtmeetingdate'] 	= $this->self_model->return_build_txt('','meeting_date','meeting_date');
-		$field['seltimes'] 			= $this->self_model->return_build_radio('', [['full day','Full Day'],['custom','Custom']], 'type', '', 'inline');
+		$field['txtmeetingname'] 	= $this->self_model->return_build_txt('','meeting_name','meeting_name','','','required');
+		$field['txtmeetingdate'] 	= $this->self_model->return_build_txt('','meeting_date','meeting_date','','','required');
+		$field['seltimes'] 			= $this->self_model->return_build_radio('', [['full day','Full Day','required'],['custom','Custom','required']], 'type', '', 'inline');
 		$field['txtstarttime'] 		= $this->self_model->return_build_txt('','start_time','start_time');
 		$field['txtendtime'] 		= $this->self_model->return_build_txt('','end_time','end_time');
 		$field['txtcode'] 			= $this->self_model->return_build_txt('','code','code','','','readonly');
 		$field['txtcode_checkin'] 	= $this->self_model->return_build_txt('','code_checkin','code_checkin');
 		
+		$msmeetingtype 				= $this->db->query("select * from master_meeting_type order by id asc")->result(); 
+		$field['selmeetingtype'] 	= $this->self_model->return_build_select2me($msmeetingtype,'','','','meeting_type','meeting_type','','','id','name',' ','','','required',3,'-');
 
+		$msplatform 				= $this->db->query("select * from master_meeting_platform order by id asc")->result(); 
+		$field['selplatform'] 		= $this->self_model->return_build_select2me($msplatform,'','','','meeting_platform','meeting_platform','','','id','name',' ','','','',3,'-');
+		
 
 		
 		return $field;
@@ -196,6 +201,69 @@ class Meetings_menu extends MY_Controller
 	}
 
 
+	public function getReportAbsenMeeting_pdf()
+	{
+	    $sql = "
+	        SELECT 
+				a.*, 
+				b.room_name, 
+				c.direct_id, 
+				c.full_name AS created_by_name,
+				IF(
+				a.type = 'custom',
+				CONCAT(
+				DATE_FORMAT(a.start_time, '%l:%i %p'),
+				' - ',
+				DATE_FORMAT(a.end_time, '%l:%i %p')
+				),
+				'Full Day'
+				) AS meeting_times,
+				DATE_FORMAT(a.start_time, '%l:%i %p') AS start_time_display,
+				DATE_FORMAT(a.end_time, '%l:%i %p') AS end_time_display,
+				(
+				SELECT GROUP_CONCAT(e.full_name SEPARATOR ', ')
+				FROM employees e
+				WHERE FIND_IN_SET(e.id, a.participants)
+				) AS participants_name,
+				d.name as meeting_type_name,
+				e.name as meeting_platform_name
+			FROM meetings a
+			LEFT JOIN master_meeting_room b ON b.id = a.meeting_room_id
+			LEFT JOIN employees c ON c.id = a.created_by
+			left join master_meeting_type d on d.id = a.meeting_type_id
+			left join master_meeting_platform e on e.id = a.platform_id
+			where a.id = 1
+	    ";
 
+	    $data = $this->db->query($sql)->result();
+
+		$absen="";
+		if(!empty($data)){
+			$absen = $this->db->query("select b.full_name, a.checkin_time from presensi_meeting a 
+					left join employees b on b.id = a.employee_id where a.meetings_id = '".$data[0]->id."' ")->result(); 
+		}
+
+	    $this->load->library('html_pdf');
+
+	    $pdfData = [
+	        'title' => 'ABSENSI KEHADIRAN MEETING',
+	        'data'  => $data,
+			'absen' => $absen
+	    ];
+
+	    $pdfBinary = $this->html_pdf->render_to_string_portrait(
+	        'pdf/report_absen_meeting',
+	        $pdfData
+	    );
+
+	    if (ob_get_level()) ob_end_clean();
+
+	    $safeMeetingName = preg_replace('/[^A-Za-z0-9 _-]/', '', $data[0]->meeting_name);
+
+	    header("Content-Type: application/pdf");
+	    header("Content-Disposition: attachment; filename=Absensi Meeting - ".$safeMeetingName.".pdf");
+	    echo $pdfBinary;
+	    exit;
+	}
 
 }

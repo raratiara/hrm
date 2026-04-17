@@ -79,7 +79,7 @@ class Data_karyawan_os_menu extends MY_Controller
 		$msmaritalstatus 				= $this->db->query("select * from master_marital_status")->result(); 
 		$field['selmaritalstatus'] 		= $this->self_model->return_build_select2me($msmaritalstatus,'','','','marital_status','marital_status','','','id','name',' ','','','required',3,'-');
 
-		$msworkloc 						= array(); /*$this->db->query("select * from master_work_location_outsource")->result();*/ 
+		$msworkloc 						= $this->db->query("select * from master_work_location_outsource")->result();
 		$field['selworkloc'] 			= $this->self_model->return_build_select2me($msworkloc,'','','','work_loc','work_loc','','','id','name',' ','','','required',3,'-');
 
 		$mseducation 					= $this->db->query("select * from master_education")->result(); 
@@ -418,15 +418,15 @@ class Data_karyawan_os_menu extends MY_Controller
 
 
 
-	public function getDataWorkLocation(){
-		$post 		= $this->input->post(null, true);
-		$project 	= $post['project'];
+	// public function getDataWorkLocation(){
+	// 	$post 		= $this->input->post(null, true);
+	// 	$project 	= $post['project'];
 
-		$rs =  $this->self_model->getDataWorkLocation($project);
+	// 	$rs =  $this->self_model->getDataWorkLocation($project);
 		
 
-		echo json_encode($rs);
-	}
+	// 	echo json_encode($rs);
+	// }
 
 
 

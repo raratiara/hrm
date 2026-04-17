@@ -168,8 +168,8 @@ function load_data()
 					var periode_end = dateFormat(data.periode_end);
 					$('[name="periode_start"]').datepicker('setDate', periode_start);
 					$('[name="periode_end"]').datepicker('setDate', periode_end);
-
-					getLokasi(data.customer_id,'selected',data.lokasi_id);
+					$('select#lokasi').val(data.lokasi_id).trigger('change.select2');
+					///getLokasi(data.customer_id,'selected',data.lokasi_id);
 					
 					
 					$.uniform.update();
@@ -255,56 +255,56 @@ $('#lokasi').select2({
 });
 
 
-function getLokasi(customer, selected='', idVal='') {
+// function getLokasi(customer, selected='', idVal='') {
 
-    if (!customer) return;
+//     if (!customer) return;
 
-    $.ajax({
-        type: "POST",
-        url : module_path + '/getDataLokasi',
-        data: { customer: customer },
-        dataType: "JSON",
-        success: function(data) {
+//     $.ajax({
+//         type: "POST",
+//         url : module_path + '/getDataLokasi',
+//         data: { customer: customer },
+//         dataType: "JSON",
+//         success: function(data) {
 
-            var $el = $("#lokasi");
-            $el.empty().append('<option value=""></option>');
+//             var $el = $("#lokasi");
+//             $el.empty().append('<option value=""></option>');
 
-            if (data && data.mslokasi) {
-                $.each(data.mslokasi, function(i, v) {
-                    $el.append(
-                        $('<option>', {
-                            value: v.id,
-                            text: v.name
-                        })
-                    );
-                });
-            }
+//             if (data && data.mslokasi) {
+//                 $.each(data.mslokasi, function(i, v) {
+//                     $el.append(
+//                         $('<option>', {
+//                             value: v.id,
+//                             text: v.name
+//                         })
+//                     );
+//                 });
+//             }
 
-            $el.trigger('change.select2');
+//             $el.trigger('change.select2');
 
-            if (selected === 'selected') {
-                $el.val(idVal).trigger('change.select2');
-            }
-        }
-    });
-}
-
-
+//             if (selected === 'selected') {
+//                 $el.val(idVal).trigger('change.select2');
+//             }
+//         }
+//     });
+// }
 
 
-$('#customer').on('change', function () { 
- 	var customer = $(this).val();
 
-    $('#lokasi')
-        .val(null)
-        .empty()
-        .append('<option value=""></option>')
-        .trigger('change.select2');
 
-    if (customer) {
-        getLokasi(customer);
-    }
-});
+// $('#customer').on('change', function () { 
+//  	var customer = $(this).val();
+
+//     $('#lokasi')
+//         .val(null)
+//         .empty()
+//         .append('<option value=""></option>')
+//         .trigger('change.select2');
+
+//     if (customer) {
+//         getLokasi(customer);
+//     }
+// });
 
 
 

@@ -125,7 +125,7 @@ function load_data()
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					$('[name="lokasi"]').val(data.name);
-					$('select#customer').val(data.cust_id).trigger('change.select2');
+					// $('select#customer').val(data.cust_id).trigger('change.select2');
 					$('[name="zona_waktu"]').val(data.time_zone);
 					/*$('[name="selisih_waktu"]').val(data.utc_offset);*/
 					$('[name="latitude"]').val(data.latitude); 
@@ -142,7 +142,7 @@ function load_data()
 				if(save_method == 'detail'){ 
 					$('[name="id"]').val(data.id);
 					$('span.lokasi').html(data.name);
-					$('span.customer').html(data.customer_name);
+					///$('span.customer').html(data.customer_name);
 					$('span.zona_waktu').html(data.time_zone);
 					$('span.selisih_waktu').html(data.utc_offset);
 					$('span.latitude').html(data.latitude);

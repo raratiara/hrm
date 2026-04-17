@@ -1,13 +1,15 @@
 <div class="row">
 	
-	<div class="col-md-6 col-sm-12">
-		
+	<div class="col-md-12 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Lokasi</label>
-			<div class="col-md-8">
+			<label class="col-md-2 control-label no-padding-right">Lokasi</label>
+			<div class="col-md-4">
 				<?=$txtlokasi;?>
 			</div>
 		</div>
+	</div>
+
+	<div class="col-md-6 col-sm-12">
 		
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Zona Waktu</label>
@@ -25,12 +27,7 @@
 		
 	</div>
 	<div class="col-md-6 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Customer </label>
-			<div class="col-md-8">
-				<?=$seloCustomer;?>
-			</div>
-		</div> 
+		
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Selisih Waktu</label>
 			<div class="col-md-8">

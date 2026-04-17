@@ -29,13 +29,17 @@
 </style>
 <div class="row">
 
-	<div class="col-md-6 col-sm-12 col-xs-12">
+	<div class="col-md-12 col-sm-12 col-xs-12">
 		<div class="row-flex">
-			<label class="col-md-4 control-label no-padding-right">Lokasi</label>
-			<div class="col-md-8">
+			<label class="col-md-2 control-label no-padding-right">Lokasi</label>
+			<div class="col-md-10">
 				: <span class="lokasi"></span>
 			</div>
 		</div>
+	</div>
+
+	<div class="col-md-6 col-sm-12 col-xs-12">
+		
 		<div class="row-flex">
 			<label class="col-md-4 control-label no-padding-right">Zona Waktu </label>
 			<div class="col-md-8">
@@ -54,12 +58,12 @@
 
 
 	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row-flex">
+		<!-- <div class="row-flex">
 			<label class="col-md-4 control-label no-padding-right">Customer</label>
 			<div class="col-md-8">
 				: <span class="customer"></span>
 			</div>
-		</div>
+		</div> -->
 
 		<div class="row-flex">
 			<label class="col-md-4 control-label no-padding-right"> Selisih Waktu</label>

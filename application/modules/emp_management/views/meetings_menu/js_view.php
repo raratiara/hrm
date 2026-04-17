@@ -122,7 +122,45 @@
 	</div>
 </div>
 
+<div id="modal-report-absen_meeting" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-report-absen_meeting" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+	<div class="modal-dialog vertical-align-center">
+		<div class="modal-content" style="width:500px !important">
+			<form class="form-horizontal" id="frmReportAbsenMeeting" enctype="multipart/form-data">
+			<div class="modal-header bg-blue bg-font-blue no-padding">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<div class="table-header">
+					Report Absensi Meeting
+					<input type="hidden" id="hdnmeetingid" name="hdnmeetingid" />
+				</div>
+			</div>
+			 </form>
 
+			<div class="modal-footer no-margin-top">
+				<center>
+
+				<!-- <button class="btn" style="background-color: #8ec1f5; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportSummaryAbsenOS()">
+					<i class="fa fa-download"></i>
+					Download EXCEL
+				</button> -->
+
+				<button class="btn" style="background-color: #f5f58e; color: black; border-radius: 2px !important;" id="submit-report-data" onclick="downloadReportAbsenMeeting_pdf()">
+					<i class="fa fa-download"></i>
+					Download PDF
+				</button>
+				
+				<button class="btn" style="background-color: #fc596b; color: black; border-radius: 2px !important;" data-dismiss="modal">
+					<i class="fa fa-times"></i>
+					Close
+				</button>
+
+
+				</center>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
 
 
 
@@ -140,10 +178,12 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#meeting_date" ).datepicker();
+        $( "#meeting_date" ).datepicker({
+        	startDate: '+0d'
+        });
         $( "#start_time" ).timepicker();
         $( "#end_time" ).timepicker();
-		
+
    	});
 });
 
@@ -273,10 +313,21 @@ function load_data()
 					}
 
 					$('[name="description"]').val(data.rowdata.description);
-					$('select#meeting_room').val(data.rowdata.meeting_room_id).trigger('change.select2');
 					$('#participants').val(data.participants).trigger('change');
 					$('[name="code"]').val(data.rowdata.code);
+					$('select#meeting_type').val(data.rowdata.meeting_type_id).trigger('change.select2');
 					
+
+					if(data.rowdata.meeting_type_id == 1){ /// offline
+						$('select#meeting_room').val(data.rowdata.meeting_room_id).trigger('change.select2').prop('disabled', false);
+						$('select#meeting_platform').val(data.rowdata.platform_id).trigger('change.select2').prop('disabled', true);
+					}else if(data.rowdata.meeting_type_id == 2){ ///online
+						$('select#meeting_platform').val(data.rowdata.platform_id).trigger('change.select2').prop('disabled', false);
+						$('select#meeting_room').val(data.rowdata.meeting_room_id).trigger('change.select2').prop('disabled', true);
+					}else if(data.rowdata.meeting_type_id == 3){ ///hybrid
+						$('select#meeting_room').val(data.rowdata.meeting_room_id).trigger('change.select2').prop('disabled', false);
+						$('select#meeting_platform').val(data.rowdata.platform_id).trigger('change.select2').prop('disabled', false);
+					}
 
 					
 					$.uniform.update();
@@ -287,6 +338,21 @@ function load_data()
 					$('span.meeting_name').html(data.rowdata.meeting_name);
 					$('span.meeting_date').html(data.rowdata.meeting_date);
 					$('span.type').html(data.rowdata.type);
+					$('span.meeting_type').html(data.rowdata.meeting_type_name);
+					$('span.description').html(data.rowdata.description);
+					$('span.participants').html(data.rowdata.participants_name);
+					$('span.code').html(data.rowdata.code);
+
+					var room='-'; var platform='-';
+					if(data.rowdata.meeting_type_id == 1 || data.rowdata.meeting_type_id == 3){
+						room = data.rowdata.room_name;
+					}
+					if(data.rowdata.meeting_type_id == 2 || data.rowdata.meeting_type_id == 3){
+						platform = data.rowdata.meeting_platform_name;
+					}
+					
+					$('span.meeting_room').html(room);
+					$('span.meeting_platform').html(platform);
 
 					if(data.rowdata.type == 'custom'){
 						$('#inpStartTimeView').show();
@@ -298,12 +364,19 @@ function load_data()
  						$('#inpEndTimeView').hide();
 					}
 
-
-					$('span.meeting_room').html(data.rowdata.room_name);
-					$('span.description').html(data.rowdata.description);
-					$('span.participants').html(data.rowdata.participants_name);
-					$('span.code').html(data.rowdata.code);
+					if(data.rowdata.meeting_type_id == 2 || data.rowdata.meeting_type_id == 3){
+						$('#linkView').show();
+						///$('span.link_view').html(data.rowdata.meeting_link);
+						$('span.link_view').html(
+							'<a href="'+data.rowdata.meeting_link+'" target="_blank">'
+							+ data.rowdata.meeting_link +
+							'</a>'
+						);
+					}else{
+						$('#linkView').hide();
+					}
 					
+
 					
 					$('#modal-view-data').modal('show');
 				}
@@ -367,6 +440,22 @@ $('input[name="type"]').on('change', function () {
  		$('#inpEndTime').hide();
  	}
 
+
+});
+
+$('#meeting_type').on('change', function () { 
+ 	var meeting_type = $("#meeting_type option:selected").val();
+ 	
+	if(meeting_type == 1){ /// offline
+		$('select#meeting_room').trigger('change.select2').prop('disabled', false);
+		$('select#meeting_platform').trigger('change.select2').prop('disabled', true);
+	}else if(meeting_type == 2){ ///online
+		$('select#meeting_platform').trigger('change.select2').prop('disabled', false);
+		$('select#meeting_room').trigger('change.select2').prop('disabled', true);
+	}else if(meeting_type == 3){ ///hybrid
+		$('select#meeting_room').trigger('change.select2').prop('disabled', false);
+		$('select#meeting_platform').trigger('change.select2').prop('disabled', false);
+	}
 
 });
 
@@ -651,6 +740,35 @@ function save_checkout(){
 
 
 }
+
+
+function getReport_absen_meeting(meeting_id){
+	
+	$('#modal-report-absen_meeting').modal('show');
+
+	$('[name="hdnmeetingid"]').val(meeting_id);
+
+}
+
+
+function downloadReportAbsenMeeting_pdf(){ 
+
+	var meeting_id = $("#hdnmeetingid").val();
+
+	if(meeting_id != ''){
+		send_url = module_path+'/getReportAbsenMeeting_pdf?meeting_id='+meeting_id+'';
+		formData = $('#frmReportAbsenMeeting').serialize();
+		window.location = send_url+'&'+formData;
+		
+		//window.location = send_url;
+		$('#modal-report-absen_meeting').modal('hide');
+		
+	}else{
+		alert("Data tidak ditemukan");
+	}
+
+}
+
 
 
 </script>

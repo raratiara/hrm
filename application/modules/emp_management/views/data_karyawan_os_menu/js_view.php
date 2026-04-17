@@ -306,7 +306,7 @@ function load_data()
 
 					$('select#customer').val(data.cust_id).trigger('change.select2');
 					getProject(data.cust_id,'selected',data.project_id);
-					getWorkLocation(data.project_id,'selected',data.work_location);
+					///getWorkLocation(data.project_id,'selected',data.work_location);
 					$('[name="ttl_hari_kerja"]').val(data.total_hari_kerja);
 					$('[name="status_bpjs_kes"][value="'+data.status_bpjs_kesehatan+'"]').prop('checked', true);
 					$('[name="status_bpjs_ket"][value="'+data.status_bpjs_ketenagakerjaan+'"]').prop('checked', true);
@@ -1133,75 +1133,75 @@ function getProject(customer,selected='',idVal=''){
 }
 
 
-$('#project').on('change', function () {
-    var project = $(this).val();
+// $('#project').on('change', function () {
+//     var project = $(this).val();
 
-    $('#work_loc')
-        .val(null)
-        .empty()
-        .append('<option value=""></option>')
-        .trigger('change.select2');
+//     $('#work_loc')
+//         .val(null)
+//         .empty()
+//         .append('<option value=""></option>')
+//         .trigger('change.select2');
 
-    if (project) {
-        getWorkLocation(project);
-    }
-});
+//     if (project) {
+//         getWorkLocation(project);
+//     }
+// });
 
 
 
-function getWorkLocation(project,selected='',idVal=''){ 
+// function getWorkLocation(project,selected='',idVal=''){ 
 
-	if(project != ''){
+// 	if(project != ''){
  		
- 		$.ajax({
-			type: "POST",
-	        url : module_path+'/getDataWorkLocation',
-			data: { project: project },
-			cache: false,		
-	        dataType: "JSON",
-	        success: function(data)
-	        {  
-				if(data != null){ 
+//  		$.ajax({
+// 			type: "POST",
+// 	        url : module_path+'/getDataWorkLocation',
+// 			data: { project: project },
+// 			cache: false,		
+// 	        dataType: "JSON",
+// 	        success: function(data)
+// 	        {  
+// 				if(data != null){ 
 					
-					var $el = $("#work_loc");
+// 					var $el = $("#work_loc");
 
-					$el.empty(); // remove old options
-					$el.append($("<option></option>").attr("value", "").text(""));
-					$.each(data.mslocation, function(key,value) {
-						$el.append($("<option></option>")
-				     	.attr("value", value.lokasi_id).text(value.lokasi_name));
+// 					$el.empty(); // remove old options
+// 					$el.append($("<option></option>").attr("value", "").text(""));
+// 					$.each(data.mslocation, function(key,value) {
+// 						$el.append($("<option></option>")
+// 				     	.attr("value", value.lokasi_id).text(value.lokasi_name));
 					  	
-					});
+// 					});
 
-					if(selected=='selected'){
-						$('select#work_loc').val(idVal).trigger('change.select2');
-					}
+// 					if(selected=='selected'){
+// 						$('select#work_loc').val(idVal).trigger('change.select2');
+// 					}
 					
-				} else { 
+// 				} else { 
 					
 
-				}
+// 				}
 
-	        },
-	        error: function (jqXHR, textStatus, errorThrown)
-	        {
-				var dialog = bootbox.dialog({
-					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
-					message: jqXHR.responseText,
-					buttons: {
-						confirm: {
-							label: 'Ok',
-							className: 'btn blue'
-						}
-					}
-				});
-	        }
-	    });
+// 	        },
+// 	        error: function (jqXHR, textStatus, errorThrown)
+// 	        {
+// 				var dialog = bootbox.dialog({
+// 					title: 'Error ' + jqXHR.status + ' - ' + jqXHR.statusText,
+// 					message: jqXHR.responseText,
+// 					buttons: {
+// 						confirm: {
+// 							label: 'Ok',
+// 							className: 'btn blue'
+// 						}
+// 					}
+// 				});
+// 	        }
+// 	    });
 
 
- 	}
+//  	}
 
-}
+// }
 
 
 function generateUsername(fullName) {

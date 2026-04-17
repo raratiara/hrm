@@ -87,3 +87,32 @@ function ceil_2($number){
 }
 
 
+
+function encrypt_text($plaintext)
+{
+    $key = 'staffora_secret_key_123'; 
+    $cipher = "AES-256-CBC";
+
+    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($cipher));
+
+    $encrypted = openssl_encrypt($plaintext, $cipher, $key, 0, $iv);
+
+    return base64_encode($iv . $encrypted);
+}
+
+
+function decrypt_text($encryptedText)
+{
+    $key = 'staffora_secret_key_123'; 
+    $cipher = "AES-256-CBC";
+
+    $data = base64_decode($encryptedText);
+
+    $iv_length = openssl_cipher_iv_length($cipher);
+    $iv = substr($data, 0, $iv_length);
+    $encrypted = substr($data, $iv_length);
+
+    return openssl_decrypt($encrypted, $cipher, $key, 0, $iv);
+}
+
+

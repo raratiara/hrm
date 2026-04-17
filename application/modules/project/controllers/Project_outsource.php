@@ -37,7 +37,7 @@ class Project_outsource extends MY_Controller
 		$field['txtmanagementfee'] 	= $this->self_model->return_build_txt('','management_fee','management_fee','','','required');
 		
 
-		$mslokasi 					= array();
+		$mslokasi 					= $this->db->query("select * from master_work_location_outsource order by name asc")->result(); 
 		$field['sellokasi'] 		= $this->self_model->return_build_select2me_lokasi($mslokasi,'','','','lokasi','lokasi','','','id','name',' ','','','data-tags="true" ',3,'-');
 
 		$mscust 					= $this->db->query("select *, if(code != '', concat(code,' - ',name),name) as customer_name from data_customer order by name asc")->result(); 
@@ -98,15 +98,15 @@ class Project_outsource extends MY_Controller
 
 
 
-	public function getDataLokasi(){
-		$post 		= $this->input->post(null, true);
-		$customer 	= $post['customer'];
+	// public function getDataLokasi(){
+	// 	$post 		= $this->input->post(null, true);
+	// 	$customer 	= $post['customer'];
 
-		$rs =  $this->self_model->getDataLokasi($customer);
+	// 	$rs =  $this->self_model->getDataLokasi($customer);
 		
 
-		echo json_encode($rs);
-	}
+	// 	echo json_encode($rs);
+	// }
 
 
 	/*public function insertLokasi()

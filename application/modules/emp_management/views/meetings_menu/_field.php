@@ -1,18 +1,16 @@
 <div class="row">
 	
-	<div class="col-md-12 col-sm-12">
-		<div class="form-group">
-			<label class="col-md-2 control-label no-padding-right"> Meeting Name</label>
-			<div class="col-md-10">
-				<?=$txtmeetingname;?>
-			</div>
-		</div>
-
-	</div>
-
+	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Meeting Date</label>
+			<label class="col-md-4 control-label no-padding-right"> Meeting Type <span style="color:red">*</span></label>
+			<div class="col-md-8">
+				<?=$selmeetingtype;?>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Meeting Date <span style="color:red">*</span></label>
 			<div class="col-md-8">
 				<?=$txtmeetingdate;?>
 			</div>
@@ -32,17 +30,31 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Participants</label>
+			<label class="col-md-4 control-label no-padding-right"> Participants <span style="color:red">*</span></label>
 			<div class="col-md-8">
 				<?=$selparticipants;?>
 			</div>
 		</div>
+
+		<!-- <div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Code</label>
+			<div class="col-md-8">
+				<?=$txtcode;?>
+			</div>
+		</div> -->
+
 	</div>
 
 	<div class="col-md-6 col-sm-12" id="inpTimes">
 		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Time</label>
+			<label class="col-md-4 control-label no-padding-right"> Meeting Name <span style="color:red">*</span></label>
+			<div class="col-md-8">
+				<?=$txtmeetingname;?>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Time <span style="color:red">*</span></label>
 			<div class="col-md-8">
 				<?=$seltimes;?>
 			</div>
@@ -55,17 +67,18 @@
 			</div>
 		</div>
 		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right"> Platform</label>
+			<div class="col-md-8">
+				<?=$selplatform;?>
+			</div>
+		</div>
+		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right"> Description</label>
 			<div class="col-md-8">
 				<?=$txtdesc;?>
 			</div>
 		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right"> Code</label>
-			<div class="col-md-8">
-				<?=$txtcode;?>
-			</div>
-		</div>
+		
 	</div>
 
 

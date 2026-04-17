@@ -2169,17 +2169,17 @@ class Data_karyawan_os_menu_model extends MY_Model
 	}
 
 
-	public function getDataWorkLocation($project){ 
+	// public function getDataWorkLocation($project){ 
 
-		$rs = $this->db->query("select a.lokasi_id, b.name as lokasi_name from project_outsource a 
-				left join master_work_location_outsource b on b.id = a.lokasi_id where a.id = ".$project."")->result(); 
+	// 	$rs = $this->db->query("select a.lokasi_id, b.name as lokasi_name from project_outsource a 
+	// 			left join master_work_location_outsource b on b.id = a.lokasi_id where a.id = ".$project."")->result(); 
 
-		$data['mslocation'] = $rs;
+	// 	$data['mslocation'] = $rs;
 
 
-		return $data;
+	// 	return $data;
 
-	}
+	// }
 
 
 }
