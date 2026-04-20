@@ -849,6 +849,7 @@ class Profile_menu_model extends MY_Model
 	public function add_data($post) { 
 
 		$date_attendance 	= $post['date_attendance']; 
+		$attendance_in 		= $post['attendance_in'];
 		
 		$is_late=''; 
 
@@ -867,12 +868,12 @@ class Profile_menu_model extends MY_Model
 			    "msg"    => "Shift Schedule not found"
 			];
 		}else{ 
-			if(!empty($post['attendance_in']) && $post['attendance_in'] != '0000-00-00 00:00:00'){
-				$f_datetime_in 		= $post['attendance_in'];
-				$f_time_in 			= date("H:i:s", strtotime($post['attendance_in']));
-				$timestamp_timein 	= strtotime($post['attendance_in']); 
+			if(!empty($attendance_in) && $attendance_in != '0000-00-00 00:00:00'){
+				$f_datetime_in 		= $attendance_in;
+				$f_time_in 			= date("H:i:s", strtotime($attendance_in));
+				$timestamp_timein 	= strtotime($attendance_in); 
 
-				if($post['emp_type'] == 'Shift 3'){
+				if($post['emp_type'] == 'Shift 3' || $post['emp_type'] == 'Shift Malam'){
 					$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
 				}
 
@@ -970,7 +971,7 @@ class Profile_menu_model extends MY_Model
 
 				$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 
-			}else if($cek_emp[0]->attendance_type == 'Shift 1' || $cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){ 
+			}else if($cek_emp[0]->attendance_type == 'Shift 1' || $cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3' || $cek_emp[0]->attendance_type == 'Shift Pagi' || $cek_emp[0]->attendance_type == 'Shift Malam'){ 
 
 				$tgl 	= date("d", strtotime($cek_emp[0]->date_attendance));
 				$period = date("Y-m", strtotime($cek_emp[0]->date_attendance));
@@ -996,7 +997,7 @@ class Profile_menu_model extends MY_Model
 			}else{ 
 				$date_attendance = $cek_emp[0]->date_attendance;
 
-				if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3'){
+				if($cek_emp[0]->attendance_type == 'Shift 2' || $cek_emp[0]->attendance_type == 'Shift 3' || $cek_emp[0]->attendance_type == 'Shift Malam'){
 					$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
 				}
 
