@@ -83,6 +83,19 @@ class Dynamic_menu {
      * @return    string    $html_out using CodeIgniter achor tags.
      */
  
+    function has_menu_type($menu_type)
+    {
+        $mt = $this->ci->db->escape_str($menu_type);
+        $query = $this->ci->db->query("SELECT user_menu_id FROM ".$this->user_menu_tabel." WHERE type = '".$mt."' AND parent_id = 0 AND show_menu = '1'");
+        foreach ($query->result() as $row) {
+            $id = $row->user_menu_id;
+            if (isset($this->user_akses[$id]["view"]) && $this->user_akses[$id]["view"] == 1) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
     function build_menu($type="",$check_menu="")
     {
         $menu = array();

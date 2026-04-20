@@ -17,18 +17,31 @@
       </div>
     </div>
 
+    <?php
+      $has_internal  = $this->dynamic_menu->has_menu_type('internal');
+      $has_outsource = $this->dynamic_menu->has_menu_type('outsource');
+      $show_tabs     = $has_internal && $has_outsource;
+    ?>
+
     <!-- SIDEBAR TABS -->
+    <?php if ($show_tabs): ?>
     <div class="sidebar-menu-tabs">
       <a class="sidebar-tab-btn active" data-tab="internal">Internal</a>
       <a class="sidebar-tab-btn" data-tab="outsource">Outsource</a>
     </div>
+    <?php endif; ?>
 
+    <?php if ($has_internal): ?>
     <div class="sidebar-tab-content" id="sidebar-tab-internal">
       <?php echo $this->dynamic_menu->build_menu("internal", $check_menu); ?>
     </div>
+    <?php endif; ?>
+
+    <?php if ($has_outsource): ?>
     <div class="sidebar-tab-content" id="sidebar-tab-outsource">
       <?php echo $this->dynamic_menu->build_menu("outsource", $check_menu); ?>
     </div>
+    <?php endif; ?>
 
     <div class="sidebar-bottom-bg">
       <img src="<?= _ASSET_SIDEBAR_IMAGE ?>" class="sidebar-bottom-image" alt="Sidebar Image">
@@ -65,66 +78,71 @@
     var tabContents = document.querySelectorAll('.sidebar-tab-content');
     var sidebarEl = document.querySelector('.page-sidebar');
 
-    // Ukur tinggi sidebar SEKARANG saat kedua tab masih visible,
-    // lalu simpan sebagai min-height agar Metronic tetap hitung scroll dengan benar
-    if (sidebarEl) {
-      sidebarEl.style.minHeight = sidebarEl.offsetHeight + 'px';
-    }
+    // Hanya jalankan logika tab jika ada lebih dari 1 tab
+    if (tabBtns.length > 1) {
 
-    function activateTab(tabName) {
+      // Ukur tinggi sidebar SEKARANG saat kedua tab masih visible,
+      // lalu simpan sebagai min-height agar Metronic tetap hitung scroll dengan benar
+      if (sidebarEl) {
+        sidebarEl.style.minHeight = sidebarEl.offsetHeight + 'px';
+      }
+
+      function activateTab(tabName) {
+        tabBtns.forEach(function(btn) {
+          btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        tabContents.forEach(function(content) {
+          content.style.display = (content.id === 'sidebar-tab-' + tabName) ? '' : 'none';
+        });
+        if (typeof Layout !== 'undefined' && Layout.fixContentHeight) {
+          Layout.fixContentHeight();
+        }
+      }
+
       tabBtns.forEach(function(btn) {
-        btn.classList.toggle('active', btn.dataset.tab === tabName);
+        btn.addEventListener('click', function() {
+          localStorage.setItem('sidebarActiveTab', this.dataset.tab);
+          activateTab(this.dataset.tab);
+        });
       });
-      tabContents.forEach(function(content) {
-        content.style.display = (content.id === 'sidebar-tab-' + tabName) ? '' : 'none';
-      });
-      if (typeof Layout !== 'undefined' && Layout.fixContentHeight) {
-        Layout.fixContentHeight();
+
+      // Auto-detect: prioritaskan pilihan tersimpan, fallback ke tab yang punya menu aktif
+      var savedTab = localStorage.getItem('sidebarActiveTab');
+      var internalHasActive = document.querySelector('#sidebar-tab-internal .nav-item.active');
+      var outsourceHasActive = document.querySelector('#sidebar-tab-outsource .nav-item.active');
+
+      var defaultTab;
+      if (savedTab) {
+        defaultTab = savedTab;
+      } else if (internalHasActive && !outsourceHasActive) {
+        defaultTab = 'internal';
+      } else if (outsourceHasActive && !internalHasActive) {
+        defaultTab = 'outsource';
+      } else {
+        defaultTab = 'internal';
       }
-    }
+      activateTab(defaultTab);
 
-    tabBtns.forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        localStorage.setItem('sidebarActiveTab', this.dataset.tab);
-        activateTab(this.dataset.tab);
+      // Setelah semua script load: tampilkan tab tersembunyi sebentar untuk ukur tinggi penuh,
+      // lalu update minHeight & panggil fixContentHeight agar scroll tidak hilang
+      window.addEventListener('load', function() {
+        if (!sidebarEl) return;
+        var hiddenTab = null;
+        tabContents.forEach(function(tab) {
+          if (tab.style.display === 'none') hiddenTab = tab;
+        });
+        if (!hiddenTab) return;
+
+        hiddenTab.style.display = '';        // tampilkan sebentar (dalam 1 JS task, tidak kepaint)
+        var h = sidebarEl.offsetHeight;     // paksa reflow, ukur tinggi kedua tab
+        hiddenTab.style.display = 'none';   // sembunyikan lagi sebelum browser paint
+
+        if (h > 0) sidebarEl.style.minHeight = h + 'px';
+        if (typeof Layout !== 'undefined' && Layout.fixContentHeight) {
+          Layout.fixContentHeight();
+        }
       });
-    });
 
-    // Auto-detect: prioritaskan pilihan tersimpan, fallback ke tab yang punya menu aktif
-    var savedTab = localStorage.getItem('sidebarActiveTab');
-    var internalHasActive = document.querySelector('#sidebar-tab-internal .nav-item.active');
-    var outsourceHasActive = document.querySelector('#sidebar-tab-outsource .nav-item.active');
-
-    var defaultTab;
-    if (savedTab) {
-      defaultTab = savedTab;
-    } else if (internalHasActive && !outsourceHasActive) {
-      defaultTab = 'internal';
-    } else if (outsourceHasActive && !internalHasActive) {
-      defaultTab = 'outsource';
-    } else {
-      defaultTab = 'internal';
     }
-    activateTab(defaultTab);
-
-    // Setelah semua script load: tampilkan tab tersembunyi sebentar untuk ukur tinggi penuh,
-    // lalu update minHeight & panggil fixContentHeight agar scroll tidak hilang
-    window.addEventListener('load', function() {
-      if (!sidebarEl) return;
-      var hiddenTab = null;
-      tabContents.forEach(function(tab) {
-        if (tab.style.display === 'none') hiddenTab = tab;
-      });
-      if (!hiddenTab) return;
-
-      hiddenTab.style.display = '';        // tampilkan sebentar (dalam 1 JS task, tidak kepaint)
-      var h = sidebarEl.offsetHeight;     // paksa reflow, ukur tinggi kedua tab
-      hiddenTab.style.display = 'none';   // sembunyikan lagi sebelum browser paint
-
-      if (h > 0) sidebarEl.style.minHeight = h + 'px';
-      if (typeof Layout !== 'undefined' && Layout.fixContentHeight) {
-        Layout.fixContentHeight();
-      }
-    });
   })();
 </script>
