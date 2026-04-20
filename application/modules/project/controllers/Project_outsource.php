@@ -37,7 +37,7 @@ class Project_outsource extends MY_Controller
 		$field['txtmanagementfee'] 	= $this->self_model->return_build_txt('','management_fee','management_fee','','','required');
 		
 
-		$mslokasi 					= $this->db->query("select * from master_work_location_outsource order by name asc")->result(); 
+		$mslokasi 					= $this->db->query("select * from master_work_location_outsource where name != '' order by name asc")->result(); 
 		$field['sellokasi'] 		= $this->self_model->return_build_select2me_lokasi($mslokasi,'','','','lokasi','lokasi','','','id','name',' ','','','data-tags="true" ',3,'-');
 
 		$mscust 					= $this->db->query("select *, if(code != '', concat(code,' - ',name),name) as customer_name from data_customer order by name asc")->result(); 
