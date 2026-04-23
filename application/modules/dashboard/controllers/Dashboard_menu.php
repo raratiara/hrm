@@ -126,7 +126,7 @@ class Dashboard_menu extends MY_Controller
 		$ttl_leaves = $this->db->query("select count(a.id) as ttl from time_attendances a left join leave_absences b on b.id = a.leave_absences_id left join employees c on c.id = a.employee_id where c.emp_source = 'internal' and a.leave_absences_id is not null and b.status_approval = 2 ".$whr_leaves.$whr2_leaves." ")->result();
 		$ttl_overtimes = $this->db->query("select count(a.id) as ttl FROM overtimes a left join employees b on b.id = a.employee_id where b.emp_source = 'internal' and a.status_id = 2 ".$whr_overtimes.$whr2_overtimes." ")->result(); 
 		$ttl_holidays = $this->db->query("select count(id) as ttl from master_holidays where day not in ('Sabtu','Minggu') and (DATE_FORMAT(date, '%Y')) = '".date("Y")."' ")->result();
-		$topEmp = $this->db->query("select dt.* from (SELECT 
+		/*$topEmp = $this->db->query("select dt.* from (SELECT 
 						  a.employee_id, b.full_name, b.personal_email, c.name as divname, b.emp_photo, b.emp_code,
 						  SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
 						  SUM(a.num_of_working_hours) AS total_jam_kerja,
@@ -142,6 +142,41 @@ class Dashboard_menu extends MY_Controller
 						ORDER BY disiplin_score ASC) dt
 						where dt.total_jam_kerja != '0.00' 
 						limit 5
+					")->result();*/
+
+		$topEmp = $this->db->query("select dt.* 
+									FROM (
+									  SELECT 
+									    a.employee_id, 
+									    b.full_name, 
+									    b.personal_email, 
+									    c.name AS divname, 
+									    b.emp_photo, 
+									    b.emp_code,
+									    
+									    SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
+									    SUM(a.num_of_working_hours) AS total_jam_kerja
+
+									  FROM time_attendances a 
+									  LEFT JOIN employees b ON b.id = a.employee_id
+									  LEFT JOIN divisions c ON c.id = b.division_id
+
+									  WHERE 
+									    b.emp_source = 'internal' 
+									    AND a.date_attendance_in IS NOT NULL 
+									    AND a.date_attendance_out IS NOT NULL 
+									    AND b.status_id = 1 
+									    AND DATE_FORMAT(a.date_attendance, '%Y-%m') = '2026-04'
+
+									  GROUP BY a.employee_id
+
+									  ORDER BY 
+									    total_late ASC,
+									    total_jam_kerja DESC
+
+									) dt
+									WHERE dt.total_jam_kerja != 0
+									LIMIT 5;
 					")->result();
 	
 

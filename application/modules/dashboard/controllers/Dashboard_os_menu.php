@@ -99,32 +99,32 @@ class Dashboard_os_menu extends MY_Controller
 		$whr_topemp=""; $whr_leaves=""; $whr_overtimes="";
 		if(!empty($dateperiod)){ 
 			//$whr_emp = " and DATE_FORMAT(date_of_hire, '%Y-%m') = '".$dateperiod."'";
-			$whr_att = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
-			$whr_latelogin = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
-			$whr_earlylogin = " and (DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."')";
+			$whr_att = " and DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."'";
+			$whr_latelogin = " and DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."'";
+			$whr_earlylogin = " and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."')";
 			$whr_leaves = " and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."')";
-			$whr_overtimes = " and DATE_FORMAT(date_overtime, '%Y-%m') = '".$dateperiod."'";
+			$whr_overtimes = " and DATE_FORMAT(a.date_overtime, '%Y-%m') = '".$dateperiod."'";
 			$whr_topemp = " and DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."'";
 		}
 		$whr2_emp=""; $whr2_att=""; $whr2_latelogin=""; $whr2_earlylogin=""; 
 		$whr2_leaves=""; $whr2_overtimes="";
 		if(!empty($employee)){ 
 			//$whr2_emp = " and employee_id = '".$employee."'";
-			$whr2_att = " and employee_id = '".$employee."'";
-			$whr2_latelogin = " and employee_id = '".$employee."'";
-			$whr2_earlylogin = " and employee_id = '".$employee."'";
+			$whr2_att = " and a.employee_id = '".$employee."'";
+			$whr2_latelogin = " and a.employee_id = '".$employee."'";
+			$whr2_earlylogin = " and a.employee_id = '".$employee."'";
 			$whr2_leaves = " and a.employee_id = '".$employee."'";
-			$whr2_overtimes = " and employee_id = '".$employee."'";
+			$whr2_overtimes = " and a.employee_id = '".$employee."'";
 			
 		}
 
 		
 		$ttl_emp = $this->db->query("select count(id) as ttl from employees where status_id = 1 and emp_source = 'outsource' ".$whr_emp.$whr2_emp."")->result(); 
-		$ttl_attendance = $this->db->query("select count(distinct(date_attendance)) as ttl_absences_days from time_attendances where 1=1 ".$whr_att.$whr2_att." ")->result(); 
-		$ttl_latelogin = $this->db->query("select count(id) as ttl from time_attendances where is_late = 'Y' ".$whr_latelogin.$whr2_latelogin." ")->result(); 
-		$ttl_earlylogin = $this->db->query("select count(id) as ttl from time_attendances where (is_late != 'Y' or is_late = '' or is_late is null) ".$whr_earlylogin.$whr2_earlylogin." ")->result(); 
-		$ttl_leaves = $this->db->query("select count(a.id) as ttl from time_attendances a left join leave_absences b on b.id = a.leave_absences_id where a.leave_absences_id is not null and b.status_approval = 2 ".$whr_leaves.$whr2_leaves." ")->result();
-		$ttl_overtimes = $this->db->query("select count(id) as ttl FROM overtimes where status_id = 2 ".$whr_overtimes.$whr2_overtimes." ")->result(); 
+		$ttl_attendance = $this->db->query("select count(distinct(a.date_attendance)) as ttl_absences_days from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'outsource' ".$whr_att.$whr2_att." ")->result(); 
+		$ttl_latelogin = $this->db->query("select count(a.id) as ttl from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'outsource' and a.is_late = 'Y' ".$whr_latelogin.$whr2_latelogin." ")->result(); 
+		$ttl_earlylogin = $this->db->query("select count(a.id) as ttl from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'outsource' and (a.is_late != 'Y' or a.is_late = '' or a.is_late is null) ".$whr_earlylogin.$whr2_earlylogin." ")->result(); 
+		$ttl_leaves = $this->db->query("select count(a.id) as ttl from time_attendances a left join leave_absences b on b.id = a.leave_absences_id left join employees c on c.id = a.employee_id where c.emp_source = 'outsource' and a.leave_absences_id is not null and b.status_approval = 2 ".$whr_leaves.$whr2_leaves." ")->result();
+		$ttl_overtimes = $this->db->query("select count(a.id) as ttl FROM overtimes a left join employees b on b.id = a.employee_id where b.emp_source = 'outsource' and a.status_id = 2 ".$whr_overtimes.$whr2_overtimes." ")->result(); 
 		$ttl_holidays = $this->db->query("select count(id) as ttl from master_holidays where day not in ('Sabtu','Minggu') and (DATE_FORMAT(date, '%Y')) = '".date("Y")."' ")->result();
 		$topEmp = $this->db->query("select dt.* from (SELECT 
 						  a.employee_id, b.full_name, b.personal_email, c.name as divname, b.emp_photo, b.emp_code,
@@ -215,27 +215,30 @@ class Dashboard_os_menu extends MY_Controller
 
 		$whr="";
 		if(!empty($dateperiod)){ 
-			$whr = " and (DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."')";
+			$whr = " and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."')";
 		}
 		$whr_emp="";
 		if(!empty($employee)){ 
-			$whr_emp = " and employee_id = '".$employee."'";
+			$whr_emp = " and a.employee_id = '".$employee."'";
 		}
 
 
-		$data_att = $this->db->query("select * from time_attendances where 1=1 ".$whr.$whr_emp."")->result(); 
+		$data_att = $this->db->query("select a.* from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'outsource' ".$whr.$whr_emp."")->result(); 
 
 		$wfo=0; 		
 		$wfh=0; 
 		$unkloc=0;	
+		$onsite=0;
 
 		foreach($data_att as $row){
 			$loc = $row->work_location;
 
-			if ($loc == 'wfo') {
+			if ($loc == 'wfo' || $loc == 'WFO') {
 		        $wfo += 1;
-		    } elseif ($loc == 'wfh') {
+		    } elseif ($loc == 'wfh' || $loc == 'WFH') {
 		        $wfh += 1;
+		    }elseif ($loc == 'onsite' || $loc == 'ONSITE') {
+		        $onsite += 1;
 		    } else {
 		        $unkloc += 1;
 		    }
@@ -245,7 +248,8 @@ class Dashboard_os_menu extends MY_Controller
 		$rs = array(
 			'ttl_wfo' 		=> $wfo,
 			'ttl_wfh' 		=> $wfh,
-			'ttl_unkloc'	=> $unkloc
+			'ttl_unkloc'	=> $unkloc,
+			'ttl_onsite' 	=> $onsite
 		);
 		
 		echo json_encode($rs);
@@ -353,14 +357,15 @@ class Dashboard_os_menu extends MY_Controller
 
 
     	$rs = $this->db->query("select
-				    DATE_FORMAT(date_attendance, '%Y-%m') AS tahun_bulan,
-				    SUM(CASE WHEN date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
-				    SUM(CASE WHEN date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen
+				    DATE_FORMAT(a.date_attendance, '%Y-%m') AS tahun_bulan,
+				    SUM(CASE WHEN a.date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
+				    SUM(CASE WHEN a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen
 				FROM
-				    time_attendances where 1=1 and date_attendance <= '".$dateNow."'
+				    time_attendances a left join employees b on b.id = a.employee_id 
+				    where b.emp_source = 'outsource' and a.date_attendance <= '".$dateNow."'
 				".$where_date.$where_emp."
 				GROUP BY
-				    DATE_FORMAT(date_attendance, '%Y-%m')
+				    DATE_FORMAT(a.date_attendance, '%Y-%m')
 				ORDER BY
 				    tahun_bulan ")->result(); 
 
@@ -394,11 +399,11 @@ class Dashboard_os_menu extends MY_Controller
 
 		$where_date="";
 		if($dateperiod != ''){
-			$where_date = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
+			$where_date = " and DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."'";
 		}
 		$where_emp="";
 		if($employee != ''){
-			$where_emp = " and employee_id = '".$employee."'";
+			$where_emp = " and a.employee_id = '".$employee."'";
 		}
 
 
@@ -407,7 +412,9 @@ class Dashboard_os_menu extends MY_Controller
 					    SUM(CASE WHEN a.date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
 					    SUM(CASE WHEN a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen,
 					    COUNT(*) AS total_karyawan
-					FROM time_attendances a where a.date_attendance <= '".$dateNow."' ".$where_date.$where_emp."
+					FROM time_attendances a left join employees b on b.id = a.employee_id 
+					where b.emp_source = 'outsource' and a.date_attendance <= '".$dateNow."' 
+					".$where_date.$where_emp."
 					GROUP BY a.date_attendance
 					ORDER BY a.date_attendance ")->result(); 
 
@@ -441,11 +448,11 @@ class Dashboard_os_menu extends MY_Controller
 
 		$where_date="";
 		if($dateperiod != ''){
-			$where_date = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
+			$where_date = " and DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."'";
 		}
 		$where_emp="";
 		if($employee != ''){
-			$where_emp = " and employee_id = '".$employee."'";
+			$where_emp = " and a.employee_id = '".$employee."'";
 		}
 
 
@@ -461,16 +468,17 @@ class Dashboard_os_menu extends MY_Controller
 						FROM
 						(
 						    SELECT
-						        DATE(date_attendance) AS hari,
-						        SUM(CASE WHEN is_late != 'Y' AND is_leaving_office_early != 'Y' AND leave_absences_id IS NULL THEN 1 ELSE 0 END) AS total_on_work_time,
-						        SUM(CASE WHEN is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
-						        SUM(CASE WHEN is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS total_leaving_early,
-						        SUM(CASE WHEN leave_absences_id != '' OR leave_absences_id IS NOT NULL THEN 1 ELSE 0 END) AS total_leave,
-						        SUM(CASE WHEN (date_attendance_in IS NULL AND date_attendance_out IS NULL) AND leave_absences_id IS NULL THEN 1 ELSE 0 END) AS total_absent,
-						        COUNT(id) AS total_absensi
-						    FROM time_attendances
-						    WHERE date_attendance IS NOT NULL
-						    GROUP BY DATE(date_attendance)
+						        DATE(a.date_attendance) AS hari,
+						        SUM(CASE WHEN a.is_late != 'Y' AND a.is_leaving_office_early != 'Y' AND a.leave_absences_id IS NULL THEN 1 ELSE 0 END) AS total_on_work_time,
+						        SUM(CASE WHEN a.is_late = 'Y' THEN 1 ELSE 0 END) AS total_late,
+						        SUM(CASE WHEN a.is_leaving_office_early = 'Y' THEN 1 ELSE 0 END) AS total_leaving_early,
+						        SUM(CASE WHEN a.leave_absences_id != '' OR a.leave_absences_id IS NOT NULL THEN 1 ELSE 0 END) AS total_leave,
+						        SUM(CASE WHEN (a.date_attendance_in IS NULL AND a.date_attendance_out IS NULL) AND a.leave_absences_id IS NULL THEN 1 ELSE 0 END) AS total_absent,
+						        COUNT(a.id) AS total_absensi
+						    FROM time_attendances a left join employees b on b.id = a.employee_id
+						    WHERE b.emp_source = 'outsource' and a.date_attendance IS NOT NULL
+						    ".$where_date." ".$where_emp."
+						    GROUP BY DATE(a.date_attendance)
 						) AS ta
 						LEFT JOIN (
 						    SELECT
@@ -521,21 +529,21 @@ class Dashboard_os_menu extends MY_Controller
 
 		$where_date="";
 		if($dateperiod != ''){
-			$where_date = " and (DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."')";
+			$where_date = " and (DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."')";
 		}
 		$where_emp="";
 		if($employee != ''){
-			$where_emp = " and employee_id = '".$employee."'";
+			$where_emp = " and a.employee_id = '".$employee."'";
 		}
 
 
     	$rs = $this->db->query("select
 				    COUNT(*) AS total_absen,
-				    SUM(CASE WHEN (date_attendance_in is not null or date_attendance_out is not null) and leave_absences_id is null THEN 1 ELSE 0 END) AS total_hadir,
-				    SUM(CASE WHEN (date_attendance_in is null and date_attendance_out is null) or leave_absences_id is not null THEN 1 ELSE 0 END) AS total_tidak_hadir,
-				    ROUND(SUM(CASE WHEN (date_attendance_in is not null or date_attendance_out is not null) and leave_absences_id is null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_hadir,
-				    ROUND(SUM(CASE WHEN (date_attendance_in is null and date_attendance_out is null) or leave_absences_id is not null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_tidak_hadir
-				FROM time_attendances where 1=1 ".$where_date.$where_emp."
+				    SUM(CASE WHEN (a.date_attendance_in is not null or a.date_attendance_out is not null) and a.leave_absences_id is null THEN 1 ELSE 0 END) AS total_hadir,
+				    SUM(CASE WHEN (a.date_attendance_in is null and a.date_attendance_out is null) or a.leave_absences_id is not null THEN 1 ELSE 0 END) AS total_tidak_hadir,
+				    ROUND(SUM(CASE WHEN (a.date_attendance_in is not null or a.date_attendance_out is not null) and a.leave_absences_id is null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_hadir,
+				    ROUND(SUM(CASE WHEN (a.date_attendance_in is null and a.date_attendance_out is null) or a.leave_absences_id is not null THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS persen_tidak_hadir
+				FROM time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'outsource' ".$where_date.$where_emp."
 				 ")->result(); 
 
 
@@ -553,11 +561,11 @@ class Dashboard_os_menu extends MY_Controller
 
 		$where_date="";
 		if($dateperiod != ''){
-			$where_date = " and DATE_FORMAT(date_attendance, '%Y-%m') = '".$dateperiod."'";
+			$where_date = " and DATE_FORMAT(a.date_attendance, '%Y-%m') = '".$dateperiod."'";
 		}
 		$where_emp="";
 		if($employee != ''){
-			$where_emp = " and employee_id = '".$employee."'";
+			$where_emp = " and a.employee_id = '".$employee."'";
 		}
 
 
@@ -574,9 +582,9 @@ class Dashboard_os_menu extends MY_Controller
 				 ")->result(); */
 
 		$rs = $this->db->query("select 
-								   ROUND(AVG(num_of_working_hours), 2) AS avg_jam_kerja,
-								   8-(ROUND(AVG(num_of_working_hours), 2)) as sisa
-								FROM time_attendances where 1=1 ".$where_date.$where_emp."
+								   ROUND(AVG(a.num_of_working_hours), 2) AS avg_jam_kerja,
+								   8-(ROUND(AVG(a.num_of_working_hours), 2)) as sisa
+								FROM time_attendances a left join employees b on b.id = a.employee_id where  b.emp_source = 'outsource' ".$where_date.$where_emp."
 				 			")->result(); 
 
 
