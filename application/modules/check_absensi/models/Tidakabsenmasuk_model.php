@@ -30,8 +30,8 @@ class Tidakabsenmasuk_model extends MY_Model
 		$tgl = date("d");
 
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select id, full_name, shift_type from employees where status_id = 1 and id not in (
-						select employee_id from time_attendances where date_attendance = "'.$dateNow.'")
+		$sTable = '(select id, full_name, shift_type from employees where emp_source = "internal" and status_id = 1 and id not in (
+						select a.employee_id from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = "internal" and a.date_attendance = "'.$dateNow.'")
 				)dt';
 		
 
@@ -290,8 +290,8 @@ class Tidakabsenmasuk_model extends MY_Model
 	{ 
 		$dateNow = date("Y-m-d");
 
-		$sql = 'select id, full_name, shift_type from employees where status_id = 1 and id not in (
-						select employee_id from time_attendances where date_attendance = "'.$dateNow.'")
+		$sql = 'select id, full_name, shift_type from employees where emp_source = "internal" and status_id = 1 and id not in (
+						select a.employee_id from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = "internal" and a.date_attendance = "'.$dateNow.'")
 	   			ORDER BY full_name ASC
 		';
 

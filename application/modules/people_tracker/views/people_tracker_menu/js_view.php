@@ -232,7 +232,7 @@ function getMaps(empid = '', period = '', tipe) {
 
             // kelompokkan data berdasarkan koordinat
             let coordMap = {};
-            data.forEach(titik => {
+            data.data_maps.forEach(titik => {
               const key = `${titik.lat},${titik.lng}`;
               if (!coordMap[key]) coordMap[key] = [];
               coordMap[key].push(titik);
@@ -307,7 +307,7 @@ function getMaps(empid = '', period = '', tipe) {
             map.addLayer(markersCluster);
 
             // fit to all markers
-            const allMarkers = data.map(t => [parseFloat(t.lat), parseFloat(t.lng)]);
+            const allMarkers = data.data_maps.map(t => [parseFloat(t.lat), parseFloat(t.lng)]);
             if (allMarkers.length > 0) {
               const bounds = L.latLngBounds(allMarkers);
               map.fitBounds(bounds);

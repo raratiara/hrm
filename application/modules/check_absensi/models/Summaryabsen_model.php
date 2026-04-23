@@ -38,7 +38,7 @@ class Summaryabsen_model extends MY_Model
 					    SUM(CASE WHEN a.date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
 					    SUM(CASE WHEN a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen,
 					    COUNT(*) AS total_karyawan
-					FROM time_attendances a where a.date_attendance <= "'.$dateNow.'"
+					FROM time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = "internal" and a.date_attendance <= "'.$dateNow.'"
 					GROUP BY a.date_attendance
 					ORDER BY a.date_attendance
 					'.$whr.'
@@ -500,7 +500,8 @@ class Summaryabsen_model extends MY_Model
 				    SUM(CASE WHEN a.date_attendance_in IS NULL THEN 1 ELSE 0 END) AS total_tidak_absen, 
 				    SUM(CASE WHEN a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen,
 				    COUNT(*) AS total_karyawan
-				FROM time_attendances a
+				FROM time_attendances a left join employees b on b.id = a.employee_id 
+				where b.emp_source = 'internal'
 				GROUP BY a.date_attendance
 				ORDER BY a.date_attendance desc
 		";

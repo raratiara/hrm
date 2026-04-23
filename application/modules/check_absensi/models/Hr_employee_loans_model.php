@@ -123,6 +123,7 @@ class Hr_employee_loans_model extends MY_Model
 						LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
 						LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
 						LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+						where b.emp_source = "internal"
 						GROUP BY a.id
 						) ao
 						'.$whr.'

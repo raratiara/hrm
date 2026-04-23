@@ -30,7 +30,7 @@ class Absence_report_menu extends MY_Controller
 
 		$field = [];
 		$field['txtdateattendance']		= $this->self_model->return_build_txt('','date_attendance','date_attendance');
-		$msemp 							= $this->db->query("select * from employees where status_id = 1 order by full_name asc")->result(); 
+		$msemp 							= $this->db->query("select * from employees where emp_source = 'internal' and status_id = 1 order by full_name asc")->result(); 
 		$field['selemployee'] 			= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');
 		$field['selflemployee'] 		= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
 		$field['txtimein'] 				= $this->self_model->return_build_txt('','time_in','time_in','','','readonly');
@@ -125,7 +125,7 @@ class Absence_report_menu extends MY_Controller
 
 	    // kelompok berdasarkan divisi
 	    $groupedByDivision = [];
-	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'internal' and b.status_id = 1 ".$where_emp.$where_date." ")->result();
 	    foreach ($emp_absen as $rowemp_absen) {
 	        $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 	    }
@@ -195,7 +195,7 @@ class Absence_report_menu extends MY_Controller
 							left join overtimes i on i.employee_id = a.employee_id 
 							and (a.date_attendance = DATE_FORMAT(i.datetime_start, "%Y-%m-%d"))
 							and i.type = 1 and i.status_id = 2
-							where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
+							where b.emp_source = "internal" and a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
 							ORDER BY id ASC';
 
 	                $res = $this->db->query($sql);
@@ -286,7 +286,7 @@ class Absence_report_menu extends MY_Controller
 	                    	['NIK', $data[0]->emp_code],
 	                        ['Nama', $data[0]->full_name],
 	                        ['Departemen', $data[0]->dept_name],
-	                        ['Area', $data[0]->branch_name],
+	                        ['Area', $data[0]->work_location_name],
 	                        ['Leader', $data[0]->direct_name],
 	                        ['Periode', $filter_periode],
 	                    ],
@@ -506,7 +506,7 @@ class Absence_report_menu extends MY_Controller
 	                LEFT JOIN overtimes i ON i.employee_id = a.employee_id
 	                    AND a.date_attendance = DATE_FORMAT(i.datetime_start,'%Y-%m-%d')
 	                    AND i.type = 1 AND i.status_id = 2
-	                WHERE a.employee_id = '$empId' and b.division_id = '".$divisionId."'
+	                WHERE b.emp_source = 'internal' and a.employee_id = '$empId' and b.division_id = '".$divisionId."'
 	                $where_date
 	                ORDER BY a.id ASC
 	            ";
@@ -565,7 +565,7 @@ class Absence_report_menu extends MY_Controller
 	                    ['Nama',$data[0]->full_name],
 	                    ['Division',$divisionName],
 	                    ['Departemen',$data[0]->dept_name],
-	                    ['Area',$data[0]->branch_name],
+	                    ['Area',$data[0]->work_location_name],
 	                    ['Leader',$data[0]->direct_name],
 	                    ['Periode',$filter_periode],
 	                ],
@@ -633,7 +633,7 @@ class Absence_report_menu extends MY_Controller
 
 
 		$groupedByDivision = [];
-		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.status_id = 1 ".$where_emp.$where_date." ")->result();
+		$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'internal' and b.status_id = 1 ".$where_emp.$where_date." ")->result();
 		foreach ($emp_absen as $rowemp_absen) {
 		    $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 		}
@@ -674,7 +674,7 @@ class Absence_report_menu extends MY_Controller
 
 			$dataSheets = [];
 
-			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.emp_source = 'internal' and b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
 			if(count($emp_absen) != 0){ 
 				$no=1;
 				
@@ -696,7 +696,7 @@ class Absence_report_menu extends MY_Controller
 								left join master_leaves c on c.id = a.leave_type
 								left join branches d on d.id = b.branch_id
 								left join employees e on e.id = b.direct_id
-								where a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
+								where b.emp_source = "internal" and a.employee_id = "'.$rowemp_absen->employee_id.'" '.$where_date.'
 				   			ORDER BY id ASC
 					';
 

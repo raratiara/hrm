@@ -35,7 +35,7 @@ class Absen_model extends MY_Model
 		
 		
 		$karyawan_id = $_SESSION['worker'];
-		$whr=' where a.date_attendance_in is not null';
+		$whr=' where b.emp_source = "internal" and a.date_attendance_in is not null';
 		// if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 		// 	$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		// }
@@ -579,7 +579,7 @@ class Absen_model extends MY_Model
 		$karyawan_id = $_SESSION['worker'];
 		$whr='';
 		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+			$whr=' where b.emp_source = "internal" and a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		}
 
 
@@ -607,7 +607,7 @@ class Absen_model extends MY_Model
 		$period = date("Y-m", strtotime($date));
 		$tgl = date("d", strtotime($date));
 
-		$rs = $this->db->query("select * from employees where id = '".$empid."' ")->result(); 
+		$rs = $this->db->query("select * from employees where emp_source = 'internal' and id = '".$empid."' ")->result(); 
 
 		/*if($rs[0]->shift_type == 'Reguler'){
 			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 

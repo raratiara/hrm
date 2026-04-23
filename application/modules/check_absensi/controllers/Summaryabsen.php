@@ -39,13 +39,13 @@ class Summaryabsen extends MY_Controller
 			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
 		}*/
 
-		$empData = $this->db->query("select full_name, shift_type from employees where id = '".$karyawan_id."'")->result(); 
+		$empData = $this->db->query("select full_name, shift_type from employees where emp_source = 'internal' and id = '".$karyawan_id."'")->result(); 
 		$emp_shift_type=1; $time_in=""; $time_out=""; $attendance_type="";
 		if($empData[0]->shift_type == 'Reguler'){
 			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 			
 		}else if($empData[0]->shift_type == 'Shift'){
-			$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$dateNow."' and employee_id = '".$karyawan_id."'")->result(); 
+			$data_attendances = $this->db->query("select a.* from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'internal' and a.date_attendance = '".$dateNow."' and a.employee_id = '".$karyawan_id."'")->result(); 
 			//jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
 			if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
 

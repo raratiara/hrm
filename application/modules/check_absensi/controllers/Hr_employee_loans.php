@@ -37,7 +37,7 @@ class Hr_employee_loans extends MY_Controller
 
 		$bunga = 0;
 
-		$oKaryawan 									= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
+		$oKaryawan 									= $this->db->query("select * from employees where emp_source = 'internal' and status_id = 1 ".$whr." order by full_name asc")->result(); 
 		$field['seloPic'] 							= $this->self_model->return_build_select2me($oKaryawan,'','','','id_employee','id_employee','','','id','full_name',' ','','','disabled',3,'-');
 
 		$field['txt_nominal_pinjaman']				= $this->self_model->return_build_txt('','nominal_pinjaman','nominal_pinjaman','','','readonly');

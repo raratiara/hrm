@@ -39,7 +39,7 @@ class Tidakabsen extends MY_Controller
 			$whr=' and id = "'.$karyawan_id.'" or direct_id = "'.$karyawan_id.'" ';
 		}*/
 
-		$empData = $this->db->query("select full_name, shift_type from employees where id = '".$karyawan_id."'")->result(); 
+		$empData = $this->db->query("select full_name, shift_type from employees where emp_source = 'internal' and id = '".$karyawan_id."'")->result(); 
 		$emp_shift_type=1; $time_in=""; $time_out=""; $attendance_type="";
 		if($empData[0]->shift_type == 'Reguler'){
 			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
