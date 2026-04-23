@@ -631,8 +631,8 @@
 						//e.submit()
                         
                         $.ajax({
-                            ////url: '/_hrm/login/reset_password',
-                            url: '/login/reset_password',
+                            url: '/_hrm/login/reset_password',
+                            ///url: '/login/reset_password',
                             type: 'POST',
                             data: $('#reset-form').serialize(),
                             dataType: 'json',

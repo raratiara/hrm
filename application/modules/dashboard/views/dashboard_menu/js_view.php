@@ -989,13 +989,14 @@ datasets: percentageData
 					workLocationChart = new Chart(ctx, {
 						type: 'pie',
 						data: {
-							labels: ['WFO', 'WFH'],
+							labels: ['WFO', 'WFH', 'OnSite'],
 							datasets: [{
 								label: 'Work Location',
-								data: [data.ttl_wfo, data.ttl_wfh],
+								data: [data.ttl_wfo, data.ttl_wfh, data.ttl_onsite],
 								backgroundColor: [
 									'#837DEB',
-									'#E2B2ED'
+									'#E2B2ED',
+									'#bdedb2'
 								],
 								borderWidth: 2,
 								borderColor: '#fff',
