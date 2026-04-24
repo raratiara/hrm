@@ -783,7 +783,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 	public function eksport_data()
 	{ 
-		$where_date = " where 1=1 ";
+		$where_date = " where b.emp_source = 'outsource' ";
 
 		if (
 		    isset($_GET['fldatestart'], $_GET['fldateend']) &&
@@ -792,7 +792,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 		    $_GET['fldatestart'] != 0 &&
 		    $_GET['fldateend'] != 0
 		) {
-		    $where_date = " WHERE (a.tgl_start <= '".$_GET['fldateend']."'
+		    $where_date = " WHERE b.emp_source = 'outsource' and (a.tgl_start <= '".$_GET['fldateend']."'
 		                    AND a.tgl_end   >= '".$_GET['fldatestart']."') ";
 		}
 
@@ -958,7 +958,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 		$rs = $this->db->query("select a.*, b.project_id from summary_absen_outsource a 
 								left join employees b on b.id = a.emp_id
-								where a.bulan = '".$bln."' and a.tahun = '".$thn."' and b.project_id = '".$project."'")->result(); 
+								where b.emp_source = 'outsource' and a.bulan = '".$bln."' and a.tahun = '".$thn."' and b.project_id = '".$project."'")->result(); 
 
 		
 

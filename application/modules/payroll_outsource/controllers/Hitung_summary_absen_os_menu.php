@@ -158,7 +158,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			left join project_outsource d on d.id = a.project_id
-			where a.id = ".$_GET['summary_id']."
+			where bb.emp_source = 'outsource' and a.id = ".$_GET['summary_id']."
 			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 
@@ -285,7 +285,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			left join project_outsource d on d.id = a.project_id
-			where a.id = ".$_GET['summary_id']."
+			where bb.emp_source = 'outsource' and a.id = ".$_GET['summary_id']."
 			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 

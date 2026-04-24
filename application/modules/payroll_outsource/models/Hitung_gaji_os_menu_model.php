@@ -323,7 +323,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	public function getRateTer($total_pendapatan, $emp_id){
 		$pph_21 =0; $ter_rate=0;
 
-		$emp = $this->db->query("select marital_status_id from employees where id = ".$emp_id." ")->result(); 
+		$emp = $this->db->query("select marital_status_id from employees where emp_source = 'outsource' and id = ".$emp_id." ")->result(); 
 		if(!empty($emp)){
 			$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$emp[0]->marital_status_id." ")->result(); 
 			if(!empty($getCat)){
@@ -1181,7 +1181,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		$rs = $this->db->query("select a.* from  payroll_slip a 
 				left join employees b on b.id = a.employee_id
-				where a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' and b.project_id = ".$project." limit 1")->result(); 
+				where b.emp_source = 'outsource' and a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' and b.project_id = ".$project." limit 1")->result(); 
 
 		
 

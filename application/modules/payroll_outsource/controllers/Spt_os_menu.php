@@ -159,7 +159,7 @@ class Spt_os_menu extends MY_Controller
 			left join master_marital_status f on f.id = e.marital_status_id
 			left join master_job_title_os g on g.id = e.job_title_id
 			left join companies h on h.id = e.company_id
-			where a.id = ".$_GET['form_id']."
+			where e.emp_source = 'outsource' and a.id = ".$_GET['form_id']."
 	    ";
 
 	    /*$sql = "

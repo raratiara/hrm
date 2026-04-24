@@ -408,7 +408,7 @@ class Spt_os_menu_model extends MY_Model
 		LEFT JOIN payroll_slip b ON b.id = a.payroll_slip_id
 		LEFT JOIN employees c ON c.id = a.employee_id
 
-		WHERE b.tahun_penggajian = '".$tahun."'
+		WHERE c.emp_source = 'outsource' and b.tahun_penggajian = '".$tahun."'
 
 		$filter_employee
 	    $filter_project
@@ -738,7 +738,7 @@ class Spt_os_menu_model extends MY_Model
 								left join spt_pph21 b on b.id = a.spt_pph21_id
 								left join employees c on c.id = a.employee_id
 								left join project_outsource d on d.id = b.project_id
-								where a.spt_pph21_id = 1
+								where c.emp_source = 'outsource' and a.spt_pph21_id = '".$id."'
 								ORDER BY c.full_name ASC
 								")->result(); 
 		$rd = $rs;

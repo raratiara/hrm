@@ -486,7 +486,7 @@ class History_bpjs_menu_model extends MY_Model
 		
 		$rs = $this->db->query("select a.*, b.emp_code, b.full_name from history_bpjs_detail a 
 								left join employees b on b.id = a.employee_id
-								where a.history_bpjs_id = ".$id."
+								where b.emp_source = 'outsource' and a.history_bpjs_id = ".$id."
 								order by b.full_name
 								")->result(); 
 		$rd = $rs;

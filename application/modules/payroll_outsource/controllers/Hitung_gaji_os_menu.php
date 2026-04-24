@@ -190,7 +190,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			LEFT JOIN project_outsource d ON d.id = b.project_id
 			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
 			LEFT JOIN data_customer f ON f.id = d.customer_id
-			WHERE a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			WHERE b.emp_source = 'outsource' and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 			ORDER BY b.full_name
         ";
 
@@ -249,7 +249,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
-				where a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
+				where b.emp_source = 'outsource' and a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -340,7 +340,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			left join project_outsource d on d.id = b.project_id
 			left join master_job_title_os e on e.id = b.job_title_id
 			left join data_customer f on f.id = d.customer_id
-			where a.employee_id = '".$_GET['flemployee']."'
+			where b.emp_source = 'outsource' and a.employee_id = '".$_GET['flemployee']."'
 	    ";
 
 	    $data = $this->db->query($sql)->result();
@@ -405,7 +405,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			LEFT JOIN project_outsource d ON d.id = b.project_id
 			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
 			LEFT JOIN data_customer f ON f.id = d.customer_id
-			WHERE a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			WHERE b.emp_source = 'outsource' and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 			ORDER BY b.full_name
 	    ";
 
@@ -741,7 +741,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			LEFT JOIN project_outsource d ON d.id = b.project_id
 			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
 			LEFT JOIN data_customer f ON f.id = d.customer_id
-			WHERE a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			WHERE b.emp_source = 'outsource' and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 			ORDER BY b.full_name
 	    ";
 
@@ -834,7 +834,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				from payroll_slip a 
 				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id
-				where a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+				where b.emp_source = 'outsource' and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 				ORDER BY b.full_name ASC
 	        ";
 
@@ -925,7 +925,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			left join employees c on c.id = b.employee_id
 			left join master_job_title_os d on d.id = c.job_title_id
 			left join master_emp_status e on e.id = c.employment_status_id
-			where a.id = ".$_GET['payroll_id']." and c.project_id = a.project_id
+			where c.emp_source = 'outsource' and a.id = ".$_GET['payroll_id']." and c.project_id = a.project_id
 			order by c.full_name asc
 	    ";
 

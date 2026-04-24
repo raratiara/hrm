@@ -352,7 +352,7 @@ class Invoice_menu_model extends MY_Model
 					,sum(a.total_masuk) as total_masuk
 					from payroll_slip_detail a 
 					left join employees b on b.id = a.employee_id
-					where a.payroll_slip_id = ".$post['periode_gaji']."
+					where b.emp_source = 'outsource' and a.payroll_slip_id = ".$post['periode_gaji']."
 					group by b.job_title_id")->result(); 
 
 				if(!empty($getBiaya)){
@@ -423,7 +423,7 @@ class Invoice_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(SELECT a.*, b.full_name as employee_name FROM time_attendances a left join employees b on b.id = a.employee_id
+		$mTable = '(SELECT a.*, b.full_name as employee_name FROM time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = "outsource"
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
