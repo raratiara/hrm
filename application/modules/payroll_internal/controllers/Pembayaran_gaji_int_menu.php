@@ -103,7 +103,7 @@ class Pembayaran_gaji_int_menu extends MY_Controller
 	        select b.full_name, a.gaji_bersih, b.bank_acc_no, b.bank_name
 	        from payroll_slip_detail_internal a
 	        left join employees b on b.id = a.employee_id
-	        where a.payroll_slip_id = ".$payroll_id."
+	        where b.emp_source = 'internal' and a.payroll_slip_id = ".$payroll_id."
 	        order by b.full_name asc
 	    ";
 

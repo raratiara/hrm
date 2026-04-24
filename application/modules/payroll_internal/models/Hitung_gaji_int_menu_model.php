@@ -728,7 +728,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 		$rs = $this->db->query("select a.* from  payroll_slip_internal a 
 				left join employees b on b.id = a.employee_id
-				where a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' limit 1")->result(); 
+				where b.emp_source = 'internal' and a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' limit 1")->result(); 
 
 		
 
@@ -763,7 +763,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 		$rs = $this->db->query("select a.*, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian
 			from summary_absen_internal_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_internal c on c.id = a.summary_absen_internal_id
-			where c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' 
+			where b.emp_source = 'internal' and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' 
 			order by b.full_name asc
 
 		")->result();

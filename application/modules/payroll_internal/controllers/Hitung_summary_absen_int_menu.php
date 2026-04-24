@@ -134,7 +134,7 @@ class Hitung_summary_absen_int_menu extends MY_Controller
 			left join summary_absen_internal_detail b on b.summary_absen_internal_id = a.id
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
-			where a.id = ".$_GET['summary_id']."
+			where bb.emp_source = 'internal' and a.id = ".$_GET['summary_id']."
 			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 
@@ -258,7 +258,7 @@ class Hitung_summary_absen_int_menu extends MY_Controller
 			left join summary_absen_internal_detail b on b.summary_absen_internal_id = a.id
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
-			where a.id = ".$_GET['summary_id']."
+			where bb.emp_source = 'internal' and a.id = ".$_GET['summary_id']."
 			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 

@@ -152,7 +152,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
 			LEFT JOIN master_job_title e ON e.id = b.job_title_id
-			WHERE a.id = ".$_GET['payroll_id']."
+			WHERE b.emp_source = 'internal' and a.id = ".$_GET['payroll_id']."
 			ORDER BY b.full_name
         ";
 
@@ -208,7 +208,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 				left join employees b on b.id = bb.employee_id 
 				left join master_month c on c.id = a.bulan_penggajian
 				left join master_job_title e on e.id = b.job_title_id
-				where a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
+				where b.emp_source = 'internal' and a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -501,7 +501,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
 			LEFT JOIN master_job_title e ON e.id = b.job_title_id
-			WHERE a.id = ".$_GET['payroll_id']." 
+			WHERE b.emp_source = 'internal' and a.id = ".$_GET['payroll_id']." 
 			ORDER BY b.full_name
 	    ";
 
@@ -593,7 +593,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 				from payroll_slip a 
 				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id
-				where a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+				where b.emp_source = 'internal' and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 				ORDER BY b.full_name ASC
 	        ";
 
@@ -682,7 +682,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 			left join employees c on c.id = b.employee_id
 			left join master_job_title d on d.id = c.job_title_id
 			left join master_emp_status e on e.id = c.employment_status_id
-			where a.id = ".$_GET['payroll_id']." 
+			where b.emp_source = 'internal' and a.id = ".$_GET['payroll_id']." 
 			order by c.full_name asc
 	    ";
 
