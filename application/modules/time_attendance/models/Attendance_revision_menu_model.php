@@ -23,7 +23,8 @@ class Attendance_revision_menu_model extends MY_Model
 			'dt.full_name',
 			'dt.date_attendance',
 			'dt.status',
-			'dt.is_approver'
+			'dt.is_approver',
+			'dt.current_approval_level'
 		];
 		
 		
