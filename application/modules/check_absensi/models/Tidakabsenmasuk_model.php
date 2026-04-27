@@ -187,9 +187,15 @@ class Tidakabsenmasuk_model extends MY_Model
 					left join master_shift_time c on c.shift_id = b.`".$tgl."`
 					where b.employee_id = '".$row->id."' and a.period = '".$period."' ")->result(); 
 
-				$attendance_type = $dt[0]->name;
-				$time_in 	= $dt[0]->time_in;
-				$time_out 	= $dt[0]->time_out;
+				$attendance_type = "";
+				$time_in 	= "";
+				$time_out 	= "";
+				if(!empty($dt)){
+					$attendance_type = $dt[0]->name;
+					$time_in 	= $dt[0]->time_in;
+					$time_out 	= $dt[0]->time_out;
+				}
+				
 			}
 
 			$chk_sendwa = '<input name="ids[]" type="checkbox" checked class="data-check" value="'.$row->id.'">';

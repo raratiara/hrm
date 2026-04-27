@@ -174,7 +174,7 @@
             <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
 
             <?php
-            if($app == 'Leave Absences' || $app == 'Overtimes' || $app == 'Performance Plan'){
+            if($app == 'Leave Absences' || $app == 'Overtimes' || $app == 'Performance Plan' || $app == 'Attendance Revision'){
               ?>
                 <p style="margin: 0;">Dear <b><?=$approver_name?></b>,<br> You have a pending <?=$app?> approval. <br>
                   Please review at the following link:

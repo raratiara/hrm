@@ -213,6 +213,29 @@ class ApprovalEmailService {
 
             $subject    = 'Pending Approval - Request Recruitment';
             $app        = 'Request Recruitment';
+
+        }else if($menu == 'attendance_revision'){
+            $data = $this->CI->db->query("
+                        select a.*, b.role_id, c.role_name, '' as doc_num, d.employee_id as requested_by
+                        FROM approval_path a
+                        LEFT JOIN approval_matrix_detail b 
+                            ON b.approval_matrix_id = a.approval_matrix_id
+                            AND b.approval_level = a.current_approval_level
+                        LEFT JOIN approval_matrix_role c ON c.id = b.role_id
+                        LEFT JOIN time_attendances_revision d ON d.id = a.trx_id
+                        WHERE a.id = ?
+                    ", [$approval_path_id])->row();
+
+            
+            if (!$data) {
+                return false;
+            }
+
+            $link = _URL . 'time_attendance/attendance_revision_menu';
+
+            $subject    = 'Pending Approval - Attendance Revision';
+            $app        = 'Attendance Revision';
+
         }
 
 
