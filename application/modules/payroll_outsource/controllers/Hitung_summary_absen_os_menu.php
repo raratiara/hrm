@@ -41,7 +41,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','required',3,'-');
 		$field['selmonth_edit'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_edit','penggajian_month_edit','','','id','name_indo',' ','','','',3,'-');
 		/*$field['is_all_employee'] 	= $this->self_model->return_build_radio('Ya', [['Ya','Ya'],['Tidak','Tidak']], 'is_all_employee', '', 'inline');*/
-		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
+		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 and is_special_payroll != 1 order by full_name asc")->result(); 
 		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
 		
 		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
@@ -158,7 +158,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			left join project_outsource d on d.id = a.project_id
-			where bb.emp_source = 'outsource' and a.id = ".$_GET['summary_id']."
+			where bb.emp_source = 'outsource' and bb.is_special_payroll != 1 and a.id = ".$_GET['summary_id']."
 			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 
@@ -285,7 +285,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			left join project_outsource d on d.id = a.project_id
-			where bb.emp_source = 'outsource' and a.id = ".$_GET['summary_id']."
+			where bb.emp_source = 'outsource' and bb.is_special_payroll != 1 and a.id = ".$_GET['summary_id']."
 			order by a.tahun_penggajian desc, a.bulan_penggajian asc, bb.full_name asc
 	    ";
 

@@ -352,7 +352,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 		        AND i.type = 1 
 		        AND i.status_id = 2
 
-		    WHERE b.emp_source = 'internal'
+		    WHERE b.emp_source = 'internal' and b.is_special_payroll != 1
 		    AND b.status_id = 1
 		    $filter_employee
 
@@ -666,7 +666,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 								LEFT JOIN summary_absen_internal_detail b 
 								    ON b.emp_id = a.id
 								    AND b.summary_absen_internal_id = ".$id."
-								WHERE a.emp_source = 'internal'
+								WHERE a.emp_source = 'internal' and a.is_special_payroll != 1
 								  AND a.status_id = 1
 								ORDER BY a.full_name ASC
 								")->result(); 

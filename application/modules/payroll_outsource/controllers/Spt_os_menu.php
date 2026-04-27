@@ -36,7 +36,7 @@ class Spt_os_menu extends MY_Controller
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
 		
 	
-		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 order by full_name asc")->result(); 
+		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 and is_special_payroll != 1 order by full_name asc")->result(); 
 		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
 		
 		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
@@ -159,7 +159,7 @@ class Spt_os_menu extends MY_Controller
 			left join master_marital_status f on f.id = e.marital_status_id
 			left join master_job_title_os g on g.id = e.job_title_id
 			left join companies h on h.id = e.company_id
-			where e.emp_source = 'outsource' and a.id = ".$_GET['form_id']."
+			where e.emp_source = 'outsource' and e.is_special_payroll != 1 and a.id = ".$_GET['form_id']."
 	    ";
 
 	    /*$sql = "

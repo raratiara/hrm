@@ -403,7 +403,7 @@ class Spt_int_menu_model extends MY_Model
 		LEFT JOIN payroll_slip_internal b ON b.id = a.payroll_slip_id
 		LEFT JOIN employees c ON c.id = a.employee_id
 
-		WHERE c.emp_source = 'internal' and b.tahun_penggajian = '".$tahun."'
+		WHERE c.emp_source = 'internal' and c.is_special_payroll != 1 and b.tahun_penggajian = '".$tahun."'
 
 		$filter_employee
 		$filter_project
@@ -711,7 +711,7 @@ class Spt_int_menu_model extends MY_Model
 								from spt_pph21_detail_internal a
 								left join spt_pph21_internal b on b.id = a.spt_pph21_id
 								left join employees c on c.id = a.employee_id
-								where c.emp_source = 'internal' and a.spt_pph21_id = '".$id."'
+								where c.emp_source = 'internal' and c.is_special_payroll != 1 and a.spt_pph21_id = '".$id."'
 								ORDER BY c.full_name ASC
 								")->result(); 
 		$rd = $rs;

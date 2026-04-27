@@ -107,7 +107,7 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 	        select b.full_name, a.gaji_bersih, b.bank_acc_no, b.bank_name
 	        from payroll_slip_detail a
 	        left join employees b on b.id = a.employee_id
-	        where b.emp_source = 'outsource' and a.payroll_slip_id = ".$payroll_id."
+	        where b.emp_source = 'outsource' and b.is_special_payroll != 1 and a.payroll_slip_id = ".$payroll_id."
 	        order by b.full_name asc
 	    ";
 

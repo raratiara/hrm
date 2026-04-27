@@ -122,7 +122,7 @@ class Invoice_menu extends MY_Controller
 	        from summary_absen_outsource a 
 	        left join employees b on b.id = a.emp_id 
 	        left join master_month c on c.id = a.bulan
-	        where b.emp_source = 'outsource'
+	        where b.emp_source = 'outsource' and b.is_special_payroll != 1
 	        order by a.tahun desc, a.bulan asc, b.full_name asc
 	    ";
 
