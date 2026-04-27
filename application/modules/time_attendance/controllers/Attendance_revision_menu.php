@@ -193,17 +193,18 @@ class Attendance_revision_menu extends MY_Controller
 						$existing = $this->db->query("select id from time_attendances where date_attendance = '".$rev->date_attendance."' and employee_id = '".$rev->employee_id."' ")->result();
 
 						$dataAtt = [
-							'date_attendance' 		=> $rev->date_attendance,
-							'employee_id' 			=> $rev->employee_id,
-							'attendance_type' 		=> $rev->attendance_type,
-							'time_in' 				=> $rev->time_in,
-							'time_out' 				=> $rev->time_out,
-							'date_attendance_in' 	=> $rev->date_attendance_in,
-							'date_attendance_out'	=> $rev->date_attendance_out,
-							'is_late'				=> $rev->is_late,
-							'is_leaving_office_early' => $rev->is_leaving_office_early,
-							'num_of_working_hours'	=> $rev->num_of_working_hours,
-							'updated_at'			=> date("Y-m-d H:i:s")
+							'date_attendance' 			=> $rev->date_attendance,
+							'employee_id' 				=> $rev->employee_id,
+							'attendance_type' 			=> $rev->attendance_type,
+							'time_in' 					=> $rev->time_in,
+							'time_out' 					=> $rev->time_out,
+							'date_attendance_in' 		=> $rev->date_attendance_in,
+							'date_attendance_out'		=> $rev->date_attendance_out,
+							'is_late'					=> $rev->is_late,
+							'is_leaving_office_early' 	=> $rev->is_leaving_office_early,
+							'num_of_working_hours'		=> $rev->num_of_working_hours,
+							'attendance_revision_id'	=> $rev->id,
+							'updated_at'				=> date("Y-m-d H:i:s")
 						];
 
 						if(!empty($existing)){
