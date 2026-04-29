@@ -5723,6 +5723,25 @@ class Api extends API_Controller
         return $document;
     }
 
+    private function normalize_attendance_revision_datetime($value, $date_attendance)
+    {
+    	$value = trim($value);
+    	if($value == '' || $value == '0000-00-00 00:00:00'){
+    		return '';
+    	}
+
+    	if(preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $value) && $date_attendance != ''){
+    		$value = $date_attendance.' '.$value;
+    	}
+
+    	$timestamp = strtotime($value);
+    	if($timestamp === false){
+    		return '';
+    	}
+
+    	return date('Y-m-d H:i:s', $timestamp);
+    }
+
     private function build_attendance_revision_data($post, $current_attachment = '')
     {
     	$employee_id 		= trim($post['employee_id'] ?? ($post['employee'] ?? ''));
@@ -5730,9 +5749,9 @@ class Api extends API_Controller
     	$attendance_type 	= trim($post['attendance_type'] ?? ($post['absence_type'] ?? ''));
     	$time_in 			= trim($post['time_in'] ?? '');
     	$time_out 			= trim($post['time_out'] ?? '');
-    	$attendance_in 		= trim($post['date_attendance_in'] ?? ($post['attendance_in'] ?? ''));
-    	$attendance_out 	= trim($post['date_attendance_out'] ?? ($post['attendance_out'] ?? ''));
-    	$description 		= trim($post['description'] ?? '');
+    	$attendance_in 		= trim($post['date_attendance_in'] ?? ($post['attendance_in'] ?? ($post['datetime_checkin'] ?? '')));
+    	$attendance_out 	= trim($post['date_attendance_out'] ?? ($post['attendance_out'] ?? ($post['datetime_checkout'] ?? '')));
+    	$description 		= trim($post['description'] ?? ($post['notes'] ?? ($post['note'] ?? ($post['remarks'] ?? ''))));
     	$work_location 		= trim($post['work_location'] ?? ($post['location'] ?? ''));
 
     	$date_attendance = date("Y-m-d", strtotime($date_attendance));
@@ -5763,8 +5782,8 @@ class Api extends API_Controller
     	}
 
     	if($attendance_in != '' && $attendance_in != '0000-00-00 00:00:00'){
-    		$date_attendance_in = date('Y-m-d H:i:s', strtotime($attendance_in));
-    		$timestamp_timein = strtotime($attendance_in);
+    		$date_attendance_in = $this->normalize_attendance_revision_datetime($attendance_in, $date_attendance);
+    		$timestamp_timein = strtotime($date_attendance_in);
 
     		if($post_timeout != '' && $timestamp_timein > $post_timeout){
     			return [
@@ -5779,8 +5798,8 @@ class Api extends API_Controller
     	}
 
     	if($attendance_out != '' && $attendance_out != '0000-00-00 00:00:00'){
-    		$date_attendance_out = date('Y-m-d H:i:s', strtotime($attendance_out));
-    		$timestamp_timeout = strtotime($attendance_out);
+    		$date_attendance_out = $this->normalize_attendance_revision_datetime($attendance_out, $date_attendance);
+    		$timestamp_timeout = strtotime($date_attendance_out);
 
     		if($post_timeout != '' && $timestamp_timeout < $post_timeout){
     			$is_leaving_office_early = 'Y';
@@ -5903,7 +5922,9 @@ class Api extends API_Controller
     				$data = $build['data'];
 
     				if($save_method == 'update'){
-    					$data['updated_at'] = date("Y-m-d H:i:s");
+    					if($this->db->field_exists('updated_at', 'time_attendances_revision')){
+    						$data['updated_at'] = date("Y-m-d H:i:s");
+    					}
     					$rs = $this->db->update("time_attendances_revision", $data, "id = '".$id."'");
     					$lastId = $id;
     				}else{
@@ -5923,7 +5944,9 @@ class Api extends API_Controller
     					}
 
     					$data['status_approval'] = 1;
-    					$data['created_at'] = date("Y-m-d H:i:s");
+    					if($this->db->field_exists('created_at', 'time_attendances_revision')){
+    						$data['created_at'] = date("Y-m-d H:i:s");
+    					}
     					$data['created_by'] = $created_by;
     					$rs = $this->db->insert("time_attendances_revision", $data);
     					$lastId = $this->db->insert_id();
@@ -5968,18 +5991,12 @@ class Api extends API_Controller
 
     	$islogin_employee	= $this->get_login_employee_id();
     	$filter_employee	= $_GET['filter_employee'] ?? '';
-    	$filter_isapprover	= $_GET['filter_isapprover'] ?? '';
 
     	if($islogin_employee != ''){
     		$where = "";
-    		$whr_isapprover = "";
 
     		if($filter_employee != ''){
     			$where = " and ao.employee_id = '".$filter_employee."' ";
-    		}
-
-    		if($filter_isapprover != ''){
-    			$whr_isapprover = " and ao.is_approver = 1 ";
     		}
 
     		$datarevision = $this->db->query('select ao.*
@@ -6053,8 +6070,12 @@ class Api extends API_Controller
 						    LEFT JOIN approval_matrix_role i ON i.id = h.role_id
 						    GROUP BY a.id
 						) ao
-						where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
-	                    '.$where.$whr_isapprover.'
+						where (
+							ao.created_by = "'.$islogin_employee.'"
+							or ao.employee_id = "'.$islogin_employee.'"
+							or ao.is_approver = 1
+						)
+						'.$where.'
 	                    order by ao.id desc')->result();
 
     		$response = [
@@ -6251,9 +6272,56 @@ class Api extends API_Controller
 
     	$employee_id		= $_POST['employee_id'];
     	$date_attendance	= $_POST['date_attendance'];
-    	$datetime_checkin	= $_POST['datetime_checkin'];
-    	$datetime_checkout	= $_POST['datetime_checkout'];
-    	$description		= $_POST['description'];
+    	$datetime_checkin	= $_POST['datetime_checkin'] ?? ($_POST['date_attendance_in'] ?? ($_POST['attendance_in'] ?? ''));
+    	$datetime_checkout	= $_POST['datetime_checkout'] ?? ($_POST['date_attendance_out'] ?? ($_POST['attendance_out'] ?? ''));
+    	$attendance_type	= $_POST['attendance_type'] ?? ($_POST['absence_type'] ?? '');
+    	$time_in			= $_POST['time_in'] ?? '';
+    	$time_out			= $_POST['time_out'] ?? '';
+    	$date_attendance_in = $this->normalize_attendance_revision_datetime($datetime_checkin, $date_attendance);
+    	$date_attendance_out = $this->normalize_attendance_revision_datetime($datetime_checkout, $date_attendance);
+    	$is_late = '';
+    	$is_leaving_office_early = '';
+    	$num_of_working_hours = '';
+
+    	if(($attendance_type == 'Shift 3' || $attendance_type == 'Shift Malam') && $date_attendance != ''){
+    		$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
+    		$date_attendance_in = $this->normalize_attendance_revision_datetime($datetime_checkin, $date_attendance);
+    		$date_attendance_out = $this->normalize_attendance_revision_datetime($datetime_checkout, $date_attendance);
+    	}
+
+    	$post_timein = ($date_attendance != '' && $time_in != '') ? strtotime($date_attendance.' '.$time_in) : '';
+    	$post_timeout = ($date_attendance != '' && $time_out != '') ? strtotime($date_attendance.' '.$time_out) : '';
+
+    	$timestamp_timein = $date_attendance_in != '' ? strtotime($date_attendance_in) : '';
+    	$timestamp_timeout = $date_attendance_out != '' ? strtotime($date_attendance_out) : '';
+
+    	if($timestamp_timein != '' && $post_timeout != '' && $timestamp_timein > $post_timeout){
+    		$response = [
+				'status' 	=> 400,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Check-in time has expired'
+			];
+
+			$this->output->set_header('Access-Control-Allow-Origin: *');
+			$this->output->set_header('Access-Control-Allow-Methods: POST');
+			$this->output->set_header('Access-Control-Max-Age: 3600');
+			$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			$this->render_json($response, $response['status']);
+			return;
+    	}
+
+    	if($timestamp_timein != '' && $post_timein != '' && $timestamp_timein > $post_timein){
+    		$is_late = 'Y';
+    	}
+
+    	if($timestamp_timeout != '' && $post_timeout != '' && $timestamp_timeout < $post_timeout){
+    		$is_leaving_office_early = 'Y';
+    	}
+
+    	if($timestamp_timein != '' && $timestamp_timeout != ''){
+    		$num_of_working_hours = abs($timestamp_timeout - $timestamp_timein)/(60)/(60);
+    	}
+    	$description		= $_POST['description'] ?? ($_POST['notes'] ?? ($_POST['note'] ?? ($_POST['remarks'] ?? '')));
     	$attachment			= $_FILES['attachment'];
     	
 
@@ -6302,6 +6370,14 @@ class Api extends API_Controller
 				'date_attendance' 	=> $date_attendance,
 				'datetime_checkin' 	=> $datetime_checkin,
 				'datetime_checkout' => $datetime_checkout,
+				'attendance_type' 	=> $attendance_type,
+				'time_in' 			=> $time_in,
+				'time_out' 			=> $time_out,
+				'date_attendance_in' => $date_attendance_in,
+				'date_attendance_out' => $date_attendance_out,
+				'is_late'			=> $is_late,
+				'is_leaving_office_early' => $is_leaving_office_early,
+				'num_of_working_hours' => $num_of_working_hours,
 				'description' 		=> $description,
 				'attachment' 		=> $document,
 				'created_date'		=> date("Y-m-d H:i:s"),
@@ -6360,33 +6436,45 @@ class Api extends API_Controller
 				if($rs){ 
 					if($status == 'approved'){
 						$dataAbsensi = $this->db->query("select * from time_attendances where employee_id = '".$dataRevisi[0]->employee_id."' and date_attendance = '".$dataRevisi[0]->date_attendance."'")->result(); 
+						$datetime_checkin = !empty($dataRevisi[0]->date_attendance_in) ? $dataRevisi[0]->date_attendance_in : $dataRevisi[0]->datetime_checkin;
+						$datetime_checkout = !empty($dataRevisi[0]->date_attendance_out) ? $dataRevisi[0]->date_attendance_out : $dataRevisi[0]->datetime_checkout;
 
 						if(empty($dataAbsensi)){ //insert
 							$dataUpd = [
 								'employee_id' 		=> $dataRevisi[0]->employee_id,
 								'date_attendance' 	=> $dataRevisi[0]->date_attendance,
-								'date_attendance_in' 	=> $dataRevisi[0]->datetime_checkin,
-								'date_attendance_out' => $dataRevisi[0]->datetime_checkout
+								'date_attendance_in' 	=> $datetime_checkin,
+								'date_attendance_out' => $datetime_checkout,
+								'is_late' => $dataRevisi[0]->is_late,
+								'is_leaving_office_early' => $dataRevisi[0]->is_leaving_office_early,
+								'num_of_working_hours' => $dataRevisi[0]->num_of_working_hours
 							];
 
 							$this->db->insert("time_attendances", $dataUpd);
 						}else{  //update
-							if($dataRevisi[0]->datetime_checkin != "" && $dataRevisi[0]->datetime_checkin != "0000-00-00 00:00:00" && $dataRevisi[0]->datetime_checkout != "" && $dataRevisi[0]->datetime_checkout != "0000-00-00 00:00:00"){
+							if($datetime_checkin != "" && $datetime_checkin != "0000-00-00 00:00:00" && $datetime_checkout != "" && $datetime_checkout != "0000-00-00 00:00:00"){
 								$dataUpd = [
-									'date_attendance_in' 	=> $dataRevisi[0]->datetime_checkin,
-									'date_attendance_out'	=> $dataRevisi[0]->datetime_checkout
+									'date_attendance_in' 	=> $datetime_checkin,
+									'date_attendance_out'	=> $datetime_checkout,
+									'is_late' => $dataRevisi[0]->is_late,
+									'is_leaving_office_early' => $dataRevisi[0]->is_leaving_office_early,
+									'num_of_working_hours' => $dataRevisi[0]->num_of_working_hours
 								];
 								$this->db->update("time_attendances", $dataUpd, "id='".$dataAbsensi[0]->id."'");
 							}
-							else if($dataRevisi[0]->datetime_checkin != "" && $dataRevisi[0]->datetime_checkin != "0000-00-00 00:00:00" && ($dataRevisi[0]->datetime_checkout == "" || $dataRevisi[0]->datetime_checkout == "0000-00-00 00:00:00")){ 
+							else if($datetime_checkin != "" && $datetime_checkin != "0000-00-00 00:00:00" && ($datetime_checkout == "" || $datetime_checkout == "0000-00-00 00:00:00")){ 
 								$dataUpd = [
-									'date_attendance_in' 	=> $dataRevisi[0]->datetime_checkin
+									'date_attendance_in' 	=> $datetime_checkin,
+									'is_late' => $dataRevisi[0]->is_late,
+									'num_of_working_hours' => $dataRevisi[0]->num_of_working_hours
 								];
 								$this->db->update("time_attendances", $dataUpd, "id='".$dataAbsensi[0]->id."'");
 							}
-							else if($dataRevisi[0]->datetime_checkout != "" && $dataRevisi[0]->datetime_checkout != "0000-00-00 00:00:00" && ($dataRevisi[0]->datetime_checkin == "" || $dataRevisi[0]->datetime_checkin == "0000-00-00 00:00:00")){ 
+							else if($datetime_checkout != "" && $datetime_checkout != "0000-00-00 00:00:00" && ($datetime_checkin == "" || $datetime_checkin == "0000-00-00 00:00:00")){ 
 								$dataUpd = [
-									'date_attendance_out' 	=> $dataRevisi[0]->datetime_checkout
+									'date_attendance_out' 	=> $datetime_checkout,
+									'is_leaving_office_early' => $dataRevisi[0]->is_leaving_office_early,
+									'num_of_working_hours' => $dataRevisi[0]->num_of_working_hours
 								];
 								$this->db->update("time_attendances", $dataUpd, "id='".$dataAbsensi[0]->id."'");
 							}
