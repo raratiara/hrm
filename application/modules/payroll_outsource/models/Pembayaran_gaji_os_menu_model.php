@@ -241,6 +241,11 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 
 	public function delete($id= "") {
 		if (isset($id) && $id <> "") {
+			$current = $this->db->where($this->primary_key, $id)->get($this->table_name)->row();
+			if ($current && $current->status == 2) {
+				return false;
+			}
+
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
 			$this->db->where([$this->primary_key => $id])->delete($this->table_name);
@@ -255,6 +260,13 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 		if (is_array($id) && count($id)) {
 			$err = '';
 			foreach ($id as $pid) {
+				$current = $this->db->where($this->primary_key, $pid)->get($this->table_name)->row();
+				if ($current && $current->status == 2) {
+					if(!empty($err)) $err .= ", ";
+                    $err .= $pid;
+                    continue;
+				}
+
 				//$this->db->trans_off(); // Disable transaction
 				$this->db->trans_start(); // set "True" for query will be rolled back
 				$this->db->where([$this->primary_key => $pid])->delete($this->table_name);
@@ -329,6 +341,13 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 	public function edit_data($post) { 
 
 		if(!empty($post['id'])){
+			$current = $this->db->query("select * from payroll_paid_history where id = '".$post['id']."' ")->row();
+			if ($current && $current->status == 2) {
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data yang sudah terbayar tidak dapat diedit"
+				];
+			}
 
 			$itemData = [	
 				'status' => trim($post['status'])

@@ -269,17 +269,11 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 
 	public function add_data($post)
 	{
-	    $getperiod_start = date_create($post['period_start']);
-	    $getperiod_end   = date_create($post['period_end']);
-
-	    $period_start = date_format($getperiod_start, "Y-m-d");
-	    $period_end   = date_format($getperiod_end, "Y-m-d");
-
 	    if (
 	        empty($post['penggajian_month']) ||
 	        empty($post['penggajian_year']) ||
-	        empty($period_start) ||
-	        empty($period_end)
+	        empty($post['period_start']) ||
+	        empty($post['period_end'])
 	    ) {
 	        
 	        return [
@@ -287,6 +281,19 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 			    "msg" 	 => "Bulan Tahun Penggajian & Periode Absensi harus diisi"
 			];
 	    }
+
+	    $getperiod_start = date_create($post['period_start']);
+	    $getperiod_end   = date_create($post['period_end']);
+
+	    if (!$getperiod_start || !$getperiod_end) {
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Format Periode Absensi tidak valid"
+			];
+	    }
+
+	    $period_start = date_format($getperiod_start, "Y-m-d");
+	    $period_end   = date_format($getperiod_end, "Y-m-d");
 
 	    $bulan = trim($post['penggajian_month']);
 	    $tahun = trim($post['penggajian_year']);
@@ -352,7 +359,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 		        AND i.type = 1 
 		        AND i.status_id = 2
 
-		    WHERE b.emp_source = 'internal' and b.is_special_payroll != 1
+		    WHERE b.emp_source = 'internal' and IFNULL(b.is_special_payroll,0) != 1
 		    AND b.status_id = 1
 		    $filter_employee
 
@@ -666,7 +673,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 								LEFT JOIN summary_absen_internal_detail b 
 								    ON b.emp_id = a.id
 								    AND b.summary_absen_internal_id = ".$id."
-								WHERE a.emp_source = 'internal' and a.is_special_payroll != 1
+								WHERE a.emp_source = 'internal' and IFNULL(a.is_special_payroll,0) != 1
 								  AND a.status_id = 1
 								ORDER BY a.full_name ASC
 								")->result(); 

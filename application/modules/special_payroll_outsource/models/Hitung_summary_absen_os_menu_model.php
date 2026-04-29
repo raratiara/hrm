@@ -5,7 +5,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_outsource/hitung_summary_absen_os_menu";
- 	protected $table_name 				= _PREFIX_TABLE."summary_absen_outsource";
+ 	protected $table_name 				= _PREFIX_TABLE."special_summary_absen_outsource";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -42,7 +42,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 			$where_project = " and a.project_id = '".$_GET['flproject']."' ";
 		}
 
-		$sTable = '(select a.*, b.name_indo as month_name, c.project_name from summary_absen_outsource a 
+		$sTable = '(select a.*, b.name_indo as month_name, c.project_name from special_summary_absen_outsource a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id 
 					where 1=1 '.$where_project.'
@@ -184,7 +184,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-			$cek_payslip = $this->db->query("select id from payroll_slip where project_id = ".$row->project_id." and bulan_penggajian = ".$row->bulan_penggajian." and tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
+			$cek_payslip = $this->db->query("select id from special_payroll_slip where project_id = ".$row->project_id." and bulan_penggajian = ".$row->bulan_penggajian." and tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
 			
 
 
@@ -396,12 +396,12 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	            ->where('project_id', $row->project_id)
 	            ->where('bulan_penggajian', $bulan)
 	            ->where('tahun_penggajian', $tahun)
-	            ->get('summary_absen_outsource')
+	            ->get('special_summary_absen_outsource')
 	            ->row();
 
 	        if (!$header) {
 
-	            $this->db->insert('summary_absen_outsource', [
+	            $this->db->insert('special_summary_absen_outsource', [
 	                'project_id'       => $row->project_id,
 	                'bulan_penggajian' => $bulan,
 	                'tahun_penggajian' => $tahun,
@@ -452,7 +452,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 	    if (!empty($insert_batch)) {
 	        $this->db->insert_batch(
-	            'summary_absen_outsource_detail',
+	            'special_summary_absen_outsource_detail',
 	            $insert_batch
 	        );
 	    }
@@ -570,7 +570,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 
 		                //save header
-		                $data_summary = $this->db->query("select * from summary_absen_outsource where project_id = '".$rowdata_os->project_id."' and bulan_penggajian = '".$post['penggajian_month']."' and tahun_penggajian = '".$post['penggajian_year']."' ")->result();
+		                $data_summary = $this->db->query("select * from special_summary_absen_outsource where project_id = '".$rowdata_os->project_id."' and bulan_penggajian = '".$post['penggajian_month']."' and tahun_penggajian = '".$post['penggajian_year']."' ")->result();
 	  					if(empty($data_summary)){ /// add header + add detail
 	  						$data = [
 	  							'project_id' 		=> $rowdata_os->project_id,
@@ -597,12 +597,12 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 								'created_at'		=> date("Y-m-d H:i:s"),
 								'created_by' 		=> $_SESSION['worker']
 							];
-							$rs = $this->db->insert("summary_absen_outsource_detail", $data_dtl);
+							$rs = $this->db->insert("special_summary_absen_outsource_detail", $data_dtl);
 
 	  					}else{ /// add or edit detail
 
-				            $data_summary_detail = $this->db->query("select a.* from summary_absen_outsource_detail a 
-							left join summary_absen_outsource b on b.id = a.summary_absen_outsource_id
+				            $data_summary_detail = $this->db->query("select a.* from special_summary_absen_outsource_detail a 
+							left join special_summary_absen_outsource b on b.id = a.summary_absen_outsource_id
 							where a.emp_id = '".$emp_id."' and b.bulan_penggajian = ".$post['penggajian_month']." and b.tahun_penggajian = '".$post['penggajian_year']."' ")->result();
 
 				            if(empty($data_summary_detail)){ ///ADD 
@@ -620,7 +620,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 									'created_at'		=> date("Y-m-d H:i:s"),
 									'created_by' 		=> $_SESSION['worker']
 								];
-								$rs = $this->db->insert("summary_absen_outsource_detail", $data_dtl);
+								$rs = $this->db->insert("special_summary_absen_outsource_detail", $data_dtl);
 
 				            }else{ /// UPDATE
 				            	$data_dtl = [
@@ -637,7 +637,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 									'created_at'		=> date("Y-m-d H:i:s"),
 									'created_by' 		=> $_SESSION['worker']
 								];
-								$rs = $this->db->update("summary_absen_outsource_detail", $data_dtl, "id = '".$data_summary_detail[0]->id."'");
+								$rs = $this->db->update("special_summary_absen_outsource_detail", $data_dtl, "id = '".$data_summary_detail[0]->id."'");
 				            }
 
 	  					}
@@ -670,7 +670,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 					'tgl_start_absen' 	=> $period_start,
 					'tgl_end_absen' 	=> $period_end
 				];
-				$rs = $this->db->update("summary_absen_outsource", $data, "id = '".$post['id']."'");
+				$rs = $this->db->update("special_summary_absen_outsource", $data, "id = '".$post['id']."'");
 
 
 				if(isset($post['hdnempid'])){
@@ -699,7 +699,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 									'total_jam_lembur' 	=> trim($post['ttl_jam_lembur'][$i])
 								];
 
-								$this->db->update("summary_absen_outsource_detail", $itemData, "id = '".$hdnid."'");
+								$this->db->update("special_summary_absen_outsource_detail", $itemData, "id = '".$hdnid."'");
 							}
 						}else{ //insert
 							if(isset($post['hdnempid'][$i])){
@@ -715,7 +715,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 									'total_jam_lembur' 	=> trim($post['ttl_jam_lembur'][$i])
 								];
 
-								$this->db->insert('summary_absen_outsource_detail', $itemData);
+								$this->db->insert('special_summary_absen_outsource_detail', $itemData);
 							}
 						}
 					}
@@ -749,7 +749,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.name_indo as month_name, c.project_name from summary_absen_outsource a 
+		$mTable = '(select a.*, b.name_indo as month_name, c.project_name from special_summary_absen_outsource a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
 			)dt';
@@ -803,7 +803,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 
 		
-		$sql = 'select a.*, b.full_name, c.name_indo as month_name from summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
+		$sql = 'select a.*, b.full_name, c.name_indo as month_name from special_summary_absen_outsource a left join employees b on b.id = a.emp_id left join master_month c on c.id = a.bulan '.$where_date.$where_emp.'
 	   			ORDER BY id ASC
 		';
 
@@ -876,7 +876,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 								    a.project_id,
 								    b.*
 								FROM employees a
-								LEFT JOIN summary_absen_outsource_detail b 
+								LEFT JOIN special_summary_absen_outsource_detail b 
 								    ON b.emp_id = a.id
 								    AND b.summary_absen_outsource_id = ".$id."
 								WHERE a.emp_source = 'outsource' and a.is_special_payroll = 1
@@ -956,7 +956,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 	public function getAbsenProject($project, $bln, $thn){ 
 
-		$rs = $this->db->query("select a.*, b.project_id from summary_absen_outsource a 
+		$rs = $this->db->query("select a.*, b.project_id from special_summary_absen_outsource a 
 								left join employees b on b.id = a.emp_id
 								where b.emp_source = 'outsource' and b.is_special_payroll = 1 and a.bulan = '".$bln."' and a.tahun = '".$thn."' and b.project_id = '".$project."'")->result(); 
 
@@ -988,7 +988,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, a.project_id, b.* from         employees a left join summary_absen_outsource_detail b on b.emp_id = a.id
+		$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, a.project_id, b.* from         employees a left join special_summary_absen_outsource_detail b on b.emp_id = a.id
 			where a.emp_source = 'outsource' and a.status_id = 1 and (b.summary_absen_outsource_id = ".$id." or a.project_id = ".$project.")")->result(); 
 		$rd = $rs;
 

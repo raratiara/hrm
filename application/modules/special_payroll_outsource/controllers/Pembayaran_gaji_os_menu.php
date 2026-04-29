@@ -105,7 +105,7 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 	    // ================== GET DATA ==================
 	    $sql = "
 	        select b.full_name, a.gaji_bersih, b.bank_acc_no, b.bank_name
-	        from payroll_slip_detail a
+	        from special_payroll_slip_detail a
 	        left join employees b on b.id = a.employee_id
 	        where b.emp_source = 'outsource' and b.is_special_payroll = 1 and a.payroll_slip_id = ".$payroll_id."
 	        order by b.full_name asc
@@ -130,7 +130,7 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 	        select a.*, 
 	        concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian,
 	        c.project_name  
-	        from payroll_slip a 
+	        from special_payroll_slip a 
 	        left join master_month b on b.id = a.bulan_penggajian
 	        left join project_outsource c on c.id = a.project_id
 	        where a.id = ".$payroll_id."
@@ -236,7 +236,7 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 
 	    $sql = "
 	        select b.full_name, a.gaji_bersih, b.bank_acc_no, b.bank_name
-			from payroll_slip_detail a
+			from special_payroll_slip_detail a
 			left join employees b on b.id = a.employee_id
 			where a.payroll_slip_id = ".$_GET['payroll_id']."
 			order by b.full_name asc
@@ -246,7 +246,7 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 	    $data = $this->db->query($sql)->result();
 
 	    $getperiode = $this->db->query("select a.*, concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian				, c.project_name  
-						from payroll_slip a left join master_month b on b.id = a.bulan_penggajian
+						from special_payroll_slip a left join master_month b on b.id = a.bulan_penggajian
 						left join project_outsource c on c.id = a.project_id
 						where a.id = ".$_GET['payroll_id']." ")->result();
 

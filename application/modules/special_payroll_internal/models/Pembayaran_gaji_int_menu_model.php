@@ -5,7 +5,7 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_internal/pembayaran_gaji_int_menu";
- 	protected $table_name 				= _PREFIX_TABLE."payroll_paid_history_internal";
+ 	protected $table_name 				= _PREFIX_TABLE."special_payroll_paid_history_internal";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -23,7 +23,8 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 			'dt.payroll_slip_id',
 			'dt.periode_penggajian',
 			'dt.periode_absensi',
-			'dt.status_payroll'
+			'dt.status_payroll',
+			'dt.status'
 		];
 
 		/*$where_project = "";
@@ -37,9 +38,9 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 		
 
 		$sTable = '(select a.id, a.payroll_slip_id, concat(d.name_indo," ",
-					b.tahun_penggajian) as periode_penggajian,concat(b.tgl_start_absen," s/d ",b.tgl_end_absen) as periode_absensi, e.name as status_payroll  
-					from payroll_paid_history_internal a 
-					left join payroll_slip_internal b on b.id = a.payroll_slip_id
+					b.tahun_penggajian) as periode_penggajian,concat(b.tgl_start_absen," s/d ",b.tgl_end_absen) as periode_absensi, e.name as status_payroll, a.status  
+					from special_payroll_paid_history_internal a 
+					left join special_payroll_slip_internal b on b.id = a.payroll_slip_id
 					left join master_month d on d.id = b.bulan_penggajian
 					left join master_payroll_status e on e.id = a.status
 					where 1=1 
@@ -187,13 +188,13 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1")  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $row->status != 2)  {
 				
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1")  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && $row->status != 2)  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
@@ -237,6 +238,11 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 
 	public function delete($id= "") {
 		if (isset($id) && $id <> "") {
+			$current = $this->db->where($this->primary_key, $id)->get($this->table_name)->row();
+			if ($current && $current->status == 2) {
+				return false;
+			}
+
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
 			$this->db->where([$this->primary_key => $id])->delete($this->table_name);
@@ -251,6 +257,13 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 		if (is_array($id) && count($id)) {
 			$err = '';
 			foreach ($id as $pid) {
+				$current = $this->db->where($this->primary_key, $pid)->get($this->table_name)->row();
+				if ($current && $current->status == 2) {
+					if(!empty($err)) $err .= ", ";
+                    $err .= $pid;
+                    continue;
+				}
+
 				//$this->db->trans_off(); // Disable transaction
 				$this->db->trans_start(); // set "True" for query will be rolled back
 				$this->db->where([$this->primary_key => $pid])->delete($this->table_name);
@@ -282,7 +295,7 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 
 	public function add_data($post) { 
 		
-  		$data_payroll_hist = $this->db->query("select * from payroll_paid_history_internal where payroll_slip_id = '".$post['periode_gaji']."'  ")->result(); 
+  		$data_payroll_hist = $this->db->query("select * from special_payroll_paid_history_internal where payroll_slip_id = '".$post['periode_gaji']."'  ")->result(); 
 
   		if(empty($data_payroll_hist)){ 
   			
@@ -325,20 +338,27 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 	public function edit_data($post) { 
 
 		if(!empty($post['id'])){
+			$current = $this->db->query("select * from special_payroll_paid_history_internal where id = '".$post['id']."' ")->row();
+			if ($current && $current->status == 2) {
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data yang sudah terbayar tidak dapat diedit"
+				];
+			}
 
 			$itemData = [	
 				'status' => trim($post['status'])
 			];
 
-			$rs = $this->db->update("payroll_paid_history_internal", $itemData, "id = '".$post['id']."'");
+			$rs = $this->db->update("special_payroll_paid_history_internal", $itemData, "id = '".$post['id']."'");
 			if($rs){
-				$getPayroll = $this->db->query("select * from payroll_paid_history_internal where id = '".$post['id']."' ")->result();
+				$getPayroll = $this->db->query("select * from special_payroll_paid_history_internal where id = '".$post['id']."' ")->result();
 
 				$itemData2 = [	
 					'status' => trim($post['status'])
 				];
 
-				$this->db->update("payroll_slip_internal", $itemData2, "id = '".$getPayroll[0]->payroll_slip_id."'");
+				$this->db->update("special_payroll_slip_internal", $itemData2, "id = '".$getPayroll[0]->payroll_slip_id."'");
 
 				return [
 				    "status" => true,
@@ -366,8 +386,8 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 		
 		$mTable = '(select a.*, concat(d.name_indo," ",
 					b.tahun_penggajian) as periode_penggajian,concat(b.tgl_start_absen," s/d ",b.tgl_end_absen) as periode_absensi, e.name as status_payroll, b.tgl_start_absen, b.tgl_end_absen
-					from payroll_paid_history_internal a 
-					left join payroll_slip_internal b on b.id = a.payroll_slip_id
+					from special_payroll_paid_history_internal a 
+					left join special_payroll_slip_internal b on b.id = a.payroll_slip_id
 					left join master_month d on d.id = b.bulan_penggajian
 					left join master_payroll_status e on e.id = a.status
 					
@@ -408,7 +428,7 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 	{
 
 		$sql = "select a.*, b.name_indo as month_name
-					from payroll_slip_internal a 
+					from special_payroll_slip_internal a 
 					left join master_month b on b.id = a.bulan_penggajian
 					where 1=1 
 		";
@@ -423,7 +443,7 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 	public function getDataPeriodeGaji(){ 
 
 		$rs = $this->db->query("select a.*, concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian
-								from payroll_slip_internal a
+								from special_payroll_slip_internal a
 								left join master_month b on b.id = a.bulan_penggajian
 								")->result(); 
 
@@ -437,7 +457,7 @@ class Pembayaran_gaji_int_menu_model extends MY_Model
 
 	public function getDataPayroll($payroll_id){ 
 
-		$rs = $this->db->query("select * from payroll_slip_internal
+		$rs = $this->db->query("select * from special_payroll_slip_internal
 								where id = ".$payroll_id." ")->result(); 
 
 		

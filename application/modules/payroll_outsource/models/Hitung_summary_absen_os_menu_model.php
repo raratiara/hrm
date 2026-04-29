@@ -273,17 +273,11 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 
 	public function add_data($post)
 	{
-	    $getperiod_start = date_create($post['period_start']);
-	    $getperiod_end   = date_create($post['period_end']);
-
-	    $period_start = date_format($getperiod_start, "Y-m-d");
-	    $period_end   = date_format($getperiod_end, "Y-m-d");
-
 	    if (
 	        empty($post['penggajian_month']) ||
 	        empty($post['penggajian_year']) ||
-	        empty($period_start) ||
-	        empty($period_end)
+	        empty($post['period_start']) ||
+	        empty($post['period_end'])
 	    ) {
 	        
 	        return [
@@ -291,6 +285,19 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 			    "msg" 	 => "Bulan Tahun Penggajian & Periode Absensi harus diisi"
 			];
 	    }
+
+	    $getperiod_start = date_create($post['period_start']);
+	    $getperiod_end   = date_create($post['period_end']);
+
+	    if (!$getperiod_start || !$getperiod_end) {
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Format Periode Absensi tidak valid"
+			];
+	    }
+
+	    $period_start = date_format($getperiod_start, "Y-m-d");
+	    $period_end   = date_format($getperiod_end, "Y-m-d");
 
 	    $bulan = trim($post['penggajian_month']);
 	    $tahun = trim($post['penggajian_year']);
@@ -361,6 +368,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	        AND i.status_id = 2
 
 	    WHERE b.emp_source = 'outsource'
+	    AND IFNULL(b.is_special_payroll,0) != 1
 	    AND b.status_id = 1
 	    $filter_employee
 	    $filter_project
@@ -385,6 +393,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	    =============================== */
 
 	    $insert_batch = [];
+	    $detailEmployeeIdsByHeader = [];
 
 	    foreach ($data_summary as $row) {
 
@@ -444,11 +453,23 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 	            'created_at'         => date("Y-m-d H:i:s"),
 	            'created_by'         => $_SESSION['worker']
 	        ];
+
+	        $detailEmployeeIdsByHeader[$header_id][] = (int) $row->emp_id;
 	    }
 
 	    /* ===============================
 	       INSERT BATCH DETAIL
 	    =============================== */
+
+	    foreach ($detailEmployeeIdsByHeader as $headerId => $employeeIds) {
+	        $employeeIds = array_values(array_unique($employeeIds));
+	        if (!empty($employeeIds)) {
+	            $this->db
+	                ->where('summary_absen_outsource_id', $headerId)
+	                ->where_in('emp_id', $employeeIds)
+	                ->delete('summary_absen_outsource_detail');
+	        }
+	    }
 
 	    if (!empty($insert_batch)) {
 	        $this->db->insert_batch(
@@ -989,7 +1010,7 @@ class Hitung_summary_absen_os_menu_model extends MY_Model
 		$dt = ''; 
 		
 		$rs = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, a.project_id, b.* from         employees a left join summary_absen_outsource_detail b on b.emp_id = a.id
-			where a.emp_source = 'outsource' and a.status_id = 1 and (b.summary_absen_outsource_id = ".$id." or a.project_id = ".$project.")")->result(); 
+			where a.emp_source = 'outsource' and IFNULL(a.is_special_payroll,0) != 1 and a.status_id = 1 and (b.summary_absen_outsource_id = ".$id." or a.project_id = ".$project.")")->result(); 
 		$rd = $rs;
 
 		$row = 0; 

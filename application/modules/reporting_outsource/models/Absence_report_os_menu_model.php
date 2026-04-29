@@ -129,7 +129,7 @@ class Absence_report_os_menu_model extends MY_Model
 					      AND a.date_attendance BETWEEN DATE(o.datetime_start) AND DATE(o.datetime_end)
 					      AND o.status_id = 2 
 					      AND o.type = 2
-					LEFT JOIN group_shift_schedule gss 
+					LEFT JOIN group_shift_schedule_os gss 
 					       ON gss.employee_id = a.employee_id
 					      AND gss.periode = DATE_FORMAT(a.date_attendance, "%Y-%m")
 					left join project_outsource pp on pp.id = b.project_id

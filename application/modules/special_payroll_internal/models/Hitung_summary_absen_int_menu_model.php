@@ -5,7 +5,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_internal/hitung_summary_absen_int_menu";
- 	protected $table_name 				= _PREFIX_TABLE."summary_absen_internal";
+ 	protected $table_name 				= _PREFIX_TABLE."special_summary_absen_internal";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -40,7 +40,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 		}*/
 
 		$sTable = '(select a.*, b.name_indo as month_name
-					from summary_absen_internal a 
+					from special_summary_absen_internal a 
 					left join master_month b on b.id = a.bulan_penggajian
 					where 1=1 
 				)dt';
@@ -181,7 +181,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-			/*$cek_payslip = $this->db->query("select id from payroll_slip where employee_id = ".$row->emp_id." and periode_bulan = ".$row->bulan." and periode_tahun = '".$row->tahun."' ")->result();*/
+			/*$cek_payslip = $this->db->query("select id from special_payroll_slip_internal where employee_id = ".$row->emp_id." and periode_bulan = ".$row->bulan." and periode_tahun = '".$row->tahun."' ")->result();*/
 			$cek_payslip = '';
 
 
@@ -291,7 +291,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 	    $bulan = trim($post['penggajian_month']);
 	    $tahun = trim($post['penggajian_year']);
 
-	    $cekdata = $this->db->query("select * from summary_absen_internal where bulan_penggajian = ".$bulan." and tahun_penggajian = '".$tahun."' ")->result(); 
+	    $cekdata = $this->db->query("select * from special_summary_absen_internal where bulan_penggajian = ".$bulan." and tahun_penggajian = '".$tahun."' ")->result(); 
 
 	    if(empty($cekdata)){
 	    	/* ===============================
@@ -380,12 +380,12 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 		        $header = $this->db
 		            ->where('bulan_penggajian', $bulan)
 		            ->where('tahun_penggajian', $tahun)
-		            ->get('summary_absen_internal')
+		            ->get('special_summary_absen_internal')
 		            ->row();
 
 		        if (!$header) {
 
-		            $this->db->insert('summary_absen_internal', [
+		            $this->db->insert('special_summary_absen_internal', [
 		                'bulan_penggajian' => $bulan,
 		                'tahun_penggajian' => $tahun,
 		                'tgl_start_absen'  => $period_start,
@@ -435,7 +435,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 
 		    if (!empty($insert_batch)) {
 		        $this->db->insert_batch(
-		            'summary_absen_internal_detail',
+		            'special_summary_absen_internal_detail',
 		            $insert_batch
 		        );
 		    }
@@ -473,7 +473,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 					'tgl_start_absen' 	=> $period_start,
 					'tgl_end_absen' 	=> $period_end
 				];
-				$rs = $this->db->update("summary_absen_internal", $data, "id = '".$post['id']."'");
+				$rs = $this->db->update("special_summary_absen_internal", $data, "id = '".$post['id']."'");
 
 
 				if(isset($post['hdnempid'])){
@@ -502,7 +502,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 									'total_jam_lembur' 	=> trim($post['ttl_jam_lembur'][$i])
 								];
 
-								$this->db->update("summary_absen_internal_detail", $itemData, "id = '".$hdnid."'");
+								$this->db->update("special_summary_absen_internal_detail", $itemData, "id = '".$hdnid."'");
 							}
 						}else{ //insert
 							if(isset($post['hdnempid'][$i])){
@@ -518,7 +518,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 									'total_jam_lembur' 	=> trim($post['ttl_jam_lembur'][$i])
 								];
 
-								$this->db->insert('summary_absen_internal_detail', $itemData);
+								$this->db->insert('special_summary_absen_internal_detail', $itemData);
 							}
 						}
 					}
@@ -552,7 +552,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 	}  
 
 	public function getRowData($id) { 
-		$mTable = '(select a.*, b.name_indo as month_name from summary_absen_internal a 
+		$mTable = '(select a.*, b.name_indo as month_name from special_summary_absen_internal a 
 					left join master_month b on b.id = a.bulan_penggajian
 			)dt';
 
@@ -589,7 +589,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 
 		
 		$sql = 'select a.*, b.name_indo as month_name
-					from summary_absen_internal a 
+					from special_summary_absen_internal a 
 					left join master_month b on b.id = a.bulan_penggajian
 					where 1=1 
 	   			ORDER BY a.id ASC
@@ -663,7 +663,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 								    a.full_name,
 								    b.*
 								FROM employees a
-								LEFT JOIN summary_absen_internal_detail b 
+								LEFT JOIN special_summary_absen_internal_detail b 
 								    ON b.emp_id = a.id
 								    AND b.summary_absen_internal_id = ".$id."
 								WHERE a.emp_source = 'internal' and a.is_special_payroll = 1

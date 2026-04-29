@@ -58,7 +58,7 @@ class Absensi_os_menu extends MY_Controller
 			// }
 
 			// $dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-			// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+			// 		from shift_schedule_os a left join group_shift_schedule_os b on b.shift_schedule_id = a.id 
 			// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
 			// 		where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result(); 
 			
@@ -67,7 +67,7 @@ class Absensi_os_menu extends MY_Controller
 			// 	$period = date("Y-m");
 			// 	$tgl = date("d");
 			// 	$dt = $this->db->query("select a.*, b.periode, b.`".$tgl."` as 'shift', c.time_in, c.time_out, c.name 
-			// 		from shift_schedule a left join group_shift_schedule b on b.shift_schedule_id = a.id 
+			// 		from shift_schedule_os a left join group_shift_schedule_os b on b.shift_schedule_id = a.id 
 			// 		left join master_shift_time c on c.shift_id = b.`".$tgl."`
 			// 		where b.employee_id = '".$karyawan_id."' and a.period = '".$period."' ")->result();
 
@@ -108,8 +108,8 @@ class Absensi_os_menu extends MY_Controller
 			            concat(str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d'), ' ', c.time_out)
 			    end as expected_checkout,
 			    c.time_in, c.time_out, str_to_date(concat(a.period, '-', '".$tgl."'), '%Y-%m-%d') as date_attendance
-			from shift_schedule a
-			left join group_shift_schedule b on b.shift_schedule_id = a.id 
+			from shift_schedule_os a
+			left join group_shift_schedule_os b on b.shift_schedule_id = a.id 
 			left join master_shift_time c on c.shift_id = b.`".$tgl."`
 			where b.employee_id = '".$karyawan_id."'
 			and a.period = '".$period."'
@@ -262,3 +262,4 @@ class Absensi_os_menu extends MY_Controller
 
 
 }
+

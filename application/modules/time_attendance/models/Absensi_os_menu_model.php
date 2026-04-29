@@ -138,7 +138,7 @@ class Absensi_os_menu_model extends MY_Model
 					      AND a.date_attendance BETWEEN DATE(o.datetime_start) AND DATE(o.datetime_end)
 					      AND o.status_id = 2 
 					      AND o.type = 2
-					LEFT JOIN group_shift_schedule gss 
+					LEFT JOIN group_shift_schedule_os gss 
 					       ON gss.employee_id = a.employee_id
 					      AND gss.periode = DATE_FORMAT(a.date_attendance, "%Y-%m")
 					'.$whr.'
@@ -741,8 +741,8 @@ class Absensi_os_menu_model extends MY_Model
 				$dt = $this->db->query("select a.*, b.periode
 						, b.`".$tgl."` as 'shift' 
 						, c.time_in, c.time_out, c.name 
-						from shift_schedule a
-						left join group_shift_schedule b on b.shift_schedule_id = a.id 
+						from shift_schedule_os a
+						left join group_shift_schedule_os b on b.shift_schedule_id = a.id 
 						left join master_shift_time c on c.shift_id = b.`".$tgl."`
 						where b.employee_id = '".$cek_emp[0]->employee_id."' and a.period = '".$period."' ")->result(); 
 			}else{
@@ -936,8 +936,8 @@ class Absensi_os_menu_model extends MY_Model
 				$dt = $this->db->query("select a.*, b.periode
 						, b.`".$tgl."` as 'shift' 
 						, c.time_in, c.time_out, c.name 
-						from shift_schedule a
-						left join group_shift_schedule b on b.shift_schedule_id = a.id 
+						from shift_schedule_os a
+						left join group_shift_schedule_os b on b.shift_schedule_id = a.id 
 						left join master_shift_time c on c.shift_id = b.`".$tgl."`
 						where b.employee_id = '".$cek_emp[0]->employee_id."' and a.period = '".$period."' ")->result(); 
 			}else{
@@ -1136,8 +1136,8 @@ class Absensi_os_menu_model extends MY_Model
 			$dt = $this->db->query("select a.*, b.periode
 					, b.`".$tgl."` as 'shift' 
 					, c.time_in, c.time_out, c.name 
-					from shift_schedule a
-					left join group_shift_schedule b on b.shift_schedule_id = a.id  
+					from shift_schedule_os a
+					left join group_shift_schedule_os b on b.shift_schedule_id = a.id  
 					left join master_shift_time c on c.shift_id = b.`".$tgl."`
 					where a.employee_id = '".$empid."' and b.periode = '".$period."' ")->result(); 
 
@@ -1307,3 +1307,4 @@ class Absensi_os_menu_model extends MY_Model
 	
 
 }
+

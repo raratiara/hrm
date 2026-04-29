@@ -151,8 +151,8 @@ class Spt_os_menu extends MY_Controller
 		        (case when e.nationality = '' then '-' 
 			    when e.nationality like '%indonesia%' then 'no' 
 			    else 'yes' end) as is_karyawan_asing, b.created_at
-			from spt_pph21_detail a 
-			left join spt_pph21 b on b.id = a.spt_pph21_id
+			from special_spt_pph21_detail a 
+			left join special_spt_pph21 b on b.id = a.spt_pph21_id
 			left join project_outsource c on c.id = b.project_id
 			left join master_status_spt d on d.id = b.status_id
 			left join employees e on e.id = a.employee_id

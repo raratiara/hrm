@@ -5,7 +5,7 @@ class History_bpjs_int_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_internal/history_bpjs_int_menu";
- 	protected $table_name 				= _PREFIX_TABLE."history_bpjs_internal";
+ 	protected $table_name 				= _PREFIX_TABLE."special_history_bpjs_internal";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -47,7 +47,7 @@ class History_bpjs_int_menu_model extends MY_Model
 
 		$where="";
 		if($where_disetor != "" || $where_dikembalikan != ""){
-			$where = " left join history_bpjs_detail_internal d on d.history_bpjs_id = a.id 
+			$where = " left join special_history_bpjs_detail_internal d on d.history_bpjs_id = a.id 
 						where 1=1 ".$where_disetor.$where_dikembalikan." ";
 		}
 
@@ -55,7 +55,7 @@ class History_bpjs_int_menu_model extends MY_Model
 		$sIndexColumn = $this->primary_key;
 		$sTable = '(select a.*, b.name_indo as periode_gaji_bulan_name, 
 					concat(b.name_indo, " ",a.periode_gaji_tahun) as periode
-					from history_bpjs_internal a left join master_month b on b.id = a.periode_gaji_bulan 
+					from special_history_bpjs_internal a left join master_month b on b.id = a.periode_gaji_bulan 
 					'.$where.')dt';
 		
 
@@ -287,7 +287,7 @@ class History_bpjs_int_menu_model extends MY_Model
 	public function getRowData($id) { 
 		$mTable = '(select a.*, b.name_indo as periode_gaji_bulan_name, 
 					concat(b.name_indo, " ",a.periode_gaji_tahun) as periode
-					from history_bpjs_internal a left join master_month b on b.id = a.periode_gaji_bulan 
+					from special_history_bpjs_internal a left join master_month b on b.id = a.periode_gaji_bulan 
 			)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -322,7 +322,7 @@ class History_bpjs_int_menu_model extends MY_Model
             	$periode_gaji_tahun = $row[2];
 
          		if($employee_id != ''){ 
-         			$dataBpjs = $this->db->query("select a.*, b.periode_gaji_bulan, b.periode_gaji_tahun from history_bpjs_detail_internal a left join history_bpjs_internal b on b.id = a.history_bpjs_id where employee_id = '".$employee_id."' and  b.periode_gaji_bulan = '".$periode_gaji_bulan."' and b.periode_gaji_tahun = '".$periode_gaji_tahun."'")->result();
+         			$dataBpjs = $this->db->query("select a.*, b.periode_gaji_bulan, b.periode_gaji_tahun from special_history_bpjs_detail_internal a left join special_history_bpjs_internal b on b.id = a.history_bpjs_id where employee_id = '".$employee_id."' and  b.periode_gaji_bulan = '".$periode_gaji_bulan."' and b.periode_gaji_tahun = '".$periode_gaji_tahun."'")->result();
 
          			if(!empty($dataBpjs)){
          				$iddetail = $dataBpjs[0]->id;
@@ -332,7 +332,7 @@ class History_bpjs_int_menu_model extends MY_Model
 			                'tanggal_dikembalikan' 	=> trim($row[4])
 			            ];
 
-			            $rs = $this->db->update("history_bpjs_detail_internal", $data, "id = '".$iddetail."'");
+			            $rs = $this->db->update("special_history_bpjs_detail_internal", $data, "id = '".$iddetail."'");
 
 
 			            if (!$rs) $error .=",baris ". $baris;
@@ -356,7 +356,7 @@ class History_bpjs_int_menu_model extends MY_Model
 
 		$sql = "select a.*, b.name_indo as periode_gaji_bulan_name,
 					concat(b.name_indo, ' ',a.periode_gaji_tahun) as periode
-					from history_bpjs_internal a left join master_month b on b.id = a.periode_gaji_bulan 
+					from special_history_bpjs_internal a left join master_month b on b.id = a.periode_gaji_bulan 
 			order by a.id asc
 		";
 
@@ -388,7 +388,7 @@ class History_bpjs_int_menu_model extends MY_Model
 
 		$dt = ''; 
 		
-		$rs = $this->db->query("select a.*, b.emp_code, b.full_name from history_bpjs_detail_internal a 
+		$rs = $this->db->query("select a.*, b.emp_code, b.full_name from special_history_bpjs_detail_internal a 
 								left join employees b on b.id = a.employee_id
 								where b.emp_source = 'internal' and b.is_special_payroll = 1 and a.history_bpjs_id = ".$id."
 								order by b.full_name

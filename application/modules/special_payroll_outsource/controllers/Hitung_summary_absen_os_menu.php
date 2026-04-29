@@ -153,8 +153,8 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 			b.total_lembur,
 			b.total_jam_kerja,
 			b.total_jam_lembur
-			from summary_absen_outsource a 
-			left join summary_absen_outsource_detail b on b.summary_absen_outsource_id = a.id
+			from special_summary_absen_outsource a 
+			left join special_summary_absen_outsource_detail b on b.summary_absen_outsource_id = a.id
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			left join project_outsource d on d.id = a.project_id
@@ -280,8 +280,8 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 			b.total_lembur,
 			b.total_jam_kerja,
 			b.total_jam_lembur
-			from summary_absen_outsource a 
-			left join summary_absen_outsource_detail b on b.summary_absen_outsource_id = a.id
+			from special_summary_absen_outsource a 
+			left join special_summary_absen_outsource_detail b on b.summary_absen_outsource_id = a.id
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			left join project_outsource d on d.id = a.project_id
@@ -376,7 +376,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 				'updated_by' 		=> $_SESSION['worker']
 			];
 
-			$rs = $this->db->update('summary_absen_outsource', $data, "id = '".$id."'");
+			$rs = $this->db->update('special_summary_absen_outsource', $data, "id = '".$id."'");
 
 
 			return $rs;
@@ -467,7 +467,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	    // ================= CEK DATA =================
 	    $cek_data = $this->db->query("
 	        SELECT a.*, b.project_id
-	        FROM summary_absen_outsource a
+	        FROM special_summary_absen_outsource a
 	        LEFT JOIN employees b ON b.id = a.emp_id
 	        WHERE a.bulan = ?
 	          AND a.tahun = ?
@@ -533,7 +533,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	            $itemData['updated_at'] = date('Y-m-d H:i:s');
 	            $itemData['updated_by'] = $_SESSION['worker'];
 
-	            if ($this->db->update('summary_absen_outsource', $itemData, ['id' => $hdnid])) {
+	            if ($this->db->update('special_summary_absen_outsource', $itemData, ['id' => $hdnid])) {
 	                $success = true;
 	            }
 	        } else {
@@ -544,7 +544,7 @@ class Hitung_summary_absen_os_menu extends MY_Controller
 	            $itemData['created_at'] = date('Y-m-d H:i:s');
 	            $itemData['created_by'] = $_SESSION['worker'];
 
-	            if ($this->db->insert('summary_absen_outsource', $itemData)) {
+	            if ($this->db->insert('special_summary_absen_outsource', $itemData)) {
 	                $success = true;
 	            }
 	        }

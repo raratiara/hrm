@@ -5,7 +5,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_internal/hitung_gaji_int_menu";
- 	protected $table_name 				= _PREFIX_TABLE."payroll_slip_internal";
+ 	protected $table_name 				= _PREFIX_TABLE."special_payroll_slip_internal";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -38,7 +38,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 
 		$sTable = '(select a.*, b.name_indo as month_name, c.name as status_payroll
-					from payroll_slip_internal a 
+					from special_payroll_slip_internal a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join master_payroll_status c on c.id = a.status 
 					where 1=1 
@@ -346,8 +346,8 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	    ");
 
 	    $this->db->from('employees e');
-	    $this->db->join('summary_absen_internal_detail sd', 'sd.emp_id = e.id', 'left');
-	    $this->db->join('summary_absen_internal s', 's.id = sd.summary_absen_internal_id', 'left');
+	    $this->db->join('special_summary_absen_internal_detail sd', 'sd.emp_id = e.id', 'left');
+	    $this->db->join('special_summary_absen_internal s', 's.id = sd.summary_absen_internal_id', 'left');
 
 	    $this->db->join("(SELECT b.id_employee,
 	                        SUM(b.nominal_cicilan_per_bulan) as ttl_hutang
@@ -384,10 +384,10 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	    $header = $this->db->where([
 	        'bulan_penggajian' => $bulan,
 	        'tahun_penggajian' => $tahun
-	    ])->get('payroll_slip_internal')->row();
+	    ])->get('special_payroll_slip_internal')->row();
 
 	    if (!$header) {
-	        $this->db->insert('payroll_slip_internal', [
+	        $this->db->insert('special_payroll_slip_internal', [
 	            'bulan_penggajian' => $bulan,
 	            'tahun_penggajian' => $tahun,
 	            'tgl_start_absen'  => $data[0]->tgl_start_absen,
@@ -405,10 +405,10 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	    $bpjs_header = $this->db->where([
 	        'periode_gaji_bulan' => $bulan,
 	        'periode_gaji_tahun' => $tahun
-	    ])->get('history_bpjs_internal')->row();
+	    ])->get('special_history_bpjs_internal')->row();
 
 	    if (!$bpjs_header) {
-	        $this->db->insert("history_bpjs_internal", [
+	        $this->db->insert("special_history_bpjs_internal", [
 	            'periode_gaji_bulan' => $bulan,
 	            'periode_gaji_tahun' => $tahun
 	        ]);
@@ -450,7 +450,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        $bpjs_detail = $this->db->where([
 	            'history_bpjs_id' => $history_bpjs_id,
 	            'employee_id'     => $row->employee_id
-	        ])->get('history_bpjs_detail_internal')->row();
+	        ])->get('special_history_bpjs_detail_internal')->row();
 
 	        $data_bpjs_detail = [
 	            'history_bpjs_id'       => $history_bpjs_id,
@@ -463,9 +463,9 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        ];
 
 	        if ($bpjs_detail) {
-	            $this->db->update("history_bpjs_detail_internal", $data_bpjs_detail, ['id' => $bpjs_detail->id]);
+	            $this->db->update("special_history_bpjs_detail_internal", $data_bpjs_detail, ['id' => $bpjs_detail->id]);
 	        } else {
-	            $this->db->insert("history_bpjs_detail_internal", $data_bpjs_detail);
+	            $this->db->insert("special_history_bpjs_detail_internal", $data_bpjs_detail);
 	        }
 
 	        // =========================
@@ -500,7 +500,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	    }
 
 	    if (!empty($insertDetail)) {
-	        $this->db->insert_batch('payroll_slip_detail_internal', $insertDetail);
+	        $this->db->insert_batch('special_payroll_slip_detail_internal', $insertDetail);
 	    }
 
 	    $this->db->trans_complete();
@@ -556,7 +556,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        'tgl_end_absen'    => $period_end
 	    ];
 
-	    $this->db->update("payroll_slip_internal", $dataHeader, ['id' => $post['id']]);
+	    $this->db->update("special_payroll_slip_internal", $dataHeader, ['id' => $post['id']]);
 
 	    // =========================
 	    // CEK / BUAT HEADER BPJS (NO PROJECT)
@@ -564,10 +564,10 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	    $bpjs_header = $this->db->where([
 	        'periode_gaji_bulan' => $bulan,
 	        'periode_gaji_tahun' => $tahun
-	    ])->get('history_bpjs_internal')->row();
+	    ])->get('special_history_bpjs_internal')->row();
 
 	    if (!$bpjs_header) {
-	        $this->db->insert("history_bpjs_internal", [
+	        $this->db->insert("special_history_bpjs_internal", [
 	            'periode_gaji_bulan' => $bulan,
 	            'periode_gaji_tahun' => $tahun
 	        ]);
@@ -620,11 +620,11 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            ];
 
 	            if (!empty($hdnid)) {
-	                $this->db->update("payroll_slip_detail_internal", $itemData, ['id' => $hdnid]);
+	                $this->db->update("special_payroll_slip_detail_internal", $itemData, ['id' => $hdnid]);
 	            } else {
 	                $itemData['payroll_slip_id'] = $post['id'];
 	                $itemData['employee_id']     = $employee_id;
-	                $this->db->insert('payroll_slip_detail_internal', $itemData);
+	                $this->db->insert('special_payroll_slip_detail_internal', $itemData);
 	            }
 
 	            // =========================
@@ -633,7 +633,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            $bpjs_detail = $this->db->where([
 	                'history_bpjs_id' => $history_bpjs_id,
 	                'employee_id'     => $employee_id
-	            ])->get('history_bpjs_detail_internal')->row();
+	            ])->get('special_history_bpjs_detail_internal')->row();
 
 	            $data_bpjs_detail = [
 	                'history_bpjs_id'        => $history_bpjs_id,
@@ -644,9 +644,9 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            ];
 
 	            if ($bpjs_detail) {
-	                $this->db->update("history_bpjs_detail_internal", $data_bpjs_detail, ['id' => $bpjs_detail->id]);
+	                $this->db->update("special_history_bpjs_detail_internal", $data_bpjs_detail, ['id' => $bpjs_detail->id]);
 	            } else {
-	                $this->db->insert("history_bpjs_detail_internal", $data_bpjs_detail);
+	                $this->db->insert("special_history_bpjs_detail_internal", $data_bpjs_detail);
 	            }
 	        }
 	    }
@@ -664,7 +664,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 		
 		$mTable = "(select a.*, b.name_indo as month_name
-					from payroll_slip_internal a 
+					from special_payroll_slip_internal a 
 					left join master_month b on b.id = a.bulan_penggajian
 					
 			)dt";
@@ -704,7 +704,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	{
 
 		$sql = "select a.*, b.name_indo as month_name
-					from payroll_slip_internal a 
+					from special_payroll_slip_internal a 
 					left join master_month b on b.id = a.bulan_penggajian
 					where 1=1 
 		";
@@ -717,7 +717,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 	public function getSummaryAbsen($bln, $thn){ 
 
-		$rs = $this->db->query("select * from  summary_absen_internal where bulan_penggajian = ".$bln." and tahun_penggajian = '".$thn."' limit 1")->result(); 
+		$rs = $this->db->query("select * from  special_summary_absen_internal where bulan_penggajian = ".$bln." and tahun_penggajian = '".$thn."' limit 1")->result(); 
 
 		
 
@@ -727,7 +727,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 	public function getGaji($bln, $thn){ 
 
-		$rs = $this->db->query("select a.* from  payroll_slip_internal a 
+		$rs = $this->db->query("select a.* from  special_payroll_slip_internal a 
 				left join employees b on b.id = a.employee_id
 				where b.emp_source = 'internal' and b.is_special_payroll = 1 and a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' limit 1")->result(); 
 
@@ -762,8 +762,8 @@ class Hitung_gaji_int_menu_model extends MY_Model
 		
 
 		$rs = $this->db->query("select a.*, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian
-			from summary_absen_internal_detail a left join employees b on b.id = a.emp_id
-			left join summary_absen_internal c on c.id = a.summary_absen_internal_id
+			from special_summary_absen_internal_detail a left join employees b on b.id = a.emp_id
+			left join special_summary_absen_internal c on c.id = a.summary_absen_internal_id
 			where b.emp_source = 'internal' and b.is_special_payroll = 1 and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' 
 			order by b.full_name asc
 
@@ -780,8 +780,8 @@ class Hitung_gaji_int_menu_model extends MY_Model
 				$no = $row+1;
 
 				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id, c.status as status_payroll
-				from employees a left join payroll_slip_detail_internal b on b.employee_id = a.id 
-				left join payroll_slip_internal c on c.id = b.payroll_slip_id
+				from employees a left join special_payroll_slip_detail_internal b on b.employee_id = a.id 
+				left join special_payroll_slip_internal c on c.id = b.payroll_slip_id
 				where a.emp_source = 'internal' and a.is_special_payroll = 1 and a.id = '".$f->emp_id."' and a.status_id = 1 
 				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' ")->result(); 
 

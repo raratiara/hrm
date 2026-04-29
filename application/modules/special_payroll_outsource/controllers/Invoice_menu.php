@@ -119,7 +119,7 @@ class Invoice_menu extends MY_Controller
 	            a.total_lembur,
 	            a.total_jam_kerja,
 	            a.total_jam_lembur
-	        from summary_absen_outsource a 
+	        from special_summary_absen_outsource a 
 	        left join employees b on b.id = a.emp_id 
 	        left join master_month c on c.id = a.bulan
 	        where b.emp_source = 'outsource' and b.is_special_payroll = 1
@@ -208,7 +208,7 @@ class Invoice_menu extends MY_Controller
 	    $content = ob_get_clean();
 
 	    header("Content-Type: application/vnd.ms-excel");
-	    header("Content-Disposition: attachment; filename=summary_absen_outsource.xls");
+	    header("Content-Disposition: attachment; filename=special_summary_absen_outsource.xls");
 	    header("Cache-Control: max-age=0");
 	    echo $content;
 	    exit;
@@ -234,7 +234,7 @@ class Invoice_menu extends MY_Controller
 				left join project_invoice b on b.id = a.project_invoice_id
 				left join project_outsource c on c.id = b.project_id
 				left join master_job_title_os d on d.id = a.job_title_id
-				left join payroll_slip e on e.id = b.payroll_slip_id
+				left join special_payroll_slip e on e.id = b.payroll_slip_id
 				left join master_month f on f.id = e.bulan_penggajian
 				left join data_customer g on g.id = c.customer_id
 				where a.project_invoice_id = ".$_GET['id']."
@@ -293,7 +293,7 @@ class Invoice_menu extends MY_Controller
 				left join project_invoice b on b.id = a.project_invoice_id
 				left join project_outsource c on c.id = b.project_id
 				left join master_job_title_os d on d.id = a.job_title_id
-				left join payroll_slip e on e.id = b.payroll_slip_id
+				left join special_payroll_slip e on e.id = b.payroll_slip_id
 				left join master_month f on f.id = e.bulan_penggajian
 				left join data_customer g on g.id = c.customer_id
 				where a.project_invoice_id = ".$_GET['id']."
@@ -365,7 +365,7 @@ class Invoice_menu extends MY_Controller
 				left join project_invoice b on b.id = a.project_invoice_id
 				left join project_outsource c on c.id = b.project_id
 				left join master_job_title_os d on d.id = a.job_title_id
-				left join payroll_slip e on e.id = b.payroll_slip_id
+				left join special_payroll_slip e on e.id = b.payroll_slip_id
 				left join master_month f on f.id = e.bulan_penggajian
 				left join data_customer g on g.id = c.customer_id
 				left join master_work_location_outsource h on h.id = c.lokasi_id

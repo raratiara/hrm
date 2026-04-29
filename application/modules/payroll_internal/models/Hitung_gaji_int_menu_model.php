@@ -217,10 +217,13 @@ class Hitung_gaji_int_menu_model extends MY_Model
                 <i class="fa fa-download"></i>
                 Rekap Absen
             </a>';
-            $print_rekap_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRekapGaji('."'".$row->id."'".')">
-                <i class="fa fa-download"></i>
-                Rekap Gaji
-            </a>';
+            $print_rekap_gaji = "";
+            if($row->status == 2){ //terbayar
+	            $print_rekap_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRekapGaji('."'".$row->id."'".')">
+	                <i class="fa fa-download"></i>
+	                Rekap Gaji
+	            </a>';
+	        }
 
 
 			array_push($output["aaData"],array(
@@ -318,6 +321,14 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        ->get()
 	        ->row();
 
+	    if (!$codemonth) {
+	        $this->db->trans_complete();
+	        return [
+	            "status" => false,
+	            "msg"    => "Bulan Penggajian tidak valid"
+	        ];
+	    }
+
 	    $periode_gaji = $tahun . '-' . $codemonth->code;
 
 	    // =========================
@@ -359,7 +370,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	                     "left");
 
 	    $this->db->where('e.emp_source', 'internal');
-	   	$this->db->where('e.is_special_payroll !=', 1);
+	   	$this->db->where('IFNULL(e.is_special_payroll,0) != 1', null, false);
 	    $this->db->where('e.status_id', 1);
 	    $this->db->where('s.bulan_penggajian', $bulan);
 	    $this->db->where('s.tahun_penggajian', $tahun);
@@ -397,6 +408,17 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        $payroll_slip_id = $this->db->insert_id();
 	    } else {
 	        $payroll_slip_id = $header->id;
+	    }
+
+	    $employeeIds = array_map(function ($row) {
+	        return (int) $row->employee_id;
+	    }, $data);
+
+	    if (!empty($employeeIds)) {
+	        $this->db
+	            ->where('payroll_slip_id', $payroll_slip_id)
+	            ->where_in('employee_id', $employeeIds)
+	            ->delete('payroll_slip_detail_internal');
 	    }
 
 	    // =========================
@@ -727,9 +749,8 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 	public function getGaji($bln, $thn){ 
 
-		$rs = $this->db->query("select a.* from  payroll_slip_internal a 
-				left join employees b on b.id = a.employee_id
-				where b.emp_source = 'internal' and b.is_special_payroll != 1 and a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' limit 1")->result(); 
+		$rs = $this->db->query("select a.* from payroll_slip_internal a
+				where a.bulan_penggajian = ".$bln." and a.tahun_penggajian = '".$thn."' limit 1")->result(); 
 
 		
 
@@ -764,7 +785,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 		$rs = $this->db->query("select a.*, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian
 			from summary_absen_internal_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_internal c on c.id = a.summary_absen_internal_id
-			where b.emp_source = 'internal' and b.is_special_payroll != 1 and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' 
+			where b.emp_source = 'internal' and IFNULL(b.is_special_payroll,0) != 1 and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' 
 			order by b.full_name asc
 
 		")->result();
@@ -782,7 +803,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id, c.status as status_payroll
 				from employees a left join payroll_slip_detail_internal b on b.employee_id = a.id 
 				left join payroll_slip_internal c on c.id = b.payroll_slip_id
-				where a.emp_source = 'internal' and a.is_special_payroll != 1 and a.id = '".$f->emp_id."' and a.status_id = 1 
+				where a.emp_source = 'internal' and IFNULL(a.is_special_payroll,0) != 1 and a.id = '".$f->emp_id."' and a.status_id = 1 
 				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' ")->result(); 
 
 				$gaji_bulanan = (int)$f->gaji_bulanan;

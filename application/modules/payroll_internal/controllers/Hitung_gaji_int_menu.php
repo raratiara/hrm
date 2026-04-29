@@ -51,7 +51,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 		$msmonth 					= $this->db->query("select * from master_month order by id asc")->result(); 
 		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','required',3,'-');
 		
-		$msemp 						= $this->db->query("select * from employees where emp_source = 'internal' and status_id = 1 and is_special_payroll != 1 order by full_name asc")->result(); 
+		$msemp 						= $this->db->query("select * from employees where emp_source = 'internal' and status_id = 1 and IFNULL(is_special_payroll,0) != 1 order by full_name asc")->result(); 
 		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
 		
 		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
@@ -152,7 +152,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
 			LEFT JOIN master_job_title e ON e.id = b.job_title_id
-			WHERE b.emp_source = 'internal' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']."
+			WHERE b.emp_source = 'internal' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']."
 			ORDER BY b.full_name
         ";
 
@@ -163,10 +163,6 @@ class Hitung_gaji_int_menu extends MY_Controller
             echo "<script>alert('Slip Gaji tidak ditemukan');window.close();</script>";
             exit;
         }
-
-        $project_name = $data[0]->project_name;
-
-       
 
         $pdfData = [
             'employees' => $data
@@ -208,7 +204,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 				left join employees b on b.id = bb.employee_id 
 				left join master_month c on c.id = a.bulan_penggajian
 				left join master_job_title e on e.id = b.job_title_id
-				where b.emp_source = 'internal' and b.is_special_payroll != 1 and a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
+				where b.emp_source = 'internal' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -295,11 +291,10 @@ class Hitung_gaji_int_menu extends MY_Controller
 
 	public function getGaji(){
 		$post = $this->input->post(null, true);
-		$project = $post['project'];
 		$bln 	= $post['bln'];
 		$thn 	= $post['thn'];
 
-		$rs =  $this->self_model->getGaji($project, $bln, $thn);
+		$rs =  $this->self_model->getGaji($bln, $thn);
 		
 
 		echo json_encode($rs);
@@ -501,7 +496,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
 			LEFT JOIN master_job_title e ON e.id = b.job_title_id
-			WHERE b.emp_source = 'internal' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." 
+			WHERE b.emp_source = 'internal' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." 
 			ORDER BY b.full_name
 	    ";
 
@@ -593,7 +588,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 				from payroll_slip a 
 				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id
-				where b.emp_source = 'internal' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+				where b.emp_source = 'internal' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 				ORDER BY b.full_name ASC
 	        ";
 
@@ -668,7 +663,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 	    $this->load->library('html_pdf');
 
 	    $dtPayroll = $this->db->query("select concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian
-			from payroll_slip a 
+			from payroll_slip_internal a 
 			left join master_month b on b.id = a.bulan_penggajian
 			where a.id = ".$_GET['payroll_id']." ")->result();
 	    $periode_penggajian = $dtPayroll[0]->periode_penggajian;
@@ -682,7 +677,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 			left join employees c on c.id = b.employee_id
 			left join master_job_title d on d.id = c.job_title_id
 			left join master_emp_status e on e.id = c.employment_status_id
-			where b.emp_source = 'internal' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." 
+			where c.emp_source = 'internal' and IFNULL(c.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." 
 			order by c.full_name asc
 	    ";
 

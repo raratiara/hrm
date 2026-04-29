@@ -240,10 +240,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
                 <i class="fa fa-download"></i>
                 Rekap Absen
             </a>';
-            $print_rekap_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRekapGajiOS('."'".$row->id."'".')">
-                <i class="fa fa-download"></i>
-                Rekap Gaji
-            </a>';
+            $print_rekap_gaji = "";
+            if($row->status == 2){ //terbayar
+	            $print_rekap_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRekapGajiOS('."'".$row->id."'".')">
+	                <i class="fa fa-download"></i>
+	                Rekap Gaji
+	            </a>';
+	        }
 
 
 			array_push($output["aaData"],array(
@@ -371,6 +374,14 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        ->get()
 	        ->row();
 
+	    if (!$codemonth) {
+	        $this->db->trans_complete();
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Bulan Penggajian tidak valid"
+			];
+	    }
+
 	    $periode_gaji = $tahun . '-' . $codemonth->code;
 
 	    // =========================
@@ -419,6 +430,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    $this->db->join('data_customer t', 't.id = e.cust_id', 'left');
 
 	    $this->db->where('e.emp_source', 'outsource');
+	    $this->db->where('IFNULL(e.is_special_payroll,0) != 1', null, false);
 	    $this->db->where('e.status_id', 1);
 	    $this->db->where('s.bulan_penggajian', $bulan);
 	    $this->db->where('s.tahun_penggajian', $tahun);
@@ -448,6 +460,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    $projectHeader = [];
 	    $insertDetail  = [];
 	    $bpjsHeaderCache = [];
+	    $detailEmployeeIdsByPayroll = [];
 
 
 	    foreach ($data as $row) {
@@ -616,11 +629,23 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            'pph_21'      	   => $pph_21,
 	            'pph_21_rate' 	   => $ter_rate
 	        ];
+
+	        $detailEmployeeIdsByPayroll[$projectHeader[$row->project_id]][] = (int) $row->employee_id;
 	    }
 
 	    // =========================
 	    // INSERT BATCH (SUPER CEPAT)
 	    // =========================
+	    foreach ($detailEmployeeIdsByPayroll as $payrollSlipId => $employeeIds) {
+	        $employeeIds = array_values(array_unique($employeeIds));
+	        if (!empty($employeeIds)) {
+	            $this->db
+	                ->where('payroll_slip_id', $payrollSlipId)
+	                ->where_in('employee_id', $employeeIds)
+	                ->delete('payroll_slip_detail');
+	        }
+	    }
+
 	    if (!empty($insertDetail)) {
 	        $this->db->insert_batch('payroll_slip_detail', $insertDetail);
 	    }
@@ -1179,9 +1204,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	public function getGaji($project, $bln, $thn){ 
 
-		$rs = $this->db->query("select a.* from  payroll_slip a 
-				left join employees b on b.id = a.employee_id
-				where b.emp_source = 'outsource' and a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' and b.project_id = ".$project." limit 1")->result(); 
+		$rs = $this->db->query("select a.* from payroll_slip a
+				where a.bulan_penggajian = ".$bln." and a.tahun_penggajian = '".$thn."' and a.project_id = ".$project." limit 1")->result(); 
 
 		
 
@@ -1217,7 +1241,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 			left join data_customer d on d.id = b.cust_id
-			where c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project."
+			where b.emp_source = 'outsource' and IFNULL(b.is_special_payroll,0) != 1 and b.status_id = 1
+			and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project."
 			order by b.full_name asc
 
 		")->result();
@@ -1235,8 +1260,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id, c.status as status_payroll
 				from employees a left join payroll_slip_detail b on b.employee_id = a.id 
 				left join payroll_slip c on c.id = b.payroll_slip_id
-				where a.emp_source = 'outsource' and a.id = '".$f->emp_id."' and a.status_id = 1 
-				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' ")->result(); 
+				where a.emp_source = 'outsource' and IFNULL(a.is_special_payroll,0) != 1 and a.id = '".$f->emp_id."' and a.status_id = 1 
+				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project." ")->result(); 
 
 				$gaji_bulanan = (int)$f->gaji_bulanan;
 				$ter_rate=0;

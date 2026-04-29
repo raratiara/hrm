@@ -54,7 +54,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 		$field['selmonth'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month','penggajian_month','','','id','name_indo',' ','','','required',3,'-');
 		$field['selmonth_edit_gaji'] 			= $this->self_model->return_build_select2me($msmonth,'','','','penggajian_month_edit_gaji','penggajian_month_edit_gaji','','','id','name_indo',' ','','','',3,'-');
 		/*$field['is_all_employee'] 	= $this->self_model->return_build_radio('Ya', [['Ya','Ya'],['Tidak','Tidak']], 'is_all_employee', '', 'inline');*/
-		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 and is_special_payroll != 1 order by full_name asc")->result(); 
+		$msemp 						= $this->db->query("select * from employees where emp_source = 'outsource' and status_id = 1 and IFNULL(is_special_payroll,0) != 1 order by full_name asc")->result(); 
 		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
 		
 		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
@@ -190,7 +190,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			LEFT JOIN project_outsource d ON d.id = b.project_id
 			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
 			LEFT JOIN data_customer f ON f.id = d.customer_id
-			WHERE b.emp_source = 'outsource' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			WHERE b.emp_source = 'outsource' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 			ORDER BY b.full_name
         ";
 
@@ -249,7 +249,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				left join project_outsource d on d.id = b.project_id
 				left join master_job_title_os e on e.id = b.job_title_id
 				left join data_customer f on f.id = d.customer_id
-				where b.emp_source = 'outsource' and b.is_special_payroll != 1 and a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
+				where b.emp_source = 'outsource' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['id']." and bb.employee_id = ".$_GET['emp_id']."  
 		    ";
 
 		    $data = $this->db->query($sql)->result();
@@ -333,14 +333,17 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 		
 	    $sql = "
-	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
-			from payroll_slip a 
-			left join employees b on b.id = a.employee_id 
-			left join master_month c on c.id = a.periode_bulan
+	        select a.*, aa.employee_id, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
+			from payroll_slip_detail aa
+			left join payroll_slip a on a.id = aa.payroll_slip_id
+			left join employees b on b.id = aa.employee_id 
+			left join master_month c on c.id = a.bulan_penggajian
 			left join project_outsource d on d.id = b.project_id
 			left join master_job_title_os e on e.id = b.job_title_id
 			left join data_customer f on f.id = d.customer_id
-			where b.emp_source = 'outsource' and b.is_special_payroll != 1 and a.employee_id = '".$_GET['flemployee']."'
+			where b.emp_source = 'outsource' and IFNULL(b.is_special_payroll,0) != 1 and aa.employee_id = '".$_GET['flemployee']."'
+			order by a.tahun_penggajian desc, a.bulan_penggajian desc
+			limit 1
 	    ";
 
 	    $data = $this->db->query($sql)->result();
@@ -348,7 +351,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    if(!empty($data)){
 	    	$pdfData = [
 			    'periode_bulan'      		=> $data[0]->periode_bulan_name,
-			    'periode_tahun'      		=> $data[0]->periode_tahun,
+			    'periode_tahun'      		=> $data[0]->tahun_penggajian,
 			    'nik'    					=> $data[0]->emp_code,
 			    'emp_name'       			=> $data[0]->full_name,
 			    'project_name'    			=> $data[0]->project_name,
@@ -405,7 +408,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			LEFT JOIN project_outsource d ON d.id = b.project_id
 			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
 			LEFT JOIN data_customer f ON f.id = d.customer_id
-			WHERE b.emp_source = 'outsource' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			WHERE b.emp_source = 'outsource' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 			ORDER BY b.full_name
 	    ";
 
@@ -555,12 +558,11 @@ class Hitung_gaji_os_menu extends MY_Controller
 
 	    // ================= CEK DATA =================
 	    $cek_data = $this->db->query("
-	        SELECT a.*, b.project_id
+	        SELECT a.*
 	        FROM payroll_slip a
-	        LEFT JOIN employees b ON b.id = a.employee_id
-	        WHERE a.periode_bulan = ?
-	          AND a.periode_tahun = ?
-	          AND b.project_id = ?
+	        WHERE a.bulan_penggajian = ?
+	          AND a.tahun_penggajian = ?
+	          AND a.project_id = ?
 	    ", [
 	        $post['penggajian_month_edit_gaji'],
 	        $post['penggajian_year_edit_gaji'],
@@ -576,10 +578,10 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    }
 
 	    if (empty($period_start)) {
-	        $period_start = $cek_data[0]->tgl_start;
+	        $period_start = $cek_data[0]->tgl_start_absen;
 	    }
 	    if (empty($period_end)) {
-	        $period_end = $cek_data[0]->tgl_end;
+	        $period_end = $cek_data[0]->tgl_end_absen;
 	    }
 
 	    // ================= PROSES DETAIL =================
@@ -620,7 +622,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	            'tunjangan_konsumsi' 	=> trim($post['tunj_konsumsi_edit_gaji'][$i]),
 	            'tunjangan_komunikasi'  => trim($post['tunj_komunikasi_edit_gaji'][$i]),
 	            'lembur_perjam'  	=> trim($post['lembur_perjam_edit_gaji'][$i]),
-	            'ot'  				=> trim($post['ot_edit_gaji'][$i]),
+	            'total_nominal_lembur'  => trim($post['ot_edit_gaji'][$i] ?? 0),
 	            'total_pendapatan'  => trim($post['ttl_pendapatan_edit_gaji'][$i]),
 	            'bpjs_kesehatan'  	=> trim($post['bpjs_kes_edit_gaji'][$i]),
 	            'bpjs_tk'  			=> trim($post['bpjs_tk_edit_gaji'][$i]),
@@ -641,35 +643,48 @@ class Hitung_gaji_os_menu extends MY_Controller
 	            $itemData['updated_at'] = date('Y-m-d H:i:s');
 	            $itemData['updated_by'] = $_SESSION['worker'];
 
-	            if ($this->db->update('payroll_slip', $itemData, ['id' => $hdnid])) {
+	            if ($this->db->update('payroll_slip_detail', $itemData, ['id' => $hdnid])) {
 	                $success = true;
 	            }
 	        } else {
 	            // INSERT
-	            $itemData['periode_bulan']  = $post['penggajian_month_edit_gaji'];
-	            $itemData['periode_tahun']  = $post['penggajian_year_edit_gaji'];
+	            $itemData['payroll_slip_id']  = $cek_data[0]->id;
 	            $itemData['employee_id']    = trim($post['hdnempid_gaji'][$i]);
-	            $itemData['tgl_start_absensi']	= trim($post['period_start_edit_gaji']);
-	            $itemData['tgl_end_absensi']    = trim($post['period_end_edit_gaji']);
 	            $itemData['created_at'] 	= date('Y-m-d H:i:s');
 	            $itemData['created_by'] 	= $_SESSION['worker'];
 
 
-	            if ($this->db->insert('payroll_slip', $itemData)) {
+	            if ($this->db->insert('payroll_slip_detail', $itemData)) {
 
 	            	$dataEmp = $this->db->query("select no_bpjs, no_bpjs_ketenagakerjaan from employees where id = ".$post['hdnempid_gaji'][$i]."")->result();
 
+	            	$bpjs_header = $this->db->where([
+	            		'project_id' => $project,
+	            		'periode_gaji_bulan' => $post['penggajian_month_edit_gaji'],
+	            		'periode_gaji_tahun' => $post['penggajian_year_edit_gaji']
+	            	])->get('history_bpjs')->row();
+
+	            	if (!$bpjs_header) {
+	            		$this->db->insert('history_bpjs', [
+	            			'project_id' => $project,
+		            		'periode_gaji_bulan' => $post['penggajian_month_edit_gaji'],
+		            		'periode_gaji_tahun' => $post['penggajian_year_edit_gaji']
+	            		]);
+	            		$history_bpjs_id = $this->db->insert_id();
+	            	} else {
+	            		$history_bpjs_id = $bpjs_header->id;
+	            	}
+
 	            	$log_bpjs = [
-						'employee_id' 		=> trim($post['hdnempid_gaji'][$i]),
-						'no_bpjs_kesehatan' => $dataEmp[0]->no_bpjs,
-						'no_bpjs_tk'  		=> $dataEmp[0]->no_bpjs_ketenagakerjaan,
-						'gaji_pokok' 		=> trim($post['gaji_bulanan_edit_gaji'][$i]),
-						'nominal_bpjs_kesehatan'  => trim($post['bpjs_kes_edit_gaji'][$i]),
-						'nominal_bpjs_tk'  	=> trim($post['bpjs_tk_edit_gaji'][$i]),
-						'tanggal_potong'  	=> date("Y-m-d H:i:s")
-						/*'tanggal_setor'		=> ''*/
+	            		'history_bpjs_id' => $history_bpjs_id,
+						'employee_id' => trim($post['hdnempid_gaji'][$i]),
+						'no_bpjs_kesehatan' => $dataEmp[0]->no_bpjs ?? '',
+						'no_bpjs_tk' => $dataEmp[0]->no_bpjs_ketenagakerjaan ?? '',
+						'nominal_bpjs_kesehatan' => trim($post['bpjs_kes_edit_gaji'][$i]),
+						'nominal_bpjs_tk' => trim($post['bpjs_tk_edit_gaji'][$i]),
+						'tanggal_potong' => date("Y-m-d H:i:s")
 					];
-					$this->db->insert("history_bpjs", $log_bpjs);
+					$this->db->insert("history_bpjs_detail", $log_bpjs);
 
 
 	                $success = true;
@@ -741,7 +756,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			LEFT JOIN project_outsource d ON d.id = b.project_id
 			LEFT JOIN master_job_title_os e ON e.id = b.job_title_id
 			LEFT JOIN data_customer f ON f.id = d.customer_id
-			WHERE b.emp_source = 'outsource' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+			WHERE b.emp_source = 'outsource' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 			ORDER BY b.full_name
 	    ";
 
@@ -834,7 +849,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 				from payroll_slip a 
 				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id
-				where b.emp_source = 'outsource' and b.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+				where b.emp_source = 'outsource' and IFNULL(b.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 				ORDER BY b.full_name ASC
 	        ";
 
@@ -925,7 +940,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 			left join employees c on c.id = b.employee_id
 			left join master_job_title_os d on d.id = c.job_title_id
 			left join master_emp_status e on e.id = c.employment_status_id
-			where c.emp_source = 'outsource' and c.is_special_payroll != 1 and a.id = ".$_GET['payroll_id']." and c.project_id = a.project_id
+			where c.emp_source = 'outsource' and IFNULL(c.is_special_payroll,0) != 1 and a.id = ".$_GET['payroll_id']." and c.project_id = a.project_id
 			order by c.full_name asc
 	    ";
 

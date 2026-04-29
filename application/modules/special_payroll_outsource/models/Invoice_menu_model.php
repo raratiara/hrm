@@ -41,7 +41,7 @@ class Invoice_menu_model extends MY_Model
 		$sTable = '(select a.*, b.project_name, concat(d.name_indo," ",c.tahun_penggajian) as periode_penggajian
 					from project_invoice a 
 					left join project_outsource b on b.id = a.project_id
-					left join payroll_slip c on c.id = a.payroll_slip_id
+					left join special_payroll_slip c on c.id = a.payroll_slip_id
 					left join master_month d on d.id = c.bulan_penggajian
 					where 1=1 '.$where_project.'
 				)dt';
@@ -350,7 +350,7 @@ class Invoice_menu_model extends MY_Model
 					,sum(a.lain_lain) as total_lain_lain, sum(a.hutang) as total_hutang, sum(a.sosial) as total_sosial
 					,sum(a.payroll) as total_payroll, sum(a.pph_120) as total_pph_120, sum(a.gaji_bersih) as total_gaji_bersih
 					,sum(a.total_masuk) as total_masuk
-					from payroll_slip_detail a 
+					from special_payroll_slip_detail a 
 					left join employees b on b.id = a.employee_id
 					where b.emp_source = 'outsource' and b.is_special_payroll = 1 and a.payroll_slip_id = ".$post['periode_gaji']."
 					group by b.job_title_id")->result(); 
@@ -464,7 +464,7 @@ class Invoice_menu_model extends MY_Model
 		$sql = 'select a.*, b.project_name, concat(d.name_indo," ",c.tahun_penggajian) as periode_penggajian
 				from project_invoice a 
 				left join project_outsource b on b.id = a.project_id
-				left join payroll_slip c on c.id = a.payroll_slip_id
+				left join special_payroll_slip c on c.id = a.payroll_slip_id
 				left join master_month d on d.id = c.bulan_penggajian
 				where 1=1 '.$where_project.'
 		';
@@ -478,7 +478,7 @@ class Invoice_menu_model extends MY_Model
 	public function getDataPeriodeGaji($project){ 
 
 		$rs = $this->db->query("select a.*, concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian
-								from payroll_slip a
+								from special_payroll_slip a
 								left join master_month b on b.id = a.bulan_penggajian
 								where project_id = ".$project." ")->result(); 
 
@@ -492,7 +492,7 @@ class Invoice_menu_model extends MY_Model
 
 	public function getDataPayroll($payroll_id){ 
 
-		$rs = $this->db->query("select * from payroll_slip
+		$rs = $this->db->query("select * from special_payroll_slip
 								where id = ".$payroll_id." ")->result(); 
 
 		

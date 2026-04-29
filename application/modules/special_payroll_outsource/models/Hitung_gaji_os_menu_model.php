@@ -5,7 +5,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_outsource/hitung_gaji_os_menu";
- 	protected $table_name 				= _PREFIX_TABLE."payroll_slip";
+ 	protected $table_name 				= _PREFIX_TABLE."special_payroll_slip";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -38,7 +38,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		$sIndexColumn = $this->primary_key;
 		/*$sTable = '(select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
-				from payroll_slip a 
+				from special_payroll_slip a 
 				left join employees b on b.id = a.employee_id 
 				left join master_month c on c.id = a.periode_bulan
 				left join project_outsource d on d.id = b.project_id
@@ -49,7 +49,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 
 		$sTable = '(select a.*, b.name_indo as month_name, c.project_name, d.name as payroll_status 
-					from payroll_slip a 
+					from special_payroll_slip a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
 					left join master_payroll_status d on d.id = a.status
@@ -192,11 +192,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-			/*$cek_history_bpjs = $this->db->query("select * from history_bpjs where project_id = ".$row->project_id." and periode_gaji_bulan = ".$row->bulan_penggajian." and periode_gaji_tahun = '".$row->tahun_penggajian."' ")->result();*/
+			/*$cek_history_bpjs = $this->db->query("select * from special_history_bpjs where project_id = ".$row->project_id." and periode_gaji_bulan = ".$row->bulan_penggajian." and periode_gaji_tahun = '".$row->tahun_penggajian."' ")->result();*/
 
-			$pembayaran_gaji = $this->db->query("select a.id from payroll_paid_history a left join payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->bulan_penggajian." and b.tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
+			$pembayaran_gaji = $this->db->query("select a.id from special_payroll_paid_history a left join special_payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->bulan_penggajian." and b.tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
 
-			$pembayaran_lembur = $this->db->query("select a.id from overtime_paid_history a left join payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->bulan_penggajian." and b.tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
+			$pembayaran_lembur = $this->db->query("select a.id from special_overtime_paid_history a left join special_payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->bulan_penggajian." and b.tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
 			$isEdit = 1; $isDelete = 1;
 			if(!empty($pembayaran_gaji) || !empty($pembayaran_lembur)){
 				$isEdit = 0; $isDelete = 0;
@@ -404,8 +404,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    ");
 
 	    $this->db->from('employees e');
-	    $this->db->join('summary_absen_outsource_detail sd', 'sd.emp_id = e.id', 'left');
-	    $this->db->join('summary_absen_outsource s', 's.id = sd.summary_absen_outsource_id', 'left');
+	    $this->db->join('special_summary_absen_outsource_detail sd', 'sd.emp_id = e.id', 'left');
+	    $this->db->join('special_summary_absen_outsource s', 's.id = sd.summary_absen_outsource_id', 'left');
 
 	    $this->db->join("(SELECT b.id_employee,
 	                        SUM(b.nominal_cicilan_per_bulan) as ttl_hutang
@@ -462,10 +462,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	                'project_id'       => $row->project_id,
 	                'bulan_penggajian' => $bulan,
 	                'tahun_penggajian' => $tahun
-	            ])->get('payroll_slip')->row();
+	            ])->get('special_payroll_slip')->row();
 
 	            if (!$header) {
-	                $this->db->insert('payroll_slip', [
+	                $this->db->insert('special_payroll_slip', [
 	                    'project_id'       => $row->project_id,
 	                    'bulan_penggajian' => $bulan,
 	                    'tahun_penggajian' => $tahun,
@@ -541,11 +541,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			        'project_id'         => $row->project_id,
 			        'periode_gaji_bulan' => $bulan,
 			        'periode_gaji_tahun' => $tahun
-			    ])->get('history_bpjs')->row();
+			    ])->get('special_history_bpjs')->row();
 
 			    if (!$bpjs_header) {
 
-			        $this->db->insert("history_bpjs", [
+			        $this->db->insert("special_history_bpjs", [
 			            'project_id'         => $row->project_id,
 			            'periode_gaji_bulan' => $bulan,
 			            'periode_gaji_tahun' => $tahun
@@ -565,7 +565,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			$bpjs_detail = $this->db->where([
 			    'history_bpjs_id' => $history_bpjs_id,
 			    'employee_id'     => $row->employee_id
-			])->get('history_bpjs_detail')->row();
+			])->get('special_history_bpjs_detail')->row();
 
 			$data_bpjs_detail = [
 			    'history_bpjs_id'       => $history_bpjs_id,
@@ -579,12 +579,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 			if ($bpjs_detail) {
 			    $this->db->update(
-			        "history_bpjs_detail",
+			        "special_history_bpjs_detail",
 			        $data_bpjs_detail,
 			        ['id' => $bpjs_detail->id]
 			    );
 			} else {
-			    $this->db->insert("history_bpjs_detail", $data_bpjs_detail);
+			    $this->db->insert("special_history_bpjs_detail", $data_bpjs_detail);
 			}
 
 
@@ -623,7 +623,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    // INSERT BATCH (SUPER CEPAT)
 	    // =========================
 	    if (!empty($insertDetail)) {
-	        $this->db->insert_batch('payroll_slip_detail', $insertDetail);
+	        $this->db->insert_batch('special_payroll_slip_detail', $insertDetail);
 	    }
 
 	    $this->db->trans_complete();
@@ -677,8 +677,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
   					$emp_id = $rowdata_os->id;
   					
   					$data_summary = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, c.tgl_start_absen, c.tgl_end_absen, d.sistem_lembur, d.nominal_lembur, d.rumus_lembur
-						from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
-						left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
+						from special_summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
+						left join special_summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 						left join data_customer d on d.id = b.cust_id
 						where c.bulan_penggajian = ".$post['penggajian_month']." and c.tahun_penggajian = '".$post['penggajian_year']."' and c.project_id = '".$rowdata_os->project_id."' and a.emp_id = '".$emp_id."'
 						order by b.full_name asc")->result();
@@ -738,7 +738,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 
 
-  						$data_payslip = $this->db->query("select * from payroll_slip where project_id = '".$rowdata_os->project_id."' and bulan_penggajian = '".$post['penggajian_month']."' and tahun_penggajian = '".$post['penggajian_year']."' ")->result();
+  						$data_payslip = $this->db->query("select * from special_payroll_slip where project_id = '".$rowdata_os->project_id."' and bulan_penggajian = '".$post['penggajian_month']."' and tahun_penggajian = '".$post['penggajian_year']."' ")->result();
   						if(empty($data_payslip)){ /// add header + add detail
   							$data = [
 	  							'project_id' 		=> $rowdata_os->project_id,
@@ -774,9 +774,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 								'subtotal' 			=> $subtotal,
 								'gaji_bersih' 		=> $gaji_bersih
 							];
-							$rs = $this->db->insert("payroll_slip_detail", $data_dtl);
+							$rs = $this->db->insert("special_payroll_slip_detail", $data_dtl);
   						}else{
-  							$data_payslip_detail = $this->db->query("select a.* from payroll_slip_detail a left join payroll_slip b on b.id = a.payroll_slip_id where a.employee_id = '".$emp_id."' and b.bulan_penggajian = ".$post['penggajian_month']." and b.tahun_penggajian = '".$post['penggajian_year']."' ")->result();
+  							$data_payslip_detail = $this->db->query("select a.* from special_payroll_slip_detail a left join special_payroll_slip b on b.id = a.payroll_slip_id where a.employee_id = '".$emp_id."' and b.bulan_penggajian = ".$post['penggajian_month']." and b.tahun_penggajian = '".$post['penggajian_year']."' ")->result();
 
   							if(empty($data_payslip_detail)){ ///ADD 
   								$data_dtl = [
@@ -803,7 +803,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'subtotal' 			=> $subtotal,
 									'gaji_bersih' 		=> $gaji_bersih
 								];
-								$rs = $this->db->insert("payroll_slip_detail", $data_dtl);
+								$rs = $this->db->insert("special_payroll_slip_detail", $data_dtl);
   							}else{ ///UPDATE
   								$data_dtl = [
 									'payroll_slip_id' 	=> $data_payslip[0]->id,
@@ -829,21 +829,21 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'subtotal' 			=> $subtotal,
 									'gaji_bersih' 		=> $gaji_bersih
 								];
-								$rs = $this->db->update("payroll_slip_detail", $data_dtl, "id = '".$data_payslip_detail[0]->id."'");
+								$rs = $this->db->update("special_payroll_slip_detail", $data_dtl, "id = '".$data_payslip_detail[0]->id."'");
   							}
   						}
 
 		                
 
 						if($rs){
-							$bpjs_history = $data_payslip_detail = $this->db->query("select * from history_bpjs where project_id = ".$rowdata_os->project_id." and periode_gaji_bulan = ".trim($post['penggajian_month'])." and periode_gaji_tahun = '".trim($post['penggajian_year'])."' ")->result();
+							$bpjs_history = $data_payslip_detail = $this->db->query("select * from special_history_bpjs where project_id = ".$rowdata_os->project_id." and periode_gaji_bulan = ".trim($post['penggajian_month'])." and periode_gaji_tahun = '".trim($post['penggajian_year'])."' ")->result();
 							if(empty($bpjs_history)){
 								$data_bpjs = [
 		  							'project_id' 			=> $rowdata_os->project_id,
 									'periode_gaji_bulan' 	=> trim($post['penggajian_month']),
 									'periode_gaji_tahun' 	=> trim($post['penggajian_year'])
 								];
-								$this->db->insert("history_bpjs", $data_bpjs);
+								$this->db->insert("special_history_bpjs", $data_bpjs);
 								$lastIdBpjs = $this->db->insert_id();
 
 								$log_bpjs = [
@@ -855,11 +855,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'nominal_bpjs_tk'  	=> $bpjs_tk,
 									'tanggal_potong'  	=> date("Y-m-d H:i:s")
 								];
-								$this->db->insert("history_bpjs_detail", $log_bpjs);
+								$this->db->insert("special_history_bpjs_detail", $log_bpjs);
 
 							}else{
 
-								$bpjs_history_detail = $this->db->query("select * from history_bpjs_detail where employee_id = '".$emp_id."' and history_bpjs_id = '".$bpjs_history[0]->id."' ")->result();
+								$bpjs_history_detail = $this->db->query("select * from special_history_bpjs_detail where employee_id = '".$emp_id."' and history_bpjs_id = '".$bpjs_history[0]->id."' ")->result();
 								if(!empty($bpjs_history_detail)){
 									$log_bpjs = [
 										'no_bpjs_kesehatan' => $rowdata_os->no_bpjs,
@@ -868,7 +868,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 										'nominal_bpjs_tk'  	=> $bpjs_tk,
 										'tanggal_potong'  	=> date("Y-m-d H:i:s")
 									];
-									 $this->db->update("history_bpjs_detail", $log_bpjs, "id = '".$bpjs_history_detail[0]->id."'");
+									 $this->db->update("special_history_bpjs_detail", $log_bpjs, "id = '".$bpjs_history_detail[0]->id."'");
 								}else{
 									$log_bpjs = [
 										'history_bpjs_id'	=> $bpjs_history[0]->id,
@@ -879,7 +879,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 										'nominal_bpjs_tk'  	=> $bpjs_tk,
 										'tanggal_potong'  	=> date("Y-m-d H:i:s")
 									];
-									$this->db->insert("history_bpjs_detail", $log_bpjs);
+									$this->db->insert("special_history_bpjs_detail", $log_bpjs);
 								}
 
 							}
@@ -918,11 +918,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					'tgl_start_absen' 	=> $period_start,
 					'tgl_end_absen' 	=> $period_end
 				];
-				$rs = $this->db->update("payroll_slip", $data, "id = '".$post['id']."'");
+				$rs = $this->db->update("special_payroll_slip", $data, "id = '".$post['id']."'");
 
 				// ambil project_id sekali saja
 				$slip = $this->db->where('id', $post['id'])
-				                 ->get('payroll_slip')
+				                 ->get('special_payroll_slip')
 				                 ->row();
 
 				$project_id = $slip->project_id;
@@ -978,7 +978,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									
 								];
 
-								$this->db->update("payroll_slip_detail", $itemData, "id = '".$hdnid."'");
+								$this->db->update("special_payroll_slip_detail", $itemData, "id = '".$hdnid."'");
 							}
 						}else{ //insert
 							if(isset($post['hdnempid_gaji'][$i])){
@@ -1013,7 +1013,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'pph_21' 				=> trim($post['pph21_gaji'][$i])
 								];
 
-								$this->db->insert('payroll_slip_detail', $itemData);
+								$this->db->insert('special_payroll_slip_detail', $itemData);
 							}
 						}
 
@@ -1030,11 +1030,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 						        'project_id'         => $project_id,
 						        'periode_gaji_bulan' => $bulan,
 						        'periode_gaji_tahun' => $tahun
-						    ])->get('history_bpjs')->row();
+						    ])->get('special_history_bpjs')->row();
 
 						    if (!$bpjs_header) {
 
-						        $this->db->insert("history_bpjs", [
+						        $this->db->insert("special_history_bpjs", [
 						            'project_id'         => $project_id,
 						            'periode_gaji_bulan' => $bulan,
 						            'periode_gaji_tahun' => $tahun
@@ -1060,7 +1060,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 						$bpjs_detail = $this->db->where([
 						    'history_bpjs_id' => $history_bpjs_id,
 						    'employee_id'     => $employee_id
-						])->get('history_bpjs_detail')->row();
+						])->get('special_history_bpjs_detail')->row();
 
 						$data_bpjs_detail = [
 						    'history_bpjs_id'        => $history_bpjs_id,
@@ -1072,12 +1072,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 						if ($bpjs_detail) {
 						    $this->db->update(
-						        "history_bpjs_detail",
+						        "special_history_bpjs_detail",
 						        $data_bpjs_detail,
 						        ['id' => $bpjs_detail->id]
 						    );
 						} else {
-						    $this->db->insert("history_bpjs_detail", $data_bpjs_detail);
+						    $this->db->insert("special_history_bpjs_detail", $data_bpjs_detail);
 						}
 
 					}
@@ -1115,7 +1115,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		
 		$mTable = "(select a.*, b.name_indo as month_name, c.project_name 
-					from payroll_slip a 
+					from special_payroll_slip a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
 					
@@ -1156,7 +1156,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	{
 
 		$sql = "select a.*, b.name_indo as month_name, c.project_name 
-					from payroll_slip a 
+					from special_payroll_slip a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
 					where 1=1 
@@ -1170,7 +1170,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	public function getSummaryAbsen($bln, $thn){ 
 
-		$rs = $this->db->query("select * from  summary_absen_outsource where bulan_penggajian = ".$bln." and tahun_penggajian = '".$thn."' limit 1")->result(); 
+		$rs = $this->db->query("select * from  special_summary_absen_outsource where bulan_penggajian = ".$bln." and tahun_penggajian = '".$thn."' limit 1")->result(); 
 
 		
 
@@ -1180,7 +1180,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	public function getGaji($project, $bln, $thn){ 
 
-		$rs = $this->db->query("select a.* from  payroll_slip a 
+		$rs = $this->db->query("select a.* from  special_payroll_slip a 
 				left join employees b on b.id = a.employee_id
 				where b.emp_source = 'outsource' and b.is_special_payroll = 1 and a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' and b.project_id = ".$project." limit 1")->result(); 
 
@@ -1215,8 +1215,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		
 
 		$rs = $this->db->query("select a.*, b.project_id, b.full_name, b.gaji_bulanan, b.gaji_harian, b.emp_code, b.id as employee_id, c.bulan_penggajian, c.tahun_penggajian, c.project_id, d.sistem_lembur, d.nominal_lembur, d.rumus_lembur, b.marital_status_id
-			from summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
-			left join summary_absen_outsource c on c.id = a.summary_absen_outsource_id
+			from special_summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
+			left join special_summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 			left join data_customer d on d.id = b.cust_id
 			where b.emp_source = 'outsource' and b.is_special_payroll = 1 and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project."
 			order by b.full_name asc
@@ -1234,8 +1234,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				$no = $row+1;
 
 				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id, c.status as status_payroll
-				from employees a left join payroll_slip_detail b on b.employee_id = a.id 
-				left join payroll_slip c on c.id = b.payroll_slip_id
+				from employees a left join special_payroll_slip_detail b on b.employee_id = a.id 
+				left join special_payroll_slip c on c.id = b.payroll_slip_id
 				where a.emp_source = 'outsource' and a.is_special_payroll = 1 and a.id = '".$f->emp_id."' and a.status_id = 1 
 				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' ")->result(); 
 

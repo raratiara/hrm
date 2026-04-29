@@ -5,7 +5,7 @@ class Spt_int_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_internal/spt_int_menu";
- 	protected $table_name 				= _PREFIX_TABLE."spt_pph21_internal";
+ 	protected $table_name 				= _PREFIX_TABLE."special_spt_pph21_internal";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -39,8 +39,8 @@ class Spt_int_menu_model extends MY_Model
 		}
 
 		$sTable = '(select a.*, c.name as status_name, b.employee_id 
-					from spt_pph21_internal a 
-					left join spt_pph21_detail_internal b on b.spt_pph21_id = a.id
+					from special_spt_pph21_internal a 
+					left join special_spt_pph21_detail_internal b on b.spt_pph21_id = a.id
 					left join master_status_spt c on c.id = a.status_id
 					where 1=1 '.$where_emp.'
 				)dt';
@@ -399,8 +399,8 @@ class Spt_int_menu_model extends MY_Model
 			SUM(a.tunjangan_komunikasi) AS ttl_tunjangan_komunikasi,
 			sum(a.gaji) as ttl_gaji
 
-		FROM payroll_slip_detail_internal a
-		LEFT JOIN payroll_slip_internal b ON b.id = a.payroll_slip_id
+		FROM special_payroll_slip_detail_internal a
+		LEFT JOIN special_payroll_slip_internal b ON b.id = a.payroll_slip_id
 		LEFT JOIN employees c ON c.id = a.employee_id
 
 		WHERE c.emp_source = 'internal' and c.is_special_payroll = 1 and b.tahun_penggajian = '".$tahun."'
@@ -441,12 +441,12 @@ class Spt_int_menu_model extends MY_Model
 
 	        $header = $this->db
 	            ->where('tahun', $tahun)
-	            ->get('spt_pph21_internal')
+	            ->get('special_spt_pph21_internal')
 	            ->row();
 
 	        if (!$header) {
 
-	            $this->db->insert('spt_pph21_internal', [
+	            $this->db->insert('special_spt_pph21_internal', [
 	                'tahun' 		   => $tahun,
 	                'created_at'       => date("Y-m-d H:i:s"),
 	                'created_by' 	   => $_SESSION['worker'],
@@ -512,7 +512,7 @@ class Spt_int_menu_model extends MY_Model
 
 	    if (!empty($insert_batch)) {
 	        $this->db->insert_batch(
-	            'spt_pph21_detail_internal',
+	            'special_spt_pph21_detail_internal',
 	            $insert_batch
 	        );
 	    }
@@ -532,7 +532,7 @@ class Spt_int_menu_model extends MY_Model
 				'status_id' => trim($post['status']) 
 			];
 
-			$rs = $this->db->update("spt_pph21_internal", $item, "id = '".$post['id']."'");
+			$rs = $this->db->update("special_spt_pph21_internal", $item, "id = '".$post['id']."'");
 
 
 			/// update detail
@@ -565,7 +565,7 @@ class Spt_int_menu_model extends MY_Model
 								'kurang_lebih_bayar' 	=> trim($post['ttl_kurang_lebih_bayar'][$i])
 							];
 
-							$this->db->update("spt_pph21_detail_internal", $itemData, "id = '".$hdnid."'");
+							$this->db->update("special_spt_pph21_detail_internal", $itemData, "id = '".$hdnid."'");
 						}
 					}else{ //insert
 						if(isset($post['hdnempid'][$i])){
@@ -585,7 +585,7 @@ class Spt_int_menu_model extends MY_Model
 								'kurang_lebih_bayar' 	=> trim($post['ttl_kurang_lebih_bayar'][$i])
 							];
 
-							$this->db->insert('spt_pph21_detail_internal', $itemData);
+							$this->db->insert('special_spt_pph21_detail_internal', $itemData);
 						}
 					}
 				}
@@ -614,7 +614,7 @@ class Spt_int_menu_model extends MY_Model
 
 	public function getRowData($id) { 
 		$mTable = '(
-					select a.*, c.name as status_name from spt_pph21_internal a left join master_status_spt c on c.id = a.status_id
+					select a.*, c.name as status_name from special_spt_pph21_internal a left join master_status_spt c on c.id = a.status_id
 				)dt';
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -652,7 +652,7 @@ class Spt_int_menu_model extends MY_Model
 		}*/
 
 
-		$sql = 'select a.*, c.name as status_name from spt_pph21_internal a left join master_status_spt c on c.id = a.status_id 
+		$sql = 'select a.*, c.name as status_name from special_spt_pph21_internal a left join master_status_spt c on c.id = a.status_id 
 		';
 
 		$res = $this->db->query($sql);
@@ -708,8 +708,8 @@ class Spt_int_menu_model extends MY_Model
 		$dt = ''; 
 		
 		$rs = $this->db->query("select a.*, c.emp_code, c.full_name, b.status_id as status_id_header
-								from spt_pph21_detail_internal a
-								left join spt_pph21_internal b on b.id = a.spt_pph21_id
+								from special_spt_pph21_detail_internal a
+								left join special_spt_pph21_internal b on b.id = a.spt_pph21_id
 								left join employees c on c.id = a.employee_id
 								where c.emp_source = 'internal' and c.is_special_payroll = 1 and a.spt_pph21_id = '".$id."'
 								ORDER BY c.full_name ASC

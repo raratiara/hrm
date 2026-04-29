@@ -138,7 +138,7 @@ class Dynamic_menu {
 						$html_out .= '<span class="arrow '.$mactive.'"></span>
 							</a>';
                     }
-					$html_out .= $this->get_childs($id,$check_menu,$type);
+					$html_out .= $this->get_childs($id,$check_menu,$type,$module_name);
                 }  else {
 					$active = "";
 					if ($module_name == $check_menu["sub_menu"]) $active = "active open";
@@ -168,7 +168,7 @@ class Dynamic_menu {
      * @param    string    $id usuario
      * @return    mixed    $html_out if has subcats else FALSE
      */
-    function get_childs($id, $check_menu ="", $type="")
+    function get_childs($id, $check_menu ="", $type="", $root_module="")
     {
         $has_subcats = FALSE;
         $html_out  = '';
@@ -201,7 +201,7 @@ class Dynamic_menu {
 
             if ($is_parent == TRUE) {
                 $active = $sactive = "";
-                if ($module_name == $check_menu["subparent_menu"] || (isset($check_menu["subparentitem_menu"]) && $module_name == $check_menu["subparentitem_menu"])){
+                if (($root_module == $check_menu["parent_menu"]) && ($module_name == $check_menu["subparent_menu"] || (isset($check_menu["subparentitem_menu"]) && $module_name == $check_menu["subparentitem_menu"]))){
 					$active = "active open";
 					$sactive = "open";					
 				}
@@ -214,10 +214,10 @@ class Dynamic_menu {
 					$html_out .= '<span class="arrow '.$sactive.'"></span>
 						</a>';
                 }
-				$html_out .= $this->get_childs($id, $check_menu, $type);
+				$html_out .= $this->get_childs($id, $check_menu, $type, $root_module);
             } else {
                 $active = "";
-                if ($module_name == $check_menu["sub_menu"]) $active = "active open";
+                if (($root_module == $check_menu["parent_menu"]) && $module_name == $check_menu["sub_menu"]) $active = "active open";
                 if (isset($this->user_akses[$id]["view"]) && $this->user_akses[$id]["view"] == 1) {
                     $html_out .= '<li class="nav-item '.$active.'">
 									<a href="'.base_url($url).'" class="nav-link ">

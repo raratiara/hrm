@@ -184,7 +184,7 @@ class Hitung_gaji_os_menu extends MY_Controller
         $sql = "
             select a.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
 			e.name AS job_title_name, f.tanggal_pembayaran_lembur, aa.*
-			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+			FROM special_payroll_slip a left join special_payroll_slip_detail aa on aa.payroll_slip_id = a.id
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
 			LEFT JOIN project_outsource d ON d.id = b.project_id
@@ -242,8 +242,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 		    $sql = "
 		        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name
 				, e.name as job_title_name, f.tanggal_pembayaran_lembur, bb.*
-				from payroll_slip a 
-				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
+				from special_payroll_slip a 
+				left join special_payroll_slip_detail bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id 
 				left join master_month c on c.id = a.bulan_penggajian
 				left join project_outsource d on d.id = b.project_id
@@ -334,7 +334,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 		
 	    $sql = "
 	        select a.*, b.full_name, c.name_indo as periode_bulan_name, b.emp_code, d.project_name, e.name as job_title_name, f.tanggal_pembayaran_lembur
-			from payroll_slip a 
+			from special_payroll_slip a 
 			left join employees b on b.id = a.employee_id 
 			left join master_month c on c.id = a.periode_bulan
 			left join project_outsource d on d.id = b.project_id
@@ -399,7 +399,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    $sql = "
 	        select a.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
 			e.name AS job_title_name, f.tanggal_pembayaran_lembur, aa.employee_id
-			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+			FROM special_payroll_slip a left join special_payroll_slip_detail aa on aa.payroll_slip_id = a.id
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
 			LEFT JOIN project_outsource d ON d.id = b.project_id
@@ -556,7 +556,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    // ================= CEK DATA =================
 	    $cek_data = $this->db->query("
 	        SELECT a.*, b.project_id
-	        FROM payroll_slip a
+	        FROM special_payroll_slip a
 	        LEFT JOIN employees b ON b.id = a.employee_id
 	        WHERE a.periode_bulan = ?
 	          AND a.periode_tahun = ?
@@ -641,7 +641,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	            $itemData['updated_at'] = date('Y-m-d H:i:s');
 	            $itemData['updated_by'] = $_SESSION['worker'];
 
-	            if ($this->db->update('payroll_slip', $itemData, ['id' => $hdnid])) {
+	            if ($this->db->update('special_payroll_slip', $itemData, ['id' => $hdnid])) {
 	                $success = true;
 	            }
 	        } else {
@@ -655,7 +655,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	            $itemData['created_by'] 	= $_SESSION['worker'];
 
 
-	            if ($this->db->insert('payroll_slip', $itemData)) {
+	            if ($this->db->insert('special_payroll_slip', $itemData)) {
 
 	            	$dataEmp = $this->db->query("select no_bpjs, no_bpjs_ketenagakerjaan from employees where id = ".$post['hdnempid_gaji'][$i]."")->result();
 
@@ -669,7 +669,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 						'tanggal_potong'  	=> date("Y-m-d H:i:s")
 						/*'tanggal_setor'		=> ''*/
 					];
-					$this->db->insert("history_bpjs", $log_bpjs);
+					$this->db->insert("special_history_bpjs", $log_bpjs);
 
 
 	                $success = true;
@@ -735,7 +735,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    $sql = "
 	        select aa.*, b.full_name, c.name_indo AS periode_bulan_name,b.emp_code, d.project_name, 
 			e.name AS job_title_name, f.tanggal_pembayaran_lembur
-			FROM payroll_slip a left join payroll_slip_detail aa on aa.payroll_slip_id = a.id
+			FROM special_payroll_slip a left join special_payroll_slip_detail aa on aa.payroll_slip_id = a.id
 			LEFT JOIN employees b ON b.id = aa.employee_id 
 			LEFT JOIN master_month c ON c.id = a.bulan_penggajian
 			LEFT JOIN project_outsource d ON d.id = b.project_id
@@ -831,8 +831,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 	        
 	        $sql = "
 	            select a.*, b.emp_code, b.full_name, b.project_id
-				from payroll_slip a 
-				left join payroll_slip_detail bb on bb.payroll_slip_id = a.id
+				from special_payroll_slip a 
+				left join special_payroll_slip_detail bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id
 				where b.emp_source = 'outsource' and b.is_special_payroll = 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 				ORDER BY b.full_name ASC
@@ -909,7 +909,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    $this->load->library('html_pdf');
 
 	    $dtPayroll = $this->db->query("select concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian, c.project_name 
-			from payroll_slip a 
+			from special_payroll_slip a 
 			left join master_month b on b.id = a.bulan_penggajian
 			left join project_outsource c on c.id = a.project_id
 			where a.id = ".$_GET['payroll_id']." ")->result();
@@ -921,7 +921,7 @@ class Hitung_gaji_os_menu extends MY_Controller
 	    $sql = "
 	        select c.emp_code, c.full_name, c.bank_acc_no, c.date_of_hire, e.name as emp_status_name,
 	         d.name as jabatan_name, b.* 
-			from payroll_slip a left join payroll_slip_detail b on b.payroll_slip_id = a.id
+			from special_payroll_slip a left join special_payroll_slip_detail b on b.payroll_slip_id = a.id
 			left join employees c on c.id = b.employee_id
 			left join master_job_title_os d on d.id = c.job_title_id
 			left join master_emp_status e on e.id = c.employment_status_id

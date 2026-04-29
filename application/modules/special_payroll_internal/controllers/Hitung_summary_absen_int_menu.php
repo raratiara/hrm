@@ -130,8 +130,8 @@ class Hitung_summary_absen_int_menu extends MY_Controller
 			b.total_lembur,
 			b.total_jam_kerja,
 			b.total_jam_lembur
-			from summary_absen_internal a 
-			left join summary_absen_internal_detail b on b.summary_absen_internal_id = a.id
+			from special_summary_absen_internal a 
+			left join special_summary_absen_internal_detail b on b.summary_absen_internal_id = a.id
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			where bb.emp_source = 'internal' and bb.is_special_payroll = 1 and a.id = ".$_GET['summary_id']."
@@ -254,8 +254,8 @@ class Hitung_summary_absen_int_menu extends MY_Controller
 			b.total_lembur,
 			b.total_jam_kerja,
 			b.total_jam_lembur
-			from summary_absen_internal a 
-			left join summary_absen_internal_detail b on b.summary_absen_internal_id = a.id
+			from special_summary_absen_internal a 
+			left join special_summary_absen_internal_detail b on b.summary_absen_internal_id = a.id
 			left join employees bb on bb.id = b.emp_id 
 			left join master_month c on c.id = a.bulan_penggajian
 			where bb.emp_source = 'internal' and bb.is_special_payroll = 1 and a.id = ".$_GET['summary_id']."

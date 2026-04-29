@@ -5,7 +5,7 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 {
 	/* Module */
  	protected $folder_name				= "special_payroll_outsource/pembayaran_gaji_os_menu";
- 	protected $table_name 				= _PREFIX_TABLE."payroll_paid_history";
+ 	protected $table_name 				= _PREFIX_TABLE."special_payroll_paid_history";
  	protected $primary_key 				= "id";
 
 	function __construct()
@@ -40,8 +40,8 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 
 		$sTable = '(select a.id, a.payroll_slip_id, c.project_name, concat(d.name_indo," ",
 					b.tahun_penggajian) as periode_penggajian,concat(b.tgl_start_absen," s/d ",b.tgl_end_absen) as periode_absensi, e.name as status_payroll, a.status   
-					from payroll_paid_history a 
-					left join payroll_slip b on b.id = a.payroll_slip_id
+					from special_payroll_paid_history a 
+					left join special_payroll_slip b on b.id = a.payroll_slip_id
 					left join project_outsource c on c.id = b.project_id
 					left join master_month d on d.id = b.bulan_penggajian
 					left join master_payroll_status e on e.id = a.status
@@ -241,6 +241,11 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 
 	public function delete($id= "") {
 		if (isset($id) && $id <> "") {
+			$current = $this->db->where($this->primary_key, $id)->get($this->table_name)->row();
+			if ($current && $current->status == 2) {
+				return false;
+			}
+
 			//$this->db->trans_off(); // Disable transaction
 			$this->db->trans_start(); // set "True" for query will be rolled back
 			$this->db->where([$this->primary_key => $id])->delete($this->table_name);
@@ -255,6 +260,13 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 		if (is_array($id) && count($id)) {
 			$err = '';
 			foreach ($id as $pid) {
+				$current = $this->db->where($this->primary_key, $pid)->get($this->table_name)->row();
+				if ($current && $current->status == 2) {
+					if(!empty($err)) $err .= ", ";
+                    $err .= $pid;
+                    continue;
+				}
+
 				//$this->db->trans_off(); // Disable transaction
 				$this->db->trans_start(); // set "True" for query will be rolled back
 				$this->db->where([$this->primary_key => $pid])->delete($this->table_name);
@@ -286,7 +298,7 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 
 	public function add_data($post) { 
 		
-  		$data_payroll_hist = $this->db->query("select * from payroll_paid_history where payroll_slip_id = '".$post['periode_gaji']."'  ")->result(); 
+  		$data_payroll_hist = $this->db->query("select * from special_payroll_paid_history where payroll_slip_id = '".$post['periode_gaji']."'  ")->result(); 
 
   		if(empty($data_payroll_hist)){ 
   			
@@ -329,20 +341,27 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 	public function edit_data($post) { 
 
 		if(!empty($post['id'])){
+			$current = $this->db->query("select * from special_payroll_paid_history where id = '".$post['id']."' ")->row();
+			if ($current && $current->status == 2) {
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data yang sudah terbayar tidak dapat diedit"
+				];
+			}
 
 			$itemData = [	
 				'status' => trim($post['status'])
 			];
 
-			$rs = $this->db->update("payroll_paid_history", $itemData, "id = '".$post['id']."'");
+			$rs = $this->db->update("special_payroll_paid_history", $itemData, "id = '".$post['id']."'");
 			if($rs){
-				$getPayroll = $this->db->query("select * from payroll_paid_history where id = '".$post['id']."' ")->result();
+				$getPayroll = $this->db->query("select * from special_payroll_paid_history where id = '".$post['id']."' ")->result();
 
 				$itemData2 = [	
 					'status' => trim($post['status'])
 				];
 
-				$this->db->update("payroll_slip", $itemData2, "id = '".$getPayroll[0]->payroll_slip_id."'");
+				$this->db->update("special_payroll_slip", $itemData2, "id = '".$getPayroll[0]->payroll_slip_id."'");
 
 				return [
 				    "status" => true,
@@ -370,8 +389,8 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 		
 		$mTable = '(select a.*, c.project_name, concat(d.name_indo," ",
 					b.tahun_penggajian) as periode_penggajian,concat(b.tgl_start_absen," s/d ",b.tgl_end_absen) as periode_absensi, e.name as status_payroll, b.project_id, b.tgl_start_absen, b.tgl_end_absen
-					from payroll_paid_history a 
-					left join payroll_slip b on b.id = a.payroll_slip_id
+					from special_payroll_paid_history a 
+					left join special_payroll_slip b on b.id = a.payroll_slip_id
 					left join project_outsource c on c.id = b.project_id
 					left join master_month d on d.id = b.bulan_penggajian
 					left join master_payroll_status e on e.id = a.status
@@ -414,7 +433,7 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 	{
 
 		$sql = "select a.*, b.name_indo as month_name, c.project_name 
-					from payroll_slip a 
+					from special_payroll_slip a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
 					where 1=1 
@@ -430,7 +449,7 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 	public function getDataPeriodeGaji($project){ 
 
 		$rs = $this->db->query("select a.*, concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian
-								from payroll_slip a
+								from special_payroll_slip a
 								left join master_month b on b.id = a.bulan_penggajian
 								where project_id = ".$project." ")->result(); 
 
@@ -444,7 +463,7 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 
 	public function getDataPayroll($payroll_id){ 
 
-		$rs = $this->db->query("select * from payroll_slip
+		$rs = $this->db->query("select * from special_payroll_slip
 								where id = ".$payroll_id." ")->result(); 
 
 		

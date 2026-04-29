@@ -101,7 +101,7 @@ class Pembayaran_gaji_int_menu extends MY_Controller
 	    // ================== GET DATA ==================
 	    $sql = "
 	        select b.full_name, a.gaji_bersih, b.bank_acc_no, b.bank_name
-	        from payroll_slip_detail_internal a
+	        from special_payroll_slip_detail_internal a
 	        left join employees b on b.id = a.employee_id
 	        where b.emp_source = 'internal' and b.is_special_payroll = 1 and a.payroll_slip_id = ".$payroll_id."
 	        order by b.full_name asc
@@ -125,7 +125,7 @@ class Pembayaran_gaji_int_menu extends MY_Controller
 	    $getperiode = $this->db->query("
 	        select a.*, 
 	        concat(b.name_indo,' ',a.tahun_penggajian) as periode_penggajian
-	        from payroll_slip a 
+	        from special_payroll_slip_internal a 
 	        left join master_month b on b.id = a.bulan_penggajian
 	        where a.id = ".$payroll_id."
 	    ")->row();
