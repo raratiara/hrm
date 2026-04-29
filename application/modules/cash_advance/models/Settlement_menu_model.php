@@ -885,7 +885,7 @@ class Settlement_menu_model extends MY_Model
 
 
 		$mTable = '(select ao.* from (select a.*, b.full_name as prepared_by_name, c.full_name as requested_by_name
-					, d.name as status_name, c.direct_id, ab.ca_number,
+					, d.name as status_name, c.direct_id, ab.ca_number, ab.total_cost as total_cost_ca,
 					max(d2.current_approval_level) AS current_approval_level,
 					max(h.role_id) AS current_role_id,
 					max(i.role_name) AS current_role_name,
