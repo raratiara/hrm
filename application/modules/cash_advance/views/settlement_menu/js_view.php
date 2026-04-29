@@ -388,6 +388,7 @@ function load_data()
 					}).done(function() {
 						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
 						tSawBclear(locate);
+						recalculateSettTotals();
 						///expenseviewadjust(lstatus);
 					});
 
@@ -565,21 +566,61 @@ $("#addsettrow").on("click", function () {
 });
 
 
-function del(idx,hdnid){
+function parseSettNumber(value){
+	if(value === null || value === undefined){
+		return 0;
+	}
+
+	if(typeof value !== 'string'){
+		value = value.toString();
+	}
+
+	value = value.replace(/\s/g, '').trim();
+	if(value.indexOf(',') !== -1 && value.indexOf('.') !== -1){
+		if(value.lastIndexOf(',') > value.lastIndexOf('.')){
+			value = value.replace(/\./g, '').replace(',', '.');
+		}else{
+			value = value.replace(/,/g, '');
+		}
+	}else if(value.indexOf(',') !== -1){
+		value = /^\d{1,3}(,\d{3})+$/.test(value) ? value.replace(/,/g, '') : value.replace(',', '.');
+	}else if(/^\d{1,3}(\.\d{3})+$/.test(value)){
+		value = value.replace(/\./g, '');
+	}
+
+	var parsed = parseFloat(value);
+	return isNaN(parsed) ? 0 : parsed;
+}
+
+function recalculateSettTotals(){
+	var sum = 0;
+	$(".total_amount_sett").each(function(){
+		sum += parseSettNumber($(this).val());
+	});
+
+	$('[name="total_cost_sett"]').val(sum);
+	updateTerbilang();
+
+	var ca_cost = $("#ca_cost").val();
+	setinputanSettlement(ca_cost, sum);
+}
+
+function calculateSettRow(row){
+	var amount = parseSettNumber($('[name="amount_sett['+row+']"]').val());
+	var pajak = parseSettNumber($('[name="ppn_pph_sett['+row+']"]').val());
+	var total_amount = amount + (amount * (pajak / 100));
+
+	$('[name="total_amount_sett['+row+']"]').val(total_amount);
+	recalculateSettTotals();
+}
+
+function del_sett(idx,hdnid){
 	
 	if(hdnid != ''){ //delete dr table
 		$.ajax({type: 'post',url: module_path+'/delrowDetailSett',data: { id:hdnid },success: function (response) {}
 		}).done(function() {
 			tSawBclear('table.sett-list');
-
-
-			var sum=0; 
-		    $(".total_amount_sett").each(function(index, element){ 
-		        sum += +$(this).val(); 
-		    });
-		    
-		    $('[name="total_cost_sett"]').val(sum);
-		    updateTerbilang();
+		    recalculateSettTotals();
 
 		});
 	}
@@ -587,76 +628,28 @@ function del(idx,hdnid){
 	//delete tampilan row
 	var table = document.getElementById("tblDetailSett");
 	table.deleteRow(idx);
+	recalculateSettTotals();
 }
 
+function del(idx,hdnid){
+	del_sett(idx,hdnid);
+}
 
 $(document).on("keyup", ".total_amount_sett", function() {
-    var sum = 0;
-    $(".total_amount_sett").each(function(){
-        sum += +$(this).val();
-    });
-    $("#total_cost_sett").val(sum);
-    
+    recalculateSettTotals();
 });
 
 
 
 function set_total_amount_sett(val){ 
 	var row = val.dataset.id;  
-	var amount = val.value;
-	var pajak = $('[name="ppn_pph_sett['+row+']"]').val();
-
-	if(pajak == 0){
-		var total_amount = amount;
-	}else{
-		var amount_pajak = pajak/100;
-		var total_amount = Number((amount*amount_pajak))+Number(amount);
-	}
-	
-
-	$('[name="total_amount_sett['+row+']"]').val(total_amount);
-
-	var sum=0; 
-    $(".total_amount_sett").each(function(index, element){ 
-        sum += +$(this).val(); 
-    });
-    
-    $('[name="total_cost_sett"]').val(sum);
-    updateTerbilang();
-
-    var ca_cost = $("#ca_cost").val();
-    setinputanSettlement(ca_cost, sum);
+	calculateSettRow(row);
 
 }
 
 function set_total_amount2_sett(val){ 
 	var row = val.dataset.id;  
-	var pajak = val.value;
-	var amount = $('[name="amount_sett['+row+']"]').val();
-
-	if(pajak == 0){
-		var total_amount = amount;
-	}else{ 
-		var amount_pajak = pajak/100; 
-		var total_amount = Number((amount*amount_pajak))+Number(amount);
-	}
-	
-
-	$('[name="total_amount_sett['+row+']"]').val(total_amount);
-
-	var sum=0; 
-    $(".total_amount_sett").each(function(index, element){ 
-        sum += +$(this).val(); 
-    });
-    
-    $('[name="total_cost_sett"]').val(sum);
-    updateTerbilang();
-
-
-    var ca_cost = $("#ca_cost").val();
-    setinputanSettlement(ca_cost, sum);
-
-    
+	calculateSettRow(row);
 }
 
 
@@ -683,7 +676,7 @@ function terbilang(n) {
 
 
 function updateTerbilang() { 
-    const nilai = document.getElementById("total_cost_sett").value;
+    const nilai = parseSettNumber(document.getElementById("total_cost_sett").value);
    
     if (nilai) {
       total_cost_terbilang = terbilang(nilai);
@@ -815,7 +808,7 @@ $('#ca_number').on('change', function () {
       				$('[name="settlement_amount"]').val('0');
 
 					
-					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:ca_number },success: function (response) {
+					$.ajax({type: 'post',url: module_path+'/gensettrow',data: { id:ca_number, source:'cash_advance' },success: function (response) {
 						var obj = JSON.parse(response);
 						$(locate+' tbody').html(obj[0]);
 						
@@ -824,6 +817,7 @@ $('#ca_number').on('change', function () {
 					}).done(function() {
 						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
 						tSawBclear(locate);
+						recalculateSettTotals();
 						///expenseviewadjust(lstatus);
 					});
 
@@ -856,7 +850,7 @@ $('#ca_number').on('change', function () {
 function setinputanSettlement(ca_cost, sett_cost, type=''){ 
 	var requested_by = $("#requested_by option:selected").val();
 
-	var selisih = Number(ca_cost)-Number(sett_cost);
+	var selisih = parseSettNumber(ca_cost)-parseSettNumber(sett_cost);
     $('[name="settlement_amount"]').val(selisih);
 
     if(selisih != 0){

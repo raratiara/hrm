@@ -133,7 +133,8 @@ class Settlement_menu extends MY_Controller
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewSettRow($row,$id,$view));
+				$source = isset($post['source']) ? trim($post['source']) : 'settlement';
+				echo json_encode($this->self_model->getNewSettRow($row,$id,$view,$source));
 			}
 		}
 		else

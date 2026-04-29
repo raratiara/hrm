@@ -559,10 +559,10 @@ class Settlement_menu_model extends MY_Model
 									$itemData = [
 										'settlement_id' => $lastId,
 										'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
-										'amount' 		=> trim($post['amount_sett'][$i]),
-										'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
-										'total_amount'	=> trim($post['total_amount_sett'][$i]),
-										'notes' 		=> trim($post['notes_sett'][$i])
+										'amount' 		=> isset($post['amount_sett'][$i]) ? trim($post['amount_sett'][$i]) : 0,
+										'ppn_pph' 		=> isset($post['ppn_pph_sett'][$i]) ? trim($post['ppn_pph_sett'][$i]) : 0,
+										'total_amount'	=> isset($post['total_amount_sett'][$i]) ? trim($post['total_amount_sett'][$i]) : 0,
+										'notes' 		=> isset($post['notes_sett'][$i]) ? trim($post['notes_sett'][$i]) : ''
 									];
 
 									$this->db->insert('settlement_details', $itemData);
@@ -715,7 +715,7 @@ class Settlement_menu_model extends MY_Model
 			}else{ 
 				
 
-				$upload_doc = $this->upload_file('1', 'fpu_document', FALSE, '', TRUE);
+				$upload_doc = $this->upload_file('1', 'settlement_document', FALSE, '', TRUE);
 				$document = '';
 				if($upload_doc['status']){ 
 					$document = $upload_doc['upload_file'];
@@ -803,10 +803,10 @@ class Settlement_menu_model extends MY_Model
 
 
 
-					if(isset($post['name'])){
-						$item_num = count($post['name']); // cek sum
-						$item_len_min = min(array_keys($post['name'])); // cek min key index
-						$item_len = max(array_keys($post['name'])); // cek max key index
+					if(isset($post['post_budget_sett'])){
+						$item_num = count($post['post_budget_sett']); // cek sum
+						$item_len_min = min(array_keys($post['post_budget_sett'])); // cek min key index
+						$item_len = max(array_keys($post['post_budget_sett'])); // cek max key index
 					} else {
 						$item_num = 0;
 					}
@@ -814,33 +814,33 @@ class Settlement_menu_model extends MY_Model
 					if($item_num>0){
 						for($i=$item_len_min;$i<=$item_len;$i++) 
 						{
-							$hdnid = trim($post['hdnid_sett'][$i]);
+							if(!isset($post['post_budget_sett'][$i])){
+								continue;
+							}
+
+							$hdnid = isset($post['hdnid_sett'][$i]) ? trim($post['hdnid_sett'][$i]) : '';
 
 							if(!empty($hdnid)){ //update
-								if(isset($post['name'][$i])){
-									$itemData = [
-										'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
-										'amount' 		=> trim($post['amount_sett'][$i]),
-										'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
-										'total_amount'	=> trim($post['total_amount_sett'][$i]),
-										'notes' 		=> trim($post['notes_sett'][$i])
-									];
+								$itemData = [
+									'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
+									'amount' 		=> isset($post['amount_sett'][$i]) ? trim($post['amount_sett'][$i]) : 0,
+									'ppn_pph' 		=> isset($post['ppn_pph_sett'][$i]) ? trim($post['ppn_pph_sett'][$i]) : 0,
+									'total_amount'	=> isset($post['total_amount_sett'][$i]) ? trim($post['total_amount_sett'][$i]) : 0,
+									'notes' 		=> isset($post['notes_sett'][$i]) ? trim($post['notes_sett'][$i]) : ''
+								];
 
-									$this->db->update("settlement_details", $itemData, "id = '".$hdnid."'");
-								}
+								$this->db->update("settlement_details", $itemData, "id = '".$hdnid."'");
 							}else{ //insert
-								if(isset($post['name'][$i])){
-									$itemData = [
-										'settlement_id' => $post['id'],
-										'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
-										'amount' 		=> trim($post['amount_sett'][$i]),
-										'ppn_pph' 		=> trim($post['ppn_pph_sett'][$i]),
-										'total_amount'	=> trim($post['total_amount_sett'][$i]),
-										'notes' 		=> trim($post['notes_sett'][$i])
-									];
+								$itemData = [
+									'settlement_id' => $post['id'],
+									'post_budget_id'	=> trim($post['post_budget_sett'][$i]),
+									'amount' 		=> isset($post['amount_sett'][$i]) ? trim($post['amount_sett'][$i]) : 0,
+									'ppn_pph' 		=> isset($post['ppn_pph_sett'][$i]) ? trim($post['ppn_pph_sett'][$i]) : 0,
+									'total_amount'	=> isset($post['total_amount_sett'][$i]) ? trim($post['total_amount_sett'][$i]) : 0,
+									'notes' 		=> isset($post['notes_sett'][$i]) ? trim($post['notes_sett'][$i]) : ''
+								];
 
-									$this->db->insert('settlement_details', $itemData);
-								}
+								$this->db->insert('settlement_details', $itemData);
 							}
 						}
 					}
@@ -1006,10 +1006,10 @@ class Settlement_menu_model extends MY_Model
 	}
 
 
-	public function getNewSettRow($row,$id=0,$view=FALSE)
+	public function getNewSettRow($row,$id=0,$view=FALSE,$source='settlement')
 	{ 
 		if($id > 0){ 
-			$data = $this->getSettRows($id,$view);
+			$data = $this->getSettRows($id,$view,FALSE,$source);
 		} else { 
 			$data = '';
 			$no = $row+1;
@@ -1036,11 +1036,15 @@ class Settlement_menu_model extends MY_Model
 	} 
 	
 	// Generate expenses item rows for edit & view
-	public function getSettRows($id,$view,$print=FALSE){ 
+	public function getSettRows($id,$view,$print=FALSE,$source='settlement'){ 
 
 		$dt = ''; 
 		
-		$data_sett = $this->db->query("select * from settlement where id = '".$id."' ")->result();
+		$data_sett = [];
+		if($source != 'cash_advance'){
+			$data_sett = $this->db->query("select * from settlement where id = '".$id."' ")->result();
+		}
+
 		if(!empty($data_sett)){ 
 			$rs = $this->db->query("select a.*, b.name as post_budget_name from settlement_details a left join master_post_budget b on b.id = a.post_budget_id where a.settlement_id = '".$id."' ")->result(); 
 		}else{ 
