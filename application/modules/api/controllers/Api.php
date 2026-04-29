@@ -29,6 +29,19 @@ class Api extends API_Controller
 		//$this->load->model($this->model_name);
    	}
 
+    private function get_login_employee_id()
+    {
+    	if(!empty($this->jwt_data) && !empty($this->jwt_data->employee_id)){
+    		return $this->jwt_data->employee_id;
+    	}
+
+    	if(!empty($this->jwt_data) && is_array($this->jwt_data) && !empty($this->jwt_data['employee_id'])){
+    		return $this->jwt_data['employee_id'];
+    	}
+
+    	return '';
+    }
+
     public function index()
     {
         $response = [
@@ -5809,7 +5822,12 @@ class Api extends API_Controller
     	$id = trim($post['id'] ?? ($post['id_data'] ?? ''));
     	$employee_id = trim($post['employee_id'] ?? ($post['employee'] ?? ''));
     	$date_attendance = trim($post['date_attendance'] ?? ($post['attendance_date'] ?? ''));
-    	$created_by = trim($post['islogin_employee'] ?? ($post['created_by'] ?? $employee_id));
+    	$login_employee = $this->get_login_employee_id();
+    	$created_by = $login_employee;
+    	if($employee_id == ''){
+    		$employee_id = $login_employee;
+    		$post['employee_id'] = $employee_id;
+    	}
 
     	if($employee_id == '' || $date_attendance == ''){
     		$response = [
@@ -5948,7 +5966,7 @@ class Api extends API_Controller
     {
     	$this->verify_token();
 
-    	$islogin_employee	= $_GET['islogin_employee'] ?? '';
+    	$islogin_employee	= $this->get_login_employee_id();
     	$filter_employee	= $_GET['filter_employee'] ?? '';
     	$filter_isapprover	= $_GET['filter_isapprover'] ?? '';
 
@@ -6070,7 +6088,7 @@ class Api extends API_Controller
 
     	$id = $_POST['id'] ?? ($_POST['id_data'] ?? '');
     	$status = $_POST['status'] ?? ($_POST['status_approval'] ?? '');
-    	$islogin_employee = $_POST['islogin_employee'] ?? '';
+    	$islogin_employee = $this->get_login_employee_id();
     	$approval_matrix_type_id = 13;
 
     	if($id == '' || $status == '' || $islogin_employee == ''){
