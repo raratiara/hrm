@@ -2512,6 +2512,29 @@ class Api extends API_Controller
 						}
 					}
 				}
+			}else if($approval_type_id == 13){ ///attendance revision
+				$getmatrix = $this->db->query("select * from approval_matrix where approval_type_id = '".$approval_type_id."' and work_location_id = '".$work_location_id."' ")->result();
+
+				if(!empty($getmatrix)){
+					$approvalMatrixId = $getmatrix[0]->id;
+					if($approvalMatrixId != ''){
+						$dataApproval = [
+							'approval_matrix_type_id' 	=> $approval_type_id,
+							'trx_id' 					=> $trx_id,
+							'approval_matrix_id' 		=> $approvalMatrixId,
+							'current_approval_level' 	=> 1
+						];
+						$rs = $this->db->insert("approval_path", $dataApproval);
+						$approval_path_id = $this->db->insert_id();
+						if($rs){
+							$dataApprovalDetail = [
+								'approval_path_id' 	=> $approval_path_id,
+								'approval_level' 	=> 1
+							];
+							$this->db->insert("approval_path_detail", $dataApprovalDetail);
+						}
+					}
+				}
 			}
 
 		}
@@ -5430,12 +5453,19 @@ class Api extends API_Controller
 
 		$approver = 0;
 
+		if(empty($dataApproval)){
+			return $approver;
+		}
+
 		if($dataApproval[0]->role_name == 'Direct'){ 
 			$getTbl = $this->db->query("select * from approval_matrix_mstype where id = ".$approval_matrix_type_id."
 				")->result();
+			if(empty($getTbl)){
+				return $approver;
+			}
 			$getDirect = $this->db->query("select b.direct_id from ".$getTbl[0]->tbl." a left join employees b on b.id = a.".$getTbl[0]->tbl_employee_id." where a.id = ".$trx_id."
 				")->result();
-			if($getDirect[0]->direct_id == $employee_id){
+			if(!empty($getDirect) && $getDirect[0]->direct_id == $employee_id){
 				$approver = 1;
 			}
 		}else{
@@ -5652,6 +5682,547 @@ class Api extends API_Controller
 		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
 		$this->render_json($response, $response['status']);
 		
+    }
+
+
+
+    private function upload_attendance_revision_attachment($fieldname = 'attachment', $oldfilename = '')
+    {
+    	$document = $oldfilename;
+
+    	if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
+        {
+        	$config['upload_path']   = "./uploads/attendance_revision";
+            $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
+            $config['max_size']      = "0";
+
+            $this->load->library('upload', $config);
+
+            if(!$this->upload->do_upload($fieldname)){
+                $err_msg = $this->upload->display_errors();
+                $document = 'ERROR : '.strip_tags($err_msg);
+            } else {
+                $fileData = $this->upload->data();
+                $document = $fileData['file_name'];
+            }
+        }
+
+        return $document;
+    }
+
+    private function build_attendance_revision_data($post, $current_attachment = '')
+    {
+    	$employee_id 		= trim($post['employee_id'] ?? ($post['employee'] ?? ''));
+    	$date_attendance 	= trim($post['date_attendance'] ?? ($post['attendance_date'] ?? ''));
+    	$attendance_type 	= trim($post['attendance_type'] ?? ($post['absence_type'] ?? ''));
+    	$time_in 			= trim($post['time_in'] ?? '');
+    	$time_out 			= trim($post['time_out'] ?? '');
+    	$attendance_in 		= trim($post['date_attendance_in'] ?? ($post['attendance_in'] ?? ''));
+    	$attendance_out 	= trim($post['date_attendance_out'] ?? ($post['attendance_out'] ?? ''));
+    	$description 		= trim($post['description'] ?? '');
+    	$work_location 		= trim($post['work_location'] ?? ($post['location'] ?? ''));
+
+    	$date_attendance = date("Y-m-d", strtotime($date_attendance));
+    	if($date_attendance == '1970-01-01'){
+    		$date_attendance = '';
+    	}
+
+    	if($attendance_type == 'Shift 3' || $attendance_type == 'Shift Malam'){
+    		$date_attendance = date("Y-m-d", strtotime($date_attendance . " +1 day"));
+    	}
+
+    	$is_late = '';
+    	$is_leaving_office_early = '';
+    	$num_of_working_hours = '';
+    	$date_attendance_in = '';
+    	$date_attendance_out = '';
+    	$timestamp_timein = '';
+    	$timestamp_timeout = '';
+
+    	$post_timein = '';
+    	if($date_attendance != '' && $time_in != ''){
+    		$post_timein = strtotime($date_attendance.' '.$time_in);
+    	}
+
+    	$post_timeout = '';
+    	if($date_attendance != '' && $time_out != ''){
+    		$post_timeout = strtotime($date_attendance.' '.$time_out);
+    	}
+
+    	if($attendance_in != '' && $attendance_in != '0000-00-00 00:00:00'){
+    		$date_attendance_in = date('Y-m-d H:i:s', strtotime($attendance_in));
+    		$timestamp_timein = strtotime($attendance_in);
+
+    		if($post_timeout != '' && $timestamp_timein > $post_timeout){
+    			return [
+    				'status' => false,
+    				'msg' => 'Check-in time has expired'
+    			];
+    		}
+
+    		if($post_timein != '' && $timestamp_timein > $post_timein){
+    			$is_late = 'Y';
+    		}
+    	}
+
+    	if($attendance_out != '' && $attendance_out != '0000-00-00 00:00:00'){
+    		$date_attendance_out = date('Y-m-d H:i:s', strtotime($attendance_out));
+    		$timestamp_timeout = strtotime($attendance_out);
+
+    		if($post_timeout != '' && $timestamp_timeout < $post_timeout){
+    			$is_leaving_office_early = 'Y';
+    		}
+    	}
+
+    	if($timestamp_timein != '' && $timestamp_timeout != ''){
+    		$num_of_working_hours = abs($timestamp_timeout - $timestamp_timein)/(60)/(60);
+    	}
+
+    	$document = $this->upload_attendance_revision_attachment('attachment', $current_attachment);
+
+    	return [
+    		'status' => true,
+    		'data' => [
+				'date_attendance' 			=> $date_attendance,
+				'employee_id' 				=> $employee_id,
+				'attendance_type' 			=> $attendance_type,
+				'time_in' 					=> $time_in,
+				'time_out' 					=> $time_out,
+				'date_attendance_in' 		=> $date_attendance_in,
+				'date_attendance_out'		=> $date_attendance_out,
+				'is_leaving_office_early'	=> $is_leaving_office_early,
+				'is_late'					=> $is_late,
+				'num_of_working_hours'		=> $num_of_working_hours,
+				'attachment'				=> $document,
+				'description' 				=> $description,
+				'work_location' 			=> $work_location
+    		]
+    	];
+    }
+
+    public function save_attendance_revision()
+    {
+    	$this->verify_token();
+
+    	$post = $_POST;
+    	$save_method = trim($post['save_method'] ?? 'insert');
+    	$id = trim($post['id'] ?? ($post['id_data'] ?? ''));
+    	$employee_id = trim($post['employee_id'] ?? ($post['employee'] ?? ''));
+    	$date_attendance = trim($post['date_attendance'] ?? ($post['attendance_date'] ?? ''));
+    	$created_by = trim($post['islogin_employee'] ?? ($post['created_by'] ?? $employee_id));
+
+    	if($employee_id == '' || $date_attendance == ''){
+    		$response = [
+				'status' 	=> 400,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Please fill Employee & Attendance Date'
+			];
+    	}else{
+    		$dataEmp = $this->db->query("select * from employees where id = '".$employee_id."'")->result();
+    		if(empty($dataEmp)){
+    			$response = [
+					'status' 	=> 400,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee not found'
+				];
+    		}else{
+    			$current_attachment = '';
+    			if($save_method == 'update'){
+    				if($id == ''){
+    					$response = [
+							'status' 	=> 400,
+							'message' 	=> 'Failed',
+							'error' 	=> 'ID not found'
+						];
+    					$this->output->set_header('Access-Control-Allow-Origin: *');
+						$this->output->set_header('Access-Control-Allow-Methods: POST');
+						$this->output->set_header('Access-Control-Max-Age: 3600');
+						$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+						$this->render_json($response, $response['status']);
+						return;
+    				}
+
+    				$getcurrData = $this->db->query("select * from time_attendances_revision where id = '".$id."' ")->result();
+    				if(empty($getcurrData)){
+    					$response = [
+							'status' 	=> 400,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Data not found'
+						];
+    					$this->output->set_header('Access-Control-Allow-Origin: *');
+						$this->output->set_header('Access-Control-Allow-Methods: POST');
+						$this->output->set_header('Access-Control-Max-Age: 3600');
+						$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+						$this->render_json($response, $response['status']);
+						return;
+    				}
+
+    				if($getcurrData[0]->status_approval != 1){
+    					$response = [
+							'status' 	=> 400,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Cannot edit approved/rejected attendance revision'
+						];
+    					$this->output->set_header('Access-Control-Allow-Origin: *');
+						$this->output->set_header('Access-Control-Allow-Methods: POST');
+						$this->output->set_header('Access-Control-Max-Age: 3600');
+						$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+						$this->render_json($response, $response['status']);
+						return;
+    				}
+
+    				$current_attachment = $post['hdnattachment'] ?? $getcurrData[0]->attachment;
+    			}
+
+    			$build = $this->build_attendance_revision_data($post, $current_attachment);
+    			if(!$build['status']){
+    				$response = [
+						'status' 	=> 400,
+						'message' 	=> 'Failed',
+						'error' 	=> $build['msg']
+					];
+    			}else{
+    				$data = $build['data'];
+
+    				if($save_method == 'update'){
+    					$data['updated_at'] = date("Y-m-d H:i:s");
+    					$rs = $this->db->update("time_attendances_revision", $data, "id = '".$id."'");
+    					$lastId = $id;
+    				}else{
+    					$data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$data['date_attendance']."' and employee_id = '".$employee_id."'")->result();
+    					if(!empty($data_attendances)){
+    						$response = [
+								'status' 	=> 400,
+								'message' 	=> 'Failed',
+								'error' 	=> 'Cannot double absen'
+							];
+    						$this->output->set_header('Access-Control-Allow-Origin: *');
+							$this->output->set_header('Access-Control-Allow-Methods: POST');
+							$this->output->set_header('Access-Control-Max-Age: 3600');
+							$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+							$this->render_json($response, $response['status']);
+							return;
+    					}
+
+    					$data['status_approval'] = 1;
+    					$data['created_at'] = date("Y-m-d H:i:s");
+    					$data['created_by'] = $created_by;
+    					$rs = $this->db->insert("time_attendances_revision", $data);
+    					$lastId = $this->db->insert_id();
+
+    					if($rs){
+    						$this->getApprovalMatrix($dataEmp[0]->work_location, 13, "", "", $lastId);
+    					}
+    				}
+
+    				if($rs){
+    					$response = [
+							'status' 	=> 200,
+							'message' 	=> 'Success',
+							'data' 		=> ['id' => $lastId]
+						];
+    				}else{
+    					$response = [
+							'status' 	=> 401,
+							'message' 	=> 'Failed',
+							'error' 	=> 'Error submit'
+						];
+    				}
+    			}
+    		}
+    	}
+
+    	$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+    public function save_revisi_absen()
+    {
+    	$this->save_attendance_revision();
+    }
+
+    public function get_data_attendance_revision()
+    {
+    	$this->verify_token();
+
+    	$islogin_employee	= $_GET['islogin_employee'] ?? '';
+    	$filter_employee	= $_GET['filter_employee'] ?? '';
+    	$filter_isapprover	= $_GET['filter_isapprover'] ?? '';
+
+    	if($islogin_employee != ''){
+    		$where = "";
+    		$whr_isapprover = "";
+
+    		if($filter_employee != ''){
+    			$where = " and ao.employee_id = '".$filter_employee."' ";
+    		}
+
+    		if($filter_isapprover != ''){
+    			$whr_isapprover = " and ao.is_approver = 1 ";
+    		}
+
+    		$datarevision = $this->db->query('select ao.*
+						FROM (
+						    SELECT
+						        a.id,
+						        a.date_attendance,
+						        a.employee_id,
+						        a.attendance_type,
+						        a.time_in,
+						        a.time_out,
+						        a.date_attendance_in,
+						        a.date_attendance_out,
+						        a.is_late,
+						        a.is_leaving_office_early,
+						        a.num_of_working_hours,
+						        a.attachment,
+						        a.created_at,
+						        a.created_by,
+						        a.description,
+						        a.work_location,
+						        a.status_approval,
+						        a.date_approval,
+						        b.full_name,
+						        (CASE
+						            WHEN a.status_approval = 1 THEN "Waiting Approval"
+						            WHEN a.status_approval = 2 THEN "Approved"
+						            WHEN a.status_approval = 3 THEN "Rejected"
+						        END) AS status,
+						        max(b.direct_id) AS direct_id,
+						        max(d.current_approval_level) AS current_approval_level,
+						        max(h.role_id) AS current_role_id,
+						        max(i.role_name) AS current_role_name,
+						        GROUP_CONCAT(g.employee_id) AS all_employeeid_approver,
+						        max(
+						            IF(
+						                i.role_name = "Direct",
+						                b.direct_id,
+						                (
+						                    SELECT GROUP_CONCAT(employee_id)
+						                    FROM approval_matrix_role_pic
+						                    WHERE approval_matrix_role_id = h.role_id
+						                )
+						            )
+						        ) AS current_employeeid_approver,
+						        CASE
+						            WHEN FIND_IN_SET('.$islogin_employee.', GROUP_CONCAT(g.employee_id)) > 0 THEN 1
+						            ELSE 0
+						        END AS is_approver_view,
+						        CASE
+						            WHEN FIND_IN_SET(
+						                '.$islogin_employee.',
+						                (
+						                    SELECT GROUP_CONCAT(employee_id)
+						                    FROM approval_matrix_role_pic
+						                    WHERE approval_matrix_role_id = max(h.role_id)
+						                )
+						            ) > 0 THEN 1
+						            WHEN max(i.role_name) = "Direct" AND max(b.direct_id) = '.$islogin_employee.' THEN 1
+						            ELSE 0
+						        END AS is_approver
+						    FROM time_attendances_revision a
+						    LEFT JOIN employees b ON b.id = a.employee_id
+						    LEFT JOIN approval_path d ON d.trx_id = a.id AND d.approval_matrix_type_id = 13
+						    LEFT JOIN approval_matrix bb ON bb.id = d.approval_matrix_id
+						    LEFT JOIN approval_matrix_detail cc ON cc.approval_matrix_id = bb.id
+						    LEFT JOIN approval_matrix_role dd ON dd.id = cc.role_id
+						    LEFT JOIN approval_path_detail ee ON ee.approval_path_id = d.id AND ee.approval_level = cc.approval_level
+						    LEFT JOIN approval_matrix_role_pic g ON g.approval_matrix_role_id = cc.role_id
+						    LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d.approval_matrix_id AND h.approval_level = d.current_approval_level
+						    LEFT JOIN approval_matrix_role i ON i.id = h.role_id
+						    GROUP BY a.id
+						) ao
+						where (ao.employee_id = "'.$islogin_employee.'" or ao.direct_id = "'.$islogin_employee.'" or ao.is_approver_view = 1)
+	                    '.$where.$whr_isapprover.'
+	                    order by ao.id desc')->result();
+
+    		$response = [
+	    		'status' 	=> 200,
+				'message' 	=> 'Success',
+				'data' 		=> $datarevision
+			];
+    	}else{
+    		$response = [
+				'status' 	=> 401,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Employee ID Login not found'
+			];
+    	}
+
+    	$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+    public function get_data_revisi_absen()
+    {
+    	$this->get_data_attendance_revision();
+    }
+
+    public function approval_attendance_revision()
+    {
+    	$this->verify_token();
+
+    	$id = $_POST['id'] ?? ($_POST['id_data'] ?? '');
+    	$status = $_POST['status'] ?? ($_POST['status_approval'] ?? '');
+    	$islogin_employee = $_POST['islogin_employee'] ?? '';
+    	$approval_matrix_type_id = 13;
+
+    	if($id == '' || $status == '' || $islogin_employee == ''){
+    		$response = [
+				'status' 	=> 400,
+				'message' 	=> 'Failed',
+				'error' 	=> 'Require not satisfied'
+			];
+    	}else{
+    		$status = strtolower($status);
+    		if($status == 'approved' || $status == 'approve'){
+    			$status_approval = 2;
+    		}else if($status == 'rejected' || $status == 'reject'){
+    			$status_approval = 3;
+    		}else{
+    			$status_approval = $status;
+    		}
+
+    		$dataRevisi = $this->db->query("select * from time_attendances_revision where id = '".$id."' ")->result();
+    		if(empty($dataRevisi)){
+    			$response = [
+					'status' 	=> 400,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Data not found'
+				];
+    		}else if($dataRevisi[0]->status_approval != 1){
+    			$response = [
+					'status' 	=> 400,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Cannot double approval'
+				];
+    		}else if($this->checkApprover($approval_matrix_type_id, $id, $islogin_employee) != 1){
+    			$response = [
+					'status' 	=> 403,
+					'message' 	=> 'Failed',
+					'error' 	=> 'Employee is not approver'
+				];
+    		}else{
+    			$CurrApproval = $this->getCurrApproval($approval_matrix_type_id, $id);
+    			if(empty($CurrApproval)){
+    				$response = [
+						'status' 	=> 400,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Approval path not found'
+					];
+
+					$this->output->set_header('Access-Control-Allow-Origin: *');
+					$this->output->set_header('Access-Control-Allow-Methods: POST');
+					$this->output->set_header('Access-Control-Max-Age: 3600');
+					$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+					$this->render_json($response, $response['status']);
+					return;
+    			}
+    			$current_approval_level = $CurrApproval[0]->current_approval_level;
+    			$approval_path_id = $CurrApproval[0]->id;
+    			$maxApproval = $this->getMaxApproval($approval_matrix_type_id, $id);
+
+    			if($status_approval == 3){
+    				$rs = $this->db->update("time_attendances_revision", [
+    					'status_approval' => 3,
+    					'date_approval' => date("Y-m-d H:i:s")
+    				], "id = '".$id."'");
+
+    				if($rs){
+    					$this->db->update("approval_path_detail", [
+    						'status' => 'Rejected',
+    						'approval_by' => $islogin_employee,
+    						'approval_date' => date("Y-m-d H:i:s")
+    					], "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+    				}
+    			}else if($current_approval_level == $maxApproval){
+    				$rs = $this->db->update("time_attendances_revision", [
+    					'status_approval' => 2,
+    					'date_approval' => date("Y-m-d H:i:s")
+    				], "id = '".$id."'");
+
+    				if($rs){
+    					$rev = $dataRevisi[0];
+    					$existing = $this->db->query("select id from time_attendances where date_attendance = '".$rev->date_attendance."' and employee_id = '".$rev->employee_id."' ")->result();
+    					$dataAtt = [
+							'date_attendance' 			=> $rev->date_attendance,
+							'employee_id' 				=> $rev->employee_id,
+							'attendance_type' 			=> $rev->attendance_type,
+							'time_in' 					=> $rev->time_in,
+							'time_out' 					=> $rev->time_out,
+							'date_attendance_in' 		=> $rev->date_attendance_in,
+							'date_attendance_out'		=> $rev->date_attendance_out,
+							'is_late'					=> $rev->is_late,
+							'is_leaving_office_early' 	=> $rev->is_leaving_office_early,
+							'num_of_working_hours'		=> $rev->num_of_working_hours,
+							'attendance_revision_id'	=> $rev->id,
+							'updated_at'				=> date("Y-m-d H:i:s")
+						];
+
+    					if(!empty($existing)){
+    						$this->db->update("time_attendances", $dataAtt, "id = '".$existing[0]->id."'");
+    					}else{
+    						$dataAtt['created_at'] = date("Y-m-d H:i:s");
+    						$this->db->insert("time_attendances", $dataAtt);
+    					}
+
+    					$this->db->update("approval_path_detail", [
+    						'status' => 'Approved',
+    						'approval_by' => $islogin_employee,
+    						'approval_date' => date("Y-m-d H:i:s")
+    					], "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+    				}
+    			}else{
+    				$next_level = $current_approval_level + 1;
+    				$rs = $this->db->update("approval_path", [
+    					'current_approval_level' => $next_level
+    				], "id = '".$approval_path_id."'");
+
+    				if($rs){
+    					$this->db->update("approval_path_detail", [
+    						'status' => 'Approved',
+    						'approval_by' => $islogin_employee,
+    						'approval_date' => date("Y-m-d H:i:s")
+    					], "approval_path_id = '".$approval_path_id."' and approval_level = ".$current_approval_level."");
+
+    					$this->db->insert("approval_path_detail", [
+    						'approval_path_id' => $approval_path_id,
+    						'approval_level' => $next_level
+    					]);
+    				}
+    			}
+
+    			if($rs){
+    				$response = [
+						'status' 	=> 200,
+						'message' 	=> 'Success'
+					];
+    			}else{
+    				$response = [
+						'status' 	=> 401,
+						'message' 	=> 'Failed',
+						'error' 	=> 'Error submit'
+					];
+    			}
+    		}
+    	}
+
+    	$this->output->set_header('Access-Control-Allow-Origin: *');
+		$this->output->set_header('Access-Control-Allow-Methods: POST');
+		$this->output->set_header('Access-Control-Max-Age: 3600');
+		$this->output->set_header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+		$this->render_json($response, $response['status']);
+    }
+
+    public function approval_revisi_absen()
+    {
+    	$this->approval_attendance_revision();
     }
 
 
