@@ -231,12 +231,6 @@
 					</div>
 				</div>
 				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gaji Per Bulan</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="gaji_bulanan"></span>
-					</div>
-				</div>
-				<div class="row">
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Company</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="company"></span>
@@ -306,12 +300,6 @@
 					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">End PKWT</label>
 					<div class="col-md-8 col-sm-8 col-xs-8">
 						: <span class="end_pkwt"></span>
-					</div>
-				</div>
-				<div class="row">
-					<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Gaji Harian</label>
-					<div class="col-md-8 col-sm-8 col-xs-8">
-						: <span class="gaji_harian"></span>
 					</div>
 				</div>
 				<div class="row">

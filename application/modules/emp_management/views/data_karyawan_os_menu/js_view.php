@@ -18,6 +18,52 @@ var wcount_training = 0; //for ca list row identify
 var wcount_org = 0; //for ca list row identify
 var wcount_workexp = 0; //for ca list row identify
 
+function getEmployeeFilterUrl()
+{
+	var flstatus = $("#flstatus option:selected").val();
+	return module_path+"/get_data?flstatus="+encodeURIComponent(flstatus);
+}
+
+function reloadEmployeeTable()
+{
+	if ($.fn.DataTable.isDataTable('#dynamic-table')) {
+		$('#dynamic-table').DataTable().clear().destroy();
+	}
+
+	myTable =
+	$('#dynamic-table')
+	.DataTable( {
+		fixedHeader: {
+			headerOffset: $('.page-header').outerHeight()
+		},
+		responsive: true,
+		bAutoWidth: false,
+		"aoColumnDefs": [
+		  { "bSortable": false, "aTargets": [ 0,1 ] },
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
+		],
+		"aaSorting": [
+		  	[2,'asc'] 
+		],
+		"sAjaxSource": getEmployeeFilterUrl(),
+		"bProcessing": true,
+        "bServerSide": true,
+		"pagingType": "bootstrap_full_number",
+		"colReorder": true
+    } );
+}
+
+function subFilter()
+{
+	reloadEmployeeTable();
+}
+
+function resetFilter()
+{
+	$("#flstatus").val('');
+	reloadEmployeeTable();
+}
+
 
 
 
@@ -40,27 +86,16 @@ $(document).ready(function() {
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
 jQuery(function($) {
 	/* load table list */
-	myTable =
-	$('#dynamic-table')
-	.DataTable( {
-		fixedHeader: {
-			headerOffset: $('.page-header').outerHeight()
-		},
-		responsive: true,
-		bAutoWidth: false,
-		"aoColumnDefs": [
-		  { "bSortable": false, "aTargets": [ 0,1 ] },
-		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
-		],
-		"aaSorting": [
-		  	[2,'asc'] 
-		],
-		"sAjaxSource": module_path+"/get_data",
-		"bProcessing": true,
-        "bServerSide": true,
-		"pagingType": "bootstrap_full_number",
-		"colReorder": true
-    } );
+	reloadEmployeeTable();
+
+	$("#flstatus").on('change', function() {
+		reloadEmployeeTable();
+	});
+
+	$("#btnToggleAdvanceSearch").on('click', function() {
+		$("#advanceSearchBox").slideToggle(150);
+		$(this).toggleClass('active');
+	});
 
 	<?php if  (_USER_ACCESS_LEVEL_ADD == "1" || _USER_ACCESS_LEVEL_UPDATE == "1") { ?>
 	validator = $("#frmInputData").validate({
@@ -182,8 +217,6 @@ function load_data()
 					$('[name="is_tracking"][value="'+data.is_tracking+'"]').prop('checked', true);
 
 					$('[name="username"]').val(data.username);
-					$('[name="gaji_bulanan"]').val(data.gaji_bulanan);
-					$('[name="gaji_harian"]').val(data.gaji_harian);
 					
 					$('[name="hdnempphoto"]').val(data.emp_photo);
 					if(data.emp_photo != '' && data.emp_photo != null){
@@ -485,8 +518,6 @@ function load_data()
 					$('span.status_bpjs_ket').html(data.status_bpjs_ketenagakerjaan_desc);
 					$('span.no_bpjs_ketenagakerjaan').html(data.no_bpjs_ketenagakerjaan);
 					$('span.username').html(data.username);
-					$('span.gaji_bulanan').html(data.gaji_bulanan);
-					$('span.gaji_harian').html(data.gaji_harian);
 					
 
 

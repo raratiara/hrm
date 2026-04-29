@@ -160,9 +160,6 @@ class Data_karyawan_menu extends MY_Controller
 		$field['txtstatusbpjsket'] 		= $this->self_model->return_build_radio('', [['ditanggung_pribadi','Tidak'],['ditanggung_perusahaan','Ya']], 'status_bpjs_ket', '', 'inline');
 		$field['txtstartpkwt'] 			= $this->self_model->return_build_txtdate('','start_pkwt','start_pkwt');
 		$field['txtendpkwt'] 			= $this->self_model->return_build_txtdate('','end_pkwt','end_pkwt');
-		$field['txtgajibulanan'] 		= $this->self_model->return_build_txt('','gaji_bulanan','gaji_bulanan');
-		$field['txtgajiharian'] 		= $this->self_model->return_build_txt('','gaji_harian','gaji_harian');
-
 		
 		return $field;
 	}

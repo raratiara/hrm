@@ -86,6 +86,11 @@ class Data_karyawan_os_menu_model extends MY_Model
 
 		/* Filtering */
 		$sWhere = " WHERE 1 = 1 ";
+		$flstatus = isset($_GET['flstatus']) ? trim($_GET['flstatus']) : '';
+		if($flstatus !== '' && in_array($flstatus, ['0', '1'], true)){
+			$sWhere .= " AND dt.status_id = ".$this->db->escape($flstatus)." ";
+		}
+
 		if(isset($_GET['sSearch']) && $_GET['sSearch'] != ""){
 			$sWhere .= "AND (";
 			foreach ($aColumns as $c) {
@@ -415,6 +420,55 @@ class Data_karyawan_os_menu_model extends MY_Model
 			echo 'Gagal Generate. Data sudah ada'; die();
 		}*/
 
+	}
+
+
+	private function getBenefitDeductionOsComponentColumn()
+	{
+		if($this->db->field_exists('salary_components_id', 'employee_benefit_deduction_os')){
+			return 'salary_components_id';
+		}
+
+		if($this->db->field_exists('salary_component_id', 'employee_benefit_deduction_os')){
+			return 'salary_component_id';
+		}
+
+		if($this->db->field_exists('component_id', 'employee_benefit_deduction_os')){
+			return 'component_id';
+		}
+
+		return 'salary_components_id';
+	}
+
+	private function seed_employee_benefit_deduction_os($employee_id)
+	{
+		if(empty($employee_id) || !$this->db->table_exists('employee_benefit_deduction_os') || !$this->db->table_exists('salary_components_os')){
+			return false;
+		}
+
+		$componentColumn = $this->getBenefitDeductionOsComponentColumn();
+		$components = $this->db->query("select id from salary_components_os
+					where is_active = 1
+					order by case when lower(type) = 'earning' then 0 else 1 end asc, order_num asc, name asc")->result();
+
+		foreach($components as $component){
+			$existing = $this->db->query("select id from employee_benefit_deduction_os
+						where employee_id = '".$employee_id."'
+						and ".$componentColumn." = '".$component->id."'
+						limit 1")->row();
+
+			if(!empty($existing)){
+				continue;
+			}
+
+			$this->db->insert('employee_benefit_deduction_os', [
+				'employee_id' => $employee_id,
+				$componentColumn => $component->id,
+				'amount' => ''
+			]);
+		}
+
+		return true;
 	}
 
 
@@ -818,6 +872,10 @@ class Data_karyawan_os_menu_model extends MY_Model
 					//add jatah cuti
 					$this->generate_jatah_cuti_karyawan_baru($lastId,$dateofHired);
 					//end add jatah cuti
+
+					//add default benefit/deduction OS component rows
+					$this->seed_employee_benefit_deduction_os($lastId);
+					//end default benefit/deduction OS component rows
 
 
 					return [
@@ -1666,6 +1724,10 @@ class Data_karyawan_os_menu_model extends MY_Model
 								];
 								$this->db->insert('user', $data2);
 								// end add ke table user //
+
+								//add default benefit/deduction OS component rows
+								$this->seed_employee_benefit_deduction_os($lastId);
+								//end default benefit/deduction OS component rows
 
 
 								//START add folder upload 

@@ -255,12 +255,6 @@
 							<?=$txtstartpkwt;?>
 						</div>
 					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Gaji Per Bulan </label>
-						<div class="col-md-8">
-							<?=$txtgajibulanan;?>
-						</div>
-					</div>
 					<div class="form-group" id="inpUsername" style="display:none">
 						<label class="col-md-4 control-label no-padding-right">Username </label>
 						<div class="col-md-8">
@@ -343,12 +337,6 @@
 						<label class="col-md-4 control-label no-padding-right">End PKWT </label>
 						<div class="col-md-8">
 							<?=$txtendpkwt;?>
-						</div>
-					</div>
-					<div class="form-group">
-						<label class="col-md-4 control-label no-padding-right">Gaji Harian </label>
-						<div class="col-md-8">
-							<?=$txtgajiharian;?>
 						</div>
 					</div>
 					<div class="form-group" id="inpPassword" style="display:none">

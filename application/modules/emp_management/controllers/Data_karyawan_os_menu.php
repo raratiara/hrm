@@ -69,8 +69,6 @@ class Data_karyawan_os_menu extends MY_Controller
 		$field['txtresignexitfeedback'] = $this->self_model->return_build_txt('','resign_exit_feedback','resign_exit_feedback');
 		$field['txtempphoto'] 			= $this->self_model->return_build_fileinput('emp_photo','emp_photo');
 		$field['txtempsignature'] 		= $this->self_model->return_build_fileinput('emp_signature','emp_signature');
-		$field['txtgajibulanan'] 		= $this->self_model->return_build_txt('','gaji_bulanan','gaji_bulanan');
-		$field['txtgajiharian'] 		= $this->self_model->return_build_txt('','gaji_harian','gaji_harian');
 		$field['txtusername'] 			= $this->self_model->return_build_txt('','username','username','','','readonly');
 		$field['txtpassword'] 			= $this->self_model->return_build_txt('','password','password','','','');
 

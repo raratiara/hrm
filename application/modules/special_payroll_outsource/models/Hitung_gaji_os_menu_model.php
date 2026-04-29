@@ -287,6 +287,79 @@ class Hitung_gaji_os_menu_model extends MY_Model
 		} else return null;
 	}  
 
+	private function normalizeSalaryComponentName($name)
+	{
+		return strtolower(preg_replace('/[^a-z0-9]/i', '', (string)$name));
+	}
+
+	private function getBenefitDeductionOsComponentColumn()
+	{
+		if($this->db->field_exists('salary_components_id', 'employee_benefit_deduction_os')){
+			return 'salary_components_id';
+		}
+		if($this->db->field_exists('salary_component_id', 'employee_benefit_deduction_os')){
+			return 'salary_component_id';
+		}
+		if($this->db->field_exists('component_id', 'employee_benefit_deduction_os')){
+			return 'component_id';
+		}
+		return 'salary_components_id';
+	}
+
+	private function getEmployeeBenefitDeductionOsAmounts($employee_ids)
+	{
+		$result = [];
+		if(empty($employee_ids) || !$this->db->table_exists('employee_benefit_deduction_os') || !$this->db->table_exists('salary_components_os')){
+			return $result;
+		}
+
+		$employee_ids = array_values(array_unique(array_filter(array_map('intval', (array)$employee_ids))));
+		if(empty($employee_ids)){
+			return $result;
+		}
+
+		$componentColumn = $this->getBenefitDeductionOsComponentColumn();
+		$fieldMap = [
+			'gajibulanan' => 'gaji_bulanan',
+			'gajiharian' => 'gaji_harian',
+			'tunjjabatan' => 'tunjangan_jabatan',
+			'tunjtransport' => 'tunjangan_transport',
+			'tunjtransportasi' => 'tunjangan_transport',
+			'tunjkonsumsi' => 'tunjangan_konsumsi',
+			'tunjkomunikasi' => 'tunjangan_komunikasi',
+			'bpjskesehatan' => 'bpjs_kesehatan',
+			'bpjstk' => 'bpjs_tk',
+			'seragam' => 'seragam',
+			'pelatihan' => 'pelatihan',
+			'lainlain' => 'lain_lain',
+			'sosial' => 'sosial',
+			'payroll' => 'payroll',
+			'pph120' => 'pph_120'
+		];
+
+		$rows = $this->db->query("select a.employee_id, a.amount, b.name
+					from employee_benefit_deduction_os a
+					left join salary_components_os b on b.id = a.".$componentColumn."
+					where a.employee_id in (".implode(',', $employee_ids).")")->result();
+
+		foreach($rows as $row){
+			$key = $this->normalizeSalaryComponentName($row->name);
+			if(isset($fieldMap[$key])){
+				$result[$row->employee_id][$fieldMap[$key]] = $row->amount;
+			}
+		}
+
+		return $result;
+	}
+
+	private function benefitOsValue($benefit, $field, $fallback = 0)
+	{
+		if(isset($benefit[$field]) && $benefit[$field] !== ''){
+			return $benefit[$field];
+		}
+		return $fallback;
+	}
+
 	// delete multi items action
 	public function bulk($id= "") {
 		if (is_array($id) && count($id)) {
@@ -449,6 +522,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    $projectHeader = [];
 	    $insertDetail  = [];
 	    $bpjsHeaderCache = [];
+	    $benefitAmounts = $this->getEmployeeBenefitDeductionOsAmounts(array_map(function($row) {
+	    	return $row->employee_id;
+	    }, $data));
 
 
 	    foreach ($data as $row) {
@@ -481,8 +557,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        // =========================
 	        // HITUNG GAJI
 	        // =========================
-	        $gaji_bulanan = (float)$row->gaji_bulanan;
-	        $gaji_harian  = (float)$row->gaji_harian;
+	        $benefit = isset($benefitAmounts[$row->employee_id]) ? $benefitAmounts[$row->employee_id] : [];
+	        $gaji_bulanan = (float)$this->benefitOsValue($benefit, 'gaji_bulanan', $row->gaji_bulanan);
+	        $gaji_harian  = (float)$this->benefitOsValue($benefit, 'gaji_harian', $row->gaji_harian);
+	        $tunjangan_jabatan = (float)$this->benefitOsValue($benefit, 'tunjangan_jabatan', 0);
+	        $tunjangan_transport = (float)$this->benefitOsValue($benefit, 'tunjangan_transport', 0);
+	        $tunjangan_konsumsi = (float)$this->benefitOsValue($benefit, 'tunjangan_konsumsi', 0);
+	        $tunjangan_komunikasi = (float)$this->benefitOsValue($benefit, 'tunjangan_komunikasi', 0);
 
 	        $total_tidak_masuk =
 	            (int)$row->total_ijin +
@@ -508,8 +589,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        //$lembur_total   = ceil($lembur_perjam * $row->total_jam_lembur);
 	        $lembur_total = $row->total_lembur;
 
-	        $bpjs_kesehatan = ceil($gaji_bulanan * 0.04);
-	        $bpjs_tk        = ceil($gaji_bulanan * 0.0624);
+	        $bpjs_kesehatan = (float)$this->benefitOsValue($benefit, 'bpjs_kesehatan', ceil($gaji_bulanan * 0.04));
+	        $bpjs_tk        = (float)$this->benefitOsValue($benefit, 'bpjs_tk', ceil($gaji_bulanan * 0.0624));
+	        $seragam = (float)$this->benefitOsValue($benefit, 'seragam', 0);
+	        $pelatihan = (float)$this->benefitOsValue($benefit, 'pelatihan', 0);
+	        $lain_lain = (float)$this->benefitOsValue($benefit, 'lain_lain', 0);
+	        $payroll = (float)$this->benefitOsValue($benefit, 'payroll', 0);
+	        $pph_120 = (float)$this->benefitOsValue($benefit, 'pph_120', 0);
 
 	        $hari_kerja = (int)$row->total_hari_kerja;
 
@@ -517,18 +603,18 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            ? ceil($total_tidak_masuk * ($gaji_bulanan / $hari_kerja))
 	            : 0;*/
 
-	        $sosial = 5000;
+	        $sosial = (float)$this->benefitOsValue($benefit, 'sosial', 5000);
 	        $hutang = (float)$row->hutang;
 
 	        //$total_pendapatan = ceil($gaji + $lembur_total);
-	        $total_pendapatan = $gaji;
+	        $total_pendapatan = $gaji + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi;
 
 	        $getTer = $this->getRateTer($total_pendapatan, $row->employee_id);
 			$ter_rate = $getTer['ter_rate'];
 			$pph_21   = $getTer['pph_21'];
 
-	        $subtotal    = ceil($total_pendapatan - ($hutang + $sosial));
-	        $gaji_bersih = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $pph_21));
+	        $subtotal    = ceil($total_pendapatan - ($seragam + $pelatihan + $lain_lain + $hutang + $sosial));
+	        $gaji_bersih = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $payroll + $pph_120 + $pph_21));
 
 
 	        // =========================
@@ -605,13 +691,22 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            'gaji_bulanan'     => $gaji_bulanan,
 	            'gaji_harian'      => $gaji_harian,
 	            'gaji'             => $gaji,
+	            'tunjangan_jabatan' => $tunjangan_jabatan,
+	            'tunjangan_transport' => $tunjangan_transport,
+	            'tunjangan_konsumsi' => $tunjangan_konsumsi,
+	            'tunjangan_komunikasi' => $tunjangan_komunikasi,
 	            'lembur_perjam'    => $lembur_perjam,
 	            'total_nominal_lembur' => $lembur_total,
 	            'total_pendapatan' => $total_pendapatan,
 	            'sosial'           => $sosial,
 	            'bpjs_kesehatan'   => $bpjs_kesehatan,
 	            'bpjs_tk'          => $bpjs_tk,
+	            'seragam'          => $seragam,
+	            'pelatihan'        => $pelatihan,
+	            'lain_lain'        => $lain_lain,
 	            'hutang'           => $hutang,
+	            'payroll'          => $payroll,
+	            'pph_120'          => $pph_120,
 	            'subtotal'         => $subtotal,
 	            'gaji_bersih'      => $gaji_bersih,
 	            'pph_21'      	   => $pph_21,
@@ -1225,6 +1320,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		
 		$rd = $rs;
+		$benefitAmounts = $this->getEmployeeBenefitDeductionOsAmounts(array_map(function($row) {
+			return $row->employee_id;
+		}, $rd));
 
 		$row = 0; 
 		if(!empty($rd)){ 
@@ -1232,6 +1330,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			
 			foreach ($rd as $f){
 				$no = $row+1;
+				$benefit = isset($benefitAmounts[$f->employee_id]) ? $benefitAmounts[$f->employee_id] : [];
 
 				$dataSlip = $this->db->query("select a.id as employee_id, a.emp_code, a.full_name, b.*, c.id as payroll_id, c.status as status_payroll
 				from employees a left join special_payroll_slip_detail b on b.employee_id = a.id 
@@ -1239,7 +1338,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				where a.emp_source = 'outsource' and a.is_special_payroll = 1 and a.id = '".$f->emp_id."' and a.status_id = 1 
 				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' ")->result(); 
 
-				$gaji_bulanan = (int)$f->gaji_bulanan;
+				$gaji_bulanan = (float)$this->benefitOsValue($benefit, 'gaji_bulanan', $f->gaji_bulanan);
+				$gaji_harian_benefit = (float)$this->benefitOsValue($benefit, 'gaji_harian', $f->gaji_harian);
 				$ter_rate=0;
 
 				if(!empty($dataSlip)){ /// ambil data slip
@@ -1298,17 +1398,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									     ((int)$f->total_cuti ?? 0) +
 									     ((int)$f->total_alfa ?? 0);
 
-					$gaji = ceil(($f->total_masuk * (int)$f->gaji_harian) * 100) / 100;
-
-
-					$pph_21 =0; $ter_rate=0;
-			        if(!empty($f->marital_status_id)){
-			        	$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$f->marital_status_id." ")->result(); 
-				        $getTer = $this->db->query("select rate from tax_ter where category = '".$getCat[0]->category."' and (".$gaji." between min_bruto and max_bruto) order by id desc limit 1 ")->result();
-				        $ter_rate = $getTer[0]->rate;
-				        $pph_21 = ceil($total_pendapatan*$ter_rate);
-			        }
-
+					$gaji = ceil(($f->total_masuk * (float)$gaji_harian_benefit) * 100) / 100;
+					$tunjangan_jabatan = (float)$this->benefitOsValue($benefit, 'tunjangan_jabatan', 0);
+					$tunjangan_transport = (float)$this->benefitOsValue($benefit, 'tunjangan_transport', 0);
+					$tunjangan_konsumsi = (float)$this->benefitOsValue($benefit, 'tunjangan_konsumsi', 0);
+					$tunjangan_komunikasi = (float)$this->benefitOsValue($benefit, 'tunjangan_komunikasi', 0);
 
 					
 					if($f->sistem_lembur == 'tidak_sistem_lembur'){
@@ -1323,8 +1417,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					}
 					
 
-					$bpjs_kesehatan = ceil(($gaji_bulanan * 0.04) * 100) / 100; /// 4% dr GP
-					$bpjs_tk = ceil(($gaji_bulanan * 0.0624) * 100) / 100; /// 6.24% dr GP
+					$bpjs_kesehatan = (float)$this->benefitOsValue($benefit, 'bpjs_kesehatan', ceil(($gaji_bulanan * 0.04) * 100) / 100); /// 4% dr GP
+					$bpjs_tk = (float)$this->benefitOsValue($benefit, 'bpjs_tk', ceil(($gaji_bulanan * 0.0624) * 100) / 100); /// 6.24% dr GP
+					$seragam = (float)$this->benefitOsValue($benefit, 'seragam', 0);
+					$pelatihan = (float)$this->benefitOsValue($benefit, 'pelatihan', 0);
+					$lain_lain = (float)$this->benefitOsValue($benefit, 'lain_lain', 0);
+					$payroll = (float)$this->benefitOsValue($benefit, 'payroll', 0);
+					$pph_120 = (float)$this->benefitOsValue($benefit, 'pph_120', 0);
 					
 					/*$hari_kerja = (int) ($f->total_hari_kerja ?? 0);
 
@@ -1338,7 +1437,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 
 
-					$sosial = '5000';
+					$sosial = (float)$this->benefitOsValue($benefit, 'sosial', 5000);
 					//ambil pinjaman yg masih berjalan
 					$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttt_hutang from loan where id_employee = '".$f->emp_id."' and status_id = 5")->result();
 					$hutang=0;
@@ -1348,10 +1447,15 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 					/// ttl pendapatan - potongan tdk wajib
 					//$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100;
-					$subtotal = ceil(($gaji - ($hutang+$sosial)) * 100) / 100;
+					$total_nominal_lembur = ceil($lembur_perjam*$f->total_jam_lembur);
+					$total_pendapatan = ceil(($gaji + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi) * 100) / 100;
+					$getTer = $this->getRateTer($total_pendapatan, $f->employee_id);
+					$ter_rate = $getTer['ter_rate'];
+					$pph_21 = $getTer['pph_21'];
+					$subtotal = ceil(($total_pendapatan - ($seragam+$pelatihan+$lain_lain+$hutang+$sosial)) * 100) / 100;
 
 					/// subtotal - potongan wajib
-					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk)) * 100) / 100;
+					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_120+$pph_21)) * 100) / 100;
 
 					///informasi detail bpjs
 					$tp_jkk = ceil(($gaji_bulanan * 0.0024) * 100) / 100; /// 0.24% dr GP
@@ -1372,26 +1476,27 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$total_jam_kerja = $f->total_jam_kerja;
 					$total_masuk = $f->total_masuk;
 					$total_tidak_masuk = $total_tidak_masuk;
-					$gaji_harian = $f->gaji_harian;
+					$gaji_bulanan = $gaji_bulanan;
+					$gaji_harian = $gaji_harian_benefit;
 					$gaji = $gaji;
-					$tunjangan_jabatan = "";
-					$tunjangan_transport = "";
-					$tunjangan_konsumsi = "";
-					$tunjangan_komunikasi = "";
+					$tunjangan_jabatan = $tunjangan_jabatan;
+					$tunjangan_transport = $tunjangan_transport;
+					$tunjangan_konsumsi = $tunjangan_konsumsi;
+					$tunjangan_komunikasi = $tunjangan_komunikasi;
 					$lembur_perjam = $lembur_perjam;
 					$total_jam_lembur = $f->total_jam_lembur;
-					$total_nominal_lembur = ceil($lembur_perjam*$total_jam_lembur);
-					$total_pendapatan = $gaji;
+					$total_nominal_lembur = $total_nominal_lembur;
+					$total_pendapatan = $total_pendapatan;
 					$bpjs_kesehatan = $bpjs_kesehatan;
 					$bpjs_tk = $bpjs_tk;
 					/*$absen = $potongan_absen;*/
-					$seragam = "";
-					$pelatihan = "";
-					$lain_lain = "";
+					$seragam = $seragam;
+					$pelatihan = $pelatihan;
+					$lain_lain = $lain_lain;
 					$hutang = $hutang;
 					$sosial = $sosial;
-					$payroll = "";
-					$pph_120 = "";
+					$payroll = $payroll;
+					$pph_120 = $pph_120;
 					$subtotal = $subtotal;
 					$gaji_bersih = $gaji_bersih;
 				}
