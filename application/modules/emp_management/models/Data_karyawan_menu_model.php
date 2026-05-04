@@ -1787,19 +1787,69 @@ class Data_karyawan_menu_model extends MY_Model
 	{
 		
 		$karyawan_id = $_SESSION['worker'];
-		$whr='';
+		$whr=' WHERE a.emp_source = "internal" ';
 		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' where a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'" ';
+			$whr.=' AND (a.id = "'.$karyawan_id.'" or a.direct_id = "'.$karyawan_id.'") ';
 		}
 
 		
-		$sql = 'select a.*,(case when a.gender="M" then "Male" when a.gender="F" then "Female" else "" end) as gender_name, o.name AS job_title_name, if(a.status_id=1,"Active","Not Active") as status_name, (case when a.is_tracking = "1" then "Track anytime"
-		    when a.is_tracking = "2" then "Track during working hours"
-		    when a.is_tracking = "0" then "No tracking"
-		    else ""
-		    end) as is_tracking_name
-			from employees a LEFT JOIN master_job_title o ON o.id = a.job_title_id
+		$sql = 'SELECT a.*,
+			(CASE WHEN a.gender="M" THEN "Male" WHEN a.gender="F" THEN "Female" ELSE "" END) AS gender_name,
+			IF(a.status_id=1,"Active","Not Active") AS status_name,
+			(CASE WHEN a.is_tracking = "1" THEN "Track anytime"
+				WHEN a.is_tracking = "2" THEN "Track during working hours"
+				WHEN a.is_tracking = "0" THEN "No tracking"
+				ELSE "" END) AS is_tracking_name,
+			(CASE WHEN a.status_bpjs_kesehatan = "1" THEN "Ya" ELSE "Tidak" END) AS status_bpjs_kesehatan_name,
+			(CASE WHEN a.status_bpjs_ketenagakerjaan = "1" THEN "Ya" ELSE "Tidak" END) AS status_bpjs_ketenagakerjaan_name,
+			o.name AS job_title_name,
+			jl.name AS job_level_name,
+			gr.name AS grade_name,
+			ms.name AS marital_status_name,
+			es.name AS employment_status_name,
+			c.name AS company_name,
+			d.name AS division_name,
+			sc.name AS section_name,
+			dp.name AS department_name,
+			br.name AS branch_name,
+			wl.name AS work_location_name,
+			dir.full_name AS direct_name,
+			indir.full_name AS indirect_name,
+			pk.name AS province_ktp_name,
+			rk.name AS regency_ktp_name,
+			dk.name AS district_ktp_name,
+			vk.name AS village_ktp_name,
+			pr.name AS province_residen_name,
+			rr.name AS regency_residen_name,
+			dr.name AS district_residen_name,
+			vr.name AS village_residen_name,
+			GROUP_CONCAT(DISTINCT CONCAT_WS(" - ", me.name, ed.institution, ed.city, ed.year) ORDER BY ed.id SEPARATOR "; ") AS education_details
+			FROM employees a
+			LEFT JOIN master_job_title o ON o.id = a.job_title_id
+			LEFT JOIN master_job_level jl ON jl.id = a.job_level_id
+			LEFT JOIN master_grade gr ON gr.id = a.grade_id
+			LEFT JOIN master_marital_status ms ON ms.id = a.marital_status_id
+			LEFT JOIN master_emp_status es ON es.id = a.employment_status_id
+			LEFT JOIN companies c ON c.id = a.company_id
+			LEFT JOIN divisions d ON d.id = a.division_id
+			LEFT JOIN sections sc ON sc.id = a.section_id
+			LEFT JOIN departments dp ON dp.id = a.department_id
+			LEFT JOIN branches br ON br.id = a.branch_id
+			LEFT JOIN master_work_location wl ON wl.id = a.work_location
+			LEFT JOIN employees dir ON dir.id = a.direct_id
+			LEFT JOIN employees indir ON indir.id = a.indirect_id
+			LEFT JOIN provinces pk ON pk.id = a.province_id_ktp
+			LEFT JOIN regencies rk ON rk.id = a.regency_id_ktp
+			LEFT JOIN districts dk ON dk.id = a.district_id_ktp
+			LEFT JOIN villages vk ON vk.id = a.village_id_ktp
+			LEFT JOIN provinces pr ON pr.id = a.province_id_residen
+			LEFT JOIN regencies rr ON rr.id = a.regency_id_residen
+			LEFT JOIN districts dr ON dr.id = a.district_id_residen
+			LEFT JOIN villages vr ON vr.id = a.village_id_residen
+			LEFT JOIN education_detail ed ON ed.employee_id = a.id
+			LEFT JOIN master_education me ON me.id = ed.education_id
 			'.$whr.'
+			GROUP BY a.id
 	   		ORDER BY a.full_name ASC
 		';
 

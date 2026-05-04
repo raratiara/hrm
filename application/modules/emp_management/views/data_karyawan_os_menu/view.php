@@ -29,6 +29,10 @@
 		margin-bottom: 0;
 	}
 
+	.employee-advance-box .select2-container {
+		width: 100% !important;
+	}
+
 	.employee-filter-wrap .filter-actions {
 		padding-top: 25px;
 	}
@@ -43,7 +47,7 @@
 <div class="employee-advance-box" id="advanceSearchBox">
 	<div class="box-title">Advance Search</div>
 	<div class="row employee-filter-wrap">
-		<div class="col-md-4 col-sm-12">
+		<div class="col-md-3 col-sm-12">
 			<div class="form-group">
 				<label>Status Karyawan</label>
 				<select id="flstatus" class="form-control">
@@ -53,7 +57,29 @@
 				</select>
 			</div>
 		</div>
-		<div class="col-md-4 col-sm-12">
+		<div class="col-md-3 col-sm-12">
+			<div class="form-group">
+				<label>Customer</label>
+				<select id="flcustomer" class="form-control select2me" data-placeholder="All Customer">
+					<option value="">All Customer</option>
+					<?php
+					$customers = $this->db->query("SELECT * FROM data_customer ORDER BY name ASC")->result();
+					foreach($customers as $cust){
+						echo '<option value="'.$cust->id.'">'.$cust->name.'</option>';
+					}
+					?>
+				</select>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-12">
+			<div class="form-group">
+				<label>Project</label>
+				<select id="flproject" class="form-control select2me" data-placeholder="All Project">
+					<option value="">All Project</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-12">
 			<div class="filter-actions">
 				<button type="button" class="btn btn-default" onclick="resetFilter()">
 					Reset

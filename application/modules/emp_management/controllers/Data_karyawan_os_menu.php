@@ -21,8 +21,48 @@ class Data_karyawan_os_menu extends MY_Controller
 
 	
 	/* Export */
-	public $colnames 				= ["ID","Emp Code","FullName","NickName","Email","Phone","Gender","Date of Birth","Job Title","Status"];
-	public $colfields 				= ["id","emp_code","full_name","nick_name","personal_email","personal_phone","gender_name", "date_of_birth","job_title_name","status_name"];
+	public $colnames 				= [
+		"ID","Emp Code","Full Name","Nick Name","Email","Phone","Gender","Date of Birth","Status","Is Tracking",
+		// Personal
+		"Place of Birth","Nationality","Ethnic","Marital Status","No KTP","SIM A","SIM C","No NPWP",
+		"BPJS Kesehatan","No BPJS Kesehatan","BPJS Ketenagakerjaan","No BPJS Ketenagakerjaan",
+		// Office
+		"Company","Division","Section","Department","Branch","Job Title","Job Level","Grade","Employee Status",
+		"Direct Supervisor","Indirect Supervisor","Shift Type","Work Location","Date of Hire","Date Permanent","Date End Probation",
+		"Start PKWT","End PKWT","Total Hari Kerja","Customer","Project",
+		// Address
+		"KTP Address","Province KTP","Regency KTP","District KTP","Village KTP","Postal Code KTP",
+		"Residential Address","Province Residen","Regency Residen","District Residen","Village Residen","Postal Code Residen",
+		// Emergency Contact
+		"Emergency Contact Name","Emergency Contact Phone","Emergency Contact Relation","Emergency Contact Email",
+		// Bank Account
+		"Bank Name","Bank Account Name","Bank Address","Bank Account No",
+		// Education
+		"Education Details",
+		// Exit Clearance
+		"Resign Category","Date Resign Active","Resign Reason","Date Resign Letter","Resign Exit Interview Feedback"
+	];
+	public $colfields 				= [
+		"id","emp_code","full_name","nick_name","personal_email","personal_phone","gender_name","date_of_birth","status_name","is_tracking_name",
+		// Personal
+		"place_of_birth","nationality","ethnic","marital_status_name","no_ktp","sim_a","sim_c","no_npwp",
+		"status_bpjs_kesehatan_name","no_bpjs","status_bpjs_ketenagakerjaan_name","no_bpjs_ketenagakerjaan",
+		// Office
+		"company_name","division_name","section_name","department_name","branch_name","job_title_name","job_level_name","grade_name","employment_status_name",
+		"direct_name","indirect_name","shift_type","work_location_name","date_of_hire","date_permanent","date_end_probation",
+		"start_pkwt","end_pkwt","total_hari_kerja","customer_name","project_name",
+		// Address
+		"address_ktp","province_ktp_name","regency_ktp_name","district_ktp_name","village_ktp_name","postal_code_ktp",
+		"address_residen","province_residen_name","regency_residen_name","district_residen_name","village_residen_name","postal_code_residen",
+		// Emergency Contact
+		"emergency_contact_name","emergency_contact_phone","emergency_contact_relation","emergency_contact_email",
+		// Bank Account
+		"bank_name","bank_acc_name","bank_address","bank_acc_no",
+		// Education
+		"education_details",
+		// Exit Clearance
+		"resign_category","date_resign_active","resign_reason","date_resign_letter","resign_exit_interview_feedback"
+	];
 
 	/* Form Field Asset */
 	public function form_field_asset()

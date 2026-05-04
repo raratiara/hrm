@@ -21,7 +21,9 @@ var wcount_workexp = 0; //for ca list row identify
 function getEmployeeFilterUrl()
 {
 	var flstatus = $("#flstatus option:selected").val();
-	return module_path+"/get_data?flstatus="+encodeURIComponent(flstatus);
+	var flcustomer = $("#flcustomer option:selected").val();
+	var flproject = $("#flproject option:selected").val();
+	return module_path+"/get_data?flstatus="+encodeURIComponent(flstatus)+"&flcustomer="+encodeURIComponent(flcustomer)+"&flproject="+encodeURIComponent(flproject);
 }
 
 function reloadEmployeeTable()
@@ -61,7 +63,33 @@ function subFilter()
 function resetFilter()
 {
 	$("#flstatus").val('');
+	$("#flcustomer").val('').trigger('change.select2');
+	$("#flproject").html('<option value="">All Project</option>').trigger('change.select2');
 	reloadEmployeeTable();
+}
+
+function loadFilterProjects(customerId)
+{
+	var $flproject = $("#flproject");
+	$flproject.html('<option value="">All Project</option>');
+	if(customerId !== '' && customerId !== undefined){
+		$.ajax({
+			url: module_path+"/getDataProject",
+			type: "POST",
+			dataType: "json",
+			data: { customer: customerId },
+			success: function(data){
+				if(data.msproject && data.msproject.length > 0){
+					$.each(data.msproject, function(i, item){
+						$flproject.append('<option value="'+item.id+'">'+item.project_name+'</option>');
+					});
+				}
+				$flproject.trigger('change.select2');
+			}
+		});
+	} else {
+		$flproject.trigger('change.select2');
+	}
 }
 
 
@@ -85,10 +113,25 @@ $(document).ready(function() {
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1") { ?>
 jQuery(function($) {
+	/* Initialize Select2 for advance search filters */
+	$("#flcustomer").select2({ allowClear: true, placeholder: "All Customer" });
+	$("#flproject").select2({ allowClear: true, placeholder: "All Project" });
+
 	/* load table list */
 	reloadEmployeeTable();
 
 	$("#flstatus").on('change', function() {
+		reloadEmployeeTable();
+	});
+
+	$("#flcustomer").on('change', function() {
+		var customerId = $(this).val();
+		loadFilterProjects(customerId);
+		$("#flproject").val('').trigger('change.select2');
+		reloadEmployeeTable();
+	});
+
+	$("#flproject").on('change', function() {
 		reloadEmployeeTable();
 	});
 
