@@ -49,32 +49,47 @@ jQuery(function($) {
 
 function formatComponentLabel(component) {
 	var label = $('<div/>').text(component.name || '').html();
-	if(component.type){
-		label += '<br><small>'+$('<div/>').text(component.type).html()+'</small>';
-	}
 	return label;
 }
 
 function renderBenefitDeductionComponents(components) {
-	var header = '<th scope="col">Component</th>';
-	var row = '<td>Amount</td>';
+	var earningHeader = '<th scope="col">Component</th>';
+	var earningRow = '<td>Amount</td>';
+	var deductionHeader = '<th scope="col">Component</th>';
+	var deductionRow = '<td>Amount</td>';
+	var earningCount = 0;
+	var deductionCount = 0;
 
 	if(!components || components.length === 0){
-		$('#benefitDeductionHeader').html(header);
-		$('#benefitDeductionAmountRow').html('<td>No component data</td>');
+		$('#earningHeader').html(earningHeader);
+		$('#earningAmountRow').html('<td>No earning data</td>');
+		$('#deductionHeader').html(deductionHeader);
+		$('#deductionAmountRow').html('<td>No deduction data</td>');
 		return;
 	}
 
 	$.each(components, function(index, component) {
-		header += '<th scope="col">'+formatComponentLabel(component)+'</th>';
-		row += '<td>' +
+		var cell = '<th scope="col">'+formatComponentLabel(component)+'</th>';
+		var input = '<td>' +
 			'<input type="hidden" name="component_id['+index+']" value="'+component.id+'">' +
 			'<input type="text" class="form-control amount-component" name="amount['+index+']" value="'+(component.amount || '')+'">' +
 		'</td>';
+
+		if(component.type && component.type.toLowerCase() === 'deduction'){
+			deductionHeader += cell;
+			deductionRow += input;
+			deductionCount++;
+		} else {
+			earningHeader += cell;
+			earningRow += input;
+			earningCount++;
+		}
 	});
 
-	$('#benefitDeductionHeader').html(header);
-	$('#benefitDeductionAmountRow').html(row);
+	$('#earningHeader').html(earningHeader);
+	$('#earningAmountRow').html(earningCount > 0 ? earningRow : '<td>No earning data</td>');
+	$('#deductionHeader').html(deductionHeader);
+	$('#deductionAmountRow').html(deductionCount > 0 ? deductionRow : '<td>No deduction data</td>');
 }
 
 function load_data()

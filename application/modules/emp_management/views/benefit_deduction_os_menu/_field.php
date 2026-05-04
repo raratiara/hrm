@@ -33,20 +33,48 @@
 	<div class="col-md-12">
 		<div class="portlet box">
 			<div class="portlet-title">
-				<div class="caption">Benefit / Deduction OS Components</div>
+				<div class="caption"><i class="fa fa-plus-circle" style="color:#27ae60"></i> Earning Components</div>
 			</div>
 			<div class="portlet-body">
 				<div class="table-scroll-x benefit-deduction-scroll">
 					<div class="table-scrollable tablesaw-cont">
-						<table class="table table-striped table-bordered table-hover benefit-deduction-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblBenefitDeduction">
+						<table class="table table-striped table-bordered table-hover benefit-deduction-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblEarning">
 							<thead>
-								<tr id="benefitDeductionHeader">
+								<tr id="earningHeader">
 									<th scope="col">Component</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr id="benefitDeductionAmountRow">
-									<td>No component data</td>
+								<tr id="earningAmountRow">
+									<td>No earning data</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="portlet box">
+			<div class="portlet-title">
+				<div class="caption"><i class="fa fa-minus-circle" style="color:#e74c3c"></i> Deduction Components</div>
+			</div>
+			<div class="portlet-body">
+				<div class="table-scroll-x benefit-deduction-scroll">
+					<div class="table-scrollable tablesaw-cont">
+						<table class="table table-striped table-bordered table-hover benefit-deduction-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDeduction">
+							<thead>
+								<tr id="deductionHeader">
+									<th scope="col">Component</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="deductionAmountRow">
+									<td>No deduction data</td>
 								</tr>
 							</tbody>
 						</table>
