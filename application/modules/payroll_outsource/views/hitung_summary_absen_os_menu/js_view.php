@@ -108,7 +108,22 @@ $(document).ready(function() {
 
    	initFilterEmployee();
 
-   	
+   	// Filter employee name di table edit summary (kolom ke-2 = index 1)
+   	$('#filterEmployeeEditSummary').on('keyup', function() {
+   		var value = $(this).val().toLowerCase();
+   		$('#tblDetailAbsenOS.absenos-list tbody tr').filter(function() {
+   			$(this).toggle($(this).find('td').eq(1).text().toLowerCase().indexOf(value) > -1);
+   		});
+   	});
+
+   	// Filter employee name di table view summary (kolom ke-2 = index 1)
+   	$('#filterEmployeeViewSummary').on('keyup', function() {
+   		var value = $(this).val().toLowerCase();
+   		$('#tblDetailAbsenOS.absenos-list-view tbody tr').filter(function() {
+   			$(this).toggle($(this).find('td').eq(1).text().toLowerCase().indexOf(value) > -1);
+   		});
+   	});
+
    	
 });
 

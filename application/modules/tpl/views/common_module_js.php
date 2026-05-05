@@ -190,12 +190,15 @@ $( "#btnAddData" ).on('click', function(){
 					
 					$('[name="period_start"]').val(data[0].tgl_start_absen);
 					$('[name="period_end"]').val(data[0].tgl_end_absen);
+					$('#payroll-period-warning').hide();
 
 				} else {  
 					$('[name="period_start"]').val('');
 					$('[name="period_end"]').val('');
 
-					alert("Summary Absen di Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Summary Absen terlebih dahulu");
+					var namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+					$("#payroll-period-warning-text").text("Penggajian " + namaBulan[monthNow] + " " + yearNow + " belum bisa dilakukan, silahkan pilih periode lain");
+					$("#payroll-period-warning").show();
 
 				}
 
@@ -243,12 +246,15 @@ $( "#btnAddData" ).on('click', function(){
 					
 					$('[name="period_start"]').val(data[0].tgl_start_absen);
 					$('[name="period_end"]').val(data[0].tgl_end_absen);
+					$('#payroll-period-warning').hide();
 
 				} else {  
 					$('[name="period_start"]').val('');
 					$('[name="period_end"]').val('');
 
-					alert("Summary Absen di Bulan & Tahun penggajian tersebut tidak ditemukan. Mohon untuk Hitung Summary Absen terlebih dahulu");
+					var namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+					$("#payroll-period-warning-text").text("Penggajian " + namaBulan[monthNow] + " " + yearNow + " belum bisa dilakukan, silahkan pilih periode lain");
+					$("#payroll-period-warning").show();
 
 				}
 

@@ -154,19 +154,26 @@ class Benefit_deduction_os_menu_model extends MY_Model
 			];
 		}
 
-		$components = $this->db->query("select id, name, type, order_num
+		$components = $this->db->query("select id, name, code, type, order_num, default_amount, calculate_percentage, calculate_from
 					from salary_components_os
 					where is_active = 1
 					order by case when lower(type) = 'earning' then 0 else 1 end asc, order_num asc, name asc")->result();
 
 		$saved = $this->getSavedComponents($id);
-		foreach($components as $component){
-			$component->amount = isset($saved[$component->id]) ? $saved[$component->id] : '';
+
+		// Build saved rows (components that employee already has)
+		$savedRows = [];
+		foreach($saved as $comp_id => $amount){
+			$savedRows[] = [
+				'component_id' => $comp_id,
+				'amount' => $amount
+			];
 		}
 
 		return [
 			'employee' => $employee,
-			'components' => $components
+			'components' => $components,
+			'saved' => $savedRows
 		];
 	}
 
@@ -224,14 +231,16 @@ class Benefit_deduction_os_menu_model extends MY_Model
 
 		$this->db->trans_start();
 
+		// Delete existing records for this employee first
+		$this->db->where('employee_id', $employee_id)->delete('employee_benefit_deduction_os');
+
 		foreach($components as $row => $component_id){
 			$component_id = trim($component_id);
 			$amount = isset($amounts[$row]) ? trim(str_replace(',', '', $amounts[$row])) : '';
 
-			$existing = $this->db->query("select id from employee_benefit_deduction_os
-						where employee_id = '".$employee_id."'
-						and ".$componentColumn." = '".$component_id."'
-						limit 1")->result();
+			if($amount === '' || $component_id === ''){
+				continue;
+			}
 
 			$data = [
 				'employee_id' => $employee_id,
@@ -239,14 +248,7 @@ class Benefit_deduction_os_menu_model extends MY_Model
 				'amount' => $amount
 			];
 
-			if(!empty($existing)){
-				$this->db->update('employee_benefit_deduction_os', $data, ['id' => $existing[0]->id]);
-			}else{
-				if($amount === ''){
-					continue;
-				}
-				$this->db->insert('employee_benefit_deduction_os', $data);
-			}
+			$this->db->insert('employee_benefit_deduction_os', $data);
 		}
 
 		$this->db->trans_complete();

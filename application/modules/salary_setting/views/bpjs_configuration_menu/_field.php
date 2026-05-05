@@ -29,7 +29,7 @@
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Tax Ded</label>
 			<div class="col-md-8">
-				<?=$txttaxded;?>
+				<?=$seltaxded;?>
 			</div>
 		</div>
 	</div>

@@ -236,14 +236,21 @@ class Salary_components_menu_model extends MY_Model
 
 	public function add_data($post) { 
   		if(!empty($post['name'])){ 
+  			// Generate code from name
+  			$code = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '_', trim($post['name'])));
+  			$code = trim($code, '_');
+
   			$data = [
 				'name' 			=> trim($post['name']),
+				'code'			=> $code,
 				'type' 			=> trim($post['type']),
 				'default_amount'=> str_replace(['.', ','], ['', '.'], trim($post['default_amount'] ?? '0')),
 				'is_fixed' 		=> trim($post['is_fixed'] ?? '1'),
 				'is_active' 	=> trim($post['is_active'] ?? '1'),
 				'order_num' 	=> trim($post['sort_order'] ?? '0'),
 				'description' 	=> trim($post['description'] ?? ''),
+				'calculate_percentage' => trim($post['calculate_percentage'] ?? ''),
+				'calculate_from' => trim($post['calculate_from'] ?? ''),
 				'created_at'	=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->insert($this->table_name, $data);
@@ -267,6 +274,8 @@ class Salary_components_menu_model extends MY_Model
 				'is_active' 	=> trim($post['is_active'] ?? '1'),
 				'order_num' 	=> trim($post['sort_order'] ?? '0'),
 				'description' 	=> trim($post['description'] ?? ''),
+				'calculate_percentage' => trim($post['calculate_percentage'] ?? ''),
+				'calculate_from' => trim($post['calculate_from'] ?? ''),
 				'updated_at'	=> date("Y-m-d H:i:s")
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
@@ -284,7 +293,9 @@ class Salary_components_menu_model extends MY_Model
 		$mTable = '(SELECT * FROM salary_components)dt';
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
 		return $rs;
-	} 
+	}
+
+
 
 	public function import_data($list_data)
 	{

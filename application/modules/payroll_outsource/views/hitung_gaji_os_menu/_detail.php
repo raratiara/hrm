@@ -207,6 +207,11 @@
                 </div>
             </div>
             <div class="portlet-body">
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-md-4">
+                        <input type="text" id="filterEmployeeView" class="form-control input-sm" placeholder="Cari nama karyawan...">
+                    </div>
+                </div>
                 <div class="table-scroll-x">
                     <div class="table-scrollable tablesaw-cont">
                         <table class="table table-striped table-bordered table-hover gajios-view-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailGajiOSView">

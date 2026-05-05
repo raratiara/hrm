@@ -126,8 +126,8 @@ class Bpjs_configuration_menu_model extends MY_Model
 				$row->bpjs_type,
 				$row->employee_percentage,
 				$row->employer_percentage,
-				number_format($row->salary_cap, 0, ',', '.'),
-				number_format($row->tax_ded, 0, ',', '.')
+				$row->salary_cap ? number_format((float)$row->salary_cap, 0, ',', '.') : '-',
+				$row->tax_ded ? $row->tax_ded : '-'
 			));
 		}
 
@@ -165,34 +165,32 @@ class Bpjs_configuration_menu_model extends MY_Model
 	}
 
 	public function add_data($post) {
-		if(!empty($post['name'])){
+		if(!empty($post['bpjs_type'])){
 			$data = [
-				'name' 			=> trim($post['name']),
-				'employer_rate' => trim($post['employer_rate'] ?? '0'),
-				'employee_rate' => trim($post['employee_rate'] ?? '0'),
-				'max_salary' 	=> trim($post['max_salary'] ?? '0'),
-				'is_active' 	=> trim($post['is_active'] ?? '1'),
-				'description' 	=> trim($post['description'] ?? ''),
-				'created_at'	=> date("Y-m-d H:i:s")
+				'bpjs_type' 			=> trim($post['bpjs_type']),
+				'employee_percentage' 	=> trim($post['employee_percentage'] ?? '0'),
+				'employer_percentage' 	=> trim($post['employer_percentage'] ?? '0'),
+				'salary_cap' 			=> trim($post['salary_cap'] ?? ''),
+				'tax_ded' 				=> trim($post['tax_ded'] ?? ''),
+				'category' 				=> trim($post['category'] ?? '')
 			];
 			$rs = $this->db->insert($this->table_name, $data);
 			if($rs) return ["status" => true, "msg" => "Data berhasil disimpan"];
 			else return ["status" => false, "msg" => "Data gagal disimpan"];
 		} else {
-			return ["status" => false, "msg" => "Name harus diisi"];
+			return ["status" => false, "msg" => "BPJS Type harus diisi"];
 		}
 	}
 
 	public function edit_data($post) {
 		if(!empty($post['id'])){
 			$data = [
-				'name' 			=> trim($post['name']),
-				'employer_rate' => trim($post['employer_rate'] ?? '0'),
-				'employee_rate' => trim($post['employee_rate'] ?? '0'),
-				'max_salary' 	=> trim($post['max_salary'] ?? '0'),
-				'is_active' 	=> trim($post['is_active'] ?? '1'),
-				'description' 	=> trim($post['description'] ?? ''),
-				'updated_at'	=> date("Y-m-d H:i:s")
+				'bpjs_type' 			=> trim($post['bpjs_type']),
+				'employee_percentage' 	=> trim($post['employee_percentage'] ?? '0'),
+				'employer_percentage' 	=> trim($post['employer_percentage'] ?? '0'),
+				'salary_cap' 			=> trim($post['salary_cap'] ?? ''),
+				'tax_ded' 				=> trim($post['tax_ded'] ?? ''),
+				'category' 				=> trim($post['category'] ?? '')
 			];
 			$rs = $this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 			if($rs) return ["status" => true, "msg" => "Data berhasil disimpan"];
@@ -203,8 +201,7 @@ class Bpjs_configuration_menu_model extends MY_Model
 	}
 
 	public function getRowData($id) {
-		$mTable = '(SELECT * FROM bpjs_configuration)dt';
-		return $this->db->where([$this->primary_key => $id])->get($mTable)->row();
+		return $this->db->where([$this->primary_key => $id])->get('salary_bpjs')->row();
 	}
 
 	public function import_data($list_data)
@@ -226,9 +223,7 @@ class Bpjs_configuration_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "SELECT *, 
-			IF(is_active=1,'Active','Not Active') as is_active_name
-			FROM bpjs_configuration ORDER BY id ASC";
+		$sql = "SELECT * FROM salary_bpjs ORDER BY id ASC";
 		return $this->db->query($sql)->result_array();
 	}
 }

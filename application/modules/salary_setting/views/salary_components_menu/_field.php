@@ -43,6 +43,18 @@
 			</div>
 		</div>
 		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Calculate %</label>
+			<div class="col-md-8">
+				<input type="text" class="form-control" id="calculate_percentage" name="calculate_percentage" placeholder="e.g. 0.04">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Calculate From</label>
+			<div class="col-md-8">
+				<?=$selcalculatefrom;?>
+			</div>
+		</div>
+		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Description</label>
 			<div class="col-md-8">
 				<?=$txtdescription;?>

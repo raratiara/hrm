@@ -33,6 +33,10 @@ class Salary_components_menu extends MY_Controller
 		$field['selisactive'] 		= $this->self_model->return_build_radio('', [['1','Active'],['0','Not Active']], 'is_active', '', 'inline');
 		$field['txtsortorder'] 		= $this->self_model->return_build_txt('','sort_order','sort_order');
 		$field['txtdescription'] 	= $this->self_model->return_build_txtarea('','description','description');
+
+		// Calculate From select
+		$mscomponents = $this->db->query("SELECT code, name FROM salary_components WHERE is_active = 1 ORDER BY order_num ASC, name ASC")->result();
+		$field['selcalculatefrom'] 	= $this->self_model->return_build_select2me($mscomponents, '', '', '', 'calculate_from', 'calculate_from', '', '', 'code', 'name', ' ', '', '', '', 3, '-');
 		
 		return $field;
 	}

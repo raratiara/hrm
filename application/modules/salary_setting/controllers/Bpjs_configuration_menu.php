@@ -29,7 +29,7 @@ class Bpjs_configuration_menu extends MY_Controller
 		$field['txtemployee'] 			= $this->self_model->return_build_txt('','employee_percentage','employee_percentage');
 		$field['txtemployer'] 			= $this->self_model->return_build_txt('','employer_percentage','employer_percentage');
 		$field['txtsalarycap'] 			= $this->self_model->return_build_txt('','salary_cap','salary_cap');
-		$field['txttaxded'] 			= $this->self_model->return_build_txt('','tax_ded','tax_ded');
+		$field['seltaxded'] 			= $this->self_model->return_build_radio('', [['yes','Yes'],['no','No']], 'tax_ded', '', 'inline');
 		
 		return $field;
 	}

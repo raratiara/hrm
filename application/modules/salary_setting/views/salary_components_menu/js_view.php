@@ -82,6 +82,15 @@ jQuery(function($) {
 <?php } ?>
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
+
+// Reset calculate fields when modal opens for add
+$('#modal-form-data').on('show.bs.modal', function(){
+	if(save_method == 'add'){
+		$('[name="calculate_percentage"]').val('');
+		$('#calculate_from').val('').trigger('change');
+	}
+});
+
 function load_data()
 {
     $.ajax({
@@ -101,6 +110,8 @@ function load_data()
 					$('[name="is_fixed"][value="'+data.is_fixed+'"]').prop('checked', true);
 					$('[name="is_active"][value="'+data.is_active+'"]').prop('checked', true);
 					$('[name="sort_order"]').val(data.sort_order);
+					$('[name="calculate_percentage"]').val(data.calculate_percentage || '');
+					$('#calculate_from').val(data.calculate_from || '').trigger('change');
 					$('[name="description"]').val(data.description);
 					
 					$.uniform.update();

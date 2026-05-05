@@ -1,4 +1,8 @@
 <div class="row">
+<div id="payroll-period-warning" class="alert alert-warning" style="display:none; margin:10px 15px;">
+	<i class="fa fa-exclamation-triangle"></i> <span id="payroll-period-warning-text"></span>
+</div>
+
 	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">

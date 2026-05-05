@@ -87,7 +87,7 @@ function load_data()
 					$('[name="employee_percentage"]').val(data.employee_percentage);
 					$('[name="employer_percentage"]').val(data.employer_percentage);
 					$('[name="salary_cap"]').val(data.salary_cap);
-					$('[name="tax_ded"]').val(data.tax_ded);
+					$('[name="tax_ded"][value="'+data.tax_ded+'"]').prop('checked', true);
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
@@ -96,8 +96,8 @@ function load_data()
 					$('span.bpjs_type').html(data.bpjs_type);
 					$('span.employee_percentage').html(data.employee_percentage);
 					$('span.employer_percentage').html(data.employer_percentage);
-					$('span.salary_cap').html(parseFloat(data.salary_cap || 0).toLocaleString('id-ID'));
-					$('span.tax_ded').html(parseFloat(data.tax_ded || 0).toLocaleString('id-ID'));
+					$('span.salary_cap').html(data.salary_cap ? parseFloat(data.salary_cap).toLocaleString('id-ID') : '-');
+					$('span.tax_ded').html(data.tax_ded ? data.tax_ded.toUpperCase() : '-');
 					$('#modal-view-data').modal('show');
 				}
 			} else {

@@ -1,4 +1,8 @@
 <div class="row">
+<div id="payroll-period-warning" class="alert alert-warning" style="display:none; margin:10px 15px;">
+	<i class="fa fa-exclamation-triangle"></i> <span id="payroll-period-warning-text"></span>
+</div>
+
 
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
@@ -63,6 +67,11 @@
                 </div>
             </div>
             <div class="portlet-body">
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-md-4">
+                        <input type="text" id="filterEmployeeEdit" class="form-control input-sm" placeholder="Cari nama karyawan...">
+                    </div>
+                </div>
                 <div class="table-scroll-x">
                     <div class="table-scrollable tablesaw-cont" style="overflow: auto; max-height: 300px;">
                         <table class="table table-striped table-bordered table-hover absen_gaji-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenGaji">

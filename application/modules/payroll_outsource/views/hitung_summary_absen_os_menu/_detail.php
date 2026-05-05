@@ -65,6 +65,11 @@
 				</div>
 			</div>
 			<div class="portlet-body">
+				<div class="row" style="margin-bottom:10px;">
+					<div class="col-md-4">
+						<input type="text" id="filterEmployeeViewSummary" class="form-control input-sm" placeholder="Cari nama karyawan...">
+					</div>
+				</div>
 				<div class="table-scrollable tablesaw-cont">
 				<table class="table table-striped table-bordered table-hover absenos-list-view tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailAbsenOS">
 					<thead>

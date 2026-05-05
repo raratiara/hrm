@@ -199,6 +199,11 @@
                 </div>
             </div>
             <div class="portlet-body">
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-md-4">
+                        <input type="text" id="filterEmployeeView" class="form-control input-sm" placeholder="Cari nama karyawan...">
+                    </div>
+                </div>
                 <div class="table-scroll-x">
                     <div class="table-scrollable tablesaw-cont" style="overflow: auto; max-height: 300px;">
                         <table class="table table-striped table-bordered table-hover gaji-view-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailGajiView">
@@ -223,15 +228,10 @@
                                     <th scope="col">Total Pendapatan</th>
                                     <th scope="col">BPJS Kesehatan</th>
                                     <th scope="col">BPJS TK</th>
-                                    
-                                    <th scope="col">TP JKK</th>
-                                    <th scope="col">TP JKM</th>
-                                    <th scope="col">TP JHT</th>
-                                    <th scope="col">TP JP</th>
-                                    <th scope="col">PGK JHT</th>
-                                    <th scope="col">PGK JP</th>
-                                    <th scope="col">TP Jkes</th>
-                                    <th scope="col">PGK Jkes</th>
+                                    <th scope="col">JHT</th>
+                                    <th scope="col">JP</th>
+                                    <th scope="col">JKK</th>
+                                    <th scope="col">JKM</th>
 
 
                                     <!-- <th scope="col">Absen</th> -->
