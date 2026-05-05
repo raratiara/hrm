@@ -186,7 +186,7 @@ class Salary_components_menu_model extends MY_Model
 				$row->id,
 				$row->name,
 				'<span class="label label-'.($row->type=='earning'?'success':'danger').'">'.$row->type.'</span>',
-				number_format($row->default_amount, 0, ',', '.'),
+				number_format((float)$row->default_amount, 0, ',', '.'),
 				$row->is_fixed_name,
 				$row->is_active_name,
 				$row->order_num

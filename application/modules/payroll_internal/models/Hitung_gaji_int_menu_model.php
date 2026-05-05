@@ -428,6 +428,40 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	}
 
 	/**
+	 * Hitung PPh 21 bulanan menggunakan metode TER (Tarif Efektif Rata-rata)
+	 * Alur: marital_status_id -> tax_ter_category_mapping (dapat category A/B/C)
+	 *       -> tax_ter (cari rate berdasarkan category & range bruto)
+	 *       -> PPh 21 = bruto * rate
+	 */
+	private function calcPph21Ter($bruto, $marital_status_id)
+	{
+		if($bruto <= 0 || empty($marital_status_id)) return 0;
+
+		// Ambil category dari tax_ter_category_mapping berdasarkan marital_status_id
+		$mapping = $this->db->query(
+			"SELECT category FROM tax_ter_category_mapping WHERE marital_status_id = ? LIMIT 1",
+			array((int)$marital_status_id)
+		)->row();
+
+		if(!$mapping || empty($mapping->category)) return 0;
+
+		$category = $mapping->category;
+
+		// Ambil rate dari tax_ter berdasarkan category dan range bruto
+		$ter = $this->db->query(
+			"SELECT rate FROM tax_ter WHERE category = ? AND min_bruto <= ? AND max_bruto > ? ORDER BY min_bruto DESC LIMIT 1",
+			array($category, $bruto, $bruto)
+		)->row();
+
+		if(!$ter) return 0;
+
+		$rate = (float)$ter->rate;
+		$pph21 = ceil($bruto * $rate);
+
+		return $pph21;
+	}
+
+	/**
 	 * Hitung nilai komponen berdasarkan calculate_percentage & calculate_from
 	 * Jika sudah ada amount di benefit deduction, pakai itu. Jika tidak, hitung dari percentage.
 	 */
@@ -525,6 +559,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        e.total_hari_kerja,
 	        e.no_bpjs,
 	        e.no_bpjs_ketenagakerjaan,
+	        e.marital_status_id,
 
 	        sd.total_masuk,
 	        sd.total_ijin,
@@ -666,14 +701,17 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        $pelatihan = (float)$this->benefitValue($benefit, 'pelatihan', 0);
 	        $lain_lain = (float)$this->benefitValue($benefit, 'lain_lain', 0);
 	        $payroll = (float)$this->benefitValue($benefit, 'payroll', 0);
-	        $pph_120 = (float)$this->benefitValue($benefit, 'pph_120', 0);
 
 	        $sosial = (float)$this->benefitValue($benefit, 'sosial', 0);
 	        $hutang = (float)$row->hutang;
 
 	        $total_pendapatan = ceil($gaji + $lembur_total + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi);
+
+	        // Hitung PPh 21 bulanan dengan metode TER
+	        $pph_21 = $this->calcPph21Ter($total_pendapatan, $row->marital_status_id);
+
 	        $subtotal         = ceil($total_pendapatan - ($seragam + $pelatihan + $lain_lain + $hutang + $sosial));
-	        $gaji_bersih      = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $payroll + $pph_120));
+	        $gaji_bersih      = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $payroll + $pph_21));
 
 	        // =========================
 	        // INSERT / UPDATE BPJS DETAIL
@@ -737,7 +775,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            'lain_lain'        => $lain_lain,
 	            'hutang'           => $hutang,
 	            'payroll'          => $payroll,
-	            'pph_120'          => $pph_120,
+	            'pph_21'           => $pph_21,
 	            'subtotal'         => $subtotal,
 	            'gaji_bersih'      => $gaji_bersih
 	        ];
@@ -844,7 +882,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	                'pelatihan'             => trim($post['pelatihan_gaji'][$i] ?? 0),
 	                'lain_lain'             => trim($post['lainlain_gaji'][$i] ?? 0),
 	                'payroll'               => trim($post['payroll_gaji'][$i] ?? 0),
-	                'pph_120'               => trim($post['pph120_gaji'][$i] ?? 0),
+	                'pph_21'                => trim($post['pph21_gaji'][$i] ?? 0),
 	                'total_jam_kerja'       => trim($post['jml_jam_kerja_gaji'][$i] ?? 0),
 	                'total_masuk'           => trim($post['jml_hadir_gaji'][$i] ?? 0),
 	                'total_tidak_masuk'     => trim($post['jml_tdkhadir_gaji'][$i] ?? 0),
@@ -1008,7 +1046,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 		$dt = ''; 
 		
 
-		$rs = $this->db->query("select a.*, b.full_name, b.emp_code, b.id as employee_id, b.total_hari_kerja, c.bulan_penggajian, c.tahun_penggajian
+		$rs = $this->db->query("select a.*, b.full_name, b.emp_code, b.id as employee_id, b.total_hari_kerja, b.marital_status_id, c.bulan_penggajian, c.tahun_penggajian
 			from summary_absen_internal_detail a left join employees b on b.id = a.emp_id
 			left join summary_absen_internal c on c.id = a.summary_absen_internal_id
 			where b.emp_source = 'internal' and IFNULL(b.is_special_payroll,0) != 1 and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' 
@@ -1082,7 +1120,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$hutang = $dataSlip[0]->hutang;
 					$sosial = $dataSlip[0]->sosial;
 					$payroll = $dataSlip[0]->payroll;
-					$pph_120 = $dataSlip[0]->pph_120;
+					$pph_21 = isset($dataSlip[0]->pph_21) ? $dataSlip[0]->pph_21 : 0;
 					$subtotal = $dataSlip[0]->subtotal;
 					$gaji_bersih = $dataSlip[0]->gaji_bersih;
 
@@ -1110,10 +1148,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$pelatihan = (float)$this->benefitValue($benefit, 'pelatihan', 0);
 					$lain_lain = (float)$this->benefitValue($benefit, 'lain_lain', 0);
 					$payroll = (float)$this->benefitValue($benefit, 'payroll', 0);
-					$pph_120 = (float)$this->benefitValue($benefit, 'pph_120', 0);
 					
-					
-
 					$sosial = (float)$this->benefitValue($benefit, 'sosial', 0);
 					//ambil pinjaman yg masih berjalan
 					$data_pinjaman = $this->db->query("select sum(nominal_cicilan_per_bulan) as ttt_hutang from loan where id_employee = '".$f->emp_id."' and status_id = 5")->result();
@@ -1126,10 +1161,14 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					//$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100;
 					$total_nominal_lembur = ceil((int)$lembur_perjam*(int)$f->total_jam_lembur);
 					$total_pendapatan = ceil(($gaji + $total_nominal_lembur + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi) * 100) / 100;
+
+					// Hitung PPh 21 bulanan dengan metode TER
+					$pph_21 = $this->calcPph21Ter($total_pendapatan, $f->marital_status_id);
+
 					$subtotal = ceil(($total_pendapatan - ($seragam+$pelatihan+$lain_lain+$hutang+$sosial)) * 100) / 100;
 
 					/// subtotal - potongan wajib
-					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_120)) * 100) / 100;
+					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_21)) * 100) / 100;
 
 					///informasi detail bpjs - dari salary_bpjs via benefit deduction
 					$bpjs_jht = $bpjs_tk_detail['bpjs_jht'];
@@ -1166,7 +1205,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$hutang = $hutang;
 					$sosial = $sosial;
 					$payroll = $payroll;
-					$pph_120 = $pph_120;
+					$pph_21 = $pph_21;
 					$subtotal = $subtotal;
 					$gaji_bersih = $gaji_bersih;
 				}
@@ -1234,7 +1273,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($payroll,'payroll_gaji['.$row.']','','payroll_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setGajiBersih(this)" ').'</td>';
 
-					$dt .= '<td>'.$this->return_build_txt($pph_120,'pph120_gaji['.$row.']','','pph120_gaji','text-align: right;','data-id="'.$row.'" onkeyup="setGajiBersih(this)" ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($pph_21,'pph21_gaji['.$row.']','','pph21_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($subtotal,'subtotal_gaji['.$row.']','','subtotal_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
@@ -1295,7 +1334,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$dt .= '<td>'.$hutang.'</td>';
 					$dt .= '<td>'.$sosial.'</td>';
 					$dt .= '<td>'.$payroll.'</td>';
-					$dt .= '<td>'.$pph_120.'</td>';
+					$dt .= '<td>'.$pph_21.'</td>';
 					$dt .= '<td>'.$subtotal.'</td>';
 					$dt .= '<td>'.$gaji_bersih.'</td>';
 					$dt .= '</tr>';

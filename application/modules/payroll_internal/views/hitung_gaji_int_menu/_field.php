@@ -107,7 +107,7 @@
                                     <th scope="col">Hutang</th>
                                     <th scope="col">Sosial</th>
                                     <th scope="col">Payroll</th>
-                                    <th scope="col">PPH 120</th>
+                                    <th scope="col">PPh 21</th>
                                     <th scope="col">Sub Total</th>
                                     <th scope="col">Gaji Bersih</th>
                                 </tr>

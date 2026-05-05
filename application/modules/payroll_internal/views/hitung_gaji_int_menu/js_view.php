@@ -844,7 +844,7 @@ function setGajiBersih(val){
 	var bpjs_kes	= $('[name="bpjs_kes_gaji['+row+']"]').val();
 	var bpjs_tk 	= $('[name="bpjs_tk_gaji['+row+']"]').val();
 	var payroll 	= $('[name="payroll_gaji['+row+']"]').val();
-	var pph120 		= $('[name="pph120_gaji['+row+']"]').val();
+	var pph21 		= $('[name="pph21_gaji['+row+']"]').val();
 	
 	
 	if(bpjs_kes == ''){
@@ -856,13 +856,13 @@ function setGajiBersih(val){
 	if(payroll == ''){
 		payroll=0;
 	}
-	if(pph120 == ''){
-		pph120=0;
+	if(pph21 == ''){
+		pph21=0;
 	}
 	
 
 
-	var GajiBersih = Number(subtotal)-(Number(bpjs_kes)+Number(bpjs_tk)+Number(payroll)+Number(pph120));
+	var GajiBersih = Number(subtotal)-(Number(bpjs_kes)+Number(bpjs_tk)+Number(payroll)+Number(pph21));
 
 	GajiBersih = roundUp2Smart(GajiBersih);
 
