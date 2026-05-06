@@ -717,7 +717,8 @@ class Absence_report_os_menu extends MY_Controller
 				IF(a.is_leaving_office_early='Y',1,0) as leaving_early,
 
 				IFNULL(i.num_of_hour,0) as overtime_num_of_hour,
-				IFNULL(i.amount,0) as overtime_amount
+				IFNULL(i.amount,0) as overtime_amount,
+				a.notes as keterangan
 
 			FROM time_attendances a
 			LEFT JOIN employees b ON b.id = a.employee_id
