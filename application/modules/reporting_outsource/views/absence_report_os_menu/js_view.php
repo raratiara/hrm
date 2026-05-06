@@ -128,7 +128,11 @@ function subFilter(){
 
 
 function getReportOS_absen(){
-	
+	var flproject = $("#flproject option:selected").val();
+	if(!flproject || flproject == '' || flproject == 0){
+		alert('Filter Project harus dipilih terlebih dahulu!');
+		return;
+	}
 	$('#modal-reportosabsen-data').modal('show');
 }
 
