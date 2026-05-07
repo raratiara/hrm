@@ -612,10 +612,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	        $tunjangan_konsumsi = (float)$this->benefitValue($benefit, 'tunjangan_konsumsi', 0);
 	        $tunjangan_komunikasi = (float)$this->benefitValue($benefit, 'tunjangan_komunikasi', 0);
 
-	        $total_tidak_masuk =
-	            (int)$row->total_ijin +
-	            (int)$row->total_cuti +
-	            (int)$row->total_alfa;
+	        $total_tidak_masuk = (int)$row->total_hari_kerja - (int)$row->total_masuk;
 
 	        $gaji = ceil($row->total_masuk * $gaji_harian);
 
@@ -976,7 +973,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 		$dt = ''; 
 		
 
-		$rs = $this->db->query("select a.*, b.full_name, b.emp_code, b.id as employee_id, b.total_hari_kerja, c.bulan_penggajian, c.tahun_penggajian
+		$rs = $this->db->query("select a.*, b.full_name, b.emp_code, b.id as employee_id, b.total_hari_kerja, b.marital_status_id, c.bulan_penggajian, c.tahun_penggajian
 			from special_summary_absen_internal_detail a left join employees b on b.id = a.emp_id
 			left join special_summary_absen_internal c on c.id = a.summary_absen_internal_id
 			where b.emp_source = 'internal' and b.is_special_payroll = 1 and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' 
@@ -1057,9 +1054,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 				}else{  /// ambil data dr summary absen
 					$status_payroll="";
 					
-					$total_tidak_masuk = ((int)$f->total_ijin ?? 0) +
-									     ((int)$f->total_cuti ?? 0) +
-									     ((int)$f->total_alfa ?? 0);
+					$total_tidak_masuk = (int)$f->total_hari_kerja - (int)$f->total_masuk;
 
 					$gaji = ceil(((int)$f->total_masuk * (float)$gaji_harian_benefit) * 100) / 100;
 					
@@ -1148,7 +1143,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 					
 					$dt .= '<td>'.$emp_code.'</td>';
-					$dt .= '<td>'.$full_name.'<input type="hidden" id="hdnempid_gaji" name="hdnempid_gaji['.$row.']" value="'.$employee_id.'"/></td>';
+					$dt .= '<td>'.$full_name.'<input type="hidden" id="hdnempid_gaji" name="hdnempid_gaji['.$row.']" value="'.$employee_id.'"/><input type="hidden" name="marital_status_gaji['.$row.']" value="'.$f->marital_status_id.'"/></td>';
 
 					$dt .= '<td>'.$this->return_build_txt($total_jam_kerja,'jml_jam_kerja_gaji['.$row.']','','jml_jam_kerja_gaji','text-align: right;','data-id="'.$row.'" readonly ').'<input type="hidden" id="hdnid_gaji" name="hdnid_gaji['.$row.']" value="'.$id.'"/></td>';
 

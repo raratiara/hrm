@@ -673,10 +673,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        $tunjangan_konsumsi = (float)$this->benefitOsValue($benefit, 'tunjangan_konsumsi', 0);
 	        $tunjangan_komunikasi = (float)$this->benefitOsValue($benefit, 'tunjangan_komunikasi', 0);
 
-	        $total_tidak_masuk =
-	            (int)$row->total_ijin +
-	            (int)$row->total_cuti +
-	            (int)$row->total_alfa;
+	        $total_tidak_masuk = (int)$row->total_hari_kerja - (int)$row->total_masuk;
 
 	        $gaji = ceil($row->total_masuk * $gaji_harian);
 
@@ -1555,9 +1552,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				}else{ /// ambil data dr summary absen
 					$status_payroll="";
 					
-					$total_tidak_masuk = ((int)$f->total_ijin ?? 0) +
-									     ((int)$f->total_cuti ?? 0) +
-									     ((int)$f->total_alfa ?? 0);
+					$total_tidak_masuk = (int)$f->total_hari_kerja - (int)$f->total_masuk;
 
 					$gaji = ceil(($f->total_masuk * (float)$gaji_harian_benefit) * 100) / 100;
 					$tunjangan_jabatan = (float)$this->benefitOsValue($benefit, 'tunjangan_jabatan', 0);

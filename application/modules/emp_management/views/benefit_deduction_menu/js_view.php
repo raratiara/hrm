@@ -9,6 +9,7 @@ var ldx;
 // Store all available components from server
 var allComponents = [];
 var bpjsConfig = [];
+var currentEmployee = null;
 var earningRowIndex = 0;
 var deductionRowIndex = 0;
 
@@ -53,18 +54,30 @@ $(document).ready(function() {
 				} else if(comp.default_amount && parseFloat(comp.default_amount) > 0){
 					$amount.val(formatNumber(comp.default_amount));
 				}
+
+				// Jika user memilih komponen gaji_bulanan, otomatis munculkan BPJS rows
+				if(comp.code === 'gaji_bulanan' && currentEmployee && bpjsConfig.length > 0){
+					var bpjsExists = $('#deductionBody tr[data-bpjs="1"]').length > 0;
+					if(!bpjsExists){
+						autoAddBpjsRows(currentEmployee, []);
+					}
+				}
 			}
 		}
 	});
 
 	// When amount changes, recalculate dependent components
-	$(document).on('change blur', '.input-amount', function(){
+	$(document).on('change blur keyup input paste', '.input-amount', function(){
 		var $row = $(this).closest('tr');
 		var compId = $row.find('.select-component').val();
 		if(compId){
 			var comp = getComponentById(compId);
 			if(comp && comp.code){
 				recalculateDependents(comp.code);
+				// Jika gaji_bulanan berubah, recalculate BPJS rows juga
+				if(comp.code === 'gaji_bulanan'){
+					recalculateBpjsRows();
+				}
 			}
 		}
 	});
@@ -164,6 +177,49 @@ function recalculateDependents(baseCode){
 	});
 }
 
+// Recalculate BPJS rows when gaji_bulanan changes
+function recalculateBpjsRows(){
+	var gajiBulanan = getGajiBulananFromRows();
+	$('#deductionBody tr[data-bpjs="1"]').each(function(){
+		var $row = $(this);
+		var bpjsId = $row.find('input[name="bpjs_id[]"]').val();
+		if(!bpjsId) return;
+
+		// Find matching bpjs config
+		var bpjs = null;
+		$.each(bpjsConfig, function(i, item){
+			if(String(item.id) === String(bpjsId)){
+				bpjs = item;
+				return false;
+			}
+		});
+		if(!bpjs) return;
+
+		// Skip calculate jika ditanggung perusahaan
+		if(currentEmployee){
+			if(bpjs.category === 'kesehatan' && currentEmployee.status_bpjs_kesehatan === 'ditanggung_perusahaan'){
+				$row.find('.input-amount').val('0');
+				return;
+			}
+			if(bpjs.category === 'ketenagakerjaan' && currentEmployee.status_bpjs_ketenagakerjaan === 'ditanggung_perusahaan'){
+				$row.find('.input-amount').val('0');
+				return;
+			}
+		}
+
+		var empPercentage = parseFloat(bpjs.employee_percentage) || 0;
+		if(empPercentage <= 0) return;
+
+		var baseGaji = gajiBulanan;
+		var salaryCap = parseFloat(bpjs.salary_cap) || 0;
+		if(salaryCap > 0 && baseGaji > salaryCap){
+			baseGaji = salaryCap;
+		}
+		var amount = Math.ceil(baseGaji * empPercentage);
+		$row.find('.input-amount').val(formatNumber(amount));
+	});
+}
+
 function getComponentOptions(type, selectedId){
 	var html = '<option value="">-- Pilih Komponen --</option>';
 	$.each(allComponents, function(i, comp){
@@ -231,6 +287,7 @@ function renderBenefitDeductionData(components, saved, employee, bpjs_config, sa
 
 	allComponents = components || [];
 	bpjsConfig = bpjs_config || [];
+	currentEmployee = employee || null;
 
 	// Render saved earning rows first
 	if(saved && saved.length > 0){
@@ -300,9 +357,8 @@ function autoAddBpjsRows(employee, saved_bpjs){
 		}
 		var amount = alreadySaved ? savedAmount : Math.ceil(baseGaji * empPercentage);
 
-		if(amount > 0 || alreadySaved){
-			addBpjsRow(bpjs, amount);
-		}
+		// Selalu munculkan BPJS row (value 0 jika gaji_bulanan belum ada)
+		addBpjsRow(bpjs, amount);
 	});
 }
 
@@ -311,7 +367,7 @@ function addBpjsRow(bpjs, amount){
 	var tbody = '#deductionBody';
 	$('#deductionEmptyRow').hide();
 
-	var amountVal = amount ? formatNumber(amount) : '';
+	var amountVal = (amount && amount > 0) ? formatNumber(amount) : '0';
 	var row = '<tr data-type="deduction" data-bpjs="1">' +
 		'<td>' +
 			'<input type="hidden" name="bpjs_id[]" value="'+bpjs.id+'">' +

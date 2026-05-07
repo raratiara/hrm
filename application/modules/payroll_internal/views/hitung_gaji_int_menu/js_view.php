@@ -198,6 +198,19 @@ var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
 
+// TER data for PPh 21 calculation
+var terCategoryMapping = <?php
+	$CI =& get_instance();
+	$_terMapping = $CI->db->query("SELECT marital_status_id, category FROM tax_ter_category_mapping")->result();
+	$_mapObj = new stdClass();
+	foreach($_terMapping as $_m){ $_mapObj->{$_m->marital_status_id} = $_m->category; }
+	echo json_encode($_mapObj);
+?>;
+var terRates = <?php
+	$_terRates = $CI->db->query("SELECT category, min_bruto, IFNULL(max_bruto, 999999999999) as max_bruto, rate FROM tax_ter ORDER BY category, min_bruto")->result();
+	echo json_encode($_terRates);
+?>;
+
 
 
 
@@ -743,6 +756,26 @@ function roundUp2Smart(num) {
 }
 
 
+// Hitung PPh 21 TER di frontend
+function calcPph21Ter(bruto, row){
+	if(bruto <= 0) return 0;
+	var maritalId = $('[name="marital_status_gaji['+row+']"]').val();
+	if(!maritalId) return 0;
+
+	var category = terCategoryMapping[maritalId];
+	if(!category) return 0;
+
+	var rate = 0;
+	for(var i = 0; i < terRates.length; i++){
+		var t = terRates[i];
+		if(t.category === category && bruto >= parseFloat(t.min_bruto) && bruto < parseFloat(t.max_bruto)){
+			rate = parseFloat(t.rate);
+			break;
+		}
+	}
+	return Math.ceil(bruto * rate);
+}
+
 function setTotalPendapatan(val){ 
 	var row = val.dataset.id;  
 	///var tunjangan = val.value;
@@ -779,6 +812,9 @@ function setTotalPendapatan(val){
 
 	$('[name="ttl_pendapatan_gaji['+row+']"]').val(total_pendapatan);
 
+	// Recalculate PPh 21 TER
+	var pph21 = calcPph21Ter(Number(total_pendapatan), row);
+	$('[name="pph21_gaji['+row+']"]').val(pph21);
 
 	setSubTotal(val);
 

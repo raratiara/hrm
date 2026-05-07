@@ -137,7 +137,8 @@ class Benefit_deduction_os_menu_model extends MY_Model
 
 	public function getRowData($id)
 	{
-		$employee = $this->db->query("select a.id, a.emp_code, a.full_name, b.name as job_title_name, p.project_name as project_name
+		$employee = $this->db->query("select a.id, a.emp_code, a.full_name, b.name as job_title_name, p.project_name as project_name,
+					a.status_bpjs_kesehatan, a.status_bpjs_ketenagakerjaan
 					from employees a
 					left join master_job_title_os b on b.id = a.job_title_id
 					left join project_outsource p on p.id = a.project_id
@@ -160,6 +161,7 @@ class Benefit_deduction_os_menu_model extends MY_Model
 					order by case when lower(type) = 'earning' then 0 else 1 end asc, order_num asc, name asc")->result();
 
 		$saved = $this->getSavedComponents($id);
+		$savedBpjs = $this->getSavedBpjs($id);
 
 		// Build saved rows (components that employee already has)
 		$savedRows = [];
@@ -170,10 +172,27 @@ class Benefit_deduction_os_menu_model extends MY_Model
 			];
 		}
 
+		// Build saved BPJS rows
+		$savedBpjsRows = [];
+		foreach($savedBpjs as $bpjs_id => $amount){
+			$savedBpjsRows[] = [
+				'bpjs_id' => $bpjs_id,
+				'amount' => $amount
+			];
+		}
+
+		// Get BPJS configuration from salary_bpjs table
+		$bpjs_config = [];
+		if($this->db->table_exists('salary_bpjs')){
+			$bpjs_config = $this->db->query("SELECT id, bpjs_type, code, employee_percentage, employer_percentage, salary_cap, category FROM salary_bpjs")->result();
+		}
+
 		return [
 			'employee' => $employee,
 			'components' => $components,
-			'saved' => $savedRows
+			'saved' => $savedRows,
+			'saved_bpjs' => $savedBpjsRows,
+			'bpjs_config' => $bpjs_config
 		];
 	}
 
@@ -187,10 +206,28 @@ class Benefit_deduction_os_menu_model extends MY_Model
 		$componentColumn = $this->getComponentColumn();
 		$rows = $this->db->query("select ".$componentColumn." as salary_component_id, amount
 					from employee_benefit_deduction_os
-					where employee_id = '".$employee_id."'")->result();
+					where employee_id = '".$employee_id."' AND (salary_bpjs_id IS NULL OR salary_bpjs_id = 0)")->result();
 
 		foreach($rows as $row){
 			$result[$row->salary_component_id] = $row->amount;
+		}
+
+		return $result;
+	}
+
+	private function getSavedBpjs($employee_id)
+	{
+		$result = [];
+		if(!$this->db->table_exists('employee_benefit_deduction_os')){
+			return $result;
+		}
+
+		$rows = $this->db->query("select salary_bpjs_id, amount
+					from employee_benefit_deduction_os
+					where employee_id = '".$employee_id."' AND salary_bpjs_id IS NOT NULL AND salary_bpjs_id > 0")->result();
+
+		foreach($rows as $row){
+			$result[$row->salary_bpjs_id] = $row->amount;
 		}
 
 		return $result;
@@ -228,12 +265,15 @@ class Benefit_deduction_os_menu_model extends MY_Model
 		$componentColumn = $this->getComponentColumn();
 		$components = isset($post['component_id']) ? $post['component_id'] : [];
 		$amounts = isset($post['amount']) ? $post['amount'] : [];
+		$bpjs_ids = isset($post['bpjs_id']) ? $post['bpjs_id'] : [];
+		$bpjs_amounts = isset($post['bpjs_amount']) ? $post['bpjs_amount'] : [];
 
 		$this->db->trans_start();
 
 		// Delete existing records for this employee first
 		$this->db->where('employee_id', $employee_id)->delete('employee_benefit_deduction_os');
 
+		// Save salary component rows
 		foreach($components as $row => $component_id){
 			$component_id = trim($component_id);
 			$amount = isset($amounts[$row]) ? trim(str_replace(',', '', $amounts[$row])) : '';
@@ -245,6 +285,24 @@ class Benefit_deduction_os_menu_model extends MY_Model
 			$data = [
 				'employee_id' => $employee_id,
 				$componentColumn => $component_id,
+				'amount' => $amount
+			];
+
+			$this->db->insert('employee_benefit_deduction_os', $data);
+		}
+
+		// Save BPJS rows
+		foreach($bpjs_ids as $row => $bpjs_id){
+			$bpjs_id = trim($bpjs_id);
+			$amount = isset($bpjs_amounts[$row]) ? trim(str_replace(',', '', $bpjs_amounts[$row])) : '';
+
+			if($amount === '' || $bpjs_id === ''){
+				continue;
+			}
+
+			$data = [
+				'employee_id' => $employee_id,
+				'salary_bpjs_id' => $bpjs_id,
 				'amount' => $amount
 			];
 
