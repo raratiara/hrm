@@ -66,6 +66,11 @@
   }
 </style>
 
+<label>Project:
+  <input type="text" readonly id="projectViewName" name="projectViewName" class="form-control" />
+  <input type="hidden" id="projectView" name="projectView" class="form-control" />
+</label>
+
 <label>Month:
   <input type="text" readonly id="bulanViewName" name="bulanViewName" class="form-control" />
   <input type="hidden" id="bulanView" name="bulanView" class="form-control" />

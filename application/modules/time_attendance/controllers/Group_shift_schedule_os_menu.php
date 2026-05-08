@@ -15,7 +15,7 @@ class Group_shift_schedule_os_menu extends MY_Controller
 	
 	/* View */
 	public $icon 					= 'fa-database';
-	public $tabel_header 			= ["ID","Periode","Created Date"];
+	public $tabel_header 			= ["ID","Project","Periode","Created Date"];
 
 	
 	/* Export */
@@ -138,17 +138,23 @@ class Group_shift_schedule_os_menu extends MY_Controller
 	}
 
 
+	public function get_project(){
+		$data = $this->db->query("select id, project_name from project_outsource order by project_name asc")->result();
+		echo json_encode($data);
+	}
+
 	public function get_shift(){
 		$post = $this->input->post(null, true);
-		/*$empid 	= $post['empid'];*/
+		$project_id = isset($post['project_id']) ? trim($post['project_id']) : '';
 
+		$where_project = "";
+		if($project_id != ''){
+			$where_project = " and project_id = '".$this->db->escape_str($project_id)."'";
+		}
 
-		$data =  $this->db->query("select id, full_name from employees where status_id = 1 and shift_type = 'Shift' and emp_source = 'outsource' order by full_name asc")->result();
-
+		$data = $this->db->query("select id, full_name from employees where status_id = 1 and shift_type = 'Shift' and emp_source = 'outsource'".$where_project." order by full_name asc")->result();
 
 		echo json_encode($data);
-
-
 	}
  	
 

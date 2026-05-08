@@ -24,30 +24,39 @@
 
 
 
-<label>Month:
-  
-  <select id="bulan" name="bulan" class="form-control">
-    <script>
-      for (let i = 0; i < 12; i++) {
-        
-        const monthName = new Date(0, i).toLocaleString('en-US', { month: 'long' });
-        document.write(`<option value="${i}">${monthName}</option>`);
-      }
-    </script>
-  </select>
-</label>
-
-<label>Year:
- 
-  <select id="tahun" name="tahun" class="form-control">
-    <script>
-      const now = new Date().getFullYear();
-      for (let y = now - 1; y <= now + 1; y++) {
-        document.write(`<option value="${y}" ${y === now ? 'selected' : ''}>${y}</option>`);
-      }
-    </script>
-  </select>
-</label>
+<div class="row" style="margin-bottom: 10px;">
+  <div class="col-md-5 col-sm-5">
+    <label style="width:100%;">Project:
+      <select id="project_id" name="project_id" class="form-control" style="width:100%;">
+        <option value="">-- Select Project --</option>
+      </select>
+    </label>
+  </div>
+  <div class="col-md-4 col-sm-4">
+    <label style="width:100%;">Month:
+      <select id="bulan" name="bulan" class="form-control" style="width:100%;">
+        <script>
+          for (let i = 0; i < 12; i++) {
+            const monthName = new Date(0, i).toLocaleString('en-US', { month: 'long' });
+            document.write(`<option value="${i}">${monthName}</option>`);
+          }
+        </script>
+      </select>
+    </label>
+  </div>
+  <div class="col-md-3 col-sm-3">
+    <label style="width:100%;">Year:
+      <select id="tahun" name="tahun" class="form-control" style="width:100%;">
+        <script>
+          const now = new Date().getFullYear();
+          for (let y = now - 1; y <= now + 1; y++) {
+            document.write(`<option value="${y}" ${y === now ? 'selected' : ''}>${y}</option>`);
+          }
+        </script>
+      </select>
+    </label>
+  </div>
+</div>
 
 <input type="hidden" name="selectedshift" id="selectedshift">
 <input type="hidden" name="hdnjadwalTersimpan" id="hdnjadwalTersimpan">

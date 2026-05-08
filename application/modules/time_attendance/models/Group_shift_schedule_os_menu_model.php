@@ -20,6 +20,7 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
+			'dt.project_name',
 			'dt.period',
 			'dt.created_at'
 		];
@@ -30,7 +31,7 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 		/*$sTable = '(select a.*, b.name as group_name from group_shift_schedule_os a 
 						left join master_group_shift b on b.id = a.master_group_shift_id
 					)dt';*/
-		$sTable = '(select * from shift_schedule_os)dt';
+		$sTable = '(select a.*, b.project_name from shift_schedule_os a left join project_outsource b on b.id = a.project_id)dt';
 		
 
 		/* Paging */
@@ -209,6 +210,7 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 						'.$approve.'
 					</div>',
 					$row->id,
+					$row->project_name,
 					$row->period,
 					$row->created_at
 
@@ -223,6 +225,7 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 						'.$approve.'
 					</div>',
 					$row->id,
+					$row->project_name,
 					$row->period,
 					$row->created_at
 
@@ -282,6 +285,27 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 
 	public function add_data($post) { 
 
+		if(!isset($post['bulan']) || !isset($post['tahun']) || $post['bulan'] === '' || $post['tahun'] === ''){
+			return [
+			    "status" => false,
+			    "msg" 	 => "Month dan Year harus dipilih"
+			];
+		}
+
+		if(!isset($post['selectedshift']) || $post['selectedshift'] == '' || $post['selectedshift'] == '[]'){
+			return [
+			    "status" => false,
+			    "msg" 	 => "Belum ada jadwal shift yang di-assign ke karyawan"
+			];
+		}
+
+		if(!isset($post['project_id']) || $post['project_id'] == ''){
+			return [
+			    "status" => false,
+			    "msg" 	 => "Project harus dipilih"
+			];
+		}
+
 		if($post['bulan'] != '' && $post['tahun'] != ''){
 			$bulan = $post['bulan']+1; //di plus 1 karna di js bulannya mulainya dr index 0
 
@@ -294,19 +318,22 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 			$selectedshift = json_decode($post['selectedshift']);
 
 			$is_insert_header=0;
-			$shiftschedule = $this->db->query("select * from shift_schedule_os where period = '".$period."'")->result();
-			if(empty($shiftschedule)){
-				$data_shiftschedule = [
-					'period' 		=> $period,
-					'created_at'	=> date("Y-m-d H:i:s")
+			$shiftschedule = $this->db->query("select * from shift_schedule_os where period = '".$period."' and project_id = '".$post['project_id']."'")->result();
+			if(!empty($shiftschedule)){
+				return [
+				    "status" => false,
+				    "msg" 	 => "Data shift schedule untuk Project & Periode ini sudah ada"
 				];
-				$rs_shiftschedule = $this->db->insert('shift_schedule_os', $data_shiftschedule);
-				$shiftschedule_id = $this->db->insert_id();
+			}
 
-				$is_insert_header=1;
-			}else{
-				$shiftschedule_id = $shiftschedule[0]->id;
-			} 
+			$data_shiftschedule = [
+				'period' 		=> $period,
+				'project_id'	=> $post['project_id'],
+				'created_at'	=> date("Y-m-d H:i:s")
+			];
+			$rs_shiftschedule = $this->db->insert('shift_schedule_os', $data_shiftschedule);
+			$shiftschedule_id = $this->db->insert_id();
+			$is_insert_header=1; 
 
 
 			$grouped = [];
@@ -520,6 +547,20 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 
 	public function edit_data($post){ //baru
 
+		if(!isset($post['bulan']) || !isset($post['tahun']) || $post['bulan'] === '' || $post['tahun'] === ''){
+			return [
+			    "status" => false,
+			    "msg" 	 => "Month dan Year harus dipilih"
+			];
+		}
+
+		if(!isset($post['selectedshift']) || $post['selectedshift'] == '' || $post['selectedshift'] == '[]'){
+			return [
+			    "status" => false,
+			    "msg" 	 => "Belum ada jadwal shift yang di-assign ke karyawan"
+			];
+		}
+
 		$bulan = $post['bulan']+1; //di plus 1 karna di js bulannya mulainya dr index 0
 
 		
@@ -530,10 +571,11 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 		$period = $post['tahun'].'-'.$bulan;
 		$selectedshift = json_decode($post['selectedshift']);
 
-		$shiftschedule = $this->db->query("select * from shift_schedule_os where period = '".$period."'")->result();
+		$shiftschedule = $this->db->query("select * from shift_schedule_os where period = '".$period."' and project_id = '".$post['project_id']."'")->result();
 		if(empty($shiftschedule)){
 			$data_shiftschedule = [
 				'period' 		=> $period,
+				'project_id'	=> $post['project_id'],
 				'created_at'	=> date("Y-m-d H:i:s")
 			];
 			$rs_shiftschedule = $this->db->insert('shift_schedule_os', $data_shiftschedule);
@@ -816,7 +858,7 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 
 	public function getRowData($id){
 
-		$result = $this->db->query("select a.*, b.full_name from group_shift_schedule_os a left join employees b on b.id = a.employee_id where a.shift_schedule_id = '".$id."' and b.emp_source = 'outsource' ")->result(); 
+		$result = $this->db->query("select a.*, b.full_name, b.project_id, c.project_name from group_shift_schedule_os a left join employees b on b.id = a.employee_id left join project_outsource c on c.id = b.project_id where a.shift_schedule_id = '".$id."' and b.emp_source = 'outsource' ")->result(); 
 
 		$savedData=[];
 		foreach($result as $rows){ 
@@ -824,6 +866,8 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 			$employee_id 	= $rows->employee_id; 
 		    $employee_name 	= $rows->full_name;
 		    $period 		= $rows->periode;
+		    $project_id 	= $rows->project_id;
+		    $project_name 	= $rows->project_name;
 
 		    for($i=1; $i<=31; $i++){ 
 				$field = sprintf("%02d", $i); 
@@ -835,7 +879,9 @@ class Group_shift_schedule_os_menu_model extends MY_Model
 		                'employee_name' => $employee_name,
 		                'period' 	=> $period,
 		                'tanggal' 	=> $period.'-'.$field,
-		                'shift' 	=> 'Shift '.$shift
+		                'shift' 	=> 'Shift '.$shift,
+		                'project_id' 	=> $project_id,
+		                'project_name' 	=> $project_name
 		            ];
 				}
 		    }

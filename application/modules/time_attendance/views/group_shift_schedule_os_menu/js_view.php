@@ -1,4 +1,4 @@
-
+﻿
 
 
 <script type="text/javascript">
@@ -81,20 +81,26 @@ jQuery(function($) {
 		focusInvalid: false, // do not focus the last invalid input
 		ignore: "", // validate all fields including form hidden input
 		rules: {
-			title: {
+			project_id: {
 				required: true
 			},
-			module_name: {
+			bulan: {
 				required: true
 			},
-			url: {
+			tahun: {
 				required: true
 			}
 		},
-		messages: { // custom messages for radio buttons and checkboxes
+		messages: {
+			project_id: { required: "Project harus dipilih" },
+			bulan: { required: "Month harus dipilih" },
+			tahun: { required: "Year harus dipilih" }
 		},
 		errorPlacement: function (error, element) { // render error placement for each input type
-			if (element.parent(".input-group").size() > 0) {
+			error.css('color', 'red');
+			if (element.parent("label").length > 0) {
+				error.appendTo(element.closest('.col-md-5, .col-md-4, .col-md-3'));
+			} else if (element.parent(".input-group").size() > 0) {
 				error.insertAfter(element.parent(".input-group"));
 			} else if (element.attr("data-error-container")) { 
 				error.appendTo(element.attr("data-error-container"));
@@ -145,11 +151,53 @@ let selectedShift = [];
 
 const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
+// Load project list
+function loadProjects(){
+    $.ajax({
+        type: "POST",
+        url: module_path + '/get_project',
+        data: {},
+        cache: false,
+        dataType: "JSON",
+        success: function(data){
+            var sel = $('#project_id');
+            sel.find('option:not(:first)').remove();
+            if(data && data.length > 0){
+                data.forEach(function(item){
+                    sel.append('<option value="'+item.id+'">'+item.project_name+'</option>');
+                });
+            }
+            // Initialize Select2 with search
+            sel.select2({
+                placeholder: '-- Select Project --',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#modal-form-data')
+            });
+        }
+    });
+}
+loadProjects();
+
+// When project changes, reload employee schedule
+$('#project_id').on('change', function(){
+    currentWeek = 0;
+    var projectId = $(this).val();
+    if(projectId != ''){
+        renderSchedule(currentWeek);
+    } else {
+        // Clear table if no project selected
+        var tbody = document.getElementById('jadwal-body');
+        if(tbody) tbody.innerHTML = "";
+    }
+});
+
 const btnAdd = document.getElementById("btnAddData");
 
 if (btnAdd) {
     btnAdd.addEventListener("click", function () {
         let currentWeek = 0;
+        loadProjects();
         renderSchedule(currentWeek);
     });
 }
@@ -197,7 +245,10 @@ function load_data()
 					$('select#bulan').val(bulan).trigger('change.select2');
 					$('select#tahun').val(tahun).trigger('change.select2');
 
-					
+					// Set project dropdown
+					if(data[0].project_id){
+						$('select#project_id').val(data[0].project_id).trigger('change.select2');
+					}
 					
 					let tanggalList = generateTanggalMingguan(); // misalnya minggu ini
 
@@ -245,6 +296,12 @@ function load_data()
 						$('#bulanViewName').val(namaBulan[bulan]);
 						$('#bulanView').val(bulan);
 						$('#tahunView').val(tahun);
+
+						// Set project info for detail view
+						if(data[0].project_name){
+							$('#projectViewName').val(data[0].project_name);
+							$('#projectView').val(data[0].project_id);
+						}
 
 						var tanggalList = generateTanggalMingguanView(); // misalnya minggu ini
 						var currentWeek=0;
@@ -721,14 +778,22 @@ function renderSchedule(currentWeek, jadwalData = '', tanggalList = '') {
     year = new Date().getFullYear();
   }
 
+  let projectId = $('#project_id').val();
+  if(!projectId || projectId == '' || month === '' || year === ''){
+    // Clear table if project/month/year not selected
+    var tbody = document.getElementById('jadwal-body');
+    if(tbody) tbody.innerHTML = "";
+    return;
+  }
+
   $.ajax({
     type: "POST",
     url: module_path + '/get_shift',
-    data: {},
+    data: { project_id: projectId },
     cache: false,
     dataType: "JSON",
     success: function (data) {
-      if (data != false) {
+      if (data && data.length > 0) {
 
         let karyawanList = data;
         let tbody = document.getElementById('jadwal-body');
@@ -834,17 +899,9 @@ function renderSchedule(currentWeek, jadwalData = '', tanggalList = '') {
         });
 
       } else {
-        title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
-        btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
-        msg = '<p>Gagal peroleh data.</p>';
-        var dialog = bootbox.dialog({
-          message: title + '<center>' + msg + btn + '</center>'
-        });
-        if (response.status) {
-          setTimeout(function () {
-            dialog.modal('hide');
-          }, 1500);
-        }
+        // No employees found for this project, clear table
+        var tbody = document.getElementById('jadwal-body');
+        if(tbody) tbody.innerHTML = "<tr><td colspan='8' class='text-center' style='padding:20px;color:#999;'><i class='fa fa-info-circle'></i> Tidak ada karyawan dengan tipe <b>Shift</b> & <b>Outsource</b> di project ini.<br><small>Pastikan karyawan sudah di-set shift_type = 'Shift' dan emp_source = 'outsource'.</small></td></tr>";
       }
     },
     error: function (jqXHR, textStatus, errorThrown) {
@@ -947,7 +1004,7 @@ function renderSchedule_old(currentWeek, jadwalData='',tanggalList=''){
 			  let startDate = new Date(year, month, 1 + currentWeek * 7);
 
 				for (let i = 0; i < 7; i++) {
-				  let tgl = new Date(year, month, 1 + currentWeek * 7 + i); // 👍 LEBIH AMAN
+				  let tgl = new Date(year, month, 1 + currentWeek * 7 + i); // ðŸ‘ LEBIH AMAN
 				  
 				  let id = "tgl" + (i + 1);
 				  let el = document.getElementById(id);
@@ -1140,17 +1197,17 @@ function renderScheduleView(currentWeek, jadwalData='',tanggalList=''){
 		let year = new Date().getFullYear(); 
 	}
 
-
+	let projectId = $('#projectView').val();
 
  	$.ajax({
 		type: "POST",
     url : module_path+'/get_shift',
-		data: { },
+		data: { project_id: projectId },
 		cache: false,		
     dataType: "JSON",
     success: function(data)
     {
-			if(data != false){ 
+			if(data && data.length > 0){ 
 
 				let karyawanList = data;
 			  let tbody = document.getElementById('jadwal-bodyView');
@@ -1253,19 +1310,11 @@ function renderScheduleView(currentWeek, jadwalData='',tanggalList=''){
 
 
 				
-			} else {
-				title = '<div class="text-center" style="padding-top:20px;padding-bottom:10px;"><i class="fa fa-exclamation-circle fa-5x" style="color:red"></i></div>';
-				btn = '<br/><button class="btn blue" data-dismiss="modal">OK</button>';
-				msg = '<p>Gagal peroleh data.</p>';
-				var dialog = bootbox.dialog({
-					message: title+'<center>'+msg+btn+'</center>'
-				});
-				if(response.status){
-					setTimeout(function(){
-						dialog.modal('hide');
-					}, 1500);
-				}
-			}
+					} else {
+						// No employees found for this project in view mode
+						let tbodyV = document.getElementById('jadwal-bodyView');
+						if(tbodyV) tbodyV.innerHTML = "<tr><td colspan='8' class='text-center'>Tidak ada karyawan shift di project ini</td></tr>";
+					}
     },
     error: function (jqXHR, textStatus, errorThrown)
     {
@@ -1293,11 +1342,20 @@ function pilihShift(){
 
 	var bln = document.getElementById('bulan').value;
 	var thn = document.getElementById('tahun').value;
+	var prj = document.getElementById('project_id').value;
 
-	if(bln != '' && thn != ''){
-		document.getElementById('shiftModal').style.display = 'block';
+	var errors = [];
+	if(prj == '') errors.push('<li>Project belum dipilih</li>');
+	if(bln == '') errors.push('<li>Month belum dipilih</li>');
+	if(thn == '') errors.push('<li>Year belum dipilih</li>');
+
+	if(errors.length > 0){
+		bootbox.alert({
+			title: '<i class="fa fa-exclamation-triangle" style="color:#f0ad4e"></i> Validasi Gagal',
+			message: '<p>Silahkan lengkapi data berikut:</p><ul>' + errors.join('') + '</ul>'
+		});
 	}else{
-		alert('Silahkan pilih bulan & tahun');
+		document.getElementById('shiftModal').style.display = 'block';
 	}
 
 	
