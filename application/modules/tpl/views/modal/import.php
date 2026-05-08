@@ -1,60 +1,66 @@
 <!-- Modal Import Data -->
 <div id="modal-import-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-import-data"
-	aria-hidden="true">
-	<div class="vertical-alignment-helper">
-		<div class="modal-dialog vertical-align-center">
-			<div class="modal-content" style="width:600px">
-				<form class="form-horizontal" id="frmImportData" enctype="multipart/form-data">
-					<div class="modal-header bg-blue bg-font-blue no-padding">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-						<div class="table-header">
-							Import <?php echo $smodul; ?>
-						</div>
-					</div>
+aria-hidden="true">
+<div class="vertical-alignment-helper">
+<div class="modal-dialog vertical-align-center">
+<div class="modal-content" style="width:600px">
+<form class="form-horizontal" id="frmImportData" enctype="multipart/form-data">
+<div class="modal-header bg-blue bg-font-blue no-padding">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+<div class="table-header">
+Import <?php echo $smodul; ?>
+</div>
+</div>
 
-					<div class="modal-body" style="min-height:100px; margin:10px">
-						<input type="file" name="userfile" id="fileInput">
-						<br />
-						<div class="progress">
-							<div class="progress-bar"></div>
-						</div>
-					</div>
-				</form>
+<div class="modal-body" style="min-height:100px; margin:10px">
+<input type="file" name="userfile" id="fileInput">
+<br />
+<div class="progress">
+<div class="progress-bar"></div>
+</div>
+</div>
+</form>
 
-				<div class="modal-footer no-margin-top clearfix">
+<div class="modal-footer no-margin-top clearfix">
 
-				    <?php if($this->module_name == 'history_bpjs_menu' || $this->module_name == 'history_bpjs_int_menu'){ ?>
-				        <button type="button"
-				            class="btn pull-left"
-				            style="background-color: #cdcfdf; color: black; border-radius: 4px !important;"
-				            id="download_template" onclick="downloadFile('templateImportBpjsHistory.xlsx')">
-				            <i class="fa fa-download"></i>
-				            Template
-				        </button>
-				    <?php } ?>
+    <?php if($this->module_name == 'history_bpjs_menu' || $this->module_name == 'history_bpjs_int_menu'){ ?>
+        <button type="button"
+            class="btn"
+            style="background-color: #cdcfdf; color: black; border-radius: 4px !important;"
+            id="download_template" onclick="downloadFile('templateImportBpjsHistory.xlsx')">
+            <i class="fa fa-download"></i>
+            Template
+        </button>
+    <?php } ?>
 
-				    
+    <?php if($this->module_name == 'data_karyawan_menu'){ ?>
+        <button type="button"
+            class="btn"
+            style="background-color: #cdcfdf; color: black; border-radius: 4px !important;"
+            id="download_template" onclick="downloadFile('templateImportDataKaryawan.xlsx')">
+            <i class="fa fa-download"></i>
+            Template
+        </button>
+    <?php } ?>
 
-				    <button type="button"
-				        class="btn"
-				        style="background-color: #112D80; color: white; border-radius: 4px !important;"
-				        id="submit-import-data" onclick="save()">
-				        <i class="fa fa-upload"></i>
-				        Import
-				    </button>
-				    <button type="button"
-				        class="btn"
-				        style="background-color: #A01818; color: white; border-radius: 4px !important;"
-				        data-dismiss="modal">
-				        <i class="fa fa-times"></i>
-				        Close
-				    </button>
+    <button type="button"
+        class="btn"
+        style="background-color: #112D80; color: white; border-radius: 4px !important;"
+        id="submit-import-data" onclick="save()">
+        <i class="fa fa-upload"></i>
+        Import
+    </button>
+    <button type="button"
+        class="btn"
+        style="background-color: #A01818; color: white; border-radius: 4px !important;"
+        data-dismiss="modal">
+        <i class="fa fa-times"></i>
+        Close
+    </button>
 
-				</div>
+</div>
 
-
-
-			</div>
-		</div>
-	</div>
+</div>
+</div>
+</div>
 </div>
