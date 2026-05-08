@@ -1305,4 +1305,14 @@ document.getElementById('full_name').addEventListener('input', function () {
 
 
 <?php } ?>
+
+function downloadFile(filename) { 
+    const link = document.createElement('a');
+    link.href = module_path+'/downloadFile?file=' + encodeURIComponent(filename);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 </script>

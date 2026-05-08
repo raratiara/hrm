@@ -43,6 +43,16 @@ Import <?php echo $smodul; ?>
         </button>
     <?php } ?>
 
+    <?php if($this->module_name == 'data_karyawan_os_menu'){ ?>
+        <button type="button"
+            class="btn"
+            style="background-color: #cdcfdf; color: black; border-radius: 4px !important;"
+            id="download_template" onclick="downloadFile('templateImportDataKaryawan_outsource.xlsx')">
+            <i class="fa fa-download"></i>
+            Template
+        </button>
+    <?php } ?>
+
     <button type="button"
         class="btn"
         style="background-color: #112D80; color: white; border-radius: 4px !important;"
