@@ -121,32 +121,39 @@
 				</div>
 			</div>
 			<div class="portlet-body">
-				<div class="table-scrollable tablesaw-cont">
-				<table class="table table-striped table-bordered table-hover sptos-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSptOS">
-					<thead>
-						<tr>
-							<th scope="col">NIK</th>
-							<th scope="col">Karyawan</th>
-							<th scope="col">Start Period</th>
-							<th scope="col">End Period</th>
-							<th scope="col">Bruto Tahunan</th>
-							<th scope="col">Biaya Jabatan</th>
-							<th scope="col">Iuran</th>
-							<th scope="col">Neto Tahunan</th>
-							<th scope="col">PTKP</th>
-							<th scope="col">PKP</th>
-							<th scope="col">PPH 21 Tahunan</th>
-							<th scope="col">PPH 21 Ter Total</th>
-							<th scope="col">Kurang Lebih Bayar</th>
+				<div class="row" style="margin-bottom:10px;">
+                    <div class="col-md-4">
+                        <input type="text" id="filterEmployeeEdit_sptos" class="form-control input-sm" placeholder="Cari nama karyawan...">
+                    </div>
+                </div>
+				<div class="table-scroll-x">
+					<div class="table-scrollable tablesaw-cont">
+					<table class="table table-striped table-bordered table-hover sptos-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailSptOS">
+						<thead>
+							<tr>
+								<th scope="col">NIK</th>
+								<th scope="col">Karyawan</th>
+								<th scope="col">Start Period</th>
+								<th scope="col">End Period</th>
+								<th scope="col">Bruto Tahunan</th>
+								<th scope="col">Biaya Jabatan</th>
+								<th scope="col">Iuran</th>
+								<th scope="col">Neto Tahunan</th>
+								<th scope="col">PTKP</th>
+								<th scope="col">PKP</th>
+								<th scope="col">PPH 21 Tahunan</th>
+								<th scope="col">PPH 21 Ter Total</th>
+								<th scope="col">Kurang Lebih Bayar</th>
+								
+							</tr>
+						</thead>
+						<tbody>
 							
-						</tr>
-					</thead>
-					<tbody>
-						
-					</tbody>
-					<tfoot>
-					</tfoot>
-				</table>
+						</tbody>
+						<tfoot>
+						</tfoot>
+					</table>
+					</div>
 				</div>
 			</div>
 		</div>

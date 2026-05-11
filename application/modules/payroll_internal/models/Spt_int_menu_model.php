@@ -32,17 +32,12 @@ class Spt_int_menu_model extends MY_Model
 
 		$dateNow = date("Y-m-d");
 
-		
-		$where_emp = "";
-			if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
-			$where_emp = " and b.employee_id = '".$_GET['flemployee']."' ";
-		}
+	
 
-		$sTable = '(select a.*, c.name as status_name, b.employee_id 
+		$sTable = '(select a.*, c.name as status_name 
 					from spt_pph21_internal a 
-					left join spt_pph21_detail_internal b on b.spt_pph21_id = a.id
 					left join master_status_spt c on c.id = a.status_id
-					where 1=1 '.$where_emp.'
+					where 1=1
 				)dt';
 		
 
@@ -369,7 +364,7 @@ class Spt_int_menu_model extends MY_Model
 
 	    $filter_employee = "";
 	   
-	    if ($post['is_all_project'] == 'Karyawan' && !empty($post['employeeIds'])) {
+	    if ($post['is_all_employee'] == 'Karyawan' && !empty($post['employeeIds'])) {
 	        $ids = implode(',', array_map('intval', $post['employeeIds']));
 	        $filter_employee = " AND a.employee_id IN ($ids) ";
 	    }
@@ -403,10 +398,10 @@ class Spt_int_menu_model extends MY_Model
 		LEFT JOIN payroll_slip_internal b ON b.id = a.payroll_slip_id
 		LEFT JOIN employees c ON c.id = a.employee_id
 
-		WHERE c.emp_source = 'internal' and c.is_special_payroll != 1 and b.tahun_penggajian = '".$tahun."'
+		WHERE c.emp_source = 'internal' and (c.is_special_payroll != 1 or c.is_special_payroll is null) 
+		and b.tahun_penggajian = '".$tahun."' and b.status = 2
 
 		$filter_employee
-		$filter_project
 
 		GROUP BY 
 			a.employee_id,
@@ -427,17 +422,9 @@ class Spt_int_menu_model extends MY_Model
 			];
 	    }
 
-	    /* ===============================
-	       PROCESS PER PROJECT (HEADER)
-	    =============================== */
-
 	    $insert_batch = [];
 
 	    foreach ($data_summary as $row) {
-
-	        if (empty($row->project_id)) continue;
-
-	        /* ---- cek / buat header per project ---- */
 
 	        $header = $this->db
 	            ->where('tahun', $tahun)
@@ -646,12 +633,7 @@ class Spt_int_menu_model extends MY_Model
 
 	public function eksport_data()
 	{ 
-		/*$where_project = "";
-			if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
-			$where_project = " and a.project_id = '".$_GET['flproject']."' ";
-		}*/
-
-
+		
 		$sql = 'select a.*, c.name as status_name from spt_pph21_internal a left join master_status_spt c on c.id = a.status_id 
 		';
 
@@ -711,7 +693,7 @@ class Spt_int_menu_model extends MY_Model
 								from spt_pph21_detail_internal a
 								left join spt_pph21_internal b on b.id = a.spt_pph21_id
 								left join employees c on c.id = a.employee_id
-								where c.emp_source = 'internal' and c.is_special_payroll != 1 and a.spt_pph21_id = '".$id."'
+								where c.emp_source = 'internal' and (c.is_special_payroll != 1 or c.is_special_payroll is null) and a.spt_pph21_id = '".$id."'
 								ORDER BY c.full_name ASC
 								")->result(); 
 		$rd = $rs;

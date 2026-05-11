@@ -60,6 +60,23 @@ var ldx; //for save list index string
 $(document).ready(function() {
    	
    	initFilterEmployee();
+
+
+	// Filter employee name di table edit (kolom ke-2 = index 1)
+   	$('#filterEmployeeEdit_spt').on('keyup', function() {
+   		var value = $(this).val().toLowerCase();
+   		$('#tblDetailSptInt tbody tr').filter(function() {
+   			$(this).toggle($(this).find('td').eq(1).text().toLowerCase().indexOf(value) > -1);
+   		});
+   	});
+
+   	///Filter employee name di table view (kolom ke-3 = index 2)
+   	$('#filterEmployeeView_spt').on('keyup', function() {
+   		var value = $(this).val().toLowerCase();
+   		$('#tblDetailSptInt_view tbody tr').filter(function() {
+   			$(this).toggle($(this).find('td').eq(2).text().toLowerCase().indexOf(value) > -1);
+   		});
+   	});
    	
 });
 

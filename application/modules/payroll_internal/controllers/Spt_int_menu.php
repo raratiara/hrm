@@ -107,12 +107,12 @@ class Spt_int_menu extends MY_Controller
 			if(isset($post['count']))
 			{  
 				$row = trim($post['count']); 
-				echo $this->self_model->getNewSptOSRow($row);
+				echo $this->self_model->getNewSptIntRow($row);
 			} else if(isset($post['id'])) { 
 				$row = 0;
 				$id = trim($post['id']);
 				$view = (isset($post['view']) && $post['view'] == TRUE)? TRUE:FALSE;
-				echo json_encode($this->self_model->getNewSptOSRow($row,$id,$view));
+				echo json_encode($this->self_model->getNewSptIntRow($row,$id,$view));
 			}
 		}
 		else
