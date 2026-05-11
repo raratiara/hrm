@@ -172,6 +172,7 @@ class Absence_report_os_menu extends MY_Controller
 			WHERE b.status_id = 1 
 			AND b.emp_source = 'outsource'
 			$where_emp $where_project $where_date
+			order by b.full_name asc
 		")->result();
 
 		$pathExport = FCPATH . 'uploads/report_absensi_bulanan/';
@@ -677,6 +678,7 @@ class Absence_report_os_menu extends MY_Controller
 			WHERE b.status_id = 1
 			AND b.emp_source = 'outsource'
 			$where_emp $where_project $where_date
+			order by b.full_name asc
 		")->result();
 
 		$path = FCPATH.'uploads/report_absensi_pdf/';
