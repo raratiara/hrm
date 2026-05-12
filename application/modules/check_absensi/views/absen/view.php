@@ -1,3 +1,29 @@
+<div class="row filter-wrap" style="margin-top:15px; margin-bottom:15px;">
+	<div class="col-md-4 col-sm-12">
+		<div class="form-group row form-row">
+			<label class="col-sm-3 col-form-label">Employee</label>
+			<div class="col-sm-9">
+				<?=$selflemployee;?>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-4 col-sm-12">
+		<div class="form-group row form-row">
+			<label class="col-sm-3 col-form-label">Date Range</label>
+			<div class="col-sm-9">
+				<input type="text" class="form-control" id="filter_perioddate" name="filter_perioddate" autocomplete="off">
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-4 col-sm-12">
+		<button type="button" class="btn btn-success" id="submitFilter" onclick="subFilter()">
+			Submit Filter
+		</button>
+	</div>
+</div>
+
 <?php 
 if  (_USER_ACCESS_LEVEL_VIEW == "1") {
 	$this->load->view(_TEMPLATE_PATH . "module_datatable_list_view"); // standard

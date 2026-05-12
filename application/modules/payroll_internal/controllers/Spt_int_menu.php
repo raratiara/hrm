@@ -36,7 +36,7 @@ class Spt_int_menu extends MY_Controller
 		$field['selstatus'] 	= $this->self_model->return_build_select2me($msstatus,'','','','status','status','','','id','name',' ','','','',3,'-');
 		$field['is_all_employee'] 	= $this->self_model->return_build_radio('Semua', [['Semua','Semua'],['Karyawan','Per Karyawan']], 'is_all_employee', '', 'inline');
 	
-		$msemp 						= $this->db->query("select * from employees where emp_source = 'internal' and status_id = 1 and is_special_payroll != 1 order by full_name asc")->result(); 
+		$msemp 						= $this->db->query("select * from employees where emp_source = 'internal' and status_id = 1 and IFNULL(is_special_payroll,0) != 1 order by full_name asc")->result(); 
 		$field['selemployeeids'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employeeIds[]','employeeIds','','','id','full_name',' ','','','',3,'-');
 		
 		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
@@ -124,6 +124,12 @@ class Spt_int_menu extends MY_Controller
 
 	public function getFormSptInt_pdf()
 	{
+		$form_id = isset($_GET['form_id']) ? (int) $_GET['form_id'] : 0;
+		if($form_id <= 0){
+			show_error('Data SPT tidak ditemukan.', 404, 'Data tidak ditemukan');
+			return;
+		}
+
 	    $sql = "
 	        select a.*, b.tahun, b.status_id as status_header_id, 
 				d.name as status_header, e.full_name, e.no_npwp, e.no_ktp, e.address_ktp, 
@@ -139,7 +145,7 @@ class Spt_int_menu extends MY_Controller
 				left join master_marital_status f on f.id = e.marital_status_id
 				left join master_job_title g on g.id = e.job_title_id
 				left join companies h on h.id = e.company_id
-			where e.emp_source = 'internal' and e.is_special_payroll != 1 and a.id = ".$_GET['form_id']."
+			where e.emp_source = 'internal' and IFNULL(e.is_special_payroll,0) != 1 and a.id = ".$form_id."
 	    ";
 
 	    /*$sql = "
@@ -148,14 +154,20 @@ class Spt_int_menu extends MY_Controller
 
 
 	    $data = $this->db->query($sql)->result();
+		if(empty($data)){
+			show_error('Data SPT tidak ditemukan atau karyawan bukan payroll internal reguler.', 404, 'Data tidak ditemukan');
+			return;
+		}
+
+		$row = $data[0];
 
 	    $this->load->library('html_pdf');
 
 	    $pdfData = [
 	        'title' 		=> 'FORM 1721',
-	        'emp_name' 		=> $data[0]->full_name,
-	        'tahun_pajak' 	=> $data[0]->tahun,
-	        'periode' 		=> $data[0]->periode_start.' s/d '.$data[0]->periode_end,
+	        'emp_name' 		=> $row->full_name,
+	        'tahun_pajak' 	=> $row->tahun,
+	        'periode' 		=> $row->periode_start.' s/d '.$row->periode_end,
 	        'data'  		=> $data
 	    ];
 
@@ -166,7 +178,7 @@ class Spt_int_menu extends MY_Controller
 
 	    if (ob_get_level()) ob_end_clean();
 
-	    $safeName = preg_replace('/[^A-Za-z0-9 _-]/', '', $data[0]->full_name);
+	    $safeName = preg_replace('/[^A-Za-z0-9 _-]/', '', $row->full_name);
 
 	    header("Content-Type: application/pdf");
 	    header("Content-Disposition: attachment; filename=FORM 1721 - ".$safeName.".pdf");

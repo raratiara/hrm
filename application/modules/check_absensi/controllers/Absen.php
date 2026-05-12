@@ -119,6 +119,8 @@ class Absen extends MY_Controller
 		}
 		$field['selloc'] 			= $this->self_model->return_build_select2me($msLoc,'','','','location','location','','','id','name',' ','','','',3,'-');
 
+		$msemp_filter 				= $this->db->query("select id, full_name from employees where emp_source = 'internal' and status_id = 1 order by full_name asc")->result();
+		$field['selflemployee'] 	= $this->self_model->return_build_select2me($msemp_filter,'','','','flemployee','flemployee','','','id','full_name',' ','','','',3,'-');
 
 
 		
@@ -182,6 +184,22 @@ class Absen extends MY_Controller
 		
 
 		echo json_encode($rs);
+	}
+
+	public function eksport()
+	{
+		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
+			if(empty($_GET['fldatestart']) || empty($_GET['fldateend']) || $_GET['fldatestart'] == 0 || $_GET['fldateend'] == 0) {
+				echo "<script>alert('Date range wajib diisi sebelum export data.');window.history.back();</script>";
+				exit;
+			}
+
+			$header	= "Report ".$this->label_modul."\n";
+			$data 	= $this->self_model->eksport_data();
+			$this->self_model->export_to_csv($this->colnames,$this->colfields, $data, $header ,"report_".$this->module_name);
+		} else {
+			$this->load->view('errors/html/error_hacks_401');
+		}
 	}
 
 

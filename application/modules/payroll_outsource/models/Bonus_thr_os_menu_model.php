@@ -1,0 +1,359 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Bonus_thr_os_menu_model extends MY_Model
+{
+	protected $folder_name = "payroll_outsource/bonus_thr_os_menu";
+	protected $table_name = _PREFIX_TABLE."bonus_thr_os";
+	protected $primary_key = "id";
+
+	function __construct()
+	{
+		parent::__construct();
+	}
+
+	private function moneyVal($value)
+	{
+		return (float) str_replace(',', '', trim((string)$value));
+	}
+
+	public function get_list_data()
+	{
+		$aColumns = [
+			NULL,
+			NULL,
+			'dt.id',
+			'dt.project_name',
+			'dt.month_name',
+			'dt.periode_tahun',
+			'dt.periode',
+			'dt.component_type',
+			'dt.total_bonus',
+			'dt.total_thr'
+		];
+
+		$where_project = "";
+		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
+			$where_project = " and a.project_id = '".$this->db->escape_str($_GET['flproject'])."' ";
+		}
+
+		$sIndexColumn = $this->primary_key;
+		$sTable = '(select a.*, b.project_name, c.name_indo as month_name,
+					concat(c.name_indo, " ", a.periode_tahun) as periode,
+					coalesce(sum(d.bonus_amount), 0) as total_bonus,
+					coalesce(sum(d.thr_amount), 0) as total_thr
+					from bonus_thr_os a
+					left join project_outsource b on b.id = a.project_id
+					left join master_month c on c.id = a.periode_bulan
+					left join bonus_thr_os_detail d on d.bonus_thr_os_id = a.id
+					where 1=1 '.$where_project.'
+					group by a.id
+			)dt';
+
+		$sLimit = "";
+		if(isset($_GET['iDisplayStart']) && $_GET['iDisplayLength'] != '-1'){
+			$sLimit = "LIMIT ".($_GET['iDisplayStart']).", ".($_GET['iDisplayLength']);
+		}
+
+		$sOrder = "";
+		if(isset($_GET['iSortCol_0'])) {
+			$sOrder = "ORDER BY  ";
+			for ($i=0 ; $i<intval($_GET['iSortingCols']) ; $i++){
+				if($_GET['bSortable_'.intval($_GET['iSortCol_'.$i])] == "true"){
+					$srcCol = $aColumns[intval($_GET['iSortCol_'.$i])];
+					if(strpos($srcCol, ' as ') !== false) {
+						$pieces = explode(' as ', trim($srcCol));
+						$sOrder .= trim($pieces[0])." ".$_GET['sSortDir_'.$i].", ";
+					} else {
+						$sOrder .= $srcCol." ".$_GET['sSortDir_'.$i].", ";
+					}
+				}
+			}
+			$sOrder = substr_replace($sOrder, "", -2);
+			if($sOrder == "ORDER BY") $sOrder = "";
+		}
+
+		$sWhere = " WHERE 1 = 1 ";
+		if(isset($_GET['sSearch']) && $_GET['sSearch'] != ""){
+			$sWhere .= "AND (";
+			foreach ($aColumns as $c) {
+				if($c !== NULL){
+					if(strpos($c, ' as ') !== false) {
+						$pieces = explode(' as ', trim($c));
+						$sWhere .= trim($pieces[0])." LIKE '%".$this->db->escape_like_str($_GET['sSearch'])."%' OR ";
+					} else {
+						$sWhere .= $c." LIKE '%".$this->db->escape_like_str($_GET['sSearch'])."%' OR ";
+					}
+				}
+			}
+			$sWhere = substr_replace($sWhere, "", -3);
+			$sWhere .= ')';
+		}
+
+		$filtered_cols = array_filter($aColumns, [$this, 'is_not_null']);
+		$sQuery = "SELECT SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $filtered_cols))."
+			FROM $sTable $sWhere $sOrder $sLimit";
+		$rResult = $this->db->query($sQuery)->result();
+
+		$iFilteredTotal = $this->db->query("SELECT FOUND_ROWS() AS filter_total")->row()->filter_total;
+		$iTotal = $this->db->query("SELECT COUNT(".$sIndexColumn.") AS total FROM $sTable")->row()->total;
+
+		$output = [
+			"sEcho" => intval($_GET['sEcho']),
+			"iTotalRecords" => $iTotal,
+			"iTotalDisplayRecords" => $iFilteredTotal,
+			"aaData" => []
+		];
+
+		foreach($rResult as $row) {
+			$detail = "";
+			if (_USER_ACCESS_LEVEL_DETAIL == "1") {
+				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color:#112D80;border-color:#112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
+			}
+
+			$edit = "";
+			if (_USER_ACCESS_LEVEL_UPDATE == "1") {
+				$edit = '<a class="btn btn-xs btn-primary" style="background-color:#FFA500;border-color:#FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
+			}
+
+			$delete_bulk = "";
+			$delete = "";
+			if (_USER_ACCESS_LEVEL_DELETE == "1") {
+				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
+				$delete = '<a class="btn btn-xs btn-danger" style="background-color:#A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
+			}
+
+			$output["aaData"][] = [
+				$delete_bulk,
+				'<div class="action-buttons">'.$detail.$edit.$delete.'</div>',
+				$row->id,
+				$row->project_name,
+				$row->periode,
+				$row->component_type,
+				number_format((float)$row->total_bonus, 0, ',', '.'),
+				number_format((float)$row->total_thr, 0, ',', '.')
+			];
+		}
+
+		echo json_encode($output);
+	}
+
+	public function is_not_null($val)
+	{
+		return !is_null($val);
+	}
+
+	public function delete($id = "")
+	{
+		if (empty($id)) return null;
+
+		$this->db->trans_start();
+		$this->db->where('bonus_thr_os_id', $id)->delete('bonus_thr_os_detail');
+		$this->db->where([$this->primary_key => $id])->delete($this->table_name);
+		$this->db->trans_complete();
+
+		return $this->db->trans_status();
+	}
+
+	public function bulk($id = "")
+	{
+		if (!is_array($id) || !count($id)) return null;
+
+		$err = '';
+		foreach ($id as $pid) {
+			$deleted = $this->delete($pid);
+			if ($deleted == false) {
+				if(!empty($err)) $err .= ", ";
+				$err .= $pid;
+			}
+		}
+
+		return empty($err) ? ['status' => TRUE] : ['status' => FALSE, 'err' => '<br/>ID : '.$err];
+	}
+
+	private function validateHeader($post)
+	{
+		if(empty($post['project_id']) || empty($post['periode_bulan']) || empty($post['periode_tahun']) || empty($post['component_type'])){
+			return false;
+		}
+
+		return preg_match('/^\d{4}$/', trim($post['periode_tahun'])) === 1;
+	}
+
+	private function saveDetails($headerId, $post)
+	{
+		$this->db->where('bonus_thr_os_id', $headerId)->delete('bonus_thr_os_detail');
+
+		if(empty($post['hdnempid']) || !is_array($post['hdnempid'])) return true;
+
+		$items = [];
+		foreach($post['hdnempid'] as $row => $employeeId) {
+			$items[] = [
+				'bonus_thr_os_id' => $headerId,
+				'employee_id' => trim($employeeId),
+				'bonus_amount' => isset($post['bonus_amount'][$row]) ? $this->moneyVal($post['bonus_amount'][$row]) : 0,
+				'thr_amount' => isset($post['thr_amount'][$row]) ? $this->moneyVal($post['thr_amount'][$row]) : 0,
+				'note' => isset($post['detail_note'][$row]) ? trim($post['detail_note'][$row]) : ''
+			];
+		}
+
+		if(!empty($items)) {
+			$this->db->insert_batch('bonus_thr_os_detail', $items);
+		}
+
+		return true;
+	}
+
+	public function add_data($post)
+	{
+		if(!$this->validateHeader($post)) return [false, 0];
+
+		$exists = $this->db->where([
+			'project_id' => trim($post['project_id']),
+			'periode_bulan' => trim($post['periode_bulan']),
+			'periode_tahun' => trim($post['periode_tahun']),
+			'component_type' => trim($post['component_type'])
+		])->get($this->table_name)->row();
+
+		if($exists) return [false, 0];
+
+		$this->db->trans_start();
+		$data = [
+			'project_id' => trim($post['project_id']),
+			'periode_bulan' => trim($post['periode_bulan']),
+			'periode_tahun' => trim($post['periode_tahun']),
+			'component_type' => trim($post['component_type']),
+			'notes' => trim($post['notes']),
+			'created_at' => date('Y-m-d H:i:s'),
+			'created_by' => $_SESSION['worker']
+		];
+
+		$this->db->insert($this->table_name, $data);
+		$headerId = $this->db->insert_id();
+		$this->saveDetails($headerId, $post);
+		$this->db->trans_complete();
+
+		return [$this->db->trans_status(), $headerId];
+	}
+
+	public function edit_data($post)
+	{
+		if(empty($post['id']) || !$this->validateHeader($post)) return [false, 0];
+
+		$this->db->trans_start();
+		$data = [
+			'project_id' => trim($post['project_id']),
+			'periode_bulan' => trim($post['periode_bulan']),
+			'periode_tahun' => trim($post['periode_tahun']),
+			'component_type' => trim($post['component_type']),
+			'notes' => trim($post['notes']),
+			'updated_at' => date('Y-m-d H:i:s'),
+			'updated_by' => $_SESSION['worker']
+		];
+
+		$this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
+		$this->saveDetails(trim($post['id']), $post);
+		$this->db->trans_complete();
+
+		return [$this->db->trans_status(), trim($post['id'])];
+	}
+
+	public function getRowData($id)
+	{
+		$mTable = '(select a.*, b.project_name, c.name_indo as month_name,
+					concat(c.name_indo, " ", a.periode_tahun) as periode
+					from bonus_thr_os a
+					left join project_outsource b on b.id = a.project_id
+					left join master_month c on c.id = a.periode_bulan
+			)dt';
+
+		return $this->db->where([$this->primary_key => $id])->get($mTable)->row();
+	}
+
+	public function import_data($list_data)
+	{
+		return '';
+	}
+
+	public function eksport_data()
+	{
+		$sql = "select a.*, b.project_name, c.name_indo as month_name,
+				coalesce(sum(d.bonus_amount), 0) as total_bonus,
+				coalesce(sum(d.thr_amount), 0) as total_thr
+				from bonus_thr_os a
+				left join project_outsource b on b.id = a.project_id
+				left join master_month c on c.id = a.periode_bulan
+				left join bonus_thr_os_detail d on d.bonus_thr_os_id = a.id
+				group by a.id
+				order by a.periode_tahun desc, a.periode_bulan desc, b.project_name asc";
+
+		return $this->db->query($sql)->result_array();
+	}
+
+	public function getNewBonusThrRows($id = 0, $project = 0, $view = FALSE)
+	{
+		if($id > 0) return $this->getBonusThrRows($id, $view);
+		if($project > 0) return $this->getEmployeeRowsByProject($project);
+
+		return ['<tr><td colspan="6" class="center">Pilih project terlebih dahulu</td></tr>', 0];
+	}
+
+	private function getEmployeeRowsByProject($project)
+	{
+		$rows = $this->db->query("select id as employee_id, emp_code, full_name
+				from employees
+				where emp_source = 'outsource'
+				and status_id = 1
+				and IFNULL(is_special_payroll,0) != 1
+				and project_id = ?
+				order by full_name asc", [$project])->result();
+
+		return $this->buildRows($rows, FALSE);
+	}
+
+	private function getBonusThrRows($id, $view)
+	{
+		$rows = $this->db->query("select a.*, b.emp_code, b.full_name, b.id as employee_id
+				from bonus_thr_os_detail a
+				left join employees b on b.id = a.employee_id
+				where a.bonus_thr_os_id = ?
+				order by b.full_name asc", [$id])->result();
+
+		return $this->buildRows($rows, $view);
+	}
+
+	private function buildRows($rows, $view)
+	{
+		$dt = '';
+		$row = 0;
+
+		if(empty($rows)) {
+			return ['<tr><td colspan="6" class="center">Data karyawan tidak ditemukan</td></tr>', 0];
+		}
+
+		foreach($rows as $f) {
+			$bonus = isset($f->bonus_amount) ? $f->bonus_amount : 0;
+			$thr = isset($f->thr_amount) ? $f->thr_amount : 0;
+			$note = isset($f->note) ? $f->note : '';
+
+			$dt .= '<tr>';
+			$dt .= '<td>'.$f->emp_code.'</td>';
+			$dt .= '<td>'.$f->full_name.'<input type="hidden" name="hdnempid['.$row.']" value="'.$f->employee_id.'"/></td>';
+
+			if($view) {
+				$dt .= '<td class="right">'.number_format((float)$bonus, 0, ',', '.').'</td>';
+				$dt .= '<td class="right">'.number_format((float)$thr, 0, ',', '.').'</td>';
+				$dt .= '<td>'.htmlspecialchars($note).'</td>';
+			} else {
+				$dt .= '<td>'.$this->return_build_txt($bonus, 'bonus_amount['.$row.']', '', 'bonus_amount', 'text-align:right;', 'data-id="'.$row.'" onkeyup="setBonusThrTotal()"').'</td>';
+				$dt .= '<td>'.$this->return_build_txt($thr, 'thr_amount['.$row.']', '', 'thr_amount', 'text-align:right;', 'data-id="'.$row.'" onkeyup="setBonusThrTotal()"').'</td>';
+				$dt .= '<td>'.$this->return_build_txt($note, 'detail_note['.$row.']', '', 'detail_note', '', 'data-id="'.$row.'"').'</td>';
+			}
+
+			$dt .= '</tr>';
+			$row++;
+		}
+
+		return [$dt, $row];
+	}
+}

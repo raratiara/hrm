@@ -13,8 +13,19 @@
         width: 100% !important;
     }
 
-    .modal-dialog {
-        width: 90% !important;
+    #modal-view-data .modal-dialog {
+        width: 70% !important;
+        max-width: 1100px;
+    }
+
+    #modal-form-data .modal-dialog {
+        width: 70% !important;
+        max-width: 1100px;
+    }
+
+    #modal-view-data .modal-body {
+        max-height: 70vh;
+        overflow: auto;
     }
 
      .row-flex {

@@ -24,6 +24,99 @@
             margin-bottom: 10px;
         }
 
+        .spt-header {
+            width: 100%;
+            border: 1px solid #000;
+            margin-bottom: 6px;
+            table-layout: fixed;
+        }
+
+        .spt-header td {
+            border: 1px solid #000;
+            padding: 5px;
+            vertical-align: middle;
+        }
+
+        .header-left {
+            width: 18%;
+            text-align: center;
+        }
+
+        .header-middle {
+            width: 50%;
+            text-align: center;
+        }
+
+        .header-right {
+            width: 32%;
+            text-align: center;
+        }
+
+        .tax-logo {
+            width: 42px;
+            height: auto;
+            margin-bottom: 4px;
+        }
+
+        .institution {
+            font-size: 8px;
+            font-weight: bold;
+            line-height: 1.25;
+        }
+
+        .form-title {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .form-subtitle {
+            font-size: 7px;
+            line-height: 1.25;
+        }
+
+        .meta-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .meta-value {
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .meta-period-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.15;
+        }
+
+        .meta-period-value {
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .sign-box {
+            height: 48px;
+            border: 1px solid #000;
+        }
+
+        .signature-date {
+            border-bottom: 1px solid #000;
+            display: block;
+            width: 120px;
+            margin: 18px auto 0;
+            height: 10px;
+        }
+
+        .signature-date-text {
+            display: block;
+            text-align: center;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -101,13 +194,40 @@ if (!function_exists('rupiah')) {
         return number_format((float)$angka, 0, ',', '.');
     }
 }
+
+$taxLogoPath = FCPATH.'public/assets/img/logo_kemenkeu.png';
+$taxLogoSrc = file_exists($taxLogoPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($taxLogoPath)) : '';
+$sptNo = '1.1-12.'.$data[0]->tahun.'-'.str_pad($data[0]->id, 7, '0', STR_PAD_LEFT);
+$periodeStart = !empty($data[0]->periode_start) ? (int) substr($data[0]->periode_start, -2) : '';
+$periodeEnd = !empty($data[0]->periode_end) ? (int) substr($data[0]->periode_end, -2) : '';
 ?>
 
 <div class="container">
 
     <!-- HEADER -->
-    <div class="title">BUKTI PEMOTONGAN PAJAK PENGHASILAN PASAL 21</div>
-    <div class="subtitle">FORMULIR 1721-A1</div>
+    <table class="spt-header">
+        <tr>
+            <td class="header-left" rowspan="2">
+                <?php if($taxLogoSrc != ''): ?>
+                    <img class="tax-logo" src="<?=$taxLogoSrc?>" alt="Kementerian Keuangan">
+                <?php endif; ?>
+                <div class="institution">KEMENTERIAN KEUANGAN RI</div>
+                <div class="institution">DIREKTORAT JENDERAL PAJAK</div>
+            </td>
+            <td class="header-middle">
+                <div class="title">BUKTI PEMOTONGAN PAJAK PENGHASILAN PASAL 21</div>
+                <div class="subtitle">BAGI PEGAWAI TETAP ATAU PENERIMA PENSIUN ATAU TUNJANGAN HARI TUA/JAMINAN HARI TUA BERKALA</div>
+            </td>
+            <td class="header-right">
+                <div class="form-title">FORMULIR 1721-A1</div>
+                <div class="form-subtitle">Kementerian Keuangan RI<br>Direktorat Jenderal Pajak</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="meta-label">NOMOR : <span class="meta-value"><?=$sptNo?></span></td>
+            <td class="meta-period-label">MASA PEROLEHAN<br>PENGHASILAN : <span class="meta-period-value"><?=$periodeStart?> - <?=$periodeEnd?></span></td>
+        </tr>
+    </table>
 
     <!-- IDENTITAS PEMOTONG -->
     <table class="tbl-identitas" style="border: 1px solid #000;">
@@ -236,15 +356,19 @@ if (!function_exists('rupiah')) {
         </tr>
     </table>
 
-    <!-- FOOTER -->
-    <table class="no-border">
-        <colgroup>
-            <col class="col-left">
-            <col class="col-right">
-        </colgroup>
+    <!-- IDENTITAS PEMOTONG -->
+    C. IDENTITAS PEMOTONG
+    <table class="tbl-identitas" style="border: 1px solid #000;">
         <tr>
-            <td>Generated at <?=$data[0]->created_at?></td>
-            <td class="center">TTD</td>
+            <td class="label">NPWP</td>
+            <td class="value"><?=$data[0]->company_npwp?></td>
+            <td class="label">TANGGAL &amp; TANDA TANGAN</td>
+            <td class="value" rowspan="2"><div class="sign-box"></div></td>
+        </tr>
+        <tr>
+            <td class="label">NAMA</td>
+            <td class="value"><?=$data[0]->company_name?></td>
+            <td class="value center"><span class="signature-date">&nbsp;</span><span class="signature-date-text">[dd-mm-yyyy]</span></td>
         </tr>
     </table>
 

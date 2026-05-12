@@ -36,6 +36,12 @@ class Absen_model extends MY_Model
 		
 		$karyawan_id = $_SESSION['worker'];
 		$whr=' where b.emp_source = "internal" and a.date_attendance_in is not null';
+		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+			$whr .= " and a.employee_id = '".$this->db->escape_str($_GET['flemployee'])."' ";
+		}
+		if(isset($_GET['fldatestart']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && isset($_GET['fldateend']) && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+			$whr .= " and a.date_attendance between '".$this->db->escape_str($_GET['fldatestart'])."' and '".$this->db->escape_str($_GET['fldateend'])."' ";
+		}
 		// if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 		// 	$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		// }
@@ -577,9 +583,15 @@ class Absen_model extends MY_Model
 	public function eksport_data()
 	{ 
 		$karyawan_id = $_SESSION['worker'];
-		$whr='';
+		$whr=' where b.emp_source = "internal" and a.date_attendance_in is not null';
 		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
-			$whr=' where b.emp_source = "internal" and a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+			$whr .= ' and (a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'") ';
+		}
+		if(isset($_GET['flemployee']) && $_GET['flemployee'] != '' && $_GET['flemployee'] != 0){
+			$whr .= " and a.employee_id = '".$this->db->escape_str($_GET['flemployee'])."' ";
+		}
+		if(isset($_GET['fldatestart']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && isset($_GET['fldateend']) && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+			$whr .= " and a.date_attendance between '".$this->db->escape_str($_GET['fldatestart'])."' and '".$this->db->escape_str($_GET['fldateend'])."' ";
 		}
 
 
