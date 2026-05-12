@@ -1,14 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Bonus_thr_os_menu_model extends MY_Model
+class Bonus_int_menu_model extends MY_Model
 {
-	protected $folder_name = "payroll_outsource/bonus_thr_os_menu";
-	protected $table_name = _PREFIX_TABLE."bonus_thr_os";
-	protected $detail_table_name = _PREFIX_TABLE."bonus_thr_os_detail";
-	protected $detail_foreign_key = "bonus_thr_os_id";
+	protected $folder_name = "payroll_internal/bonus_int_menu";
+	protected $table_name = _PREFIX_TABLE."bonus_internal";
+	protected $detail_table_name = _PREFIX_TABLE."bonus_internal_detail";
+	protected $detail_foreign_key = "bonus_internal_id";
 	protected $amount_field = "bonus_amount";
 	protected $primary_key = "id";
+	protected $employee_source = "internal";
 
 	function __construct()
 	{
@@ -26,26 +27,19 @@ class Bonus_thr_os_menu_model extends MY_Model
 			NULL,
 			NULL,
 			'dt.id',
-			'dt.project_name',
 			'dt.month_name',
 			'dt.periode_tahun',
 			'dt.periode',
 			'dt.total_nominal'
 		];
 
-		$where_project = "";
-		if(isset($_GET['flproject']) && $_GET['flproject'] != '' && $_GET['flproject'] != 0){
-			$where_project = " and a.project_id = '".$this->db->escape_str($_GET['flproject'])."' ";
-		}
 		$sIndexColumn = $this->primary_key;
-		$sTable = '(select a.*, b.project_name, c.name_indo as month_name,
-					concat(c.name_indo, " ", a.periode_tahun) as periode,
+		$sTable = '(select a.*, b.name_indo as month_name,
+					concat(b.name_indo, " ", a.periode_tahun) as periode,
 					coalesce(sum(d.'.$this->amount_field.'), 0) as total_nominal
 					from '.$this->table_name.' a
-					left join project_outsource b on b.id = a.project_id
-					left join master_month c on c.id = a.periode_bulan
+					left join master_month b on b.id = a.periode_bulan
 					left join '.$this->detail_table_name.' d on d.'.$this->detail_foreign_key.' = a.id
-					where 1=1 '.$where_project.'
 					group by a.id
 			)dt';
 
@@ -77,12 +71,7 @@ class Bonus_thr_os_menu_model extends MY_Model
 			$sWhere .= "AND (";
 			foreach ($aColumns as $c) {
 				if($c !== NULL){
-					if(strpos($c, ' as ') !== false) {
-						$pieces = explode(' as ', trim($c));
-						$sWhere .= trim($pieces[0])." LIKE '%".$this->db->escape_like_str($_GET['sSearch'])."%' OR ";
-					} else {
-						$sWhere .= $c." LIKE '%".$this->db->escape_like_str($_GET['sSearch'])."%' OR ";
-					}
+					$sWhere .= $c." LIKE '%".$this->db->escape_like_str($_GET['sSearch'])."%' OR ";
 				}
 			}
 			$sWhere = substr_replace($sWhere, "", -3);
@@ -126,7 +115,6 @@ class Bonus_thr_os_menu_model extends MY_Model
 				$delete_bulk,
 				'<div class="action-buttons">'.$detail.$edit.$delete.'</div>',
 				$row->id,
-				$row->project_name,
 				$row->periode,
 				number_format((float)$row->total_nominal, 0, ',', '.')
 			];
@@ -170,7 +158,7 @@ class Bonus_thr_os_menu_model extends MY_Model
 
 	private function validateHeader($post)
 	{
-		if(empty($post['project_id']) || empty($post['periode_bulan']) || empty($post['periode_tahun'])){
+		if(empty($post['periode_bulan']) || empty($post['periode_tahun'])){
 			return false;
 		}
 
@@ -206,7 +194,6 @@ class Bonus_thr_os_menu_model extends MY_Model
 		if(!$this->validateHeader($post)) return [false, 0];
 
 		$exists = $this->db->where([
-			'project_id' => trim($post['project_id']),
 			'periode_bulan' => trim($post['periode_bulan']),
 			'periode_tahun' => trim($post['periode_tahun'])
 		])->get($this->table_name)->row();
@@ -215,7 +202,6 @@ class Bonus_thr_os_menu_model extends MY_Model
 
 		$this->db->trans_start();
 		$data = [
-			'project_id' => trim($post['project_id']),
 			'periode_bulan' => trim($post['periode_bulan']),
 			'periode_tahun' => trim($post['periode_tahun']),
 			'notes' => trim($post['notes']),
@@ -237,7 +223,6 @@ class Bonus_thr_os_menu_model extends MY_Model
 
 		$this->db->trans_start();
 		$data = [
-			'project_id' => trim($post['project_id']),
 			'periode_bulan' => trim($post['periode_bulan']),
 			'periode_tahun' => trim($post['periode_tahun']),
 			'notes' => trim($post['notes']),
@@ -254,16 +239,13 @@ class Bonus_thr_os_menu_model extends MY_Model
 
 	public function getRowData($id)
 	{
-		$mTable = '(select a.*, b.project_name, c.name_indo as month_name,
-					concat(c.name_indo, " ", a.periode_tahun) as periode
+		$mTable = '(select a.*, b.name_indo as month_name,
+					concat(b.name_indo, " ", a.periode_tahun) as periode
 					from '.$this->table_name.' a
-					left join project_outsource b on b.id = a.project_id
-					left join master_month c on c.id = a.periode_bulan
+					left join master_month b on b.id = a.periode_bulan
 			)dt';
 
-		$this->db->where($this->primary_key, $id);
-
-		return $this->db->get($mTable)->row();
+		return $this->db->where($this->primary_key, $id)->get($mTable)->row();
 	}
 
 	public function import_data($list_data)
@@ -273,35 +255,32 @@ class Bonus_thr_os_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$sql = "select a.*, b.project_name, c.name_indo as month_name,
+		$sql = "select a.*, b.name_indo as month_name,
 				coalesce(sum(d.".$this->amount_field."), 0) as total_nominal
 				from ".$this->table_name." a
-				left join project_outsource b on b.id = a.project_id
-				left join master_month c on c.id = a.periode_bulan
+				left join master_month b on b.id = a.periode_bulan
 				left join ".$this->detail_table_name." d on d.".$this->detail_foreign_key." = a.id
 				group by a.id
-				order by a.periode_tahun desc, a.periode_bulan desc, b.project_name asc";
+				order by a.periode_tahun desc, a.periode_bulan desc";
 
 		return $this->db->query($sql)->result_array();
 	}
 
-	public function getNewBonusThrRows($id = 0, $project = 0, $view = FALSE, $type = '')
+	public function getNewBonusThrRows($id = 0, $view = FALSE)
 	{
 		if($id > 0) return $this->getBonusThrRows($id, $view);
-		if($project > 0) return $this->getEmployeeRowsByProject($project);
 
-		return ['<tr><td colspan="4" class="center">Pilih project terlebih dahulu</td></tr>', 0];
+		return $this->getEmployeeRows();
 	}
 
-	private function getEmployeeRowsByProject($project)
+	private function getEmployeeRows()
 	{
 		$rows = $this->db->query("select id as employee_id, emp_code, full_name
 				from employees
-				where emp_source = 'outsource'
+				where emp_source = ?
 				and status_id = 1
 				and IFNULL(is_special_payroll,0) != 1
-				and project_id = ?
-				order by full_name asc", [$project])->result();
+				order by full_name asc", [$this->employee_source])->result();
 
 		return $this->buildRows($rows, FALSE);
 	}
