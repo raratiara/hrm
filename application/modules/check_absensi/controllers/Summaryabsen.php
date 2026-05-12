@@ -184,6 +184,22 @@ class Summaryabsen extends MY_Controller
 		echo json_encode($rs);
 	}
 
+	public function eksport()
+	{
+		if(_USER_ACCESS_LEVEL_VIEW == "1" && _USER_ACCESS_LEVEL_EKSPORT == "1") {
+			if(empty($_GET['fldatestart']) || empty($_GET['fldateend']) || $_GET['fldatestart'] == 0 || $_GET['fldateend'] == 0) {
+				echo "<script>alert('Date range wajib diisi sebelum export data.');window.history.back();</script>";
+				exit;
+			}
+
+			$header	= "Report ".$this->label_modul."\n";
+			$data 	= $this->self_model->eksport_data();
+			$this->self_model->export_to_csv($this->colnames,$this->colfields, $data, $header ,"report_".$this->module_name);
+		} else {
+			$this->load->view('errors/html/error_hacks_401');
+		}
+	}
+
 
 
 }

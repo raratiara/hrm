@@ -28,6 +28,9 @@ class Summaryabsen_model extends MY_Model
 		
 		$karyawan_id = $_SESSION['worker'];
 		$whr='';
+		if(isset($_GET['fldatestart']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && isset($_GET['fldateend']) && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+			$whr .= " and a.date_attendance between '".$this->db->escape_str($_GET['fldatestart'])."' and '".$this->db->escape_str($_GET['fldateend'])."' ";
+		}
 		// if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ //bukan super user && bukan HR admin
 		// 	$whr=' where a.employee_id = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
 		// }
@@ -39,9 +42,9 @@ class Summaryabsen_model extends MY_Model
 					    SUM(CASE WHEN a.date_attendance_in IS NOT NULL THEN 1 ELSE 0 END) AS total_absen,
 					    COUNT(*) AS total_karyawan
 					FROM time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = "internal" and a.date_attendance <= "'.$dateNow.'"
+					'.$whr.'
 					GROUP BY a.date_attendance
 					ORDER BY a.date_attendance
-					'.$whr.'
 				)dt';
 		
 
@@ -494,6 +497,10 @@ class Summaryabsen_model extends MY_Model
 
 	public function eksport_data()
 	{ 
+		$whr='';
+		if(isset($_GET['fldatestart']) && $_GET['fldatestart'] != '' && $_GET['fldatestart'] != 0 && isset($_GET['fldateend']) && $_GET['fldateend'] != '' && $_GET['fldateend'] != 0){
+			$whr .= " and a.date_attendance between '".$this->db->escape_str($_GET['fldatestart'])."' and '".$this->db->escape_str($_GET['fldateend'])."' ";
+		}
 		
 		$sql = "select 
 				    a.date_attendance,
@@ -502,6 +509,7 @@ class Summaryabsen_model extends MY_Model
 				    COUNT(*) AS total_karyawan
 				FROM time_attendances a left join employees b on b.id = a.employee_id 
 				where b.emp_source = 'internal'
+				".$whr."
 				GROUP BY a.date_attendance
 				ORDER BY a.date_attendance desc
 		";

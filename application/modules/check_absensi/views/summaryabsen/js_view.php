@@ -1,3 +1,8 @@
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script> -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
 var myTable;
@@ -16,6 +21,21 @@ $(document).ready(function() {
         $( "#attendance_out" ).datetimepicker();*/
         
 		
+   	});
+
+   	$('input[name="filter_perioddate"]').daterangepicker({
+   		autoUpdateInput: false,
+   		locale: {
+   			cancelLabel: 'Clear'
+   		}
+   	});
+
+   	$('input[name="filter_perioddate"]').on('apply.daterangepicker', function(ev, picker) {
+   		$(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+   	});
+
+   	$('input[name="filter_perioddate"]').on('cancel.daterangepicker', function() {
+   		$(this).val('');
    	});
 });
 
@@ -105,6 +125,22 @@ jQuery(function($) {
 })
 
 <?php $this->load->view(_TEMPLATE_PATH . "common_module_js"); ?>
+<?php } ?>
+
+<?php if  (_USER_ACCESS_LEVEL_EKSPORT == "1") { ?>
+$("#btnEksportData").off('click').on('click', function(){
+	expire();
+	if(!validateExportDateRange()){
+		return false;
+	}
+	save_method = 'export';
+	syncExportFilters();
+	$('#modal-eksport-data').modal('show');
+});
+
+$('#modal-eksport-data').on('show.bs.modal', function () {
+	syncExportFilters();
+});
 <?php } ?>
 
 <?php if  (_USER_ACCESS_LEVEL_VIEW == "1" && (_USER_ACCESS_LEVEL_UPDATE == "1" || _USER_ACCESS_LEVEL_DETAIL == "1")) { ?>
@@ -298,6 +334,78 @@ function getFormattedDateTime() {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+function parseFilterDateRange() {
+	var perioddate = $("#filter_perioddate").val();
+	var result = {
+		start: 0,
+		end: 0
+	};
+
+	if(perioddate != ''){
+		var myArray = perioddate.split(" - ");
+		result.start = toYYYYMMDD(myArray[0]);
+		result.end = toYYYYMMDD(myArray[1]);
+	}
+
+	return result;
+}
+
+function toYYYYMMDD(dateText) {
+	if(!dateText) return 0;
+	var parts = dateText.split('/');
+	if(parts.length !== 3) return 0;
+	return parts[2] + '-' + parts[0] + '-' + parts[1];
+}
+
+function validateExportDateRange() {
+	var perioddate = $("#filter_perioddate").val();
+	if(perioddate == ''){
+		alert('Date range wajib diisi sebelum export data.');
+		return false;
+	}
+	return true;
+}
+
+function syncExportFilters() {
+	var dates = parseFilterDateRange();
+	setExportHidden('fldatestart', dates.start);
+	setExportHidden('fldateend', dates.end);
+}
+
+function setExportHidden(name, value) {
+	var input = $('#frmEksportData input[name="'+name+'"]');
+	if(input.length == 0){
+		$('#frmEksportData').append('<input type="hidden" name="'+name+'" value="">');
+		input = $('#frmEksportData input[name="'+name+'"]');
+	}
+	input.val(value);
+}
+
+function subFilter(){
+	var dates = parseFilterDateRange();
+
+	$('#dynamic-table').DataTable().clear().destroy();
+	$('#dynamic-table')
+	.DataTable( {
+		fixedHeader: {
+			headerOffset: $('.page-header').outerHeight()
+		},
+		responsive: true,
+		bAutoWidth: false,
+		"aoColumnDefs": [
+		  { "bSortable": false, "aTargets": [ 0,1 ] },
+		  { "sClass": "text-center", "aTargets": [ 0,1 ] }
+		],
+		"aaSorting": [
+		  	[1,'desc']
+		],
+		"sAjaxSource": module_path+"/get_data?fldatestart="+dates.start+"&fldateend="+dates.end,
+		"bProcessing": true,
+        "bServerSide": true,
+		"pagingType": "bootstrap_full_number",
+		"colReorder": true
+    } );
+}
 
 
 
