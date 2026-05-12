@@ -125,7 +125,7 @@ class Absence_report_menu extends MY_Controller
 
 	    // kelompok berdasarkan divisi
 	    $groupedByDivision = [];
-	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'internal' and b.status_id = 1 ".$where_emp.$where_date." order by b.full_name asc")->result();
+	    $emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, b.full_name from time_attendances a left join employees b on b.id = a.employee_id where b.emp_source = 'internal' and b.status_id = 1 ".$where_emp.$where_date." order by b.full_name asc")->result();
 	    foreach ($emp_absen as $rowemp_absen) {
 	        $groupedByDivision[$rowemp_absen->division_id][] = $rowemp_absen->employee_id;
 	    }
@@ -437,7 +437,7 @@ class Absence_report_menu extends MY_Controller
 	    $groupedByDivisi = [];
 
 	    $emp_absen = $this->db->query("
-	        SELECT DISTINCT a.employee_id, b.division_id
+	        SELECT DISTINCT a.employee_id, b.division_id, b.full_name
 	        FROM time_attendances a
 	        LEFT JOIN employees b ON b.id = a.employee_id
 	        WHERE b.status_id = 1
@@ -675,7 +675,7 @@ class Absence_report_menu extends MY_Controller
 
 			$dataSheets = [];
 
-			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.emp_source = 'internal' and b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name, b.full_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id where b.emp_source = 'internal' and b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_date." order by b.full_name asc ")->result(); 
 			if(count($emp_absen) != 0){ 
 				$no=1;
 				

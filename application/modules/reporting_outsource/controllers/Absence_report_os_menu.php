@@ -172,7 +172,7 @@ class Absence_report_os_menu extends MY_Controller
 			WHERE b.status_id = 1 
 			AND b.emp_source = 'outsource'
 			$where_emp $where_project $where_date
-			order by b.full_name asc
+			order by c.project_name asc
 		")->result();
 
 		$pathExport = FCPATH . 'uploads/report_absensi_bulanan/';
@@ -678,7 +678,7 @@ class Absence_report_os_menu extends MY_Controller
 			WHERE b.status_id = 1
 			AND b.emp_source = 'outsource'
 			$where_emp $where_project $where_date
-			order by b.full_name asc
+			order by c.project_name asc
 		")->result();
 
 		$path = FCPATH.'uploads/report_absensi_pdf/';
@@ -1459,7 +1459,7 @@ class Absence_report_os_menu extends MY_Controller
 
 			$dataSheets = [];
 
-			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id 
+			$emp_absen = $this->db->query("select distinct(a.employee_id), b.division_id, c.name as division_name, b.full_name from time_attendances a left join employees b on b.id = a.employee_id left join divisions c on c.id = b.division_id 
 			where b.status_id = 1 and b.division_id = '".$divisionId."' ".$where_emp.$where_project.$where_date."
 			order by b.full_name asc ")->result(); 
 			if(count($emp_absen) != 0){ 
