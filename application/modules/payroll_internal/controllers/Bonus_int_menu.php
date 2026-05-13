@@ -78,7 +78,7 @@ class Bonus_int_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1") {
 			$post = $this->input->post(null, true);
 			$id = isset($post['id']) ? trim($post['id']) : 0;
-			$view = (isset($post['view']) && $post['view'] == TRUE) ? TRUE : FALSE;
+			$view = (isset($post['view']) && in_array($post['view'], [TRUE, 'true', '1', 1], TRUE)) ? TRUE : FALSE;
 
 			echo json_encode($this->self_model->getNewBonusThrRows($id, $view));
 		} else {

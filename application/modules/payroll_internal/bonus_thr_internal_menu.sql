@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS `bonus_internal` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`periode_bulan` int(11) NOT NULL,
 	`periode_tahun` varchar(4) NOT NULL,
+	`total_bonus` decimal(18,2) NOT NULL DEFAULT 0.00,
 	`notes` text DEFAULT NULL,
 	`created_at` datetime DEFAULT NULL,
 	`created_by` int(11) DEFAULT NULL,
@@ -10,6 +11,8 @@ CREATE TABLE IF NOT EXISTS `bonus_internal` (
 	PRIMARY KEY (`id`),
 	UNIQUE KEY `uk_bonus_internal_period` (`periode_bulan`, `periode_tahun`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `bonus_internal` ADD COLUMN IF NOT EXISTS `total_bonus` decimal(18,2) NOT NULL DEFAULT 0.00 AFTER `periode_tahun`;
 
 CREATE TABLE IF NOT EXISTS `bonus_internal_detail` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
@@ -26,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `thr_internal` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`periode_bulan` int(11) NOT NULL,
 	`periode_tahun` varchar(4) NOT NULL,
+	`total_thr` decimal(18,2) NOT NULL DEFAULT 0.00,
 	`notes` text DEFAULT NULL,
 	`created_at` datetime DEFAULT NULL,
 	`created_by` int(11) DEFAULT NULL,
@@ -34,6 +38,22 @@ CREATE TABLE IF NOT EXISTS `thr_internal` (
 	PRIMARY KEY (`id`),
 	UNIQUE KEY `uk_thr_internal_period` (`periode_bulan`, `periode_tahun`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `thr_internal` ADD COLUMN IF NOT EXISTS `total_thr` decimal(18,2) NOT NULL DEFAULT 0.00 AFTER `periode_tahun`;
+
+UPDATE `bonus_internal` h
+SET h.`total_bonus` = (
+	SELECT COALESCE(SUM(d.`bonus_amount`), 0)
+	FROM `bonus_internal_detail` d
+	WHERE d.`bonus_internal_id` = h.`id`
+);
+
+UPDATE `thr_internal` h
+SET h.`total_thr` = (
+	SELECT COALESCE(SUM(d.`thr_amount`), 0)
+	FROM `thr_internal_detail` d
+	WHERE d.`thr_internal_id` = h.`id`
+);
 
 CREATE TABLE IF NOT EXISTS `thr_internal_detail` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,

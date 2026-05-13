@@ -1,26 +1,30 @@
-<div class="row bonus-thr-form">
+<div class="row">
+	
 	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Periode Bulan</label>
-			<div class="col-md-8 bonus-thr-control">
+			<div class="col-md-8">
 				<?=$selmonth;?>
 			</div>
 		</div>
-	</div>
 
-	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Tahun</label>
-			<div class="col-md-8 bonus-thr-control">
+			<div class="col-md-8">
 				<?=$txtyear;?>
 			</div>
 		</div>
+
+	</div>
+	<div class="col-md-6 col-sm-12">
+		
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Catatan</label>
-			<div class="col-md-8 bonus-thr-control">
+			<div class="col-md-8">
 				<?=$txtnotes;?>
 			</div>
 		</div>
+		
 	</div>
 </div>
 

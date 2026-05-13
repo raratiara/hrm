@@ -13,6 +13,12 @@
 	</div>
 </div>
 
+<div class="row bonus-thr-summary" style="margin:10px 0;">
+	<div class="col-md-3 col-sm-6">
+		<strong>Total <?=$nominal_label;?>:</strong> <span id="total_nominal_view_text">0</span>
+	</div>
+</div>
+
 <div class="row bonusthrview" id="inpBonusThrView">
 	<div class="col-md-12">
 		<div class="portlet box">

@@ -8,6 +8,7 @@ class Bonus_int_menu_model extends MY_Model
 	protected $detail_table_name = _PREFIX_TABLE."bonus_internal_detail";
 	protected $detail_foreign_key = "bonus_internal_id";
 	protected $amount_field = "bonus_amount";
+	protected $total_header_field = "total_bonus";
 	protected $primary_key = "id";
 	protected $employee_source = "internal";
 
@@ -18,7 +19,24 @@ class Bonus_int_menu_model extends MY_Model
 
 	private function moneyVal($value)
 	{
-		return (float) str_replace(['.', ','], '', trim((string)$value));
+		$value = trim((string)$value);
+		if(preg_match('/^\d+\.\d{1,2}$/', $value)) {
+			return (float) $value;
+		}
+
+		return (float) str_replace(['.', ','], '', $value);
+	}
+
+	private function getTotalNominalFromPost($post)
+	{
+		$total = 0;
+		if(empty($post['nominal_amount']) || !is_array($post['nominal_amount'])) return $total;
+
+		foreach($post['nominal_amount'] as $value) {
+			$total += $this->moneyVal($value);
+		}
+
+		return $total;
 	}
 
 	public function get_list_data()
@@ -191,14 +209,24 @@ class Bonus_int_menu_model extends MY_Model
 
 	public function add_data($post)
 	{
-		if(!$this->validateHeader($post)) return [false, 0];
+		if(!$this->validateHeader($post)) {
+			return [
+				'status' => false,
+				'msg' => 'Periode bulan dan tahun wajib diisi dengan benar'
+			];
+		}
 
 		$exists = $this->db->where([
 			'periode_bulan' => trim($post['periode_bulan']),
 			'periode_tahun' => trim($post['periode_tahun'])
 		])->get($this->table_name)->row();
 
-		if($exists) return [false, 0];
+		if($exists) {
+			return [
+				'status' => false,
+				'msg' => 'Data periode ini sudah ada. Silakan edit data yang sudah tersimpan.'
+			];
+		}
 
 		$this->db->trans_start();
 		$data = [
@@ -208,18 +236,25 @@ class Bonus_int_menu_model extends MY_Model
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $_SESSION['worker']
 		];
+		if($this->db->field_exists($this->total_header_field, $this->table_name)) {
+			$data[$this->total_header_field] = $this->getTotalNominalFromPost($post);
+		}
 
 		$this->db->insert($this->table_name, $data);
 		$headerId = $this->db->insert_id();
 		$this->saveDetails($headerId, $post);
 		$this->db->trans_complete();
 
-		return [$this->db->trans_status(), $headerId];
+		return [
+			'status' => $this->db->trans_status(),
+			'msg' => $this->db->trans_status() ? 'Data berhasil disimpan' : 'Data gagal disimpan',
+			'id' => $headerId
+		];
 	}
 
 	public function edit_data($post)
 	{
-		if(empty($post['id']) || !$this->validateHeader($post)) return [false, 0];
+		if(empty($post['id']) || !$this->validateHeader($post)) return false;
 
 		$this->db->trans_start();
 		$data = [
@@ -229,12 +264,15 @@ class Bonus_int_menu_model extends MY_Model
 			'updated_at' => date('Y-m-d H:i:s'),
 			'updated_by' => $_SESSION['worker']
 		];
+		if($this->db->field_exists($this->total_header_field, $this->table_name)) {
+			$data[$this->total_header_field] = $this->getTotalNominalFromPost($post);
+		}
 
 		$this->db->update($this->table_name, $data, [$this->primary_key => trim($post['id'])]);
 		$this->saveDetails(trim($post['id']), $post);
 		$this->db->trans_complete();
 
-		return [$this->db->trans_status(), trim($post['id'])];
+		return $this->db->trans_status();
 	}
 
 	public function getRowData($id)
@@ -318,7 +356,7 @@ class Bonus_int_menu_model extends MY_Model
 				$dt .= '<td class="right">'.number_format((float)$nominal, 0, ',', '.').'</td>';
 				$dt .= '<td>'.htmlspecialchars($note).'</td>';
 			} else {
-				$dt .= '<td>'.$this->return_build_txt($nominal, 'nominal_amount['.$row.']', '', 'nominal_amount', 'text-align:right;', 'data-id="'.$row.'" onkeyup="setNominalTotal()"').'</td>';
+				$dt .= '<td>'.$this->return_build_txt(number_format((float)$nominal, 0, ',', '.'), 'nominal_amount['.$row.']', '', 'nominal_amount', 'text-align:right;', 'data-id="'.$row.'" onkeyup="setNominalTotal()"').'</td>';
 				$dt .= '<td>'.$this->return_build_txt($note, 'detail_note['.$row.']', '', 'detail_note', '', 'data-id="'.$row.'"').'</td>';
 			}
 

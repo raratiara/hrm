@@ -1,32 +1,41 @@
 <div class="row">
+	
 	<div class="col-md-6 col-sm-12">
+
+		
 		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Project</label>
-			<div class="col-md-8">
-				<?=$selproject;?>
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-md-4 control-label no-padding-right">Bulan</label>
+			<label class="col-md-4 control-label no-padding-right">Periode Bulan</label>
 			<div class="col-md-8">
 				<?=$selmonth;?>
 			</div>
 		</div>
-	</div>
+		
+		
 
-	<div class="col-md-6 col-sm-12">
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Tahun</label>
 			<div class="col-md-8">
 				<?=$txtyear;?>
 			</div>
 		</div>
+
+	</div>
+	<div class="col-md-6 col-sm-12">
+
+		<div class="form-group">
+			<label class="col-md-4 control-label no-padding-right">Project</label>
+			<div class="col-md-8">
+				<?=$selproject;?>
+			</div>
+		</div>
+		
 		<div class="form-group">
 			<label class="col-md-4 control-label no-padding-right">Catatan</label>
 			<div class="col-md-8">
 				<?=$txtnotes;?>
 			</div>
 		</div>
+		
 	</div>
 </div>
 
@@ -49,7 +58,7 @@
 					</div>
 				</div>
 				<div class="table-scroll-x">
-					<div class="table-scrollable tablesaw-cont">
+					<div class="table-scrollable tablesaw-cont bonus-thr-table-wrap">
 						<table class="table table-striped table-bordered table-hover bonusthr-list tablesaw tablesaw-stack" data-tablesaw-mode="stack" id="tblDetailBonusThr">
 							<thead>
 								<tr>

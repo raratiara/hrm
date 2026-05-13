@@ -10,4 +10,5 @@ class Thr_int_menu_model extends Bonus_int_menu_model
 	protected $detail_table_name = _PREFIX_TABLE."thr_internal_detail";
 	protected $detail_foreign_key = "thr_internal_id";
 	protected $amount_field = "thr_amount";
+	protected $total_header_field = "total_thr";
 }

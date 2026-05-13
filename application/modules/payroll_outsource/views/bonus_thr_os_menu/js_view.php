@@ -154,7 +154,7 @@ function loadBonusThrRows(id, project, view)
 	$.ajax({
 		type: 'post',
 		url: module_path+'/genbonusrowthr',
-		data: { id: id, project: project, view: view },
+		data: { id: id, project: project, view: view ? 1 : 0 },
 		success: function (response) {
 			var obj = JSON.parse(response);
 			$(locate+' tbody').html(obj[0]);
@@ -213,7 +213,11 @@ function initSelect2(scope) {
 }
 
 function toNumber(value) {
-	value = (value || '').toString().replace(/\./g, '').replace(/,/g, '');
+	value = (value || '').toString().trim();
+	if(/^\d+\.\d{1,2}$/.test(value)) {
+		return Number(value);
+	}
+	value = value.replace(/\./g, '').replace(/,/g, '');
 	var number = Number(value);
 	return isNaN(number) ? 0 : number;
 }
