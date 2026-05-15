@@ -42,10 +42,16 @@ class Profile_menu extends MY_Controller
 
 		$empData = $this->db->query("select full_name, shift_type from employees where id = '".$karyawan_id."'")->result(); 
 		$emp_shift_type=1; $time_in=""; $time_out=""; $attendance_type="";
-		if($empData[0]->shift_type == 'Reguler'){
+		$employee_name = !empty($empData) ? $empData[0]->full_name : '';
+		$shift_type = !empty($empData) ? $empData[0]->shift_type : '';
+		if($shift_type == 'Reguler'){
 			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 
-		}else if($empData[0]->shift_type == 'Shift'){
+			if(empty($dt)){
+				$emp_shift_type=0;
+			}
+
+		}else if($shift_type == 'Shift'){
 			
 			/// NEW SCRIPT
 			$datetimemax_shift3 = $dateNow.' 08:00:00';
@@ -84,7 +90,7 @@ class Profile_menu extends MY_Controller
 			and a.period = '".$period."'
 			")->result(); 
 
-			if($dt[0]->shift == ""){
+			if(empty($dt) || $dt[0]->shift == ""){
 				$emp_shift_type=0;
 			}
 
@@ -95,7 +101,7 @@ class Profile_menu extends MY_Controller
 			$emp_shift_type=0;
 		} 
 
-		if($emp_shift_type==1){
+		if($emp_shift_type==1 && !empty($dt)){
 			$time_in 			= $dt[0]->time_in;
 			$time_out 			= $dt[0]->time_out;
 			$attendance_type 	= $dt[0]->name;
@@ -108,7 +114,7 @@ class Profile_menu extends MY_Controller
 		
 		$field['txtdateattendance']		= $this->self_model->return_build_txt($date_attendance,'date_attendance','date_attendance','','','readonly');
 		
-		$field['selemployee'] 			= $this->self_model->return_build_txt($empData[0]->full_name,'employee','employee','','','readonly');
+		$field['selemployee'] 			= $this->self_model->return_build_txt($employee_name,'employee','employee','','','readonly');
 		
 		$field['txtimein'] 				= $this->self_model->return_build_txt($time_in,'time_in','time_in','','','readonly');
 		$field['txtattendancein'] 		= $this->self_model->return_build_txt($datetimeNow,'attendance_in','attendance_in','','','readonly');

@@ -9,9 +9,9 @@ class Thr_os_menu extends Bonus_os_menu
 	const LABELMASTER = "Menu Perhitungan THR Outsource";
 	const LABELPATH = "thr_os_menu";
 
-	public $tabel_header = ["ID", "Project", "Periode", "Total THR"];
+	public $tabel_header = ["ID", "Project", "Periode", "Total THR", "Status"];
 
-	public $colnames = ["ID", "Project", "Bulan", "Tahun", "Total THR"];
+	public $colnames = ["ID", "Project", "Bulan", "Tahun", "Total THR", "Status"];
 
 	public $folder_name = self::LABELFOLDER."/".self::LABELPATH;
 	public $module_name = self::LABELMODULE;

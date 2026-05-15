@@ -1,4 +1,4 @@
-
+<input type="hidden" name="action_type" value="">
 
 
 <div class="row">

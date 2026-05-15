@@ -9,9 +9,9 @@ class Thr_int_menu extends Bonus_int_menu
 	const LABELMASTER = "Menu Perhitungan THR Internal";
 	const LABELPATH = "thr_int_menu";
 
-	public $tabel_header = ["ID", "Periode", "Total THR"];
+	public $tabel_header = ["ID", "Periode", "Total THR", "Status"];
 
-	public $colnames = ["ID", "Bulan", "Tahun", "Total THR"];
+	public $colnames = ["ID", "Bulan", "Tahun", "Total THR", "Status"];
 
 	public $folder_name = self::LABELFOLDER."/".self::LABELPATH;
 	public $module_name = self::LABELMODULE;

@@ -17,6 +17,11 @@
 			<span class="sep">:</span>
 			<span class="notes"></span>
 		</div>
+		<div class="bonus-thr-info-row">
+			<label>Status</label>
+			<span class="sep">:</span>
+			<span class="status_name"></span>
+		</div>
 	</div>
 </div>
 

@@ -13,6 +13,20 @@
 	justify-content: center;
 }
 
+.btn-approvalLog,
+.btn-approvalLogView {
+	background-color: #D0DBF7;
+	border: none;
+	border-radius: 6px;
+	color: #14195a;
+	cursor: pointer;
+	float: right;
+	font-size: 12px;
+	margin-right: 10px;
+	padding: 5px 10px;
+	transition: background 0.3s ease;
+}
+
 .bonus-thr-form .control-label {
 	text-align: left !important;
 }

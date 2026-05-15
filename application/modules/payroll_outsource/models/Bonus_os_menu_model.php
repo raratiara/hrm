@@ -10,4 +10,5 @@ class Bonus_os_menu_model extends Bonus_thr_os_menu_model
 	protected $detail_table_name = _PREFIX_TABLE."bonus_os_detail";
 	protected $detail_foreign_key = "bonus_os_id";
 	protected $amount_field = "bonus_amount";
+	protected $approval_matrix_type_id = 16;
 }

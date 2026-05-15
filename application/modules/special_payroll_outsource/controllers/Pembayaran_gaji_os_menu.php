@@ -100,7 +100,11 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 
  	public function getDaftarGajiOS(){
 
-	    $payroll_id = (int) $_GET['payroll_id'];
+	    $payroll_id = isset($_GET['payroll_id']) ? (int) $_GET['payroll_id'] : 0;
+	    if($payroll_id <= 0) {
+	        echo 'Data payroll tidak ditemukan';
+	        exit;
+	    }
 
 	    // ================== GET DATA ==================
 	    $sql = "
@@ -118,7 +122,7 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 	    $data_lain    = [];
 
 	    foreach ($data as $row) {
-	        if (stripos($row->bank_name, 'mandiri') !== false) {
+	        if (stripos((string) $row->bank_name, 'mandiri') !== false) {
 	            $data_mandiri[] = $row;
 	        } else {
 	            $data_lain[] = $row;
@@ -135,6 +139,11 @@ class Pembayaran_gaji_os_menu extends MY_Controller
 	        left join project_outsource c on c.id = a.project_id
 	        where a.id = ".$payroll_id."
 	    ")->row();
+
+	    if(!$getperiode) {
+	        echo 'Data payroll tidak ditemukan';
+	        exit;
+	    }
 
 	    $periode_penggajian = $getperiode->periode_penggajian;
 	    $project_name       = $getperiode->project_name;

@@ -120,17 +120,7 @@ function load_data()
 
 
 				 	var locate = 'table.rolepic-list';
-					$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {id:data.id },success: function (response) {
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
+					loadPicRoleRows(data.id, false, locate);
 
 
 					
@@ -145,17 +135,7 @@ function load_data()
 
 					
 					var locate = 'table.rolepic-list-view';
-					$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {id:data.id, view:true },success: function (response) { 
-							var obj = JSON.parse(response);
-							$(locate+' tbody').html(obj[0]);
-							
-							wcount=obj[1];
-						}
-					}).done(function() {
-						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
-						tSawBclear(locate);
-						///expenseviewadjust(lstatus);
-					});
+					loadPicRoleRows(data.id, true, locate);
 
 
 					if(data.role_name == 'Direct' || data.role_name == 'Indirect'){
@@ -201,6 +181,35 @@ function load_data()
 }
 <?php } ?>
 
+function loadPicRoleRows(id, view, locate)
+{
+	$.ajax({
+		type: 'post',
+		url: module_path + '/genpicrolerow',
+		data: { id: id, view: view ? 1 : 0 },
+		dataType: 'JSON',
+		success: function (obj) {
+			$(locate + ' tbody').html(obj[0]);
+			wcount = obj[1];
+
+			if(!view) {
+				$(locate + ' .select2me').select2({
+					dropdownParent: $('#modal-form-data'),
+					placeholder: 'Select',
+					width: '100%',
+					allowClear: true
+				});
+			}
+		},
+		error: function (jqXHR) {
+			$(locate + ' tbody').html('<tr><td colspan="' + (view ? 2 : 3) + '" class="text-center text-danger">Gagal memuat PIC</td></tr>');
+			console.log(jqXHR.responseText);
+		}
+	}).done(function() {
+		tSawBclear(locate);
+	});
+}
+
 
 
 $("#addrolepicrow").on("click", function () { 
@@ -210,6 +219,12 @@ $("#addrolepicrow").on("click", function () {
 	$.ajax({type: 'post',url: module_path+'/genpicrolerow',data: {count:wcount },success: function (response) {
 			newRow.append(response);
 			$(locate).append(newRow);
+			newRow.find('.select2me').select2({
+				dropdownParent: $('#modal-form-data'),
+				placeholder: 'Select',
+				width: '100%',
+				allowClear: true
+			});
 			wcount++;
 			
 		}

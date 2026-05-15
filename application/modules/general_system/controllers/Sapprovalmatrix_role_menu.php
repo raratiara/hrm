@@ -94,7 +94,7 @@ class Sapprovalmatrix_role_menu extends MY_Controller
 		if(_USER_ACCESS_LEVEL_VIEW == "1")
 		{ 
 			$post = $this->input->post(null, true);
-			$location = $post['location'];
+			$location = isset($post['location']) ? $post['location'] : '';
 
 			if(isset($post['count']))
 			{  

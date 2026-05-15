@@ -254,7 +254,7 @@
                             Import
                         </a>
                     <?php } ?>
-                    <?php if (_USER_ACCESS_LEVEL_ADD == "1") { ?>
+                    <?php if (_USER_ACCESS_LEVEL_ADD == "1" && $this->module_name != 'pembayaran_gaji_int_menu' && $this->module_name != 'pembayaran_gaji_os_menu') { ?>
 
                         <a class="btn btn-default btn-sm btn-circle" id="btnAddData">
                             <i class="fa fa-floppy-o"></i>

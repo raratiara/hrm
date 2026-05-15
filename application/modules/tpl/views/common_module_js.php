@@ -48,6 +48,89 @@ if (typeof window.hideLoading !== 'function') {
 	};
 }
 
+var __detailRowCountSelector = [
+	'table.absen-list',
+	'table.absen-list-view',
+	'table.absenos-list',
+	'table.absenos-list-view',
+	'table.absen_gaji-list',
+	'table.absenos_gaji-list',
+	'table.gaji-view-list',
+	'table.gajios-view-list',
+	'table.bonusthr-list',
+	'table.bonusthr-view-list',
+	'table.histbpjs-list-view',
+	'table.sptint-list',
+	'table.sptint-list-view',
+	'table.sptos-list',
+	'table.sptos-list-view'
+].join(',');
+
+function detailRowIsCountable(row) {
+	var $row = $(row);
+	var text = $.trim($row.text()).toLowerCase();
+
+	if(!$row.is(':visible')) return false;
+	if($row.hasClass('dataTables_empty')) return false;
+	if(text == '') return false;
+	if(text.indexOf('pilih ') >= 0) return false;
+	if(text.indexOf('data tidak') >= 0) return false;
+	if(text.indexOf('tidak ditemukan') >= 0) return false;
+	if(text.indexOf('no data') >= 0) return false;
+
+	return true;
+}
+
+function refreshDetailRowCount(table) {
+	var $table = $(table);
+	if(!$table.length) return;
+
+	var total = 0;
+	$table.find('tbody tr').each(function() {
+		if(detailRowIsCountable(this)) total++;
+	});
+
+	var $anchor = $table.closest('.table-scrollable, .tablesaw-cont');
+	if(!$anchor.length) $anchor = $table;
+
+	var $count = $anchor.next('.detail-row-count');
+
+	if(!$count.length) {
+		$count = $('<div/>', {
+			class: 'detail-row-count'
+		}).css({
+			'margin': '10px 0 0',
+			'font-weight': '600',
+			'color': '#333'
+		});
+		$anchor.after($count);
+	}
+
+	$count.html('Total Karyawan: ' + total);
+}
+
+function refreshAllDetailRowCounts() {
+	$(__detailRowCountSelector).each(function() {
+		refreshDetailRowCount(this);
+	});
+}
+
+$(document).on('keyup change', 'input[id^="filterEmployee"]', function() {
+	setTimeout(refreshAllDetailRowCounts, 0);
+});
+
+$(document).on('shown.bs.modal', '.modal', function() {
+	setTimeout(refreshAllDetailRowCounts, 0);
+});
+
+$(document).ajaxComplete(function() {
+	setTimeout(refreshAllDetailRowCounts, 0);
+});
+
+$(function() {
+	refreshAllDetailRowCounts();
+});
+
 // Global modal scroll lock: keep main page from scrolling while any modal is open.
 var __tplModalScrollLock = {
 	count: 0,
@@ -167,6 +250,9 @@ $( "#btnAddData" ).on('click', function(){
 	if(module_name == 'hitung_gaji_os_menu'){ 
 		document.getElementById("projectViewGaji").style.display = "none";
 		document.getElementById("inpAbsenOS_gaji").style.display = "none";
+		if(document.getElementById("btnPayrollDraft")) document.getElementById("btnPayrollDraft").style.display = "none";
+		if(document.getElementById("submit-data")) document.getElementById("submit-data").innerHTML = '<i class="fa fa-check"></i> Submit';
+		$('[name="payroll_action"]').val('draft');
 		
 
 		var now = new Date();
@@ -223,6 +309,9 @@ $( "#btnAddData" ).on('click', function(){
 
 	if(module_name == 'hitung_gaji_int_menu'){ 
 		document.getElementById("inpAbsenInt_gaji").style.display = "none";
+		if(document.getElementById("btnPayrollDraft")) document.getElementById("btnPayrollDraft").style.display = "none";
+		if(document.getElementById("submit-data")) document.getElementById("submit-data").innerHTML = '<i class="fa fa-check"></i> Submit';
+		$('[name="payroll_action"]').val('draft');
 		
 
 		var now = new Date();

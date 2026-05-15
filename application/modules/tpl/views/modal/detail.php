@@ -9,7 +9,7 @@
 										Detail <?php echo $smodul; ?>
 
 										<?php
-										if ($this->module_name == 'ijin_menu' || $this->module_name == 'fpu_menu' || $this->module_name == 'fpp_menu' || $this->module_name == 'settlement_menu' || $this->module_name == 'reimbursement_menu' || $this->module_name == 'lembur_menu' || $this->module_name == 'perjalanan_dinas_menu' || $this->module_name == 'training_menu' || $this->module_name == 'loan' || $this->module_name == 'hr_employee_loans' || $this->module_name == 'request_recruitment_menu' || $this->module_name == 'attendance_revision_menu') {
+										if ($this->module_name == 'ijin_menu' || $this->module_name == 'fpu_menu' || $this->module_name == 'fpp_menu' || $this->module_name == 'settlement_menu' || $this->module_name == 'reimbursement_menu' || $this->module_name == 'lembur_menu' || $this->module_name == 'perjalanan_dinas_menu' || $this->module_name == 'training_menu' || $this->module_name == 'loan' || $this->module_name == 'hr_employee_loans' || $this->module_name == 'request_recruitment_menu' || $this->module_name == 'attendance_revision_menu' || $this->module_name == 'bonus_int_menu' || $this->module_name == 'thr_int_menu' || $this->module_name == 'bonus_os_menu' || $this->module_name == 'thr_os_menu' || $this->module_name == 'hitung_gaji_int_menu' || $this->module_name == 'hitung_gaji_os_menu') {
 			                                ?>
 			                                <button type="button" style="display:none" id="btnApprovalLogView" class="btn-sm btn-circle btn-approvalLogView" onclick="approvalLog()">
 			                                    <i class="fa fa-history"></i> Approval Log

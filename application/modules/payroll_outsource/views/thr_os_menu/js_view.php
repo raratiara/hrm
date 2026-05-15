@@ -1,3 +1,90 @@
+<!-- Modal Approval Log -->
+<div class="modal fade" id="modalApprovalLogBonusThr" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Approval Log</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+			</div>
+			<div class="modal-body" id="approvalLogContentBonusThr">
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th style="width:50px;">Level</th>
+							<th>Approver</th>
+							<th>Status</th>
+							<th>Approval Date</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modal-rfu-bonusthr" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+		<div class="modal-dialog vertical-align-center">
+			<div class="modal-content" style="width:80%; text-align:center;">
+				<form class="form-horizontal" id="frmRfuBonusThr">
+					<div class="modal-header bg-blue bg-font-blue no-padding">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+						<div class="table-header">Request For Update</div>
+					</div>
+					<div class="modal-body" style="min-height:100px; margin:10px">
+						<p class="text-center">Are you sure to request for update this Data?</p>
+						<div class="form-group">
+							<label class="col-md-4 control-label no-padding-right">Reason</label>
+							<div class="col-md-8">
+								<?=$rfu_reason;?>
+								<input type="hidden" id="approval_action_id" value="">
+								<input type="hidden" id="approval_action_level" value="">
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="modal-footer no-margin-top">
+					<center>
+						<button class="btn blue" onclick="save_rfu()"><i class="fa fa-check"></i> Ok</button>
+						<button class="btn blue" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
+					</center>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modal-reject-bonusthr" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+		<div class="modal-dialog vertical-align-center">
+			<div class="modal-content" style="width:80%; text-align:center;">
+				<form class="form-horizontal" id="frmRejectBonusThr">
+					<div class="modal-header bg-blue bg-font-blue no-padding">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+						<div class="table-header">Reject</div>
+					</div>
+					<div class="modal-body" style="min-height:100px; margin:10px">
+						<p class="text-center">Are you sure to Reject this Data?</p>
+						<div class="form-group">
+							<label class="col-md-4 control-label no-padding-right">Reason</label>
+							<div class="col-md-8">
+								<?=$reject_reason;?>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="modal-footer no-margin-top">
+					<center>
+						<button class="btn blue" onclick="save_reject()"><i class="fa fa-check"></i> Ok</button>
+						<button class="btn blue" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
+					</center>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>";
 var myTable;
@@ -5,6 +92,7 @@ var validator;
 var save_method;
 var idx;
 var ldx;
+var currentApprovalLogId = '';
 
 $(document).ready(function() {
 	initFilterProject();
@@ -102,22 +190,32 @@ function load_data()
 		{
 			if(data != false){
 				if(save_method == 'update'){
+					resetApprovalButtons();
 					$('[name="id"]').val(data.id);
 					$('select#project_id').val(data.project_id).trigger('change.select2');
 					$('select#periode_bulan').val(data.periode_bulan).trigger('change.select2');
 					$('[name="periode_tahun"]').val(data.periode_tahun);
 					$('[name="notes"]').val(data.notes);
+					$('[name="action_type"]').val('');
 
 					loadBonusThrRows(data.id, data.project_id, false);
+					configureApprovalButtons(data);
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 
 				if(save_method == 'detail'){
+					currentApprovalLogId = data.id;
+					if(data.current_approval_level) {
+						$('#btnApprovalLogView').show();
+					} else {
+						$('#btnApprovalLogView').hide();
+					}
 					$('span.project').html(data.project_name);
 					$('span.periode').html(data.periode);
 					$('span.notes').html(data.notes || '-');
+					$('span.status_name').html(data.status_name || '-');
 
 					loadBonusThrRows(data.id, data.project_id, true);
 					$('#modal-view-data').modal('show');
@@ -266,6 +364,112 @@ function subFilter(){
 		"bServerSide": true,
 		"pagingType": "bootstrap_full_number",
 		"colReorder": true
+	});
+}
+
+function resetApprovalButtons() {
+	$('[name="action_type"]').val('');
+	$('#submit-data').text('Save').removeClass('btn-success green').addClass('blue');
+	$('#submit-data').css({'background-color':'#112D80','border-color':'#112D80','color':'#fff','margin-right':'5px'});
+	$('#idbtnRfu, #idbtnReject').remove();
+	$('#btnApprovalLog, #btnApprovalLogView').hide();
+	currentApprovalLogId = '';
+}
+
+function configureApprovalButtons(data) {
+	currentApprovalLogId = data.id;
+	if(data.status_id == 1 && data.is_approver == 1) {
+		$('[name="action_type"]').val('approval');
+		$('#submit-data').text('Approve').removeClass('blue').addClass('green');
+		$('#submit-data').css({'background-color':'#26A65B','border-color':'#26A65B','color':'#fff','margin-right':'8px'});
+
+		var approveBtn = document.getElementById('submit-data');
+		if(!document.getElementById('idbtnRfu')) {
+			var rfuButton = document.createElement('button');
+			rfuButton.type = 'button';
+			rfuButton.innerText = 'RFU';
+			rfuButton.className = 'btn btn-warning';
+			rfuButton.style.marginLeft = '8px';
+			rfuButton.style.marginRight = '8px';
+			rfuButton.id = 'idbtnRfu';
+			approveBtn.insertAdjacentElement('afterend', rfuButton);
+			rfuButton.addEventListener('click', function() {
+				$('#approval_action_id').val(data.id);
+				$('#approval_action_level').val(data.current_approval_level || 1);
+				$('#modal-rfu-bonusthr').modal('show');
+			});
+		}
+
+		if(!document.getElementById('idbtnReject')) {
+			var rejectButton = document.createElement('button');
+			rejectButton.type = 'button';
+			rejectButton.innerText = 'Reject';
+			rejectButton.className = 'btn btn-danger';
+			rejectButton.style.marginLeft = '8px';
+			rejectButton.style.marginRight = '18px';
+			rejectButton.id = 'idbtnReject';
+			document.getElementById('idbtnRfu').insertAdjacentElement('afterend', rejectButton);
+			rejectButton.addEventListener('click', function() {
+				$('#approval_action_id').val(data.id);
+				$('#approval_action_level').val(data.current_approval_level || 1);
+				$('#modal-reject-bonusthr').modal('show');
+			});
+		}
+	}
+
+	if(data.current_approval_level) {
+		$('#btnApprovalLog').show();
+	}
+}
+
+function save_rfu() {
+	saveApprovalDecision('rfu', $('#rfu_reason').val());
+}
+
+function save_reject() {
+	saveApprovalDecision('reject', $('#reject_reason').val());
+}
+
+function saveApprovalDecision(action, reason) {
+	var id = $('#approval_action_id').val();
+	var approvalLevel = $('#approval_action_level').val();
+	var modal = action == 'rfu' ? '#modal-rfu-bonusthr' : '#modal-reject-bonusthr';
+	$(modal).modal('hide');
+
+	if(id == '') {
+		alert('Data not found!');
+		return;
+	}
+
+	$.ajax({
+		type: 'POST',
+		url: module_path + '/' + action,
+		data: { id: id, reason: reason, approval_level: approvalLevel },
+		cache: false,
+		dataType: 'JSON',
+		success: function(data) {
+			if(data != false) {
+				reload_table();
+				$('#modal-form-data').modal('hide');
+			} else {
+				alert('Failed to process the data!');
+			}
+		}
+	});
+}
+
+function approvalLog(id) {
+	id = id || currentApprovalLogId;
+	$('#modalApprovalLogBonusThr').modal('show');
+	$.ajax({
+		type: 'POST',
+		url: module_path + '/getApprovalLog',
+		data: { id: id },
+		cache: false,
+		dataType: 'JSON',
+		success: function(response) {
+			$('#approvalLogContentBonusThr tbody').html(response.html);
+		}
 	});
 }
 </script>

@@ -171,6 +171,51 @@ class Hitung_gaji_os_menu extends MY_Controller
 		{ 
 			$this->load->view('errors/html/error_hacks_401');
 		}
+	} 
+
+	public function rfu()
+	{
+		$post = $this->input->post(null, true);
+		$rs = false;
+		if(!empty($post['id'])) {
+			$rs = $this->self_model->rfu($post['id'], isset($post['reason']) ? $post['reason'] : '', isset($post['approval_level']) ? $post['approval_level'] : 1);
+		}
+
+		echo json_encode($rs);
+	}
+
+	public function reject()
+	{
+		$post = $this->input->post(null, true);
+		$rs = false;
+		if(!empty($post['id'])) {
+			$rs = $this->self_model->reject($post['id'], isset($post['reason']) ? $post['reason'] : '', isset($post['approval_level']) ? $post['approval_level'] : 1);
+		}
+
+		echo json_encode($rs);
+	}
+
+	public function getApprovalLog()
+	{
+		$post = $this->input->post(null, true);
+		$rows = !empty($post['id']) ? $this->self_model->getApprovalLogRows($post['id']) : [];
+		$html = '';
+
+		if(!empty($rows)) {
+			foreach($rows as $row) {
+				$approval_date = ($row->approval_date == '0000-00-00 00:00:00' || $row->approval_date == '') ? '' : $row->approval_date;
+				$html .= '<tr>';
+				$html .= '<td>'.$row->approval_level.'</td>';
+				$html .= '<td>'.$row->approver_name.'</td>';
+				$html .= '<td>'.$row->status_name.'</td>';
+				$html .= '<td>'.$approval_date.'</td>';
+				$html .= '</tr>';
+			}
+		} else {
+			$html .= '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
+		}
+
+		echo json_encode(['html' => $html]);
 	}
 
 
@@ -623,6 +668,8 @@ class Hitung_gaji_os_menu extends MY_Controller
 	            'tunjangan_komunikasi'  => trim($post['tunj_komunikasi_edit_gaji'][$i]),
 	            'lembur_perjam'  	=> trim($post['lembur_perjam_edit_gaji'][$i]),
 	            'total_nominal_lembur'  => trim($post['ot_edit_gaji'][$i] ?? 0),
+	            'bonus'  			=> trim($post['bonus_edit_gaji'][$i] ?? 0),
+	            'thr'  				=> trim($post['thr_edit_gaji'][$i] ?? 0),
 	            'total_pendapatan'  => trim($post['ttl_pendapatan_edit_gaji'][$i]),
 	            'bpjs_kesehatan'  	=> trim($post['bpjs_kes_edit_gaji'][$i]),
 	            'bpjs_tk'  			=> trim($post['bpjs_tk_edit_gaji'][$i]),

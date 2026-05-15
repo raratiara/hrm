@@ -7,6 +7,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
  	protected $folder_name				= "special_payroll_outsource/hitung_gaji_os_menu";
  	protected $table_name 				= _PREFIX_TABLE."special_payroll_slip";
  	protected $primary_key 				= "id";
+	protected $approval_matrix_type_id 	= 21;
+	protected $payment_history_table 	= _PREFIX_TABLE."special_payroll_paid_history";
 
 	function __construct()
 	{
@@ -26,7 +28,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			'dt.status',
 			'dt.project_id',
 			'dt.bulan_penggajian',
-			'dt.payroll_status'
+			'dt.payroll_status',
+			'dt.status_id',
+			'dt.created_by',
+			'dt.current_approval_level',
+			'dt.is_approver',
+			'dt.is_approver_view'
 		];
 
 		$where_project = "";
@@ -48,12 +55,45 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			)dt';*/
 
 
-		$sTable = '(select a.*, b.name_indo as month_name, c.project_name, d.name as payroll_status 
+		$karyawan_id = $_SESSION['worker'];
+		$whr_approval = '';
+		if($_SESSION['role'] != 1){
+			$whr_approval = ' and (ao.created_by = "'.$karyawan_id.'" or ao.direct_id = "'.$karyawan_id.'" or ao.is_approver_view = 1) ';
+		}
+
+		$sTable = '(select ao.* from (select a.*, b.name_indo as month_name, c.project_name,
+					case when a.status_id = 0 then "Draft" when a.status_id = 2 then coalesce(d.name, "Menunggu Pembayaran") else coalesce(st.name, "Waiting Approval") end as payroll_status,
+					creator.direct_id,
+					max(ap.current_approval_level) as current_approval_level,
+					GROUP_CONCAT(amp.employee_id) as all_employeeid_approver,
+					CASE WHEN FIND_IN_SET('.$karyawan_id.', GROUP_CONCAT(amp.employee_id)) > 0 THEN 1 ELSE 0 END as is_approver_view,
+					CASE
+						WHEN FIND_IN_SET(
+							'.$karyawan_id.',
+							(
+								SELECT GROUP_CONCAT(employee_id)
+								FROM approval_matrix_role_pic
+								WHERE approval_matrix_role_id = max(cur_detail.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(cur_role.role_name) = "Direct" AND max(creator.direct_id) = '.$karyawan_id.' THEN 1
+						ELSE 0
+					END as is_approver
 					from special_payroll_slip a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
 					left join master_payroll_status d on d.id = a.status
+					left join master_status_cashadvance st on st.id = a.status_id
+					left join employees creator on creator.id = a.created_by
+					left join approval_path ap on ap.trx_id = a.id and ap.approval_matrix_type_id = '.$this->approval_matrix_type_id.'
+					left join approval_matrix am on am.id = ap.approval_matrix_id
+					left join approval_matrix_detail amd on amd.approval_matrix_id = am.id
+					left join approval_matrix_role_pic amp on amp.approval_matrix_role_id = amd.role_id
+					left join approval_matrix_detail cur_detail on cur_detail.approval_matrix_id = ap.approval_matrix_id and cur_detail.approval_level = ap.current_approval_level
+					left join approval_matrix_role cur_role on cur_role.id = cur_detail.role_id
 					where 1=1 '.$where_project.'
+					group by a.id
+			)ao where 1=1 '.$whr_approval.'
 			)dt';
 		
 
@@ -192,7 +232,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-			/*$cek_history_bpjs = $this->db->query("select * from special_history_bpjs where project_id = ".$row->project_id." and periode_gaji_bulan = ".$row->bulan_penggajian." and periode_gaji_tahun = '".$row->tahun_penggajian."' ")->result();*/
+			/*$cek_special_history_bpjs = $this->db->query("select * from special_history_bpjs where project_id = ".$row->project_id." and periode_gaji_bulan = ".$row->bulan_penggajian." and periode_gaji_tahun = '".$row->tahun_penggajian."' ")->result();*/
 
 			$pembayaran_gaji = $this->db->query("select a.id from special_payroll_paid_history a left join special_payroll_slip b on b.id = a.payroll_slip_id where b.bulan_penggajian = ".$row->bulan_penggajian." and b.tahun_penggajian = '".$row->tahun_penggajian."' ")->result();
 
@@ -210,13 +250,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				$detail = '<a class="btn btn-xs btn-success detail-btn" style="background-color: #112D80; border-color: #112D80;" href="javascript:void(0);" onclick="detail('."'".$row->id."'".')" role="button"><i class="fa fa-search-plus"></i></a>';
 			}
 			$edit = "";
-			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $isEdit == 1)  {
+			if (_USER_ACCESS_LEVEL_UPDATE == "1" && $isEdit == 1 && $row->status_id != 2)  {
 				
 				$edit = '<a class="btn btn-xs btn-primary" style="background-color: #FFA500; border-color: #FFA500;" href="javascript:void(0);" onclick="edit('."'".$row->id."'".')" role="button"><i class="fa fa-pencil"></i></a>';
 			}
 			$delete_bulk = "";
 			$delete = "";
-			if (_USER_ACCESS_LEVEL_DELETE == "1" && $isDelete == 1)  {
+			if (_USER_ACCESS_LEVEL_DELETE == "1" && $isDelete == 1 && $row->status_id != 2)  {
 				$delete_bulk = '<input name="ids[]" type="checkbox" class="data-check" value="'.$row->id.'">';
 				
 				$delete = '<a class="btn btn-xs btn-danger" style="background-color: #A01818;" href="javascript:void(0);" onclick="deleting('."'".$row->id."'".')" role="button"><i class="fa fa-trash"></i></a>';
@@ -240,10 +280,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
                 <i class="fa fa-download"></i>
                 Rekap Absen
             </a>';
-            $print_rekap_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRekapGajiOS('."'".$row->id."'".')">
-                <i class="fa fa-download"></i>
-                Rekap Gaji
-            </a>';
+            $print_rekap_gaji = "";
+            if($row->status == 2){ //terbayar
+	            $print_rekap_gaji = '<a class="btn btn-default btn-xs" style="align:center" onclick="getRekapGajiOS('."'".$row->id."'".')">
+	                <i class="fa fa-download"></i>
+	                Rekap Gaji
+	            </a>';
+	        }
 
 
 			array_push($output["aaData"],array(
@@ -275,6 +318,223 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	public function is_not_null($val){
 		return !is_null($val);
 	}		
+
+	private function getPayrollApprovalTotal($payroll_slip_id)
+	{
+		$row = $this->db->query("select coalesce(sum(total_pendapatan), 0) as total_nominal
+			from special_payroll_slip_detail
+			where payroll_slip_id = ?", [(int)$payroll_slip_id])->row();
+		return $row ? (float)$row->total_nominal : 0;
+	}
+
+	private function createApprovalPath($trx_id, $amount)
+	{
+		$employee = $this->db->query("select work_location from employees where id = ?", [$_SESSION['worker']])->row();
+		$work_location_id = $employee ? $employee->work_location : '';
+		if($work_location_id == '') return false;
+
+		$matrix = $this->findApprovalMatrix($work_location_id, $amount);
+		if(!$matrix) return false;
+
+		$path = $this->getApprovalPath($trx_id);
+		if($path) {
+			$this->resetApprovalPath($trx_id);
+			return true;
+		}
+
+		$this->db->insert('approval_path', [
+			'approval_matrix_type_id' => $this->approval_matrix_type_id,
+			'trx_id' => $trx_id,
+			'approval_matrix_id' => $matrix->id,
+			'current_approval_level' => 1
+		]);
+		$approval_path_id = $this->db->insert_id();
+		$this->db->insert('approval_path_detail', [
+			'approval_path_id' => $approval_path_id,
+			'approval_level' => 1
+		]);
+
+		return true;
+	}
+
+	private function findApprovalMatrix($work_location_id, $amount)
+	{
+		$amount = (float) $amount;
+		$matrix = $this->db->query("select * from approval_matrix where approval_type_id = ? and work_location_id = ? and (
+				(? >= min and ? <= max and min != '' and max != '') or
+				(? >= min and min != '' and (max = '' or max is null)) or
+				(? <= max and max != '' and (min = '' or min is null))
+			) limit 1", [$this->approval_matrix_type_id, $work_location_id, $amount, $amount, $amount, $amount])->row();
+		if($matrix) return $matrix;
+
+		return $this->db->query("select * from approval_matrix where approval_type_id = ? and work_location_id = ? and ((min is null or min = '') and (max is null or max = '')) limit 1", [$this->approval_matrix_type_id, $work_location_id])->row();
+	}
+
+	private function getApprovalPath($trx_id)
+	{
+		return $this->db->where([
+			'approval_matrix_type_id' => $this->approval_matrix_type_id,
+			'trx_id' => $trx_id
+		])->get('approval_path')->row();
+	}
+
+	private function getCurrApproval($trx_id, $approval_level)
+	{
+		return $this->db->query("select b.* from approval_path a
+			left join approval_path_detail b on b.approval_path_id = a.id and b.approval_level = ?
+			where a.approval_matrix_type_id = ? and a.trx_id = ?", [$approval_level, $this->approval_matrix_type_id, $trx_id])->row();
+	}
+
+	private function getMaxApproval($approval_matrix_id)
+	{
+		$row = $this->db->query("select max(approval_level) as approval_level from approval_matrix_detail where approval_matrix_id = ?", [$approval_matrix_id])->row();
+		return $row ? (int)$row->approval_level : 0;
+	}
+
+	private function resetApprovalPath($trx_id)
+	{
+		$path = $this->getApprovalPath($trx_id);
+		if(!$path) return false;
+
+		$this->db->update('approval_path', ['current_approval_level' => 1], ['id' => $path->id]);
+		$this->db->where('approval_path_id', $path->id)->where('approval_level !=', 1)->delete('approval_path_detail');
+		$this->db->update('approval_path_detail', [
+			'status' => '',
+			'approval_by' => '',
+			'approval_date' => ''
+		], ['approval_path_id' => $path->id, 'approval_level' => 1]);
+
+		return true;
+	}
+
+	private function deleteApprovalPath($trx_id)
+	{
+		$path = $this->getApprovalPath($trx_id);
+		if(!$path) return false;
+
+		$this->db->where('approval_path_id', $path->id)->delete('approval_path_detail');
+		$this->db->where('id', $path->id)->delete('approval_path');
+
+		return true;
+	}
+
+	private function ensurePaymentHistory($payroll_slip_id)
+	{
+		$existing = $this->db->where('payroll_slip_id', $payroll_slip_id)->get($this->payment_history_table)->row();
+		if($existing) return true;
+
+		return $this->db->insert($this->payment_history_table, [
+			'payroll_slip_id' => $payroll_slip_id,
+			'status' => 1,
+			'created_at' => date('Y-m-d H:i:s'),
+			'created_by' => $_SESSION['worker']
+		]);
+	}
+
+	public function approve($id)
+	{
+		$path = $this->getApprovalPath($id);
+		if(!$path) return ['status' => false, 'msg' => 'Approval path tidak ditemukan'];
+
+		$approval_level = (int)$path->current_approval_level;
+		$current = $this->getCurrApproval($id, $approval_level);
+		if(!$current) return ['status' => false, 'msg' => 'Approver tidak ditemukan'];
+
+		$maxApproval = $this->getMaxApproval($path->approval_matrix_id);
+		$now = date('Y-m-d H:i:s');
+		$worker = $_SESSION['worker'];
+
+		$this->db->trans_start();
+		$this->db->update('approval_path_detail', [
+			'status' => 'Approved',
+			'approval_by' => $worker,
+			'approval_date' => $now
+		], ['id' => $current->id]);
+
+		if($approval_level >= $maxApproval) {
+			$this->db->update($this->table_name, [
+				'status_id' => 2,
+				'status' => 1,
+				'approval_date' => $now
+			], [$this->primary_key => $id]);
+			$this->ensurePaymentHistory($id);
+		} else {
+			$nextLevel = $approval_level + 1;
+			$this->db->update('approval_path', ['current_approval_level' => $nextLevel], ['id' => $path->id]);
+			$this->db->insert('approval_path_detail', [
+				'approval_path_id' => $path->id,
+				'approval_level' => $nextLevel
+			]);
+		}
+		$this->db->trans_complete();
+
+		return [
+			'status' => $this->db->trans_status(),
+			'msg' => $this->db->trans_status() ? 'Data berhasil disetujui' : 'Data gagal disetujui'
+		];
+	}
+
+	public function rfu($id, $reason, $approval_level)
+	{
+		$current = $this->getCurrApproval($id, $approval_level);
+		$this->db->trans_start();
+		$this->db->update($this->table_name, [
+			'status_id' => 4,
+			'status' => null,
+			'rfu_reason' => $reason,
+			'approval_date' => date('Y-m-d H:i:s')
+		], [$this->primary_key => $id]);
+		if($current) {
+			$this->db->update('approval_path_detail', [
+				'status' => 'Request for Update',
+				'approval_by' => $_SESSION['worker'],
+				'approval_date' => date('Y-m-d H:i:s')
+			], ['id' => $current->id]);
+		}
+		$this->db->trans_complete();
+
+		return $this->db->trans_status();
+	}
+
+	public function reject($id, $reason, $approval_level)
+	{
+		$current = $this->getCurrApproval($id, $approval_level);
+		$this->db->trans_start();
+		$this->db->update($this->table_name, [
+			'status_id' => 3,
+			'status' => null,
+			'reject_reason' => $reason,
+			'approval_date' => date('Y-m-d H:i:s')
+		], [$this->primary_key => $id]);
+		if($current) {
+			$this->db->update('approval_path_detail', [
+				'status' => 'Rejected',
+				'approval_by' => $_SESSION['worker'],
+				'approval_date' => date('Y-m-d H:i:s')
+			], ['id' => $current->id]);
+		}
+		$this->db->trans_complete();
+
+		return $this->db->trans_status();
+	}
+
+	public function getApprovalLogRows($id)
+	{
+		return $this->db->query("select a.*, c.approval_level, d.role_name, e.id as id_detail,
+				(case when e.id != '' and (e.status = '' or e.status is null) and a.current_approval_level = c.approval_level then 'Waiting Approval'
+					when e.id != '' and e.status != '' then e.status
+					else ''
+				end) as status_name,
+				IF(e.id != '' and e.status != '', (select full_name from employees where id = e.approval_by), d.role_name) as approver_name,
+				e.approval_date
+			from approval_path a
+			left join approval_matrix b on b.id = a.approval_matrix_id
+			left join approval_matrix_detail c on c.approval_matrix_id = b.id
+			left join approval_matrix_role d on d.id = c.role_id
+			left join approval_path_detail e on e.approval_path_id = a.id and e.approval_level = c.approval_level
+			where a.approval_matrix_type_id = ? and a.trx_id = ?
+			order by c.approval_level asc", [$this->approval_matrix_type_id, $id])->result();
+	}
 
 	public function delete($id= "") {
 		if (isset($id) && $id <> "") {
@@ -420,6 +680,20 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	}
 
 	/**
+	 * Hitung detail BPJS TK per komponen (JHT, JP, JKK, JKM)
+	 * Return: ['bpjs_jht' => x, 'bpjs_jp' => x, 'bpjs_jkk' => x, 'bpjs_jkm' => x]
+	 */
+	private function calcBpjsTkDetail($benefit)
+	{
+		return [
+			'bpjs_jht' => (float)$this->benefitOsValue($benefit, 'jht', 0),
+			'bpjs_jp'  => (float)$this->benefitOsValue($benefit, 'jp', 0),
+			'bpjs_jkk' => (float)$this->benefitOsValue($benefit, 'jk', 0),
+			'bpjs_jkm' => (float)$this->benefitOsValue($benefit, 'jkm', 0),
+		];
+	}
+
+	/**
 	 * Hitung nilai komponen berdasarkan calculate_percentage & calculate_from
 	 */
 	private function calculateComponentValue($benefit, $code, $salaryCalc, $resolvedValues)
@@ -476,7 +750,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	public function getRateTer($total_pendapatan, $emp_id){
 		$pph_21 =0; $ter_rate=0;
 
-		$emp = $this->db->query("select marital_status_id from employees where emp_source = 'outsource' and is_special_payroll = 1 and id = ".$emp_id." ")->result(); 
+		$emp = $this->db->query("select marital_status_id from employees where emp_source = 'outsource' and id = ".$emp_id." ")->result(); 
 		if(!empty($emp)){
 			$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$emp[0]->marital_status_id." ")->result(); 
 			if(!empty($getCat)){
@@ -513,6 +787,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	    $bulan  = (int)$post['penggajian_month'];
 	    $tahun  = trim($post['penggajian_year']);
+	    $isSubmitFinal = isset($post['payroll_action']) && $post['payroll_action'] == 'submit_final';
 
 	    // =========================
 	    // Ambil kode bulan
@@ -523,6 +798,14 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        ->where('id', $bulan)
 	        ->get()
 	        ->row();
+
+	    if (!$codemonth) {
+	        $this->db->trans_complete();
+	        return [
+			    "status" => false,
+			    "msg" 	 => "Bulan Penggajian tidak valid"
+			];
+	    }
 
 	    $periode_gaji = $tahun . '-' . $codemonth->code;
 
@@ -570,7 +853,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    $this->db->join('data_customer t', 't.id = e.cust_id', 'left');
 
 	    $this->db->where('e.emp_source', 'outsource');
-	    $this->db->where('e.is_special_payroll', 1);
+	    $this->db->where('e.is_special_payroll = 1', null, false);
 	    $this->db->where('e.status_id', 1);
 	    $this->db->where('s.bulan_penggajian', $bulan);
 	    $this->db->where('s.tahun_penggajian', $tahun);
@@ -600,6 +883,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	    $projectHeader = [];
 	    $insertDetail  = [];
 	    $bpjsHeaderCache = [];
+	    $detailEmployeeIdsByPayroll = [];
 	    $benefitAmounts = $this->getEmployeeBenefitDeductionOsAmounts(array_map(function($row) {
 	    	return $row->employee_id;
 	    }, $data));
@@ -625,11 +909,23 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	                    'bulan_penggajian' => $bulan,
 	                    'tahun_penggajian' => $tahun,
 	                    'tgl_start_absen'  => $row->tgl_start_absen,
-	                    'tgl_end_absen'    => $row->tgl_end_absen
+	                    'tgl_end_absen'    => $row->tgl_end_absen,
+	                    'status'           => null,
+	                    'status_id'        => $isSubmitFinal ? 1 : 0,
+	                    'created_at'       => date("Y-m-d H:i:s"),
+	                    'created_by'       => $_SESSION['worker']
 	                ]);
 	                $projectHeader[$row->project_id] = $this->db->insert_id();
 	            } else {
 	                $projectHeader[$row->project_id] = $header->id;
+	                $this->db->update('special_payroll_slip', [
+	                	'status' => null,
+	                	'status_id' => $isSubmitFinal ? 1 : 0,
+	                	'rfu_reason' => '',
+	                	'reject_reason' => '',
+	                	'updated_at' => date("Y-m-d H:i:s"),
+	                	'updated_by' => $_SESSION['worker']
+	                ], ['id' => $header->id]);
 	            }
 	        }
 
@@ -673,7 +969,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	        // BPJS dari salary_bpjs (nama komponen dinamis dari tabel salary_bpjs)
 	        $bpjs_kesehatan = $this->calcBpjsKesehatan($benefit);
-	        $bpjs_tk        = $this->calcBpjsTk($benefit);
+	        $bpjs_tk_detail = $this->calcBpjsTkDetail($benefit);
+	        $bpjs_tk        = array_sum($bpjs_tk_detail);
 	        $seragam = (float)$this->benefitOsValue($benefit, 'seragam', 0);
 	        $pelatihan = (float)$this->benefitOsValue($benefit, 'pelatihan', 0);
 	        $lain_lain = (float)$this->benefitOsValue($benefit, 'lain_lain', 0);
@@ -689,8 +986,15 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	        $sosial = (float)$this->benefitOsValue($benefit, 'sosial', 0);
 	        $hutang = (float)$row->hutang;
 
+	        if (!isset($componentCache[$row->project_id])) {
+	        	$componentCache[$row->project_id] = $this->getPayrollComponentMap($row->project_id, $bulan, $tahun);
+	        }
+	        $payrollComponents = $componentCache[$row->project_id];
+	        $bonus = $payrollComponents['bonus']['has_data'] ? ($payrollComponents['bonus']['amounts'][(int)$row->employee_id] ?? 0) : 0;
+	        $thr = $payrollComponents['thr']['has_data'] ? ($payrollComponents['thr']['amounts'][(int)$row->employee_id] ?? 0) : 0;
+
 	        //$total_pendapatan = ceil($gaji + $lembur_total);
-	        $total_pendapatan = $gaji + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi;
+	        $total_pendapatan = $gaji + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi + $bonus + $thr;
 
 	        $getTer = $this->getRateTer($total_pendapatan, $row->employee_id);
 			$ter_rate = $getTer['ter_rate'];
@@ -780,10 +1084,16 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            'tunjangan_komunikasi' => $tunjangan_komunikasi,
 	            'lembur_perjam'    => $lembur_perjam,
 	            'total_nominal_lembur' => $lembur_total,
+	            'bonus'            => $bonus,
+	            'thr'              => $thr,
 	            'total_pendapatan' => $total_pendapatan,
 	            'sosial'           => $sosial,
 	            'bpjs_kesehatan'   => $bpjs_kesehatan,
 	            'bpjs_tk'          => $bpjs_tk,
+	            'bpjs_jht'         => $bpjs_tk_detail['bpjs_jht'],
+	            'bpjs_jp'          => $bpjs_tk_detail['bpjs_jp'],
+	            'bpjs_jkk'         => $bpjs_tk_detail['bpjs_jkk'],
+	            'bpjs_jkm'         => $bpjs_tk_detail['bpjs_jkm'],
 	            'seragam'          => $seragam,
 	            'pelatihan'        => $pelatihan,
 	            'lain_lain'        => $lain_lain,
@@ -795,13 +1105,33 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	            'pph_21'      	   => $pph_21,
 	            'pph_21_rate' 	   => $ter_rate
 	        ];
+
+	        $detailEmployeeIdsByPayroll[$projectHeader[$row->project_id]][] = (int) $row->employee_id;
 	    }
 
 	    // =========================
 	    // INSERT BATCH (SUPER CEPAT)
 	    // =========================
+	    foreach ($detailEmployeeIdsByPayroll as $payrollSlipId => $employeeIds) {
+	        $employeeIds = array_values(array_unique($employeeIds));
+	        if (!empty($employeeIds)) {
+	            $this->db
+	                ->where('payroll_slip_id', $payrollSlipId)
+	                ->where_in('employee_id', $employeeIds)
+	                ->delete('special_payroll_slip_detail');
+	        }
+	    }
+
 	    if (!empty($insertDetail)) {
 	        $this->db->insert_batch('special_payroll_slip_detail', $insertDetail);
+	    }
+
+	    foreach (array_unique(array_values($projectHeader)) as $payrollSlipId) {
+	    	if($isSubmitFinal) {
+	    		$this->createApprovalPath($payrollSlipId, $this->getPayrollApprovalTotal($payrollSlipId));
+	    	} else {
+	    		$this->deleteApprovalPath($payrollSlipId);
+	    	}
 	    }
 
 	    $this->db->trans_complete();
@@ -894,7 +1224,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
   						$resolvedValues = ['gaji_bulanan' => $gaji_bulanan, 'gaji_harian' => $gaji_harian_val];
   						// BPJS dari salary_bpjs (nama komponen dinamis dari tabel salary_bpjs)
   						$bpjs_kesehatan = $this->calcBpjsKesehatan($benefit_emp);
-  						$bpjs_tk = $this->calcBpjsTk($benefit_emp);
+  						$bpjs_tk_detail = $this->calcBpjsTkDetail($benefit_emp);
+  						$bpjs_tk = array_sum($bpjs_tk_detail);
 
   						$hari_kerja = (int) ($rowdata_os->total_hari_kerja ?? 0);
 						/*if ($hari_kerja > 0) {
@@ -959,6 +1290,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 								'sosial' 			=> $sosial,
 								'bpjs_kesehatan' 	=> $bpjs_kesehatan,
 								'bpjs_tk' 			=> $bpjs_tk,
+								'bpjs_jht' 			=> $bpjs_tk_detail['bpjs_jht'],
+								'bpjs_jp' 			=> $bpjs_tk_detail['bpjs_jp'],
+								'bpjs_jkk' 			=> $bpjs_tk_detail['bpjs_jkk'],
+								'bpjs_jkm' 			=> $bpjs_tk_detail['bpjs_jkm'],
 								'hutang' 			=> $hutang,
 								'subtotal' 			=> $subtotal,
 								'gaji_bersih' 		=> $gaji_bersih
@@ -988,6 +1323,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'sosial' 			=> $sosial,
 									'bpjs_kesehatan' 	=> $bpjs_kesehatan,
 									'bpjs_tk' 			=> $bpjs_tk,
+									'bpjs_jht' 			=> $bpjs_tk_detail['bpjs_jht'],
+									'bpjs_jp' 			=> $bpjs_tk_detail['bpjs_jp'],
+									'bpjs_jkk' 			=> $bpjs_tk_detail['bpjs_jkk'],
+									'bpjs_jkm' 			=> $bpjs_tk_detail['bpjs_jkm'],
 									'hutang' 			=> $hutang,
 									'subtotal' 			=> $subtotal,
 									'gaji_bersih' 		=> $gaji_bersih
@@ -1014,6 +1353,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'sosial' 			=> $sosial,
 									'bpjs_kesehatan' 	=> $bpjs_kesehatan,
 									'bpjs_tk' 			=> $bpjs_tk,
+									'bpjs_jht' 			=> $bpjs_tk_detail['bpjs_jht'],
+									'bpjs_jp' 			=> $bpjs_tk_detail['bpjs_jp'],
+									'bpjs_jkk' 			=> $bpjs_tk_detail['bpjs_jkk'],
+									'bpjs_jkm' 			=> $bpjs_tk_detail['bpjs_jkm'],
 									'hutang' 			=> $hutang,
 									'subtotal' 			=> $subtotal,
 									'gaji_bersih' 		=> $gaji_bersih
@@ -1092,6 +1435,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 	public function edit_data($post) { 
 
 		if(!empty($post['id'])){
+			if(isset($post['action_type']) && $post['action_type'] == 'approval') {
+				return $this->approve($post['id']);
+			}
+			$isSubmitFinal = isset($post['payroll_action']) && $post['payroll_action'] == 'submit_final';
+
 			$this->db->trans_start();
 
 			$getperiod_start 	= date_create($post['period_start']); 
@@ -1105,7 +1453,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					'bulan_penggajian' 	=> trim($post['penggajian_month']),
 					'tahun_penggajian' 	=> trim($post['penggajian_year']),
 					'tgl_start_absen' 	=> $period_start,
-					'tgl_end_absen' 	=> $period_end
+					'tgl_end_absen' 	=> $period_end,
+					'status' 			=> null,
+					'status_id' 		=> $isSubmitFinal ? 1 : 0,
+					'rfu_reason' 		=> '',
+					'reject_reason' 	=> '',
+					'updated_at' 		=> date("Y-m-d H:i:s"),
+					'updated_by' 		=> $_SESSION['worker']
 				];
 				$rs = $this->db->update("special_payroll_slip", $data, "id = '".$post['id']."'");
 
@@ -1155,9 +1509,15 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'lembur_perjam' 		=> trim($post['lembur_perjam_gaji'][$i]),
 									'total_nominal_lembur' 	=> trim($post['total_nominal_lembur_gaji'][$i]),
 									'total_jam_lembur' 		=> trim($post['jam_lembur_gaji'][$i]),
+									'bonus' 				=> trim($post['bonus_gaji'][$i] ?? 0),
+									'thr' 					=> trim($post['thr_gaji'][$i] ?? 0),
 									'total_pendapatan' 		=> trim($post['ttl_pendapatan_gaji'][$i]),
 									'bpjs_kesehatan' 		=> trim($post['bpjs_kes_gaji'][$i]),
 									'bpjs_tk' 				=> trim($post['bpjs_tk_gaji'][$i]),
+									'bpjs_jht' 				=> trim($post['bpjs_jht_gaji'][$i] ?? 0),
+									'bpjs_jp' 				=> trim($post['bpjs_jp_gaji'][$i] ?? 0),
+									'bpjs_jkk' 				=> trim($post['bpjs_jkk_gaji'][$i] ?? 0),
+									'bpjs_jkm' 				=> trim($post['bpjs_jkm_gaji'][$i] ?? 0),
 									/*'absen' 				=> trim($post['absen_gaji'][$i]),*/
 									'hutang' 				=> trim($post['hutang_gaji'][$i]),
 									'sosial' 				=> trim($post['sosial_gaji'][$i]),
@@ -1191,9 +1551,15 @@ class Hitung_gaji_os_menu_model extends MY_Model
 									'lembur_perjam' 		=> trim($post['lembur_perjam_gaji'][$i]),
 									'total_nominal_lembur' 	=> trim($post['total_nominal_lembur_gaji'][$i]),
 									'total_jam_lembur' 		=> trim($post['jam_lembur_gaji'][$i]),
+									'bonus' 				=> trim($post['bonus_gaji'][$i] ?? 0),
+									'thr' 					=> trim($post['thr_gaji'][$i] ?? 0),
 									'total_pendapatan' 		=> trim($post['ttl_pendapatan_gaji'][$i]),
 									'bpjs_kesehatan' 		=> trim($post['bpjs_kes_gaji'][$i]),
 									'bpjs_tk' 				=> trim($post['bpjs_tk_gaji'][$i]),
+									'bpjs_jht' 				=> trim($post['bpjs_jht_gaji'][$i] ?? 0),
+									'bpjs_jp' 				=> trim($post['bpjs_jp_gaji'][$i] ?? 0),
+									'bpjs_jkk' 				=> trim($post['bpjs_jkk_gaji'][$i] ?? 0),
+									'bpjs_jkm' 				=> trim($post['bpjs_jkm_gaji'][$i] ?? 0),
 									/*'absen' 				=> trim($post['absen_gaji'][$i]),*/
 									'hutang' 				=> trim($post['hutang_gaji'][$i]),
 									'sosial' 				=> trim($post['sosial_gaji'][$i]),
@@ -1271,6 +1637,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 					}
 				}
+				if($isSubmitFinal) {
+					$this->createApprovalPath($post['id'], $this->getPayrollApprovalTotal($post['id']));
+				} else {
+					$this->deleteApprovalPath($post['id']);
+				}
 				$this->db->trans_complete();
 				if($rs){
 					return [
@@ -1302,12 +1673,32 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	public function getRowData($id) { 
 
-		
-		$mTable = "(select a.*, b.name_indo as month_name, c.project_name 
+		$karyawan_id = $_SESSION['worker'];
+		$mTable = "(select a.*, b.name_indo as month_name, c.project_name,
+					case when a.status_id = 0 then 'Draft' when a.status_id = 2 then coalesce(ps.name, 'Menunggu Pembayaran') else coalesce(st.name, 'Waiting Approval') end as status_name,
+					max(ap.current_approval_level) as current_approval_level,
+					CASE
+						WHEN FIND_IN_SET(
+							".$karyawan_id.",
+							(
+								SELECT GROUP_CONCAT(employee_id)
+								FROM approval_matrix_role_pic
+								WHERE approval_matrix_role_id = max(cur_detail.role_id)
+							)
+						) > 0 THEN 1
+						WHEN max(cur_role.role_name) = 'Direct' AND max(creator.direct_id) = ".$karyawan_id." THEN 1
+						ELSE 0
+					END as is_approver
 					from special_payroll_slip a 
 					left join master_month b on b.id = a.bulan_penggajian
 					left join project_outsource c on c.id = a.project_id
-					
+					left join master_status_cashadvance st on st.id = a.status_id
+					left join master_payroll_status ps on ps.id = a.status
+					left join employees creator on creator.id = a.created_by
+					left join approval_path ap on ap.trx_id = a.id and ap.approval_matrix_type_id = ".$this->approval_matrix_type_id."
+					left join approval_matrix_detail cur_detail on cur_detail.approval_matrix_id = ap.approval_matrix_id and cur_detail.approval_level = ap.current_approval_level
+					left join approval_matrix_role cur_role on cur_role.id = cur_detail.role_id
+					group by a.id
 			)dt";
 
 		$rs = $this->db->where([$this->primary_key => $id])->get($mTable)->row();
@@ -1369,14 +1760,21 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	public function getGaji($project, $bln, $thn){ 
 
-		$rs = $this->db->query("select a.* from  special_payroll_slip a 
-				left join employees b on b.id = a.employee_id
-				where b.emp_source = 'outsource' and b.is_special_payroll = 1 and a.periode_bulan = ".$bln." and a.periode_tahun = '".$thn."' and b.project_id = ".$project." limit 1")->result(); 
+		$rs = $this->db->query("select a.* from special_payroll_slip a
+				where a.bulan_penggajian = ".$bln." and a.tahun_penggajian = '".$thn."' and a.project_id = ".$project." limit 1")->result(); 
 
 		
 
 		return $rs;
 
+	}
+
+	private function getPayrollComponentMap($project, $bulan, $tahun)
+	{
+		return [
+			'bonus' => ['has_data' => false, 'amounts' => []],
+			'thr' => ['has_data' => false, 'amounts' => []]
+		];
 	}
 
 
@@ -1407,7 +1805,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			from special_summary_absen_outsource_detail a left join employees b on b.id = a.emp_id
 			left join special_summary_absen_outsource c on c.id = a.summary_absen_outsource_id
 			left join data_customer d on d.id = b.cust_id
-			where b.emp_source = 'outsource' and b.is_special_payroll = 1 and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project."
+			where b.emp_source = 'outsource' and b.is_special_payroll = 1 and b.status_id = 1
+			and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project."
 			order by b.full_name asc
 
 		")->result();
@@ -1418,6 +1817,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			return $row->employee_id;
 		}, $rd));
 		$salaryCalc = $this->getSalaryComponentsOsCalculation();
+		$payrollComponents = $this->getPayrollComponentMap($project, $bln, $thn);
 
 		$row = 0; 
 		if(!empty($rd)){ 
@@ -1431,7 +1831,7 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				from employees a left join special_payroll_slip_detail b on b.employee_id = a.id 
 				left join special_payroll_slip c on c.id = b.payroll_slip_id
 				where a.emp_source = 'outsource' and a.is_special_payroll = 1 and a.id = '".$f->emp_id."' and a.status_id = 1 
-				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' ")->result(); 
+				and c.bulan_penggajian = ".$bln." and c.tahun_penggajian = '".$thn."' and c.project_id = ".$project." ")->result(); 
 
 				$gaji_bulanan = (float)$this->benefitOsValue($benefit, 'gaji_bulanan', 0);
 				$gaji_harian_benefit = (float)$this->benefitOsValue($benefit, 'gaji_harian', 0);
@@ -1443,16 +1843,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 				if(!empty($dataSlip)){ /// ambil data slip
 					$status_payroll = $dataSlip[0]->status_payroll;
 					
-					///informasi detail bpjs
-					$resolvedValues = ['gaji_bulanan' => $gaji_bulanan, 'gaji_harian' => $gaji_harian_benefit];
-					$tp_jkk = (float)$this->calculateComponentValue($benefit, 'tp_jkk', $salaryCalc, $resolvedValues);
-					$tp_jkm = (float)$this->calculateComponentValue($benefit, 'tp_jkm', $salaryCalc, $resolvedValues);
-					$tp_jht = (float)$this->calculateComponentValue($benefit, 'tp_jht', $salaryCalc, $resolvedValues);
-					$tp_jp = (float)$this->calculateComponentValue($benefit, 'tp_jp', $salaryCalc, $resolvedValues);
-					$pgk_jht = (float)$this->calculateComponentValue($benefit, 'pgk_jht', $salaryCalc, $resolvedValues);
-					$pgk_jp = (float)$this->calculateComponentValue($benefit, 'pgk_jp', $salaryCalc, $resolvedValues);
-					$tp_jkes = (float)$this->calculateComponentValue($benefit, 'tp_jkes', $salaryCalc, $resolvedValues);
-					$pgk_jkes = (float)$this->calculateComponentValue($benefit, 'pgk_jkes', $salaryCalc, $resolvedValues);
+					///informasi detail bpjs - dari salary_bpjs via benefit deduction
+					$bpjs_jht = $dataSlip[0]->bpjs_jht;
+					$bpjs_jp  = $dataSlip[0]->bpjs_jp;
+					$bpjs_jkk = $dataSlip[0]->bpjs_jkk;
+					$bpjs_jkm = $dataSlip[0]->bpjs_jkm;
 
 
 					$id = $dataSlip[0]->id;
@@ -1473,6 +1868,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$lembur_perjam = $dataSlip[0]->lembur_perjam;
 					$total_nominal_lembur = $dataSlip[0]->total_nominal_lembur;
 					$total_jam_lembur = $dataSlip[0]->total_jam_lembur;
+					$savedBonus = isset($dataSlip[0]->bonus) ? (float)$dataSlip[0]->bonus : 0;
+					$savedThr = isset($dataSlip[0]->thr) ? (float)$dataSlip[0]->thr : 0;
+					$bonus = $payrollComponents['bonus']['has_data'] ? ($payrollComponents['bonus']['amounts'][(int)$employee_id] ?? 0) : $savedBonus;
+					$thr = $payrollComponents['thr']['has_data'] ? ($payrollComponents['thr']['amounts'][(int)$employee_id] ?? 0) : $savedThr;
 					$total_pendapatan = $dataSlip[0]->total_pendapatan;
 					$bpjs_kesehatan = $dataSlip[0]->bpjs_kesehatan;
 					$bpjs_tk = $dataSlip[0]->bpjs_tk;
@@ -1489,6 +1888,12 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$subtotal = $dataSlip[0]->subtotal;
 					$gaji_bersih = $dataSlip[0]->gaji_bersih;
 					$ter_rate= $dataSlip[0]->pph_21_rate;
+					$total_pendapatan = ceil(($gaji + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi + $bonus + $thr) * 100) / 100;
+					$getTer = $this->getRateTer($total_pendapatan, $f->employee_id);
+					$ter_rate = $getTer['ter_rate'];
+					$pph_21 = $getTer['pph_21'];
+					$subtotal = ceil(($total_pendapatan - ($seragam+$pelatihan+$lain_lain+$hutang+$sosial)) * 100) / 100;
+					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_120+$pph_21)) * 100) / 100;
 
 				}else{ /// ambil data dr summary absen
 					$status_payroll="";
@@ -1517,7 +1922,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$resolvedValues = ['gaji_bulanan' => $gaji_bulanan, 'gaji_harian' => $gaji_harian_benefit];
 					// BPJS dari salary_bpjs (nama komponen dinamis dari tabel salary_bpjs)
 					$bpjs_kesehatan = $this->calcBpjsKesehatan($benefit);
-					$bpjs_tk        = $this->calcBpjsTk($benefit);
+					$bpjs_tk_detail = $this->calcBpjsTkDetail($benefit);
+					$bpjs_tk        = array_sum($bpjs_tk_detail);
 					$seragam = (float)$this->benefitOsValue($benefit, 'seragam', 0);
 					$pelatihan = (float)$this->benefitOsValue($benefit, 'pelatihan', 0);
 					$lain_lain = (float)$this->benefitOsValue($benefit, 'lain_lain', 0);
@@ -1547,7 +1953,9 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					/// ttl pendapatan - potongan tdk wajib
 					//$subtotal = ceil(($gaji - ($potongan_absen+$hutang+$sosial)) * 100) / 100;
 					$total_nominal_lembur = ceil($lembur_perjam*$f->total_jam_lembur);
-					$total_pendapatan = ceil(($gaji + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi) * 100) / 100;
+					$bonus = $payrollComponents['bonus']['has_data'] ? ($payrollComponents['bonus']['amounts'][(int)$f->employee_id] ?? 0) : 0;
+					$thr = $payrollComponents['thr']['has_data'] ? ($payrollComponents['thr']['amounts'][(int)$f->employee_id] ?? 0) : 0;
+					$total_pendapatan = ceil(($gaji + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi + $bonus + $thr) * 100) / 100;
 					$getTer = $this->getRateTer($total_pendapatan, $f->employee_id);
 					$ter_rate = $getTer['ter_rate'];
 					$pph_21 = $getTer['pph_21'];
@@ -1556,15 +1964,11 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					/// subtotal - potongan wajib
 					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_120+$pph_21)) * 100) / 100;
 
-					///informasi detail bpjs
-					$tp_jkk = (float)$this->calculateComponentValue($benefit, 'tp_jkk', $salaryCalc, $resolvedValues);
-					$tp_jkm = (float)$this->calculateComponentValue($benefit, 'tp_jkm', $salaryCalc, $resolvedValues);
-					$tp_jht = (float)$this->calculateComponentValue($benefit, 'tp_jht', $salaryCalc, $resolvedValues);
-					$tp_jp = (float)$this->calculateComponentValue($benefit, 'tp_jp', $salaryCalc, $resolvedValues);
-					$pgk_jht = (float)$this->calculateComponentValue($benefit, 'pgk_jht', $salaryCalc, $resolvedValues);
-					$pgk_jp = (float)$this->calculateComponentValue($benefit, 'pgk_jp', $salaryCalc, $resolvedValues);
-					$tp_jkes = (float)$this->calculateComponentValue($benefit, 'tp_jkes', $salaryCalc, $resolvedValues);
-					$pgk_jkes = (float)$this->calculateComponentValue($benefit, 'pgk_jkes', $salaryCalc, $resolvedValues);
+					///informasi detail bpjs - dari salary_bpjs via benefit deduction
+					$bpjs_jht = $bpjs_tk_detail['bpjs_jht'];
+					$bpjs_jp  = $bpjs_tk_detail['bpjs_jp'];
+					$bpjs_jkk = $bpjs_tk_detail['bpjs_jkk'];
+					$bpjs_jkm = $bpjs_tk_detail['bpjs_jkm'];
 
 		             
 					$id = "";
@@ -1585,6 +1989,8 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$lembur_perjam = $lembur_perjam;
 					$total_jam_lembur = $f->total_jam_lembur;
 					$total_nominal_lembur = $total_nominal_lembur;
+					$bonus = $bonus;
+					$thr = $thr;
 					$total_pendapatan = $total_pendapatan;
 					$bpjs_kesehatan = $bpjs_kesehatan;
 					$bpjs_tk = $bpjs_tk;
@@ -1636,6 +2042,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($total_nominal_lembur,'total_nominal_lembur_gaji['.$row.']','','total_nominal_lembur_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
+					$dt .= '<td class="gaji-bonus-col" data-has-component="'.($payrollComponents['bonus']['has_data'] ? 1 : 0).'">'.$this->return_build_txt($bonus,'bonus_gaji['.$row.']','','bonus_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+
+					$dt .= '<td class="gaji-thr-col" data-has-component="'.($payrollComponents['thr']['has_data'] ? 1 : 0).'">'.$this->return_build_txt($thr,'thr_gaji['.$row.']','','thr_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+
 					$dt .= '<td>'.$this->return_build_txt($total_pendapatan,'ttl_pendapatan_gaji['.$row.']','','ttl_pendapatan_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($bpjs_kesehatan,'bpjs_kes_gaji['.$row.']','','bpjs_kes_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
@@ -1643,14 +2053,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$this->return_build_txt($bpjs_tk,'bpjs_tk_gaji['.$row.']','','bpjs_tk_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					
-					$dt .= '<td>'.$this->return_build_txt($tp_jkk,'tp_jkk['.$row.']','','tp_jkk','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($tp_jkm,'tp_jkm['.$row.']','','tp_jkm','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($tp_jht,'tp_jht['.$row.']','','tp_jht','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($tp_jp ,'tp_jp['.$row.']','','tp_jp','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($pgk_jht,'pgk_jht['.$row.']','','pgk_jht','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($pgk_jp,'pgk_jp['.$row.']','','pgk_jp','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($tp_jkes,'tp_jkes['.$row.']','','tp_jkes','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
-					$dt .= '<td>'.$this->return_build_txt($pgk_jkes,'pgk_jkes['.$row.']','','pgk_jkes','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($bpjs_jht,'bpjs_jht_gaji['.$row.']','','bpjs_jht_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($bpjs_jp,'bpjs_jp_gaji['.$row.']','','bpjs_jp_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($bpjs_jkk,'bpjs_jkk_gaji['.$row.']','','bpjs_jkk_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+					$dt .= '<td>'.$this->return_build_txt($bpjs_jkm,'bpjs_jkm_gaji['.$row.']','','bpjs_jkm_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 
 					/*$dt .= '<td>'.$this->return_build_txt($absen,'absen_gaji['.$row.']','','absen_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';*/
@@ -1714,18 +2120,16 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$dt .= '<td>'.$lembur_perjam.'</td>';
 					$dt .= '<td>'.$total_jam_lembur.'</td>';
 					$dt .= '<td>'.$total_nominal_lembur.'</td>';
+					$dt .= '<td class="gaji-bonus-col" data-has-component="'.($payrollComponents['bonus']['has_data'] ? 1 : 0).'">'.$bonus.'</td>';
+					$dt .= '<td class="gaji-thr-col" data-has-component="'.($payrollComponents['thr']['has_data'] ? 1 : 0).'">'.$thr.'</td>';
 					$dt .= '<td>'.$total_pendapatan.'</td>';
 					$dt .= '<td>'.$bpjs_kesehatan.'</td>';
 					$dt .= '<td>'.$bpjs_tk.'</td>';
 
-					$dt .= '<td>'.$tp_jkk.'</td>';
-					$dt .= '<td>'.$tp_jkm.'</td>';
-					$dt .= '<td>'.$tp_jht.'</td>';
-					$dt .= '<td>'.$tp_jp.'</td>';
-					$dt .= '<td>'.$pgk_jht.'</td>';
-					$dt .= '<td>'.$pgk_jp.'</td>';
-					$dt .= '<td>'.$tp_jkes.'</td>';
-					$dt .= '<td>'.$pgk_jkes.'</td>';
+					$dt .= '<td>'.$bpjs_jht.'</td>';
+					$dt .= '<td>'.$bpjs_jp.'</td>';
+					$dt .= '<td>'.$bpjs_jkk.'</td>';
+					$dt .= '<td>'.$bpjs_jkm.'</td>';
 
 					// $dt .= '<td>'.$absen.'</td>';
 					$dt .= '<td>'.$seragam.'</td>';

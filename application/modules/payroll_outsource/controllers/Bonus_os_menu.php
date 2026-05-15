@@ -13,10 +13,10 @@ class Bonus_os_menu extends MY_Controller
 	const LABELSUBPARENTSEG2 = "";
 
 	public $icon = 'fa-gift';
-	public $tabel_header = ["ID", "Project", "Periode", "Total Bonus"];
+	public $tabel_header = ["ID", "Project", "Periode", "Total Bonus", "Status"];
 
-	public $colnames = ["ID", "Project", "Bulan", "Tahun", "Total Bonus"];
-	public $colfields = ["id", "project_name", "month_name", "periode_tahun", "total_nominal"];
+	public $colnames = ["ID", "Project", "Bulan", "Tahun", "Total Bonus", "Status"];
+	public $colfields = ["id", "project_name", "month_name", "periode_tahun", "total_nominal", "status_name"];
 
 	public function form_field_asset()
 	{
@@ -31,6 +31,8 @@ class Bonus_os_menu extends MY_Controller
 
 		$field['txtyear'] = $this->self_model->return_build_txt('', 'periode_tahun', 'periode_tahun', '', '', 'required maxlength="4"');
 		$field['txtnotes'] = $this->self_model->return_build_txtarea('', 'notes', 'notes', 3);
+		$field['rfu_reason'] = $this->self_model->return_build_txtarea('', 'rfu_reason', 'rfu_reason');
+		$field['reject_reason'] = $this->self_model->return_build_txtarea('', 'reject_reason', 'reject_reason');
 		$field['nominal_label'] = 'Bonus';
 
 		return $field;
@@ -89,5 +91,50 @@ class Bonus_os_menu extends MY_Controller
 		} else {
 			$this->load->view('errors/html/error_hacks_401');
 		}
+	}
+
+	public function rfu()
+	{
+		$post = $this->input->post(null, true);
+		$rs = false;
+		if(!empty($post['id'])) {
+			$rs = $this->self_model->rfu($post['id'], isset($post['reason']) ? $post['reason'] : '', isset($post['approval_level']) ? $post['approval_level'] : 1);
+		}
+
+		echo json_encode($rs);
+	}
+
+	public function reject()
+	{
+		$post = $this->input->post(null, true);
+		$rs = false;
+		if(!empty($post['id'])) {
+			$rs = $this->self_model->reject($post['id'], isset($post['reason']) ? $post['reason'] : '', isset($post['approval_level']) ? $post['approval_level'] : 1);
+		}
+
+		echo json_encode($rs);
+	}
+
+	public function getApprovalLog()
+	{
+		$post = $this->input->post(null, true);
+		$rows = !empty($post['id']) ? $this->self_model->getApprovalLogRows($post['id']) : [];
+		$html = '';
+
+		if(!empty($rows)) {
+			foreach($rows as $row) {
+				$approval_date = ($row->approval_date == '0000-00-00 00:00:00' || $row->approval_date == '') ? '' : $row->approval_date;
+				$html .= '<tr>';
+				$html .= '<td>'.$row->approval_level.'</td>';
+				$html .= '<td>'.$row->approver_name.'</td>';
+				$html .= '<td>'.$row->status_name.'</td>';
+				$html .= '<td>'.$approval_date.'</td>';
+				$html .= '</tr>';
+			}
+		} else {
+			$html .= '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
+		}
+
+		echo json_encode(['html' => $html]);
 	}
 }

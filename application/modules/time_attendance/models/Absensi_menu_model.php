@@ -64,6 +64,7 @@ class Absensi_menu_model extends MY_Model
 					    b.full_name,
 					    IF(a.is_late = "Y","Late", "") AS is_late_desc,
 					    (CASE 
+					        WHEN a.date_attendance_in IS NULL AND h.date IS NOT NULL THEN h.description
 					        WHEN a.leave_type != "" THEN CONCAT("(", c.name, ")") 
 					        WHEN a.is_leaving_office_early = "Y" THEN "Leaving Office Early"
 					        ELSE ""
@@ -1083,12 +1084,14 @@ class Absensi_menu_model extends MY_Model
 
 		$sql = "select a.*, b.full_name, if(a.is_late = 'Y','Late', '') as 'is_late_desc', 
 					(case 
+					when a.date_attendance_in is null and h.date is not null then h.description
 					when a.leave_type != '' then concat('(',c.name,')') 
 					when a.is_leaving_office_early = 'Y' then 'Leaving Office Early'
 					else ''
 					end) as is_leaving_office_early_desc
 					from time_attendances a left join employees b on b.id = a.employee_id
 					left join master_leaves c on c.id = a.leave_type
+					left join master_holidays h on h.date = a.date_attendance
 					".$whr."
 	   			ORDER BY a.id ASC
 		";

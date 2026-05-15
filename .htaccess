@@ -1,4 +1,20 @@
 RewriteEngine On
+<IfModule mod_php.c>
+    php_value max_input_vars 10000
+    php_value max_multipart_body_parts 10000
+</IfModule>
+<IfModule php_module>
+    php_value max_input_vars 10000
+    php_value max_multipart_body_parts 10000
+</IfModule>
+<IfModule php7_module>
+    php_value max_input_vars 10000
+    php_value max_multipart_body_parts 10000
+</IfModule>
+<IfModule php8_module>
+    php_value max_input_vars 10000
+    php_value max_multipart_body_parts 10000
+</IfModule>
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php/$1 [L]

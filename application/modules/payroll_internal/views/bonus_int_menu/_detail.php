@@ -1,14 +1,21 @@
-<div class="row">
+<div class="row bonus-thr-info">
 	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row-flex">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Periode</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">: <span class="periode"></span></div>
+		<div class="bonus-thr-info-row">
+			<label>Periode</label>
+			<span class="sep">:</span>
+			<span class="periode"></span>
+		</div>
+		<div class="bonus-thr-info-row">
+			<label>Status</label>
+			<span class="sep">:</span>
+			<span class="status_name"></span>
 		</div>
 	</div>
 	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="row-flex">
-			<label class="col-md-4 col-sm-4 col-xs-4 control-label no-padding-right">Catatan</label>
-			<div class="col-md-8 col-sm-8 col-xs-8">: <span class="notes"></span></div>
+		<div class="bonus-thr-info-row">
+			<label>Catatan</label>
+			<span class="sep">:</span>
+			<span class="notes"></span>
 		</div>
 	</div>
 </div>

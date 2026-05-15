@@ -103,7 +103,7 @@ jQuery(function($) {
         $(".data-check").prop('checked', $(this).prop('checked'));
     });
 	<?php } ?>
-})
+});
 
 <?php $this->load->view(_TEMPLATE_PATH . "common_module_js"); ?>
 <?php } ?>

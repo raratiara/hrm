@@ -11,4 +11,5 @@ class Thr_os_menu_model extends Bonus_thr_os_menu_model
 	protected $detail_foreign_key = "thr_os_id";
 	protected $amount_field = "thr_amount";
 	protected $total_header_field = "total_thr";
+	protected $approval_matrix_type_id = 17;
 }

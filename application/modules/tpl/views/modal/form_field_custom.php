@@ -220,7 +220,7 @@
                             if ($this->module_name != 'absensi_menu' && $this->module_name != 'absensi_os_menu') {
                                 echo $smodul;
                             }
-                            if ($this->module_name == 'ijin_menu' || $this->module_name == 'fpu_menu' || $this->module_name == 'fpp_menu' || $this->module_name == 'settlement_menu' || $this->module_name == 'reimbursement_menu' || $this->module_name == 'lembur_menu' || $this->module_name == 'perjalanan_dinas_menu' || $this->module_name == 'training_menu' || $this->module_name == 'loan' || $this->module_name == 'hr_employee_loans' || $this->module_name == 'request_recruitment_menu' || $this->module_name == 'attendance_revision_menu') {
+                            if ($this->module_name == 'ijin_menu' || $this->module_name == 'fpu_menu' || $this->module_name == 'fpp_menu' || $this->module_name == 'settlement_menu' || $this->module_name == 'reimbursement_menu' || $this->module_name == 'lembur_menu' || $this->module_name == 'perjalanan_dinas_menu' || $this->module_name == 'training_menu' || $this->module_name == 'loan' || $this->module_name == 'hr_employee_loans' || $this->module_name == 'request_recruitment_menu' || $this->module_name == 'attendance_revision_menu' || $this->module_name == 'bonus_int_menu' || $this->module_name == 'thr_int_menu' || $this->module_name == 'bonus_os_menu' || $this->module_name == 'thr_os_menu' || $this->module_name == 'hitung_gaji_int_menu' || $this->module_name == 'hitung_gaji_os_menu') {
                             ?>
                                 <button type="button" style="display:none" id="btnApprovalLog" class="btn-sm btn-circle btn-approvalLog" onclick="approvalLog()">
                                     <i class="fa fa-history"></i> Approval Log
@@ -279,6 +279,14 @@
 
                             <button class="btn btn-info" style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;" id="submit-data" data-text="Submit" data-loading="Submitting..." onclick="save('waiting_approval')">
                                 <i class="fa fa-check"></i> Submit
+                            </button>
+                        <?php elseif ($this->module_name == 'hitung_gaji_int_menu' || $this->module_name == 'hitung_gaji_os_menu'): ?>
+                            <button type="button" class="btn" id="btnPayrollDraft" style="background-color: #e8e9ec; color: black; border-radius: 4px !important; margin-right: 5px;" onclick="savePayrollDraft()">
+                                Save Draft
+                            </button>
+
+                            <button type="button" class="btn btn-info" style="background-color: #112D80; color: white; border-radius: 4px !important; margin-right: 5px;" id="submit-data" data-text="Submit" data-loading="Submitting..." onclick="submitPayrollFinal()">
+                                <i class="fa fa-check"></i> Submit Final
                             </button>
                         <?php else: ?>
                             <button class="btn btn-info"

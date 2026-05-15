@@ -1,3 +1,6 @@
+<input type="hidden" name="action_type" value="">
+<input type="hidden" name="payroll_action" value="draft">
+
 <div class="row">
 <div id="payroll-period-warning" class="alert alert-warning" style="display:none; margin:10px 15px;">
 	<i class="fa fa-exclamation-triangle"></i> <span id="payroll-period-warning-text"></span>
@@ -108,6 +111,8 @@
                                     <th scope="col">Lembur per jam</th>
                                     <th scope="col">Total Jam Lembur</th>
                                     <th scope="col">Total Nominal Lembur</th>
+                                    <th scope="col" class="gaji-bonus-col">Bonus</th>
+                                    <th scope="col" class="gaji-thr-col">THR</th>
                                     <th scope="col">Total Pendapatan</th>
                                     <th scope="col">BPJS Kesehatan</th>
                                     <th scope="col">BPJS TK</th>

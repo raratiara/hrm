@@ -42,10 +42,16 @@ class Absensi_menu extends MY_Controller
 
 		$empData = $this->db->query("select full_name, shift_type from employees where id = '".$karyawan_id."'")->result(); 
 		$emp_shift_type=1; $time_in=""; $time_out=""; $attendance_type="";
-		if($empData[0]->shift_type == 'Reguler'){
+		$employee_name = !empty($empData) ? $empData[0]->full_name : '';
+		$shift_type = !empty($empData) ? $empData[0]->shift_type : '';
+		if($shift_type == 'Reguler'){
 			$dt = $this->db->query("select * from master_shift_time where shift_type = 'Reguler' ")->result(); 
 
-		}else if($empData[0]->shift_type == 'Shift'){
+			if(empty($dt)){
+				$emp_shift_type=0;
+			}
+
+		}else if($shift_type == 'Shift'){
 			// $data_attendances = $this->db->query("select * from time_attendances where date_attendance = '".$dateNow."' and employee_id = '".$karyawan_id."'")->result(); 
 			// //jika sudah ada absen hari ini, maka akan cek shift besok, kalau dapet shift 3, maka bisa checkin. Karna shift 3 jadwalnya tengah malam, jadi bisa checkin di tgl sebelumnya.
 			// if((!empty($data_attendances)) && $data_attendances[0]->date_attendance_in != null && $data_attendances[0]->date_attendance_in != '0000-00-00 00:00:00' && $data_attendances[0]->date_attendance_out != null && $data_attendances[0]->date_attendance_out != '0000-00-00 00:00:00'){
@@ -113,7 +119,7 @@ class Absensi_menu extends MY_Controller
 			and a.period = '".$period."'
 			")->result(); 
 
-			if($dt[0]->shift == ""){
+			if(empty($dt) || $dt[0]->shift == ""){
 				$emp_shift_type=0;
 			}
 
@@ -124,7 +130,7 @@ class Absensi_menu extends MY_Controller
 			$emp_shift_type=0;
 		} 
 
-		if($emp_shift_type==1){
+		if($emp_shift_type==1 && !empty($dt)){
 			$time_in 			= $dt[0]->time_in;
 			$time_out 			= $dt[0]->time_out;
 			$attendance_type 	= $dt[0]->name;
@@ -138,7 +144,7 @@ class Absensi_menu extends MY_Controller
 		$field['txtdateattendance']		= $this->self_model->return_build_txt($date_attendance,'date_attendance','date_attendance','','','readonly');
 		/*$msemp 							= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); */
 		/*$field['selemployee'] 			= $this->self_model->return_build_select2me($msemp,'','','','employee','employee','','','id','full_name',' ','','','',3,'-');*/
-		$field['selemployee'] 			= $this->self_model->return_build_txt($empData[0]->full_name,'employee','employee','','','readonly');
+		$field['selemployee'] 			= $this->self_model->return_build_txt($employee_name,'employee','employee','','','readonly');
 		/*$field['txtimein'] 				= $this->self_model->return_build_txt('','time_in','time_in','','','readonly');*/
 		$field['txtimein'] 				= $this->self_model->return_build_txt($time_in,'time_in','time_in','','','readonly');
 		$field['txtattendancein'] 		= $this->self_model->return_build_txt($datetimeNow,'attendance_in','attendance_in','','','readonly');

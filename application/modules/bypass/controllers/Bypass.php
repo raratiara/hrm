@@ -586,8 +586,146 @@ class Bypass extends API_Controller
 
 
 
+	private function generate_cuti_bersama_quota($employee_id, $period_start)
+	{
+		$active_quota = $this->db->query("select * from total_cuti_karyawan where employee_id = ? and status = 1 limit 1", [$employee_id])->row();
+		if(!empty($active_quota)){
+			return true;
+		}
+
+		$last_quota = $this->db->query("select * from total_cuti_karyawan where employee_id = ? order by period_end desc limit 1", [$employee_id])->row();
+		if(!empty($last_quota)){
+			$period_start = date('Y-m-d', strtotime('+1 day', strtotime($last_quota->period_end)));
+		}
+
+		$period_end = date('Y-m-d', strtotime('-1 day', strtotime('+1 year', strtotime($period_start))));
+		$data = [
+			'employee_id' 	=> $employee_id,
+			'period_start' 	=> $period_start,
+			'period_end' 	=> $period_end,
+			'sisa_cuti' 	=> 12,
+			'status' 		=> 1,
+			'created_date'	=> date("Y-m-d H:i:s")
+		];
+
+		return $this->db->insert('total_cuti_karyawan', $data);
+	}
+
+	private function deduct_cuti_bersama_quota($employee_id, $date_attendance, $total_leave = 1)
+	{
+		$remaining_leave = $total_leave;
+		$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = ? and status = 1 and sisa_cuti > 0 order by period_start asc", [$employee_id])->result();
+
+		if(empty($jatahcuti)){
+			$this->generate_cuti_bersama_quota($employee_id, $date_attendance);
+			$jatahcuti = $this->db->query("select * from total_cuti_karyawan where employee_id = ? and status = 1 and sisa_cuti > 0 order by period_start asc", [$employee_id])->result();
+			if(empty($jatahcuti)){
+				return false;
+			}
+		}
+
+		foreach($jatahcuti as $row){
+			if($remaining_leave <= 0){
+				break;
+			}
+
+			$cut_amount = min((float)$row->sisa_cuti, $remaining_leave);
+			$sisa_cuti = (float)$row->sisa_cuti - $cut_amount;
+			$remaining_leave -= $cut_amount;
+
+			$data = [
+				'sisa_cuti' 	=> $sisa_cuti,
+				'updated_date'	=> date("Y-m-d H:i:s")
+			];
+			$this->db->update('total_cuti_karyawan', $data, "id = '".$row->id."'");
+		}
+
+		return $remaining_leave <= 0;
+	}
+
+	private function submit_cuti_bersama_absen($employee, $date_attendance, $holiday_id, $attendance_type, $time_in, $time_out)
+	{
+		$leave_type = 1; // Advance Leave / jatah cuti tahunan
+		$reason = 'Auto submit cuti bersama dari cron absensi';
+
+		$existing_leave = $this->db->query("
+			select *
+			from leave_absences
+			where employee_id = ?
+				and masterleave_id = ?
+				and date_leave_start = ?
+				and date_leave_end = ?
+				and status_approval != 3
+			limit 1
+		", [$employee->id, $leave_type, $date_attendance, $date_attendance])->row();
+
+		$this->db->trans_start();
+
+		if(!empty($existing_leave)){
+			$leave_id = $existing_leave->id;
+			if($existing_leave->status_approval != 2){
+				if(!$this->deduct_cuti_bersama_quota($employee->id, $date_attendance, 1)){
+					$this->db->trans_complete();
+					return false;
+				}
+
+				$data_leave_update = [
+					'status_approval' 	=> 2,
+					'date_approval'		=> date("Y-m-d H:i:s"),
+					'updated_at'		=> date("Y-m-d H:i:s")
+				];
+				$this->db->update('leave_absences', $data_leave_update, "id = '".$leave_id."'");
+			}
+		}else{
+			if(!$this->deduct_cuti_bersama_quota($employee->id, $date_attendance, 1)){
+				$this->db->trans_complete();
+				return false;
+			}
+
+			$data_leave = [
+				'employee_id' 			=> $employee->id,
+				'date_leave_start' 		=> $date_attendance,
+				'date_leave_end' 		=> $date_attendance,
+				'masterleave_id' 		=> $leave_type,
+				'reason' 				=> $reason,
+				'total_leave' 			=> 1,
+				'status_approval' 		=> 2,
+				'date_approval'			=> date("Y-m-d H:i:s"),
+				'created_at'			=> date("Y-m-d H:i:s")
+			];
+			$this->db->insert('leave_absences', $data_leave);
+			$leave_id = $this->db->insert_id();
+		}
+
+		$data_attendance = [
+			'date_attendance' 		=> $date_attendance,
+			'employee_id' 			=> $employee->id,
+			'attendance_type' 		=> $attendance_type,
+			'time_in' 				=> $time_in,
+			'time_out' 				=> $time_out,
+			'created_at'			=> date("Y-m-d H:i:s"),
+			'leave_type' 			=> $leave_type,
+			'leave_absences_id' 	=> $leave_id,
+			'holidays_id' 			=> $holiday_id,
+			'notes' 				=> $reason
+		];
+
+		$existing_attendance = $this->db->query("select * from time_attendances where date_attendance = ? and employee_id = ? limit 1", [$date_attendance, $employee->id])->row();
+		if(empty($existing_attendance)){
+			$this->db->insert('time_attendances', $data_attendance);
+		}else if(empty($existing_attendance->date_attendance_in)){
+			$data_attendance['updated_at'] = date("Y-m-d H:i:s");
+			unset($data_attendance['created_at']);
+			$this->db->update('time_attendances', $data_attendance, "id = '".$existing_attendance->id."'");
+		}
+
+		$this->db->trans_complete();
+
+		return $this->db->trans_status();
+	}
+
 	public function submit_daily_absen(){ // jalan setiap hari, jam 8 pagi
-		$tanggal = date('Y-m-d');
+		$tanggal = '2026-05-16';///date('Y-m-d');
 		$yesterday = date('Y-m-d', strtotime('-1 day', strtotime($tanggal)));
 		$period = date("Y-m", strtotime($yesterday));
 		$tgl = date("d", strtotime($yesterday));
@@ -602,10 +740,13 @@ class Bypass extends API_Controller
 
 		//cek kemarin tgl libur nasional bukan
 		$Holidays = $this->db->query("select * from master_holidays where date = '".$yesterday."'")->result();
-		$is_holiday=0;
+		$is_holiday=0; $is_cuti_bersama=0; $holID="";
 		if(!empty($Holidays)){
 			$holID = $Holidays[0]->id;
 			$is_holiday = 1;
+			if(isset($Holidays[0]->type) && strtolower(trim($Holidays[0]->type)) == 'cuti_bersama'){
+				$is_cuti_bersama = 1;
+			}
 		}
 
 
@@ -613,7 +754,27 @@ class Bypass extends API_Controller
 		$emp = $this->db->query("select * from employees where status_id = 1")->result();
 
 		foreach($emp as $row_emp){
+			$row_is_holiday = $is_holiday;
 			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
+			$has_checkin = 0; $has_leave = 0;
+			if(!empty($absen)){
+				foreach($absen as $row_absen){
+					if(!empty($row_absen->date_attendance_in)){
+						$has_checkin = 1;
+					}
+					if(!empty($row_absen->leave_absences_id)){
+						$has_leave = 1;
+					}
+				}
+			}
+
+			if($is_cuti_bersama == 1 && $has_checkin == 0 && $has_leave == 0 && count($absen) > 0){
+				$rs_cuti_bersama = $this->submit_cuti_bersama_absen($row_emp, $yesterday, $holID, $row_emp->shift_type, "", "");
+				if($rs_cuti_bersama){
+					echo 'Data Cuti Bersama otomatis di update, employee ID ='.$row_emp->id.' </br>';
+				}
+				continue;
+			}
 
 			if(count($absen) == 0){
 				$emp_shift_type=1; $reguler_sabtuminggu=0; 
@@ -637,7 +798,7 @@ class Bypass extends API_Controller
 						where b.employee_id = '".$row_emp->id."' and a.period = '".$period."' ")->result(); 
 
 					if(!empty($dt)){ //kalo shift ada jadwal shift, brarti bukan libur nasional
-						$is_holiday=0;
+						$row_is_holiday=0;
 					}
 
 				}else{ //tidak ada shift type
@@ -645,7 +806,7 @@ class Bypass extends API_Controller
 				} 
 
 				$attendance_type=""; $time_in=""; $time_out="";
-				if($emp_shift_type==1){
+				if($emp_shift_type==1 && !empty($dt)){
 					$attendance_type 	= $dt[0]->name;
 					if($reguler_sabtuminggu!=1){
 						$time_in 	= $dt[0]->time_in;
@@ -653,7 +814,15 @@ class Bypass extends API_Controller
 					}
 				}
 
-				if($is_holiday == 1){
+				if($is_cuti_bersama == 1){
+					$rs_cuti_bersama = $this->submit_cuti_bersama_absen($row_emp, $yesterday, $holID, $attendance_type, $time_in, $time_out);
+					if($rs_cuti_bersama){
+						echo 'Data Cuti Bersama otomatis di submit, employee ID ='.$row_emp->id.' </br>';
+						continue;
+					}
+				}
+
+				if($row_is_holiday == 1){
 					$data = [
 						'date_attendance' 			=> $yesterday,
 						'employee_id' 				=> $row_emp->id,
@@ -701,10 +870,13 @@ class Bypass extends API_Controller
 
 		//cek kemarin tgl libur nasional bukan
 		$Holidays = $this->db->query("select * from master_holidays where date = '".$yesterday."'")->result();
-		$is_holiday=0;
+		$is_holiday=0; $is_cuti_bersama=0; $holID="";
 		if(!empty($Holidays)){
 			$holID = $Holidays[0]->id;
 			$is_holiday = 1;
+			if(isset($Holidays[0]->type) && strtolower(trim($Holidays[0]->type)) == 'cuti_bersama'){
+				$is_cuti_bersama = 1;
+			}
 		}
 
 
@@ -712,7 +884,27 @@ class Bypass extends API_Controller
 		$emp = $this->db->query("select * from employees where status_id = 1")->result();
 
 		foreach($emp as $row_emp){
+			$row_is_holiday = $is_holiday;
 			$absen = $this->db->query("select * from time_attendances where date_attendance = '".$yesterday."' and employee_id = '".$row_emp->id."'")->result();
+			$has_checkin = 0; $has_leave = 0;
+			if(!empty($absen)){
+				foreach($absen as $row_absen){
+					if(!empty($row_absen->date_attendance_in)){
+						$has_checkin = 1;
+					}
+					if(!empty($row_absen->leave_absences_id)){
+						$has_leave = 1;
+					}
+				}
+			}
+
+			if($is_cuti_bersama == 1 && $has_checkin == 0 && $has_leave == 0 && count($absen) > 0){
+				$rs_cuti_bersama = $this->submit_cuti_bersama_absen($row_emp, $yesterday, $holID, $row_emp->shift_type, "", "");
+				if($rs_cuti_bersama){
+					echo 'Data Cuti Bersama otomatis di update, employee ID ='.$row_emp->id.' </br>';
+				}
+				continue;
+			}
 
 			if(count($absen) == 0){
 				$emp_shift_type=1; $reguler_sabtuminggu=0; 
@@ -736,7 +928,7 @@ class Bypass extends API_Controller
 						where b.employee_id = '".$row_emp->id."' and a.period = '".$period."' ")->result(); 
 
 					if(!empty($dt)){ //kalo shift ada jadwal shift, brarti bukan libur nasional
-						$is_holiday=0;
+						$row_is_holiday=0;
 					}
 
 				}else{ //tidak ada shift type
@@ -744,7 +936,7 @@ class Bypass extends API_Controller
 				} 
 
 				$attendance_type=""; $time_in=""; $time_out="";
-				if($emp_shift_type==1){
+				if($emp_shift_type==1 && !empty($dt)){
 					$attendance_type 	= $dt[0]->name;
 					if($reguler_sabtuminggu!=1){
 						$time_in 	= $dt[0]->time_in;
@@ -752,7 +944,15 @@ class Bypass extends API_Controller
 					}
 				}
 
-				if($is_holiday == 1){
+				if($is_cuti_bersama == 1){
+					$rs_cuti_bersama = $this->submit_cuti_bersama_absen($row_emp, $yesterday, $holID, $attendance_type, $time_in, $time_out);
+					if($rs_cuti_bersama){
+						echo 'Data Cuti Bersama otomatis di submit, employee ID ='.$row_emp->id.' </br>';
+						continue;
+					}
+				}
+
+				if($row_is_holiday == 1){
 					$data = [
 						'date_attendance' 			=> $yesterday,
 						'employee_id' 				=> $row_emp->id,
@@ -927,7 +1127,7 @@ class Bypass extends API_Controller
 				} 
 
 				$attendance_type=""; $time_in=""; $time_out="";
-				if($emp_shift_type==1){
+				if($emp_shift_type==1 && !empty($dt)){
 					$attendance_type 	= $dt[0]->name;
 					if($reguler_sabtuminggu!=1){
 						$time_in 	= $dt[0]->time_in;

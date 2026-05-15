@@ -13,6 +13,20 @@
 	justify-content: center;
 }
 
+.btn-approvalLog,
+.btn-approvalLogView {
+	background-color: #D0DBF7;
+	border: none;
+	border-radius: 6px;
+	color: #14195a;
+	cursor: pointer;
+	float: right;
+	font-size: 12px;
+	margin-right: 10px;
+	padding: 5px 10px;
+	transition: background 0.3s ease;
+}
+
 .bonus-thr-form .control-label {
 	text-align: left !important;
 }
@@ -44,6 +58,31 @@
 
 .bonus-thr-form textarea.form-control {
 	min-height: 84px;
+}
+
+.bonus-thr-info {
+	margin-bottom: 8px;
+}
+
+.bonus-thr-info-row {
+	align-items: flex-start;
+	display: grid;
+	grid-template-columns: 220px 14px minmax(0, 1fr);
+	line-height: 1.6;
+	margin-bottom: 4px;
+}
+
+.bonus-thr-info-row label {
+	font-weight: 400;
+	margin: 0;
+}
+
+.bonus-thr-info-row .sep {
+	text-align: center;
+}
+
+.bonus-thr-info-row span:last-child {
+	overflow-wrap: anywhere;
 }
 
 .bonus-thr-table-wrap {

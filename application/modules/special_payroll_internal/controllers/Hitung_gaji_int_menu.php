@@ -135,6 +135,51 @@ class Hitung_gaji_int_menu extends MY_Controller
 		{ 
 			$this->load->view('errors/html/error_hacks_401');
 		}
+	} 
+
+	public function rfu()
+	{
+		$post = $this->input->post(null, true);
+		$rs = false;
+		if(!empty($post['id'])) {
+			$rs = $this->self_model->rfu($post['id'], isset($post['reason']) ? $post['reason'] : '', isset($post['approval_level']) ? $post['approval_level'] : 1);
+		}
+
+		echo json_encode($rs);
+	}
+
+	public function reject()
+	{
+		$post = $this->input->post(null, true);
+		$rs = false;
+		if(!empty($post['id'])) {
+			$rs = $this->self_model->reject($post['id'], isset($post['reason']) ? $post['reason'] : '', isset($post['approval_level']) ? $post['approval_level'] : 1);
+		}
+
+		echo json_encode($rs);
+	}
+
+	public function getApprovalLog()
+	{
+		$post = $this->input->post(null, true);
+		$rows = !empty($post['id']) ? $this->self_model->getApprovalLogRows($post['id']) : [];
+		$html = '';
+
+		if(!empty($rows)) {
+			foreach($rows as $row) {
+				$approval_date = ($row->approval_date == '0000-00-00 00:00:00' || $row->approval_date == '') ? '' : $row->approval_date;
+				$html .= '<tr>';
+				$html .= '<td>'.$row->approval_level.'</td>';
+				$html .= '<td>'.$row->approver_name.'</td>';
+				$html .= '<td>'.$row->status_name.'</td>';
+				$html .= '<td>'.$approval_date.'</td>';
+				$html .= '</tr>';
+			}
+		} else {
+			$html .= '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
+		}
+
+		echo json_encode(['html' => $html]);
 	}
 
 
@@ -163,10 +208,6 @@ class Hitung_gaji_int_menu extends MY_Controller
             echo "<script>alert('Slip Gaji tidak ditemukan');window.close();</script>";
             exit;
         }
-
-        $project_name = $data[0]->project_name;
-
-       
 
         $pdfData = [
             'employees' => $data
@@ -295,11 +336,10 @@ class Hitung_gaji_int_menu extends MY_Controller
 
 	public function getGaji(){
 		$post = $this->input->post(null, true);
-		$project = $post['project'];
 		$bln 	= $post['bln'];
 		$thn 	= $post['thn'];
 
-		$rs =  $this->self_model->getGaji($project, $bln, $thn);
+		$rs =  $this->self_model->getGaji($bln, $thn);
 		
 
 		echo json_encode($rs);
@@ -410,6 +450,8 @@ class Hitung_gaji_int_menu extends MY_Controller
 	            'tunjangan_komunikasi'  => trim($post['tunj_komunikasi_edit_gaji'][$i]),
 	            'lembur_perjam'  	=> trim($post['lembur_perjam_edit_gaji'][$i]),
 	            'ot'  				=> trim($post['ot_edit_gaji'][$i]),
+	            'bonus'  			=> trim($post['bonus_edit_gaji'][$i] ?? 0),
+	            'thr'  				=> trim($post['thr_edit_gaji'][$i] ?? 0),
 	            'total_pendapatan'  => trim($post['ttl_pendapatan_edit_gaji'][$i]),
 	            'bpjs_kesehatan'  	=> trim($post['bpjs_kes_edit_gaji'][$i]),
 	            'bpjs_tk'  			=> trim($post['bpjs_tk_edit_gaji'][$i]),
@@ -593,7 +635,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 				from special_payroll_slip_internal a 
 				left join special_payroll_slip_detail_internal bb on bb.payroll_slip_id = a.id
 				left join employees b on b.id = bb.employee_id
-				where b.emp_source = 'internal' and is_special_payroll = 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
+				where b.emp_source = 'internal' and b.is_special_payroll = 1 and a.id = ".$_GET['payroll_id']." and b.project_id = a.project_id
 				ORDER BY b.full_name ASC
 	        ";
 
@@ -682,7 +724,7 @@ class Hitung_gaji_int_menu extends MY_Controller
 			left join employees c on c.id = b.employee_id
 			left join master_job_title d on d.id = c.job_title_id
 			left join master_emp_status e on e.id = c.employment_status_id
-			where b.emp_source = 'internal' and is_special_payroll = 1 and a.id = ".$_GET['payroll_id']." 
+			where c.emp_source = 'internal' and c.is_special_payroll = 1 and a.id = ".$_GET['payroll_id']." 
 			order by c.full_name asc
 	    ";
 

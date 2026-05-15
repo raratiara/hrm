@@ -189,6 +189,92 @@
 	</div>
 </div>
 
+<div class="modal fade" id="modalApprovalLogPayroll" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Approval Log</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+			</div>
+			<div class="modal-body" id="approvalLogContentPayroll">
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th style="width:50px;">Level</th>
+							<th>Approver</th>
+							<th>Status</th>
+							<th>Approval Date</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modal-rfu-payroll" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+		<div class="modal-dialog vertical-align-center">
+			<div class="modal-content" style="width:80%; text-align:center;">
+				<form class="form-horizontal" id="frmRfuPayroll">
+					<div class="modal-header bg-blue bg-font-blue no-padding">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+						<div class="table-header">Request For Update</div>
+					</div>
+					<div class="modal-body" style="min-height:100px; margin:10px">
+						<p class="text-center">Are you sure to request for update this Data?</p>
+						<div class="form-group">
+							<label class="col-md-4 control-label no-padding-right">Reason</label>
+							<div class="col-md-8">
+								<textarea id="payroll_rfu_reason" class="form-control" rows="3"></textarea>
+								<input type="hidden" id="payroll_approval_action_id" value="">
+								<input type="hidden" id="payroll_approval_action_level" value="">
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="modal-footer no-margin-top">
+					<center>
+						<button class="btn blue" onclick="save_payroll_rfu()"><i class="fa fa-check"></i> Ok</button>
+						<button class="btn blue" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
+					</center>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="modal-reject-payroll" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="vertical-alignment-helper">
+		<div class="modal-dialog vertical-align-center">
+			<div class="modal-content" style="width:80%; text-align:center;">
+				<form class="form-horizontal" id="frmRejectPayroll">
+					<div class="modal-header bg-blue bg-font-blue no-padding">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+						<div class="table-header">Reject</div>
+					</div>
+					<div class="modal-body" style="min-height:100px; margin:10px">
+						<p class="text-center">Are you sure to Reject this Data?</p>
+						<div class="form-group">
+							<label class="col-md-4 control-label no-padding-right">Reason</label>
+							<div class="col-md-8">
+								<textarea id="payroll_reject_reason" class="form-control" rows="3"></textarea>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="modal-footer no-margin-top">
+					<center>
+						<button class="btn blue" onclick="save_payroll_reject()"><i class="fa fa-check"></i> Ok</button>
+						<button class="btn blue" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
+					</center>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 <script type="text/javascript">
 var module_path = "<?php echo base_url($folder_name);?>"; //for save method string
@@ -197,6 +283,7 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var currentApprovalLogId = '';
 
 // TER data for PPh 21 calculation
 var terCategoryMapping = <?php
@@ -210,6 +297,27 @@ var terRates = <?php
 	$_terRates = $CI->db->query("SELECT category, min_bruto, IFNULL(max_bruto, 999999999999) as max_bruto, rate FROM tax_ter ORDER BY category, min_bruto")->result();
 	echo json_encode($_terRates);
 ?>;
+
+function togglePayrollComponentColumns(tableSelector){
+	var $table = $(tableSelector);
+	var hasBonus = false;
+	var hasThr = false;
+
+	$table.find('input[name^="bonus_gaji"], td.gaji-bonus-col').each(function(){
+		if($(this).data('has-component') == 1){ hasBonus = true; return false; }
+		var val = $(this).is('input') ? $(this).val() : $(this).text();
+		if(Number(val || 0) > 0){ hasBonus = true; return false; }
+	});
+
+	$table.find('input[name^="thr_gaji"], td.gaji-thr-col').each(function(){
+		if($(this).data('has-component') == 1){ hasThr = true; return false; }
+		var val = $(this).is('input') ? $(this).val() : $(this).text();
+		if(Number(val || 0) > 0){ hasThr = true; return false; }
+	});
+
+	$table.find('.gaji-bonus-col').toggle(hasBonus);
+	$table.find('.gaji-thr-col').toggle(hasThr);
+}
 
 
 
@@ -340,7 +448,9 @@ function load_data()
         {
 			if(data != false){
 				if(save_method == 'update'){ 
+					resetPayrollApprovalButtons();
 					$('[name="id"]').val(data.id);
+					$('[name="action_type"]').val('');
 					
 					
 					$('[name="penggajian_year"]').val(data.tahun_penggajian);
@@ -366,16 +476,24 @@ function load_data()
 						}
 					}).done(function() {
 						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						togglePayrollComponentColumns(locate);
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
 
+					configurePayrollApprovalButtons(data);
 					
 					$.uniform.update();
 					$('#mfdata').text('Update');
 					$('#modal-form-data').modal('show');
 				}
 				if(save_method == 'detail'){ 
+					currentApprovalLogId = data.id;
+					if(data.current_approval_level) {
+						$('#btnApprovalLogView').show();
+					} else {
+						$('#btnApprovalLogView').hide();
+					}
 					$('span.penggajian_year').html(data.tahun_penggajian);
 					$('span.penggajian_month').html(data.month_name);
 					$('span.period_start').html(data.tgl_start_absen);
@@ -393,6 +511,7 @@ function load_data()
 						}
 					}).done(function() {
 						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
+						togglePayrollComponentColumns(locate);
 						tSawBclear(locate);
 						///expenseviewadjust(lstatus);
 					});
@@ -430,6 +549,139 @@ function load_data()
     });
 }
 <?php } ?>
+
+function resetPayrollApprovalButtons() {
+	$('[name="action_type"]').val('');
+	$('[name="payroll_action"]').val('draft');
+	$('#btnPayrollDraft').show();
+	$('#submit-data').text('Submit Final').removeClass('btn-success green').addClass('blue');
+	$('#submit-data').css({'background-color':'#112D80','border-color':'#112D80','color':'#fff','margin-right':'5px'});
+	$('#idbtnPayrollRfu, #idbtnPayrollReject').remove();
+	$('#btnApprovalLog, #btnApprovalLogView').hide();
+	currentApprovalLogId = '';
+}
+
+function configurePayrollApprovalButtons(data) {
+	currentApprovalLogId = data.id;
+	if(data.status_id == 1 && data.is_approver == 1) {
+		$('[name="action_type"]').val('approval');
+		$('#btnPayrollDraft').hide();
+		$('#submit-data').text('Approve').removeClass('blue').addClass('green');
+		$('#submit-data').css({'background-color':'#26A65B','border-color':'#26A65B','color':'#fff','margin-right':'8px'});
+
+		var approveBtn = document.getElementById('submit-data');
+		if(!document.getElementById('idbtnPayrollRfu')) {
+			var rfuButton = document.createElement('button');
+			rfuButton.type = 'button';
+			rfuButton.innerText = 'RFU';
+			rfuButton.className = 'btn btn-warning';
+			rfuButton.style.marginLeft = '8px';
+			rfuButton.style.marginRight = '8px';
+			rfuButton.style.backgroundColor = '#F1C40F';
+			rfuButton.style.borderColor = '#F1C40F';
+			rfuButton.style.color = '#333';
+			rfuButton.id = 'idbtnPayrollRfu';
+			approveBtn.insertAdjacentElement('afterend', rfuButton);
+			rfuButton.addEventListener('click', function() {
+				$('#payroll_approval_action_id').val(data.id);
+				$('#payroll_approval_action_level').val(data.current_approval_level || 1);
+				$('#modal-rfu-payroll').modal('show');
+			});
+		}
+
+		if(!document.getElementById('idbtnPayrollReject')) {
+			var rejectButton = document.createElement('button');
+			rejectButton.type = 'button';
+			rejectButton.innerText = 'Reject';
+			rejectButton.className = 'btn btn-danger';
+			rejectButton.style.marginLeft = '8px';
+			rejectButton.style.marginRight = '18px';
+			rejectButton.style.backgroundColor = '#E7505A';
+			rejectButton.style.borderColor = '#E7505A';
+			rejectButton.style.color = '#fff';
+			rejectButton.id = 'idbtnPayrollReject';
+			document.getElementById('idbtnPayrollRfu').insertAdjacentElement('afterend', rejectButton);
+			rejectButton.addEventListener('click', function() {
+				$('#payroll_approval_action_id').val(data.id);
+				$('#payroll_approval_action_level').val(data.current_approval_level || 1);
+				$('#modal-reject-payroll').modal('show');
+			});
+		}
+	}
+
+	if(data.current_approval_level) {
+		$('#btnApprovalLog').show();
+	}
+}
+
+function savePayrollDraft() {
+	$('[name="action_type"]').val('');
+	$('[name="payroll_action"]').val('draft');
+	save();
+}
+
+function submitPayrollFinal() {
+	if($('[name="action_type"]').val() == 'approval') {
+		$('[name="payroll_action"]').val('');
+		save();
+		return;
+	}
+
+	$('[name="action_type"]').val('');
+	$('[name="payroll_action"]').val(save_method == 'add' ? 'draft' : 'submit_final');
+	save();
+}
+
+function save_payroll_rfu() {
+	savePayrollApprovalDecision('rfu', $('#payroll_rfu_reason').val());
+}
+
+function save_payroll_reject() {
+	savePayrollApprovalDecision('reject', $('#payroll_reject_reason').val());
+}
+
+function savePayrollApprovalDecision(action, reason) {
+	var id = $('#payroll_approval_action_id').val();
+	var approvalLevel = $('#payroll_approval_action_level').val();
+	var modal = action == 'rfu' ? '#modal-rfu-payroll' : '#modal-reject-payroll';
+	$(modal).modal('hide');
+
+	if(id == '') {
+		alert('Data not found!');
+		return;
+	}
+
+	$.ajax({
+		type: 'POST',
+		url: module_path + '/' + action,
+		data: { id: id, reason: reason, approval_level: approvalLevel },
+		cache: false,
+		dataType: 'JSON',
+		success: function(data) {
+			if(data != false) {
+				reload_table();
+				$('#modal-form-data').modal('hide');
+			} else {
+				alert('Failed to process the data!');
+			}
+		}
+	});
+}
+
+function approvalLog(id) {
+	id = id || currentApprovalLogId;
+	$('#modalApprovalLogPayroll').modal('show');
+	$.ajax({
+		type: 'POST',
+		url: module_path + '/getApprovalLog',
+		data: { id: id },
+		cache: false,
+		dataType: 'JSON',
+		success: function(response) {
+			$('#approvalLogContentPayroll tbody').html(response.html);
+		}
+	});
+}
 
 function dateFormat(tanggal) {
     if (!tanggal || tanggal === "0000-00-00") {
@@ -784,6 +1036,8 @@ function setTotalPendapatan(val){
 	var tunj_konsumsi = $('[name="tunj_konsumsi_gaji['+row+']"]').val();
 	var tunj_komunikasi = $('[name="tunj_komunikasi_gaji['+row+']"]').val();
 	var gaji = $('[name="gaji_gaji['+row+']"]').val();
+	var bonus = $('[name="bonus_gaji['+row+']"]').val();
+	var thr = $('[name="thr_gaji['+row+']"]').val();
 	
 	if(gaji == ''){
 		gaji=0;
@@ -800,13 +1054,21 @@ function setTotalPendapatan(val){
 	if(tunj_komunikasi == ''){
 		tunj_komunikasi=0;
 	}
+	if(bonus == ''){
+		bonus=0;
+	}
+	if(thr == ''){
+		thr=0;
+	}
 
 
 	var total_pendapatan = Number(gaji)
     + Number(tunj_jabatan)
     + Number(tunj_transport)
     + Number(tunj_konsumsi)
-    + Number(tunj_komunikasi);
+    + Number(tunj_komunikasi)
+    + Number(bonus)
+    + Number(thr);
 
 	total_pendapatan = roundUp2Smart(total_pendapatan);
 
@@ -814,7 +1076,7 @@ function setTotalPendapatan(val){
 
 	// Recalculate PPh 21 TER
 	var pph21 = calcPph21Ter(Number(total_pendapatan), row);
-	$('[name="pph120_gaji['+row+']"]').val(pph21);
+	$('[name="pph21_gaji['+row+']"]').val(pph21);
 
 	setSubTotal(val);
 
@@ -880,7 +1142,7 @@ function setGajiBersih(val){
 	var bpjs_kes	= $('[name="bpjs_kes_gaji['+row+']"]').val();
 	var bpjs_tk 	= $('[name="bpjs_tk_gaji['+row+']"]').val();
 	var payroll 	= $('[name="payroll_gaji['+row+']"]').val();
-	var pph120 		= $('[name="pph120_gaji['+row+']"]').val();
+	var pph21 		= $('[name="pph21_gaji['+row+']"]').val();
 	
 	
 	if(bpjs_kes == ''){
@@ -892,13 +1154,13 @@ function setGajiBersih(val){
 	if(payroll == ''){
 		payroll=0;
 	}
-	if(pph120 == ''){
-		pph120=0;
+	if(pph21 == ''){
+		pph21=0;
 	}
 	
 
 
-	var GajiBersih = Number(subtotal)-(Number(bpjs_kes)+Number(bpjs_tk)+Number(payroll)+Number(pph120));
+	var GajiBersih = Number(subtotal)-(Number(bpjs_kes)+Number(bpjs_tk)+Number(payroll)+Number(pph21));
 
 	GajiBersih = roundUp2Smart(GajiBersih);
 

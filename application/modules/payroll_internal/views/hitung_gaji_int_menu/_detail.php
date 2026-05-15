@@ -225,6 +225,8 @@
                                     <th scope="col">Lembur per jam</th>
                                     <th scope="col">Total Jam Lembur</th>
                                     <th scope="col">Total Nominal Lembur</th>
+                                    <th scope="col" class="gaji-bonus-col">Bonus</th>
+                                    <th scope="col" class="gaji-thr-col">THR</th>
                                     <th scope="col">Total Pendapatan</th>
                                     <th scope="col">BPJS Kesehatan</th>
                                     <th scope="col">BPJS TK</th>

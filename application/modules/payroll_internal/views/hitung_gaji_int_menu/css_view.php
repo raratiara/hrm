@@ -18,10 +18,59 @@
        
     }
 
+    #modal-form-data .table-header,
+    #modal-view-data .table-header {
+        position: relative;
+        padding-right: 190px !important;
+    }
+
+    .btn-approvalLog,
+    .btn-approvalLogView {
+        background-color: #D0DBF7 !important;
+        border: none !important;
+        border-radius: 6px !important;
+        color: #14195a !important;
+        cursor: pointer;
+        font-size: 12px !important;
+        padding: 5px 10px !important;
+        position: absolute;
+        right: 48px;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: background 0.3s ease;
+    }
+
+    .btn-approvalLog:hover,
+    .btn-approvalLogView:hover {
+        background-color: #b9c9f1 !important;
+        color: #14195a !important;
+    }
+
     #modal-view-data .modal-dialog {
         width: 90% !important;
         max-width: 900px !important; /* atur ukuran modal */
         margin: auto;
+    }
+
+    #modalApprovalLogPayroll .modal-dialog,
+    #modal-rfu-payroll .modal-dialog,
+    #modal-reject-payroll .modal-dialog {
+        width: 50% !important;
+        max-width: 640px !important;
+    }
+
+    #modal-rfu-payroll .modal-content,
+    #modal-reject-payroll .modal-content {
+        width: 100% !important;
+    }
+
+    @media screen and (max-width: 768px) {
+        #modalApprovalLogPayroll .modal-dialog,
+        #modal-rfu-payroll .modal-dialog,
+        #modal-reject-payroll .modal-dialog {
+            width: 92% !important;
+            max-width: none !important;
+        }
     }
 
 
