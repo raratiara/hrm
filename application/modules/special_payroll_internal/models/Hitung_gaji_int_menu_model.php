@@ -1348,10 +1348,44 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 	private function getPayrollComponentMap($bulan, $tahun)
 	{
-		return [
+		$components = [
 			'bonus' => ['has_data' => false, 'amounts' => []],
 			'thr' => ['has_data' => false, 'amounts' => []]
 		];
+
+		$bonusHeader = $this->db->query("
+			select id
+			from special_bonus_internal
+			where periode_bulan = ? and periode_tahun = ? and status_id = 2
+			order by id desc
+			limit 1
+		", [(int)$bulan, (string)$tahun])->row();
+
+		if ($bonusHeader) {
+			$components['bonus']['has_data'] = true;
+			$rows = $this->db->where('special_bonus_internal_id', $bonusHeader->id)->get('special_bonus_internal_detail')->result();
+			foreach ($rows as $row) {
+				$components['bonus']['amounts'][(int)$row->employee_id] = (float)$row->bonus_amount;
+			}
+		}
+
+		$thrHeader = $this->db->query("
+			select id
+			from special_thr_internal
+			where periode_bulan = ? and periode_tahun = ? and status_id = 2
+			order by id desc
+			limit 1
+		", [(int)$bulan, (string)$tahun])->row();
+
+		if ($thrHeader) {
+			$components['thr']['has_data'] = true;
+			$rows = $this->db->where('special_thr_internal_id', $thrHeader->id)->get('special_thr_internal_detail')->result();
+			foreach ($rows as $row) {
+				$components['thr']['amounts'][(int)$row->employee_id] = (float)$row->thr_amount;
+			}
+		}
+
+		return $components;
 	}
 
 
