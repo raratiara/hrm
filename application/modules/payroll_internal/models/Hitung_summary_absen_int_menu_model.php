@@ -182,7 +182,7 @@ class Hitung_summary_absen_int_menu_model extends MY_Model
 
 		foreach($rResult as $row)
 		{
-			$cek_payslip = $this->db->query("select id from payroll_slip_internal where bulan_penggajian = ".$row->bulan_penggajian." and tahun_penggajian = '".$row->tahun_penggajian."' and status = 2")->result();
+			$cek_payslip = $this->db->query("select id from payroll_slip_internal where bulan_penggajian = ".$row->bulan_penggajian." and tahun_penggajian = '".$row->tahun_penggajian."' limit 1")->result();
 
 
 			$detail = "";

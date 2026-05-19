@@ -146,11 +146,20 @@ class Spt_os_menu extends MY_Controller
 
 	public function getFormSptOS_pdf()
 	{
+		$form_id = isset($_GET['form_id']) ? (int) $_GET['form_id'] : 0;
+		if($form_id <= 0){
+			show_error('Data SPT tidak ditemukan.', 404, 'Data tidak ditemukan');
+			return;
+		}
+
 	    $sql = "
-	        select a.*, b.tahun, b.project_id, c.project_name, b.status_id as status_header_id, d.name as status_header, e.full_name, e.no_npwp, e.no_ktp, e.address_ktp, if(e.gender = 'M', 'Laki-Laki','Perempuan') as gender_name, f.name as status_marital_name, g.name as job_title_name, e.nationality, h.name as company_name, h.npwp as company_npwp,
+	        select a.*, b.tahun, b.project_id, c.project_name, b.status_id as status_header_id, d.name as status_header, e.full_name, e.no_npwp, e.no_ktp, e.address_ktp, e.employment_status_id, if(e.gender = 'M', 'Laki-Laki','Perempuan') as gender_name, f.name as status_marital_name, g.name as job_title_name, e.nationality, h.name as company_name, h.npwp as company_npwp,
 		        (case when e.nationality = '' then '-' 
 			    when e.nationality like '%indonesia%' then 'no' 
-			    else 'yes' end) as is_karyawan_asing, b.created_at
+			    else 'yes' end) as is_karyawan_asing, b.created_at,
+				coalesce(ps.total_bonus, 0) as total_bonus,
+				coalesce(ps.total_thr, 0) as total_thr,
+				coalesce(ps.total_lembur, 0) as total_lembur
 			from spt_pph21_detail a 
 			left join spt_pph21 b on b.id = a.spt_pph21_id
 			left join project_outsource c on c.id = b.project_id
@@ -159,7 +168,20 @@ class Spt_os_menu extends MY_Controller
 			left join master_marital_status f on f.id = e.marital_status_id
 			left join master_job_title_os g on g.id = e.job_title_id
 			left join companies h on h.id = e.company_id
-			where e.emp_source = 'outsource' and e.is_special_payroll != 1 and a.id = ".$_GET['form_id']."
+			left join (
+				select 
+					sd.employee_id,
+					sh.project_id,
+					sh.tahun_penggajian as tahun,
+					sum(coalesce(sd.bonus, 0)) as total_bonus,
+					sum(coalesce(sd.thr, 0)) as total_thr,
+					sum(coalesce(sd.total_nominal_lembur, 0)) as total_lembur
+				from payroll_slip_detail sd
+				left join payroll_slip sh on sh.id = sd.payroll_slip_id
+				where sh.status = 2
+				group by sd.employee_id, sh.project_id, sh.tahun_penggajian
+			) ps on ps.employee_id = a.employee_id and ps.project_id = b.project_id and ps.tahun = b.tahun
+			where e.emp_source = 'outsource' and e.is_special_payroll != 1 and a.id = ".$form_id."
 	    ";
 
 	    /*$sql = "
@@ -168,6 +190,10 @@ class Spt_os_menu extends MY_Controller
 
 
 	    $data = $this->db->query($sql)->result();
+		if(empty($data)){
+			show_error('Data SPT tidak ditemukan atau karyawan bukan payroll outsource reguler.', 404, 'Data tidak ditemukan');
+			return;
+		}
 
 	    $this->load->library('html_pdf');
 

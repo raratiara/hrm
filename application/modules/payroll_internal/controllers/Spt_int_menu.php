@@ -132,12 +132,15 @@ class Spt_int_menu extends MY_Controller
 
 	    $sql = "
 	        select a.*, b.tahun, b.status_id as status_header_id, 
-				d.name as status_header, e.full_name, e.no_npwp, e.no_ktp, e.address_ktp, 
+				d.name as status_header, e.full_name, e.no_npwp, e.no_ktp, e.address_ktp, e.employment_status_id,
 				if(e.gender = 'M', 'Laki-Laki','Perempuan') as gender_name, f.name as status_marital_name, 
 				g.name as job_title_name, e.nationality, h.name as company_name, h.npwp as company_npwp,
 					(case when e.nationality = '' then '-' 
 					when e.nationality like '%indonesia%' then 'no' 
-					else 'yes' end) as is_karyawan_asing, b.created_at
+					else 'yes' end) as is_karyawan_asing, b.created_at,
+				coalesce(ps.total_bonus, 0) as total_bonus,
+				coalesce(ps.total_thr, 0) as total_thr,
+				coalesce(ps.total_lembur, 0) as total_lembur
 				from spt_pph21_detail_internal a 
 				left join spt_pph21_internal b on b.id = a.spt_pph21_id
 				left join master_status_spt d on d.id = b.status_id
@@ -145,6 +148,18 @@ class Spt_int_menu extends MY_Controller
 				left join master_marital_status f on f.id = e.marital_status_id
 				left join master_job_title g on g.id = e.job_title_id
 				left join companies h on h.id = e.company_id
+				left join (
+					select 
+						sd.employee_id,
+						sh.tahun_penggajian as tahun,
+						sum(coalesce(sd.bonus, 0)) as total_bonus,
+						sum(coalesce(sd.thr, 0)) as total_thr,
+						sum(coalesce(sd.total_nominal_lembur, 0)) as total_lembur
+					from payroll_slip_detail_internal sd
+					left join payroll_slip_internal sh on sh.id = sd.payroll_slip_id
+					where sh.status = 2
+					group by sd.employee_id, sh.tahun_penggajian
+				) ps on ps.employee_id = a.employee_id and ps.tahun = b.tahun
 			where e.emp_source = 'internal' and IFNULL(e.is_special_payroll,0) != 1 and a.id = ".$form_id."
 	    ";
 
