@@ -278,48 +278,41 @@ class Spt_int_menu_model extends MY_Model
 	} 
 
 
-	public function getPph21_tahunan($pkp) { 
+	public function getPph21_tahunan($pkp, $tahun = '') { 
 
 		if ($pkp <= 0) return 0;
 
+		$brackets = [];
+		if($tahun != ''){
+			$brackets = $this->db->query("select * from tax_brackets where effective_year = ? order by min_income asc", [$tahun])->result();
+			if(empty($brackets)){
+				$effective = $this->db->query("select max(cast(effective_year as unsigned)) as effective_year from tax_brackets where effective_year != '' and cast(effective_year as unsigned) <= ?", [$tahun])->row();
+				if($effective && $effective->effective_year != ''){
+					$brackets = $this->db->query("select * from tax_brackets where effective_year = ? order by min_income asc", [$effective->effective_year])->result();
+				}
+			}
+		}
+		if(empty($brackets)){
+			$brackets = $this->db->query("select * from tax_brackets where effective_year is null or effective_year = '' order by min_income asc")->result();
+		}
+		if(empty($brackets)){
+			$brackets = $this->db->query("select * from tax_brackets order by min_income asc")->result();
+		}
+
 		$pajak = 0;
+		foreach($brackets as $bracket){
+			$min = (float)$bracket->min_income;
+			$max = (float)$bracket->max_income;
+			$rate = (float)$bracket->rate;
+			$rate = ($rate > 1) ? $rate / 100 : $rate;
 
-	    if($pkp <= 60000000){ /// 60juta
-	        $pajak += $pkp * 0.05; /// 5%
-	    }
-	    else{
-	    	$pajak += 60000000 * 0.05; /// 5%
-	        $pkp -= 60000000;
+			if($pkp <= $min) continue;
 
-	        if($pkp <= 190000000){ /// 190jt
-	            $pajak += $pkp * 0.15; /// 15%
-	        }
-	        else{
-	        	$pajak += 190000000 * 0.15; /// 15%
-	            $pkp -= 190000000;
-
-	            if($pkp <= 250000000){ ///250jt
-	                $pajak += $pkp * 0.25; /// 25%
-	            }
-	            else{
-	            	$pajak += 250000000 * 0.25; /// 25%
-	                $pkp -= 250000000;
-
-	                if($pkp <= 4500000000){ /// 4.5 M
-	                    $pajak += $pkp * 0.3; ///30%
-	                }
-	                else{
-	                	$pajak += 4500000000 * 0.3; ///30%
-	                    $pkp -= 4500000000;
-
-	                    $pajak += $pkp * 0.35; ///35%
-	                }
-	            }
-	        }
-	    }
-	        
-	                
-	             
+			$taxable = ($max > 0) ? min($pkp, $max) - $min : $pkp - $min;
+			if($taxable > 0){
+				$pajak += $taxable * $rate;
+			}
+		}
 
     	return $pajak;
 
@@ -454,10 +447,8 @@ class Spt_int_menu_model extends MY_Model
 
 	        // PKP tidak boleh negatif
 			$pkp = max(0, $neto - $ptkp);
-			// pembulatan ribuan ke bawah
-			$pkp = floor($pkp / 1000) * 1000;
 
-	        $pph21_tahunan = $this->getPph21_tahunan($pkp); 
+	        $pph21_tahunan = $this->getPph21_tahunan($pkp, $tahun); 
 	        $kurang_lebih_bayar = $pph21_tahunan-$row->ttl_pph21;
 
 	        $kurang_lebih_bayar_desc = 'pas';

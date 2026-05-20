@@ -248,6 +248,12 @@ $( "#btnAddData" ).on('click', function(){
 
 
 	if(module_name == 'hitung_gaji_os_menu'){ 
+		$('[name="action_type"]').val('');
+		$('#idbtnPayrollRfu, #idbtnPayrollReject').remove();
+		$('#btnApprovalLog, #btnApprovalLogView').hide();
+		$('#payroll_approval_action_id, #payroll_approval_action_level').val('');
+		if(typeof currentApprovalLogId !== 'undefined') currentApprovalLogId = '';
+
 		document.getElementById("projectViewGaji").style.display = "none";
 		document.getElementById("inpAbsenOS_gaji").style.display = "none";
 		if(document.getElementById("btnPayrollDraft")) document.getElementById("btnPayrollDraft").style.display = "none";
@@ -308,6 +314,12 @@ $( "#btnAddData" ).on('click', function(){
 
 
 	if(module_name == 'hitung_gaji_int_menu'){ 
+		$('[name="action_type"]').val('');
+		$('#idbtnPayrollRfu, #idbtnPayrollReject').remove();
+		$('#btnApprovalLog, #btnApprovalLogView').hide();
+		$('#payroll_approval_action_id, #payroll_approval_action_level').val('');
+		if(typeof currentApprovalLogId !== 'undefined') currentApprovalLogId = '';
+
 		document.getElementById("inpAbsenInt_gaji").style.display = "none";
 		if(document.getElementById("btnPayrollDraft")) document.getElementById("btnPayrollDraft").style.display = "none";
 		if(document.getElementById("submit-data")) document.getElementById("submit-data").innerHTML = '<i class="fa fa-check"></i> Submit';
