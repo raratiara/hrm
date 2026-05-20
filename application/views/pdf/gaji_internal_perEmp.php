@@ -99,6 +99,11 @@ if (!function_exists('rupiah')) {
 <hr>
 
 <!-- PENDAPATAN & POTONGAN -->
+<?php
+$pph21Value = $pph_21 ?? ($pph_120 ?? 0);
+$pph21AdjustmentValue = $pph21_adjustment ?? 0;
+$pph21AdjustmentText = $pph21_adjustment_keterangan ?? '';
+?>
 <table>
 <tr>
     <td width="50%" class="border">
@@ -110,6 +115,9 @@ if (!function_exists('rupiah')) {
             <tr><td>Tunjangan Konsumsi</td><td class="right"><?=rupiah($tunjangan_konsumsi)?></td></tr>
             <tr><td>Tunjangan Komunikasi</td><td class="right"><?=rupiah($tunjangan_komunikasi)?></td></tr>
             <tr><td>Lembur</td><td class="right"><?= rupiah($total_nominal_lembur) ?></td></tr>
+            <?php if ((float)$pph21AdjustmentValue > 0): ?>
+            <tr><td>PPh21 Adjustment (<?=$pph21AdjustmentText?>)</td><td class="right"><?= rupiah($pph21AdjustmentValue) ?></td></tr>
+            <?php endif; ?>
            
         </table>
     </td>
@@ -125,7 +133,10 @@ if (!function_exists('rupiah')) {
             <tr><td>Hutang</td><td class="right"><?= rupiah($hutang) ?></td></tr>
             <tr><td>Payroll</td><td class="right"><?= rupiah($payroll) ?></td></tr>
             <tr><td>Sosial</td><td class="right"><?= rupiah($sosial) ?></td></tr>
-            <tr><td>PPH 120</td><td class="right"><?= rupiah($pph_120) ?></td></tr>
+            <tr><td>PPH 21</td><td class="right"><?= rupiah($pph21Value) ?></td></tr>
+            <?php if ((float)$pph21AdjustmentValue < 0): ?>
+            <tr><td>PPh21 Adjustment (<?=$pph21AdjustmentText?>)</td><td class="right"><?= rupiah(abs($pph21AdjustmentValue)) ?></td></tr>
+            <?php endif; ?>
         </table>
     </td>
 </tr>

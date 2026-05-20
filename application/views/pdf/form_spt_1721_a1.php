@@ -75,6 +75,12 @@
             line-height: 1.08;
             min-height: 17px;
         }
+        .identity-table {
+            table-layout: auto;
+        }
+        .identity-label {
+            width: 72px;
+        }
         .npwp-group {
             display: inline-block;
             border-bottom: 1px solid #000;
@@ -303,21 +309,21 @@ $kodeObjekPajak = ((int)($row->employment_status_id ?? 0) === 3) ? '21-100-01' :
     <table class="bordered mb2">
         <tr>
             <td style="width: 50%;">
-                <table class="no-border">
+                <table class="no-border identity-table">
                     <tr>
-                        <td style="width: 66px;" class="bold">1. NPWP <span class="tiny">A.01</span></td>
+                        <td class="bold identity-label">1. NPWP <span class="tiny">A.01</span></td>
                         <td><span class="identity-line"><?=spt_npwp_html($row->no_npwp)?></span></td>
                     </tr>
                     <tr>
-                        <td class="bold">2. NIK / NO.<br>&nbsp;&nbsp;&nbsp;PASPOR <span class="tiny">A.02</span></td>
+                        <td class="bold identity-label">2. NIK / NO.<br>&nbsp;&nbsp;&nbsp;PASPOR <span class="tiny">A.02</span></td>
                         <td><span class="identity-line identity-text"><?=$row->no_ktp?></span></td>
                     </tr>
                     <tr>
-                        <td class="bold">3. NAMA <span class="tiny">A.03</span></td>
+                        <td class="bold identity-label">3. NAMA <span class="tiny">A.03</span></td>
                         <td><span class="identity-line identity-text"><?=$row->full_name?></span></td>
                     </tr>
                     <tr>
-                        <td class="bold">4. ALAMAT <span class="tiny">A.04</span></td>
+                        <td class="bold identity-label">4. ALAMAT <span class="tiny">A.04</span></td>
                         <td><span class="identity-line identity-address identity-text"><?=$row->address_ktp?></span></td>
                     </tr>
                 </table>

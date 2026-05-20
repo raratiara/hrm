@@ -114,6 +114,9 @@ if (!function_exists('rupiah')) {
             <tr><td>Tunjangan Konsumsi</td><td class="right"><?=rupiah($row->tunjangan_konsumsi)?></td></tr>
             <tr><td>Tunjangan Komunikasi</td><td class="right"><?=rupiah($row->tunjangan_komunikasi)?></td></tr>
             <tr><td>Lembur</td><td class="right"><?= rupiah($row->total_nominal_lembur) ?></td></tr>
+            <?php if ((float)($row->pph21_adjustment ?? 0) > 0): ?>
+            <tr><td>PPh21 Adjustment (<?=$row->pph21_adjustment_keterangan?>)</td><td class="right"><?= rupiah($row->pph21_adjustment) ?></td></tr>
+            <?php endif; ?>
             
         </table>
     </td>
@@ -129,7 +132,10 @@ if (!function_exists('rupiah')) {
             <tr><td>Hutang</td><td class="right"><?= rupiah($row->hutang) ?></td></tr>
             <tr><td>Payroll</td><td class="right"><?= rupiah($row->payroll) ?></td></tr>
             <tr><td>Sosial</td><td class="right"><?= rupiah($row->sosial) ?></td></tr>
-            <tr><td>PPH 120</td><td class="right"><?= rupiah($row->pph_120) ?></td></tr>
+            <tr><td>PPH 21</td><td class="right"><?= rupiah($row->pph_21 ?? ($row->pph_120 ?? 0)) ?></td></tr>
+            <?php if ((float)($row->pph21_adjustment ?? 0) < 0): ?>
+            <tr><td>PPh21 Adjustment (<?=$row->pph21_adjustment_keterangan?>)</td><td class="right"><?= rupiah(abs($row->pph21_adjustment)) ?></td></tr>
+            <?php endif; ?>
         </table>
     </td>
 </tr>
@@ -141,12 +147,15 @@ if (!function_exists('rupiah')) {
     <td width="50%" class="border">
         <table width="100%">
             
-            <tr style="font-weight:bold;"><td>Jumlah Pendapatan</td><td class="right"><?= rupiah($row->total_pendapatan) ?></td></tr>
+            <?php $pph21Adjustment = (float)($row->pph21_adjustment ?? 0); ?>
+            <tr style="font-weight:bold;"><td>Jumlah Pendapatan</td><td class="right"><?= rupiah((float)$row->total_pendapatan + ($pph21Adjustment > 0 ? $pph21Adjustment : 0)) ?></td></tr>
             
         </table>
     </td>
 
     <?php
+    $pph21Adjustment = (float)($row->pph21_adjustment ?? 0);
+    $pph21Value = $row->pph_21 ?? ($row->pph_120 ?? 0);
     $total_potongan =
         (int)$row->bpjs_kesehatan +
         (int)$row->bpjs_tk +
@@ -156,7 +165,8 @@ if (!function_exists('rupiah')) {
         (int)$row->hutang +
         (int)$row->sosial +
         (int)$row->payroll +
-        (int)$row->pph_120;
+        (int)$pph21Value +
+        ($pph21Adjustment < 0 ? abs($pph21Adjustment) : 0);
     ?>
 
     <?php

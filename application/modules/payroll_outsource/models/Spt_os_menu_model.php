@@ -11,6 +11,88 @@ class Spt_os_menu_model extends MY_Model
 	function __construct()
 	{
 		parent::__construct();
+		$this->ensureAdjustmentTable();
+	}
+
+	private function ensureAdjustmentTable()
+	{
+		$this->db->query("
+			CREATE TABLE IF NOT EXISTS `spt_pph21_adjustment_os` (
+				`id` INT(11) NOT NULL AUTO_INCREMENT,
+				`spt_pph21_id` INT(11) NULL,
+				`spt_pph21_detail_id` INT(11) NULL,
+				`employee_id` INT(11) NULL,
+				`tahun_pajak` VARCHAR(10) NULL,
+				`type` VARCHAR(45) NULL,
+				`amount` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+				`kurang_lebih_bayar` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+				`status` VARCHAR(45) NULL DEFAULT 'pending',
+				`proses_ke_bulan_penggajian` INT(2) NOT NULL DEFAULT 1,
+				`proses_ke_tahun_penggajian` VARCHAR(45) NULL,
+				`created_at` DATETIME DEFAULT NULL,
+				`created_by` INT(11) DEFAULT NULL,
+				`updated_at` DATETIME DEFAULT NULL,
+				`updated_by` INT(11) DEFAULT NULL,
+				PRIMARY KEY (`id`),
+				UNIQUE KEY `uniq_spt_adjustment_detail` (`spt_pph21_detail_id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+		");
+		$this->db->query("ALTER TABLE `spt_pph21_adjustment_os` ADD COLUMN IF NOT EXISTS `spt_pph21_id` INT(11) NULL AFTER `id`, ADD COLUMN IF NOT EXISTS `spt_pph21_detail_id` INT(11) NULL AFTER `spt_pph21_id`, ADD COLUMN IF NOT EXISTS `kurang_lebih_bayar` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `amount`, ADD COLUMN IF NOT EXISTS `created_at` DATETIME DEFAULT NULL, ADD COLUMN IF NOT EXISTS `created_by` INT(11) DEFAULT NULL, ADD COLUMN IF NOT EXISTS `updated_at` DATETIME DEFAULT NULL, ADD COLUMN IF NOT EXISTS `updated_by` INT(11) DEFAULT NULL");
+		$this->db->query("ALTER TABLE `spt_pph21_adjustment_os` CHANGE COLUMN IF EXISTS `tax_year` `tahun_pajak` VARCHAR(10) NULL");
+		$this->db->query("ALTER TABLE `spt_pph21_adjustment_os` MODIFY COLUMN `amount` DECIMAL(15,2) NOT NULL DEFAULT 0.00");
+		$this->db->query("ALTER TABLE `spt_pph21_adjustment_os` MODIFY COLUMN `proses_ke_bulan_penggajian` INT(2) NOT NULL DEFAULT 1");
+		$this->db->query("CREATE UNIQUE INDEX IF NOT EXISTS `uniq_spt_adjustment_detail` ON `spt_pph21_adjustment_os` (`spt_pph21_detail_id`)");
+	}
+
+	private function syncPph21Adjustments($spt_id)
+	{
+		$header = $this->db->where('id', $spt_id)->get('spt_pph21')->row();
+		if(!$header) return;
+
+		$rows = $this->db->query("
+			select * from spt_pph21_detail
+			where spt_pph21_id = ?
+			and ifnull(kurang_lebih_bayar, 0) != 0
+		", [$spt_id])->result();
+
+		$activeDetailIds = [];
+		foreach($rows as $row){
+			$activeDetailIds[] = (int)$row->id;
+			$type = ((float)$row->kurang_lebih_bayar < 0) ? 'refund' : 'kurang bayar';
+			$amount = abs((float)$row->kurang_lebih_bayar);
+			$item = [
+				'spt_pph21_id' => $spt_id,
+				'spt_pph21_detail_id' => $row->id,
+				'employee_id' => $row->employee_id,
+				'tahun_pajak' => $header->tahun,
+				'type' => $type,
+				'amount' => $amount,
+				'kurang_lebih_bayar' => $row->kurang_lebih_bayar,
+				'status' => 'pending',
+				'proses_ke_bulan_penggajian' => 1,
+				'proses_ke_tahun_penggajian' => ((int)$header->tahun + 1),
+				'created_at' => date("Y-m-d H:i:s"),
+				'created_by' => $_SESSION['worker']
+			];
+			$existing = $this->db->where(['spt_pph21_detail_id' => $row->id])->get('spt_pph21_adjustment_os')->row();
+			if($existing){
+				$this->db->where(['spt_pph21_detail_id' => $row->id])->update('spt_pph21_adjustment_os', [
+					'employee_id' => $row->employee_id,
+					'tahun_pajak' => $header->tahun,
+					'type' => $type,
+					'amount' => $amount,
+					'kurang_lebih_bayar' => $row->kurang_lebih_bayar,
+					'updated_at' => date("Y-m-d H:i:s"),
+					'updated_by' => $_SESSION['worker']
+				]);
+			} else {
+				$this->db->insert('spt_pph21_adjustment_os', $item);
+			}
+		}
+
+		$this->db->where(['spt_pph21_id' => $spt_id, 'status' => 'pending']);
+		if(!empty($activeDetailIds)) $this->db->where_not_in('spt_pph21_detail_id', $activeDetailIds);
+		$this->db->delete('spt_pph21_adjustment_os');
 	}
 
 	// fix
@@ -591,6 +673,9 @@ class Spt_os_menu_model extends MY_Model
 			}
 
 			if($rs){
+				if(isset($post['status']) && trim($post['status']) == '2'){
+					$this->syncPph21Adjustments($post['id']);
+				}
 				return [
 				    "status" => true,
 				    "msg" => "Data berhasil disimpan"

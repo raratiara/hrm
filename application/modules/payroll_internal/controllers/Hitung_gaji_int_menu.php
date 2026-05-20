@@ -255,7 +255,8 @@ class Hitung_gaji_int_menu extends MY_Controller
 		    $data = $this->db->query($sql)->result();
 
 		    if(!empty($data)){
-		    	$total_potongan = (int)$data[0]->bpjs_kesehatan + (int)$data[0]->bpjs_tk + (int)$data[0]->seragam + (int)$data[0]->pelatihan + (int)$data[0]->lain_lain + (int)$data[0]->hutang + (int)$data[0]->sosial + (int)$data[0]->payroll + (int)$data[0]->pph_120;
+		    	$pph21Adjustment = (float)($data[0]->pph21_adjustment ?? 0);
+		    	$total_potongan = (int)$data[0]->bpjs_kesehatan + (int)$data[0]->bpjs_tk + (int)$data[0]->seragam + (int)$data[0]->pelatihan + (int)$data[0]->lain_lain + (int)$data[0]->hutang + (int)$data[0]->sosial + (int)$data[0]->payroll + (int)$data[0]->pph_21 + ($pph21Adjustment < 0 ? abs($pph21Adjustment) : 0);
 
 		    	$pdfData = [
 				    'periode_bulan'      		=> $data[0]->periode_bulan_name,
@@ -279,7 +280,10 @@ class Hitung_gaji_int_menu extends MY_Controller
 				    'sosial' => $data[0]->sosial,
 				    'payroll' => $data[0]->payroll,
 				    'pph_120' => $data[0]->pph_120,
-				    'total_pendapatan' => $data[0]->total_pendapatan,
+				    'pph_21' => $data[0]->pph_21,
+				    'pph21_adjustment' => $pph21Adjustment,
+				    'pph21_adjustment_keterangan' => $data[0]->pph21_adjustment_keterangan ?? '',
+				    'total_pendapatan' => (float)$data[0]->total_pendapatan + ($pph21Adjustment > 0 ? $pph21Adjustment : 0),
 				    'total_potongan' => $total_potongan,
 				    'gaji_bersih' => $data[0]->gaji_bersih,
 				    'terbilang' => terbilang($data[0]->gaji_bersih)

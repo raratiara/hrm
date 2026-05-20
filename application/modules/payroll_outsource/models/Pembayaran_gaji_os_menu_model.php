@@ -13,6 +13,25 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 		parent::__construct();
 	}
 
+	private function closePph21Adjustments($payroll_slip_id)
+	{
+		if (!$this->db->table_exists('spt_pph21_adjustment_os')) return;
+
+		$this->db->query("
+			update spt_pph21_adjustment_os adj
+			join payroll_slip p on p.id = ?
+			join payroll_slip_detail d on d.payroll_slip_id = p.id
+				and d.employee_id = adj.employee_id
+				and ifnull(d.pph21_adjustment, 0) != 0
+			set adj.status = 'close',
+				adj.updated_at = now(),
+				adj.updated_by = ?
+			where adj.proses_ke_bulan_penggajian = p.bulan_penggajian
+			and adj.proses_ke_tahun_penggajian = p.tahun_penggajian
+			and lower(adj.status) in ('processed', 'process', 'proces')
+		", [(int)$payroll_slip_id, $_SESSION['worker']]);
+	}
+
 	// fix
 	public function get_list_data()
 	{
@@ -362,6 +381,9 @@ class Pembayaran_gaji_os_menu_model extends MY_Model
 				];
 
 				$this->db->update("payroll_slip", $itemData2, "id = '".$getPayroll[0]->payroll_slip_id."'");
+				if(trim($post['status']) == '2') {
+					$this->closePph21Adjustments($getPayroll[0]->payroll_slip_id);
+				}
 
 				return [
 				    "status" => true,

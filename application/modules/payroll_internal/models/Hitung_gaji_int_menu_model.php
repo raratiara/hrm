@@ -13,6 +13,44 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	function __construct()
 	{
 		parent::__construct();
+		$this->ensurePph21AdjustmentPayrollColumns();
+	}
+
+	private function ensurePph21AdjustmentPayrollColumns()
+	{
+		$this->db->query("ALTER TABLE `payroll_slip_detail_internal` ADD COLUMN IF NOT EXISTS `pph21_adjustment` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `pph_21`, ADD COLUMN IF NOT EXISTS `pph21_adjustment_keterangan` VARCHAR(50) NULL AFTER `pph21_adjustment`");
+	}
+
+	private function getPph21AdjustmentMap($bulan, $tahun, $employeeIds = [])
+	{
+		if (!$this->db->table_exists('spt_pph21_adjustment')) return [];
+		if (empty($employeeIds)) return [];
+
+		$rows = $this->db
+			->select('employee_id, type, amount')
+			->where('proses_ke_bulan_penggajian', (int)$bulan)
+			->where('proses_ke_tahun_penggajian', trim($tahun))
+			->where_in('status', ['processed', 'process', 'proces'])
+			->where_in('employee_id', array_map('intval', $employeeIds))
+			->get('spt_pph21_adjustment')
+			->result();
+
+		$map = [];
+		foreach ($rows as $row) {
+			$type = strtolower(trim((string)$row->type));
+			$amount = abs((float)$row->amount);
+			$isRefund = $type == 'refund';
+			$employeeId = (int)$row->employee_id;
+			$keterangan = $isRefund ? 'Refund' : 'Kurang Bayar';
+			if (!isset($map[$employeeId])) {
+				$map[$employeeId] = ['amount' => 0, 'keterangan' => ''];
+			}
+			$map[$employeeId]['amount'] += $isRefund ? $amount : ($amount * -1);
+			if (strpos($map[$employeeId]['keterangan'], $keterangan) === false) {
+				$map[$employeeId]['keterangan'] .= ($map[$employeeId]['keterangan'] == '' ? '' : ', ').$keterangan;
+			}
+		}
+		return $map;
 	}
 
 	// fix
@@ -942,6 +980,7 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 	    $insertDetail = [];
 	    $payrollComponents = $this->getPayrollComponentMap($bulan, $tahun);
+	    $pph21AdjustmentMap = $this->getPph21AdjustmentMap($bulan, $tahun, $employeeIds);
 
 	    foreach ($data as $row) {
 
@@ -986,9 +1025,11 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 	        // Hitung PPh 21 bulanan dengan metode TER
 	        $pph_21 = $this->calcPph21Ter($total_pendapatan, $row->marital_status_id);
+	        $pph21_adjustment = $pph21AdjustmentMap[(int)$row->employee_id]['amount'] ?? 0;
+	        $pph21_adjustment_keterangan = $pph21AdjustmentMap[(int)$row->employee_id]['keterangan'] ?? '';
 
 	        $subtotal         = ceil($total_pendapatan - ($seragam + $pelatihan + $lain_lain + $hutang + $sosial));
-	        $gaji_bersih      = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $payroll + $pph_21));
+	        $gaji_bersih      = ceil($subtotal - ($bpjs_kesehatan + $bpjs_tk + $payroll + $pph_21) + $pph21_adjustment);
 
 	        // =========================
 	        // INSERT / UPDATE BPJS DETAIL
@@ -1055,6 +1096,8 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            'hutang'           => $hutang,
 	            'payroll'          => $payroll,
 	            'pph_21'           => $pph_21,
+	            'pph21_adjustment' => $pph21_adjustment,
+	            'pph21_adjustment_keterangan' => $pph21_adjustment_keterangan,
 	            'subtotal'         => $subtotal,
 	            'gaji_bersih'      => $gaji_bersih
 	        ];
@@ -1158,6 +1201,9 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	    // LOOP DETAIL
 	    // =========================
 	    if (isset($post['hdnempid_gaji'])) {
+	    	$headerPayroll = $this->db->where('id', $post['id'])->get('payroll_slip_internal')->row();
+	    	$employeeIdsPost = array_filter(array_map('intval', $post['hdnempid_gaji']));
+	    	$pph21AdjustmentMap = $headerPayroll ? $this->getPph21AdjustmentMap($headerPayroll->bulan_penggajian, $headerPayroll->tahun_penggajian, $employeeIdsPost) : [];
 
 	        $item_len_min = min(array_keys($post['hdnempid_gaji']));
 	        $item_len     = max(array_keys($post['hdnempid_gaji']));
@@ -1168,6 +1214,14 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	            $employee_id = trim($post['hdnempid_gaji'][$i] ?? '');
 
 	            if (empty($employee_id)) continue;
+	            $pph21Adjustment = $pph21AdjustmentMap[(int)$employee_id]['amount'] ?? 0;
+	            $pph21AdjustmentKeterangan = $pph21AdjustmentMap[(int)$employee_id]['keterangan'] ?? '';
+	            $subtotal = trim($post['subtotal_gaji'][$i] ?? 0);
+	            $bpjsKesehatan = trim($post['bpjs_kes_gaji'][$i] ?? 0);
+	            $bpjsTk = trim($post['bpjs_tk_gaji'][$i] ?? 0);
+	            $payroll = trim($post['payroll_gaji'][$i] ?? 0);
+	            $pph21 = trim($post['pph21_gaji'][$i] ?? 0);
+	            $gajiBersih = ceil(((float)$subtotal - ((float)$bpjsKesehatan + (float)$bpjsTk + (float)$payroll + (float)$pph21) + (float)$pph21Adjustment) * 100) / 100;
 
 	            $itemData = [
 	                'tunjangan_jabatan'     => trim($post['tunj_jabatan_gaji'][$i] ?? 0),
@@ -1177,8 +1231,10 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	                'seragam'               => trim($post['seragam_gaji'][$i] ?? 0),
 	                'pelatihan'             => trim($post['pelatihan_gaji'][$i] ?? 0),
 	                'lain_lain'             => trim($post['lainlain_gaji'][$i] ?? 0),
-	                'payroll'               => trim($post['payroll_gaji'][$i] ?? 0),
-	                'pph_21'                => trim($post['pph21_gaji'][$i] ?? 0),
+	                'payroll'               => $payroll,
+	                'pph_21'                => $pph21,
+	                'pph21_adjustment'      => $pph21Adjustment,
+	                'pph21_adjustment_keterangan' => $pph21AdjustmentKeterangan,
 	                'total_jam_kerja'       => trim($post['jml_jam_kerja_gaji'][$i] ?? 0),
 	                'total_masuk'           => trim($post['jml_hadir_gaji'][$i] ?? 0),
 	                'total_tidak_masuk'     => trim($post['jml_tdkhadir_gaji'][$i] ?? 0),
@@ -1191,16 +1247,16 @@ class Hitung_gaji_int_menu_model extends MY_Model
 	                'bonus'                 => trim($post['bonus_gaji'][$i] ?? 0),
 	                'thr'                   => trim($post['thr_gaji'][$i] ?? 0),
 	                'total_pendapatan'      => trim($post['ttl_pendapatan_gaji'][$i] ?? 0),
-	                'bpjs_kesehatan'        => trim($post['bpjs_kes_gaji'][$i] ?? 0),
-	                'bpjs_tk'               => trim($post['bpjs_tk_gaji'][$i] ?? 0),
+	                'bpjs_kesehatan'        => $bpjsKesehatan,
+	                'bpjs_tk'               => $bpjsTk,
 	                'bpjs_jht'              => trim($post['bpjs_jht_gaji'][$i] ?? 0),
 	                'bpjs_jp'               => trim($post['bpjs_jp_gaji'][$i] ?? 0),
 	                'bpjs_jkk'              => trim($post['bpjs_jkk_gaji'][$i] ?? 0),
 	                'bpjs_jkm'              => trim($post['bpjs_jkm_gaji'][$i] ?? 0),
 	                'hutang'                => trim($post['hutang_gaji'][$i] ?? 0),
 	                'sosial'                => trim($post['sosial_gaji'][$i] ?? 0),
-	                'subtotal'              => trim($post['subtotal_gaji'][$i] ?? 0),
-	                'gaji_bersih'           => trim($post['gaji_bersih_gaji'][$i] ?? 0)
+	                'subtotal'              => $subtotal,
+	                'gaji_bersih'           => $gajiBersih
 	            ];
 
 	            if (!empty($hdnid)) {
@@ -1427,6 +1483,9 @@ class Hitung_gaji_int_menu_model extends MY_Model
 		}, $rd));
 		$salaryCalc = $this->getSalaryComponentsCalculation();
 		$payrollComponents = $this->getPayrollComponentMap($bln, $thn);
+		$pph21AdjustmentMap = $this->getPph21AdjustmentMap($bln, $thn, array_map(function ($row) {
+			return $row->employee_id;
+		}, $rd));
 
 		$row = 0; 
 		if(!empty($rd)){ 
@@ -1492,12 +1551,14 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$sosial = $dataSlip[0]->sosial;
 					$payroll = $dataSlip[0]->payroll;
 					$pph_21 = isset($dataSlip[0]->pph_21) ? $dataSlip[0]->pph_21 : 0;
+					$pph21_adjustment = $pph21AdjustmentMap[(int)$employee_id]['amount'] ?? 0;
+					$pph21_adjustment_keterangan = $pph21AdjustmentMap[(int)$employee_id]['keterangan'] ?? '';
 					$subtotal = $dataSlip[0]->subtotal;
 					$gaji_bersih = $dataSlip[0]->gaji_bersih;
 					$total_pendapatan = ceil(($gaji + $total_nominal_lembur + $tunjangan_jabatan + $tunjangan_transport + $tunjangan_konsumsi + $tunjangan_komunikasi + $bonus + $thr) * 100) / 100;
 					$pph_21 = $this->calcPph21Ter($total_pendapatan, $f->marital_status_id);
 					$subtotal = ceil(($total_pendapatan - ($seragam+$pelatihan+$lain_lain+$hutang+$sosial)) * 100) / 100;
-					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_21)) * 100) / 100;
+					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_21) + $pph21_adjustment) * 100) / 100;
 
 				}else{  /// ambil data dr summary absen
 					$status_payroll="";
@@ -1539,11 +1600,13 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 					// Hitung PPh 21 bulanan dengan metode TER
 					$pph_21 = $this->calcPph21Ter($total_pendapatan, $f->marital_status_id);
+					$pph21_adjustment = $pph21AdjustmentMap[(int)$f->employee_id]['amount'] ?? 0;
+					$pph21_adjustment_keterangan = $pph21AdjustmentMap[(int)$f->employee_id]['keterangan'] ?? '';
 
 					$subtotal = ceil(($total_pendapatan - ($seragam+$pelatihan+$lain_lain+$hutang+$sosial)) * 100) / 100;
 
 					/// subtotal - potongan wajib
-					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_21)) * 100) / 100;
+					$gaji_bersih = ceil(($subtotal - ($bpjs_kesehatan+$bpjs_tk+$payroll+$pph_21) + $pph21_adjustment) * 100) / 100;
 
 					///informasi detail bpjs - dari salary_bpjs via benefit deduction
 					$bpjs_jht = $bpjs_tk_detail['bpjs_jht'];
@@ -1656,6 +1719,10 @@ class Hitung_gaji_int_menu_model extends MY_Model
 
 					$dt .= '<td>'.$this->return_build_txt($pph_21,'pph21_gaji['.$row.']','','pph21_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
+					$dt .= '<td>'.$this->return_build_txt($pph21_adjustment,'pph21_adjustment_gaji['.$row.']','','pph21_adjustment_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
+
+					$dt .= '<td>'.$this->return_build_txt($pph21_adjustment_keterangan,'pph21_adjustment_keterangan_gaji['.$row.']','','pph21_adjustment_keterangan_gaji','','data-id="'.$row.'" readonly ').'</td>';
+
 					$dt .= '<td>'.$this->return_build_txt($subtotal,'subtotal_gaji['.$row.']','','subtotal_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
 
 					$dt .= '<td>'.$this->return_build_txt($gaji_bersih,'gaji_bersih_gaji['.$row.']','','gaji_bersih_gaji','text-align: right;','data-id="'.$row.'" readonly ').'</td>';
@@ -1718,6 +1785,8 @@ class Hitung_gaji_int_menu_model extends MY_Model
 					$dt .= '<td>'.$sosial.'</td>';
 					$dt .= '<td>'.$payroll.'</td>';
 					$dt .= '<td>'.$pph_21.'</td>';
+					$dt .= '<td>'.$pph21_adjustment.'</td>';
+					$dt .= '<td>'.$pph21_adjustment_keterangan.'</td>';
 					$dt .= '<td>'.$subtotal.'</td>';
 					$dt .= '<td>'.$gaji_bersih.'</td>';
 					$dt .= '</tr>';

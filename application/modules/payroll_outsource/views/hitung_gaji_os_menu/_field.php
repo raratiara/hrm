@@ -131,6 +131,8 @@
                                     <th scope="col">Payroll</th>
                                     <th scope="col">PPH 120</th>
                                     <th scope="col">PPH 21</th>
+                                    <th scope="col">PPh21 Adjustment</th>
+                                    <th scope="col">Ket. PPh21 Adjustment</th>
                                     <th scope="col">Sub Total</th>
                                     <th scope="col">Gaji Bersih</th>
                                 </tr>
