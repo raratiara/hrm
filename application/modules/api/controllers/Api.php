@@ -7183,7 +7183,13 @@ class Api extends API_Controller
 		
 		if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
         { 
-        	if (!preg_match('/^([a-zA-Z]:[\/\\\\]|\/)/', $upload_path)) {
+        	$is_absolute_path = (
+        		isset($upload_path[0]) && ($upload_path[0] === '/' || $upload_path[0] === '\\')
+        	) || (
+        		isset($upload_path[2]) && ctype_alpha($upload_path[0]) && $upload_path[1] === ':' && ($upload_path[2] === '/' || $upload_path[2] === '\\')
+        	);
+
+        	if (!$is_absolute_path) {
         		$upload_path = FCPATH . ltrim($upload_path, '/\\');
         	}
 
