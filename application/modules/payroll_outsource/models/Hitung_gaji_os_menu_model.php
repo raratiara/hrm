@@ -18,7 +18,13 @@ class Hitung_gaji_os_menu_model extends MY_Model
 
 	private function ensurePph21AdjustmentPayrollColumns()
 	{
-		$this->db->query("ALTER TABLE `payroll_slip_detail` ADD COLUMN IF NOT EXISTS `pph21_adjustment` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `pph_21`, ADD COLUMN IF NOT EXISTS `pph21_adjustment_keterangan` VARCHAR(50) NULL AFTER `pph21_adjustment`");
+		if(!$this->db->field_exists('pph21_adjustment', 'payroll_slip_detail')){
+			$this->db->query("ALTER TABLE `payroll_slip_detail` ADD COLUMN `pph21_adjustment` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `pph_21`");
+		}
+
+		if(!$this->db->field_exists('pph21_adjustment_keterangan', 'payroll_slip_detail')){
+			$this->db->query("ALTER TABLE `payroll_slip_detail` ADD COLUMN `pph21_adjustment_keterangan` VARCHAR(50) NULL AFTER `pph21_adjustment`");
+		}
 	}
 
 	private function getPph21AdjustmentMap($bulan, $tahun, $employeeIds = [])
