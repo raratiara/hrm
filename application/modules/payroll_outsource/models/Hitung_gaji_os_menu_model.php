@@ -793,8 +793,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 			$getCat = $this->db->query("select category from tax_ter_category_mapping where marital_status_id = ".$emp[0]->marital_status_id." ")->result(); 
 			if(!empty($getCat)){
 				$getTer = $this->db->query("select rate from tax_ter where category = '".$getCat[0]->category."' and (".$total_pendapatan." between min_bruto and max_bruto) order by id desc limit 1 ")->result();
-		        $ter_rate = $getTer[0]->rate;
-		        $pph_21 = ceil($total_pendapatan*$ter_rate);
+				if(!empty($getTer)){
+			        $ter_rate = $getTer[0]->rate;
+			        $pph_21 = ceil($total_pendapatan*$ter_rate);
+				}
 			}
 		}
 
