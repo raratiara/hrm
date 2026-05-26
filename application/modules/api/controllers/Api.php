@@ -8959,7 +8959,7 @@ class Api extends API_Controller
 
 			$whr=''; $whr_isapprover='';
 	    	if($filter_employee != ''){
-	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+	    		$whr=' and ao.requested_by = "'.$filter_employee.'" ';
 	    	}
 	    	if($filter_isapprover != ''){
 	    		$whr_isapprover=' and ao.is_approver = 1 ';
