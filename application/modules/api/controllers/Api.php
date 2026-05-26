@@ -8975,6 +8975,7 @@ class Api extends API_Controller
     	if($islogin_employee != ''){
 
 			$whr=''; $whr_isapprover='';
+			$whr_login = ' and (ao.prepared_by = "'.$islogin_employee.'" or ao.requested_by = "'.$islogin_employee.'" or ao.is_approver = 1) ';
 	    	if($filter_employee != ''){
 	    		$whr=' and ao.requested_by = "'.$filter_employee.'" ';
 	    	}
@@ -9028,10 +9029,12 @@ class Api extends API_Controller
 					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
 					GROUP BY a.id)ao 
 					where ao.ca_type = 1
-					'.$whr.$whr_isapprover.' ')->result();  
+					'.$whr_login.$whr.$whr_isapprover.' ')->result();  
 
 	    	if (!empty($dataCA)) {
 			    foreach ($dataCA as $key => $row) {
+			    	$dataCA[$key]->document_file = $row->document;
+			    	$dataCA[$key]->document = !empty($row->document) ? _URL.'uploads/cashadvance/fpu/'.rawurlencode($row->document) : '';
 
 			        $detail = $this->db->query("
 			            select a.*, b.name as post_budget_name 
@@ -9582,8 +9585,9 @@ class Api extends API_Controller
     	if($islogin_employee != ''){
 
 			$whr=''; $whr_isapprover='';
+			$whr_login = ' and (ao.prepared_by = "'.$islogin_employee.'" or ao.requested_by = "'.$islogin_employee.'" or ao.is_approver = 1) ';
 	    	if($filter_employee != ''){
-	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+	    		$whr=' and ao.requested_by = "'.$filter_employee.'" ';
 	    	}
 	    	if($filter_isapprover != ''){
 	    		$whr_isapprover=' and ao.is_approver = 1 ';
@@ -9635,10 +9639,12 @@ class Api extends API_Controller
 					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
 					GROUP BY a.id)ao 
 					where ao.ca_type = 2
-					'.$whr.$whr_isapprover.' ')->result();  
+					'.$whr_login.$whr.$whr_isapprover.' ')->result();  
 
 	    	if (!empty($dataCA)) {
 			    foreach ($dataCA as $key => $row) {
+			    	$dataCA[$key]->document_file = $row->document;
+			    	$dataCA[$key]->document = !empty($row->document) ? _URL.'uploads/cashadvance/fpp/'.rawurlencode($row->document) : '';
 
 			        $detail = $this->db->query("
 			            select a.*, b.name as post_budget_name 
@@ -10007,8 +10013,9 @@ class Api extends API_Controller
     	if($islogin_employee != ''){
 
 			$whr=''; $whr_isapprover='';
+			$whr_login = ' and (ao.prepared_by = "'.$islogin_employee.'" or ao.requested_by = "'.$islogin_employee.'" or ao.is_approver = 1) ';
 	    	if($filter_employee != ''){
-	    		$whr=' and ao.employee_id = "'.$filter_employee.'" ';
+	    		$whr=' and ao.requested_by = "'.$filter_employee.'" ';
 	    	}
 	    	if($filter_isapprover != ''){
 	    		$whr_isapprover=' and ao.is_approver = 1 ';
@@ -10060,10 +10067,15 @@ class Api extends API_Controller
 					LEFT JOIN approval_matrix_detail h ON h.approval_matrix_id = d2.approval_matrix_id AND h.approval_level = d2.current_approval_level
 					LEFT JOIN approval_matrix_role i ON i.id = h.role_id
 					GROUP BY a.id)ao 
-					'.$whr.$whr_isapprover.' ')->result();  
+					'.$whr_login.$whr.$whr_isapprover.' ')->result();  
 
 	    	if (!empty($dataCA)) {
 			    foreach ($dataCA as $key => $row) {
+			    	$dataCA[$key]->document_file = $row->document;
+			    	$dataCA[$key]->document = !empty($row->document) ? _URL.'uploads/cashadvance/settlement/'.rawurlencode($row->document) : '';
+			    	$dataCA[$key]->bukti_transfer_file = $row->bukti_transfer;
+			    	$dataCA[$key]->bukti_transfer = !empty($row->bukti_transfer) ? _URL.'uploads/cashadvance/settlement/'.rawurlencode($row->bukti_transfer) : '';
+
 			    	$data_sett = $this->db->query("select * from settlement where id = '".$row->id."' ")->result();
 
 			        if(!empty($data_sett)){ 
