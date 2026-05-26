@@ -7183,13 +7183,24 @@ class Api extends API_Controller
 		
 		if(isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name']))
         { 
-           
-            
+        	if (!preg_match('/^([a-zA-Z]:[\/\\\\]|\/)/', $upload_path)) {
+        		$upload_path = FCPATH . ltrim($upload_path, '/\\');
+        	}
+
+        	if (!is_dir($upload_path)) {
+        		mkdir($upload_path, 0777, true);
+        	}
+
+        	if (!is_writable($upload_path)) {
+        		chmod($upload_path, 0777);
+        	}
+
         	$config['upload_path']   = $upload_path;
             $config['allowed_types'] = "gif|jpeg|jpg|png|pdf|xls|xlsx|doc|docx|txt";
             $config['max_size']      = "0"; 
             
-            $this->load->library('upload', $config); 
+            $this->load->library('upload'); 
+            $this->upload->initialize($config);
             
             if(!$this->upload->do_upload($fieldname)){ 
                 $err_msg = $this->upload->display_errors(); 
