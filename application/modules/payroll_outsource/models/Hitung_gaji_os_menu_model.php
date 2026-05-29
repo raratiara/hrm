@@ -1950,10 +1950,10 @@ class Hitung_gaji_os_menu_model extends MY_Model
 					$status_payroll = $dataSlip[0]->status_payroll;
 					
 					///informasi detail bpjs - dari salary_bpjs via benefit deduction
-					$bpjs_jht = $dataSlip[0]->bpjs_jht;
-					$bpjs_jp  = $dataSlip[0]->bpjs_jp;
-					$bpjs_jkk = $dataSlip[0]->bpjs_jkk;
-					$bpjs_jkm = $dataSlip[0]->bpjs_jkm;
+					$bpjs_jht = $dataSlip[0]->bpjs_jht ?? 0;
+					$bpjs_jp  = $dataSlip[0]->bpjs_jp ?? 0;
+					$bpjs_jkk = $dataSlip[0]->bpjs_jkk ?? 0;
+					$bpjs_jkm = $dataSlip[0]->bpjs_jkm ?? 0;
 
 
 					$id = $dataSlip[0]->id;

@@ -37,11 +37,41 @@ class Spt_int_menu_model extends MY_Model
 				UNIQUE KEY `uniq_spt_adjustment_detail` (`spt_pph21_detail_id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 		");
-		$this->db->query("ALTER TABLE `spt_pph21_adjustment` ADD COLUMN IF NOT EXISTS `spt_pph21_id` INT(11) NULL AFTER `id`, ADD COLUMN IF NOT EXISTS `spt_pph21_detail_id` INT(11) NULL AFTER `spt_pph21_id`, ADD COLUMN IF NOT EXISTS `kurang_lebih_bayar` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `amount`, ADD COLUMN IF NOT EXISTS `created_at` DATETIME DEFAULT NULL, ADD COLUMN IF NOT EXISTS `created_by` INT(11) DEFAULT NULL, ADD COLUMN IF NOT EXISTS `updated_at` DATETIME DEFAULT NULL, ADD COLUMN IF NOT EXISTS `updated_by` INT(11) DEFAULT NULL");
-		$this->db->query("ALTER TABLE `spt_pph21_adjustment` CHANGE COLUMN IF EXISTS `tax_year` `tahun_pajak` VARCHAR(10) NULL");
-		$this->db->query("ALTER TABLE `spt_pph21_adjustment` DROP COLUMN IF EXISTS `source_type`");
-		$this->db->query("DROP INDEX IF EXISTS `uniq_spt_adjustment_source_detail` ON `spt_pph21_adjustment`");
-		$this->db->query("CREATE UNIQUE INDEX IF NOT EXISTS `uniq_spt_adjustment_detail` ON `spt_pph21_adjustment` (`spt_pph21_detail_id`)");
+		$this->addAdjustmentColumnIfMissing('spt_pph21_id', 'INT(11) NULL', 'id');
+		$this->addAdjustmentColumnIfMissing('spt_pph21_detail_id', 'INT(11) NULL', 'spt_pph21_id');
+		$this->addAdjustmentColumnIfMissing('kurang_lebih_bayar', 'DECIMAL(15,2) NOT NULL DEFAULT 0.00', 'amount');
+		$this->addAdjustmentColumnIfMissing('created_at', 'DATETIME DEFAULT NULL');
+		$this->addAdjustmentColumnIfMissing('created_by', 'INT(11) DEFAULT NULL');
+		$this->addAdjustmentColumnIfMissing('updated_at', 'DATETIME DEFAULT NULL');
+		$this->addAdjustmentColumnIfMissing('updated_by', 'INT(11) DEFAULT NULL');
+
+		if($this->db->field_exists('tax_year', 'spt_pph21_adjustment') && !$this->db->field_exists('tahun_pajak', 'spt_pph21_adjustment')){
+			$this->db->query("ALTER TABLE `spt_pph21_adjustment` CHANGE COLUMN `tax_year` `tahun_pajak` VARCHAR(10) NULL");
+		}
+		$this->addAdjustmentColumnIfMissing('tahun_pajak', 'VARCHAR(10) NULL', 'employee_id');
+		if($this->db->field_exists('source_type', 'spt_pph21_adjustment')){
+			$this->db->query("ALTER TABLE `spt_pph21_adjustment` DROP COLUMN `source_type`");
+		}
+		if($this->adjustmentIndexExists('uniq_spt_adjustment_source_detail')){
+			$this->db->query("DROP INDEX `uniq_spt_adjustment_source_detail` ON `spt_pph21_adjustment`");
+		}
+		if(!$this->adjustmentIndexExists('uniq_spt_adjustment_detail')){
+			$this->db->query("CREATE UNIQUE INDEX `uniq_spt_adjustment_detail` ON `spt_pph21_adjustment` (`spt_pph21_detail_id`)");
+		}
+	}
+
+	private function addAdjustmentColumnIfMissing($column, $definition, $after = null)
+	{
+		if($this->db->field_exists($column, 'spt_pph21_adjustment')) return;
+
+		$afterSql = $after ? " AFTER `".$after."`" : "";
+		$this->db->query("ALTER TABLE `spt_pph21_adjustment` ADD COLUMN `".$column."` ".$definition.$afterSql);
+	}
+
+	private function adjustmentIndexExists($indexName)
+	{
+		$index = $this->db->query("SHOW INDEX FROM `spt_pph21_adjustment` WHERE Key_name = ?", [$indexName])->row();
+		return !empty($index);
 	}
 
 	private function syncPph21Adjustments($spt_id)
