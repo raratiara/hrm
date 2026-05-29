@@ -100,6 +100,9 @@
 					</tfoot>
 				</table>
 				</div>
+				<div style="margin-top:14px;font-weight:600;">
+					Total Karyawan: <span id="totalEmployeeEditSummary">0</span>
+				</div>
 			</div>
 		</div>
 	</div>

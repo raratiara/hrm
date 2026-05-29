@@ -58,7 +58,7 @@
 		if ((typeName + '').toLowerCase().indexOf('youtube') >= 0) coverIcon = '<i class="fa fa-youtube-play"></i>';
 
 		return '' +
-			'<div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom:16px;">' +
+			'<div class="col-md-4 col-sm-6 col-xs-12 lms-card-col">' +
 			'<div class="lms-card">' +
 			'<div class="cover">' +
 			badge +
@@ -67,9 +67,9 @@
 			'<div class="body">' +
 			'<div class="title">' + title + '</div>' +
 			'<div class="meta">' +
-			'<div><i class="fa fa-graduation-cap"></i> ' + course + '</div>' +
-			'<div><i class="fa fa-building"></i> ' + depts + '</div>' +
-			'<div><i class="fa fa-link"></i> ' + docHtml + '</div>' +
+			'<div><i class="fa fa-graduation-cap"></i><span class="meta-text">' + course + '</span></div>' +
+			'<div><i class="fa fa-building"></i><span class="meta-text">' + depts + '</span></div>' +
+			'<div><i class="fa fa-link"></i><span class="meta-text">' + docHtml + '</span></div>' +
 			'</div>' +
 			'</div>' +
 			'<div class="footer">' +

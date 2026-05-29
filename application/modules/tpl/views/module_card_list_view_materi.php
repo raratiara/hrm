@@ -161,6 +161,20 @@
   /* ====== CARD ====== */
   .lms-grid {
     margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .lms-grid:before,
+  .lms-grid:after {
+    display: none;
+  }
+
+  .lms-card-col {
+    float: none;
+    display: flex;
+    margin-bottom: 18px;
   }
 
   .lms-card {
@@ -170,6 +184,8 @@
     background: #fff;
     box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
     height: 100%;
+    min-height: 365px;
+    width: 100%;
     display: flex;
     flex-direction: column;
   }
@@ -194,6 +210,9 @@
   .lms-card .body {
     padding: 14px 14px 10px 14px;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
   .lms-card .title {
@@ -201,7 +220,11 @@
     font-weight: 700;
     color: #111;
     margin: 0 0 8px 0;
-    min-height: 40px;
+    min-height: 44px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .lms-card .meta {
@@ -210,19 +233,31 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
   }
 
-  .lms-card .meta .row-meta {
+  .lms-card .meta .row-meta,
+  .lms-card .meta>div {
     display: flex;
     gap: 8px;
     align-items: flex-start;
+    min-width: 0;
   }
 
   .lms-card .meta i {
+    flex: 0 0 16px;
     width: 16px;
     text-align: center;
     color: #112D80;
     margin-top: 1px;
+  }
+
+  .lms-card .meta .meta-text {
+    min-width: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .lms-card .footer {
@@ -231,6 +266,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+    min-height: 58px;
   }
 
   .lms-card .actions .btn {

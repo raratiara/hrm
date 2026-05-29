@@ -109,7 +109,7 @@ if (rows.length === 0) {
 		actions += '</div>';
 
 		var html = ''
-			+ '<div class="col-md-4 col-sm-6" style="margin-bottom:16px;">'
+			+ '<div class="col-md-4 col-sm-6 col-xs-12 lms-card-col">'
 			+ '  <div class="lms-card">'
 			+ '    <div class="cover">'
 			+          statusBadge
@@ -117,9 +117,9 @@ if (rows.length === 0) {
 			+ '    <div class="body">'
 			+ '      <div class="title">'+escapeHtml(r.course_name)+'</div>'
 			+ '      <div class="meta">'
-			+ '        <div><i class="fa fa-tag"></i> '+escapeHtml(r.category || '-')+'</div>'
-			+ '        <div><i class="fa fa-users"></i> '+escapeHtml(r.department_names || '-')+'</div>'
-			+ '        <div><i class="fa fa-align-left"></i> '+escapeHtml(r.description || '-')+'</div>'
+			+ '        <div><i class="fa fa-tag"></i><span class="meta-text">'+escapeHtml(r.category || '-')+'</span></div>'
+			+ '        <div><i class="fa fa-users"></i><span class="meta-text">'+escapeHtml(r.department_names || '-')+'</span></div>'
+			+ '        <div><i class="fa fa-align-left"></i><span class="meta-text">'+escapeHtml(r.description || '-')+'</span></div>'
 			+ '      </div>'
 			+ '    </div>'
 			+ '    <div class="footer">'

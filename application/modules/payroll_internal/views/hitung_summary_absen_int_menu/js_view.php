@@ -71,6 +71,7 @@ $(document).ready(function() {
    		$('#tblDetailAbsen.absen-list tbody tr').filter(function() {
    			$(this).toggle($(this).find('td').eq(1).text().toLowerCase().indexOf(value) > -1);
    		});
+   		updateVisibleEmployeeCount('#tblDetailAbsen.absen-list', '#totalEmployeeEditSummary');
    	});
 
    	// Filter employee name di table view summary (kolom ke-2 = index 1)
@@ -79,6 +80,7 @@ $(document).ready(function() {
    		$('#tblDetailAbsen.absen-list-view tbody tr').filter(function() {
    			$(this).toggle($(this).find('td').eq(1).text().toLowerCase().indexOf(value) > -1);
    		});
+   		updateVisibleEmployeeCount('#tblDetailAbsen.absen-list-view', '#totalEmployeeViewSummary');
    	});
 
    	
@@ -110,6 +112,14 @@ function toYYYYMMDD(dateStr) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function updateVisibleEmployeeCount(tableSelector, targetSelector) {
+	var total = $(tableSelector + ' tbody tr').filter(function() {
+		return $(this).css('display') !== 'none';
+	}).length;
+
+	$(targetSelector).text(total);
 }
 
 
@@ -328,6 +338,7 @@ function load_data()
 					}).done(function() {
 						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
 						tSawBclear(locate);
+						updateVisibleEmployeeCount('#tblDetailAbsen.absen-list', '#totalEmployeeEditSummary');
 						///expenseviewadjust(lstatus);
 					});
 
@@ -357,6 +368,7 @@ function load_data()
 					}).done(function() {
 						//$(".id_wbs").chosen({width: "100%",allow_single_deselect: true});
 						tSawBclear(locate);
+						updateVisibleEmployeeCount('#tblDetailAbsen.absen-list-view', '#totalEmployeeViewSummary');
 						///expenseviewadjust(lstatus);
 					});
 				

@@ -184,7 +184,7 @@ function buildTrainingCard(row) {
 	var createdBy = row[10] || '-';
 
 	return '' +
-		'<div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom:16px;">' +
+		'<div class="col-md-4 col-sm-6 col-xs-12 lms-card-col">' +
 			'<div class="lms-card">' +
 				'<div class="cover">' +
 					getTrainingStatusBadge(status) +

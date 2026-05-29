@@ -26,16 +26,19 @@
   .lms-filters .btn{border-radius:10px!important;padding:7px 12px!important;border:1px solid #e3e7ef!important;background:#fff}
   .lms-filters .btn.active{background:#112D80!important;border-color:#112D80!important;color:#fff!important}
 
-  .lms-grid{margin-top:14px}
-  .lms-card{border:1px solid #e9ecf3;border-radius:16px!important;overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(16,24,40,.06);height:100%;display:flex;flex-direction:column}
+  .lms-grid{margin-top:14px;display:flex;flex-wrap:wrap;align-items:stretch}
+  .lms-grid:before,.lms-grid:after{display:none}
+  .lms-card-col{float:none;display:flex;margin-bottom:18px}
+  .lms-card{border:1px solid #e9ecf3;border-radius:16px!important;overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(16,24,40,.06);height:100%;min-height:350px;width:100%;display:flex;flex-direction:column}
   .lms-card .cover{height:90px;background:linear-gradient(135deg,#eef3ff,#ffffff);position:relative}
   .lms-card .badge{position:absolute;right:12px;top:12px;border-radius:999px!important;padding:6px 10px;font-size:12px;background:#f1f5f9;color:#111}
-  .lms-card .body{padding:14px 14px 10px 14px;flex:1}
-  .lms-card .title{font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0}
-  .lms-card .meta{color:#6c757d;font-size:12px;display:flex;flex-direction:column;gap:6px}
-  .lms-card .meta .row-meta{display:flex;gap:8px;align-items:flex-start}
-  .lms-card .meta i{width:16px;text-align:center;color:#112D80;margin-top:1px}
-  .lms-card .footer{padding:10px 14px 14px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .lms-card .body{padding:14px 14px 10px 14px;flex:1;display:flex;flex-direction:column;min-width:0}
+  .lms-card .title{font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;min-height:42px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .lms-card .meta{color:#6c757d;font-size:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+  .lms-card .meta .row-meta{display:flex;gap:8px;align-items:flex-start;min-width:0}
+  .lms-card .meta .row-meta>div{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .lms-card .meta i{flex:0 0 16px;width:16px;text-align:center;color:#112D80;margin-top:1px}
+  .lms-card .footer{padding:10px 14px 14px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:58px}
   .lms-card .actions .btn{border-radius:10px!important;padding:6px 9px!important}
   .lms-card .select-box{display:flex;align-items:center;gap:8px;font-size:12px;color:#6c757d}
 
