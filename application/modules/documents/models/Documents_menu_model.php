@@ -343,7 +343,7 @@ class Documents_menu_model extends MY_Model
 			$file = '';
 			if($upload_file['status']){
 				$file = $upload_file['upload_file'];
-			} else if(isset($upload_emp_photo['error_warning'])){
+			} else if(isset($upload_file['error_warning'])){
 				echo $upload_file['error_warning']; exit;
 			}	
 
