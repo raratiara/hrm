@@ -1,5 +1,89 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<style>
+	#modal-rfu-data .training-action-modal {
+		width: 720px !important;
+		max-width: calc(100vw - 32px);
+		margin: 60px auto !important;
+	}
+	#modal-rfu-data .training-action-modal .modal-content {
+		border-radius: 14px;
+		overflow: hidden;
+	}
+	#modal-rfu-data .training-action-modal-body {
+		min-height: 190px;
+		padding: 34px 42px 30px;
+	}
+	#modal-rfu-data .training-rfu-field {
+		display: flex;
+		align-items: flex-start;
+		justify-content: center;
+		gap: 18px;
+		margin: 24px auto 0;
+		max-width: 620px;
+		text-align: left;
+	}
+	#modal-rfu-data .training-rfu-field .control-label {
+		flex: 0 0 90px;
+		padding-top: 9px;
+		text-align: right;
+	}
+	#modal-rfu-data .training-rfu-input {
+		flex: 1;
+		min-width: 0;
+	}
+	#modal-rfu-data .training-rfu-input textarea {
+		width: 100%;
+		min-height: 110px;
+		resize: vertical;
+	}
+	@media (max-width: 767px) {
+		#modal-rfu-data .training-action-modal {
+			margin: 24px auto !important;
+		}
+		#modal-rfu-data .training-action-modal-body {
+			padding: 24px 18px;
+		}
+		#modal-rfu-data .training-rfu-field {
+			display: block;
+		}
+		#modal-rfu-data .training-rfu-field .control-label {
+			display: block;
+			text-align: left;
+			margin-bottom: 8px;
+		}
+	}
+</style>
+
+<!-- Modal Approval Log -->
+<div class="modal fade" id="modalApprovalLog" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Approval Log</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span>&times;</span>
+				</button>
+			</div>
+
+			<div class="modal-body" id="approvalLogContent">
+				<input type="hidden" id="hdnid-approvallog" name="hdnid-approvallog">
+				<table class="table table-striped table-bordered table-hover">
+					<thead class="thead-dark">
+						<tr>
+							<th style="width: 50px;">Level</th>
+							<th>Approver</th>
+							<th>Status</th>
+							<th>Approval Date</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
 <!-- Modal Reject Data -->
 <div id="modal-reject-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-reject-data" aria-hidden="true">
 	<div class="vertical-alignment-helper">
@@ -83,7 +167,7 @@
 <!-- Modal RFU Data -->
 <div id="modal-rfu-data" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-rfu-data" aria-hidden="true">
 	<div class="vertical-alignment-helper">
-	<div class="modal-dialog vertical-align-center">
+	<div class="modal-dialog vertical-align-center training-action-modal">
 		<div class="modal-content" style="text-align:center;">
 			<form class="form-horizontal" id="frmRFUData">
 			<div class="modal-header bg-blue bg-font-blue no-padding">
@@ -93,11 +177,11 @@
 				</div>
 			</div>
 
-			<div class="modal-body" style="min-height:100px; margin:10px">
+			<div class="modal-body training-action-modal-body">
 				<p class="text-center">Are you sure to request update for this data?</p>
-				<div class="form-group">
-					<label class="col-md-4 control-label no-padding-right">Reason</label>
-					<div class="col-md-8">
+				<div class="form-group training-rfu-field">
+					<label class="control-label">Reason</label>
+					<div class="training-rfu-input">
 						<?=$rfu_reason;?>
 						<input type="hidden" name="approval_id_rfu" id="approval_id_rfu" value="">
 						<input type="hidden" name="approval_level_rfu" id="approval_level_rfu" value="">
@@ -130,6 +214,7 @@ var validator;
 var save_method; //for save method string
 var idx; //for save index string
 var ldx; //for save list index string
+var approvalLogId = '';
 var TRAINING_UI = {
 	page: 1,
 	pageSize: 9,
@@ -144,13 +229,59 @@ var TRAINING_UI = {
 $(document).ready(function() {
    	$(function() {
    		
-        $( "#training_date" ).datetimepicker();
+        $( "#training_date" ).datetimepicker({
+        	widgetPositioning: {
+        		horizontal: 'auto',
+        		vertical: 'bottom'
+        	}
+        });
 		
 	});
 });
 
 function escapeHtml(text) {
 	return $('<div>').text(text == null ? '' : text).html();
+}
+
+function setTrainingSelectValue(selector, value) {
+	var $select = $(selector);
+	if (!$select.length) return;
+
+	$select.val(value || '').trigger('change');
+}
+
+function ensureTrainingSelectOption(selector, value, label) {
+	var $select = $(selector);
+	if (!$select.length || !value) return;
+
+	value = String(value);
+	if (!$select.find('option[value="' + value.replace(/"/g, '\\"') + '"]').length) {
+		$select.append(new Option(label || value, value, false, false));
+	}
+}
+
+function ensureTrainingMultiSelectOptions(selector, rows) {
+	var $select = $(selector);
+	if (!$select.length || !rows || !rows.length) return;
+
+	$.each(rows, function(_, row) {
+		ensureTrainingSelectOption(selector, row.id, row.full_name);
+	});
+}
+
+function setTrainingMultiSelectValue(selector, values) {
+	var $select = $(selector);
+	if (!$select.length) return;
+
+	if (!$.isArray(values)) {
+		values = values ? String(values).split(',') : [];
+	}
+
+	values = $.map(values, function(value) {
+		return $.trim(String(value));
+	});
+
+	$select.val(values).trigger('change');
 }
 
 function getTrainingStatusBadge(status) {
@@ -473,7 +604,10 @@ function load_data()
 				if(save_method == 'update'){ 
 					$('[name="id"]').val(data.id);
 					
-					$('select#employee').val(data.employee_id).trigger('change.select2');
+					ensureTrainingMultiSelectOptions('select#employee, select[name="employee[]"], select[name="employee"]', data.employee_options);
+					ensureTrainingSelectOption('select#lms_course, select[name="lms_course"]', data.lms_course_id, data.course_name);
+					setTrainingMultiSelectValue('select#employee, select[name="employee[]"], select[name="employee"]', data.employee_id);
+					setTrainingSelectValue('select#lms_course, select[name="lms_course"]', data.lms_course_id);
 					$('[name="training_name"]').val(data.training_name);
 					$('[name="training_date"]').val(data.training_date);
 					$('[name="location"]').val(data.location);
@@ -488,7 +622,8 @@ function load_data()
 					}
 
 
-					$('[name="hdnid-approvallog"]').val(data.id);
+					approvalLogId = data.id;
+					$('#hdnid-approvallog, [name="hdnid-approvallog"]').val(data.id);
 					document.getElementById('btnApprovalLog').style.display = 'block';
 
 					if(data.status_id == 4){ //RFU
@@ -511,6 +646,9 @@ function load_data()
 					$('span.location').html(data.location);
 					$('span.trainer').html(data.trainer);
 					$('span.notes').html(data.notes);
+					$('span.lms_course').html(data.course_name || '-');
+					$('span.participant').html(data.participant_names || '-');
+					$('span.created_by_name').html(data.created_by_name || '-');
 
 					if(data.file_sertifikat != '' && data.file_sertifikat != null){
 						$('span.file_sertifikat').html('<img src="'+baseUrl+'/uploads/'+data.emp_code+'/'+data.file_sertifikat+'" width="150" height="150" >');
@@ -520,7 +658,8 @@ function load_data()
 
 
 
-					$('[name="hdnid-approvallog"]').val(data.id);
+					approvalLogId = data.id;
+					$('#hdnid-approvallog, [name="hdnid-approvallog"]').val(data.id);
 					document.getElementById('btnApprovalLogView').style.display = 'block';
 
 					if(data.status_id == 4){ //RFU
@@ -831,7 +970,7 @@ function save_rfu(){
 function approvalLog() {
     $('#modalApprovalLog').modal('show'); // buka modal
 
-    var id = $("#hdnid-approvallog").val();
+    var id = $("#hdnid-approvallog").val() || $('[name="hdnid-approvallog"]').val() || approvalLogId || idx;
 
     if (id != '') { 
         $.ajax({

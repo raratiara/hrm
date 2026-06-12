@@ -45,11 +45,20 @@ class Training_menu_model extends MY_Model
 			'dt.created_by'
 		];
 		
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
+		$employee = $this->db
+			->select('department_id')
+			->from('employees')
+			->where('id', $karyawan_id)
+			->get()
+			->row();
+		$department_id = ($employee && !empty($employee->department_id)) ? $employee->department_id : '';
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr = ' where ao.created_by = "' . $karyawan_id . '" or ao.direct_id = "' . $karyawan_id . '" or ao.is_approver_view = 1  ';
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ // bukan super user / HR admin
+			$whr = ' where ao.created_by = "' . $karyawan_id . '" or FIND_IN_SET("' . $karyawan_id . '", ao.participants) > 0 or ao.is_approver = 1 or ao.is_approver_view = 1  ';
+			if(!empty($department_id)){
+				$whr .= ' or ao.created_by_department_id = "' . $department_id . '" or FIND_IN_SET("' . $department_id . '", ao.participant_department_ids) > 0 ';
+			}
 		}
 		
 
@@ -65,7 +74,7 @@ class Training_menu_model extends MY_Model
 					'.$whr.'
 				)dt';*/
 
-		$sTable = '(select ao.* from (select a.*, b.full_name as created_by_name, b.direct_id, b.emp_code,
+		$sTable = '(select ao.* from (select a.*, b.full_name as created_by_name, b.direct_id, b.emp_code, b.department_id as created_by_department_id,
 						(case
 						when a.status_id = 1 then "Waiting Approval"
 						when a.status_id = 2 then "Approved"
@@ -105,6 +114,7 @@ class Training_menu_model extends MY_Model
 							ELSE 0 
 						END AS is_approver,
 						max(p.participant_ids) AS participants,
+			            max(p.participant_department_ids) AS participant_department_ids,
 			            max(p.participant_names) AS participant_names,
 			            max(q.course_name) as course_name
 						from employee_training a left join employees b on b.id = a.created_by
@@ -119,6 +129,7 @@ class Training_menu_model extends MY_Model
 						LEFT JOIN (SELECT 
 								        et.employee_training_id,
 								            GROUP_CONCAT(DISTINCT e.id) AS participant_ids,
+								            GROUP_CONCAT(DISTINCT e.department_id) AS participant_department_ids,
 								            GROUP_CONCAT(DISTINCT e.full_name
 								                SEPARATOR ", ") AS participant_names
 								    FROM
@@ -455,6 +466,7 @@ class Training_menu_model extends MY_Model
 
 
 	public function getApprovalMatrix($work_location_id, $approval_type_id, $leave_type_id='', $amount='', $trx_id){
+		$created = false;
 
 		if($work_location_id != '' && $approval_type_id != ''){
 			if($approval_type_id == 8){ ///Training
@@ -494,12 +506,82 @@ class Training_menu_model extends MY_Model
 
 							// send emailing to approver
 							$this->approvalemailservice->sendApproval('training', $trx_id, $approval_path_id);
+							$created = true;
 						}
 					}
 				}
 			}
 		}
 
+		return $created;
+	}
+
+	public function ensureTrainingApprovalPath($trx_id)
+	{
+		if(empty($trx_id)){
+			return false;
+		}
+
+		$existing = $this->db
+			->where('approval_matrix_type_id', 8)
+			->where('trx_id', $trx_id)
+			->get('approval_path')
+			->row();
+
+		if($existing){
+			return true;
+		}
+
+		$training = $this->db
+			->where($this->primary_key, $trx_id)
+			->get($this->table_name)
+			->row();
+
+		if(!$training){
+			return false;
+		}
+
+		$participants = $this->db
+			->select('DISTINCT e.work_location', false)
+			->from('employee_training_emp et')
+			->join('employees e', 'e.id = et.employee_id')
+			->where('et.employee_training_id', $trx_id)
+			->where('e.work_location IS NOT NULL', null, false)
+			->where('e.work_location !=', '')
+			->order_by('et.id', 'asc')
+			->get()
+			->result();
+
+		$work_locations = [];
+		foreach($participants as $participant){
+			if(!empty($participant->work_location)){
+				$work_locations[] = $participant->work_location;
+			}
+		}
+
+		if(!empty($training->created_by)){
+			$creator = $this->db
+				->select('work_location')
+				->where('id', $training->created_by)
+				->get('employees')
+				->row();
+			if($creator && !empty($creator->work_location)){
+				$work_locations[] = $creator->work_location;
+			}
+		}
+
+		$work_locations = array_values(array_unique(array_filter($work_locations)));
+		if(empty($work_locations)){
+			return false;
+		}
+
+		foreach($work_locations as $work_location){
+			if($this->getApprovalMatrix($work_location, 8, '', '', $trx_id)){
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 
@@ -567,8 +649,7 @@ class Training_menu_model extends MY_Model
 						}
 
 						///insert approval path
-						$approval_type_id = 8; //Training
-						$this->getApprovalMatrix($dataemp[0]->work_location, $approval_type_id, '', '', $lastId);
+						$this->ensureTrainingApprovalPath($lastId);
 
 						return [
 						    "status" => true,
@@ -640,29 +721,15 @@ class Training_menu_model extends MY_Model
 				];
 			}
 
-  			$upload_dir = './uploads/'.$dataemp[0]->emp_code.'/'; // nama folder
-			// Cek apakah folder sudah ada
-			if (!is_dir($upload_dir)) {
-			    // Jika belum ada, buat folder
-			    mkdir($upload_dir, 0755, true); // 0755 = permission, true = recursive
-			}
-
-			$hdndoc_sertifikat 		= trim($post['hdndoc_sertifikat']);
-			$upload_file_sertifikat = $this->upload_file($upload_dir, '1', 'doc_sertifikat', FALSE, '', TRUE, '');
-			$file_sertifikat = '';
-			if($upload_file_sertifikat['status']){
-				$file_sertifikat = $upload_file_sertifikat['upload_file'];
-			} else if(isset($upload_file_sertifikat['error_warning'])){
-				echo $upload_file_sertifikat['error_warning']; exit;
-			}
-
-			if($file_sertifikat == '' && $hdndoc_sertifikat != ''){
-				$file_sertifikat = $hdndoc_sertifikat;
-			}
-
-
 			$is_rfu=0;
 			$getdata = $this->db->query("select * from employee_training where id = '".$post['id']."' ")->result(); 
+			if(empty($getdata)){
+				return [
+					"status" => false,
+					"msg" 	 => "Data training tidak ditemukan"
+				];
+			}
+
 			if($getdata[0]->status_id == 4 && $karyawan_id == $getdata[0]->created_by){ // edit RFU
 				$is_rfu=1;
 				$data = [
@@ -672,7 +739,6 @@ class Training_menu_model extends MY_Model
 					'trainer' 				=> trim($post['trainer']),
 					'notes' 				=> trim($post['notes']),
 					'updated_at'			=> date("Y-m-d H:i:s"),
-					'file_sertifikat' 		=> $file_sertifikat,
 					'lms_course_id' 		=> !empty($post['lms_course']) ? trim($post['lms_course']) : null,
 					'status_id' 			=> 1
 					
@@ -685,7 +751,6 @@ class Training_menu_model extends MY_Model
 					'trainer' 				=> trim($post['trainer']),
 					'notes' 				=> trim($post['notes']),
 					'updated_at'			=> date("Y-m-d H:i:s"),
-					'file_sertifikat' 		=> $file_sertifikat,
 					'lms_course_id' 		=> !empty($post['lms_course']) ? trim($post['lms_course']) : null
 					
 				];
@@ -704,12 +769,13 @@ class Training_menu_model extends MY_Model
 				}
 
 				/// update approval path
+				$this->ensureTrainingApprovalPath($id);
 				$getapprovallevel = $this->db->query("select * from approval_path where approval_matrix_type_id = 8 and trx_id = '".$id."'")->result(); 
-				$approval_level = $getapprovallevel[0]->current_approval_level;
+				$approval_level = !empty($getapprovallevel) ? $getapprovallevel[0]->current_approval_level : 1;
 				$CurrApproval 	= $this->getCurrApproval($id, $approval_level);
-				$CurrApprovalPathId	= $CurrApproval[0]->approval_path_id;
+				$CurrApprovalPathId	= !empty($CurrApproval) ? $CurrApproval[0]->approval_path_id : (!empty($getapprovallevel) ? $getapprovallevel[0]->id : '');
 
-				if($is_rfu == 1){
+				if($is_rfu == 1 && !empty($getapprovallevel) && !empty($CurrApprovalPathId)){
 					$updapproval_path = [
 						'current_approval_level' => 1
 					];
@@ -719,8 +785,8 @@ class Training_menu_model extends MY_Model
 
 					$updApproval2 = [
 						'status' 		=> "",
-						'approval_by' 	=> "",
-						'approval_date'	=> ""
+						'approval_by' 	=> null,
+						'approval_date'	=> null
 					];
 					$this->db->update("approval_path_detail", $updApproval2, "approval_path_id = '".$CurrApprovalPathId."' and approval_level = '1' ");
 					
@@ -779,6 +845,17 @@ class Training_menu_model extends MY_Model
 		}else if($rs){
 			$rs->employee_id = [];
 		}
+
+		if($rs){
+			$rs->employee_options = $this->db
+				->select('e.id, e.full_name')
+				->from('employee_training_emp et')
+				->join('employees e', 'e.id = et.employee_id')
+				->where('et.employee_training_id', $id)
+				->order_by('e.full_name', 'asc')
+				->get()
+				->result();
+		}
 		
 		return $rs;
 	} 
@@ -811,11 +888,20 @@ class Training_menu_model extends MY_Model
 
 	public function eksport_data()
 	{
-		$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
-		$karyawan_id = $getdata[0]->id_karyawan;
+		$karyawan_id = $_SESSION['worker'];
+		$employee = $this->db
+			->select('department_id')
+			->from('employees')
+			->where('id', $karyawan_id)
+			->get()
+			->row();
+		$department_id = ($employee && !empty($employee->department_id)) ? $employee->department_id : '';
 		$whr='';
-		if($getdata[0]->id_groups != 1){ //bukan super user
-			$whr=' where a.created_by = "'.$karyawan_id.'" or b.direct_id = "'.$karyawan_id.'" ';
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ // bukan super user / HR admin
+			$whr=' where a.created_by = "'.$karyawan_id.'" or FIND_IN_SET("'.$karyawan_id.'", p.participant_ids) > 0 ';
+			if(!empty($department_id)){
+				$whr .= ' or b.department_id = "'.$department_id.'" or FIND_IN_SET("'.$department_id.'", p.participant_department_ids) > 0 ';
+			}
 		}
 
 
@@ -834,6 +920,7 @@ class Training_menu_model extends MY_Model
 				LEFT JOIN (SELECT 
 							et.employee_training_id,
 								GROUP_CONCAT(DISTINCT e.id) AS participant_ids,
+								GROUP_CONCAT(DISTINCT e.department_id) AS participant_department_ids,
 								GROUP_CONCAT(DISTINCT e.full_name
 									SEPARATOR ", ") AS participant_names
 						FROM

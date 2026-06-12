@@ -28,7 +28,7 @@ class Training_menu extends MY_Controller
 		//$getdata = $this->db->query("select * from user where user_id = '".$_SESSION['id']."'")->result(); 
 		$karyawan_id = $_SESSION['worker'];
 		$whr='';
-		if($_SESSION['role'] != 1 || $_SESSION['role'] != 4){ //bukan super user
+		if($_SESSION['role'] != 1 && $_SESSION['role'] != 4){ // bukan super user / HR admin
 			$whr=' and id = "'.$karyawan_id.'" ';
 		}
 
@@ -44,7 +44,7 @@ class Training_menu extends MY_Controller
 		/*$field['txtdocsertifikat'] 	= $this->self_model->return_build_fileinput('doc_sertifikat','doc_sertifikat');*/
 		
 		$msemp 					= $this->db->query("select * from employees where status_id = 1 ".$whr." order by full_name asc")->result(); 
-		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employee','employee','','','id','full_name',' ','','','',3,'-');
+		$field['selemployee'] 	= $this->self_model->return_build_select2me($msemp,'multiple','','','employee[]','employee','','','id','full_name',' ','','','',3,'-');
 
 		$field['reject_reason']	= $this->self_model->return_build_txtarea('','reject_reason','reject_reason');
 		$field['rfu_reason']	= $this->self_model->return_build_txtarea('','rfu_reason','rfu_reason');
@@ -305,8 +305,15 @@ class Training_menu extends MY_Controller
 
 	public function getApprovalLog() {
 	    $post = $this->input->post(null, true);
-	    $id = $post['id'];
+	    $id = isset($post['id']) ? trim($post['id']) : '';
 	    $approval_matrix_type_id = 8; //training
+
+	    if($id === ''){
+	    	echo json_encode(['html' => '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>']);
+	    	return;
+	    }
+
+	    $this->self_model->ensureTrainingApprovalPath($id);
 
 	   
 	    $query = "
