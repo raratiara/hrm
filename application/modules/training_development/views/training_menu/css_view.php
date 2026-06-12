@@ -17,9 +17,45 @@
         width: 90% !important;
     }
 
+    #modal-rfu-data .modal-dialog.training-action-modal {
+        width: 720px !important;
+        max-width: calc(100vw - 32px) !important;
+        margin: 60px auto !important;
+    }
+
+    #modal-rfu-data .vertical-alignment-helper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100%;
+        width: 100%;
+    }
+
+    #modal-rfu-data .modal-content {
+        width: 100% !important;
+    }
+
+    #modal-form-data,
+    #modal-form-data .modal-dialog,
+    #modal-form-data .modal-content,
+    #modal-form-data .modal-body {
+        overflow: visible !important;
+    }
+
+    .datetimepicker,
+    .xdsoft_datetimepicker,
+    .bootstrap-datetimepicker-widget,
+    .ui-datepicker {
+        z-index: 20000 !important;
+    }
+
     @media screen and (max-width: 768px) {
         .row {
             font-size: 12px !important;
+        }
+
+        #modal-rfu-data .modal-dialog.training-action-modal {
+            margin: 24px auto !important;
         }
     }
 
